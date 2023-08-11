@@ -152,7 +152,6 @@ class ComplaintResource extends Resource
                     ->limit(50),
                 Tables\Columns\TextColumn::make('complaintable_id')
                     ->toggleable()
-                    
                     ->searchable(true, null, true)
                     ->limit(50),
                 Tables\Columns\TextColumn::make('user.first_name')
