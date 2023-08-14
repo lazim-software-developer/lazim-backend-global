@@ -1,8 +1,10 @@
 <?php
 
-namespace Database\Factories;
+namespace Database\Factories\User;
 
 use App\Models\User\User;
+use App\Models\Master\Role;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -27,12 +29,12 @@ class UserFactory extends Factory
             'last_name' => $this->faker->lastName(),
             'email' => $this->faker->unique->email(),
             'phone' => $this->faker->numerify('##########'),
-            'password' => \Hash::make('password'),
+            'password' => Hash::make('password'),
             'email_verified' => $this->faker->boolean(),
             'phone_verified' => $this->faker->boolean(),
             'active' => $this->faker->boolean(),
             'lazim_id' => $this->faker->unique->text(50),
-            'role_id' => \App\Models\Master\Role::factory(),
+            'role_id' => Role::factory(),
         ];
     }
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace Database\Factories;
+namespace Database\Factories\Visitor;
 
 use Illuminate\Support\Str;
 use App\Models\Visitor\FlatDomesticHelp;

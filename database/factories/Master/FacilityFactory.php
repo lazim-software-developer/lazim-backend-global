@@ -1,19 +1,19 @@
 <?php
 
-namespace Database\Factories;
+namespace Database\Factories\Master;
 
-use App\Models\Master\City;
+use App\Models\Master\Facility;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-class CityFactory extends Factory
+class FacilityFactory extends Factory
 {
     /**
      * The name of the factory's corresponding model.
      *
      * @var string
      */
-    protected $model = City::class;
+    protected $model = Facility::class;
 
     /**
      * Define the model's default state.
@@ -23,7 +23,9 @@ class CityFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => $this->faker->city(),
+            'name' => $this->faker->name(),
+            'icon' => $this->faker->text(),
+            'active' => $this->faker->boolean(),
         ];
     }
 }

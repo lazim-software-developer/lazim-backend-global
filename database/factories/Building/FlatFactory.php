@@ -1,19 +1,19 @@
 <?php
 
-namespace Database\Factories;
+namespace Database\Factories\Building;
 
-use App\Models\Building\BuildingPoc;
+use App\Models\Building\Flat;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-class BuildingPocFactory extends Factory
+class FlatFactory extends Factory
 {
     /**
      * The name of the factory's corresponding model.
      *
      * @var string
      */
-    protected $model = BuildingPoc::class;
+    protected $model = Flat::class;
 
     /**
      * Define the model's default state.
@@ -23,12 +23,10 @@ class BuildingPocFactory extends Factory
     public function definition(): array
     {
         return [
-            'role_name' => $this->faker->name(),
-            'escalation_level' => $this->faker->text(50),
-            'active' => $this->faker->boolean(),
-            'emergency_contact' => $this->faker->boolean(),
+            'number' => $this->faker->randomNumber(),
+            'floor' => $this->faker->randomNumber(),
+            'description' => $this->faker->text(50),
             'building_id' => \App\Models\Building\Building::factory(),
-            'user_id' => \App\Models\User\User::factory(),
         ];
     }
 }

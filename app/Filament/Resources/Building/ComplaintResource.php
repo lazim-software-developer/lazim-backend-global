@@ -7,6 +7,7 @@ use App\Filament\Resources\Building\ComplaintResource\RelationManagers;
 use App\Models\Building\Building;
 use App\Models\Building\Complaint;
 use App\Models\Building\FlatTenant;
+use Closure;
 use Filament\Forms;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
@@ -23,6 +24,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\Relationship;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Tables\Columns\ViewColumn;
 
 class ComplaintResource extends Resource
 {
@@ -41,7 +43,7 @@ class ComplaintResource extends Resource
                         //->relationship('complaintable', 'name')
                         ->types([
                             Type::make(Building::class)->titleAttribute('name'),
-                           Type::make(FlatTenant::class)->titleAttribute('name'),
+                           Type::make(FlatTenant::class)->titleAttribute('flat_id'),
                         
                             ]),
                        
@@ -68,15 +70,15 @@ class ComplaintResource extends Resource
                             'lg' => 12,
                         ]),
 
-                    TextInput::make('complaint_type')
-                        ->rules(['max:50', 'string'])
-                        ->required()
-                        ->placeholder('Complaint Type')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+                    // TextInput::make('complaint_type')
+                    //     ->rules(['max:50', 'string'])
+                    //     ->required()
+                    //     ->placeholder('Complaint Type')
+                    //     ->columnSpan([
+                    //         'default' => 12,
+                    //         'md' => 12,
+                    //         'lg' => 12,
+                    //     ]),
 
                     TextInput::make('category')
                         ->rules(['max:50', 'string'])
@@ -125,7 +127,10 @@ class ComplaintResource extends Resource
                             'lg' => 12,
                         ]),
 
-                    TextInput::make('status')
+                    Select::make('status')
+                        ->options([
+                            'pending'=>'Pending'
+                        ])
                         ->rules(['max:50', 'string'])
                         ->required()
                         ->placeholder('Status')
@@ -135,7 +140,8 @@ class ComplaintResource extends Resource
                             'lg' => 12,
                         ]),
                     // TextInput::make('Name')
-                    //      ->relationship('complaintable','name')
+                    //     ->relationship('complaintable','name')
+                    //     ->hidden()
                          
                  ]),
             ]);
@@ -150,14 +156,28 @@ class ComplaintResource extends Resource
                     ->toggleable()
                     ->searchable(true, null, true)
                     ->limit(50),
-                Tables\Columns\TextColumn::make('complaintable_id')
+                Tables\Columns\TextColumn::make('complaintable.name')
+                    ->where()
                     ->toggleable()
                     ->searchable(true, null, true)
                     ->limit(50),
+                
+                // Tables\Columns\TextColumn::make('complaintable.flat_id')
+                //     ->toggleable()
+                //     ->searchable(true, null, true)
+                //     ->limit(50),
+                // Tables\Columns\TextColumn::map(function ($record) {
+                //     $record['combined_column'] = "{$record['complaintable']['name']} ({$record['complaintable']['flat_id']})";
+                //     return $record;}),
+
+                ViewColumn::make('name')->view('tables.columns.combined-column')
+                     ->toggleable(),
+                
                 Tables\Columns\TextColumn::make('user.first_name')
                     ->toggleable()
                     ->limit(50),
                 Tables\Columns\TextColumn::make('complaint_type')
+                    ->rective()
                     ->toggleable()
                     ->searchable(true, null, true)
                     ->limit(50),

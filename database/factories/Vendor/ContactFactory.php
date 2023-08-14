@@ -1,6 +1,6 @@
 <?php
 
-namespace Database\Factories;
+namespace Database\Factories\Vendor;
 
 use App\Models\Vendor\Contact;
 use Illuminate\Support\Str;
@@ -30,9 +30,8 @@ class ContactFactory extends Factory
             'contactable_type' => $this->faker->randomElement([
                 \App\Models\Vendor\Vendor::class,
             ]),
-            'contactable_id' => function (array $item) {
-                return app($item['contactable_type'])->factory();
-            },
+            'contactable_id' => 1,
+            
         ];
     }
 }

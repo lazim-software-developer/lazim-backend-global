@@ -1,6 +1,6 @@
 <?php
 
-namespace Database\Factories;
+namespace Database\Factories\Building;
 
 use App\Models\Building\Building;
 use Illuminate\Support\Str;

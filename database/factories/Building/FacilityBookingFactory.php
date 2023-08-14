@@ -1,6 +1,6 @@
 <?php
 
-namespace Database\Factories;
+namespace Database\Factories\Building;
 
 use Illuminate\Support\Str;
 use App\Models\Building\FacilityBooking;

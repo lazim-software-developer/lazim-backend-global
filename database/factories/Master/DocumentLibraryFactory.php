@@ -1,19 +1,19 @@
 <?php
 
-namespace Database\Factories;
+namespace Database\Factories\Master;
 
-use App\Models\Master\Facility;
 use Illuminate\Support\Str;
+use App\Models\Master\DocumentLibrary;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-class FacilityFactory extends Factory
+class DocumentLibraryFactory extends Factory
 {
     /**
      * The name of the factory's corresponding model.
      *
      * @var string
      */
-    protected $model = Facility::class;
+    protected $model = DocumentLibrary::class;
 
     /**
      * Define the model's default state.
@@ -24,8 +24,8 @@ class FacilityFactory extends Factory
     {
         return [
             'name' => $this->faker->name(),
-            'icon' => $this->faker->text(),
-            'active' => $this->faker->boolean(),
+            'url' => $this->faker->text(),
+            'type' => $this->faker->word(),
         ];
     }
 }

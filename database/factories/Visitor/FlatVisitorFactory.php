@@ -1,6 +1,6 @@
 <?php
 
-namespace Database\Factories;
+namespace Database\Factories\Visitor;
 
 use App\Models\Visitor\FlatVisitor;
 use Illuminate\Support\Str;

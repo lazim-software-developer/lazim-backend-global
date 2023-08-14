@@ -1,6 +1,6 @@
 <?php
 
-namespace Database\Factories;
+namespace Database\Factories\Building;
 
 use App\Models\Building\FlatTenant;
 use Illuminate\Support\Str;

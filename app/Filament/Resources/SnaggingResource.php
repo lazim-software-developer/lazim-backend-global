@@ -27,6 +27,8 @@ class SnaggingResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
     protected static ?string $navigationLabel = 'Snagging';
 
+    protected static ?string $navigationGroup = 'Building Management';
+
     public static function form(Form $form): Form
     {
         return $form

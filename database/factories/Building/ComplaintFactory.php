@@ -1,6 +1,6 @@
 <?php
 
-namespace Database\Factories;
+namespace Database\Factories\Building;
 
 use App\Models\Building\Building;
 use App\Models\Building\Complaint;
@@ -26,7 +26,7 @@ class ComplaintFactory extends Factory
     public function definition(): array
     {
         return [
-            'complaint_type' => $this->faker->text(50),
+            //'complaint_type' => $this->faker->text(50),
             'category' => $this->faker->text(50),
             'open_time' => $this->faker->dateTime(),
             'close_time' => $this->faker->dateTime(),
@@ -38,7 +38,7 @@ class ComplaintFactory extends Factory
                 Building::class,
                 FlatTenant::class,
             ]),
-            'complaintable_id' => 1,
+            'complaintable_id' =>$this->faker->randomNumber(1, 10),
         ];
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace Database\Factories;
+namespace Database\Factories\Master;
 
 use App\Models\Master\Role;
 use Illuminate\Support\Str;
