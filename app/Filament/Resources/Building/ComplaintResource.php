@@ -26,6 +26,7 @@ use Illuminate\Database\Eloquent\Factories\Relationship;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Tables\Columns\ViewColumn;
 
+
 class ComplaintResource extends Resource
 {
     protected static ?string $model = Complaint::class;
@@ -40,10 +41,10 @@ class ComplaintResource extends Resource
             ->schema([
                 Grid::make(['default' => 0])->schema([
                     MorphToSelect::make('complaintable')
-                        //->relationship('complaintable', 'name')
+                        
                         ->types([
                             Type::make(Building::class)->titleAttribute('name'),
-                           Type::make(FlatTenant::class)->titleAttribute('flat_id'),
+                            Type::make(FlatTenant::class)->titleAttribute('tenant_id'),
                         
                             ]),
                        
@@ -70,8 +71,9 @@ class ComplaintResource extends Resource
                             'lg' => 12,
                         ]),
 
-                    // TextInput::make('complaint_type')
+                    // TextInput::make('Complaintable_Type')->default('Incident Report')
                     //     ->rules(['max:50', 'string'])
+                    //     ->disabled()
                     //     ->required()
                     //     ->placeholder('Complaint Type')
                     //     ->columnSpan([
@@ -80,9 +82,25 @@ class ComplaintResource extends Resource
                     //         'lg' => 12,
                     //     ]),
 
+                    // Select::make('Category')
+                    //     ->options([
+                    //         'civil'=>'Civil',
+                    //         'MIP'=>'MIP',
+                    //         'security'=>'Security',
+                    //         'cleaning'=>'Cleaning',
+                    //         'others'=>'Others'
+                    //     ])
+                    //     ->rules(['max:50', 'string'])
+                    //     ->required()
+                    //     ->placeholder('Category')
+                    //     ->columnSpan([
+                    //         'default' => 12,
+                    //         'md' => 12,
+                    //         'lg' => 12,
+                    //     ]),
+
                     TextInput::make('category')
-                        ->rules(['max:50', 'string'])
-                        ->required()
+                        ->rules(['max:255'])
                         ->placeholder('Category')
                         ->columnSpan([
                             'default' => 12,
@@ -139,9 +157,7 @@ class ComplaintResource extends Resource
                             'md' => 12,
                             'lg' => 12,
                         ]),
-                    // TextInput::make('Name')
-                    //     ->relationship('complaintable','name')
-                    //     ->hidden()
+                        
                          
                  ]),
             ]);
@@ -151,36 +167,24 @@ class ComplaintResource extends Resource
     {
         return $table
             ->poll('60s')
+            ->modifyQueryUsing(fn (Builder $query) => $query->where('complaintable_type','App\Models\Building\Building')->withoutGlobalScopes())
             ->columns([
                 Tables\Columns\TextColumn::make('complaintable_type')
                     ->toggleable()
-                    ->searchable(true, null, true)
-                    ->limit(50),
-                Tables\Columns\TextColumn::make('complaintable.name')
-                    ->where()
-                    ->toggleable()
-                    ->searchable(true, null, true)
-                    ->limit(50),
-                
-                // Tables\Columns\TextColumn::make('complaintable.flat_id')
-                //     ->toggleable()
-                //     ->searchable(true, null, true)
-                //     ->limit(50),
-                // Tables\Columns\TextColumn::map(function ($record) {
-                //     $record['combined_column'] = "{$record['complaintable']['name']} ({$record['complaintable']['flat_id']})";
-                //     return $record;}),
+                    ->searchable(true, null, true),
+                    
 
                 ViewColumn::make('name')->view('tables.columns.combined-column')
                      ->toggleable(),
-                
+                   
+                // Tables\Columns\TextColumn::make('Complaintable_Type')
+                //      ->toggleable()
+                //      ->searchable(true, null, true)
+                //      ->limit(50),
                 Tables\Columns\TextColumn::make('user.first_name')
                     ->toggleable()
                     ->limit(50),
-                Tables\Columns\TextColumn::make('complaint_type')
-                    ->rective()
-                    ->toggleable()
-                    ->searchable(true, null, true)
-                    ->limit(50),
+                
                 Tables\Columns\TextColumn::make('category')
                     ->toggleable()
                     ->searchable(true, null, true)
@@ -197,7 +201,7 @@ class ComplaintResource extends Resource
                     ->limit(50),
             ])
             ->filters([
-                //
+                
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

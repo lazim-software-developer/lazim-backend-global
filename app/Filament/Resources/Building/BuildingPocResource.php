@@ -76,7 +76,6 @@ class BuildingPocResource extends Resource
 
                     Toggle::make('active')
                         ->rules(['boolean'])
-                        ->required()
                         ->columnSpan([
                             'default' => 12,
                             'md' => 12,
@@ -85,7 +84,6 @@ class BuildingPocResource extends Resource
 
                     Toggle::make('emergency_contact')
                         ->rules(['boolean'])
-                        ->required()
                         ->columnSpan([
                             'default' => 12,
                             'md' => 12,

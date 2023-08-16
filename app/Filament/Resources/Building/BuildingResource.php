@@ -99,7 +99,6 @@ class BuildingResource extends Resource
 
                     TextInput::make('lat')
                         ->rules(['max:50', 'string'])
-                        ->required()
                         ->placeholder('Lat')
                         ->columnSpan([
                             'default' => 12,
@@ -109,7 +108,6 @@ class BuildingResource extends Resource
 
                     TextInput::make('lng')
                         ->rules(['max:50', 'string'])
-                        ->required()
                         ->placeholder('Lng')
                         ->columnSpan([
                             'default' => 12,
@@ -119,7 +117,6 @@ class BuildingResource extends Resource
 
                     RichEditor::make('description')
                         ->rules(['max:255', 'string'])
-                        ->required()
                         ->placeholder('Description')
                         ->columnSpan([
                             'default' => 12,

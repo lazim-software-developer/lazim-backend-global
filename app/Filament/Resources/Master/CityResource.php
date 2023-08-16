@@ -7,6 +7,7 @@ use App\Filament\Resources\Master\CityResource\RelationManagers;
 use App\Models\Master\City;
 use Filament\Forms;
 use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -26,6 +27,15 @@ class CityResource extends Resource
         return $form
             ->schema([
                 Grid::make(['default' => 0])->schema([
+                    TextInput::make('name')
+                        ->rules(['max:50', 'string'])
+                        ->required()
+                        ->placeholder('Name')
+                        ->columnSpan([
+                            'default' => 12,
+                            'md' => 12,
+                            'lg' => 12,
+                        ]),
                     
                 ])
             ]);
@@ -35,7 +45,10 @@ class CityResource extends Resource
     {
         return $table
             ->columns([
-                //
+                Tables\Columns\TextColumn::make('name')
+                    ->toggleable()
+                    ->searchable(true, null, true)
+                    ->limit(50),
             ])
             ->filters([
                 //

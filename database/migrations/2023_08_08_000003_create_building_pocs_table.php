@@ -16,8 +16,8 @@ return new class extends Migration {
             $table->unsignedBigInteger('user_id');
             $table->string('role_name', 50);
             $table->string('escalation_level', 50);
-            $table->boolean('active');
-            $table->boolean('emergency_contact');
+            $table->boolean('active')->nullable();
+            $table->boolean('emergency_contact')->nullable();
 
             $table->timestamps();
         });

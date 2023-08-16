@@ -18,9 +18,9 @@ return new class extends Migration {
             $table->longText('address_line2')->nullable();
             $table->string('area', 50);
             $table->unsignedBigInteger('city_id');
-            $table->string('lat', 50);
-            $table->string('lng', 50);
-            $table->longText('description');
+            $table->string('lat', 50)->nullable();
+            $table->string('lng', 50)->nullable();
+            $table->longText('description')->nullable();
             $table->integer('floors');
 
             $table->timestamps();

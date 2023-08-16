@@ -2,7 +2,10 @@
 
 namespace Database\Factories\Building;
 
+use App\Models\Building\Building;
 use App\Models\Building\Document;
+use App\Models\Building\FlatTenant;
+use App\Models\Vendor\Vendor;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -30,11 +33,11 @@ class DocumentFactory extends Factory
             'document_library_id' => \App\Models\Master\DocumentLibrary::factory(),
             'accepted_by' => \App\Models\User\User::factory(),
             'documentable_type' => $this->faker->randomElement([
-                \App\Models\Vendor\Vendor::class,
-                \App\Models\Building\Building::class,
-                \App\Models\Building\FlatTenant::class,
+                Vendor::class,
+                Building::class,
+                FlatTenant::class,
             ]),
-            'documentable_id' => 1
+            'documentable_id' => $this->faker->randomNumber(1, 10),
                 
             
         ];

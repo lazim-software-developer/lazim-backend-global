@@ -4,17 +4,23 @@ namespace App\Filament\Resources\Building;
 
 use App\Filament\Resources\Building\DocumentsResource\Pages;
 use App\Filament\Resources\Building\DocumentsResource\RelationManagers;
+use App\Models\Building\Building;
 use App\Models\Building\Document;
+use App\Models\Building\FlatTenant;
+use App\Models\Vendor\Vendor;
 use Filament\Forms;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\KeyValue;
+use Filament\Forms\Components\MorphToSelect;
+use Filament\Forms\Components\MorphToSelect\Type;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -98,6 +104,18 @@ class DocumentsResource extends Resource
                             'lg' => 12,
                         ]),
 
+                    MorphToSelect::make('documentable')
+                        
+                        ->types([
+                            Type::make(Building::class)->titleAttribute('name'),
+                            Type::make(FlatTenant::class)->titleAttribute('tenant_id'),
+                            Type::make(Vendor::class)->titleAttribute('name')
+                        
+                        
+                        ]),
+                        
+                       
+
                     TextInput::make('documentable_id')
                         ->rules(['max:255'])
                         ->required()
@@ -108,15 +126,7 @@ class DocumentsResource extends Resource
                             'lg' => 12,
                         ]),
 
-                    TextInput::make('documentable_type')
-                        ->rules(['max:255', 'string'])
-                        ->required()
-                        ->placeholder('Documentable Type')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+                    
                 ]),
             ]);
     }
@@ -143,10 +153,8 @@ class DocumentsResource extends Resource
             Tables\Columns\TextColumn::make('user.first_name')
                 ->toggleable()
                 ->limit(50),
-            Tables\Columns\TextColumn::make('documentable_id')
-                ->toggleable()
-                ->searchable(true, null, true)
-                ->limit(50),
+            ViewColumn::make('name')->view('tables.columns.document')
+                ->toggleable(),
             Tables\Columns\TextColumn::make('documentable_type')
                 ->toggleable()
                 ->searchable(true, null, true)

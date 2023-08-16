@@ -15,7 +15,7 @@ return new class extends Migration {
             $table->string('complaintable_type');
             $table->unsignedBigInteger('complaintable_id');
             $table->unsignedBigInteger('user_id');
-           // $table->string('complaint_type', 50);
+            //$table->string('complaint_type', 50);
             $table->string('category', 50);
             $table->dateTime('open_time');
             $table->dateTime('close_time');

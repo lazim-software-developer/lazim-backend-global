@@ -4,18 +4,23 @@ namespace App\Filament\Resources\TenantComplaints;
 
 use App\Filament\Resources\TenantComplaints\TenantcomplaintResource\Pages;
 use App\Filament\Resources\TenantComplaints\TenantcomplaintResource\RelationManagers;
+use App\Models\Building\Building;
 use App\Models\Building\Complaint;
+use App\Models\Building\FlatTenant;
 use App\Models\Tenantcomplaint;
 use Filament\Forms;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\KeyValue;
+use Filament\Forms\Components\MorphToSelect;
+use Filament\Forms\Components\MorphToSelect\Type;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Forms\Components\Grid;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -33,35 +38,24 @@ class TenantcomplaintResource extends Resource
         return $form
             ->schema([
                 Grid::make(['default' => 0])->schema([
-                    // TextInput::make('complaintable_type')
-                    //     ->rules(['max:255', 'string'])
-                    //     ->required()
-                    //     ->placeholder('Complaintable Type')
-                    //     ->columnSpan([
-                    //         'default' => 12,
-                    //         'md' => 12,
-                    //         'lg' => 12,
-                    //     ]),
-
-                    // TextInput::make('complaintable_id')
-                    //     ->rules(['max:255'])
-                    //     ->required()
-                    //     ->placeholder('Complaintable Id')
-                    //     ->columnSpan([
-                    //         'default' => 12,
-                    //         'md' => 12,
-                    //         'lg' => 12,
-                    //     ]),
-                    TextInput::make('Name')
-                        ->rules(['max:255', 'string'])
-                            ->required()
-                            ->placeholder('Name')
-                            ->columnSpan([
-                                'default' => 12,
-                                'md' => 12,
-                                'lg' => 12,
+                    MorphToSelect::make('complaintable')
+                        
+                        ->types([
+                            Type::make(Building::class)->titleAttribute('name'),
+                            Type::make(FlatTenant::class)->titleAttribute('tenant_id'),
+                        
                             ]),
 
+                    TextInput::make('complaintable_id')
+                        ->rules(['max:255'])
+                        ->required()
+                        ->placeholder('Complaintable Id')
+                        ->columnSpan([
+                            'default' => 12,
+                            'md' => 12,
+                            'lg' => 12,
+                        ]),
+                    
                     Select::make('user_id')
                         ->rules(['exists:users,id'])
                         ->required()
@@ -74,18 +68,7 @@ class TenantcomplaintResource extends Resource
                             'lg' => 12,
                         ]),
 
-                    Select::make('complaint_type')
-                        ->options([
-                            'tenantcomplaint'=>'Tenant Complaint',
-                        ])
-                        ->rules(['max:50', 'string'])
-                        ->required()
-                        ->placeholder('Complaint Type')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+                    
 
                     TextInput::make('category')
                         ->rules(['max:50', 'string'])
@@ -150,19 +133,16 @@ class TenantcomplaintResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(fn (Builder $query) => $query->where('complaintable_type','App\Models\Building\FlatTenant')->withoutGlobalScopes())
             ->poll('60s')
             ->columns([
-                // Tables\Columns\TextColumn::make('complaintable_type')
-                //     ->toggleable()
-                //     ->searchable(true, null, true)
-                //     ->limit(50),
-                // Tables\Columns\TextColumn::make('complaintable_id')
-                //     ->toggleable()
-                //     ->searchable(true, null, true)
-                //     ->limit(50),
-                Tables\Columns\TextColumn::make('Name')
+                Tables\Columns\TextColumn::make('complaintable_type')
                     ->toggleable()
+                    ->searchable(true, null, true)
                     ->limit(50),
+                ViewColumn::make('name')->view('tables.columns.combined-column')
+                    ->toggleable(),
+                
                 Tables\Columns\TextColumn::make('user.first_name')
                     ->toggleable()
                     ->limit(50),

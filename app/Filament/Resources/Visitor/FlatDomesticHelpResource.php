@@ -7,6 +7,7 @@ use App\Filament\Resources\Visitor\FlatDomesticHelpResource\RelationManagers;
 use App\Models\Visitor\FlatDomesticHelp;
 use Filament\Forms;
 use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\KeyValue;
 use Filament\Forms\Components\Select;
@@ -80,7 +81,7 @@ class FlatDomesticHelpResource extends Resource
                             'lg' => 12,
                         ]),
 
-                    KeyValue::make('profile_photo')
+                    FileUpload::make('profile_photo')
                         ->nullable()
                         ->columnSpan([
                             'default' => 12,

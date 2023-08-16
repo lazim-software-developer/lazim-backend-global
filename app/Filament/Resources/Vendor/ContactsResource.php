@@ -5,12 +5,16 @@ namespace App\Filament\Resources\Vendor;
 use App\Filament\Resources\Vendor\ContactsResource\Pages;
 use App\Filament\Resources\Vendor\ContactsResource\RelationManagers;
 use App\Models\Vendor\Contact;
+use App\Models\Vendor\Vendor;
 use Filament\Forms;
 use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\MorphToSelect;
+use Filament\Forms\Components\MorphToSelect\Type;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -79,15 +83,12 @@ class ContactsResource extends Resource
                             'lg' => 12,
                         ]),
 
-                    TextInput::make('contactable_type')
-                        ->rules(['max:50', 'string'])
-                        ->required()
-                        ->placeholder('Contactable Type')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+                    MorphToSelect::make('contactable')
+                        
+                        ->types([
+                            Type::make(Vendor::class)->titleAttribute('name'),
+                        
+                            ]),
 
                     TextInput::make('contactable_id')
                         ->rules(['max:255'])
@@ -127,10 +128,8 @@ class ContactsResource extends Resource
                 ->toggleable()
                 ->searchable(true, null, true)
                 ->limit(50),
-            Tables\Columns\TextColumn::make('contactable_id')
-                ->toggleable()
-                ->searchable(true, null, true)
-                ->limit(50),
+            ViewColumn::make('name')->view('tables.columns.contact')
+                ->toggleable(),
         ])
             ->filters([
                 //

@@ -27,7 +27,7 @@ class ComplaintFactory extends Factory
     {
         return [
             //'complaint_type' => $this->faker->text(50),
-            'category' => $this->faker->text(50),
+            'category' => $this->faker->word(),
             'open_time' => $this->faker->dateTime(),
             'close_time' => $this->faker->dateTime(),
             'photo' => [],
