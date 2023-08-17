@@ -56,7 +56,7 @@ class User extends Authenticatable implements FilamentUser, HasName
     ];
 
 
-    public function canAccessPanel(): bool
+    public function canAccessFilament(): bool
     {
         return true;
     }
