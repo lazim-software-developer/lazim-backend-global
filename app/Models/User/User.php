@@ -56,15 +56,10 @@ class User extends Authenticatable implements FilamentUser, HasName
     ];
 
 
-    // public function canAccessPanel(): bool
-
-    // {
-
-    //     //if (($this->role_id == 1 || $this->role_id == 2 || $this->role_id == 5) && $this->active == 1) {
-
-    //         return true;
-
-    //     }
+    public function canAccessPanel(): bool
+    {
+        return true;
+    }
     
     public function getFilamentName(): string
 
