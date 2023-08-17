@@ -14,16 +14,19 @@ use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\KeyValue;
 use Filament\Forms\Components\MorphToSelect;
 use Filament\Forms\Components\MorphToSelect\Type;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
+//use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Forms\Components\Builder;
 
 class DocumentsResource extends Resource
 {
@@ -37,7 +40,11 @@ class DocumentsResource extends Resource
     {
         return $form
             ->schema([
-                Grid::make(['default' => 0])->schema([
+                Grid::make([
+                    'sm' => 1,
+                    'md' => 1,
+                    'lg' => 2,
+                ])->schema([
                     Select::make('document_library_id')
                         ->rules(['exists:document_libraries,id'])
                         ->required()
@@ -73,15 +80,24 @@ class DocumentsResource extends Resource
                             'lg' => 12,
                         ]),
 
-                    KeyValue::make('comments')
-                        ->required()
-                        ->required()
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
-
+                    // KeyValue::make('comments')
+                    //     ->required()
+                    //     ->addable(true)
+                    //     ->deletable(true),
+                    //     // ->columnSpan([
+                    //     //     'default' => 12,
+                    //     //     'md' => 12,
+                    //     //     'lg' => 12,
+                    //     // ]),
+                        
+                    Repeater::make('comments')
+                    ->schema([
+                        TextInput::make('key')->required(),
+                        
+                        TextInput::make('value')->required(),
+                        
+                    ])
+                    ->columns(2),
                     DatePicker::make('expiry_date')
                         ->rules(['date'])
                         ->required()
@@ -112,6 +128,11 @@ class DocumentsResource extends Resource
                             Type::make(Vendor::class)->titleAttribute('name')
                         
                         
+                        ])
+                        ->columnSpan([
+                            'default' => 12,
+                            'md' => 12,
+                            'lg' => 12,
                         ]),
                         
                        
@@ -128,6 +149,7 @@ class DocumentsResource extends Resource
 
                     
                 ]),
+            
             ]);
     }
 

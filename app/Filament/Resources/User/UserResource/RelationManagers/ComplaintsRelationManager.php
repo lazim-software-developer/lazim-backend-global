@@ -4,6 +4,7 @@ namespace App\Filament\Resources\User\UserResource\RelationManagers;
 
 use Filament\Forms;
 use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\KeyValue;
 use Filament\Forms\Components\TextInput;
@@ -77,7 +78,7 @@ class ComplaintsRelationManager extends RelationManager
                             'lg' => 12,
                         ]),
     
-                    KeyValue::make('photo')->columnSpan([
+                    FileUpload::make('photo')->columnSpan([
                         'default' => 12,
                         'md' => 12,
                         'lg' => 12,

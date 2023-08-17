@@ -38,14 +38,24 @@ class SnaggingResource extends Resource
     {
         return $form
             ->schema([
-                Grid::make(['default' => 0])->schema([
+                Grid::make([
+                    'sm' => 1,
+                    'md' => 1,
+                    'lg' => 2,])
+                    ->schema([
                     MorphToSelect::make('complaintable')
                         
                         ->types([
                             Type::make(Building::class)->titleAttribute('name'),
                             Type::make(FlatTenant::class)->titleAttribute('tenant_id'),
                         
+                            ])
+                        ->columnSpan([
+                            'default' => 12,
+                            'md' => 12,
+                            'lg' => 12,
                             ]),
+
 
                     TextInput::make('complaintable_id')
                         ->rules(['max:255'])

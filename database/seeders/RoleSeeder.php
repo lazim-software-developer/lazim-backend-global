@@ -12,8 +12,17 @@ class RoleSeeder extends Seeder
      */
     public function run(): void
     {
-        Role::factory()
-            ->count(5)
-            ->create();
+        // Role::factory()
+        //     ->count(5)
+        //     ->create();
+        $roles=[
+            'vendore',
+            'Owner',
+            'Tenant',
+        ];
+        foreach ($roles as $role)
+        {
+            Role::create(['name'=>$role]);
+        }
     }
 }

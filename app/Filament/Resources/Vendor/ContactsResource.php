@@ -31,7 +31,11 @@ class ContactsResource extends Resource
     {
         return $form
             ->schema([
-                Grid::make(['default' => 0])->schema([
+                Grid::make([
+                    'sm' => 1,
+                    'md' => 1,
+                    'lg' => 2,])
+                    ->schema([
                     TextInput::make('name')
                         ->rules(['max:50', 'string'])
                         ->required()
@@ -88,6 +92,11 @@ class ContactsResource extends Resource
                         ->types([
                             Type::make(Vendor::class)->titleAttribute('name'),
                         
+                            ])
+                        ->columnSpan([
+                            'default' => 12,
+                            'md' => 12,
+                            'lg' => 12,
                             ]),
 
                     TextInput::make('contactable_id')

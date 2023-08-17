@@ -37,7 +37,7 @@ class DocumentFactory extends Factory
                 Building::class,
                 FlatTenant::class,
             ]),
-            'documentable_id' => $this->faker->randomNumber(1, 10),
+            'documentable_id' => $this->faker->randomNumber(1, 100),
                 
             
         ];

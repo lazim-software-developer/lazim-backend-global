@@ -38,7 +38,7 @@ class ComplaintFactory extends Factory
                 Building::class,
                 FlatTenant::class,
             ]),
-            'complaintable_id' =>$this->faker->randomNumber(1, 10),
+            'complaintable_id' =>$this->faker->randomNumber(1, 100),
         ];
     }
 }
