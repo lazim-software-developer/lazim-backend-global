@@ -12,6 +12,7 @@ use App\Models\Building\FacilityBooking;
 use App\Models\Building\FlatTenant;
 use App\Models\Visitor\FlatVisitor;
 use App\Models\Building\Flat;
+use Filament\Panel;
 use Laravel\Sanctum\HasApiTokens;
 use App\Models\Scopes\Searchable;
 use Filament\Models\Contracts\FilamentUser;
@@ -56,14 +57,10 @@ class User extends Authenticatable implements FilamentUser, HasName
     ];
 
 
-    public function canAccessPanel(): bool
-    {
-        return true;
-    }
+    
     
     public function getFilamentName(): string
-
-        {
+    {
     
             return $this->fullName;
     
@@ -157,5 +154,10 @@ class User extends Authenticatable implements FilamentUser, HasName
     public function isSuperAdmin(): bool
     {
         return in_array($this->email, config('auth.super_admins'));
+    }
+    public function canAccessPanel(Panel $panel): bool
+    {
+        // return str_ends_with($this->email, '@yourdomain.com') && $this->hasVerifiedEmail();
+        return true;
     }
 }
