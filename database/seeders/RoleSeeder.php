@@ -12,17 +12,17 @@ class RoleSeeder extends Seeder
      */
     public function run(): void
     {
-        // Role::factory()
-        //     ->count(5)
-        //     ->create();
         $roles=[
-            'vendore',
-            'Owner',
-            'Tenant',
+            ['id'=>1,'name'=>'Owner'],
+            ['id'=>2,'name'=>'Vendor'],
+            ['id'=>3,'name'=>'Managing Director'],
+            ['id'=>4,'name'=>'Financial Manager'],
+            ['id'=>5,'name'=>'Building Engineer'],
+            ['id'=>6,'name'=>'Operations Engineer'],
+            ['id'=>7,'name'=>'Operations Manager'],
+            ['id'=>8,'name'=>'Staff']
         ];
-        foreach ($roles as $role)
-        {
-            Role::create(['name'=>$role]);
-        }
+            Role::insert($roles);
+        
     }
 }

@@ -8,6 +8,7 @@ use App\Models\Master\DocumentLibrary;
 use Filament\Forms;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\RichEditor;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -28,7 +29,17 @@ class DocumentLibraryResource extends Resource
         return $form
             ->schema([
                 Grid::make(['default' => 0])->schema([
-                    TextInput::make('name')
+                    Select::make('name')
+                        ->options([
+                            'tl_document' =>'TL Document',
+                            'trn_cerftificate'=>'TRN Certificate',
+                            'third_party_liability'=>'Third Party Liability Certificate',
+                            'risk_assessement'=>'Risk Assessement',
+                            'safety_policy'=>'Safety Policy',
+                            'bank_details'=>'Bank Details On Company Letter Head With Stamp',
+                            'authority_approval'=>'Authority Approval'
+                        ])
+
                         ->rules(['max:50', 'string'])
                         ->required()
                         ->placeholder('Name')
@@ -36,6 +47,11 @@ class DocumentLibraryResource extends Resource
                             'default' => 12,
                             'md' => 12,
                             'lg' => 12,
+                        ]),
+                    Select::make('type')
+                        ->options([
+                            'vendor'=>'Vendor',
+                            'tenant'=>'Tenant'
                         ]),
 
                     RichEditor::make('url')
@@ -84,14 +100,14 @@ class DocumentLibraryResource extends Resource
                 Tables\Actions\CreateAction::make(),
             ]);
     }
-    
+
     public static function getRelations(): array
     {
         return [
             DocumentLibraryResource\RelationManagers\DocumentsRelationManager::class,
         ];
     }
-    
+
     public static function getPages(): array
     {
         return [
@@ -99,5 +115,5 @@ class DocumentLibraryResource extends Resource
             'create' => Pages\CreateDocumentLibrary::route('/create'),
             'edit' => Pages\EditDocumentLibrary::route('/{record}/edit'),
         ];
-    }    
+    }
 }

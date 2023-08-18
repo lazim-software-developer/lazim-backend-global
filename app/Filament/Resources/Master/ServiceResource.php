@@ -38,15 +38,7 @@ class ServiceResource extends Resource
                             'md' => 12,
                             'lg' => 12,
                         ]),
-
-                    Toggle::make('active')
-                        ->rules(['boolean'])
-                        ->required()
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+                    
                 ]),
             ]);
     }
@@ -60,9 +52,7 @@ class ServiceResource extends Resource
                 ->toggleable()
                 ->searchable(true, null, true)
                 ->limit(50),
-            Tables\Columns\IconColumn::make('active')
-                ->toggleable()
-                ->boolean(),
+            
         ])
             ->filters([
                 //
