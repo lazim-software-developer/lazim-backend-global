@@ -26,14 +26,14 @@ class VendorResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     protected static ?string $navigationGroup = 'Vendor Management';
-    
+
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
                 Grid::make(['default' => 0])->schema([
                     TextInput::make('name')
-                        ->rules(['max:50', 'string'])
+                        //->rules(['max:50','string'])
                         ->required()
                         ->placeholder('Name')
                         ->columnSpan([
