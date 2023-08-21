@@ -27,14 +27,8 @@ class VendorResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     protected static ?string $navigationGroup = 'Vendor Management';
-    protected function getForms(): array
-    {
-        return [
-            'vendorForm',
-            'documentForm',
-        ];
-    }
-    public function vendorForm(Form $form): Form
+
+    public static function form(Form $form): Form
     {
         return $form
             ->schema([
@@ -105,27 +99,11 @@ class VendorResource extends Resource
                             'lg' => 12,
                         ]),
                     ]),
-            ])
-        ->statePath('postData')
-        ->model(Vendor::class);
+                ]);
+
     }
 
-    public function documentForm(Form $form): Form
-    {
-        return $form
-            ->schema([
-                TextInput::make('name')
-                    ->required(),
-                // TextInput::make('email')
-                //     ->email()
-                //     ->required(),
-                // MarkdownEditor::make('content')
-                //     ->required(),
-                // // ...
-            ])
-            ->statePath('commentData')
-            ->model(Document::class);
-    }
+
 
     public static function table(Table $table): Table
     {
