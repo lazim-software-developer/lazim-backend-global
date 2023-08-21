@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
+use App\Livewire\VendorRegistration;
 
 /*
 |--------------------------------------------------------------------------
@@ -27,3 +28,4 @@ Route::middleware(['auth:sanctum', 'verified'])
 Route::prefix('/')
     ->middleware(['auth:sanctum', 'verified'])
     ->group(function () {});
+Route::get('Vendor/create', VendorRegistration::class);
