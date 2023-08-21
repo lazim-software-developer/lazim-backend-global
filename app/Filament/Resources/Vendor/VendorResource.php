@@ -34,7 +34,6 @@ class VendorResource extends Resource
             ->schema([
                 Grid::make(['default' => 0])->schema([
                     TextInput::make('name')
-                        ->rules(['max:50','string'])
                         ->required()
                         ->placeholder('Name')
                         ->columnSpan([
