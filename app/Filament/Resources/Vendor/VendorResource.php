@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Vendor;
 
 use App\Filament\Resources\Vendor\VendorResource\Pages;
 use App\Filament\Resources\Vendor\VendorResource\RelationManagers;
+use App\Models\Building\Document;
 use App\Models\Vendor\Vendor;
 use Filament\Forms;
 use Filament\Forms\Components\DatePicker;
@@ -26,14 +27,20 @@ class VendorResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     protected static ?string $navigationGroup = 'Vendor Management';
-
-    public static function form(Form $form): Form
+    protected function getForms(): array
+    {
+        return [
+            'vendorForm',
+            'documentForm',
+        ];
+    }
+    public function vendorForm(Form $form): Form
     {
         return $form
             ->schema([
                 Grid::make(['default' => 0])->schema([
                     TextInput::make('name')
-                        //->rules(['max:50','string'])
+                        ->rules(['max:50','string'])
                         ->required()
                         ->placeholder('Name')
                         ->columnSpan([
@@ -98,7 +105,26 @@ class VendorResource extends Resource
                             'lg' => 12,
                         ]),
                     ]),
-            ]);
+            ])
+        ->statePath('postData')
+        ->model(Vendor::class);
+    }
+
+    public function documentForm(Form $form): Form
+    {
+        return $form
+            ->schema([
+                TextInput::make('name')
+                    ->required(),
+                // TextInput::make('email')
+                //     ->email()
+                //     ->required(),
+                // MarkdownEditor::make('content')
+                //     ->required(),
+                // // ...
+            ])
+            ->statePath('commentData')
+            ->model(Document::class);
     }
 
     public static function table(Table $table): Table
