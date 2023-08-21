@@ -1,0 +1,54 @@
+<?php
+
+namespace App\Models\Visitor;
+
+use App\Models\Building\Flat;
+use App\Models\User\User;
+use App\Models\Scopes\Searchable;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+
+class FlatVisitor extends Model
+{
+    use HasFactory;
+    use Searchable;
+
+    protected $fillable = [
+        'flat_id',
+        'name',
+        'phone',
+        'type',
+        'start_time',
+        'end_time',
+        'verification_code',
+        'initiated_by',
+        'approved_by',
+        'remarks',
+        'number_of_visitors',
+    ];
+
+    protected $searchableFields = ['*'];
+
+    protected $table = 'flat_visitors';
+
+    protected $casts = [
+        'start_time' => 'datetime',
+        'end_time' => 'datetime',
+        'remarks' => 'array',
+    ];
+
+    public function flat()
+    {
+        return $this->belongsTo(Flat::class);
+    }
+
+    public function userInitiatedBy()
+    {
+        return $this->belongsTo(User::class, 'initiated_by');
+    }
+
+    public function userApprovedBy()
+    {
+        return $this->belongsTo(User::class, 'approved_by');
+    }
+}
