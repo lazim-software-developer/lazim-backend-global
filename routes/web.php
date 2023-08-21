@@ -16,7 +16,7 @@ use App\Livewire\VendorRegistration;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect('/admin/login');
 });
 
 Route::middleware(['auth:sanctum', 'verified'])
@@ -26,6 +26,4 @@ Route::middleware(['auth:sanctum', 'verified'])
     ->name('dashboard');
 
 Route::prefix('/')
-    ->middleware(['auth:sanctum', 'verified'])
-    ->group(function () {});
-Route::get('Vendor/create', VendorRegistration::class);
+    ->middleware(['auth:sanctum', 'verified']);
