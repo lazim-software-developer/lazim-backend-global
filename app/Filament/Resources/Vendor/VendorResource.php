@@ -4,13 +4,11 @@ namespace App\Filament\Resources\Vendor;
 
 use App\Filament\Resources\Vendor\VendorResource\Pages;
 use App\Filament\Resources\Vendor\VendorResource\RelationManagers;
-use App\Models\Building\Document;
 use App\Models\Vendor\Vendor;
 use Filament\Forms;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\KeyValue;
-use Filament\Forms\Components\MarkdownEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
@@ -28,121 +26,80 @@ class VendorResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     protected static ?string $navigationGroup = 'Vendor Management';
-    protected function getForms(): array
+    
+    public static function form(Form $form): Form
     {
-        return [
-            'vendor',
-            'createCommentForm',
-        ];
+        return $form
+            ->schema([
+                Grid::make(['default' => 0])->schema([
+                    TextInput::make('name')
+                        ->rules(['max:50', 'string'])
+                        ->required()
+                        ->placeholder('Name')
+                        ->columnSpan([
+                            'default' => 12,
+                            'md' => 12,
+                            'lg' => 12,
+                        ]),
+
+                    Select::make('owner_id')
+                        ->rules(['exists:users,id'])
+                        ->required()
+                        ->relationship('user', 'first_name')
+                        ->searchable()
+                        ->placeholder('User')
+                        ->columnSpan([
+                            'default' => 12,
+                            'md' => 12,
+                            'lg' => 12,
+                        ]),
+
+                    TextInput::make('tl_number')
+                        ->rules(['max:50', 'string'])
+                        ->required()
+                        ->unique(
+                            'vendors',
+                            'tl_number',
+                            fn(?Model $record) => $record
+                        )
+                        ->placeholder('Tl Number')
+                        ->columnSpan([
+                            'default' => 12,
+                            'md' => 12,
+                            'lg' => 12,
+                        ]),
+
+                    DatePicker::make('tl_expiry')
+                        ->rules(['date'])
+                        ->required()
+                        ->placeholder('Tl Expiry')
+                        ->columnSpan([
+                            'default' => 12,
+                            'md' => 12,
+                            'lg' => 12,
+                        ]),
+
+                    TextInput::make('status')
+                        ->rules(['max:50', 'string'])
+                        ->required()
+                        ->placeholder('Status')
+                        ->columnSpan([
+                            'default' => 12,
+                            'md' => 12,
+                            'lg' => 12,
+                        ]),
+
+                    KeyValue::make('remarks')
+                        ->required()
+                        ->required()
+                        ->columnSpan([
+                            'default' => 12,
+                            'md' => 12,
+                            'lg' => 12,
+                        ]),
+                    ]),
+            ]);
     }
-    // public  function vendor (Form $form): Form
-    // {
-    //     return $form
-    //         ->schema([
-    //             Grid::make(['default' => 0])->schema([
-    //                 TextInput::make('name')
-    //                     ->rules(['max:50', 'string'])
-    //                     ->required()
-    //                     ->placeholder('Name')
-    //                     ->columnSpan([
-    //                         'default' => 12,
-    //                         'md' => 12,
-    //                         'lg' => 12,
-    //                     ]),
-
-    //                 Select::make('owner_id')
-    //                     ->rules(['exists:users,id'])
-    //                     ->required()
-    //                     ->relationship('user', 'first_name')
-    //                     ->searchable()
-    //                     ->placeholder('User')
-    //                     ->columnSpan([
-    //                         'default' => 12,
-    //                         'md' => 12,
-    //                         'lg' => 12,
-    //                     ]),
-
-    //                 TextInput::make('tl_number')
-    //                     ->rules(['max:50', 'string'])
-    //                     ->required()
-    //                     ->unique(
-    //                         'vendors',
-    //                         'tl_number',
-    //                         fn(?Model $record) => $record
-    //                     )
-    //                     ->placeholder('Tl Number')
-    //                     ->columnSpan([
-    //                         'default' => 12,
-    //                         'md' => 12,
-    //                         'lg' => 12,
-    //                     ]),
-
-    //                 DatePicker::make('tl_expiry')
-    //                     ->rules(['date'])
-    //                     ->required()
-    //                     ->placeholder('Tl Expiry')
-    //                     ->columnSpan([
-    //                         'default' => 12,
-    //                         'md' => 12,
-    //                         'lg' => 12,
-    //                     ]),
-
-    //                 TextInput::make('status')
-    //                     ->rules(['max:50', 'string'])
-    //                     ->required()
-    //                     ->placeholder('Status')
-    //                     ->columnSpan([
-    //                         'default' => 12,
-    //                         'md' => 12,
-    //                         'lg' => 12,
-    //                     ]),
-
-    //                 KeyValue::make('remarks')
-    //                     ->required()
-    //                     ->required()
-    //                     ->columnSpan([
-    //                         'default' => 12,
-    //                         'md' => 12,
-    //                         'lg' => 12,
-    //                     ]),
-    //                 ]),
-
-    //         ]);
-    //         // ->statePath('postData')
-    //         // ->model($this->post);
-
-    //}
-    public function editPostForm(Form $form): Form
-{
-    return $form
-        ->schema([
-            TextInput::make('title')
-                ->required(),
-            MarkdownEditor::make('content'),
-            // ...
-        ])
-        ->statePath('postData')
-        ->model(Vendor::class);
-}
-
-    public function createCommentForm(Form $form): Form
-{
-    return $form
-        ->schema([
-            TextInput::make('name')
-                ->required(),
-            TextInput::make('email')
-                ->email()
-                ->required(),
-            MarkdownEditor::make('content')
-                ->required(),
-            // ...
-        ])
-        ->statePath('commentData')
-        ->model(Document::class);
-}
-
-
 
     public static function table(Table $table): Table
     {
