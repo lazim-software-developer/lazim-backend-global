@@ -32,6 +32,17 @@ class VendorResource extends Resource
     {
         return $form
             ->schema([
+                // Select::make('building_id')
+                // ->rules(['exists:buildings,id'])
+                // ->required()
+                // ->relationship('building', 'name')
+                // ->searchable()
+                // ->placeholder('Building')
+                // ->columnSpan([
+                //     'default' => 12,
+                //     'md' => 12,
+                //     'lg' => 12,
+                // ]),
                 Grid::make(['default' => 0])->schema([
                     TextInput::make('name')
                         ->required()

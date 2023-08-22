@@ -20,6 +20,7 @@ class Complaint extends Model
         'user_id',
         'complaint_type',
         'category',
+        'building_id',
         'open_time',
         'close_time',
         'photo',
@@ -36,6 +37,10 @@ class Complaint extends Model
         'remarks' => 'array',
     ];
 
+    // public function building()
+    // {
+    //     return $this->belongsTo(Building::class);
+    // }
     public function user()
     {
         return $this->belongsTo(User::class);

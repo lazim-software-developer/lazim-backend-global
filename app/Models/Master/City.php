@@ -6,6 +6,7 @@ use App\Models\Building\Building;
 use App\Models\Scopes\Searchable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class City extends Model
 {
@@ -16,7 +17,7 @@ class City extends Model
 
     protected $searchableFields = ['*'];
 
-    public function buildings()
+    public function building()
     {
         return $this->hasMany(Building::class);
     }

@@ -2,23 +2,24 @@
 
 namespace App\Filament\Resources\Vendor;
 
-use App\Filament\Resources\Vendor\ContactsResource\Pages;
-use App\Filament\Resources\Vendor\ContactsResource\RelationManagers;
-use App\Models\Vendor\Contact;
-use App\Models\Vendor\Vendor;
 use Filament\Forms;
+use Filament\Tables;
+use Filament\Forms\Form;
+use Filament\Tables\Table;
+use App\Models\Vendor\Vendor;
+use App\Models\Vendor\Contact;
+use Filament\Resources\Resource;
 use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Select;
+use Filament\Tables\Columns\ViewColumn;
+use Illuminate\Database\Eloquent\Model;
+use Filament\Forms\Components\TextInput;
+use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\MorphToSelect;
 use Filament\Forms\Components\MorphToSelect\Type;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
-use Filament\Tables;
-use Filament\Tables\Columns\ViewColumn;
-use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Filament\Resources\Vendor\ContactsResource\Pages;
+use App\Filament\Resources\Vendor\ContactsResource\RelationManagers;
 
 class ContactsResource extends Resource
 {
@@ -31,6 +32,17 @@ class ContactsResource extends Resource
     {
         return $form
             ->schema([
+                // Select::make('building_id')
+                //         ->rules(['exists:buildings,id'])
+                //         ->required()
+                //         ->relationship('building', 'name')
+                //         ->searchable()
+                //         ->placeholder('Building')
+                //         ->columnSpan([
+                //             'default' => 12,
+                //             'md' => 12,
+                //             'lg' => 12,
+                //         ]),
                 Grid::make([
                     'sm' => 1,
                     'md' => 1,

@@ -2,21 +2,22 @@
 
 namespace App\Filament\Resources\Vendor;
 
-use App\Filament\Resources\Vendor\AttendanceResource\Pages;
-use App\Filament\Resources\Vendor\AttendanceResource\RelationManagers;
-use App\Models\Vendor\Attendance;
 use Filament\Forms;
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\DateTimePicker;
+use Filament\Tables;
+use Filament\Forms\Form;
+use Filament\Tables\Table;
+use Filament\Resources\Resource;
+use App\Models\Vendor\Attendance;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
-use Filament\Tables;
-use Filament\Tables\Table;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\TimePicker;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Forms\Components\DateTimePicker;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Filament\Resources\Vendor\AttendanceResource\Pages;
+use App\Filament\Resources\Vendor\AttendanceResource\RelationManagers;
 
 class AttendanceResource extends Resource
 {
@@ -64,7 +65,7 @@ class AttendanceResource extends Resource
                             'lg' => 12,
                         ]),
 
-                    DatePicker::make('entry_time')
+                    TimePicker::make('entry_time')
                         ->rules(['date_format:H:i:s'])
                         ->nullable()
                         ->placeholder('Entry Time')
@@ -74,7 +75,7 @@ class AttendanceResource extends Resource
                             'lg' => 12,
                         ]),
 
-                    DatePicker::make('exit_time')
+                    TimePicker::make('exit_time')
                         ->rules(['date_format:H:i:s'])
                         ->nullable()
                         ->placeholder('Exit Time')

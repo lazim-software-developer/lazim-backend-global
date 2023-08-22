@@ -14,6 +14,7 @@ return new class extends Migration {
             $table->bigIncrements('id');
             $table->unsignedBigInteger('flat_id');
             $table->unsignedBigInteger('tenant_id');
+            //$table->unsignedBigInteger('building_id');
             $table->boolean('primary');
             $table->dateTime('start_date');
             $table->dateTime('end_date');
