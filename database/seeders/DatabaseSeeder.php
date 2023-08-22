@@ -24,7 +24,7 @@ class DatabaseSeeder extends Seeder
         // $this->call(AttendanceSeeder::class);
         // $this->call(BuildingSeeder::class);
         // $this->call(BuildingPocSeeder::class);
-        // $this->call(CitySeeder::class);
+         $this->call(CitySeeder::class);
         // $this->call(ComplaintSeeder::class);
         // $this->call(ContactSeeder::class);
         // $this->call(DocumentSeeder::class);

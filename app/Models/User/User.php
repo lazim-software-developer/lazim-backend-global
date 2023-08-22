@@ -2,30 +2,35 @@
 
 namespace App\Models\User;
 
+use Filament\Panel;
 use App\Models\Master\Role;
+use App\Models\Building\Flat;
 use App\Models\Vendor\Vendor;
+use App\Models\Building\Building;
 use App\Models\Building\Document;
-use App\Models\Building\BuildingPoc;
+use App\Models\Scopes\Searchable;
 use App\Models\Vendor\Attendance;
+use Laravel\Sanctum\HasApiTokens;
 use App\Models\Building\Complaint;
-use App\Models\Building\FacilityBooking;
+use Illuminate\Support\Collection;
 use App\Models\Building\FlatTenant;
 use App\Models\Visitor\FlatVisitor;
-use App\Models\Building\Flat;
-use Filament\Panel;
-use Laravel\Sanctum\HasApiTokens;
-use App\Models\Scopes\Searchable;
-use Filament\Models\Contracts\FilamentUser;
-use Filament\Models\Contracts\HasAvatar;
+use App\Models\Building\BuildingPoc;
 use Filament\Models\Contracts\HasName;
 use Laravel\Jetstream\HasProfilePhoto;
+use Illuminate\Database\Eloquent\Model;
+use App\Models\Building\FacilityBooking;
+use Filament\Models\Contracts\HasAvatar;
 use Illuminate\Notifications\Notifiable;
+use Filament\Models\Contracts\HasTenants;
+use Filament\Models\Contracts\FilamentUser;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
-class User extends Authenticatable implements FilamentUser, HasName
+class User extends Authenticatable implements FilamentUser, HasName , HasTenants
 {
     use Notifiable;
     use HasFactory;
@@ -160,4 +165,20 @@ class User extends Authenticatable implements FilamentUser, HasName
         // return str_ends_with($this->email, '@yourdomain.com') && $this->hasVerifiedEmail();
         return true;
     }
+
+    public function getTenants(Panel $panel): Collection
+    {
+        return $this->building;
+    }
+    
+    public function building(): BelongsToMany
+    {
+        return $this->belongsToMany(Building::class);
+    }
+ 
+    public function canAccessTenant(Model $tenant): bool
+    {
+        return $this->building->contains($tenant);
+    }
+
 }

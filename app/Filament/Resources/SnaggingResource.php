@@ -66,6 +66,17 @@ class SnaggingResource extends Resource
                             'md' => 12,
                             'lg' => 12,
                         ]),
+                        // Select::make('building_id')
+                        // ->rules(['exists:buildings,id'])
+                        // ->required()
+                        // ->relationship('building', 'name')
+                        // ->searchable()
+                        // ->placeholder('Building')
+                        // ->columnSpan([
+                        //     'default' => 12,
+                        //     'md' => 12,
+                        //     'lg' => 12,
+                        // ]),
 
                     Select::make('user_id')
                         ->rules(['exists:users,id'])

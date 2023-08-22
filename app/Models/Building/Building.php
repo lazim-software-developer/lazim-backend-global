@@ -2,17 +2,25 @@
 
 namespace App\Models\Building;
 
-use App\Models\Vendor\Attendance;
-use App\Models\Building\Flat;
-use App\Models\Building\BuildingPoc;
-use App\Models\Building\Complaint;
-use App\Models\Building\Document;
+use App\Models\Master\DocumentLibrary;
+use App\Models\Master\Role;
+use App\Models\Master\Service;
+use App\Models\User\User;
 use App\Models\Master\City;
+use App\Models\Building\Flat;
 use App\Models\Master\Facility;
+use App\Models\Building\Document;
 use App\Models\Scopes\Searchable;
+use App\Models\Vendor\Attendance;
+use App\Models\Building\Complaint;
 
+use App\Models\Building\BuildingPoc;
+use App\Models\Vendor\Contact;
+use App\Models\Vendor\Vendor;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Building extends Model
 {
@@ -34,15 +42,62 @@ class Building extends Model
 
     protected $searchableFields = ['*'];
 
-    public function city()
+    public function cities()
     {
         return $this->belongsTo(City::class);
     }
 
-    public function pocs()
+    public function buildingPocs()
     {
         return $this->hasMany(BuildingPoc::class);
     }
+
+    // public function complaint()
+    // {
+    //     return $this->hasMany(Complaint::class);
+    // }
+
+    // public function document()
+    // {
+    //     return $this->hasMany(Document::class);
+    // }
+
+    // public function facilitybooking()
+    // {
+    //     return $this->hasMany(FacilityBooking::class);
+    // }
+
+    // public function flattenant()
+    // {
+    //     return $this->hasMany(FlatTenant::class);
+    // }
+
+    // public function documentlibrary()
+    // {
+    //     return $this->hasMany(DocumentLibrary::class);
+    // }
+
+    // public function facility()
+    // {
+    //     return $this->hasMany(Facility::class);
+    // }
+    // public function role()
+    // {
+    //     return $this->hasMany(Role::class);
+    // }
+    // public function service()
+    // {
+    //     return $this->hasMany(Service::class);
+    // }
+    // public function contact()
+    // {
+    //     return $this->hasMany(Contact::class);
+    // }
+    // public function vendor()
+    // {
+    //     return $this->hasMany(Vendor::class);
+    // }
+
 
     public function attendances()
     {
@@ -67,5 +122,14 @@ class Building extends Model
     public function complaints()
     {
         return $this->morphMany(Complaint::class, 'complaintable');
+    }
+
+    public function members()
+    {
+        return $this->belongsToMany(User::class);
+    }
+    public function users():BelongsToMany
+    {
+        return $this->belongsToMany(User::class);
     }
 }

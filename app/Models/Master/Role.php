@@ -2,8 +2,9 @@
 
 namespace App\Models\Master;
 
-use App\Models\Scopes\Searchable;
 use App\Models\User\User;
+use App\Models\Building\Building;
+use App\Models\Scopes\Searchable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -20,4 +21,9 @@ class Role extends Model
     {
         return $this->hasMany(User::class);
     }
+    // public function building()
+    // {
+    //     return $this->belongsTo(Building::class);
+    // }
+
 }
