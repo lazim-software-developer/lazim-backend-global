@@ -56,6 +56,17 @@ class DocumentsResource extends Resource
                             'md' => 12,
                             'lg' => 12,
                         ]),
+                        // Select::make('building_id')
+                        // ->rules(['exists:buildings,id'])
+                        // ->required()
+                        // ->relationship('building', 'name')
+                        // ->searchable()
+                        // ->placeholder('Building')
+                        // ->columnSpan([
+                        //     'default' => 12,
+                        //     'md' => 12,
+                        //     'lg' => 12,
+                        // ]),
 
                     RichEditor::make('url')
                         ->rules(['max:255', 'string'])

@@ -2,6 +2,7 @@
 
 namespace App\Models\Vendor;
 
+use App\Models\Building\Building;
 use App\Models\Scopes\Searchable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -15,6 +16,7 @@ class Contact extends Model
         'name',
         'phone',
         'email',
+        'building_id',
         'designation',
         'contactable_type',
         'contactable_id',
@@ -26,4 +28,8 @@ class Contact extends Model
     {
         return $this->morphTo();
     }
+    // public function building()
+    // {
+    //     return $this->belongsTo(Building::class);
+    // }
 }
