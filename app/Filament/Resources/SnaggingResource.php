@@ -44,11 +44,11 @@ class SnaggingResource extends Resource
                     'lg' => 2,])
                     ->schema([
                     MorphToSelect::make('complaintable')
-                        
+
                         ->types([
                             Type::make(Building::class)->titleAttribute('name'),
                             Type::make(FlatTenant::class)->titleAttribute('tenant_id'),
-                        
+
                             ])
                         ->columnSpan([
                             'default' => 12,
@@ -73,19 +73,6 @@ class SnaggingResource extends Resource
                         ->relationship('user', 'first_name')
                         ->searchable()
                         ->placeholder('User')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
-
-                    Select::make('complaint_type')
-                        ->options([
-                            'snagging'=>'Snagging',
-                        ])
-                        ->rules(['max:50', 'string'])
-                        ->required()
-                        ->placeholder('Complaint Type')
                         ->columnSpan([
                             'default' => 12,
                             'md' => 12,
@@ -130,8 +117,7 @@ class SnaggingResource extends Resource
                             'lg' => 12,
                         ]),
 
-                    KeyValue::make('remarks')
-                        ->required()
+                    TextInput::make('remarks')
                         ->required()
                         ->columnSpan([
                             'default' => 12,
@@ -201,14 +187,14 @@ class SnaggingResource extends Resource
                 Tables\Actions\CreateAction::make(),
             ]);
     }
-    
+
     public static function getRelations(): array
     {
         return [
             //
         ];
     }
-    
+
     public static function getPages(): array
     {
         return [
@@ -216,5 +202,5 @@ class SnaggingResource extends Resource
             'create' => Pages\CreateSnagging::route('/create'),
             'edit' => Pages\EditSnagging::route('/{record}/edit'),
         ];
-    }    
+    }
 }

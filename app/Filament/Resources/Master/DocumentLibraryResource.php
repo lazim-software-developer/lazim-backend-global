@@ -6,6 +6,7 @@ use App\Filament\Resources\Master\DocumentLibraryResource\Pages;
 use App\Filament\Resources\Master\DocumentLibraryResource\RelationManagers;
 use App\Models\Master\DocumentLibrary;
 use Filament\Forms;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
@@ -13,6 +14,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -54,10 +56,11 @@ class DocumentLibraryResource extends Resource
                             'tenant'=>'Tenant'
                         ]),
 
-                    RichEditor::make('url')
-                        ->rules(['max:255', 'string'])
+                    FileUpload::make('url')
                         ->required()
-                        ->placeholder('Url')
+                        ->disk('s3')
+                        ->downloadable()
+                        ->previewable()
                         ->columnSpan([
                             'default' => 12,
                             'md' => 12,
@@ -76,9 +79,12 @@ class DocumentLibraryResource extends Resource
                 ->toggleable()
                 ->searchable(true, null, true)
                 ->limit(50),
+            // ViewColumn::make('url')->view('tables.columns.url-column')
+            //     ->toggleable(),
             Tables\Columns\TextColumn::make('url')
                 ->toggleable()
                 ->searchable()
+                ->openUrlInNewTab()
                 ->limit(50),
             Tables\Columns\TextColumn::make('type')
                 ->toggleable()

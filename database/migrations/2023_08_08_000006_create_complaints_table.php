@@ -20,7 +20,7 @@ return new class extends Migration {
             $table->dateTime('open_time');
             $table->dateTime('close_time');
             $table->json('photo')->nullable();
-            $table->json('remarks');
+            $table->json('remarks')->nullable();
             $table->string('status', 50);
 
             $table->index('complaintable_type');
