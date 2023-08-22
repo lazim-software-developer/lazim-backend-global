@@ -14,6 +14,7 @@ return new class extends Migration {
             $table->bigIncrements('id');
             $table->unsignedBigInteger('facility_id');
             $table->unsignedBigInteger('user_id');
+            //$table->unsignedBigInteger('building_id');
             $table->date('date');
             $table->time('start_time');
             $table->time('end_time');

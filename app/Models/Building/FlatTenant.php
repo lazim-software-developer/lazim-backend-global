@@ -2,11 +2,12 @@
 
 namespace App\Models\Building;
 
+use App\Models\User\User;
 use App\Models\Building\Flat;
-use App\Models\Building\Complaint;
+use App\Models\Building\Building;
 use App\Models\Building\Document;
 use App\Models\Scopes\Searchable;
-use App\Models\User\User;
+use App\Models\Building\Complaint;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -19,6 +20,7 @@ class FlatTenant extends Model
         'flat_id',
         'tenant_id',
         'primary',
+        'building_id',
         'start_date',
         'end_date',
         'active',
@@ -54,4 +56,8 @@ class FlatTenant extends Model
     {
         return $this->morphMany(Complaint::class, 'complaintable');
     }
+    // public function building()
+    // {
+    //     return $this->belongsTo(Building::class);
+    // }
 }

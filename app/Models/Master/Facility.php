@@ -13,7 +13,7 @@ class Facility extends Model
     use HasFactory;
     use Searchable;
 
-    protected $fillable = ['name', 'icon', 'active'];
+    protected $fillable = ['name', 'icon','building_id', 'active'];
 
     protected $searchableFields = ['*'];
 
@@ -30,4 +30,9 @@ class Facility extends Model
     {
         return $this->belongsToMany(Building::class);
     }
+    // public function building()
+    // {
+    //     return $this->belongsTo(Building::class);
+    // }
+
 }
