@@ -27,6 +27,7 @@ use Filament\Tables\Table;
 //use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Forms\Components\Builder;
+use Filament\Forms\Components\FileUpload;
 
 class DocumentsResource extends Resource
 {
@@ -48,7 +49,7 @@ class DocumentsResource extends Resource
                     Select::make('document_library_id')
                         ->rules(['exists:document_libraries,id'])
                         ->required()
-                        ->relationship('documentLibrary', 'name')
+                        ->relationship('documentLibrary', 'id')
                         ->searchable()
                         ->placeholder('Document Library')
                         ->columnSpan([
@@ -57,10 +58,10 @@ class DocumentsResource extends Resource
                             'lg' => 12,
                         ]),
 
-                    RichEditor::make('url')
+                    FileUpload::make('url')
                         ->rules(['max:255', 'string'])
                         ->required()
-                        ->placeholder('Url')
+                        ->downloadable()
                         ->columnSpan([
                             'default' => 12,
                             'md' => 12,
@@ -89,13 +90,13 @@ class DocumentsResource extends Resource
                     //     //     'md' => 12,
                     //     //     'lg' => 12,
                     //     // ]),
-                        
+
                     Repeater::make('comments')
                     ->schema([
                         TextInput::make('key')->required(),
-                        
+
                         TextInput::make('value')->required(),
-                        
+
                     ])
                     ->columns(2),
                     DatePicker::make('expiry_date')
@@ -121,21 +122,21 @@ class DocumentsResource extends Resource
                         ]),
 
                     MorphToSelect::make('documentable')
-                        
+
                         ->types([
                             Type::make(Building::class)->titleAttribute('name'),
                             Type::make(FlatTenant::class)->titleAttribute('tenant_id'),
                             Type::make(Vendor::class)->titleAttribute('name')
-                        
-                        
+
+
                         ])
                         ->columnSpan([
                             'default' => 12,
                             'md' => 12,
                             'lg' => 12,
                         ]),
-                        
-                       
+
+
 
                     TextInput::make('documentable_id')
                         ->rules(['max:255'])
@@ -147,9 +148,9 @@ class DocumentsResource extends Resource
                             'lg' => 12,
                         ]),
 
-                    
+
                 ]),
-            
+
             ]);
     }
 
@@ -197,14 +198,14 @@ class DocumentsResource extends Resource
                 Tables\Actions\CreateAction::make(),
             ]);
     }
-    
+
     public static function getRelations(): array
     {
         return [
             //
         ];
     }
-    
+
     public static function getPages(): array
     {
         return [
@@ -212,5 +213,5 @@ class DocumentsResource extends Resource
             'create' => Pages\CreateDocuments::route('/create'),
             'edit' => Pages\EditDocuments::route('/{record}/edit'),
         ];
-    }    
+    }
 }
