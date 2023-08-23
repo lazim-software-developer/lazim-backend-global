@@ -6,19 +6,25 @@ use App\Filament\Resources\Building\DocumentsResource;
 use App\Models\Building\Document;
 use App\Models\User\User;
 use Filament\Actions;
+use Filament\Facades\Filament;
 use Filament\Resources\Pages\CreateRecord;
 
 class CreateDocuments extends CreateRecord
 {
     protected static string $resource = DocumentsResource::class;
     protected function afterCreate(){
-        $jsonValue = json_encode(['comment' => $this->record->remarks,'date'=>now(),
-        'user'=> User::where('id',$this->record->user_id)->first()->first_name
+        $jsonValue = json_encode(['comments' => $this->record->remarks,'date'=>now(),
+
     ]);
 
         Document::where('id', $this->record->id)
             ->update([
-                'remarks' => $jsonValue
+                'comments' => $jsonValue
             ]);
+        $tenant=Filament::getTenant();
+        Document::where('id', $this->record->id)
+                ->update([
+                    'building_id'=>$tenant->first()->id
+                ]);
     }
 }

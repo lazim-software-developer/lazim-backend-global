@@ -49,25 +49,26 @@ class DocumentsResource extends Resource
                     Select::make('document_library_id')
                         ->rules(['exists:document_libraries,id'])
                         ->required()
-                        ->relationship('documentLibrary', 'id')
+                        ->relationship('documentLibrary', 'name')
                         ->searchable()
                         ->placeholder('Document Library'),
 
-                    Select::make('building_id')
-                        ->rules(['exists:buildings,id'])
-                        ->required()
-                        ->relationship('building', 'name')
-                        ->searchable()
-                        ->placeholder('Building'),
+                    // Select::make('building_id')
+                    //     ->rules(['exists:buildings,id'])
+                    //     ->required()
+                    //     ->relationship('building', 'name')
+                    //     ->searchable()
+                    //     ->placeholder('Building'),
 
 
-                    FileUpload::make('Document')
+                    FileUpload::make('url')->label('Document')
                         ->disk('s3')
                         ->required()
-                        ->downloadable(),
+                        ->downloadable()
+                        ->preserveFilenames(),
 
 
-                    Select::make('Status')
+                    Select::make('status')
                         ->options([
                             'pending'=>'Pending'
                         ])
@@ -76,7 +77,7 @@ class DocumentsResource extends Resource
                         ->placeholder('Status'),
 
 
-                    TextInput::make('Comment')
+                    TextInput::make('comments')
                         ->required(),
 
                     DatePicker::make('expiry_date')
@@ -126,7 +127,7 @@ class DocumentsResource extends Resource
             Tables\Columns\TextColumn::make('documentLibrary.name')
                 ->toggleable()
                 ->limit(50),
-            Tables\Columns\TextColumn::make('url')
+            Tables\Columns\TextColumn::make('url')->label('Uploaded Document')
                 ->toggleable()
                 ->searchable()
                 ->limit(50),
