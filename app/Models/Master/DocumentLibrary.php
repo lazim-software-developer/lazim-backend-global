@@ -23,8 +23,8 @@ class DocumentLibrary extends Model
     {
         return $this->hasMany(Document::class);
     }
-    // public function building()
-    // {
-    //     return $this->belongsTo(Building::class);
-    // }
+    public function building()
+    {
+        return $this->belongsTo(Building::class);
+    }
 }

@@ -6,6 +6,7 @@ use App\Filament\Resources\Building\FlatTenantResource\Pages;
 use App\Filament\Resources\Building\FlatTenantResource\RelationManagers;
 use App\Models\Building\FlatTenant;
 use Filament\Forms;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Select;
@@ -24,87 +25,52 @@ class FlatTenantResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
     protected static ?string $navigationLabel = 'Tenants';
-    protected static ?string $navigationGroup = 'Building Management';
+    protected static ?string $navigationGroup = 'Flat Management';
 
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Grid::make(['default' => 0])->schema([
+                Grid::make([
+                    'sm' => 1,
+                    'md' => 1,
+                    'lg' => 2,])
+                    ->schema([
                     Select::make('flat_id')
                         ->rules(['exists:flats,id'])
                         ->required()
-                        ->relationship('flat', 'description')
+                        ->relationship('flat', 'id')
                         ->searchable()
-                        ->placeholder('Flat')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+                        ->placeholder('Flat'),
+
 
                         // Select::make('building_id')
                         // ->rules(['exists:buildings,id'])
                         // ->required()
                         // ->relationship('building', 'name')
                         // ->searchable()
-                        // ->placeholder('Building')
-                        // ->columnSpan([
-                        //     'default' => 12,
-                        //     'md' => 12,
-                        //     'lg' => 12,
-                        // ]),
+                        // ->placeholder('Building'),
 
                     Select::make('tenant_id')
                         ->rules(['exists:users,id'])
                         ->required()
                         ->relationship('user', 'first_name')
                         ->searchable()
-                        ->placeholder('User')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+                        ->placeholder('User'),
 
+                    DatePicker::make('start_date')
+                        ->rules(['date'])
+                        ->required()
+                        ->placeholder('Start Date'),
+                    DatePicker::make('end_date')
+                        ->rules(['date'])
+                        ->placeholder('End Date'),
                     Toggle::make('primary')
-                        ->rules(['boolean'])
-                        ->required()
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
-
-                    DateTimePicker::make('start_date')
-                        ->rules(['date'])
-                        ->required()
-                        ->placeholder('Start Date')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
-
-                    DateTimePicker::make('end_date')
-                        ->rules(['date'])
-                        ->required()
-                        ->placeholder('End Date')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
-
+                        ->rules(['boolean']),
                     Toggle::make('active')
                         ->rules(['boolean'])
-                        ->required()
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+
                     ]),
             ]);
     }
@@ -114,6 +80,9 @@ class FlatTenantResource extends Resource
         return $table
             ->poll('60s')
             ->columns([
+                Tables\Columns\TextColumn::make('building.name')->label('Building Name')
+                    ->toggleable()
+                    ->limit(50),
                 Tables\Columns\TextColumn::make('flat.description')
                     ->toggleable()
                     ->limit(50),
@@ -148,7 +117,7 @@ class FlatTenantResource extends Resource
                 Tables\Actions\CreateAction::make(),
             ]);
     }
-    
+
     public static function getRelations(): array
     {
         return [
@@ -156,7 +125,7 @@ class FlatTenantResource extends Resource
             FlatTenantResource\RelationManagers\ComplaintsRelationManager::class
         ];
     }
-    
+
     public static function getPages(): array
     {
         return [
@@ -164,5 +133,5 @@ class FlatTenantResource extends Resource
             'create' => Pages\CreateFlatTenant::route('/create'),
             'edit' => Pages\EditFlatTenant::route('/{record}/edit'),
         ];
-    }    
+    }
 }

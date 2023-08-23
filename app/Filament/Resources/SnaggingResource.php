@@ -15,6 +15,7 @@ use Filament\Forms\Components\MorphToSelect;
 use Filament\Forms\Components\MorphToSelect\Type;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\TimePicker;
 use Filament\Forms\Form;
 use Filament\Forms\Components\Grid;
 use Filament\Resources\Resource;
@@ -30,9 +31,9 @@ class SnaggingResource extends Resource
     protected static ?string $model = Complaint::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-    protected static ?string $navigationLabel = 'Snagging';
+    protected static ?string $navigationLabel = 'Snags';
 
-    protected static ?string $navigationGroup = 'Building Management';
+    protected static ?string $navigationGroup = 'Property Management';
 
     public static function form(Form $form): Form
     {
@@ -49,23 +50,14 @@ class SnaggingResource extends Resource
                             Type::make(Building::class)->titleAttribute('name'),
                             Type::make(FlatTenant::class)->titleAttribute('tenant_id'),
 
-                            ])
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                            ]),
+                        ]),
 
 
                     TextInput::make('complaintable_id')
                         ->rules(['max:255'])
                         ->required()
-                        ->placeholder('Complaintable Id')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+                        ->placeholder('Complaintable Id'),
+
                         // Select::make('building_id')
                         // ->rules(['exists:buildings,id'])
                         // ->required()
@@ -83,68 +75,50 @@ class SnaggingResource extends Resource
                         ->required()
                         ->relationship('user', 'first_name')
                         ->searchable()
-                        ->placeholder('User')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+                        ->placeholder('User'),
 
-                    TextInput::make('category')
+
+                    Select::make('category')
+                        ->options([
+                            'civil'=>'Civil',
+                            'MIP'=>'MIP',
+                            'security'=>'Security',
+                            'cleaning'=>'Cleaning',
+                            'others'=>'Others'
+                        ])
                         ->rules(['max:50', 'string'])
                         ->required()
-                        ->placeholder('Category')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+                        ->placeholder('Category'),
 
-                    DateTimePicker::make('open_time')
-                        ->rules(['date'])
-                        ->required()
-                        ->placeholder('Open Time')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
 
-                    DateTimePicker::make('close_time')
-                        ->rules(['date'])
+                    TimePicker::make('open_time')
+
                         ->required()
-                        ->placeholder('Close Time')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+                        ->placeholder('Open Time'),
+
+
+                    TimePicker::make('close_time')
+                        ->required()
+                        ->placeholder('Close Time'),
+
 
                     FileUpload::make('photo')
                         ->nullable()
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+                        ,
 
                     TextInput::make('remarks')
-                        ->required()
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+                        ->required(),
 
-                    TextInput::make('status')
+
+                    Select::make('status')
+                        ->options([
+                            'pending'=>'Pending'
+                        ])
                         ->rules(['max:50', 'string'])
                         ->required()
-                        ->placeholder('Status')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+                        ->placeholder('Status'),
+
+
                 ]),
             ]);
     }
@@ -164,9 +138,8 @@ class SnaggingResource extends Resource
                 Tables\Columns\TextColumn::make('user.first_name')
                     ->toggleable()
                     ->limit(50),
-                Tables\Columns\TextColumn::make('complaint_type')
+                Tables\Columns\TextColumn::make('building.name')->label('Building Name')
                     ->toggleable()
-                    ->searchable(true, null, true)
                     ->limit(50),
                 Tables\Columns\TextColumn::make('category')
                     ->toggleable()

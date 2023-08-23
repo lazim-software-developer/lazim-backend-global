@@ -21,9 +21,9 @@ class Role extends Model
     {
         return $this->hasMany(User::class);
     }
-    // public function building()
-    // {
-    //     return $this->belongsTo(Building::class);
-    // }
+    public function building()
+    {
+        return $this->belongsTo(Building::class);
+    }
 
 }

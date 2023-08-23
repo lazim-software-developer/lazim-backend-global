@@ -21,57 +21,44 @@ class FlatResource extends Resource
     protected static ?string $model = Flat::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-    protected static ?string $navigationGroup = 'Building Management';
+    protected static ?string $navigationLabel = 'Flats';
+    protected static ?string $navigationGroup = 'Flat Management';
 
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Grid::make(['default' => 0])->schema([
+                Grid::make([
+                    'sm' => 1,
+                    'md' => 1,
+                    'lg' => 2,])
+                    ->schema([
                     TextInput::make('number')
                         ->rules(['numeric'])
                         ->required()
                         ->numeric()
-                        ->placeholder('Number')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+                        ->placeholder('Number'),
+
 
                     TextInput::make('floor')
                         ->rules(['numeric'])
                         ->required()
                         ->numeric()
-                        ->placeholder('Floor')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+                        ->placeholder('Floor'),
 
-                    Select::make('building_id')
-                        ->rules(['exists:buildings,id'])
-                        ->required()
-                        ->relationship('building', 'name')
-                        ->searchable()
-                        ->placeholder('Building')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+                    // Select::make('building_id')
+                    //     ->rules(['exists:buildings,id'])
+                    //     ->required()
+                    //     ->relationship('building', 'name')
+                    //     ->searchable()
+                    //     ->placeholder('Building'),
+
 
                     TextInput::make('description')
                         ->rules(['max:50', 'string'])
-                        ->required()
-                        ->placeholder('Description')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+                        ->placeholder('Description'),
+
                 ]),
             ]);
     }
@@ -87,7 +74,7 @@ class FlatResource extends Resource
                 Tables\Columns\TextColumn::make('floor')
                     ->toggleable()
                     ->searchable(true, null, true),
-                Tables\Columns\TextColumn::make('building.name')
+                Tables\Columns\TextColumn::make('building.name')->label('Building Name')
                     ->toggleable()
                     ->limit(50),
                 Tables\Columns\TextColumn::make('description')
@@ -110,7 +97,7 @@ class FlatResource extends Resource
                 Tables\Actions\CreateAction::make(),
             ]);
     }
-    
+
     public static function getRelations(): array
     {
         return [
@@ -120,7 +107,7 @@ class FlatResource extends Resource
             FlatResource\RelationManagers\UserRelationManager::class,
         ];
     }
-    
+
     public static function getPages(): array
     {
         return [
@@ -128,5 +115,5 @@ class FlatResource extends Resource
             'create' => Pages\CreateFlat::route('/create'),
             'edit' => Pages\EditFlat::route('/{record}/edit'),
         ];
-    }    
+    }
 }

@@ -22,73 +22,52 @@ class BuildingPocResource extends Resource
     protected static ?string $model = BuildingPoc::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-    protected static ?string $navigationLabel = 'Pocs';
-    protected static ?string $navigationGroup = 'Building Management';
+    protected static ?string $navigationLabel = 'Building Managers';
+    protected static ?string $navigationGroup = 'Property Management';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Grid::make(['default' => 0])->schema([
-                    Select::make('building_id')
-                        ->rules(['exists:buildings,id'])
-                        ->required()
-                        ->relationship('building', 'name')
-                        ->searchable()
-                        ->placeholder('Building')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+                Grid::make([
+                    'sm' => 1,
+                    'md' => 2,
+                    'lg' => 2,
+                ])->schema([
+                    // Select::make('building_id')
+                    //     ->rules(['exists:buildings,id'])
+                    //     ->required()
+                    //     ->relationship('building', 'name')
+                    //     ->searchable()
+                    //     ->placeholder('Building'),
+
 
                     Select::make('user_id')
                         ->rules(['exists:users,id'])
                         ->required()
                         ->relationship('user', 'first_name')
                         ->searchable()
-                        ->placeholder('User')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+                        ->placeholder('User'),
+
 
                     TextInput::make('role_name')
                         ->rules(['max:50', 'string'])
                         ->required()
-                        ->placeholder('Role Name')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+                        ->placeholder('Role Name'),
+
 
                     TextInput::make('escalation_level')
                         ->rules(['max:50', 'string'])
                         ->required()
-                        ->placeholder('Escalation Level')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+                        ->placeholder('Escalation Level'),
 
                     Toggle::make('active')
-                        ->rules(['boolean'])
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+                        ->rules(['boolean']),
+
 
                     Toggle::make('emergency_contact')
                         ->rules(['boolean'])
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+
                 ]),
             ]);
     }
@@ -134,14 +113,14 @@ class BuildingPocResource extends Resource
                 Tables\Actions\CreateAction::make(),
             ]);
     }
-    
+
     public static function getRelations(): array
     {
         return [
             //
         ];
     }
-    
+
     public static function getPages(): array
     {
         return [
@@ -149,5 +128,5 @@ class BuildingPocResource extends Resource
             'create' => Pages\CreateBuildingPoc::route('/create'),
             'edit' => Pages\EditBuildingPoc::route('/{record}/edit'),
         ];
-    }    
+    }
 }

@@ -14,7 +14,7 @@ return new class extends Migration {
             $table->bigIncrements('id');
             $table->unsignedBigInteger('facility_id');
             $table->unsignedBigInteger('user_id');
-            //$table->unsignedBigInteger('building_id');
+            $table->unsignedBigInteger('building_id')->nullable();
             $table->date('date');
             $table->time('start_time');
             $table->time('end_time');
@@ -23,7 +23,7 @@ return new class extends Migration {
             $table->json('remarks');
             $table->string('reference_number', 50);
             $table->boolean('approved');
-            $table->unsignedBigInteger('approved_by');
+            $table->unsignedBigInteger('approved_by')->nullable();
 
             $table->timestamps();
         });

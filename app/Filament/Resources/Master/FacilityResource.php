@@ -19,6 +19,8 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\Master\FacilityResource\Pages;
 use App\Filament\Resources\Master\FacilityResource\RelationManagers;
+use Filament\Forms\Components\FileUpload;
+use Filament\Tables\Columns\ImageColumn;
 
 class FacilityResource extends Resource
 {
@@ -31,46 +33,30 @@ class FacilityResource extends Resource
     {
         return $form
             ->schema([
-                Grid::make(['default' => 0])->schema([
+                Grid::make([
+                    'sm' => 1,
+                    'md' => 1,
+                    'lg' => 2,])
+                    ->schema([
                     TextInput::make('name')
                         ->rules(['max:50', 'string'])
                         ->required()
-                        ->placeholder('Name')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
-                        // Select::make('building_id')
-                        // ->rules(['exists:buildings,id'])
-                        // ->required()
-                        // ->relationship('building', 'name')
-                        // ->searchable()
-                        // ->placeholder('Building')
-                        // ->columnSpan([
-                        //     'default' => 12,
-                        //     'md' => 12,
-                        //     'lg' => 12,
-                        // ]),
+                        ->placeholder('Name'),
 
-                    RichEditor::make('icon')
-                        ->rules(['max:255', 'string'])
-                        ->required()
-                        ->placeholder('Icon')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+                    // Select::make('building_id')
+                    //     ->rules(['exists:buildings,id'])
+                    //     ->required()
+                    //     ->relationship('building', 'name')
+                    //     ->searchable()
+                    //     ->placeholder('Building'),
 
+
+                    FileUpload::make('icon')
+                        ->disk('s3'),
                     Toggle::make('active')
-                        ->rules(['boolean'])
-                        ->required()
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+                        ->rules(['boolean']),
+
+
                 ]),
             ]);
     }
@@ -84,7 +70,12 @@ class FacilityResource extends Resource
                     ->toggleable()
                     ->searchable(true, null, true)
                     ->limit(50),
-                TextColumn::make('icon')
+                TextColumn::make('building.name')->label('Building Name')
+                    ->toggleable()
+                    ->searchable(true, null, true)
+                    ->limit(50),
+                ImageColumn::make('icon')
+                    ->disk('s3')
                     ->toggleable()
                     ->searchable()
                     ->limit(50),
@@ -107,7 +98,7 @@ class FacilityResource extends Resource
                 Tables\Actions\CreateAction::make(),
             ]);
     }
-    
+
     public static function getRelations(): array
     {
         return [
@@ -115,7 +106,7 @@ class FacilityResource extends Resource
             FacilityResource\RelationManagers\BuildingsRelationManager::class,
         ];
     }
-    
+
     public static function getPages(): array
     {
         return [
@@ -123,5 +114,5 @@ class FacilityResource extends Resource
             'create' => Pages\CreateFacility::route('/create'),
             'edit' => Pages\EditFacility::route('/{record}/edit'),
         ];
-    }    
+    }
 }

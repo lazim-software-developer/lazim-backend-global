@@ -27,44 +27,36 @@ class FlatDomesticHelpResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
     protected static ?string $navigationLabel = 'Domestic Help';
-    protected static ?string $navigationGroup = 'Visitor Management';
+    protected static ?string $navigationGroup = 'Flat Management';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Grid::make(['default' => 0])->schema([
+                Grid::make([
+                    'sm' => 1,
+                    'md' => 1,
+                    'lg' => 2,])
+                    ->schema([
                     Select::make('flat_id')
                         ->rules(['exists:flats,id'])
                         ->required()
-                        ->relationship('flat', 'description')
+                        ->relationship('flat', 'id')
                         ->searchable()
-                        ->placeholder('Flat')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+                        ->placeholder('Flat'),
+
 
                     TextInput::make('first_name')
                         ->rules(['max:50', 'string'])
                         ->required()
-                        ->placeholder('First Name')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+                        ->placeholder('First Name'),
+
 
                     TextInput::make('last_name')
                         ->rules(['max:50', 'string'])
                         ->nullable()
-                        ->placeholder('Last Name')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+                        ->placeholder('Last Name'),
+
 
                     TextInput::make('phone')
                         ->rules(['max:10', 'string'])
@@ -75,58 +67,33 @@ class FlatDomesticHelpResource extends Resource
                             fn(?Model $record) => $record
                         )
                         ->placeholder('Phone')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+                        ,
 
                     FileUpload::make('profile_photo')
                         ->nullable()
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+                        ->disk('s3'),
 
                     DateTimePicker::make('start_date')
                         ->rules(['date'])
                         ->required()
-                        ->placeholder('Start Date')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+                        ->placeholder('Start Date'),
+
 
                     DateTimePicker::make('end_date')
                         ->rules(['date'])
                         ->nullable()
-                        ->placeholder('End Date')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+                        ->placeholder('End Date'),
+
 
                     TextInput::make('role_name')
                         ->rules(['max:50', 'string'])
                         ->required()
-                        ->placeholder('Role Name')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+                        ->placeholder('Role Name'),
 
                     Toggle::make('active')
                         ->rules(['boolean'])
                         ->required()
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+
                 ]),
             ]);
     }
@@ -136,7 +103,11 @@ class FlatDomesticHelpResource extends Resource
         return $table
             ->poll('60s')
             ->columns([
-                Tables\Columns\TextColumn::make('flat.description')
+
+                Tables\Columns\TextColumn::make('building.name')->label('Building Name')
+                    ->toggleable()
+                    ->limit(50),
+                Tables\Columns\TextColumn::make('flat.id')
                     ->toggleable()
                     ->limit(50),
                 Tables\Columns\TextColumn::make('first_name')
@@ -151,6 +122,9 @@ class FlatDomesticHelpResource extends Resource
                     ->toggleable()
                     ->searchable(true, null, true)
                     ->limit(50),
+                Tables\Columns\ImageColumn::make('profile_photo')
+                    ->toggleable()
+                    ->disk('s3'),
                 Tables\Columns\TextColumn::make('start_date')
                     ->toggleable()
                     ->dateTime(),
@@ -180,14 +154,14 @@ class FlatDomesticHelpResource extends Resource
                 Tables\Actions\CreateAction::make(),
             ]);
     }
-    
+
     public static function getRelations(): array
     {
         return [
             //
         ];
     }
-    
+
     public static function getPages(): array
     {
         return [
@@ -195,5 +169,5 @@ class FlatDomesticHelpResource extends Resource
             'create' => Pages\CreateFlatDomesticHelp::route('/create'),
             'edit' => Pages\EditFlatDomesticHelp::route('/{record}/edit'),
         ];
-    }    
+    }
 }
