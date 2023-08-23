@@ -29,17 +29,17 @@ class ServiceResource extends Resource
     {
         return $form
             ->schema([
-                Grid::make(['default' => 0])->schema([
+                Grid::make([
+                    'sm' => 1,
+                    'md' => 1,
+                    'lg' => 2,])
+                    ->schema([
                     TextInput::make('name')
                         ->rules(['max:50', 'string'])
                         ->required()
                         ->placeholder('Name')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
-                    
+                        
+
                 ]),
             //     Select::make('building_id')
             //     ->rules(['exists:buildings,id'])
@@ -64,7 +64,7 @@ class ServiceResource extends Resource
                 ->toggleable()
                 ->searchable(true, null, true)
                 ->limit(50),
-            
+
         ])
             ->filters([
                 //
@@ -81,14 +81,14 @@ class ServiceResource extends Resource
                 Tables\Actions\CreateAction::make(),
             ]);
     }
-    
+
     public static function getRelations(): array
     {
         return [
             ServiceResource\RelationManagers\VendorsRelationManager::class
         ];
     }
-    
+
     public static function getPages(): array
     {
         return [
@@ -96,5 +96,5 @@ class ServiceResource extends Resource
             'create' => Pages\CreateService::route('/create'),
             'edit' => Pages\EditService::route('/{record}/edit'),
         ];
-    }    
+    }
 }

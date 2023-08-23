@@ -51,86 +51,47 @@ class DocumentsResource extends Resource
                         ->required()
                         ->relationship('documentLibrary', 'id')
                         ->searchable()
-                        ->placeholder('Document Library')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
-                        // Select::make('building_id')
-                        // ->rules(['exists:buildings,id'])
-                        // ->required()
-                        // ->relationship('building', 'name')
-                        // ->searchable()
-                        // ->placeholder('Building')
-                        // ->columnSpan([
-                        //     'default' => 12,
-                        //     'md' => 12,
-                        //     'lg' => 12,
-                        // ]),
+                        ->placeholder('Document Library'),
 
-                    FileUpload::make('url')
-                        ->rules(['max:255', 'string'])
+                    Select::make('building_id')
+                        ->rules(['exists:buildings,id'])
                         ->required()
-                        ->downloadable()
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+                        ->relationship('building', 'name')
+                        ->searchable()
+                        ->placeholder('Building'),
 
-                    Select::make('status')
+
+                    FileUpload::make('Document')
+                        ->disk('s3')
+                        ->required()
+                        ->downloadable(),
+
+
+                    Select::make('Status')
                         ->options([
                             'pending'=>'Pending'
                         ])
                         ->rules(['max:50', 'string'])
                         ->required()
-                        ->placeholder('Status')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+                        ->placeholder('Status'),
 
-                    // KeyValue::make('comments')
-                    //     ->required()
-                    //     ->addable(true)
-                    //     ->deletable(true),
-                    //     // ->columnSpan([
-                    //     //     'default' => 12,
-                    //     //     'md' => 12,
-                    //     //     'lg' => 12,
-                    //     // ]),
 
-                    Repeater::make('comments')
-                    ->schema([
-                        TextInput::make('key')->required(),
+                    TextInput::make('Comment')
+                        ->required(),
 
-                        TextInput::make('value')->required(),
-
-                    ])
-                    ->columns(2),
                     DatePicker::make('expiry_date')
                         ->rules(['date'])
                         ->required()
-                        ->placeholder('Expiry Date')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+                        ->placeholder('Expiry Date'),
+
 
                     Select::make('accepted_by')
                         ->rules(['exists:users,id'])
                         ->required()
                         ->relationship('user', 'first_name')
                         ->searchable()
-                        ->placeholder('User')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+                        ->placeholder('User'),
+
 
                     MorphToSelect::make('documentable')
 
@@ -140,12 +101,8 @@ class DocumentsResource extends Resource
                             Type::make(Vendor::class)->titleAttribute('name')
 
 
-                        ])
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
                         ]),
+
 
 
 
@@ -153,11 +110,7 @@ class DocumentsResource extends Resource
                         ->rules(['max:255'])
                         ->required()
                         ->placeholder('Documentable Id')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+
 
 
                 ]),

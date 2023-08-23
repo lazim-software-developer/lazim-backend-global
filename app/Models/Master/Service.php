@@ -25,8 +25,8 @@ class Service extends Model
     {
         return $this->belongsToMany(Vendor::class);
     }
-    // public function building()
-    // {
-    //     return $this->belongsTo(Building::class);
-    // }
+    public function building()
+    {
+        return $this->belongsTo(Building::class);
+    }
 }

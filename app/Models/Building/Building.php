@@ -17,6 +17,8 @@ use App\Models\Building\Complaint;
 use App\Models\Building\BuildingPoc;
 use App\Models\Vendor\Contact;
 use App\Models\Vendor\Vendor;
+use App\Models\Visitor\FlatDomesticHelp;
+use App\Models\Visitor\FlatVisitor;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -38,6 +40,7 @@ class Building extends Model
         'lng',
         'description',
         'floors',
+
     ];
 
     protected $searchableFields = ['*'];
@@ -52,51 +55,60 @@ class Building extends Model
         return $this->hasMany(BuildingPoc::class);
     }
 
-    // public function complaint()
-    // {
-    //     return $this->hasMany(Complaint::class);
-    // }
+    public function complaint()
+    {
+        return $this->hasMany(Complaint::class);
+    }
 
-    // public function document()
-    // {
-    //     return $this->hasMany(Document::class);
-    // }
+    public function document()
+    {
+        return $this->hasMany(Document::class);
+    }
 
-    // public function facilitybooking()
-    // {
-    //     return $this->hasMany(FacilityBooking::class);
-    // }
+    public function facilityBookings()
+    {
+        return $this->hasMany(FacilityBooking::class);
+    }
 
-    // public function flattenant()
-    // {
-    //     return $this->hasMany(FlatTenant::class);
-    // }
+    public function flatTenants()
+    {
+        return $this->hasMany(FlatTenant::class);
+    }
 
-    // public function documentlibrary()
-    // {
-    //     return $this->hasMany(DocumentLibrary::class);
-    // }
+    public function documentLibraries()
+    {
+        return $this->hasMany(DocumentLibrary::class);
+    }
 
-    // public function facility()
-    // {
-    //     return $this->hasMany(Facility::class);
-    // }
-    // public function role()
-    // {
-    //     return $this->hasMany(Role::class);
-    // }
-    // public function service()
-    // {
-    //     return $this->hasMany(Service::class);
-    // }
-    // public function contact()
-    // {
-    //     return $this->hasMany(Contact::class);
-    // }
+    public function facility()
+    {
+        return $this->hasMany(Facility::class);
+    }
+    public function roles()
+    {
+        return $this->hasMany(Role::class);
+    }
+    public function services()
+    {
+        return $this->hasMany(Service::class);
+    }
+    public function flatVisitors()
+    {
+        return $this->hasMany(FlatVisitor::class);
+    }
+    public function contact()
+    {
+        return $this->hasMany(Contact::class);
+    }
+    public function flatDomesticHelps()
+    {
+        return $this->hasMany(FlatDomesticHelp::class);
+    }
     // public function vendor()
     // {
     //     return $this->hasMany(Vendor::class);
     // }
+
 
 
     public function attendances()

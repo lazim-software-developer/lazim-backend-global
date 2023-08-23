@@ -53,8 +53,8 @@ class FacilityBooking extends Model
     {
         return $this->belongsTo(User::class, 'approved_by');
     }
-    // public function building()
-    // {
-    //     return $this->belongsTo(Building::class);
-    // }
+    public function building()
+    {
+        return $this->belongsTo(Building::class);
+    }
 }

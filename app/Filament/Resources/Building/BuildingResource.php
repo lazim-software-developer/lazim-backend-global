@@ -123,6 +123,7 @@ class BuildingResource extends Resource
                             'md' => 12,
                             'lg' => 12,
                         ]),
+                        
 
                     TextInput::make('floors')
                         ->rules(['numeric'])
@@ -197,7 +198,7 @@ class BuildingResource extends Resource
                 Tables\Actions\CreateAction::make(),
             ]);
     }
-    
+
     public static function getRelations(): array
     {
         return [
@@ -208,9 +209,9 @@ class BuildingResource extends Resource
             BuildingResource\RelationManagers\FacilitiesRelationManager::class,
             BuildingResource\RelationManagers\FlatsRelationManager::class,
         ];
-        
+
     }
-    
+
     public static function getPages(): array
     {
         return [
@@ -218,5 +219,5 @@ class BuildingResource extends Resource
             'create' => Pages\CreateBuilding::route('/create'),
             'edit' => Pages\EditBuilding::route('/{record}/edit'),
         ];
-    }    
+    }
 }

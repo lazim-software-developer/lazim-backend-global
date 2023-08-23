@@ -12,6 +12,7 @@ use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\KeyValue;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\TimePicker;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -25,150 +26,91 @@ class FacilityBookingResource extends Resource
     protected static ?string $model = FacilityBooking::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-    protected static ?string $navigationLabel = 'Bookings';
-    protected static ?string $navigationGroup = 'Building Management';
+    protected static ?string $navigationLabel = 'Facility Bookings';
+    protected static ?string $navigationGroup = 'Property Management';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Grid::make(['default' => 0])->schema([
+                Grid::make([
+                    'sm' => 1,
+                    'md' => 1,
+                    'lg' => 2,])
+                    ->schema([
+
                     Select::make('facility_id')
                         ->rules(['exists:facilities,id'])
                         ->required()
-                        ->relationship('facilities', 'name')
+                        ->relationship('facility', 'name')
                         ->searchable()
-                        ->placeholder('Facilities')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+                        ->placeholder('Facilities'),
 
                     Select::make('user_id')
                         ->rules(['exists:users,id'])
                         ->required()
                         ->relationship('user', 'first_name')
                         ->searchable()
-                        ->placeholder('User')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+                        ->placeholder('User'),
 
-                        // Select::make('building_id')
-                        // ->rules(['exists:buildings,id'])
-                        // ->required()
-                        // ->relationship('building', 'name')
-                        // ->searchable()
-                        // ->placeholder('Building')
-                        // ->columnSpan([
-                        //     'default' => 12,
-                        //     'md' => 12,
-                        //     'lg' => 12,
-                        // ]),
+
+                    // Select::make('building_id')
+                    //     ->rules(['exists:buildings,id'])
+                    //     ->required()
+                    //     ->relationship('building', 'name')
+                    //     ->searchable()
+                    //     ->placeholder('Building'),
 
                     DatePicker::make('date')
                         ->rules(['date'])
                         ->required()
-                        ->placeholder('Date')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+                        ->placeholder('Date'),
 
-                    DatePicker::make('start_time')
-                        ->rules(['date'])
-                        ->required()
-                        ->placeholder('Start Time')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
 
-                    DatePicker::make('end_time')
-                        ->rules(['date'])
+                    TimePicker::make('start_time')
                         ->required()
-                        ->placeholder('End Time')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+                        ->placeholder('Start Time'),
+
+
+                    TimePicker::make('end_time')
+                        ->required()
+                        ->placeholder('End Time'),
 
                     TextInput::make('order_id')
                         ->rules(['max:255', 'string'])
                         ->nullable()
-                        ->placeholder('Order Id')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+                        ->placeholder('Order Id'),
+
 
                     TextInput::make('payment_status')
                         ->rules(['max:50', 'string'])
                         ->nullable()
-                        ->placeholder('Payment Status')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+                        ->placeholder('Payment Status'),
 
-                    KeyValue::make('remarks')
-                        ->required()
-                        ->required()
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
 
-                    TextInput::make('references_number')
+                    TextInput::make('remarks')
+                        ->required(),
+
+                    TextInput::make('reference_number')
                         ->rules(['numeric'])
                         ->required()
                         ->numeric()
-                        ->placeholder('References Number')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+                        ->placeholder('References Number'),
+
 
                     Toggle::make('approved')
                         ->rules(['boolean'])
-                        ->required()
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+                        ->required(),
+                    // Select::make('approved_by')
+                    //     ->rules(['exists:users,id'])
+                    //     ->relationship('userFacilityBookingApprove', 'first_name')
+                    //     ->searchable()
+                    //     ->placeholder('User'),
 
-                    DateTimePicker::make('created_at')
-                        ->rules(['date'])
-                        ->required()
-                        ->placeholder('Created At')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
 
-                    DateTimePicker::make('updated_at')
-                        ->rules(['date'])
-                        ->required()
-                        ->placeholder('Updated At')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+
                 ]),
-                
+
             ]);
     }
 
@@ -177,7 +119,10 @@ class FacilityBookingResource extends Resource
         return $table
             ->poll('60s')
             ->columns([
-                Tables\Columns\TextColumn::make('facilities.name')
+                Tables\Columns\TextColumn::make('building.name')
+                ->toggleable()
+                ->limit(50),
+                Tables\Columns\TextColumn::make('facility.name')
                     ->toggleable()
                     ->limit(50),
                 Tables\Columns\TextColumn::make('user.first_name')
@@ -201,18 +146,18 @@ class FacilityBookingResource extends Resource
                     ->toggleable()
                     //->searchable(true, null, true)
                     ->limit(50),
-                Tables\Columns\TextColumn::make('references_number')
+                Tables\Columns\TextColumn::make('reference_number')
                     ->toggleable(),
                     //->searchable(true, null, true),
                 Tables\Columns\IconColumn::make('approved')
                     ->toggleable()
                     ->boolean(),
-                Tables\Columns\TextColumn::make('created_at')
-                    ->toggleable()
-                    ->dateTime(),
-                Tables\Columns\TextColumn::make('updated_at')
-                    ->toggleable()
-                    ->dateTime(),
+                // Tables\Columns\TextColumn::make('created_at')
+                //     ->toggleable()
+                //     ->dateTime(),
+                // Tables\Columns\TextColumn::make('updated_at')
+                //     ->toggleable()
+                //     ->dateTime(),
             ])
             ->filters([
                 //
@@ -229,14 +174,14 @@ class FacilityBookingResource extends Resource
                 Tables\Actions\CreateAction::make(),
             ]);
     }
-    
+
     public static function getRelations(): array
     {
         return [
             //
         ];
     }
-    
+
     public static function getPages(): array
     {
         return [
@@ -244,5 +189,5 @@ class FacilityBookingResource extends Resource
             'create' => Pages\CreateFacilityBooking::route('/create'),
             'edit' => Pages\EditFacilityBooking::route('/{record}/edit'),
         ];
-    }    
+    }
 }

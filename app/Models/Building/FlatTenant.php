@@ -56,8 +56,8 @@ class FlatTenant extends Model
     {
         return $this->morphMany(Complaint::class, 'complaintable');
     }
-    // public function building()
-    // {
-    //     return $this->belongsTo(Building::class);
-    // }
+    public function building()
+    {
+        return $this->belongsTo(Building::class);
+    }
 }

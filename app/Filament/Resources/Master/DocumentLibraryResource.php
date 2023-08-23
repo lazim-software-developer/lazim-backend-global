@@ -30,7 +30,11 @@ class DocumentLibraryResource extends Resource
     {
         return $form
             ->schema([
-                Grid::make(['default' => 0])->schema([
+                Grid::make([
+                    'sm' => 1,
+                    'md' => 1,
+                    'lg' => 2,])
+                    ->schema([
                     Select::make('name')
                         ->options([
                             'tl_document' =>'TL Document',
@@ -44,39 +48,28 @@ class DocumentLibraryResource extends Resource
 
                         ->rules(['max:50', 'string'])
                         ->required()
-                        ->placeholder('Name')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
-                        // Select::make('building_id')
-                        // ->rules(['exists:buildings,id'])
-                        // ->required()
-                        // ->relationship('building', 'name')
-                        // ->searchable()
-                        // ->placeholder('Building')
-                        // ->columnSpan([
-                        //     'default' => 12,
-                        //     'md' => 12,
-                        //     'lg' => 12,
-                        // ]),
+                        ->placeholder('Name'),
+                    // Select::make('building_id')
+                    //     ->rules(['exists:buildings,id'])
+                    //     ->required()
+                    //     ->relationship('building', 'name')
+                    //     ->searchable()
+                    //     ->placeholder('Building'),
+
                     Select::make('type')
                         ->options([
                             'vendor'=>'Vendor',
-                            'tenant'=>'Tenant'
+                            'tenant'=>'Tenant',
+                            'owner'=>'Owner'
                         ]),
 
-                    FileUpload::make('url')
+                    FileUpload::make('url')->label('Document')
                         ->required()
                         ->disk('s3')
                         ->downloadable()
-                        ->previewable()
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+                        ->preserveFilenames()
+                        ,
+
                     ]),
             ]);
     }
@@ -92,10 +85,9 @@ class DocumentLibraryResource extends Resource
                 ->limit(50),
             // ViewColumn::make('url')->view('tables.columns.url-column')
             //     ->toggleable(),
-            Tables\Columns\TextColumn::make('url')
+            Tables\Columns\TextColumn::make('url')->label('Uploaded Document')
                 ->toggleable()
                 ->searchable()
-                ->openUrlInNewTab()
                 ->limit(50),
             Tables\Columns\TextColumn::make('type')
                 ->toggleable()

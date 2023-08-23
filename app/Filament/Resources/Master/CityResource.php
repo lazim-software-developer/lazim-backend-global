@@ -26,17 +26,17 @@ class CityResource extends Resource
     {
         return $form
             ->schema([
-                Grid::make(['default' => 0])->schema([
+                Grid::make([
+                    'sm' => 1,
+                    'md' => 1,
+                    'lg' => 2,
+                ])->schema([
                     TextInput::make('name')
                         ->rules(['max:50', 'string'])
                         ->required()
-                        ->placeholder('Name')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
-                    
+                        ->placeholder('Name'),
+
+
                 ])
             ]);
     }
@@ -65,14 +65,14 @@ class CityResource extends Resource
                 Tables\Actions\CreateAction::make(),
             ]);
     }
-    
+
     public static function getRelations(): array
     {
         return [
             CityResource\RelationManagers\BuildingsRelationManager::class
         ];
     }
-    
+
     public static function getPages(): array
     {
         return [
@@ -80,5 +80,5 @@ class CityResource extends Resource
             'create' => Pages\CreateCity::route('/create'),
             'edit' => Pages\EditCity::route('/{record}/edit'),
         ];
-    }    
+    }
 }

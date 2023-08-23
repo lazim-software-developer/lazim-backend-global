@@ -14,7 +14,7 @@ return new class extends Migration {
             $table->bigIncrements('id');
             $table->string('complaintable_type');
             $table->unsignedBigInteger('complaintable_id');
-            //$table->unsignedBigInteger('building_id');
+            $table->unsignedBigInteger('building_id')->nullable();
             $table->unsignedBigInteger('user_id');
             //$table->string('complaint_type', 50);
             $table->string('category', 50);
