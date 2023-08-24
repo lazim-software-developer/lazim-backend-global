@@ -3,6 +3,7 @@
 namespace App\Filament\Pages\Tenancy;
 
 use App\Models\Building\Building;
+use App\Models\Master\Service;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Pages\Tenancy\RegisterTenant;
@@ -37,6 +38,12 @@ class RegisterBuilding extends RegisterTenant
         $building = Building::create($data);
 
         $building->members()->attach(auth()->user());
+
+        $services = Service::where('custom',0)->get();
+
+        foreach ($services as $service){
+            $building->services()->attach($service->id);
+        }
 
         return $building;
     }

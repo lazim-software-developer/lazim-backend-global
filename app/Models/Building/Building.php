@@ -88,10 +88,10 @@ class Building extends Model
     // {
     //     return $this->hasMany(Role::class);
     // }
-    // public function services()
-    // {
-    //     return $this->hasMany(Service::class);
-    // }
+    public function services()
+    {
+        return $this->belongsToMany(Service::class, 'building_services','building_id','service_id');
+    }
     public function flatVisitors()
     {
         return $this->hasMany(FlatVisitor::class);
