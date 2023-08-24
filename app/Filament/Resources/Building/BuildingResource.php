@@ -24,7 +24,7 @@ class BuildingResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
     protected static ?string $navigationGroup = 'Building Management';
-
+    protected static bool $shouldRegisterNavigation = false;
     public static function form(Form $form): Form
     {
         return $form
@@ -123,7 +123,7 @@ class BuildingResource extends Resource
                             'md' => 12,
                             'lg' => 12,
                         ]),
-                        
+
 
                     TextInput::make('floors')
                         ->rules(['numeric'])

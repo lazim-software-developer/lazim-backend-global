@@ -47,7 +47,7 @@ class Building extends Model
 
     public function cities()
     {
-        return $this->belongsTo(City::class);
+        return $this->belongsTo(City::class, 'city_id');
     }
 
     public function buildingPocs()
@@ -75,15 +75,15 @@ class Building extends Model
         return $this->hasMany(FlatTenant::class);
     }
 
-    public function documentLibraries()
-    {
-        return $this->hasMany(DocumentLibrary::class);
-    }
-
-    // public function facility()
+    // public function documentLibraries()
     // {
-    //     return $this->hasMany(Facility::class);
+    //     return $this->hasMany(DocumentLibrary::class);
     // }
+
+    public function facility()
+    {
+        return $this->hasMany(Facility::class);
+    }
     // public function roles()
     // {
     //     return $this->hasMany(Role::class);
@@ -91,6 +91,15 @@ class Building extends Model
     public function services()
     {
         return $this->belongsToMany(Service::class, 'building_services','building_id','service_id');
+    }
+
+    public function roles()
+    {
+        return $this->belongsToMany(Role::class, 'building_roles','building_id','role_id');
+    }
+    public function documentlibraries()
+    {
+        return $this->belongsToMany(Role::class, 'building_documentlibraries','building_id','documentlibrary_id');
     }
     public function flatVisitors()
     {
@@ -123,7 +132,7 @@ class Building extends Model
 
     public function facilities()
     {
-        return $this->belongsToMany(Facility::class);
+        return $this->belongsToMany(Facility::class,'building_facility');
     }
 
     public function documents()

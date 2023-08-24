@@ -17,6 +17,7 @@ return new class extends Migration {
             $table->longText('icon')->nullable();
             $table->boolean('active')->nullable();
             $table->timestamps();
+            $table->foreign('building_id')->references('id')->on('buildings');
         });
     }
 
