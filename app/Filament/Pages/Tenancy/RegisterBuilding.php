@@ -24,7 +24,7 @@ class RegisterBuilding extends RegisterTenant
                 TextInput::make('address_line1'),
                 TextInput::make('address_line2')->nullable(),
                 TextInput::make('area')->maxLength(50),
-                //TextInput::make('city_id'),
+                TextInput::make('city_id'),
                 TextInput::make('lat')->nullable()->maxLength(50),
                 TextInput::make('lng')->nullable()->maxLength(50),
                 TextInput::make('description')->nullable(),
