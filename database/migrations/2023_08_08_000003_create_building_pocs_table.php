@@ -20,6 +20,7 @@ return new class extends Migration {
             $table->boolean('emergency_contact')->nullable();
 
             $table->timestamps();
+            $table->foreign('building_id')->references('id')->on('buildings');
         });
     }
 

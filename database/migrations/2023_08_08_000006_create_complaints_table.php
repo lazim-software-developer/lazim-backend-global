@@ -28,6 +28,7 @@ return new class extends Migration {
             $table->index('complaintable_id');
 
             $table->timestamps();
+            $table->foreign('building_id')->references('id')->on('buildings');
         });
     }
 
