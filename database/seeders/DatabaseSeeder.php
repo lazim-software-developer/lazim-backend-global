@@ -29,7 +29,7 @@ class DatabaseSeeder extends Seeder
         // $this->call(ContactSeeder::class);
         // $this->call(DocumentSeeder::class);
         // $this->call(DocumentLibrarySeeder::class);
-        // $this->call(FacilitySeeder::class);
+        $this->call(FacilitySeeder::class);
         // $this->call(FacilityBookingSeeder::class);
         // $this->call(FlatSeeder::class);
         // $this->call(FlatDomesticHelpSeeder::class);
