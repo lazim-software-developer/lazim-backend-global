@@ -26,7 +26,7 @@ class VendorResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
-    protected static ?string $navigationGroup = 'Vendor Management';
+    protected static ?string $navigationGroup = 'Document Management';
 
     public static function form(Form $form): Form
     {
@@ -174,5 +174,5 @@ class VendorResource extends Resource
             'edit' => Pages\EditVendor::route('/{record}/edit'),
         ];
     }
-    
+
 }

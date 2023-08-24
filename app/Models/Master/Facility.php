@@ -30,9 +30,9 @@ class Facility extends Model
     {
         return $this->belongsToMany(Building::class);
     }
-    // public function building()
-    // {
-    //     return $this->belongsTo(Building::class);
-    // }
+    public function building()
+    {
+        return $this->belongsTo(Building::class,'building_id');
+    }
 
 }

@@ -12,8 +12,6 @@ class CitySeeder extends Seeder
      */
     public function run(): void
     {
-        City::factory()
-            ->count(5)
-            ->create();
+        City::create(['name'=>'Dubai']);
     }
 }

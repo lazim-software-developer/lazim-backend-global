@@ -25,6 +25,6 @@ class DocumentLibrary extends Model
     }
     public function building()
     {
-        return $this->belongsTo(Building::class);
+        return $this->belongsToMany(Building::class, 'building_documentlibraries','documentlibrary_id','building_id');
     }
 }

@@ -3,7 +3,9 @@
 namespace App\Filament\Pages\Tenancy;
 
 use App\Models\Building\Building;
+use App\Models\Master\Role;
 use App\Models\Master\Service;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Pages\Tenancy\RegisterTenant;
@@ -25,11 +27,12 @@ class RegisterBuilding extends RegisterTenant
                 TextInput::make('address_line1'),
                 TextInput::make('address_line2')->nullable(),
                 TextInput::make('area')->maxLength(50),
-                //TextInput::make('city_id'),
+                Select::make('city_id')->label('City')->relationship('cities','name'),
                 TextInput::make('lat')->nullable()->maxLength(50),
                 TextInput::make('lng')->nullable()->maxLength(50),
                 TextInput::make('description')->nullable(),
                 TextInput::make('floors'),
+
             ]);
     }
 
@@ -43,6 +46,11 @@ class RegisterBuilding extends RegisterTenant
 
         foreach ($services as $service){
             $building->services()->attach($service->id);
+        }
+        $roles=Role::all();
+        foreach($roles as $role)
+        {
+            $building->roles()->attach($role->id);
         }
 
         return $building;
