@@ -11,12 +11,12 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateRole extends CreateRecord
 {
     protected static string $resource = RoleResource::class;
-    protected function afterCreate(){
-        $tenant=Filament::getTenant();
-        Role::where('id', $this->record->id)
-            ->update([
-                'building_id'=>$tenant->first()->id
-            ]);
+    // protected function afterCreate(){
+    //     $tenant=Filament::getTenant();
+    //     Role::where('id', $this->record->id)
+    //         ->update([
+    //             'building_id'=>$tenant->first()->id
+    //         ]);
 
-    }
+    // }
 }

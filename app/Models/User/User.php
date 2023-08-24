@@ -49,6 +49,7 @@ class User extends Authenticatable implements FilamentUser, HasName , HasTenants
         'active',
         'lazim_id',
         'role_id',
+        'building_id'
     ];
 
     protected $searchableFields = ['*'];
@@ -62,13 +63,13 @@ class User extends Authenticatable implements FilamentUser, HasName , HasTenants
     ];
 
 
-    
-    
+
+
     public function getFilamentName(): string
     {
-    
+
             return $this->fullName;
-    
+
     }
 
     public function getFullNameAttribute(): string
@@ -170,12 +171,12 @@ class User extends Authenticatable implements FilamentUser, HasName , HasTenants
     {
         return $this->building;
     }
-    
+
     public function building(): BelongsToMany
     {
         return $this->belongsToMany(Building::class);
     }
- 
+
     public function canAccessTenant(Model $tenant): bool
     {
         return $this->building->contains($tenant);

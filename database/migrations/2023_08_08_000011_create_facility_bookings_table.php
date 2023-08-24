@@ -26,6 +26,7 @@ return new class extends Migration {
             $table->unsignedBigInteger('approved_by')->nullable();
 
             $table->timestamps();
+            $table->foreign('building_id')->references('id')->on('buildings');
         });
     }
 

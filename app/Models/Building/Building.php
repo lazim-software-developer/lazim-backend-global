@@ -80,14 +80,14 @@ class Building extends Model
         return $this->hasMany(DocumentLibrary::class);
     }
 
-    public function facility()
-    {
-        return $this->hasMany(Facility::class);
-    }
-    public function roles()
-    {
-        return $this->hasMany(Role::class);
-    }
+    // public function facility()
+    // {
+    //     return $this->hasMany(Facility::class);
+    // }
+    // public function roles()
+    // {
+    //     return $this->hasMany(Role::class);
+    // }
     // public function services()
     // {
     //     return $this->hasMany(Service::class);
