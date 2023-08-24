@@ -23,7 +23,6 @@ return new class extends Migration {
             $table->string('lazim_id', 50)->unique()->nullable();
             $table->unsignedBigInteger('role_id')->nullable();
             $table->unsignedBigInteger('building_id')->nullable();
-            $table->foreign('building_id')->references('id')->on('buildings');
 
             $table->timestamps();
         });

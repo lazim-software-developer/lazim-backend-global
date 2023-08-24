@@ -67,8 +67,8 @@ class Vendor extends Model
     {
         return $this->morphMany(Document::class, 'documentable');
     }
-    // public function building()
-    // {
-    //     return $this->belongsTo(Building::class);
-    // }
+    public function building()
+    {
+        return $this->belongsTo(Building::class);
+    }
 }

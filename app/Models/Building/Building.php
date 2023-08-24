@@ -104,10 +104,10 @@ class Building extends Model
     {
         return $this->hasMany(FlatDomesticHelp::class);
     }
-    // public function vendor()
-    // {
-    //     return $this->hasMany(Vendor::class);
-    // }
+    public function vendor()
+    {
+        return $this->hasMany(Vendor::class);
+    }
 
 
 
