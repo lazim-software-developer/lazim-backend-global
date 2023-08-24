@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Master\Role;
 use App\Models\User\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -17,10 +18,11 @@ class UserSeeder extends Seeder
 
             'first_name' => 'Admin',
             'last_name' => 'Admin',
-            'role_id' => 1,
+            'role_id' => Role::where('name', 'Admin')->value('id'),
             'phone' => '9234567890',
-            'email' => 'admin@admin.com',
-            'password' => Hash::make('admin'),
+            'email' => 'admin@gmail.com',
+            'password' => Hash::make('test1234'),
+            'active' =>1
 
         ];
 
