@@ -51,6 +51,7 @@ return new class extends Migration
             $table->dropForeign(['flat_id']);
             $table->dropForeign(['initiated_by']);
             $table->dropForeign(['approved_by']);
+            $table->dropForeign(['building_id']);
         });
     }
 };

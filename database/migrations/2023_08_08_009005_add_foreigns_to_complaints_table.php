@@ -34,6 +34,7 @@ return new class extends Migration {
     {
         Schema::table('complaints', function (Blueprint $table) {
             $table->dropForeign(['user_id']);
+            $table->dropForeign(['building_id']);
         });
     }
 };
