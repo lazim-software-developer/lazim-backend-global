@@ -17,6 +17,13 @@ return new class extends Migration {
                 ->on('users')
                 ->onUpdate('CASCADE')
                 ->onDelete('CASCADE');
+
+            $table
+                ->foreign('building_id')
+                ->references('id')
+                ->on('buildings')
+                ->onUpdate('CASCADE')
+                ->onDelete('CASCADE');
         });
     }
 

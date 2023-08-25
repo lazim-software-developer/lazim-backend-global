@@ -16,19 +16,15 @@ return new class extends Migration {
             $table->unsignedBigInteger('complaintable_id');
             $table->unsignedBigInteger('building_id')->nullable();
             $table->unsignedBigInteger('user_id');
-            //$table->string('complaint_type', 50);
             $table->string('category', 50);
             $table->dateTime('open_time');
             $table->dateTime('close_time');
             $table->json('photo')->nullable();
             $table->json('remarks')->nullable();
             $table->string('status', 50);
-
             $table->index('complaintable_type');
             $table->index('complaintable_id');
-
             $table->timestamps();
-            $table->foreign('building_id')->references('id')->on('buildings');
         });
     }
 
