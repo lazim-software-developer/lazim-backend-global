@@ -35,6 +35,7 @@ return new class extends Migration
     {
         Schema::table('flat_domestic_helps', function (Blueprint $table) {
             $table->dropForeign(['flat_id']);
+            $table->dropForeign(['building_id']);
         });
     }
 };
