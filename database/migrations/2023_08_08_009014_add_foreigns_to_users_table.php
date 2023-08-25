@@ -17,6 +17,10 @@ return new class extends Migration {
                 ->on('roles')
                 ->onUpdate('CASCADE')
                 ->onDelete('CASCADE');
+            $table
+                ->foreign('building_id')
+                ->references('id')
+                ->on('buildings');
         });
     }
 
@@ -27,6 +31,7 @@ return new class extends Migration {
     {
         Schema::table('users', function (Blueprint $table) {
             $table->dropForeign(['role_id']);
+            $table->dropForeign(['building_id']);
         });
     }
 };

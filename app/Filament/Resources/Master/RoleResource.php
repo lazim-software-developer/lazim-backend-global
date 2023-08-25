@@ -2,18 +2,19 @@
 
 namespace App\Filament\Resources\Master;
 
-use App\Filament\Resources\Master\RoleResource\Pages;
-use App\Filament\Resources\Master\RoleResource\RelationManagers;
-use App\Models\Master\Role;
 use Filament\Forms;
-use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Forms\Form;
 use Filament\Tables\Table;
+use App\Models\Master\Role;
+use Filament\Resources\Resource;
+use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Filament\Resources\Master\RoleResource\Pages;
+use App\Filament\Resources\Master\RoleResource\RelationManagers;
 
 class RoleResource extends Resource
 {
@@ -21,23 +22,21 @@ class RoleResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
     protected static ?string $navigationGroup = 'Master';
-
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Grid::make(['default' => 0])->schema([
+                Grid::make([
+                    'sm' => 1,
+                    'md' => 1,
+                    'lg' => 2,])
+                    ->schema([
                     TextInput::make('name')
                         ->rules(['max:50', 'string'])
                         ->required()
                         ->placeholder('Name')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
                 ]),
-            ]);
+             ]);
     }
 
     public static function table(Table $table): Table
@@ -65,14 +64,14 @@ class RoleResource extends Resource
                 Tables\Actions\CreateAction::make(),
             ]);
     }
-    
+
     public static function getRelations(): array
     {
         return [
             RoleResource\RelationManagers\UsersRelationManager::class
         ];
     }
-    
+
     public static function getPages(): array
     {
         return [
@@ -80,5 +79,5 @@ class RoleResource extends Resource
             'create' => Pages\CreateRole::route('/create'),
             'edit' => Pages\EditRole::route('/{record}/edit'),
         ];
-    }    
+    }
 }

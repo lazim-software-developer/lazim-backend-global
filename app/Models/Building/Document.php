@@ -1,9 +1,10 @@
 <?php
 
 namespace App\Models\Building;
-use App\Models\Master\DocumentLibrary;
-use App\Models\Scopes\Searchable;
 use App\Models\User\User;
+use App\Models\Building\Building;
+use App\Models\Scopes\Searchable;
+use App\Models\Master\DocumentLibrary;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -14,6 +15,7 @@ class Document extends Model
 
     protected $fillable = [
         'document_library_id',
+        'building_id',
         'url',
         'status',
         'comments',
@@ -39,7 +41,10 @@ class Document extends Model
     {
         return $this->belongsTo(User::class, 'accepted_by');
     }
-
+    public function building()
+    {
+        return $this->belongsTo(Building::class);
+    }
     public function documentable()
     {
         return $this->morphTo();

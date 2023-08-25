@@ -25,8 +25,8 @@ class UserResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
     protected static ?string $recordTitleAttribute = 'first_name';
-
-    protected static ?string $navigationGroup = 'User Management';
+    protected static ?string $navigationLabel ='Owner';
+    protected static ?string $navigationGroup = 'Flat Management';
 
 
     public static function form(Form $form): Form
@@ -83,22 +83,6 @@ class UserResource extends Resource
                             'md' => 12,
                             'lg' => 12,
                         ]),
-
-                    // TextInput::make('password')
-                    //     ->required()
-                    //     ->password()
-                    //     ->dehydrateStateUsing(fn($state) =>Hash::make($state))
-                    //     ->required(
-                    //         fn(Component $livewire) => $livewire instanceof
-                    //             Pages\CreateUser
-                    //     )
-                    //     ->placeholder('Password')
-                    //     ->columnSpan([
-                    //         'default' => 12,
-                    //         'md' => 12,
-                    //         'lg' => 12,
-                    //     ]),
-
                     Toggle::make('phone_verified')
                         ->rules(['boolean'])
                         ->nullable()
@@ -107,7 +91,6 @@ class UserResource extends Resource
                             'md' => 12,
                             'lg' => 12,
                         ]),
-
                     Toggle::make('active')
                         ->rules(['boolean'])
                         ->nullable()
@@ -144,7 +127,7 @@ class UserResource extends Resource
                             'lg' => 12,
                         ]),
                 ]),
-            
+
             ]);
     }
 
@@ -198,7 +181,7 @@ class UserResource extends Resource
             //     Tables\Actions\CreateAction::make(),
             // ]);
     }
-    
+
     public static function getRelations(): array
     {
         return [
@@ -213,7 +196,7 @@ class UserResource extends Resource
             UserResource\RelationManagers\FlatsRelationManager::class,
         ];
     }
-    
+
     public static function getPages(): array
     {
         return [
@@ -221,5 +204,5 @@ class UserResource extends Resource
             'create' => Pages\CreateUser::route('/create'),
             'edit' => Pages\EditUser::route('/{record}/edit'),
         ];
-    }    
+    }
 }

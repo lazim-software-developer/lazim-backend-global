@@ -2,22 +2,25 @@
 
 namespace App\Filament\Resources\Master;
 
-use App\Filament\Resources\Master\FacilityResource\Pages;
-use App\Filament\Resources\Master\FacilityResource\RelationManagers;
-use App\Models\Master\Facility;
 use Filament\Forms;
-use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\RichEditor;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Toggle;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Forms\Form;
+use Filament\Tables\Table;
+use App\Models\Master\Facility;
+use Filament\Resources\Resource;
+use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Toggle;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Table;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\RichEditor;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Filament\Resources\Master\FacilityResource\Pages;
+use App\Filament\Resources\Master\FacilityResource\RelationManagers;
+use Filament\Forms\Components\FileUpload;
+use Filament\Tables\Columns\ImageColumn;
 
 class FacilityResource extends Resource
 {
@@ -25,40 +28,23 @@ class FacilityResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
     protected static ?string $navigationGroup = 'Master';
-
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Grid::make(['default' => 0])->schema([
+                Grid::make([
+                    'sm' => 1,
+                    'md' => 1,
+                    'lg' => 2,])
+                    ->schema([
                     TextInput::make('name')
                         ->rules(['max:50', 'string'])
                         ->required()
-                        ->placeholder('Name')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
-
-                    RichEditor::make('icon')
-                        ->rules(['max:255', 'string'])
-                        ->required()
-                        ->placeholder('Icon')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
-
+                        ->placeholder('Name'),
+                    FileUpload::make('icon')
+                        ->disk('s3'),
                     Toggle::make('active')
-                        ->rules(['boolean'])
-                        ->required()
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+                        ->rules(['boolean']),
                 ]),
             ]);
     }
@@ -72,7 +58,12 @@ class FacilityResource extends Resource
                     ->toggleable()
                     ->searchable(true, null, true)
                     ->limit(50),
-                TextColumn::make('icon')
+                TextColumn::make('building.name')->label('Building Name')
+                    ->toggleable()
+                    ->searchable(true, null, true)
+                    ->limit(50),
+                ImageColumn::make('icon')
+                    ->disk('s3')
                     ->toggleable()
                     ->searchable()
                     ->limit(50),
@@ -95,7 +86,7 @@ class FacilityResource extends Resource
                 Tables\Actions\CreateAction::make(),
             ]);
     }
-    
+
     public static function getRelations(): array
     {
         return [
@@ -103,7 +94,7 @@ class FacilityResource extends Resource
             FacilityResource\RelationManagers\BuildingsRelationManager::class,
         ];
     }
-    
+
     public static function getPages(): array
     {
         return [
@@ -111,5 +102,5 @@ class FacilityResource extends Resource
             'create' => Pages\CreateFacility::route('/create'),
             'edit' => Pages\EditFacility::route('/{record}/edit'),
         ];
-    }    
+    }
 }
