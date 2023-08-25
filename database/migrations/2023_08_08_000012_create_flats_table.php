@@ -15,7 +15,8 @@ return new class extends Migration {
             $table->integer('number');
             $table->integer('floor');
             $table->unsignedBigInteger('building_id');
-            $table->string('description', 50);
+            $table->string('description', 50)->nullable();
+            $table->foreign('building_id')->references('id')->on('buildings');
 
             $table->timestamps();
         });

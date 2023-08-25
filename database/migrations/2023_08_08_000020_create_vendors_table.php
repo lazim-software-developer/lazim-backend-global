@@ -14,6 +14,7 @@ return new class extends Migration {
             $table->bigIncrements('id');
             $table->string('name', 50);
             $table->unsignedBigInteger('owner_id');
+            $table->unsignedBigInteger('building_id');
             $table->string('tl_number', 50)->unique();
             $table->date('tl_expiry');
             $table->string('status', 50);

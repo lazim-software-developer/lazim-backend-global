@@ -24,7 +24,7 @@ class BuildingResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
     protected static ?string $navigationGroup = 'Building Management';
-
+    protected static bool $shouldRegisterNavigation = false;
     public static function form(Form $form): Form
     {
         return $form
@@ -39,7 +39,6 @@ class BuildingResource extends Resource
                             'md' => 12,
                             'lg' => 12,
                         ]),
-
                     TextInput::make('unit_number')
                         ->rules(['max:50', 'string'])
                         ->required()
@@ -54,7 +53,6 @@ class BuildingResource extends Resource
                             'md' => 12,
                             'lg' => 12,
                         ]),
-
                     RichEditor::make('address_line1')
                         ->rules(['max:255', 'string'])
                         ->required()
@@ -64,7 +62,6 @@ class BuildingResource extends Resource
                             'md' => 12,
                             'lg' => 12,
                         ]),
-
                     RichEditor::make('address_line2')
                         ->rules(['max:255', 'string'])
                         ->nullable()
@@ -74,7 +71,6 @@ class BuildingResource extends Resource
                             'md' => 12,
                             'lg' => 12,
                         ]),
-
                     TextInput::make('area')
                         ->rules(['max:50', 'string'])
                         ->required()
@@ -84,7 +80,6 @@ class BuildingResource extends Resource
                             'md' => 12,
                             'lg' => 12,
                         ]),
-
                     Select::make('city_id')
                         ->rules(['exists:cities,id'])
                         ->required()
@@ -96,7 +91,6 @@ class BuildingResource extends Resource
                             'md' => 12,
                             'lg' => 12,
                         ]),
-
                     TextInput::make('lat')
                         ->rules(['max:50', 'string'])
                         ->placeholder('Lat')
@@ -105,7 +99,6 @@ class BuildingResource extends Resource
                             'md' => 12,
                             'lg' => 12,
                         ]),
-
                     TextInput::make('lng')
                         ->rules(['max:50', 'string'])
                         ->placeholder('Lng')
@@ -114,7 +107,6 @@ class BuildingResource extends Resource
                             'md' => 12,
                             'lg' => 12,
                         ]),
-
                     RichEditor::make('description')
                         ->rules(['max:255', 'string'])
                         ->placeholder('Description')
@@ -123,7 +115,6 @@ class BuildingResource extends Resource
                             'md' => 12,
                             'lg' => 12,
                         ]),
-
                     TextInput::make('floors')
                         ->rules(['numeric'])
                         ->required()
@@ -197,7 +188,7 @@ class BuildingResource extends Resource
                 Tables\Actions\CreateAction::make(),
             ]);
     }
-    
+
     public static function getRelations(): array
     {
         return [
@@ -208,9 +199,9 @@ class BuildingResource extends Resource
             BuildingResource\RelationManagers\FacilitiesRelationManager::class,
             BuildingResource\RelationManagers\FlatsRelationManager::class,
         ];
-        
+
     }
-    
+
     public static function getPages(): array
     {
         return [
@@ -218,5 +209,5 @@ class BuildingResource extends Resource
             'create' => Pages\CreateBuilding::route('/create'),
             'edit' => Pages\EditBuilding::route('/{record}/edit'),
         ];
-    }    
+    }
 }

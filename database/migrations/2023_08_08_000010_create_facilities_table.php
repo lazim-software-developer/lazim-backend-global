@@ -13,10 +13,10 @@ return new class extends Migration {
         Schema::create('facilities', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('name', 50);
-            $table->longText('icon');
+            $table->longText('icon')->nullable();
             $table->boolean('active')->nullable();
-
             $table->timestamps();
+
         });
     }
 

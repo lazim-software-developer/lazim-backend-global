@@ -6,6 +6,7 @@ use App\Filament\Resources\Master\DocumentLibraryResource\Pages;
 use App\Filament\Resources\Master\DocumentLibraryResource\RelationManagers;
 use App\Models\Master\DocumentLibrary;
 use Filament\Forms;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
@@ -13,6 +14,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -28,7 +30,11 @@ class DocumentLibraryResource extends Resource
     {
         return $form
             ->schema([
-                Grid::make(['default' => 0])->schema([
+                Grid::make([
+                    'sm' => 1,
+                    'md' => 1,
+                    'lg' => 2,])
+                    ->schema([
                     Select::make('name')
                         ->options([
                             'tl_document' =>'TL Document',
@@ -39,30 +45,20 @@ class DocumentLibraryResource extends Resource
                             'bank_details'=>'Bank Details On Company Letter Head With Stamp',
                             'authority_approval'=>'Authority Approval'
                         ])
-
                         ->rules(['max:50', 'string'])
                         ->required()
-                        ->placeholder('Name')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+                        ->placeholder('Name'),
                     Select::make('type')
                         ->options([
                             'vendor'=>'Vendor',
-                            'tenant'=>'Tenant'
+                            'tenant'=>'Tenant',
+                            'owner'=>'Owner'
                         ]),
-
-                    RichEditor::make('url')
-                        ->rules(['max:255', 'string'])
+                    FileUpload::make('url')->label('Document')
                         ->required()
-                        ->placeholder('Url')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+                        ->disk('s3')
+                        ->downloadable()
+                        ->preserveFilenames(),
                     ]),
             ]);
     }
@@ -76,7 +72,7 @@ class DocumentLibraryResource extends Resource
                 ->toggleable()
                 ->searchable(true, null, true)
                 ->limit(50),
-            Tables\Columns\TextColumn::make('url')
+            Tables\Columns\TextColumn::make('url')->label('Uploaded Document')
                 ->toggleable()
                 ->searchable()
                 ->limit(50),

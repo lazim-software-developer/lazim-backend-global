@@ -2,9 +2,10 @@
 
 namespace App\Models\Building;
 
-use App\Models\Master\Facility;
-use App\Models\Scopes\Searchable;
 use App\Models\User\User;
+use App\Models\Master\Facility;
+use App\Models\Building\Building;
+use App\Models\Scopes\Searchable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -16,6 +17,7 @@ class FacilityBooking extends Model
     protected $fillable = [
         'facility_id',
         'user_id',
+        'building_id',
         'date',
         'start_time',
         'end_time',
@@ -46,9 +48,12 @@ class FacilityBooking extends Model
     {
         return $this->belongsTo(User::class);
     }
-
     public function userFacilityBookingApprove()
     {
         return $this->belongsTo(User::class, 'approved_by');
+    }
+    public function building()
+    {
+        return $this->belongsTo(Building::class);
     }
 }

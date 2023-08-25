@@ -20,6 +20,7 @@ class Complaint extends Model
         'user_id',
         'complaint_type',
         'category',
+        'building_id',
         'open_time',
         'close_time',
         'photo',
@@ -36,37 +37,19 @@ class Complaint extends Model
         'remarks' => 'array',
     ];
 
+    public function building()
+    {
+        return $this->belongsTo(Building::class);
+    }
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
     public function complaintable()
-    {   
-        
+    {
+
         return $this->morphTo();
     }
-    // public function getCombinedValueAttribute()
-    // {
-    //     if ($this->complaintable_type === Building::class && $this->complaintable()) {
-    //         return $value=$this->complaintable->name;
-    //     } elseif ($this->complaintable_type === FlatTenant::class && $this->complaintable()) {
-    //         return $value=$this->complaintable->flat_id;
-    //     }
 
-    //     return null;
-    // }
-    // public function getConcatenatedValuesAttribute()
-    // {
-    //     $complaintable = $this->complaintable;
-
-    //     if ($complaintable !== null && is_array($complaintable)) {
-    //         $name = $complaintable['name'] ?? '';
-    //         $flatId = $complaintable['flat_id'] ?? '';
-    //         return $name . ' (' . $flatId . ')';
-    //     }
-
-    //     return '';
-    // }
-    
 }

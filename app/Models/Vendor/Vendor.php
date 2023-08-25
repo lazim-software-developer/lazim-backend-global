@@ -2,11 +2,12 @@
 
 namespace App\Models\Vendor;
 
-use App\Models\Building\Document;
-use App\Models\Master\Service;
-use App\Models\Scopes\Searchable;
 use App\Models\User\User;
+use App\Models\Master\Service;
 use App\Models\Vendor\Contact;
+use App\Models\Building\Building;
+use App\Models\Building\Document;
+use App\Models\Scopes\Searchable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -18,6 +19,7 @@ class Vendor extends Model
     protected $fillable = [
         'name',
         'owner_id',
+        'building_id',
         'tl_number',
         'tl_expiry',
         'status',
@@ -64,5 +66,9 @@ class Vendor extends Model
     public function documents()
     {
         return $this->morphMany(Document::class, 'documentable');
+    }
+    public function building()
+    {
+        return $this->belongsTo(Building::class);
     }
 }

@@ -26,7 +26,7 @@ class VendorResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
-    protected static ?string $navigationGroup = 'Vendor Management';
+    protected static ?string $navigationGroup = 'Document Management';
 
     public static function form(Form $form): Form
     {
@@ -41,7 +41,6 @@ class VendorResource extends Resource
                             'md' => 12,
                             'lg' => 12,
                         ]),
-
                     Select::make('owner_id')
                         ->rules(['exists:users,id'])
                         ->required()
@@ -53,7 +52,6 @@ class VendorResource extends Resource
                             'md' => 12,
                             'lg' => 12,
                         ]),
-
                     TextInput::make('tl_number')
                         ->rules(['max:50', 'string'])
                         ->required()
@@ -68,7 +66,6 @@ class VendorResource extends Resource
                             'md' => 12,
                             'lg' => 12,
                         ]),
-
                     DatePicker::make('tl_expiry')
                         ->rules(['date'])
                         ->required()
@@ -78,7 +75,6 @@ class VendorResource extends Resource
                             'md' => 12,
                             'lg' => 12,
                         ]),
-
                     TextInput::make('status')
                         ->rules(['max:50', 'string'])
                         ->required()
@@ -88,7 +84,6 @@ class VendorResource extends Resource
                             'md' => 12,
                             'lg' => 12,
                         ]),
-
                     KeyValue::make('remarks')
                         ->required()
                         ->required()
@@ -147,7 +142,6 @@ class VendorResource extends Resource
     public static function getRelations(): array
     {
         return [
-            // VendorResource\RelationManagers\UsersRelationManager::class,
             VendorResource\RelationManagers\ServicesRelationManager::class,
             VendorResource\RelationManagers\UsersRelationManager::class,
             VendorResource\RelationManagers\ContactsRelationManager::class,
@@ -163,4 +157,5 @@ class VendorResource extends Resource
             'edit' => Pages\EditVendor::route('/{record}/edit'),
         ];
     }
+
 }

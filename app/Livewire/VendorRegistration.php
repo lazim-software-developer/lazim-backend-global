@@ -2,6 +2,9 @@
 
 namespace App\Livewire;
 
+use App\Filament\Resources\Building\DocumentsResource;
+use App\Models\Building\Document;
+use App\Models\Vendor\Vendor;
 use Filament\Forms\Components\MarkdownEditor;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
@@ -11,22 +14,22 @@ use Livewire\Component;
 class VendorRegistration extends Component implements HasForms
 {
      use InteractsWithForms;
-    // public ?array $data = [];
+    public ?array $data = [];
 
-    // public function mount(): void
-    // {
-    //     $this->form->fill();
-    // }
+    public function mount(): void
+    {
+        $this->form->fill();
+    }
+
 
     protected function getForms(): array
     {
         return [
-            'editPostForm',
-            'createCommentForm',
+            'vendorForm',
+            'documentForm',
         ];
     }
-
-    public function editPostForm(Form $form): Form
+    public function vendorForm(Form $form): Form
     {
         return $form
             ->schema([
@@ -36,10 +39,10 @@ class VendorRegistration extends Component implements HasForms
                 // ...
             ])
             ->statePath('postData')
-            ->model($this->post);
+            ->model(Vendor::class);
     }
 
-    public function createCommentForm(Form $form): Form
+    public function documentForm(Form $form): Form
     {
         return $form
             ->schema([
@@ -53,7 +56,7 @@ class VendorRegistration extends Component implements HasForms
                 // ...
             ])
             ->statePath('commentData')
-            ->model(Comment::class);
+            ->model(DocumentsResource::class);
     }
     public function render()
     {

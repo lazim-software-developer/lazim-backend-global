@@ -2,9 +2,11 @@
 
 namespace App\Models\Vendor;
 
+use Filament\Panel;
+use App\Models\User\User;
 use App\Models\Building\Building;
 use App\Models\Scopes\Searchable;
-use App\Models\User\User;
+use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -45,5 +47,15 @@ class Attendance extends Model
     public function userAttendanceApprove()
     {
         return $this->belongsTo(User::class, 'approved_by');
+    }
+
+    public function canAccessTenant(Model $tenant): bool
+    {
+        return $this->building->contains($tenant);
+    }
+
+    public function getTenants(Panel $panel): Collection
+    {
+        return $this->building;
     }
 }
