@@ -26,9 +26,5 @@ class Role extends Model
     {
         return $this->belongsToMany(Building::class, 'building_roles','role_id','building_id');
     }
-    // public function building()
-    // {
-    //     return $this->belongsTo(Building::class);
-    // }
 
 }

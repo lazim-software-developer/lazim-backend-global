@@ -35,12 +35,9 @@ class CityResource extends Resource
                         ->rules(['max:50', 'string'])
                         ->required()
                         ->placeholder('Name'),
-
-
                 ])
             ]);
     }
-
     public static function table(Table $table): Table
     {
         return $table

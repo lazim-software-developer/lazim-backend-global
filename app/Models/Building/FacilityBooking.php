@@ -48,7 +48,6 @@ class FacilityBooking extends Model
     {
         return $this->belongsTo(User::class);
     }
-
     public function userFacilityBookingApprove()
     {
         return $this->belongsTo(User::class, 'approved_by');

@@ -44,23 +44,15 @@ class ComplaintResource extends Resource
                         'md' => 1,
                         'lg' => 2,
                     ])->schema([
-                    // Select::make('building_id')
-                    //     ->rules(['exists:buildings,id'])
-                    //     ->required()
-                    //     ->relationship('building', 'name')
-                    //     ->searchable()
-                    //     ->placeholder('Building'),
                     MorphToSelect::make('complaintable')
 
                         ->types([
                             Type::make(Building::class)->titleAttribute('name'),
                             Type::make(FlatTenant::class)->titleAttribute('tenant_id'),
-
                         ]),
                     TextInput::make('complaintable_id')
                         ->rules(['max:255'])
                         ->placeholder('Complaintable Id'),
-
                     Select::make('user_id')
                         ->rules(['exists:users,id'])
                         ->required()
@@ -78,33 +70,19 @@ class ComplaintResource extends Resource
                         ->rules(['max:50', 'string'])
                         ->required()
                         ->placeholder('Category'),
-                    // TextInput::make('category')
-                    //     ->rules(['max:255'])
-                    //     ->placeholder('Category'),
-
                     DateTimePicker::make('open_time')
                         ->rules(['date'])
                         ->required()
                         ->placeholder('Open Time'),
-
                     DateTimePicker::make('close_time')
                         ->rules(['date'])
                         ->required()
                         ->placeholder('Close Time'),
-
-
                     FileUpload::make('photo')
                         ->nullable()
                         ->disk('s3'),
-
-
-
-
                     TextInput::make('remarks')
                         ->required(),
-
-
-
                     Select::make('status')
                         ->options([
                             'pending'=>'Pending'
@@ -112,11 +90,6 @@ class ComplaintResource extends Resource
                         ->rules(['max:50', 'string'])
                         ->required()
                         ->placeholder('Status'),
-
-
-
-
-
                  ]),
             ]);
     }
@@ -130,16 +103,11 @@ class ComplaintResource extends Resource
                 Tables\Columns\TextColumn::make('complaintable_type')
                     ->toggleable()
                     ->searchable(true, null, true),
-
-
                 ViewColumn::make('Name')->view('tables.columns.combined-column')
                      ->toggleable(),
-
-
                 Tables\Columns\TextColumn::make('user.first_name')
                     ->toggleable()
                     ->limit(50),
-
                 Tables\Columns\TextColumn::make('category')
                     ->toggleable()
                     ->searchable(true, null, true)
@@ -154,7 +122,6 @@ class ComplaintResource extends Resource
                     ->disk('s3')
                     ->circular()
                     ->toggleable(),
-
                 Tables\Columns\TextColumn::make('status')
                     ->toggleable()
                     ->searchable(true, null, true)

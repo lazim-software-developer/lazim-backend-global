@@ -44,20 +44,14 @@ class FlatDomesticHelpResource extends Resource
                         ->relationship('flat', 'id')
                         ->searchable()
                         ->placeholder('Flat'),
-
-
                     TextInput::make('first_name')
                         ->rules(['max:50', 'string'])
                         ->required()
                         ->placeholder('First Name'),
-
-
                     TextInput::make('last_name')
                         ->rules(['max:50', 'string'])
                         ->nullable()
                         ->placeholder('Last Name'),
-
-
                     TextInput::make('phone')
                         ->rules(['max:10', 'string'])
                         ->required()
@@ -66,30 +60,22 @@ class FlatDomesticHelpResource extends Resource
                             'phone',
                             fn(?Model $record) => $record
                         )
-                        ->placeholder('Phone')
-                        ,
-
+                        ->placeholder('Phone'),
                     FileUpload::make('profile_photo')
                         ->nullable()
                         ->disk('s3'),
-
                     DateTimePicker::make('start_date')
                         ->rules(['date'])
                         ->required()
                         ->placeholder('Start Date'),
-
-
                     DateTimePicker::make('end_date')
                         ->rules(['date'])
                         ->nullable()
                         ->placeholder('End Date'),
-
-
                     TextInput::make('role_name')
                         ->rules(['max:50', 'string'])
                         ->required()
                         ->placeholder('Role Name'),
-
                     Toggle::make('active')
                         ->rules(['boolean'])
                         ->required()

@@ -34,40 +34,24 @@ class BuildingPocResource extends Resource
                     'md' => 2,
                     'lg' => 2,
                 ])->schema([
-                    // Select::make('building_id')
-                    //     ->rules(['exists:buildings,id'])
-                    //     ->required()
-                    //     ->relationship('building', 'name')
-                    //     ->searchable()
-                    //     ->placeholder('Building'),
-
-
                     Select::make('user_id')
                         ->rules(['exists:users,id'])
                         ->required()
                         ->relationship('user', 'first_name')
                         ->searchable()
                         ->placeholder('User'),
-
-
                     TextInput::make('role_name')
                         ->rules(['max:50', 'string'])
                         ->required()
                         ->placeholder('Role Name'),
-
-
                     TextInput::make('escalation_level')
                         ->rules(['max:50', 'string'])
                         ->required()
                         ->placeholder('Escalation Level'),
-
                     Toggle::make('active')
                         ->rules(['boolean']),
-
-
                     Toggle::make('emergency_contact')
                         ->rules(['boolean'])
-
                 ]),
             ]);
     }

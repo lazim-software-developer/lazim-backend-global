@@ -39,26 +39,14 @@ class FlatResource extends Resource
                         ->required()
                         ->numeric()
                         ->placeholder('Number'),
-
-
                     TextInput::make('floor')
                         ->rules(['numeric'])
                         ->required()
                         ->numeric()
                         ->placeholder('Floor'),
-
-                    // Select::make('building_id')
-                    //     ->rules(['exists:buildings,id'])
-                    //     ->required()
-                    //     ->relationship('building', 'name')
-                    //     ->searchable()
-                    //     ->placeholder('Building'),
-
-
                     TextInput::make('description')
                         ->rules(['max:50', 'string'])
                         ->placeholder('Description'),
-
                 ]),
             ]);
     }

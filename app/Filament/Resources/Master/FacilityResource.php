@@ -28,7 +28,6 @@ class FacilityResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
     protected static ?string $navigationGroup = 'Master';
-    
     public static function form(Form $form): Form
     {
         return $form
@@ -42,21 +41,10 @@ class FacilityResource extends Resource
                         ->rules(['max:50', 'string'])
                         ->required()
                         ->placeholder('Name'),
-
-                    // Select::make('building_id')
-                    //     ->rules(['exists:buildings,id'])
-                    //     ->required()
-                    //     ->relationship('building', 'name')
-                    //     ->searchable()
-                    //     ->placeholder('Building'),
-
-
                     FileUpload::make('icon')
                         ->disk('s3'),
                     Toggle::make('active')
                         ->rules(['boolean']),
-
-
                 ]),
             ]);
     }

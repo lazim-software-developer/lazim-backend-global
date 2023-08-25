@@ -3,6 +3,7 @@
 namespace App\Filament\Pages\Tenancy;
 
 use App\Models\Building\Building;
+use App\Models\Master\Facility;
 use App\Models\Master\Role;
 use App\Models\Master\Service;
 use Filament\Forms\Components\Select;
@@ -22,16 +23,16 @@ class RegisterBuilding extends RegisterTenant
     {
         return $form
             ->schema([
-                TextInput::make('name')->maxLength(50),
-                TextInput::make('unit_number')->unique()->maxLength(50),
-                TextInput::make('address_line1'),
+                TextInput::make('name')->maxLength(50)->required(),
+                TextInput::make('unit_number')->unique()->maxLength(50)->required(),
+                TextInput::make('address_line1')->required(),
                 TextInput::make('address_line2')->nullable(),
-                TextInput::make('area')->maxLength(50),
-                Select::make('city_id')->label('City')->relationship('cities','name'),
+                TextInput::make('area')->maxLength(50)->required(),
+                Select::make('city_id')->label('City')->relationship('cities','name')->required(),
                 TextInput::make('lat')->nullable()->maxLength(50),
                 TextInput::make('lng')->nullable()->maxLength(50),
                 TextInput::make('description')->nullable(),
-                TextInput::make('floors'),
+                TextInput::make('floors')->required(),
 
             ]);
     }
@@ -51,6 +52,11 @@ class RegisterBuilding extends RegisterTenant
         foreach($roles as $role)
         {
             $building->roles()->attach($role->id);
+        }
+        $facilities=Facility::all();
+        foreach($facilities as $facility)
+        {
+            $building->facilities()->attach($facility->id);
         }
 
         return $building;

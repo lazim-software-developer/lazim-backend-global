@@ -45,31 +45,20 @@ class DocumentLibraryResource extends Resource
                             'bank_details'=>'Bank Details On Company Letter Head With Stamp',
                             'authority_approval'=>'Authority Approval'
                         ])
-
                         ->rules(['max:50', 'string'])
                         ->required()
                         ->placeholder('Name'),
-                    // Select::make('building_id')
-                    //     ->rules(['exists:buildings,id'])
-                    //     ->required()
-                    //     ->relationship('building', 'name')
-                    //     ->searchable()
-                    //     ->placeholder('Building'),
-
                     Select::make('type')
                         ->options([
                             'vendor'=>'Vendor',
                             'tenant'=>'Tenant',
                             'owner'=>'Owner'
                         ]),
-
                     FileUpload::make('url')->label('Document')
                         ->required()
                         ->disk('s3')
                         ->downloadable()
-                        ->preserveFilenames()
-                        ,
-
+                        ->preserveFilenames(),
                     ]),
             ]);
     }
@@ -83,8 +72,6 @@ class DocumentLibraryResource extends Resource
                 ->toggleable()
                 ->searchable(true, null, true)
                 ->limit(50),
-            // ViewColumn::make('url')->view('tables.columns.url-column')
-            //     ->toggleable(),
             Tables\Columns\TextColumn::make('url')->label('Uploaded Document')
                 ->toggleable()
                 ->searchable()
