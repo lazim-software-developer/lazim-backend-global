@@ -32,17 +32,6 @@ class ContactsResource extends Resource
     {
         return $form
             ->schema([
-                // Select::make('building_id')
-                //         ->rules(['exists:buildings,id'])
-                //         ->required()
-                //         ->relationship('building', 'name')
-                //         ->searchable()
-                //         ->placeholder('Building')
-                //         ->columnSpan([
-                //             'default' => 12,
-                //             'md' => 12,
-                //             'lg' => 12,
-                //         ]),
                 Grid::make([
                     'sm' => 1,
                     'md' => 1,
@@ -100,17 +89,14 @@ class ContactsResource extends Resource
                         ]),
 
                     MorphToSelect::make('contactable')
-                        
                         ->types([
                             Type::make(Vendor::class)->titleAttribute('name'),
-                        
                             ])
                         ->columnSpan([
                             'default' => 12,
                             'md' => 12,
                             'lg' => 12,
                             ]),
-
                     TextInput::make('contactable_id')
                         ->rules(['max:255'])
                         ->required()
@@ -167,14 +153,14 @@ class ContactsResource extends Resource
                 Tables\Actions\CreateAction::make(),
             ]);
     }
-    
+
     public static function getRelations(): array
     {
         return [
             //
         ];
     }
-    
+
     public static function getPages(): array
     {
         return [
@@ -182,5 +168,5 @@ class ContactsResource extends Resource
             'create' => Pages\CreateContacts::route('/create'),
             'edit' => Pages\EditContacts::route('/{record}/edit'),
         ];
-    }    
+    }
 }

@@ -83,22 +83,6 @@ class UserResource extends Resource
                             'md' => 12,
                             'lg' => 12,
                         ]),
-
-                    // TextInput::make('password')
-                    //     ->required()
-                    //     ->password()
-                    //     ->dehydrateStateUsing(fn($state) =>Hash::make($state))
-                    //     ->required(
-                    //         fn(Component $livewire) => $livewire instanceof
-                    //             Pages\CreateUser
-                    //     )
-                    //     ->placeholder('Password')
-                    //     ->columnSpan([
-                    //         'default' => 12,
-                    //         'md' => 12,
-                    //         'lg' => 12,
-                    //     ]),
-
                     Toggle::make('phone_verified')
                         ->rules(['boolean'])
                         ->nullable()
@@ -107,7 +91,6 @@ class UserResource extends Resource
                             'md' => 12,
                             'lg' => 12,
                         ]),
-
                     Toggle::make('active')
                         ->rules(['boolean'])
                         ->nullable()

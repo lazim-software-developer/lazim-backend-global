@@ -22,8 +22,6 @@ class RoleResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
     protected static ?string $navigationGroup = 'Master';
-   // protected static ?string $tenantOwnershipRelationshipName = 'owner';
-
     public static function form(Form $form): Form
     {
         return $form
@@ -37,15 +35,7 @@ class RoleResource extends Resource
                         ->rules(['max:50', 'string'])
                         ->required()
                         ->placeholder('Name')
-
                 ]),
-                // Select::make('building_id')
-                // ->rules(['exists:buildings,id'])
-                // ->required()
-                // ->relationship('building', 'name')
-                // ->searchable()
-                // ->placeholder('Building')
-
              ]);
     }
 

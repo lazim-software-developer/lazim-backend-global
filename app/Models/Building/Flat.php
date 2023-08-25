@@ -24,22 +24,18 @@ class Flat extends Model
     {
         return $this->belongsTo(Building::class);
     }
-
     public function tenants()
     {
         return $this->hasMany(FlatTenant::class);
     }
-
     public function domesticHelps()
     {
         return $this->hasMany(FlatDomesticHelp::class);
     }
-
     public function visitors()
     {
         return $this->hasMany(FlatVisitor::class);
     }
-
     public function users()
     {
         return $this->belongsToMany(

@@ -43,13 +43,6 @@ class FlatVisitorResource extends Resource
                         ->relationship('flat', 'id')
                         ->searchable()
                         ->placeholder('Flat'),
-                    // Select::make('building_id')
-                    //     ->rules(['exists:buildings,id'])
-                    //     ->required()
-                    //     ->relationship('building', 'name')
-                    //     ->searchable()
-                    //     ->placeholder('Building'),
-
                     TextInput::make('name')
                         ->rules(['max:50', 'string'])
                         ->required()

@@ -20,7 +20,6 @@ use Filament\Forms\Form;
 use Filament\Forms\Components\Grid;
 use Filament\Resources\Resource;
 use Filament\Tables;
-//use Filament\Tables\Columns\Layout\Grid;
 use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -51,33 +50,16 @@ class SnaggingResource extends Resource
                             Type::make(FlatTenant::class)->titleAttribute('tenant_id'),
 
                         ]),
-
-
                     TextInput::make('complaintable_id')
                         ->rules(['max:255'])
                         ->required()
                         ->placeholder('Complaintable Id'),
-
-                        // Select::make('building_id')
-                        // ->rules(['exists:buildings,id'])
-                        // ->required()
-                        // ->relationship('building', 'name')
-                        // ->searchable()
-                        // ->placeholder('Building')
-                        // ->columnSpan([
-                        //     'default' => 12,
-                        //     'md' => 12,
-                        //     'lg' => 12,
-                        // ]),
-
                     Select::make('user_id')
                         ->rules(['exists:users,id'])
                         ->required()
                         ->relationship('user', 'first_name')
                         ->searchable()
                         ->placeholder('User'),
-
-
                     Select::make('category')
                         ->options([
                             'civil'=>'Civil',
@@ -89,27 +71,16 @@ class SnaggingResource extends Resource
                         ->rules(['max:50', 'string'])
                         ->required()
                         ->placeholder('Category'),
-
-
                     TimePicker::make('open_time')
-
                         ->required()
                         ->placeholder('Open Time'),
-
-
                     TimePicker::make('close_time')
                         ->required()
                         ->placeholder('Close Time'),
-
-
                     FileUpload::make('photo')
-                        ->nullable()
-                        ,
-
+                        ->nullable(),
                     TextInput::make('remarks')
                         ->required(),
-
-
                     Select::make('status')
                         ->options([
                             'pending'=>'Pending'
@@ -117,8 +88,6 @@ class SnaggingResource extends Resource
                         ->rules(['max:50', 'string'])
                         ->required()
                         ->placeholder('Status'),
-
-
                 ]),
             ]);
     }

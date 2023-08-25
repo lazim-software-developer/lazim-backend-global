@@ -24,7 +24,6 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Table;
-//use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Forms\Components\Builder;
 use Filament\Forms\Components\FileUpload;
@@ -36,8 +35,6 @@ class DocumentsResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
     protected static ?string $navigationGroup = 'Building Management';
     protected static bool $shouldRegisterNavigation = false;
-
-
     public static function form(Form $form): Form
     {
         return $form
@@ -53,22 +50,11 @@ class DocumentsResource extends Resource
                         ->relationship('documentLibrary', 'name')
                         ->searchable()
                         ->placeholder('Document Library'),
-
-                    // Select::make('building_id')
-                    //     ->rules(['exists:buildings,id'])
-                    //     ->required()
-                    //     ->relationship('building', 'name')
-                    //     ->searchable()
-                    //     ->placeholder('Building'),
-
-
                     FileUpload::make('url')->label('Document')
                         ->disk('s3')
                         ->required()
                         ->downloadable()
                         ->preserveFilenames(),
-
-
                     Select::make('status')
                         ->options([
                             'pending'=>'Pending'
@@ -76,45 +62,28 @@ class DocumentsResource extends Resource
                         ->rules(['max:50', 'string'])
                         ->required()
                         ->placeholder('Status'),
-
-
                     TextInput::make('comments')
                         ->required(),
-
                     DatePicker::make('expiry_date')
                         ->rules(['date'])
                         ->required()
                         ->placeholder('Expiry Date'),
-
-
                     Select::make('accepted_by')
                         ->rules(['exists:users,id'])
                         ->required()
                         ->relationship('user', 'first_name')
                         ->searchable()
                         ->placeholder('User'),
-
-
                     MorphToSelect::make('documentable')
-
                         ->types([
                             Type::make(Building::class)->titleAttribute('name'),
                             Type::make(FlatTenant::class)->titleAttribute('tenant_id'),
                             Type::make(Vendor::class)->titleAttribute('name')
-
-
                         ]),
-
-
-
-
                     TextInput::make('documentable_id')
                         ->rules(['max:255'])
                         ->required()
                         ->placeholder('Documentable Id')
-
-
-
                 ]),
 
             ]);

@@ -52,63 +52,34 @@ class FacilityBookingResource extends Resource
                         ->relationship('user', 'first_name')
                         ->searchable()
                         ->placeholder('User'),
-
-
-                    // Select::make('building_id')
-                    //     ->rules(['exists:buildings,id'])
-                    //     ->required()
-                    //     ->relationship('building', 'name')
-                    //     ->searchable()
-                    //     ->placeholder('Building'),
-
                     DatePicker::make('date')
                         ->rules(['date'])
                         ->required()
                         ->placeholder('Date'),
-
-
                     TimePicker::make('start_time')
                         ->required()
                         ->placeholder('Start Time'),
-
-
                     TimePicker::make('end_time')
                         ->required()
                         ->placeholder('End Time'),
-
                     TextInput::make('order_id')
                         ->rules(['max:255', 'string'])
                         ->nullable()
                         ->placeholder('Order Id'),
-
-
                     TextInput::make('payment_status')
                         ->rules(['max:50', 'string'])
                         ->nullable()
                         ->placeholder('Payment Status'),
-
-
                     TextInput::make('remarks')
                         ->required(),
-
                     TextInput::make('reference_number')
                         ->rules(['numeric'])
                         ->required()
                         ->numeric()
                         ->placeholder('References Number'),
-
-
                     Toggle::make('approved')
                         ->rules(['boolean'])
                         ->required(),
-                    // Select::make('approved_by')
-                    //     ->rules(['exists:users,id'])
-                    //     ->relationship('userFacilityBookingApprove', 'first_name')
-                    //     ->searchable()
-                    //     ->placeholder('User'),
-
-
-
                 ]),
 
             ]);
@@ -140,24 +111,15 @@ class FacilityBookingResource extends Resource
                     ->date(),
                 Tables\Columns\TextColumn::make('order_id')
                     ->toggleable()
-                    //->searchable(true, null, true)
                     ->limit(50),
                 Tables\Columns\TextColumn::make('payment_status')
                     ->toggleable()
-                    //->searchable(true, null, true)
                     ->limit(50),
                 Tables\Columns\TextColumn::make('reference_number')
                     ->toggleable(),
-                    //->searchable(true, null, true),
                 Tables\Columns\IconColumn::make('approved')
                     ->toggleable()
                     ->boolean(),
-                // Tables\Columns\TextColumn::make('created_at')
-                //     ->toggleable()
-                //     ->dateTime(),
-                // Tables\Columns\TextColumn::make('updated_at')
-                //     ->toggleable()
-                //     ->dateTime(),
             ])
             ->filters([
                 //

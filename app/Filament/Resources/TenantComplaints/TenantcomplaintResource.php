@@ -50,25 +50,16 @@ class TenantcomplaintResource extends Resource
                             Type::make(FlatTenant::class)->titleAttribute('tenant_id'),
 
                         ]),
-
-
-
                     TextInput::make('complaintable_id')
                         ->rules(['max:255'])
                         ->required()
                         ->placeholder('Complaintable Id'),
-
-
                     Select::make('user_id')
                         ->rules(['exists:users,id'])
                         ->required()
                         ->relationship('user', 'first_name')
                         ->searchable()
                         ->placeholder('User'),
-
-
-
-
                     Select::make('category')
                         ->options([
                             'civil'=>'Civil',
@@ -80,25 +71,16 @@ class TenantcomplaintResource extends Resource
                         ->rules(['max:50', 'string'])
                         ->required()
                         ->placeholder('Category'),
-
-
                     TimePicker::make('open_time')
                         ->required()
                         ->placeholder('Open Time'),
-
-
                     TimePicker::make('close_time')
                         ->required()
                         ->placeholder('Close Time'),
-
-
                     FileUpload::make('photo')
                         ->nullable(),
-
-
                     TextInput::make('remarks')
                         ->required(),
-
                     Select::make('status')
                         ->options([
                             'pending'=>'Pending'
@@ -106,7 +88,6 @@ class TenantcomplaintResource extends Resource
                         ->rules(['max:50', 'string'])
                         ->required()
                         ->placeholder('Status'),
-
                 ]),
             ]);
     }

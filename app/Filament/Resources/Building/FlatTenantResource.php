@@ -43,22 +43,12 @@ class FlatTenantResource extends Resource
                         ->relationship('flat', 'id')
                         ->searchable()
                         ->placeholder('Flat'),
-
-
-                        // Select::make('building_id')
-                        // ->rules(['exists:buildings,id'])
-                        // ->required()
-                        // ->relationship('building', 'name')
-                        // ->searchable()
-                        // ->placeholder('Building'),
-
                     Select::make('tenant_id')
                         ->rules(['exists:users,id'])
                         ->required()
                         ->relationship('user', 'first_name')
                         ->searchable()
                         ->placeholder('User'),
-
                     DatePicker::make('start_date')
                         ->rules(['date'])
                         ->required()
@@ -70,7 +60,6 @@ class FlatTenantResource extends Resource
                         ->rules(['boolean']),
                     Toggle::make('active')
                         ->rules(['boolean'])
-
                     ]),
             ]);
     }
