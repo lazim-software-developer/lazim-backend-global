@@ -392,7 +392,7 @@ class TestController extends Controller
         $data->utilityExpenses = [];
         $data->budgetVsActual  = $budgetVsActual;
         $data->generalFund     = $generalFund;
-        $data->reservedFund    = $generalFund;
+        $data->reservedFund    = $reservedFund;
         $data->collection      = $collection;
 
         $response = Http::withOptions(['verify' => false])->withHeaders([
@@ -400,7 +400,7 @@ class TestController extends Controller
             'consumer-id'  => '8OSkYHBE5K7RS8oDfrGStgHJhhRoS7K9',
             // 'Authorization' => 'Bearer ' . $bearerToken, // Assuming you have $bearerToken variable with the actual token value
         ])
-            ->post('https://qagate.dubailand.gov.ae/mollak/external/managementreport/submit', '$data');
+            ->post('https://qagate.dubailand.gov.ae/mollak/external/managementreport/submit', $data);
         return $body = $response->body();
     }
 
@@ -460,7 +460,7 @@ class TestController extends Controller
         $data->utilityExpenses = [];
         $data->budgetVsActual  = $budgetVsActual;
         $data->generalFund     = $generalFund;
-        $data->reservedFund    = $generalFund;
+        $data->reservedFund    = $reservedFund;
         $data->collection      = $collection;
 
         $response = Http::withOptions(['verify' => false])->withHeaders([
