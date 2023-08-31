@@ -43,3 +43,5 @@ Route::post('upload/balance-sheet', [TestController::class, 'uploadBalanceSheet'
 Route::post('upload/reserve-fund', [TestController::class, 'uploadReservedFund']);
 
 Route::post('upload/budget-vs-actual', [TestController::class, 'uploadBudgetVsActual']);
+
+Route::post('upload/general-fund', [TestController::class, 'uploadGeneralFund']);

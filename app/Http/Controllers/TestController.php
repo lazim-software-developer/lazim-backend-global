@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use App\Imports\AssetImport;
 use App\Imports\EquityImport;
 use App\Imports\ExpenseBudgetImport;
+use App\Imports\ExpenseGeneralImport;
 use App\Imports\ExpenseImport;
 use App\Imports\ExpenseReservedImport;
 use App\Imports\IncomeBudgetImport;
+use App\Imports\IncomeGeneralImport;
 use App\Imports\IncomeImport;
 use App\Imports\IncomeReservedImport;
 use App\Imports\LiabilityImport;
@@ -540,7 +542,7 @@ class TestController extends Controller
 
     public function uploadBudgetVsActual(Request $request)
     {
-         $income_accounts  = Excel::toArray(new IncomeBudgetImport, $request->file('file'))[0];
+        $income_accounts  = Excel::toArray(new IncomeBudgetImport, $request->file('file'))[0];
         $expense_accounts = Excel::toArray(new ExpenseBudgetImport, $request->file('file'))[1];
 
         $data = new stdClass();
@@ -567,6 +569,72 @@ class TestController extends Controller
 
         $generalFund->income  = [];
         $generalFund->expense = [];
+
+        $reservedFund = new stdClass;
+
+        $reservedFund->income  = [];
+        $reservedFund->expense = [];
+
+        $collection = new stdClass;
+
+        $collection->by_method = [];
+        $collection->recovery  = new stdClass;
+
+        $data->propertyGroupId = $request->propertyGroupId;
+        $data->fromDate        = $request->fromDate;
+        $data->toDate          = $request->toDate;
+        $data->delinquents     = [];
+        $data->eservices       = [];
+        $data->happinessCenter = [];
+        $data->balanceSheet    = $balanceSheet;
+        $data->accountsPayable = [];
+        $data->workOrders      = [];
+        $data->assets          = [];
+        $data->bankBalance     = $bankBalance;
+        $data->utilityExpenses = [];
+        $data->budgetVsActual  = $budgetVsActual;
+        $data->generalFund     = $generalFund;
+        $data->reservedFund    = $reservedFund;
+        $data->collection      = $collection;
+
+        $response = Http::withOptions(['verify' => false])->withHeaders([
+            'content-type' => 'application/json',
+            'consumer-id'  => '8OSkYHBE5K7RS8oDfrGStgHJhhRoS7K9',
+            // 'Authorization' => 'Bearer ' . $bearerToken, // Assuming you have $bearerToken variable with the actual token value
+        ])
+            ->post('https://qagate.dubailand.gov.ae/mollak/external/managementreport/submit', $data);
+        return $body = $response->body();
+
+    }
+    public function uploadGeneralFund(Request $request)
+    {
+        $income  = Excel::toArray(new IncomeGeneralImport, $request->file('file'))[0];
+        $expense = Excel::toArray(new ExpenseGeneralImport, $request->file('file'))[1];
+
+        $data = new stdClass();
+
+        $generalFund = new stdClass;
+
+        $generalFund->income  = $income;
+        $generalFund->expense = $income;
+
+        $balanceSheet = new stdClass;
+
+        $balanceSheet->income    = [];
+        $balanceSheet->expense   = [];
+        $balanceSheet->asset     = [];
+        $balanceSheet->liability = [];
+        $balanceSheet->equity    = [];
+
+        $bankBalance = new stdClass;
+
+        $bankBalance->statement = new stdClass;
+        $bankBalance->bankbook  = new stdClass;
+
+        $budgetVsActual = new stdClass;
+
+        $budgetVsActual->expense_accounts = [];
+        $budgetVsActual->income_accounts  = [];
 
         $reservedFund = new stdClass;
 
