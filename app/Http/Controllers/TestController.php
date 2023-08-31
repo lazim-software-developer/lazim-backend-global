@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use App\Imports\AssetImport;
 use App\Imports\EquityImport;
 use App\Imports\ExpenseImport;
+use App\Imports\ExpenseReservedImport;
 use App\Imports\GeneralImport;
 use App\Imports\IncomeImport;
+use App\Imports\IncomeReservedImport;
 use App\Imports\LiabilityImport;
 use App\Imports\TestImport;
 use Illuminate\Http\Request;
@@ -440,6 +442,73 @@ class TestController extends Controller
 
         $reservedFund->income  = [];
         $reservedFund->expense = [];
+
+        $collection = new stdClass;
+
+        $collection->by_method = [];
+        $collection->recovery  = new stdClass;
+
+        $data->propertyGroupId = $request->propertyGroupId;
+        $data->fromDate        = $request->fromDate;
+        $data->toDate          = $request->toDate;
+        $data->delinquents     = [];
+        $data->eservices       = [];
+        $data->happinessCenter = [];
+        $data->balanceSheet    = $balanceSheet;
+        $data->accountsPayable = [];
+        $data->workOrders      = [];
+        $data->assets          = [];
+        $data->bankBalance     = $bankBalance;
+        $data->utilityExpenses = [];
+        $data->budgetVsActual  = $budgetVsActual;
+        $data->generalFund     = $generalFund;
+        $data->reservedFund    = $generalFund;
+        $data->collection      = $collection;
+
+        $response = Http::withOptions(['verify' => false])->withHeaders([
+            'content-type' => 'application/json',
+            'consumer-id'  => '8OSkYHBE5K7RS8oDfrGStgHJhhRoS7K9',
+            // 'Authorization' => 'Bearer ' . $bearerToken, // Assuming you have $bearerToken variable with the actual token value
+        ])
+            ->post('https://qagate.dubailand.gov.ae/mollak/external/managementreport/submit', $data);
+        return $body = $response->body();
+
+    }
+
+    public function uploadReservedFund(Request $request)
+    {
+        $income  = Excel::toArray(new IncomeReservedImport, $request->file('file'))[0];
+        $expense = Excel::toArray(new ExpenseReservedImport, $request->file('file'))[1];
+
+        $data = new stdClass();
+
+        $reservedFund = new stdClass;
+
+        $reservedFund->income    = $income;
+        $reservedFund->expense   = $expense;
+
+        $balanceSheet = new stdClass;
+
+        $balanceSheet->income    = [];
+        $balanceSheet->expense   = [];
+        $balanceSheet->asset     = [];
+        $balanceSheet->liability = [];
+        $balanceSheet->equity    = [];
+
+        $bankBalance = new stdClass;
+
+        $bankBalance->statement = new stdClass;
+        $bankBalance->bankbook  = new stdClass;
+
+        $budgetVsActual = new stdClass;
+
+        $budgetVsActual->expense_accounts = [];
+        $budgetVsActual->income_accounts  = [];
+
+        $generalFund = new stdClass;
+
+        $generalFund->income  = [];
+        $generalFund->expense = [];
 
         $collection = new stdClass;
 
