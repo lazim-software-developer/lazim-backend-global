@@ -15,34 +15,64 @@ class TestController extends Controller
         $serviceData = Excel::toArray(new TestImport, $request->file('file'))[0];
         $data        = new stdClass();
 
+        $balanceSheet = new stdClass;
+
+        $balanceSheet->income    = [];
+        $balanceSheet->expense   = [];
+        $balanceSheet->asset     = [];
+        $balanceSheet->liability = [];
+        $balanceSheet->equity    = [];
+
+        $bankBalance = new stdClass;
+
+        $bankBalance->statement = new stdClass;
+        $bankBalance->bankbook  = new stdClass;
+
+        $budgetVsActual = new stdClass;
+
+        $budgetVsActual->expense_accounts = [];
+        $budgetVsActual->income_accounts  = [];
+
+        $generalFund = new stdClass;
+
+        $generalFund->income  = [];
+        $generalFund->expense = [];
+
+        $reservedFund = new stdClass;
+
+        $reservedFund->income  = [];
+        $reservedFund->expense = [];
+
+        $collection = new stdClass;
+
+        $collection->by_method = [];
+        $collection->recovery  = new stdClass;
+
         $data->propertyGroupId = $request->propertyGroupId;
         $data->fromDate        = $request->fromDate;
         $data->toDate          = $request->toDate;
         $data->eservices       = $serviceData;
         $data->happinessCenter = [];
-        $data->balanceSheet    = [];
+        $data->balanceSheet    = $balanceSheet;
+        $data->bankBalance     = $bankBalance;
+        $data->budgetVsActual  = $budgetVsActual;
+        $data->generalFund     = $generalFund;
+        $data->reservedFund    = $reservedFund;
         $data->accountsPayable = [];
         $data->workOrders      = [];
         $data->assets          = [];
-        $data->bankBalance     = [];
         $data->utilityExpenses = [];
-        $data->budgetVsActual  = [];
-        $data->generalFund     = [];
-        $data->reservedFund    = [];
+        $data->collection      = $collection;
         $data->delinquents     = [];
-        $data->collection      = [];
-        return $data;
 
         $response = Http::withOptions(['verify' => false])->withHeaders([
             'content-type' => 'application/json',
             'consumer-id'  => '8OSkYHBE5K7RS8oDfrGStgHJhhRoS7K9',
-            // 'Authorization' => 'Bearer ' . $bearerToken, // Assuming you have $bearerToken variable with the actual token value
         ])
-            ->post('https://qagate.dubailand.gov.ae/mollak/external/managementreport/submit', [
-
-            ]);
+            ->post('https://qagate.dubailand.gov.ae/mollak/external/managementreport/submit', $data);
 
         return $body = $response->body();
+
     }
 
     public function uploadHappinessCenter(Request $request)
@@ -50,68 +80,125 @@ class TestController extends Controller
         $serviceData = Excel::toArray(new TestImport, $request->file('file'))[0];
         $data        = new stdClass();
 
+        $balanceSheet = new stdClass;
+
+        $balanceSheet->income    = [];
+        $balanceSheet->expense   = [];
+        $balanceSheet->asset     = [];
+        $balanceSheet->liability = [];
+        $balanceSheet->equity    = [];
+
+        $bankBalance = new stdClass;
+
+        $bankBalance->statement = new stdClass;
+        $bankBalance->bankbook  = new stdClass;
+
+        $budgetVsActual = new stdClass;
+
+        $budgetVsActual->expense_accounts = [];
+        $budgetVsActual->income_accounts  = [];
+
+        $generalFund = new stdClass;
+
+        $generalFund->income  = [];
+        $generalFund->expense = [];
+
+        $reservedFund = new stdClass;
+
+        $reservedFund->income  = [];
+        $reservedFund->expense = [];
+
+        $collection = new stdClass;
+
+        $collection->by_method = [];
+        $collection->recovery  = new stdClass;
+
         $data->propertyGroupId = $request->propertyGroupId;
         $data->fromDate        = $request->fromDate;
         $data->toDate          = $request->toDate;
-        $data->happinessCenter = $serviceData;
         $data->eservices       = [];
-        $data->balanceSheet    = [];
+        $data->happinessCenter = $serviceData;
+        $data->balanceSheet    = $balanceSheet;
+        $data->bankBalance     = $bankBalance;
+        $data->budgetVsActual  = $budgetVsActual;
+        $data->generalFund     = $generalFund;
+        $data->reservedFund    = $reservedFund;
         $data->accountsPayable = [];
         $data->workOrders      = [];
         $data->assets          = [];
-        $data->bankBalance     = [];
         $data->utilityExpenses = [];
-        $data->budgetVsActual  = [];
-        $data->generalFund     = [];
-        $data->reservedFund    = [];
+        $data->collection      = $collection;
         $data->delinquents     = [];
-        $data->collection      = [];
-        return $data;
 
         $response = Http::withOptions(['verify' => false])->withHeaders([
             'content-type' => 'application/json',
             'consumer-id'  => '8OSkYHBE5K7RS8oDfrGStgHJhhRoS7K9',
-            // 'Authorization' => 'Bearer ' . $bearerToken, // Assuming you have $bearerToken variable with the actual token value
         ])
-            ->post('https://qagate.dubailand.gov.ae/mollak/external/managementreport/submit', [
+            ->post('https://qagate.dubailand.gov.ae/mollak/external/managementreport/submit', $data);
 
-            ]);
         return $body = $response->body();
 
     }
     public function uploadAccountsPayable(Request $request)
     {
-
         $serviceData = Excel::toArray(new TestImport, $request->file('file'))[0];
-        $data        = new stdClass();
+
+        $data = new stdClass();
+
+        $balanceSheet = new stdClass;
+
+        $balanceSheet->income    = [];
+        $balanceSheet->expense   = [];
+        $balanceSheet->asset     = [];
+        $balanceSheet->liability = [];
+        $balanceSheet->equity    = [];
+
+        $bankBalance = new stdClass;
+
+        $bankBalance->statement = new stdClass;
+        $bankBalance->bankbook  = new stdClass;
+
+        $budgetVsActual = new stdClass;
+
+        $budgetVsActual->expense_accounts = [];
+        $budgetVsActual->income_accounts  = [];
+
+        $generalFund = new stdClass;
+
+        $generalFund->income  = [];
+        $generalFund->expense = [];
+
+        $reservedFund = new stdClass;
+
+        $reservedFund->income  = [];
+        $reservedFund->expense = [];
+
+        $collection = new stdClass;
+
+        $collection->by_method = [];
+        $collection->recovery  = new stdClass;
 
         $data->propertyGroupId = $request->propertyGroupId;
         $data->fromDate        = $request->fromDate;
         $data->toDate          = $request->toDate;
-        $data->accountsPayable = $serviceData;
-
-        $data->happinessCenter =[];
         $data->eservices       = [];
-        $data->balanceSheet    = [];
+        $data->happinessCenter = [];
+        $data->balanceSheet    = $balanceSheet;
+        $data->bankBalance     = $bankBalance;
+        $data->budgetVsActual  = $budgetVsActual;
+        $data->generalFund     = $generalFund;
+        $data->reservedFund    = $reservedFund;
+        $data->accountsPayable = $serviceData;
         $data->workOrders      = [];
         $data->assets          = [];
-        $data->bankBalance     = [];
         $data->utilityExpenses = [];
-        $data->budgetVsActual  = [];
-        $data->generalFund     = [];
-        $data->reservedFund    = [];
+        $data->collection      = $collection;
         $data->delinquents     = [];
-        $data->collection      = [];
-        return $data;
 
         $response = Http::withOptions(['verify' => false])->withHeaders([
             'content-type' => 'application/json',
             'consumer-id'  => '8OSkYHBE5K7RS8oDfrGStgHJhhRoS7K9',
-            // 'Authorization' => 'Bearer ' . $bearerToken, // Assuming you have $bearerToken variable with the actual token value
-        ])
-            ->post('https://qagate.dubailand.gov.ae/mollak/external/managementreport/submit', [
-
-            ]);
+        ])->post('https://qagate.dubailand.gov.ae/mollak/external/managementreport/submit', $data);
         return $body = $response->body();
 
     }
@@ -120,32 +207,62 @@ class TestController extends Controller
         $serviceData = Excel::toArray(new TestImport, $request->file('file'))[0];
         $data        = new stdClass();
 
+        $balanceSheet = new stdClass;
+
+        $balanceSheet->income    = [];
+        $balanceSheet->expense   = [];
+        $balanceSheet->asset     = [];
+        $balanceSheet->liability = [];
+        $balanceSheet->equity    = [];
+
+        $bankBalance = new stdClass;
+
+        $bankBalance->statement = new stdClass;
+        $bankBalance->bankbook  = new stdClass;
+
+        $budgetVsActual = new stdClass;
+
+        $budgetVsActual->expense_accounts = [];
+        $budgetVsActual->income_accounts  = [];
+
+        $generalFund = new stdClass;
+
+        $generalFund->income  = [];
+        $generalFund->expense = [];
+
+        $reservedFund = new stdClass;
+
+        $reservedFund->income  = [];
+        $reservedFund->expense = [];
+
+        $collection = new stdClass;
+
+        $collection->by_method = [];
+        $collection->recovery  = new stdClass;
+
         $data->propertyGroupId = $request->propertyGroupId;
         $data->fromDate        = $request->fromDate;
         $data->toDate          = $request->toDate;
         $data->workOrders      = $serviceData;
         $data->eservices       = [];
         $data->happinessCenter = [];
-        $data->balanceSheet    = [];
+        $data->balanceSheet    = $balanceSheet;
         $data->accountsPayable = [];
         $data->assets          = [];
-        $data->bankBalance     = [];
+        $data->bankBalance     = $bankBalance;
         $data->utilityExpenses = [];
-        $data->budgetVsActual  = [];
-        $data->generalFund     = [];
-        $data->reservedFund    = [];
+        $data->budgetVsActual  = $budgetVsActual;
+        $data->generalFund     = $generalFund;
+        $data->reservedFund    = $reservedFund;
         $data->delinquents     = [];
-        $data->collection      = [];
-        return $data;
+        $data->collection      = $collection;
 
         $response = Http::withOptions(['verify' => false])->withHeaders([
             'content-type' => 'application/json',
             'consumer-id'  => '8OSkYHBE5K7RS8oDfrGStgHJhhRoS7K9',
             // 'Authorization' => 'Bearer ' . $bearerToken, // Assuming you have $bearerToken variable with the actual token value
         ])
-            ->post('https://qagate.dubailand.gov.ae/mollak/external/managementreport/submit', [
-
-            ]);
+            ->post('https://qagate.dubailand.gov.ae/mollak/external/managementreport/submit', $data);
         return $body = $response->body();
 
     }
@@ -154,32 +271,62 @@ class TestController extends Controller
         $serviceData = Excel::toArray(new TestImport, $request->file('file'))[0];
         $data        = new stdClass();
 
+        $balanceSheet = new stdClass;
+
+        $balanceSheet->income    = [];
+        $balanceSheet->expense   = [];
+        $balanceSheet->asset     = [];
+        $balanceSheet->liability = [];
+        $balanceSheet->equity    = [];
+
+        $bankBalance = new stdClass;
+
+        $bankBalance->statement = new stdClass;
+        $bankBalance->bankbook  = new stdClass;
+
+        $budgetVsActual = new stdClass;
+
+        $budgetVsActual->expense_accounts = [];
+        $budgetVsActual->income_accounts  = [];
+
+        $generalFund = new stdClass;
+
+        $generalFund->income  = [];
+        $generalFund->expense = [];
+
+        $reservedFund = new stdClass;
+
+        $reservedFund->income  = [];
+        $reservedFund->expense = [];
+
+        $collection = new stdClass;
+
+        $collection->by_method = [];
+        $collection->recovery  = new stdClass;
+
         $data->propertyGroupId = $request->propertyGroupId;
         $data->fromDate        = $request->fromDate;
         $data->toDate          = $request->toDate;
         $data->assets          = $serviceData;
         $data->eservices       = [];
         $data->happinessCenter = [];
-        $data->balanceSheet    = [];
+        $data->balanceSheet    = $balanceSheet;
         $data->accountsPayable = [];
         $data->workOrders      = [];
-        $data->bankBalance     = [];
+        $data->bankBalance     = $bankBalance;
         $data->utilityExpenses = [];
-        $data->budgetVsActual  = [];
-        $data->generalFund     = [];
-        $data->reservedFund    = [];
+        $data->budgetVsActual  = $budgetVsActual;
+        $data->generalFund     = $generalFund;
+        $data->reservedFund    = $generalFund;
         $data->delinquents     = [];
-        $data->collection      = [];
-        return $data;
+        $data->collection      = $collection;
 
         $response = Http::withOptions(['verify' => false])->withHeaders([
             'content-type' => 'application/json',
             'consumer-id'  => '8OSkYHBE5K7RS8oDfrGStgHJhhRoS7K9',
             // 'Authorization' => 'Bearer ' . $bearerToken, // Assuming you have $bearerToken variable with the actual token value
         ])
-            ->post('https://qagate.dubailand.gov.ae/mollak/external/managementreport/submit', [
-
-            ]);
+            ->post('https://qagate.dubailand.gov.ae/mollak/external/managementreport/submit', $data);
         return $body = $response->body();
     }
     public function uploadDelinquents(Request $request)
@@ -187,32 +334,63 @@ class TestController extends Controller
         $serviceData = Excel::toArray(new TestImport, $request->file('file'))[0];
         $data        = new stdClass();
 
+        $balanceSheet = new stdClass;
+
+        $balanceSheet->income    = [];
+        $balanceSheet->expense   = [];
+        $balanceSheet->asset     = [];
+        $balanceSheet->liability = [];
+        $balanceSheet->equity    = [];
+
+        $bankBalance = new stdClass;
+
+        $bankBalance->statement = new stdClass;
+        $bankBalance->bankbook  = new stdClass;
+
+        $budgetVsActual = new stdClass;
+
+        $budgetVsActual->expense_accounts = [];
+        $budgetVsActual->income_accounts  = [];
+
+        $generalFund = new stdClass;
+
+        $generalFund->income  = [];
+        $generalFund->expense = [];
+
+        $reservedFund = new stdClass;
+
+        $reservedFund->income  = [];
+        $reservedFund->expense = [];
+
+        $collection = new stdClass;
+
+        $collection->by_method = [];
+        $collection->recovery  = new stdClass;
+
         $data->propertyGroupId = $request->propertyGroupId;
         $data->fromDate        = $request->fromDate;
         $data->toDate          = $request->toDate;
         $data->delinquents     = $serviceData;
         $data->eservices       = [];
         $data->happinessCenter = [];
-        $data->balanceSheet    = [];
+        $data->balanceSheet    = $balanceSheet;
         $data->accountsPayable = [];
         $data->workOrders      = [];
         $data->assets          = [];
-        $data->bankBalance     = [];
+        $data->bankBalance     = $bankBalance;
         $data->utilityExpenses = [];
-        $data->budgetVsActual  = [];
-        $data->generalFund     = [];
-        $data->reservedFund    = [];
-        $data->collection      = [];
-        return $data;
+        $data->budgetVsActual  = $budgetVsActual;
+        $data->generalFund     = $generalFund;
+        $data->reservedFund    = $generalFund;
+        $data->collection      =$collection;
+
 
         $response = Http::withOptions(['verify' => false])->withHeaders([
             'content-type' => 'application/json',
             'consumer-id'  => '8OSkYHBE5K7RS8oDfrGStgHJhhRoS7K9',
             // 'Authorization' => 'Bearer ' . $bearerToken, // Assuming you have $bearerToken variable with the actual token value
         ])
-            ->post('https://qagate.dubailand.gov.ae/mollak/external/managementreport/submit', [
-
-            ]);
+            ->post('https://qagate.dubailand.gov.ae/mollak/external/managementreport/submit', '$data');
         return $body = $response->body();
     }
 
