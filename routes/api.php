@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\TestController;
 
 /*
 |--------------------------------------------------------------------------
@@ -18,7 +19,7 @@ use App\Http\Controllers\Api\AuthController;
 Route::post('/login', [AuthController::class, 'login'])->name('api.login');
 
 Route::middleware('auth:sanctum')
-    ->get('/user', function (Request $request) {
+    ->get('/me', function (Request $request) {
         return $request->user();
     })
     ->name('api.user');
@@ -26,3 +27,13 @@ Route::middleware('auth:sanctum')
 Route::name('api.')
     ->middleware('auth:sanctum')
     ->group(function () {});
+
+Route::post('upload/e-services',[TestController::class,'uploadEservices']);
+
+Route::post('upload/happiness-center', [TestController::class, 'uploadhappinessCenter']);
+
+Route::post('upload/accounts-payable', [TestController::class, 'uploadAccountsPayable']);
+
+Route::post('upload/work-orders', [TestController::class, 'uploadWorkOrders']);
+
+Route::post('upload/delinquents', [TestController::class, 'uploadDelinquents']);
