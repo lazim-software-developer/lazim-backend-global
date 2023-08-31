@@ -22,8 +22,6 @@ return new class extends Migration {
             $table->dateTime('end_date')->nullable();
             $table->string('role_name', 50);
             $table->boolean('active');
-            $table->foreign('building_id')->references('id')->on('buildings');
-
             $table->timestamps();
         });
     }
