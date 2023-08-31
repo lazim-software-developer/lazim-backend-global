@@ -6,14 +6,14 @@ use App\Filament\Resources\Master\ServiceResource\Pages\CreateService;
 use App\Filament\Resources\Master\ServiceResource\Pages\EditService;
 use App\Filament\Resources\Master\ServiceResource\Pages\ListServices;
 use App\Models\Master\Service;
-use Filament\Actions\CreateAction;
-use Filament\Actions\EditAction;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables\Actions\BulkActionGroup;
+use Filament\Tables\Actions\CreateAction;
 use Filament\Tables\Actions\DeleteBulkAction;
+use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 

@@ -24,8 +24,6 @@ return new class extends Migration {
             $table->unsignedBigInteger('approved_by');
             $table->json('remarks');
             $table->integer('number_of_visitors');
-            $table->foreign('building_id')->references('id')->on('buildings');
-
             $table->timestamps();
         });
     }
