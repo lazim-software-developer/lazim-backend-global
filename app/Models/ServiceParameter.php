@@ -8,4 +8,16 @@ use Illuminate\Database\Eloquent\Model;
 class ServiceParameter extends Model
 {
     use HasFactory;
+    protected $fillable = [
+        'name',
+        'active'
+    ];
+
+    protected $searchableFields = ['*'];
+
+    protected $table = 'service_parameters';
+
+    protected $casts = [
+        'active' => 'boolean'
+    ];
 }
