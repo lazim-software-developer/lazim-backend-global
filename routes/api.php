@@ -26,23 +26,29 @@ Route::middleware('auth:sanctum')
 
 Route::name('api.')
     ->middleware('auth:sanctum')
-    ->group(function () {});
+    ->group(function () {
+        Route::post('upload/1', [TestController::class, 'uploadEservices']);
 
-Route::post('upload/e-services', [TestController::class, 'uploadEservices']);
+        Route::post('upload/2', [TestController::class, 'uploadhappinessCenter']);
 
-Route::post('upload/happiness-center', [TestController::class, 'uploadhappinessCenter']);
+        Route::post('upload/3', [TestController::class, 'uploadBalanceSheet']);
 
-Route::post('upload/accounts-payable', [TestController::class, 'uploadAccountsPayable']);
+        Route::post('upload/4', [TestController::class, 'uploadGeneralFund']);
 
-Route::post('upload/work-orders', [TestController::class, 'uploadWorkOrders']);
+        Route::post('upload/5', [TestController::class, 'uploadReservedFund']);
 
-Route::post('upload/delinquents', [TestController::class, 'uploadDelinquents']);
+        Route::post('upload/6', [TestController::class, 'uploadBudgetVsActual']);
 
-Route::post('upload/balance-sheet', [TestController::class, 'uploadBalanceSheet']);
+        Route::post('upload/7', [TestController::class, 'uploadAccountsPayable']);
 
-Route::post('upload/reserve-fund', [TestController::class, 'uploadReservedFund']);
+        Route::post('upload/8', [TestController::class, 'uploadDelinquents']);
 
-Route::post('upload/budget-vs-actual', [TestController::class, 'uploadBudgetVsActual']);
+        Route::post('upload/9', [TestController::class, 'uploadCollection']);
 
-Route::post('upload/general-fund', [TestController::class, 'uploadGeneralFund']);
-Route::post('upload/collection', [TestController::class, 'uploadCollection']);
+        Route::post('upload/12', [TestController::class, 'uploadWorkOrders']);
+
+        Route::get('services-requests', [TestController::class, 'serviceRequest']);
+
+        Route::get('service-parameters', [TestController::class, 'serviceParameters']);    
+    });
+
