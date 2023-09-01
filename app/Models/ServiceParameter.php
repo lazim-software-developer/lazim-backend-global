@@ -20,5 +20,4 @@ class ServiceParameter extends Model
     protected $casts = [
         'active' => 'boolean'
     ];
-
 }
