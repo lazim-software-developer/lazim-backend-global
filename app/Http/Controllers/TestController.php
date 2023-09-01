@@ -30,12 +30,12 @@ class TestController extends Controller
     public function uploadEservices(Request $request)
     {
         $store = OaServiceRequest::create([
-            'service_parameter_id' => ServiceParameter::where('name',$request->name)->value('id'),
+            'service_parameter_id' => $request->id,
             'property_group' => $request->property_group,
             'from_date' => $request->from_date,
             'to_date' => $request->to_date,
             'status' => 'Posted',
-            'uploaded_by' => auth()->user()->id,
+            'uploaded_by' => 1,
         ]);
 
         $serviceData = Excel::toArray(new TestImport, $request->file('file'))[0];
@@ -104,12 +104,12 @@ class TestController extends Controller
     public function uploadHappinessCenter(Request $request)
     {
         $store = OaServiceRequest::create([
-            'service_parameter_id' => ServiceParameter::where('name',$request->name)->value('id'),
+            'service_parameter_id' => $request->id,
             'property_group' => $request->property_group,
             'from_date' => $request->from_date,
             'to_date' => $request->to_date,
             'status' => 'Posted',
-            'uploaded_by' => auth()->user()->id,
+            'uploaded_by' => 1,
         ]);
 
         $serviceData = Excel::toArray(new TestImport, $request->file('file'))[0];
@@ -177,12 +177,12 @@ class TestController extends Controller
     public function uploadAccountsPayable(Request $request)
     {
         $store = OaServiceRequest::create([
-            'service_parameter_id' => ServiceParameter::where('name',$request->name)->value('id'),
+            'service_parameter_id' => $request->id,
             'property_group' => $request->property_group,
             'from_date' => $request->from_date,
             'to_date' => $request->to_date,
             'status' => 'Posted',
-            'uploaded_by' => auth()->user()->id,
+            'uploaded_by' => 1,
         ]);
 
         $serviceData = Excel::toArray(new TestImport, $request->file('file'))[0];
@@ -249,12 +249,12 @@ class TestController extends Controller
     public function uploadWorkOrders(Request $request)
     {
         $store = OaServiceRequest::create([
-            'service_parameter_id' => ServiceParameter::where('name',$request->name)->value('id'),
+            'service_parameter_id' => $request->id,
             'property_group' => $request->property_group,
             'from_date' => $request->from_date,
             'to_date' => $request->to_date,
             'status' => 'Posted',
-            'uploaded_by' => auth()->user()->id,
+            'uploaded_by' => 1,
         ]);
 
         $serviceData = Excel::toArray(new TestImport, $request->file('file'))[0];
@@ -322,12 +322,12 @@ class TestController extends Controller
     public function uploadAssets(Request $request)
     {
         $store = OaServiceRequest::create([
-            'service_parameter_id' => ServiceParameter::where('name',$request->name)->value('id'),
+            'service_parameter_id' => $request->id,
             'property_group' => $request->property_group,
             'from_date' => $request->from_date,
             'to_date' => $request->to_date,
             'status' => 'Posted',
-            'uploaded_by' => auth()->user()->id,
+            'uploaded_by' => 1,
         ]);
 
         $serviceData = Excel::toArray(new TestImport, $request->file('file'))[0];
@@ -394,12 +394,12 @@ class TestController extends Controller
     public function uploadDelinquents(Request $request)
     {
         $store = OaServiceRequest::create([
-            'service_parameter_id' => ServiceParameter::where('name',$request->name)->value('id'),
+            'service_parameter_id' => $request->id,
             'property_group' => $request->property_group,
             'from_date' => $request->from_date,
             'to_date' => $request->to_date,
             'status' => 'Posted',
-            'uploaded_by' => auth()->user()->id,
+            'uploaded_by' => 1,
         ]);
 
         $serviceData = Excel::toArray(new TestImport, $request->file('file'))[0];
@@ -467,12 +467,12 @@ class TestController extends Controller
     public function uploadBalanceSheet(Request $request)
     {
         $store = OaServiceRequest::create([
-            'service_parameter_id' => ServiceParameter::where('name',$request->name)->value('id'),
+            'service_parameter_id' => $request->id,
             'property_group' => $request->property_group,
             'from_date' => $request->from_date,
             'to_date' => $request->to_date,
             'status' => 'Posted',
-            'uploaded_by' => auth()->user()->id,
+            'uploaded_by' => 1,
         ]);
 
         $income    = Excel::toArray(new IncomeImport, $request->file('file'))[0];
@@ -545,12 +545,12 @@ class TestController extends Controller
     public function uploadReservedFund(Request $request)
     {
         $store = OaServiceRequest::create([
-            'service_parameter_id' => ServiceParameter::where('name',$request->name)->value('id'),
+            'service_parameter_id' => $request->id,
             'property_group' => $request->property_group,
             'from_date' => $request->from_date,
             'to_date' => $request->to_date,
             'status' => 'Posted',
-            'uploaded_by' => auth()->user()->id,
+            'uploaded_by' => 1,
         ]);
 
         $income  = Excel::toArray(new IncomeReservedImport, $request->file('file'))[0];
@@ -621,12 +621,12 @@ class TestController extends Controller
     public function uploadBudgetVsActual(Request $request)
     {
         $store = OaServiceRequest::create([
-            'service_parameter_id' => ServiceParameter::where('name',$request->name)->value('id'),
+            'service_parameter_id' => $request->id,
             'property_group' => $request->property_group,
             'from_date' => $request->from_date,
             'to_date' => $request->to_date,
             'status' => 'Posted',
-            'uploaded_by' => auth()->user()->id,
+            'uploaded_by' => 1,
         ]);
 
         $income_accounts  = Excel::toArray(new IncomeBudgetImport, $request->file('file'))[0];
@@ -696,12 +696,12 @@ class TestController extends Controller
     public function uploadGeneralFund(Request $request)
     {
         $store = OaServiceRequest::create([
-            'service_parameter_id' => ServiceParameter::where('name',$request->name)->value('id'),
+            'service_parameter_id' => $request->id,
             'property_group' => $request->property_group,
             'from_date' => $request->from_date,
             'to_date' => $request->to_date,
             'status' => 'Posted',
-            'uploaded_by' => auth()->user()->id,
+            'uploaded_by' => 1,
         ]);
 
         $income  = Excel::toArray(new IncomeGeneralImport, $request->file('file'))[0];
@@ -774,12 +774,12 @@ class TestController extends Controller
     {
         // $store = OaServiceRequest::create($request->all());
         $store = OaServiceRequest::create([
-            'service_parameter_id' => ServiceParameter::where('name',$request->name)->value('id'),
+            'service_parameter_id' => $request->id,
             'property_group' => $request->property_group,
             'from_date' => $request->from_date,
             'to_date' => $request->to_date,
             'status' => 'Posted',
-            'uploaded_by' => auth()->user()->id,
+            'uploaded_by' => 1,
         ]);
        $recovery  = Excel::toArray(new RecoveryImport, $request->file('file'))[0];
        $byMethod = Excel::toArray(new ByMethodImport, $request->file('file'))[1];
