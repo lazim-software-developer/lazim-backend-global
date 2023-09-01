@@ -30,7 +30,7 @@ class TestController extends Controller
     public function uploadEservices(Request $request)
     {
         $store = OaServiceRequest::create([
-            'service_parameter_id' => $request->id,
+            'service_parameter_id' => $request->service_parameter_id,
             'property_group' => $request->property_group,
             'from_date' => $request->from_date,
             'to_date' => $request->to_date,
@@ -104,7 +104,7 @@ class TestController extends Controller
     public function uploadHappinessCenter(Request $request)
     {
         $store = OaServiceRequest::create([
-            'service_parameter_id' => $request->id,
+            'service_parameter_id' => $request->service_parameter_id,
             'property_group' => $request->property_group,
             'from_date' => $request->from_date,
             'to_date' => $request->to_date,
@@ -177,7 +177,7 @@ class TestController extends Controller
     public function uploadAccountsPayable(Request $request)
     {
         $store = OaServiceRequest::create([
-            'service_parameter_id' => $request->id,
+            'service_parameter_id' => $request->service_parameter_id,
             'property_group' => $request->property_group,
             'from_date' => $request->from_date,
             'to_date' => $request->to_date,
@@ -249,7 +249,7 @@ class TestController extends Controller
     public function uploadWorkOrders(Request $request)
     {
         $store = OaServiceRequest::create([
-            'service_parameter_id' => $request->id,
+            'service_parameter_id' => $request->service_parameter_id,
             'property_group' => $request->property_group,
             'from_date' => $request->from_date,
             'to_date' => $request->to_date,
@@ -322,7 +322,7 @@ class TestController extends Controller
     public function uploadAssets(Request $request)
     {
         $store = OaServiceRequest::create([
-            'service_parameter_id' => $request->id,
+            'service_parameter_id' => $request->service_parameter_id,
             'property_group' => $request->property_group,
             'from_date' => $request->from_date,
             'to_date' => $request->to_date,
@@ -394,7 +394,7 @@ class TestController extends Controller
     public function uploadDelinquents(Request $request)
     {
         $store = OaServiceRequest::create([
-            'service_parameter_id' => $request->id,
+            'service_parameter_id' => $request->service_parameter_id,
             'property_group' => $request->property_group,
             'from_date' => $request->from_date,
             'to_date' => $request->to_date,
@@ -467,7 +467,7 @@ class TestController extends Controller
     public function uploadBalanceSheet(Request $request)
     {
         $store = OaServiceRequest::create([
-            'service_parameter_id' => $request->id,
+            'service_parameter_id' => $request->service_parameter_id,
             'property_group' => $request->property_group,
             'from_date' => $request->from_date,
             'to_date' => $request->to_date,
@@ -545,7 +545,7 @@ class TestController extends Controller
     public function uploadReservedFund(Request $request)
     {
         $store = OaServiceRequest::create([
-            'service_parameter_id' => $request->id,
+            'service_parameter_id' => $request->service_parameter_id,
             'property_group' => $request->property_group,
             'from_date' => $request->from_date,
             'to_date' => $request->to_date,
@@ -621,7 +621,7 @@ class TestController extends Controller
     public function uploadBudgetVsActual(Request $request)
     {
         $store = OaServiceRequest::create([
-            'service_parameter_id' => $request->id,
+            'service_parameter_id' => $request->service_parameter_id,
             'property_group' => $request->property_group,
             'from_date' => $request->from_date,
             'to_date' => $request->to_date,
@@ -696,7 +696,7 @@ class TestController extends Controller
     public function uploadGeneralFund(Request $request)
     {
         $store = OaServiceRequest::create([
-            'service_parameter_id' => $request->id,
+            'service_parameter_id' => $request->service_parameter_id,
             'property_group' => $request->property_group,
             'from_date' => $request->from_date,
             'to_date' => $request->to_date,
@@ -774,7 +774,7 @@ class TestController extends Controller
     {
         // $store = OaServiceRequest::create($request->all());
         $store = OaServiceRequest::create([
-            'service_parameter_id' => $request->id,
+            'service_parameter_id' => $request->service_parameter_id,
             'property_group' => $request->property_group,
             'from_date' => $request->from_date,
             'to_date' => $request->to_date,
