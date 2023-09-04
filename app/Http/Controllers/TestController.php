@@ -845,6 +845,107 @@ class TestController extends Controller
         return $body = $response->body();
 
     }
+    public function uploadAll(Request $request)
+    {
+        // $store = OaServiceRequest::create($request->all());
+        $store = OaServiceRequest::create([
+            'service_parameter_id' => $request->service_parameter_id,
+            'property_group' => $request->property_group,
+            'from_date' => $request->from_date,
+            'to_date' => $request->to_date,
+            'status' => 'Posted',
+            'uploaded_by' => 1,
+        ]);
+        
+        if ($request->has('e_services')) {
+            $e_services = Excel::toArray(new TestImport, $request->file('e_services'))[0];
+        }
+        if ($request->has('happiness_center')) {
+            $happiness_center = Excel::toArray(new TestImport, $request->file('happiness_center'))[0];
+        } 
+        if ($request->has('accounts_payables')) {
+            $accounts_payables = Excel::toArray(new TestImport, $request->file('accounts_payables'))[0];
+        }
+        if ($request->has('delinquents')) {
+            $delinquents = Excel::toArray(new TestImport, $request->file('delinquents'))[0];
+        }
+        if ($request->has('work_orders')) {
+            $work_orders = Excel::toArray(new TestImport, $request->file('work_orders'))[0];
+        }
+        if ($request->has('central_fund_statement')) {
+            $income = Excel::toArray(new IncomeGeneralImport, $request->file('central-fund-statement'))[0];
+            $expense = Excel::toArray(new ExpenseGeneralImport, $request->file('central-fund-statement'))[1];
+        }
+        if ($request->has('collections')) {
+            $recovery = Excel::toArray(new RecoveryImport, $request->file('collections'))[0];
+            $byMethod = Excel::toArray(new ByMethodImport, $request->file('collections'))[1];
+        }
+        
+    //    $recovery  = Excel::toArray(new RecoveryImport, $request->file(' '))[0];
+    //    $byMethod = Excel::toArray(new ByMethodImport, $request->file('file'))[1];
+
+    $data = new stdClass();
+
+    $generalFund = new stdClass;
+
+    $generalFund->income  =  $request->has('central_fund_statement') ? $income : [];
+    $generalFund->expense = $request->has('central_fund_statement') ? $expense : [];
+
+    $balanceSheet = new stdClass;
+
+    $balanceSheet->income    = [];
+    $balanceSheet->expense   = [];
+    $balanceSheet->asset     = [];
+    $balanceSheet->liability = [];
+    $balanceSheet->equity    = [];
+
+    $bankBalance = new stdClass;
+
+    $bankBalance->statement = new stdClass;
+    $bankBalance->bankbook  = new stdClass;
+
+    $budgetVsActual = new stdClass;
+
+    $budgetVsActual->expense_accounts = [];
+    $budgetVsActual->income_accounts  = [];
+
+    $reservedFund = new stdClass;
+
+    $reservedFund->income  = [];
+    $reservedFund->expense = [];
+
+    $collection = new stdClass;
+
+    $collection->by_method = $request->has('collections') ? $byMethod : [];
+    $collection->recovery  = $request->has('collections') ? $recovery[0] : [];
+
+    $data->propertyGroupId = $request->property_group;
+    $data->fromDate        = $request->from_date;
+    $data->toDate          = $request->to_date;
+    $data->delinquents     = [];
+    $data->eservices       = $request->has('e_services') ? $e_services : [];
+    $data->happinessCenter = $happiness_center;
+    // $data->balanceSheet    = $request->has('balance_sheet') ? $balance_sheet : $balanceSheet;
+    $data->balanceSheet    = $balanceSheet;
+    $data->accountsPayable = $request->has('accounts_payables') ? $accounts_payables : [];
+    $data->workOrders      = $request->has('work_orders') ? $work_orders : [];
+    $data->assets          = [];
+    $data->bankBalance     = $bankBalance;
+    $data->utilityExpenses = [];
+    $data->budgetVsActual  = $budgetVsActual;
+    $data->generalFund     = $generalFund;
+    $data->reservedFund    = $reservedFund;
+    $data->collection      = $collection;
+
+        $response = Http::withOptions(['verify' => false])->withHeaders([
+            'content-type' => 'application/json',
+            'consumer-id'  => '8OSkYHBE5K7RS8oDfrGStgHJhhRoS7K9',
+            // 'Authorization' => 'Bearer ' . $bearerToken, // Assuming you have $bearerToken variable with the actual token value
+        ])
+            ->post('https://qagate.dubailand.gov.ae/mollak/external/managementreport/submit', $data);
+        return $body = $response->body();
+
+    }
     public function serviceParameters()
     {
         return ServiceParameterResource::collection(ServiceParameter::all());
