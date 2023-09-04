@@ -908,8 +908,10 @@ class TestController extends Controller
 
     $generalFund = new stdClass;
 
-    $generalFund->income  =  $request->has('central_fund_statement') ? $income : [];
-    $generalFund->expense = $request->has('central_fund_statement') ? $expense : [];
+    // $generalFund->income  =  $request->has('central_fund_statement') ? $income : [];
+    $generalFund->income  =  [];
+    // $generalFund->expense = $request->has('central_fund_statement') ? $expense : [];
+    $generalFund->expense = [];
 
     $balanceSheet = new stdClass;
 
@@ -942,7 +944,7 @@ class TestController extends Controller
     $data->propertyGroupId = $request->property_group;
     $data->fromDate        = $request->from_date;
     $data->toDate          = $request->to_date;
-    $data->delinquents     = $delinquents;
+    $data->delinquents     = [];
     $data->eservices       = $request->has('e_services') ? $e_services : [];
     $data->happinessCenter = $request->has('happiness_center') ? $happiness_center : [];
     // $data->balanceSheet    = $request->has('balance_sheet') ? $balance_sheet : $balanceSheet;
