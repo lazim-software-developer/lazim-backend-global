@@ -952,6 +952,7 @@ class TestController extends Controller
     $data->generalFund     = $generalFund;
     $data->reservedFund    = $reservedFund;
     $data->collection      = $collection;
+    return $data;
 
         $response = Http::withOptions(['verify' => false])->withHeaders([
             'content-type' => 'application/json',
