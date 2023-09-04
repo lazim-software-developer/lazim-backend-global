@@ -940,7 +940,7 @@ class TestController extends Controller
     $data->toDate          = $request->to_date;
     $data->delinquents     = [];
     $data->eservices       = $request->has('e_services') ? $e_services : [];
-    $data->happinessCenter = $happiness_center ?? [];
+    $data->happinessCenter = [];
     // $data->balanceSheet    = $request->has('balance_sheet') ? $balance_sheet : $balanceSheet;
     $data->balanceSheet    = $balanceSheet;
     $data->accountsPayable = $request->has('accounts_payables') ? $accounts_payables : [];
