@@ -846,10 +846,11 @@ class TestController extends Controller
         return $body = $response->body();
 
     }
+
     public function uploadAll(Request $request)
     {
         $store = OaServiceRequest::create([
-            // 'service_parameter_id' => $request->service_parameter_id,
+            'service_parameter_id' => $request->service_parameter_id,
             'property_group' => $request->property_group,
             'from_date' => $request->from_date,
             'to_date' => $request->to_date,
