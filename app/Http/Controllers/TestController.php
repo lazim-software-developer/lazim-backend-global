@@ -849,14 +849,18 @@ class TestController extends Controller
 
     public function uploadAll(Request $request)
     {
-        $store = OaServiceRequest::create([
-            'service_parameter_id' => $request->service_parameter_id,
-            'property_group' => $request->property_group,
-            'from_date' => $request->from_date,
-            'to_date' => $request->to_date,
-            'status' => 'Posted',
-            'uploaded_by' => 1,
-        ]);
+        $parameters = ServiceParameter::pluck('id');
+
+        foreach($parameters as $parameter) {
+            OaServiceRequest::create([
+                'service_parameter_id' => $parameter,
+                'property_group' => $request->property_group,
+                'from_date' => $request->from_date,
+                'to_date' => $request->to_date,
+                'status' => 'Posted',
+                'uploaded_by' => 1,
+            ]);
+        }
         
         if ($request->has('e_services')) {
             $e_services = Excel::toArray(new TestImport, $request->file('e_services'))[0];
@@ -940,7 +944,7 @@ class TestController extends Controller
     $data->toDate          = $request->to_date;
     $data->delinquents     = [];
     $data->eservices       = $request->has('e_services') ? $e_services : [];
-    $data->happinessCenter = [];
+    $data->happinessCenter = $request->has('happiness_center') ? $happiness_center : [];
     // $data->balanceSheet    = $request->has('balance_sheet') ? $balance_sheet : $balanceSheet;
     $data->balanceSheet    = $balanceSheet;
     $data->accountsPayable = $request->has('accounts_payables') ? $accounts_payables : [];
