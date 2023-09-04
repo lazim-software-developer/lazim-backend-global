@@ -956,10 +956,7 @@ class TestController extends Controller
     $data->generalFund     = $generalFund;
     $data->reservedFund    = $reservedFund;
     $data->collection      = $collection;
-    return $data;
     
-    return $request->file('file');
-
         $response = Http::withOptions(['verify' => false])->withHeaders([
             'content-type' => 'application/json',
             'consumer-id'  => '8OSkYHBE5K7RS8oDfrGStgHJhhRoS7K9',
