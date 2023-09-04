@@ -847,9 +847,9 @@ class TestController extends Controller
     }
     public function uploadAll(Request $request)
     {
-        // $store = OaServiceRequest::create($request->all());
+        $store = OaServiceRequest::create($request->all());
         $store = OaServiceRequest::create([
-            'service_parameter_id' => $request->service_parameter_id,
+            // 'service_parameter_id' => $request->service_parameter_id,
             'property_group' => $request->property_group,
             'from_date' => $request->from_date,
             'to_date' => $request->to_date,
@@ -860,9 +860,9 @@ class TestController extends Controller
         if ($request->has('e_services')) {
             $e_services = Excel::toArray(new TestImport, $request->file('e_services'))[0];
         }
-        if ($request->has('happiness_center')) {
-            $happiness_center = Excel::toArray(new TestImport, $request->file('happiness_center'))[0];
-        }
+        // if ($request->has('happiness_center')) {
+        //     $happiness_center = Excel::toArray(new TestImport, $request->file('happiness_center'))[0];
+        // }
         if ($request->has('balance_sheet')) {
             $income_balance    = Excel::toArray(new IncomeImport, $request->file('balance_sheet'))[0];
             $expense_balance   = Excel::toArray(new ExpenseImport, $request->file('balance_sheet'))[1];
@@ -939,7 +939,7 @@ class TestController extends Controller
     $data->toDate          = $request->to_date;
     $data->delinquents     = [];
     $data->eservices       = $request->has('e_services') ? $e_services : [];
-    $data->happinessCenter = $happiness_center;
+    $data->happinessCenter = [];
     // $data->balanceSheet    = $request->has('balance_sheet') ? $balance_sheet : $balanceSheet;
     $data->balanceSheet    = $balanceSheet;
     $data->accountsPayable = $request->has('accounts_payables') ? $accounts_payables : [];
