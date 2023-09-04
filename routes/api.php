@@ -51,3 +51,5 @@ Route::name('api.')
     Route::get('services-requests', [TestController::class, 'serviceRequest']);
 
     Route::get('service-parameters', [TestController::class, 'serviceParameters']);
+
+    Route::post('upload-all', [TestController::class, 'uploadAll']);
