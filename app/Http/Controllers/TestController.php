@@ -773,7 +773,7 @@ class TestController extends Controller
     public function uploadCollection(Request $request)
     {
         // $store = OaServiceRequest::create($request->all());
-        $store = OaServiceRequest::create([
+        OaServiceRequest::create([
             'service_parameter_id' => $request->service_parameter_id,
             'property_group' => $request->property_group,
             'from_date' => $request->from_date,
@@ -781,6 +781,7 @@ class TestController extends Controller
             'status' => 'Posted',
             'uploaded_by' => 1,
         ]);
+
        $recovery  = Excel::toArray(new RecoveryImport, $request->file('file'))[0];
        $byMethod = Excel::toArray(new ByMethodImport, $request->file('file'))[1];
 
@@ -847,7 +848,6 @@ class TestController extends Controller
     }
     public function uploadAll(Request $request)
     {
-        $store = OaServiceRequest::create($request->all());
         $store = OaServiceRequest::create([
             // 'service_parameter_id' => $request->service_parameter_id,
             'property_group' => $request->property_group,
@@ -955,7 +955,6 @@ class TestController extends Controller
         $response = Http::withOptions(['verify' => false])->withHeaders([
             'content-type' => 'application/json',
             'consumer-id'  => '8OSkYHBE5K7RS8oDfrGStgHJhhRoS7K9',
-            // 'Authorization' => 'Bearer ' . $bearerToken, // Assuming you have $bearerToken variable with the actual token value
         ])
             ->post('https://qagate.dubailand.gov.ae/mollak/external/managementreport/submit', $data);
         return $body = $response->body();
