@@ -849,7 +849,6 @@ class TestController extends Controller
 
     public function uploadAll(Request $request)
     {
-        return $request->file('eservices');
         $store = OaServiceRequest::create([
             'service_parameter_id' => $request->service_parameter_id,
             'property_group' => $request->property_group,
@@ -859,7 +858,7 @@ class TestController extends Controller
             'uploaded_by' => 1,
         ]);
         
-        if ($request->has('eservices')) {
+        if ($request->has('e_services')) {
             $e_services = Excel::toArray(new TestImport, $request->file('e_services'))[0];
         }
         if ($request->has('happiness_center')) {
@@ -940,7 +939,7 @@ class TestController extends Controller
     $data->fromDate        = $request->from_date;
     $data->toDate          = $request->to_date;
     $data->delinquents     = [];
-    $data->eservices       = $request->has('eservices') ? $e_services : [];
+    $data->eservices       = $request->has('e_services') ? $e_services : [];
     $data->happinessCenter = [];
     // $data->balanceSheet    = $request->has('balance_sheet') ? $balance_sheet : $balanceSheet;
     $data->balanceSheet    = $balanceSheet;
@@ -954,6 +953,8 @@ class TestController extends Controller
     $data->reservedFund    = $reservedFund;
     $data->collection      = $collection;
     return $data;
+    
+    return $request->file('file');
 
         $response = Http::withOptions(['verify' => false])->withHeaders([
             'content-type' => 'application/json',
