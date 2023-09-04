@@ -862,6 +862,13 @@ class TestController extends Controller
         }
         if ($request->has('happiness_center')) {
             $happiness_center = Excel::toArray(new TestImport, $request->file('happiness_center'))[0];
+        }
+        if ($request->has('balance_sheet')) {
+            $income_balance    = Excel::toArray(new IncomeImport, $request->file('balance_sheet'))[0];
+            $expense_balance   = Excel::toArray(new ExpenseImport, $request->file('balance_sheet'))[1];
+            $asset_balance     = Excel::toArray(new AssetImport, $request->file('balance_sheet'))[2];
+            $liability_balance = Excel::toArray(new LiabilityImport, $request->file('balance_sheet'))[3];
+            $equity_balance    = Excel::toArray(new EquityImport, $request->file('balance_sheet'))[4];
         } 
         if ($request->has('accounts_payables')) {
             $accounts_payables = Excel::toArray(new TestImport, $request->file('accounts_payables'))[0];
@@ -871,6 +878,14 @@ class TestController extends Controller
         }
         if ($request->has('work_orders')) {
             $work_orders = Excel::toArray(new TestImport, $request->file('work_orders'))[0];
+        }
+        if ($request->has('reserve_fund')) {
+            $income_reserved  = Excel::toArray(new IncomeReservedImport, $request->file('reserve_fund'))[0];
+            $expense_reserved = Excel::toArray(new ExpenseReservedImport, $request->file('reserve_fund'))[1];
+        }
+        if ($request->has('budget_vs_actual')) {
+            $income_accounts  = Excel::toArray(new IncomeBudgetImport, $request->file('budget_vs_actual'))[0];
+            $expense_accounts = Excel::toArray(new ExpenseBudgetImport, $request->file('budget_vs_actual'))[1];
         }
         if ($request->has('central_fund_statement')) {
             $income = Excel::toArray(new IncomeGeneralImport, $request->file('central-fund-statement'))[0];
@@ -893,11 +908,11 @@ class TestController extends Controller
 
     $balanceSheet = new stdClass;
 
-    $balanceSheet->income    = [];
-    $balanceSheet->expense   = [];
-    $balanceSheet->asset     = [];
-    $balanceSheet->liability = [];
-    $balanceSheet->equity    = [];
+    $balanceSheet->income    = $request->has('balance_sheet') ? $income_balance : [];
+    $balanceSheet->expense   = $request->has('balance_sheet') ? $expense_balance : [];
+    $balanceSheet->asset     = $request->has('balance_sheet') ? $asset_balance : [];
+    $balanceSheet->liability = $request->has('balance_sheet') ? $liability_balance : [];
+    $balanceSheet->equity    = $request->has('balance_sheet') ? $equity_balance : [];
 
     $bankBalance = new stdClass;
 
@@ -906,13 +921,13 @@ class TestController extends Controller
 
     $budgetVsActual = new stdClass;
 
-    $budgetVsActual->expense_accounts = [];
-    $budgetVsActual->income_accounts  = [];
+    $budgetVsActual->expense_accounts = $request->has('budget_vs_actual') ? $income_accounts : [];
+    $budgetVsActual->income_accounts  = $request->has('budget_vs_actual') ? $expense_accounts : [];
 
     $reservedFund = new stdClass;
 
-    $reservedFund->income  = [];
-    $reservedFund->expense = [];
+    $reservedFund->income  = $request->has('reserve_fund') ? $income_reserved : [];
+    $reservedFund->expense = $request->has('reserve_fund') ? $expense_reserved : [];
 
     $collection = new stdClass;
 
