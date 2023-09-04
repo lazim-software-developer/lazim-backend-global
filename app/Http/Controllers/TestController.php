@@ -893,8 +893,8 @@ class TestController extends Controller
             $expense_accounts = Excel::toArray(new ExpenseBudgetImport, $request->file('budget_vs_actual'))[1];
         }
         if ($request->has('central_fund_statement')) {
-            $income = Excel::toArray(new IncomeGeneralImport, $request->file('central-fund-statement'))[0];
-            $expense = Excel::toArray(new ExpenseGeneralImport, $request->file('central-fund-statement'))[1];
+            $income = Excel::toArray(new IncomeGeneralImport, $request->file('central_fund_statement'))[0];
+            $expense = Excel::toArray(new ExpenseGeneralImport, $request->file('central_fund_statement'))[1];
         }
         if ($request->has('collections')) {
             $recovery = Excel::toArray(new RecoveryImport, $request->file('collections'))[0];
@@ -908,10 +908,8 @@ class TestController extends Controller
 
     $generalFund = new stdClass;
 
-    // $generalFund->income  =  $request->has('central_fund_statement') ? $income : [];
-    $generalFund->income  =  [];
-    // $generalFund->expense = $request->has('central_fund_statement') ? $expense : [];
-    $generalFund->expense = [];
+    $generalFund->income  =  $request->has('central_fund_statement') ? $income : [];
+    $generalFund->expense = $request->has('central_fund_statement') ? $expense : [];
 
     $balanceSheet = new stdClass;
 
@@ -958,7 +956,7 @@ class TestController extends Controller
     $data->generalFund     = $generalFund;
     $data->reservedFund    = $reservedFund;
     $data->collection      = $collection;
-    
+
         $response = Http::withOptions(['verify' => false])->withHeaders([
             'content-type' => 'application/json',
             'consumer-id'  => '8OSkYHBE5K7RS8oDfrGStgHJhhRoS7K9',
