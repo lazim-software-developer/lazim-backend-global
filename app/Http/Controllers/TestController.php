@@ -942,7 +942,7 @@ class TestController extends Controller
     $data->propertyGroupId = $request->property_group;
     $data->fromDate        = $request->from_date;
     $data->toDate          = $request->to_date;
-    $data->delinquents     = [];
+    $data->delinquents     = $delinquents;
     $data->eservices       = $request->has('e_services') ? $e_services : [];
     $data->happinessCenter = $request->has('happiness_center') ? $happiness_center : [];
     // $data->balanceSheet    = $request->has('balance_sheet') ? $balance_sheet : $balanceSheet;
