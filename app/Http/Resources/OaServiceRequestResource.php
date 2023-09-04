@@ -15,13 +15,11 @@ class OaServiceRequestResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id'                    => $this->id,
-            'service_parameter_id'  => $this->service_parameter_id,
+            'service_parameter'  => $this->serviceParameter->name,
             'property_group'        => $this->property_group,
             'from_date'             => $this->from_date,
             'to_date'               => $this->to_date,
             'status'                => $this->status,
-            'uploaded_by'           => $this->uploaded_by,
         ];
     }
 }
