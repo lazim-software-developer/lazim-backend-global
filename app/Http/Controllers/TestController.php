@@ -861,9 +861,9 @@ class TestController extends Controller
         if ($request->has('e_services')) {
             $e_services = Excel::toArray(new TestImport, $request->file('e_services'))[0];
         }
-        // if ($request->has('happiness_center')) {
-        //     $happiness_center = Excel::toArray(new TestImport, $request->file('happiness_center'))[0];
-        // }
+        if ($request->has('happiness_center')) {
+            $happiness_center = Excel::toArray(new TestImport, $request->file('happiness_center'))[0];
+        }
         if ($request->has('balance_sheet')) {
             $income_balance    = Excel::toArray(new IncomeImport, $request->file('balance_sheet'))[0];
             $expense_balance   = Excel::toArray(new ExpenseImport, $request->file('balance_sheet'))[1];
@@ -940,7 +940,7 @@ class TestController extends Controller
     $data->toDate          = $request->to_date;
     $data->delinquents     = [];
     $data->eservices       = $request->has('e_services') ? $e_services : [];
-    $data->happinessCenter = [];
+    $data->happinessCenter = $happiness_center ?? [];
     // $data->balanceSheet    = $request->has('balance_sheet') ? $balance_sheet : $balanceSheet;
     $data->balanceSheet    = $balanceSheet;
     $data->accountsPayable = $request->has('accounts_payables') ? $accounts_payables : [];
