@@ -17,6 +17,7 @@ class ServiceParameterResource extends JsonResource
         return [
             'id'                    => $this->id,
             'name'                  => $this->name,
+            'value'                 => $this->value,
             'active'                => $this->active,
         ];
     }
