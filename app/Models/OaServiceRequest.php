@@ -15,6 +15,8 @@ class OaServiceRequest extends Model
         'to_date',
         'status',
         'uploaded_by',
+        'property_name',
+        'service_period'
     ];
 
     protected $searchableFields = ['*'];

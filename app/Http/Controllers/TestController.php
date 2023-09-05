@@ -4,20 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\OaServiceRequestResource;
 use App\Http\Resources\ServiceParameterResource;
-use App\Imports\AssetImport;
-use App\Imports\ByMethodImport;
-use App\Imports\EquityImport;
-use App\Imports\ExpenseBudgetImport;
-use App\Imports\ExpenseGeneralImport;
-use App\Imports\ExpenseImport;
-use App\Imports\ExpenseReservedImport;
-use App\Imports\IncomeBudgetImport;
-use App\Imports\IncomeGeneralImport;
-use App\Imports\IncomeImport;
-use App\Imports\IncomeReservedImport;
-use App\Imports\LiabilityImport;
-use App\Imports\RecoveryImport;
 use App\Imports\TestImport;
+use App\Imports\AssetsImport;
+use App\Imports\UtilityExpensesImport;
 use App\Models\OaServiceRequest;
 use App\Models\ServiceParameter;
 use Illuminate\Http\Request;
@@ -849,18 +838,7 @@ class TestController extends Controller
 
     public function uploadAll(Request $request)
     {
-        $parameters = ServiceParameter::pluck('id');
-
-        foreach($parameters as $parameter) {
-            OaServiceRequest::create([
-                'service_parameter_id' => $parameter,
-                'property_group' => $request->property_group,
-                'from_date' => $request->from_date,
-                'to_date' => $request->to_date,
-                'status' => 'Posted',
-                'uploaded_by' => 1,
-            ]);
-        }
+        $parameters = ServiceParameter::all();
         
         if ($request->has('e_services')) {
             $e_services = Excel::toArray(new TestImport, $request->file('e_services'))[0];
@@ -869,40 +847,52 @@ class TestController extends Controller
             $happiness_center = Excel::toArray(new TestImport, $request->file('happiness_center'))[0];
         }
         if ($request->has('balance_sheet')) {
-            $income_balance    = Excel::toArray(new IncomeImport, $request->file('balance_sheet'))[0];
-            $expense_balance   = Excel::toArray(new ExpenseImport, $request->file('balance_sheet'))[1];
-            $asset_balance     = Excel::toArray(new AssetImport, $request->file('balance_sheet'))[2];
-            $liability_balance = Excel::toArray(new LiabilityImport, $request->file('balance_sheet'))[3];
-            $equity_balance    = Excel::toArray(new EquityImport, $request->file('balance_sheet'))[4];
+            $income_balance    = Excel::toArray(new TestImport, $request->file('balance_sheet'))[0];
+            $expense_balance   = Excel::toArray(new TestImport, $request->file('balance_sheet'))[1];
+            $asset_balance     = Excel::toArray(new TestImport, $request->file('balance_sheet'))[2];
+            $liability_balance = Excel::toArray(new TestImport, $request->file('balance_sheet'))[3];
+            $equity_balance    = Excel::toArray(new TestImport, $request->file('balance_sheet'))[4];
         } 
         if ($request->has('accounts_payables')) {
             $accounts_payables = Excel::toArray(new TestImport, $request->file('accounts_payables'))[0];
         }
         if ($request->has('delinquents')) {
-            $delinquents = Excel::toArray(new TestImport, $request->file('delinquents'))[0];
+            $delinquentsData = Excel::toArray(new TestImport, $request->file('delinquents'))[0];
         }
         if ($request->has('work_orders')) {
             $work_orders = Excel::toArray(new TestImport, $request->file('work_orders'))[0];
         }
         if ($request->has('reserve_fund')) {
-            $income_reserved  = Excel::toArray(new IncomeReservedImport, $request->file('reserve_fund'))[0];
-            $expense_reserved = Excel::toArray(new ExpenseReservedImport, $request->file('reserve_fund'))[1];
+            $income_reserved  = Excel::toArray(new TestImport, $request->file('reserve_fund'))[0];
+            $expense_reserved = Excel::toArray(new TestImport, $request->file('reserve_fund'))[1];
         }
         if ($request->has('budget_vs_actual')) {
-            $income_accounts  = Excel::toArray(new IncomeBudgetImport, $request->file('budget_vs_actual'))[0];
-            $expense_accounts = Excel::toArray(new ExpenseBudgetImport, $request->file('budget_vs_actual'))[1];
+            $income_accounts  = Excel::toArray(new TestImport, $request->file('budget_vs_actual'))[0];
+            $expense_accounts = Excel::toArray(new TestImport, $request->file('budget_vs_actual'))[1];
         }
         if ($request->has('central_fund_statement')) {
-            $income = Excel::toArray(new IncomeGeneralImport, $request->file('central_fund_statement'))[0];
-            $expense = Excel::toArray(new ExpenseGeneralImport, $request->file('central_fund_statement'))[1];
+            $income = Excel::toArray(new TestImport, $request->file('central_fund_statement'))[0];
+            $expense = Excel::toArray(new TestImport, $request->file('central_fund_statement'))[1];
         }
         if ($request->has('collections')) {
-            $recovery = Excel::toArray(new RecoveryImport, $request->file('collections'))[0];
-            $byMethod = Excel::toArray(new ByMethodImport, $request->file('collections'))[1];
+            $recovery = Excel::toArray(new TestImport, $request->file('collections'))[0];
+            $byMethod = Excel::toArray(new TestImport, $request->file('collections'))[1];
+        }
+
+        if ($request->has('bank_balance')) {
+            $statement = Excel::toArray(new TestImport, $request->file('bank_balance'))[0];
+            $bankbook  = Excel::toArray(new TestImport, $request->file('bank_balance'))[1];
         }
         
-    //    $recovery  = Excel::toArray(new RecoveryImport, $request->file(' '))[0];
-    //    $byMethod = Excel::toArray(new ByMethodImport, $request->file('file'))[1];
+        $import = new AssetsImport;
+
+        Excel::import( $import, $request->file('asset_list_and_expenses'));
+        $assets = $structuredData = $import->getResults();
+
+        $uaImport = new UtilityExpensesImport;
+
+        Excel::import($uaImport, $request->file('utility_expenses'));
+        $utility = $uaImport->getResults();
 
     $data = new stdClass();
 
@@ -921,8 +911,8 @@ class TestController extends Controller
 
     $bankBalance = new stdClass;
 
-    $bankBalance->statement = new stdClass;
-    $bankBalance->bankbook  = new stdClass;
+    $bankBalance->statement = $request->has('bank_balance') ? $statement[0]: new stdClass;
+    $bankBalance->bankbook  = $request->has('bank_balance') ? $bankbook[0]: new stdClass;
 
     $budgetVsActual = new stdClass;
 
@@ -945,23 +935,37 @@ class TestController extends Controller
     $data->delinquents     = [];
     $data->eservices       = $request->has('e_services') ? $e_services : [];
     $data->happinessCenter = $request->has('happiness_center') ? $happiness_center : [];
-    // $data->balanceSheet    = $request->has('balance_sheet') ? $balance_sheet : $balanceSheet;
     $data->balanceSheet    = $balanceSheet;
     $data->accountsPayable = $request->has('accounts_payables') ? $accounts_payables : [];
     $data->workOrders      = $request->has('work_orders') ? $work_orders : [];
-    $data->assets          = [];
-    $data->bankBalance     = $bankBalance;
+    $data->assets          = $request->has('asset_list_and_expenses') ? $assets : [];
+    $data->bankBalance     = $request->has('bank_balance') ? $bankBalance : [];
     $data->utilityExpenses = [];
     $data->budgetVsActual  = $budgetVsActual;
     $data->generalFund     = $generalFund;
     $data->reservedFund    = $reservedFund;
     $data->collection      = $collection;
-
-        $response = Http::withOptions(['verify' => false])->withHeaders([
+    
+        $response = Http::withoutVerifying()->withHeaders([
             'content-type' => 'application/json',
             'consumer-id'  => '8OSkYHBE5K7RS8oDfrGStgHJhhRoS7K9',
         ])
             ->post('https://qagate.dubailand.gov.ae/mollak/external/managementreport/submit', $data);
+
+        // save datainto our database
+        OaServiceRequest::create([
+                'service_parameter_id' => 1,
+                'property_group' => $request->property_group,
+                'property_name' => $request->property_name,
+                'from_date' => $request->from_date,
+                'to_date' => $request->to_date,
+                'service_period' => $request->service_period,
+                'status' => 'Posted',
+                'uploaded_by' => 1,
+            ]);
+
+            // TODO: Upload files to S3
+
         return $body = $response->body();
 
     }
@@ -971,6 +975,7 @@ class TestController extends Controller
     }
     public function serviceRequest()
     {
-        return OaServiceRequestResource::collection(OaServiceRequest::all());
+        return OaServiceRequestResource::collection(OaServiceRequest::paginate(10));
     }
 }
+
