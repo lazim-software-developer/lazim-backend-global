@@ -22,6 +22,7 @@ class OaServiceRequestResource extends JsonResource
             'status'            => $this->status,
             'property_name'     => $this->property_name,
             'service_period'    => $this->service_period,
+            'created_date'      => $this->created_at,
             'oa_service_file'   => isset($this->oa_service_file) ?
             [
                 'e_services'             => env('AWS_URL') . '/' . $this->oa_service_file . '/e_services.xlsx',
