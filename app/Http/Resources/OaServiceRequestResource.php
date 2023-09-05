@@ -20,6 +20,8 @@ class OaServiceRequestResource extends JsonResource
             'from_date'             => $this->from_date,
             'to_date'               => $this->to_date,
             'status'                => $this->status,
+            'property_name'         => $this->property_name,
+            'service_period'         => $this->service_period,
         ];
     }
 }
