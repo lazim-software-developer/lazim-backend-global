@@ -16,18 +16,19 @@ class OaServiceRequest extends Model
         'status',
         'uploaded_by',
         'property_name',
-        'service_period'
+        'service_period',
+        'oa_service_file',
     ];
 
     protected $searchableFields = ['*'];
 
     protected $table = 'oa_service_requests';
-    
+
     public function serviceParameter()
     {
         return $this->belongsTo(ServiceParameter::class);
     }
-    
+
     public function user()
     {
         return $this->belongsTo(User::class);
