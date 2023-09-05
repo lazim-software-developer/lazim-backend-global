@@ -26,7 +26,7 @@ Route::middleware('auth:sanctum')
 
 Route::name('api.')
     ->middleware('auth:sanctum')
-    ->group(function () {    
+    ->group(function () {
     });
     Route::post('upload/1', [TestController::class, 'uploadEservices']);
 
@@ -53,3 +53,5 @@ Route::name('api.')
     Route::get('service-parameters', [TestController::class, 'serviceParameters']);
 
     Route::post('upload-all', [TestController::class, 'uploadAll']);
+
+    Route::get('oa-service-details/{oaService}', [TestController::class, 'getOaService']);
