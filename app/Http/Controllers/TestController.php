@@ -6,6 +6,7 @@ use App\Http\Resources\OaServiceRequestResource;
 use App\Http\Resources\ServiceParameterResource;
 use App\Imports\AssetsImport;
 use App\Imports\TestImport;
+use App\Imports\UtilityExpensesImport;
 use App\Models\OaServiceRequest;
 use App\Models\ServiceParameter;
 use Illuminate\Http\Request;
@@ -967,10 +968,28 @@ class TestController extends Controller
         Excel::import($import, $request->file('asset_list_and_expenses'));
         $assets = $structuredData = $import->getResults();
 
+        if ($request->has('asset_list_and_expenses')) {
+            $document = $request->asset_list_and_expenses;
+            $mimeType = $document->guessExtension();
+            $fileName = 'asset_list_and_expenses';
+
+            Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
+                file_get_contents($document));
+        }
+
         $uaImport = new UtilityExpensesImport;
 
         Excel::import($uaImport, $request->file('utility_expenses'));
         $utility = $uaImport->getResults();
+
+        if ($request->has('utility_expenses')) {
+            $document = $request->utility_expenses;
+            $mimeType = $document->guessExtension();
+            $fileName = 'utility_expenses';
+
+            Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
+                file_get_contents($document));
+        }
 
         $data = new stdClass();
 
