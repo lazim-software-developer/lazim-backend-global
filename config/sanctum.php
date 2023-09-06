@@ -13,9 +13,9 @@ return [
     | authentication cookies. Typically, these should include your local
     | and production domains which access your API via a frontend SPA.
     |
-    */
+     */
 
-    'stateful' => explode(',', env('SANCTUM_STATEFUL_DOMAINS', sprintf(
+    'stateful'   => explode(',', env('SANCTUM_STATEFUL_DOMAINS', sprintf(
         '%s%s',
         'localhost,localhost:3000,127.0.0.1,127.0.0.1:8000,::1',
         Sanctum::currentApplicationUrlWithPort()
@@ -31,9 +31,9 @@ return [
     | are able to authenticate the request, Sanctum will use the bearer
     | token that's present on an incoming request for authentication.
     |
-    */
+     */
 
-    'guard' => ['web'],
+    'guard'      => ['web'],
 
     /*
     |--------------------------------------------------------------------------
@@ -44,9 +44,9 @@ return [
     | considered expired. This will override any values set in the token's
     | "expires_at" attribute, but first-party sessions are not affected.
     |
-    */
+     */
 
-    'expiration' => null,
+    'expiration' => 1440,
 
     /*
     |--------------------------------------------------------------------------
@@ -57,11 +57,11 @@ return [
     | customize some of the middleware Sanctum uses while processing the
     | request. You may change the middleware listed below as required.
     |
-    */
+     */
 
     'middleware' => [
         'verify_csrf_token' => App\Http\Middleware\VerifyCsrfToken::class,
-        'encrypt_cookies' => App\Http\Middleware\EncryptCookies::class,
+        'encrypt_cookies'   => App\Http\Middleware\EncryptCookies::class,
     ],
 
 ];
