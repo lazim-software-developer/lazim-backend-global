@@ -15,6 +15,7 @@ class OaServiceRequestResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
+            'id'                => $this->id,
             'service_parameter' => $this->serviceParameter->name,
             'property_group'    => $this->property_group,
             'from_date'         => $this->from_date,
