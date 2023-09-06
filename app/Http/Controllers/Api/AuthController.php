@@ -15,12 +15,13 @@ class AuthController extends Controller
             'password' => 'required',
         ]);
 
-        $user = User::where('email', $request->email)->first();
+        if (!auth()->attempt($credentials)) {
+            return response(['message' => 'Invalid credentials'], 403);
+        }
+
+        $user = User::where('email', $request->email)->firstOrFail();
 
         if ($user) {
-            if (!auth()->attempt($credentials)) {
-                return response(['message' => 'Invalid credentials'], 403);
-            }
 
             if (in_array($user->role->name, Role::pluck('name')->toArray())) {
                 if ($user->active == 1) {
