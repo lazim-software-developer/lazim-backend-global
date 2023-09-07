@@ -1071,7 +1071,7 @@ class TestController extends Controller
     }
     public function serviceRequest()
     {
-        return OaServiceRequestResource::collection(OaServiceRequest::paginate(10));
+        return OaServiceRequestResource::collection(OaServiceRequest::all());
     }
 
     public function getOaService(OaServiceRequest $oaService)
