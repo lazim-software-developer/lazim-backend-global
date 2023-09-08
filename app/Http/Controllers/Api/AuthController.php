@@ -23,7 +23,7 @@ class AuthController extends Controller
 
         if ($user) {
 
-            if (in_array($user->role->name, Role::pluck('name')->toArray())) {
+            if (in_array($user->role->name, ['OA'])) {
                 if ($user->active == 1) {
                     if ($user->tokens()) {
                         $count = $user->tokens()
