@@ -1045,9 +1045,9 @@ class TestController extends Controller
 
         $response = Http::withoutVerifying()->withHeaders([
             'content-type' => 'application/json',
-            'consumer-id'  => '8OSkYHBE5K7RS8oDfrGStgHJhhRoS7K9',
+            'consumer-id'  => 'nCTX1Hde7PfWH14b3B1KVQ1R85QGMlaN',
         ])
-            ->post('https://qagate.dubailand.gov.ae/mollak/external/managementreport/submit', $data);
+            ->post('https://b2bgateway.dubailand.gov.ae/mollak/external/managementreport/submit', $data);
 
         // save datainto our database
         OaServiceRequest::create([
