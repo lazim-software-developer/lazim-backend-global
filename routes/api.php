@@ -59,3 +59,6 @@ Route::name('api.')
     // Get all propertirs
     Route::get('get-all-properties/{oa_id}', [MollakController::class, 'getProperties']);
 
+    // Get service periods for a given property Id
+    Route::get('get-service-periods/{propertyId}', [MollakController::class, 'getServicePeriod']);
+
