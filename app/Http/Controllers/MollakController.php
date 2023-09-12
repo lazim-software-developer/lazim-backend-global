@@ -8,9 +8,11 @@ use Illuminate\Support\Facades\Http;
 class MollakController extends Controller
 {
     public function getProperties($oaId) {
-        return $response = Http::withOptions(['verify' => false])->withHeaders([
+        $results = Http::withOptions(['verify' => false])->withHeaders([
             'content-type' => 'application/json',
             'consumer-id'  => 'dqHdShhrZQgeSY9a4BZh6cgucpQJvS5r',
         ])->get("https://b2bgateway.dubailand.gov.ae/mollak/external/sync/managementcompany/54713/propertygroups/");
+
+        return response()->json($results);
     }
 }
