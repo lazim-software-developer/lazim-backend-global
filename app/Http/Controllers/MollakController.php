@@ -11,7 +11,17 @@ class MollakController extends Controller
         $results = Http::withOptions(['verify' => false])->withHeaders([
             'content-type' => 'application/json',
             'consumer-id'  => 'dqHdShhrZQgeSY9a4BZh6cgucpQJvS5r',
-        ])->get("https://b2bgateway.dubailand.gov.ae/mollak/external/sync/managementcompany/54713/propertygroups/");
+        ])->get("https://b2bgateway.dubailand.gov.ae/mollak/external/sync/managementcompany/".$oaId."/propertygroups");
+
+        return $results;
+    }
+
+    // Get all service period for a given property id
+    public function getServicePeriod($propertyId){
+        $results = Http::withOptions(['verify' => false])->withHeaders([
+            'content-type' => 'application/json',
+            'consumer-id'  => 'dqHdShhrZQgeSY9a4BZh6cgucpQJvS5r',
+        ])->get("https://b2bgateway.dubailand.gov.ae/mollak/external/sync/invoices/".$propertyId."/servicechargeperiods");
 
         return $results;
     }
