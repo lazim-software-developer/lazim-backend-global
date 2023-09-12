@@ -11,8 +11,6 @@ class MollakController extends Controller
         return $response = Http::withOptions(['verify' => false])->withHeaders([
             'content-type' => 'application/json',
             'consumer-id'  => 'dqHdShhrZQgeSY9a4BZh6cgucpQJvS5r',
-        ])->get("https://b2bgateway.dubailand.gov.ae/mollak/external/sync/54713/propertygroups/");
+        ])->get("https://b2bgateway.dubailand.gov.ae/mollak/external/sync/managementcompany/54713/propertygroups/");
     }
 }
-
-
