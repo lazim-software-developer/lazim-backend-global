@@ -13,6 +13,6 @@ class MollakController extends Controller
             'consumer-id'  => 'dqHdShhrZQgeSY9a4BZh6cgucpQJvS5r',
         ])->get("https://b2bgateway.dubailand.gov.ae/mollak/external/sync/managementcompany/54713/propertygroups/");
 
-        return response()->json($results);
+        return $results;
     }
 }
