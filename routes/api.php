@@ -29,7 +29,11 @@ Route::name('api.')
     ->middleware('auth:sanctum')
     ->group(function () {
     });
-    
+
+    Route::get('services-requests', [TestController::class, 'serviceRequest']);
+
+    Route::get('service-parameters', [TestController::class, 'serviceParameters']);
+
     Route::post('upload-all', [TestController::class, 'uploadAll']);
 
     Route::get('oa-service-details/{oaService}', [TestController::class, 'getOaService']);
