@@ -10,7 +10,9 @@ class MollakController extends Controller
     public function getProperties($oaId) {
         return $response = Http::withOptions(['verify' => false])->withHeaders([
             'content-type' => 'application/json',
-            'consumer-id'  => '8OSkYHBE5K7RS8oDfrGStgHJhhRoS7K9',
-        ])->get(env("MOLLAK_API_URL")."/managementcompany/".$oaId."/propertygroups/");
+            'consumer-id'  => 'dqHdShhrZQgeSY9a4BZh6cgucpQJvS5r',
+        ])->get("https://b2bgateway.dubailand.gov.ae/mollak/external/sync/54713/propertygroups/");
     }
 }
+
+
