@@ -14,22 +14,26 @@ class UtilityExpensesImport implements ToModel, WithHeadingRow
         $reference = $row['utility_reference'];
 
         if (!isset($this->data[$reference])) {
-            // Initialize the utility if it's not yet in our data array
-            $this->data[$reference] = [
-                'utility_reference' => $row['utility_reference'],
-                'amount'            => $row['amount'],
-                'utility_name'      => $row['utility_name'],
-                'provider_name'     => $row['provider_name'],
-                'trend'             => [],
-            ];
+            if(isset($row['amount']) && isset($row['utility_name']) && isset($row['provider_name'])) {
+                // Initialize the utility if it's not yet in our data array
+                $this->data[$reference] = [
+                    'utility_reference' => (string)$row['utility_reference'],
+                    'amount'            => (float)$row['amount'],
+                    'utility_name'      => (string)$row['utility_name'],
+                    'provider_name'     => (string)$row['provider_name'],
+                    'trend'             => [],
+                ];
+            }
         }
 
         // Append to the trend for the respective utility
-        $this->data[$reference]['trend'][] = [
-            'duration'      => $row['duration'],
-            'duration_str'  => $row['duration_str'],
-            'amount'        => $row['trend_amount'],
-        ];
+        if(isset($row['duration']) && isset($row['duration_str']) && isset($row['trend_amount'])) {
+            $this->data[$reference]['trend'][] = [
+                'duration'      => (string)$row['duration'],
+                'duration_str'  => (string)$row['duration_str'],
+                'amount'        => (float)$row['trend_amount'],
+            ];
+        }
     }
 
     public function getResults(): array
