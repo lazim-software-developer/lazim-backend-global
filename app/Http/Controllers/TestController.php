@@ -152,9 +152,9 @@ class TestController extends Controller
 
             $document = $request->reserve_fund;
             $mimeType = $document->guessExtension();
-            $fileName = 'reserve_fund';
+            $fileName = 'reserve_fund.xslx';
 
-            Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
+            Storage::disk('s3')->put($folderPath . '/' . $fileName,
                 file_get_contents($document));
         } else {
             $reserve_fund = new stdClass;
@@ -172,9 +172,9 @@ class TestController extends Controller
 
             $document = $request->budget_vs_actual;
             $mimeType = $document->guessExtension();
-            $fileName = 'budget_vs_actual';
+            $fileName = 'budget_vs_actual.xslx';
 
-            Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
+            Storage::disk('s3')->put($folderPath . '/' . $fileName,
                 file_get_contents($document));
         } else {
             $budget_vs_actual = new stdClass;
