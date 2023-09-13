@@ -152,7 +152,7 @@ class TestController extends Controller
 
             $document = $request->reserve_fund;
             $mimeType = $document->guessExtension();
-            $fileName = 'reserve_fund.xslx';
+            $fileName = 'reserve_fund.xlsx';
 
             Storage::disk('s3')->put($folderPath . '/' . $fileName,
                 file_get_contents($document));
@@ -172,7 +172,7 @@ class TestController extends Controller
 
             $document = $request->budget_vs_actual;
             $mimeType = $document->guessExtension();
-            $fileName = 'budget_vs_actual.xslx';
+            $fileName = 'budget_vs_actual.xlsx';
 
             Storage::disk('s3')->put($folderPath . '/' . $fileName,
                 file_get_contents($document));
