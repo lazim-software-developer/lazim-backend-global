@@ -10,8 +10,8 @@ class MollakController extends Controller
     public function getProperties($oaId) {
         $results = Http::withOptions(['verify' => false])->withHeaders([
             'content-type' => 'application/json',
-            'consumer-id'  => 'dqHdShhrZQgeSY9a4BZh6cgucpQJvS5r',
-        ])->get("https://b2bgateway.dubailand.gov.ae/mollak/external/sync/managementcompany/".$oaId."/propertygroups");
+            'consumer-id'  => '8OSkYHBE5K7RS8oDfrGStgHJhhRoS7K9',
+        ])->get("https://qagate.dubailand.gov.ae/mollak/external/sync/managementcompany/".$oaId."/propertygroups");
 
         return $results;
     }
@@ -20,8 +20,8 @@ class MollakController extends Controller
     public function getServicePeriod($propertyId){
         $results = Http::withOptions(['verify' => false])->withHeaders([
             'content-type' => 'application/json',
-            'consumer-id'  => 'dqHdShhrZQgeSY9a4BZh6cgucpQJvS5r',
-        ])->get("https://b2bgateway.dubailand.gov.ae/mollak/external/sync/invoices/".$propertyId."/servicechargeperiods");
+            'consumer-id'  => '8OSkYHBE5K7RS8oDfrGStgHJhhRoS7K9',
+        ])->get("https://qagate.dubailand.gov.ae/mollak/external/sync/invoices/".$propertyId."/servicechargeperiods");
 
         return $results;
     }
