@@ -5,6 +5,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Master\Role;
 use App\Models\User\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
@@ -21,9 +22,10 @@ class AuthController extends Controller
 
         $user = User::where('email', $request->email)->firstOrFail();
 
-        if ($user) {
+        $allowedRoles = ['OA'];
 
-            if (in_array($user->role->name, ['OA'])) {
+        if ($user) {
+            if (in_array($user->role->name, $allowedRoles)) {
                 if ($user->active == 1) {
                     if ($user->tokens()) {
                         $count = $user->tokens()
