@@ -45,8 +45,8 @@ class TestController extends Controller
             $mimeType = $document->guessExtension();
             $fileName = 'e_services';
 
-            Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
-                file_get_contents($document));
+            // Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
+            //     file_get_contents($document));
         } else {
             $e_services = [];
         }
@@ -62,8 +62,8 @@ class TestController extends Controller
             $mimeType = $document->guessExtension();
             $fileName = 'happiness_center';
 
-            Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
-                file_get_contents($document));
+            // Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
+            //     file_get_contents($document));
         } else {
             $happiness_center = [];
         }
@@ -80,8 +80,8 @@ class TestController extends Controller
             $mimeType = $document->guessExtension();
             $fileName = 'balance_sheet';
 
-            Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
-                file_get_contents($document));
+            // Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
+            //     file_get_contents($document));
         } else {
             $balance_sheet = new stdClass;
 
@@ -103,8 +103,8 @@ class TestController extends Controller
             $mimeType = $document->guessExtension();
             $fileName = 'accounts_payables';
 
-            Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
-                file_get_contents($document));
+            // Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
+            //     file_get_contents($document));
         } else {
             $accounts_payables = [];
         }
@@ -120,8 +120,8 @@ class TestController extends Controller
             $mimeType = $document->guessExtension();
             $fileName = 'delinquents';
 
-            Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
-                file_get_contents($document));
+            // Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
+            //     file_get_contents($document));
         } else {
             $delinquents = [];
         }
@@ -137,8 +137,8 @@ class TestController extends Controller
             $mimeType = $document->guessExtension();
             $fileName = 'work_orders';
 
-            Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
-                file_get_contents($document));
+            // Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
+            //     file_get_contents($document));
         } else {
             $work_orders = [];
         }
@@ -154,8 +154,8 @@ class TestController extends Controller
             $mimeType = $document->guessExtension();
             $fileName = 'reserve_fund.xlsx';
 
-            Storage::disk('s3')->put($folderPath . '/' . $fileName,
-                file_get_contents($document));
+            // Storage::disk('s3')->put($folderPath . '/' . $fileName,
+            //     file_get_contents($document));
         } else {
             $reserve_fund = new stdClass;
 
@@ -174,8 +174,8 @@ class TestController extends Controller
             $mimeType = $document->guessExtension();
             $fileName = 'budget_vs_actual.xlsx';
 
-            Storage::disk('s3')->put($folderPath . '/' . $fileName,
-                file_get_contents($document));
+            // Storage::disk('s3')->put($folderPath . '/' . $fileName,
+            //     file_get_contents($document));
         } else {
             $budget_vs_actual = new stdClass;
             $budget_vs_actual->expense_accounts = [];
@@ -193,8 +193,8 @@ class TestController extends Controller
             $mimeType = $document->guessExtension();
             $fileName = 'central_fund_statement';
 
-            Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
-                file_get_contents($document));
+            // Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
+            //     file_get_contents($document));
         } else {
             $central_fund_statement = new stdClass;
 
@@ -214,8 +214,8 @@ class TestController extends Controller
             $mimeType = $document->guessExtension();
             $fileName = 'collections';
 
-            Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
-                file_get_contents($document));
+            // Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
+            //     file_get_contents($document));
         } else {
             $collection = new stdClass;
 
@@ -234,8 +234,8 @@ class TestController extends Controller
             $mimeType = $document->guessExtension();
             $fileName = 'bank_balance';
 
-            Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
-                file_get_contents($document));
+            // Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
+            //     file_get_contents($document));
         } else {
             $bankBalance = new stdClass;
             $bankBalance->statement = new stdClass;
@@ -252,8 +252,8 @@ class TestController extends Controller
             $mimeType = $document->guessExtension();
             $fileName = 'asset_list_and_expenses';
 
-            Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
-                file_get_contents($document));
+            // Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
+            //     file_get_contents($document));
         } else {
             $assets = [];
         }
@@ -268,8 +268,8 @@ class TestController extends Controller
             $mimeType = $document->guessExtension();
             $fileName = 'utility_expenses';
 
-            Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
-                file_get_contents($document));
+            // Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
+            //     file_get_contents($document));
         } else {
             $utility = [];
         }
@@ -291,8 +291,8 @@ class TestController extends Controller
         $data->budgetVsActual  = $budget_vs_actual;
         $data->generalFund     = $central_fund_statement;
         $data->reservedFund    = $reserve_fund;
-        $data->collection      = $collection;
-        
+        // $data->collection      = $collection;
+
         $response = Http::withoutVerifying()->withHeaders([
             'content-type' => 'application/json',
             'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
@@ -313,11 +313,10 @@ class TestController extends Controller
         ]);
 
         if($response->responseCode === 200) {
-            // save datainto our database
             $oaData->update(['status' => "Success", 'mollak_id' => $response->response->id]);
             return response()->json(['status' => 'success', 'message' => "Uploaded successfully!"]);
         } else {
-            $oaData->update(['status' => "Failed", 'mollak_id' => $response->response->id]);
+            $oaData->update(['status' => "Failed"]);
             return response()->json(['status' => 'error', 'message' => "There seems to be some issue with the files you are uploading. Please check and try again!"]);
         }
 
