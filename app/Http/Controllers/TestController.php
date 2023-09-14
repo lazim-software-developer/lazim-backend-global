@@ -33,6 +33,8 @@ class TestController extends Controller
         $parameters = ServiceParameter::all();
 
         $folderPath = now()->timestamp;
+
+        $mimeType = "xlsx";
         
         // E services
         if ($request->has('e_services')) {
@@ -42,7 +44,6 @@ class TestController extends Controller
             $e_services = $serviceImport->data;
 
             $document = $request->e_services;
-            $mimeType = $document->guessExtension();
             $fileName = 'e_services';
 
             Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
@@ -59,7 +60,6 @@ class TestController extends Controller
             $happiness_center = $happinesscenterimport->data;
 
             $document = $request->happiness_center;
-            $mimeType = $document->guessExtension();
             $fileName = 'happiness_center';
 
             Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
@@ -77,7 +77,7 @@ class TestController extends Controller
             $balance_sheet = $BalanceSheetImport->data;
 
             $document = $request->balance_sheet;
-            $mimeType = $document->guessExtension();
+            
             $fileName = 'balance_sheet';
 
             Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
@@ -100,7 +100,7 @@ class TestController extends Controller
             $accounts_payables = $accountspayablesimport->data;
 
             $document = $request->accounts_payables;
-            $mimeType = $document->guessExtension();
+            
             $fileName = 'accounts_payables';
 
             Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
@@ -117,7 +117,7 @@ class TestController extends Controller
             $delinquents = $delinquentsImport->data;
             
             $document = $request->delinquents;
-            $mimeType = $document->guessExtension();
+            
             $fileName = 'delinquents';
 
             Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
@@ -134,7 +134,7 @@ class TestController extends Controller
             $work_orders = $workordersimport->data;
 
             $document = $request->work_orders;
-            $mimeType = $document->guessExtension();
+            
             $fileName = 'work_orders';
 
             Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
@@ -151,7 +151,7 @@ class TestController extends Controller
             $reserve_fund = $ReserveFundImport->data;
 
             $document = $request->reserve_fund;
-            $mimeType = $document->guessExtension();
+            
             $fileName = 'reserve_fund.xlsx';
 
             Storage::disk('s3')->put($folderPath . '/' . $fileName,
@@ -171,7 +171,7 @@ class TestController extends Controller
             $budget_vs_actual = $budgetvsactual->data;
 
             $document = $request->budget_vs_actual;
-            $mimeType = $document->guessExtension();
+            
             $fileName = 'budget_vs_actual.xlsx';
 
             Storage::disk('s3')->put($folderPath . '/' . $fileName,
@@ -190,7 +190,7 @@ class TestController extends Controller
             $central_fund_statement = $CentralFundStatementImport->data;
 
             $document = $request->central_fund_statement;
-            $mimeType = $document->guessExtension();
+            
             $fileName = 'central_fund_statement';
 
             Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
@@ -211,7 +211,7 @@ class TestController extends Controller
             $collection = $collectionImport->data;
 
             $document = $request->collections;
-            $mimeType = $document->guessExtension();
+            
             $fileName = 'collections';
 
             Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
@@ -231,7 +231,7 @@ class TestController extends Controller
             $bankBalance = $bankBalanceimport->data;
 
             $document = $request->bank_balance;
-            $mimeType = $document->guessExtension();
+            
             $fileName = 'bank_balance';
 
             Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
@@ -249,7 +249,7 @@ class TestController extends Controller
             $assets = $structuredData = $import->getResults();
 
             $document = $request->asset_list_and_expenses;
-            $mimeType = $document->guessExtension();
+            
             $fileName = 'asset_list_and_expenses';
 
             Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
@@ -265,7 +265,7 @@ class TestController extends Controller
             $utility = $uaImport->getResults();
 
             $document = $request->utility_expenses;
-            $mimeType = $document->guessExtension();
+            
             $fileName = 'utility_expenses';
 
             Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
@@ -295,12 +295,12 @@ class TestController extends Controller
 
         $response = Http::withoutVerifying()->withHeaders([
             'content-type' => 'application/json',
-            'consumer-id'  => 'dqHdShhrZQgeSY9a4BZh6cgucpQJvS5r',
-        ])
-            ->post('https://b2bgateway.dubailand.gov.ae/mollak/external/managementreport/submit', $data);
+            'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
+        ])->post(env("MOLLAK_API_URL").'/managementreport/submit', $data);
 
-        // save datainto our database
-        OaServiceRequest::create([
+        $response = json_decode($response->body());
+
+        $oaData = OaServiceRequest::create([
             'service_parameter_id' => 1,
             'property_group'       => $request->property_group,
             'property_name'        => $request->property_name,
@@ -312,7 +312,13 @@ class TestController extends Controller
             'oa_service_file'      => $folderPath,
         ]);
 
-        return $body = $response->body();
+        if($response->responseCode === 200) {
+            $oaData->update(['status' => "Success", 'mollak_id' => $response->response->id]);
+            return response()->json(['status' => 'success', 'message' => "Uploaded successfully!"]);
+        } else {
+            $oaData->update(['status' => "Failed"]);
+            return response()->json(['status' => 'error', 'message' => "There seems to be some issue with the files you are uploading. Please check and try again!"]);
+        }
 
     }
     public function serviceParameters()
