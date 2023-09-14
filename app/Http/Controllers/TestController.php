@@ -7,22 +7,27 @@ use App\Http\Resources\ServiceParameterResource;
 use App\Imports\AccountsPayablesImport;
 use App\Imports\AssetsImport;
 use App\Imports\BalanceSheetImport;
-use App\Imports\TestImport;
-use App\Imports\ServiceImport;
-use App\Imports\CollectionImport;
-use App\Imports\UtilityExpensesImport;
 use App\Imports\BankBalanceImport;
 use App\Imports\BudgetVsActualImport;
 use App\Imports\CentralFundStatementImport;
+use App\Imports\CollectionImport;
 use App\Imports\DelinquentsImport;
 use App\Imports\HappinessCenterImport;
 use App\Imports\ReserveFundImport;
+use App\Imports\ServiceImport;
+use App\Imports\UtilityExpensesImport;
 use App\Imports\WorkOrdersImport;
+use App\Models\Master\Role;
+use App\Models\OaDetails;
 use App\Models\OaServiceRequest;
 use App\Models\ServiceParameter;
+use App\Models\User\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
 use \stdClass;
 
@@ -33,7 +38,7 @@ class TestController extends Controller
         $parameters = ServiceParameter::all();
 
         $folderPath = now()->timestamp;
-        
+
         // E services
         if ($request->has('e_services')) {
             $serviceImport = new ServiceImport;
@@ -85,16 +90,16 @@ class TestController extends Controller
         } else {
             $balance_sheet = new stdClass;
 
-            $balance_sheet->income = [];
-            $balance_sheet->expense  = [];
-            $balance_sheet->asset  = [];
-            $balance_sheet->liability  = [];
-            $balance_sheet->equity  = [];
+            $balance_sheet->income    = [];
+            $balance_sheet->expense   = [];
+            $balance_sheet->asset     = [];
+            $balance_sheet->liability = [];
+            $balance_sheet->equity    = [];
         }
-        
-        // Account payables 
+
+        // Account payables
         if ($request->has('accounts_payables')) {
-            $accountspayablesimport = new AccountsPayablesImport ;
+            $accountspayablesimport = new AccountsPayablesImport;
 
             Excel::import($accountspayablesimport, $request->file('accounts_payables'));
             $accounts_payables = $accountspayablesimport->data;
@@ -115,7 +120,7 @@ class TestController extends Controller
 
             Excel::import($delinquentsImport, $request->file('delinquents'));
             $delinquents = $delinquentsImport->data;
-            
+
             $document = $request->delinquents;
             $mimeType = $document->guessExtension();
             $fileName = 'delinquents';
@@ -159,8 +164,8 @@ class TestController extends Controller
         } else {
             $reserve_fund = new stdClass;
 
-            $reserve_fund->income = [];
-            $reserve_fund->expense  = [];
+            $reserve_fund->income  = [];
+            $reserve_fund->expense = [];
         }
 
         if ($request->has('budget_vs_actual')) {
@@ -177,9 +182,9 @@ class TestController extends Controller
             Storage::disk('s3')->put($folderPath . '/' . $fileName,
                 file_get_contents($document));
         } else {
-            $budget_vs_actual = new stdClass;
+            $budget_vs_actual                   = new stdClass;
             $budget_vs_actual->expense_accounts = [];
-            $budget_vs_actual->income_accounts = [];
+            $budget_vs_actual->income_accounts  = [];
         }
 
         if ($request->has('central_fund_statement')) {
@@ -198,7 +203,7 @@ class TestController extends Controller
         } else {
             $central_fund_statement = new stdClass;
 
-            $central_fund_statement->income = [];
+            $central_fund_statement->income  = [];
             $central_fund_statement->expense = [];
         }
 
@@ -225,7 +230,7 @@ class TestController extends Controller
 
         if ($request->has('bank_balance')) {
             $bankBalanceimport = new BankBalanceImport;
-            
+
             Excel::import($bankBalanceimport, $request->file('bank_balance'));
 
             $bankBalance = $bankBalanceimport->data;
@@ -237,9 +242,9 @@ class TestController extends Controller
             Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
                 file_get_contents($document));
         } else {
-            $bankBalance = new stdClass;
+            $bankBalance            = new stdClass;
             $bankBalance->statement = new stdClass;
-            $bankBalance->bankbook =  new stdClass;
+            $bankBalance->bankbook  = new stdClass;
         }
 
         if ($request->has('asset_list_and_expenses')) {
@@ -327,5 +332,40 @@ class TestController extends Controller
     public function getOaService(OaServiceRequest $oaService)
     {
         return new OaServiceRequestResource($oaService);
+    }
+
+    public function test()
+    {
+        $response = Http::withOptions(['verify' => false])->withHeaders([
+            'accept' => 'application/json',
+        ])->get('https://qagate.dubailand.gov.ae/mollak/external/sync/managementcompany', [
+            'consumer-id' => '8OSkYHBE5K7RS8oDfrGStgHJhhRoS7K9',
+        ]);
+
+        // $data = json_decode($response);
+
+        // $oa       = $data->response->managementCompanies[0];
+        // $password = Str::random(12);
+        // if (!OaDetails::where('oa_id', $oa->id)->exists()) {
+        //     User::create([
+        //         'first_name' => $oa->name->englishName,
+        //         'email'      => $oa->email,
+        //         'phone'      => $oa->contactNumber,
+        //         'role_id'    => Role::where('name', 'OA')->value('id'),
+        //         'password'   => Hash::make($password),
+        //         'active'     => true,
+        //     ]);
+        //     Mail::send('emails.oa-user_registration', ['name' => $oa->name->englishName, 'username' => $oa->email, 'password' => $password],
+        //         function ($message) use ($oa) {
+
+        //             $message->to($oa->email);
+
+        //             $message->subject('Password ');
+
+        //         });
+
+        //}
+
+
     }
 }
