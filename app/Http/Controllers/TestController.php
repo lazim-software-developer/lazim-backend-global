@@ -291,15 +291,12 @@ class TestController extends Controller
         $data->budgetVsActual  = $budget_vs_actual;
         $data->generalFund     = $central_fund_statement;
         $data->reservedFund    = $reserve_fund;
-        // $data->collection      = $collection;
-
+        $data->collection      = $collection;
+        
         $response = Http::withoutVerifying()->withHeaders([
             'content-type' => 'application/json',
-            'consumer-id'  => '8OSkYHBE5K7RS8oDfrGStgHJhhRoS7K9',
-        ])
-            ->post('https://qagate.dubailand.gov.ae/mollak/external/managementreport/submit', $data);
-
-        
+            'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
+        ])->post(env("MOLLAK_API_URL").'/managementreport/submit', $data);
 
         $response = json_decode($response->body());
 
