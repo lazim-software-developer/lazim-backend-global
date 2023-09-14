@@ -18,6 +18,7 @@ class OaServiceRequest extends Model
         'property_name',
         'service_period',
         'oa_service_file',
+        'mollak_id'
     ];
 
     protected $searchableFields = ['*'];
