@@ -291,7 +291,7 @@ class TestController extends Controller
         $data->budgetVsActual  = $budget_vs_actual;
         $data->generalFund     = $central_fund_statement;
         $data->reservedFund    = $reserve_fund;
-        $data->collection      = $collection;
+        // $data->collection      = $collection;
 
         $response = Http::withoutVerifying()->withHeaders([
             'content-type' => 'application/json',
@@ -299,8 +299,11 @@ class TestController extends Controller
         ])
             ->post('https://qagate.dubailand.gov.ae/mollak/external/managementreport/submit', $data);
 
-        // save datainto our database
-        OaServiceRequest::create([
+        
+
+        $response = json_decode($response->body());
+
+        $oaData = OaServiceRequest::create([
             'service_parameter_id' => 1,
             'property_group'       => $request->property_group,
             'property_name'        => $request->property_name,
@@ -312,7 +315,13 @@ class TestController extends Controller
             'oa_service_file'      => $folderPath,
         ]);
 
-        return $body = $response->body();
+        if($response->responseCode === 200) {
+            // save datainto our database
+            $oaData->update(['mollak_id' => $response->response->id]);
+            return response()->json(['status' => 'success', 'message' => "Uploaded successfully!"]);
+        } else {
+            return response()->json(['status' => 'error', 'message' => "There seems to be some issue with the files you are uploading. Please check and try again!"]);
+        }
 
     }
     public function serviceParameters()
