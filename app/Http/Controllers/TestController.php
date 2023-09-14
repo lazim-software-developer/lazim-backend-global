@@ -314,9 +314,10 @@ class TestController extends Controller
 
         if($response->responseCode === 200) {
             // save datainto our database
-            $oaData->update(['mollak_id' => $response->response->id]);
+            $oaData->update(['status' => "Success", 'mollak_id' => $response->response->id]);
             return response()->json(['status' => 'success', 'message' => "Uploaded successfully!"]);
         } else {
+            $oaData->update(['status' => "Failed", 'mollak_id' => $response->response->id]);
             return response()->json(['status' => 'error', 'message' => "There seems to be some issue with the files you are uploading. Please check and try again!"]);
         }
 
