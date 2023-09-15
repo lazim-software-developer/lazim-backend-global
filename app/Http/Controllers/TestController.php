@@ -182,24 +182,24 @@ class TestController extends Controller
             $budget_vs_actual->income_accounts = [];
         }
 
-        if ($request->has('central_fund_statement')) {
+        if ($request->has('general_fund_statement')) {
 
             $CentralFundStatementImport = new CentralFundStatementImport;
 
-            Excel::import($CentralFundStatementImport, $request->file('central_fund_statement'));
-            $central_fund_statement = $CentralFundStatementImport->data;
+            Excel::import($CentralFundStatementImport, $request->file('general_fund_statement'));
+            $general_fund_statement = $CentralFundStatementImport->data;
 
-            $document = $request->central_fund_statement;
+            $document = $request->general_fund_statement;
             
-            $fileName = 'central_fund_statement';
+            $fileName = 'general_fund_statement';
 
             Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
                 file_get_contents($document));
         } else {
-            $central_fund_statement = new stdClass;
+            $general_fund_statement = new stdClass;
 
-            $central_fund_statement->income = [];
-            $central_fund_statement->expense = [];
+            $general_fund_statement->income = [];
+            $general_fund_statement->expense = [];
         }
 
         if ($request->has('collections')) {
@@ -289,7 +289,7 @@ class TestController extends Controller
         $data->bankBalance     = $bankBalance;
         $data->utilityExpenses = $utility;
         $data->budgetVsActual  = $budget_vs_actual;
-        $data->generalFund     = $central_fund_statement;
+        $data->generalFund     = $general_fund_statement;
         $data->reservedFund    = $reserve_fund;
         $data->collection      = $collection;
 
@@ -312,7 +312,7 @@ class TestController extends Controller
             'oa_service_file'      => $folderPath,
         ]);
 
-        return $response;
+        // return $response;
 
         if($response->responseCode === 200) {
             $oaData->update(['status' => "Success", 'mollak_id' => $response->response->id]);
