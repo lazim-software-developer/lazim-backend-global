@@ -2,7 +2,6 @@
 
 namespace App\Mail;
 
-use App\Models\User\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
@@ -17,12 +16,12 @@ class OaUserRegistration extends Mailable
      * Create a new message instance.
      */
 
-    public $oa;
+    public $user;
     public $password;
-    public function __construct(User $oa,$password)
+    public function __construct($user,$password)
     {
-        $this->oa = $oa;
-        $this->password =$password;
+        $this->user=$user;
+        $this->password=$password;
 
     }
 
@@ -39,12 +38,12 @@ class OaUserRegistration extends Mailable
     /**
      * Get the message content definition.
      */
-    public function content(): Content
-    {
-        return new Content(
-            view: 'view.name',
-        );
-    }
+    // public function content(): Content
+    // {
+    //     return new Content(
+    //         view: 'view.name',
+    //     );
+    // }
 
     public function build()
     {

@@ -8,11 +8,10 @@
 
     </head>
     <body>
+        <p>Hello {{$user->first_name}}</p>
 
-        <p>Hello {{ $name}}</p>
-
-        <p>You account has been created.</p>
-        <p>Username:{{$username}}</p>
+        <p>Your account has been created.</p>
+        <p>Username:{{$user->email}}</p>
         <p>Password:{{$password}}</p>
         <p>Thank you!</p>
         <p>Lazim</p>

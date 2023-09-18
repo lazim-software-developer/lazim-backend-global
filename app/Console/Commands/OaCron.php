@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Jobs\MailSendingJob;
 use App\Models\Master\Role;
 use App\Models\OaDetails;
 use App\Models\User\User;
@@ -38,31 +39,25 @@ class OaCron extends Command
             'consumer-id' => '8OSkYHBE5K7RS8oDfrGStgHJhhRoS7K9',
         ]);
 
-        $data = json_decode($response);
+          $data = json_decode($response);
 
-        $oa       = $data->response->managementCompanies[0];
-        $password = Str::random(12);
-        $data     = OaDetails::where('oa_id', $oa->id)->first();
-        if (!$data) {
-            User::firstOrCreate([
-                'first_name' => $oa->name->englishName,
-                'email'      => $oa->email,
-                'phone'      => $oa->contactNumber,
-                'role_id'    => Role::where('name', 'OA')->value('id'),
-                'password'   => Hash::make($password),
-                'active'     => true,
-            ]);
-            Mail::send('emails.oa-user_registration', ['name' => $oa->name->englishName, 'username' => $oa->email, 'password' => $password],
-                function ($message) use ($oa) {
+        $oa = $data->response->managementCompanies;
+        foreach ($oa as $company) {
 
-                    $message->to($oa->email);
+            if (!OaDetails::where('oa_id', $company->id)->exists()) {
+                $password = Str::random(12);
 
-                    $message->subject('Password ');
-
-                });
-
+                $user = User::firstorcreate([
+                    'first_name' => $company->name->englishName,
+                    'email'      => $company->email,
+                    'phone'      => $company->contactNumber,
+                    'role_id'    => Role::where('name', 'OA')->value('id'),
+                    'password'   => Hash::make($password),
+                    'active'     => true,
+                ]);
+                MailSendingJob::dispatch($user,$password);
+            }
         }
-
     }
 
 }
