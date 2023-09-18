@@ -17,6 +17,8 @@ use App\Imports\ReserveFundImport;
 use App\Imports\ServiceImport;
 use App\Imports\UtilityExpensesImport;
 use App\Imports\WorkOrdersImport;
+use App\Jobs\MailSendingJob;
+use App\Mail\OaUserRegistration;
 use App\Models\Master\Role;
 use App\Models\OaDetails;
 use App\Models\OaServiceRequest;
@@ -30,6 +32,8 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
 use \stdClass;
+
+//use \App\Mail\OaUserRegistration;
 
 class TestController extends Controller
 {
@@ -342,30 +346,39 @@ class TestController extends Controller
             'consumer-id' => '8OSkYHBE5K7RS8oDfrGStgHJhhRoS7K9',
         ]);
 
+        // return $response;
         // $data = json_decode($response);
 
-        // $oa       = $data->response->managementCompanies[0];
-        // $password = Str::random(12);
-        // if (!OaDetails::where('oa_id', $oa->id)->exists()) {
-        //     User::create([
-        //         'first_name' => $oa->name->englishName,
-        //         'email'      => $oa->email,
-        //         'phone'      => $oa->contactNumber,
-        //         'role_id'    => Role::where('name', 'OA')->value('id'),
-        //         'password'   => Hash::make($password),
-        //         'active'     => true,
-        //     ]);
-        //     Mail::send('emails.oa-user_registration', ['name' => $oa->name->englishName, 'username' => $oa->email, 'password' => $password],
-        //         function ($message) use ($oa) {
+        // $oa = $data->response->managementCompanies;
+        // foreach ($oa as $company) {
 
-        //             $message->to($oa->email);
+        //     if (!OaDetails::where('oa_id', $company->id)->exists()) {
+        //         $password = Str::random(12);
 
-        //             $message->subject('Password ');
+        //         $user = User::create([
+        //             'first_name' => $company->name->englishName,
+        //             'email'      => $company->email,
+        //             'phone'      => $company->contactNumber,
+        //             'role_id'    => Role::where('name', 'OA')->value('id'),
+        //             'password'   => Hash::make($password),
+        //             'active'     => true,
+        //         ]);
+        //         MailSendingJob::dispatch($user,$password);
 
-        //         });
+                //MailSendingJob::dispatch();
 
+                // Mail::send('emails.oa-user_registration', ['name' => $company->name->englishName, 'username' => $company->email, 'password' => $password],
+                //     function ($message) use ($company) {
+
+                //         $message->to($company->email);
+
+                //         $message->subject('Password ');
+                //         //$message->queue(new OaUserRegistration());
+
+                //     });
+
+           // }
         //}
-
 
     }
 }
