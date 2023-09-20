@@ -17,7 +17,7 @@ class ServiceParameterSeeder extends Seeder
             ['id' => 1, 'name' => 'Services Requests', 'active' => 1,'value' => 'e_services'],
             ['id' => 2, 'name' => 'Happiness Center', 'active' => 1,'value' => 'happiness_center'],
             ['id' => 3, 'name' => 'Balance Sheet', 'active' => 1,'value' => 'balance_sheet'],
-            ['id' => 4, 'name' => 'Central Fund  Statement', 'active' => 1,'value' => 'central_fund_statement'],
+            ['id' => 4, 'name' => 'General Fund  Statement', 'active' => 1,'value' => 'general_fund_statement'],
             ['id' => 5, 'name' => 'Reserve Fund Statement', 'active' => 1,'value' => 'reserve_fund'],
             ['id' => 6, 'name' => 'Budget Vs Actual', 'active' => 1,'value' => 'budget_vs_actual'],
             ['id' => 7, 'name' => 'Accounts Payables', 'active' => 1,'value' => 'accounts_payables'],

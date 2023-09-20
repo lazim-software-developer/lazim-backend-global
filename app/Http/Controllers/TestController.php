@@ -17,23 +17,13 @@ use App\Imports\ReserveFundImport;
 use App\Imports\ServiceImport;
 use App\Imports\UtilityExpensesImport;
 use App\Imports\WorkOrdersImport;
-use App\Jobs\MailSendingJob;
-use App\Mail\OaUserRegistration;
-use App\Models\Master\Role;
-use App\Models\OaDetails;
 use App\Models\OaServiceRequest;
 use App\Models\ServiceParameter;
-use App\Models\User\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
 use \stdClass;
-
-//use \App\Mail\OaUserRegistration;
 
 class TestController extends Controller
 {
@@ -43,6 +33,8 @@ class TestController extends Controller
 
         $folderPath = now()->timestamp;
 
+        $mimeType = "xlsx";
+
         // E services
         if ($request->has('e_services')) {
             $serviceImport = new ServiceImport;
@@ -51,7 +43,6 @@ class TestController extends Controller
             $e_services = $serviceImport->data;
 
             $document = $request->e_services;
-            $mimeType = $document->guessExtension();
             $fileName = 'e_services';
 
             Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
@@ -68,7 +59,6 @@ class TestController extends Controller
             $happiness_center = $happinesscenterimport->data;
 
             $document = $request->happiness_center;
-            $mimeType = $document->guessExtension();
             $fileName = 'happiness_center';
 
             Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
@@ -86,7 +76,7 @@ class TestController extends Controller
             $balance_sheet = $BalanceSheetImport->data;
 
             $document = $request->balance_sheet;
-            $mimeType = $document->guessExtension();
+
             $fileName = 'balance_sheet';
 
             Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
@@ -109,7 +99,7 @@ class TestController extends Controller
             $accounts_payables = $accountspayablesimport->data;
 
             $document = $request->accounts_payables;
-            $mimeType = $document->guessExtension();
+
             $fileName = 'accounts_payables';
 
             Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
@@ -126,7 +116,7 @@ class TestController extends Controller
             $delinquents = $delinquentsImport->data;
 
             $document = $request->delinquents;
-            $mimeType = $document->guessExtension();
+
             $fileName = 'delinquents';
 
             Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
@@ -143,7 +133,7 @@ class TestController extends Controller
             $work_orders = $workordersimport->data;
 
             $document = $request->work_orders;
-            $mimeType = $document->guessExtension();
+
             $fileName = 'work_orders';
 
             Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
@@ -160,10 +150,10 @@ class TestController extends Controller
             $reserve_fund = $ReserveFundImport->data;
 
             $document = $request->reserve_fund;
-            $mimeType = $document->guessExtension();
-            $fileName = 'reserve_fund.xlsx';
 
-            Storage::disk('s3')->put($folderPath . '/' . $fileName,
+            $fileName = 'reserve_fund';
+
+            Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
                 file_get_contents($document));
         } else {
             $reserve_fund = new stdClass;
@@ -180,10 +170,10 @@ class TestController extends Controller
             $budget_vs_actual = $budgetvsactual->data;
 
             $document = $request->budget_vs_actual;
-            $mimeType = $document->guessExtension();
-            $fileName = 'budget_vs_actual.xlsx';
 
-            Storage::disk('s3')->put($folderPath . '/' . $fileName,
+            $fileName = 'budget_vs_actual';
+
+            Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
                 file_get_contents($document));
         } else {
             $budget_vs_actual                   = new stdClass;
@@ -191,24 +181,24 @@ class TestController extends Controller
             $budget_vs_actual->income_accounts  = [];
         }
 
-        if ($request->has('central_fund_statement')) {
+        if ($request->has('general_fund_statement')) {
 
             $CentralFundStatementImport = new CentralFundStatementImport;
 
-            Excel::import($CentralFundStatementImport, $request->file('central_fund_statement'));
-            $central_fund_statement = $CentralFundStatementImport->data;
+            Excel::import($CentralFundStatementImport, $request->file('general_fund_statement'));
+            $general_fund_statement = $CentralFundStatementImport->data;
 
-            $document = $request->central_fund_statement;
-            $mimeType = $document->guessExtension();
-            $fileName = 'central_fund_statement';
+            $document = $request->general_fund_statement;
+
+            $fileName = 'general_fund_statement';
 
             Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
                 file_get_contents($document));
         } else {
-            $central_fund_statement = new stdClass;
+            $general_fund_statement = new stdClass;
 
-            $central_fund_statement->income  = [];
-            $central_fund_statement->expense = [];
+            $general_fund_statement->income  = [];
+            $general_fund_statement->expense = [];
         }
 
         if ($request->has('collections')) {
@@ -220,7 +210,7 @@ class TestController extends Controller
             $collection = $collectionImport->data;
 
             $document = $request->collections;
-            $mimeType = $document->guessExtension();
+
             $fileName = 'collections';
 
             Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
@@ -240,7 +230,7 @@ class TestController extends Controller
             $bankBalance = $bankBalanceimport->data;
 
             $document = $request->bank_balance;
-            $mimeType = $document->guessExtension();
+
             $fileName = 'bank_balance';
 
             Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
@@ -258,7 +248,7 @@ class TestController extends Controller
             $assets = $structuredData = $import->getResults();
 
             $document = $request->asset_list_and_expenses;
-            $mimeType = $document->guessExtension();
+
             $fileName = 'asset_list_and_expenses';
 
             Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
@@ -274,7 +264,7 @@ class TestController extends Controller
             $utility = $uaImport->getResults();
 
             $document = $request->utility_expenses;
-            $mimeType = $document->guessExtension();
+
             $fileName = 'utility_expenses';
 
             Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
@@ -298,18 +288,18 @@ class TestController extends Controller
         $data->bankBalance     = $bankBalance;
         $data->utilityExpenses = $utility;
         $data->budgetVsActual  = $budget_vs_actual;
-        $data->generalFund     = $central_fund_statement;
+        $data->generalFund     = $general_fund_statement;
         $data->reservedFund    = $reserve_fund;
         $data->collection      = $collection;
 
         $response = Http::withoutVerifying()->withHeaders([
             'content-type' => 'application/json',
-            'consumer-id'  => '8OSkYHBE5K7RS8oDfrGStgHJhhRoS7K9',
-        ])
-            ->post('https://qagate.dubailand.gov.ae/mollak/external/managementreport/submit', $data);
+            'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
+        ])->post(env("MOLLAK_API_URL") . '/managementreport/submit', $data);
 
-        // save datainto our database
-        OaServiceRequest::create([
+        $response = json_decode($response->body());
+
+        $oaData = OaServiceRequest::create([
             'service_parameter_id' => 1,
             'property_group'       => $request->property_group,
             'property_name'        => $request->property_name,
@@ -321,7 +311,15 @@ class TestController extends Controller
             'oa_service_file'      => $folderPath,
         ]);
 
-        return $body = $response->body();
+        // return $response;
+
+        if ($response->responseCode === 200) {
+            $oaData->update(['status' => "Success", 'mollak_id' => $response->response->id]);
+            return response()->json(['status' => 'success', 'message' => "Uploaded successfully!"]);
+        } else {
+            $oaData->update(['status' => "Failed"]);
+            return response()->json(['status' => 'error', 'message' => "There seems to be some issue with the files you are uploading. Please check and try again!"]);
+        }
 
     }
     public function serviceParameters()
@@ -336,49 +334,5 @@ class TestController extends Controller
     public function getOaService(OaServiceRequest $oaService)
     {
         return new OaServiceRequestResource($oaService);
-    }
-
-    public function test()
-    {
-        $response = Http::withOptions(['verify' => false])->withHeaders([
-            'accept' => 'application/json',
-        ])->get('https://qagate.dubailand.gov.ae/mollak/external/sync/managementcompany', [
-            'consumer-id' => '8OSkYHBE5K7RS8oDfrGStgHJhhRoS7K9',
-        ]);
-
-        // return $response;
-        // $data = json_decode($response);
-
-        // $oa = $data->response->managementCompanies;
-        // foreach ($oa as $company) {
-
-        //     if (!OaDetails::where('oa_id', $company->id)->exists()) {
-        //         $password = Str::random(12);
-
-        //         $user = User::create([
-        //             'first_name' => $company->name->englishName,
-        //             'email'      => $company->email,
-        //             'phone'      => $company->contactNumber,
-        //             'role_id'    => Role::where('name', 'OA')->value('id'),
-        //             'password'   => Hash::make($password),
-        //             'active'     => true,
-        //         ]);
-        //         MailSendingJob::dispatch($user,$password);
-
-                //MailSendingJob::dispatch();
-
-                // Mail::send('emails.oa-user_registration', ['name' => $company->name->englishName, 'username' => $company->email, 'password' => $password],
-                //     function ($message) use ($company) {
-
-                //         $message->to($company->email);
-
-                //         $message->subject('Password ');
-                //         //$message->queue(new OaUserRegistration());
-
-                //     });
-
-           // }
-        //}
-
     }
 }
