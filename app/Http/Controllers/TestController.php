@@ -7,16 +7,15 @@ use App\Http\Resources\ServiceParameterResource;
 use App\Imports\AccountsPayablesImport;
 use App\Imports\AssetsImport;
 use App\Imports\BalanceSheetImport;
-use App\Imports\TestImport;
-use App\Imports\ServiceImport;
-use App\Imports\CollectionImport;
-use App\Imports\UtilityExpensesImport;
 use App\Imports\BankBalanceImport;
 use App\Imports\BudgetVsActualImport;
 use App\Imports\CentralFundStatementImport;
+use App\Imports\CollectionImport;
 use App\Imports\DelinquentsImport;
 use App\Imports\HappinessCenterImport;
 use App\Imports\ReserveFundImport;
+use App\Imports\ServiceImport;
+use App\Imports\UtilityExpensesImport;
 use App\Imports\WorkOrdersImport;
 use App\Models\OaServiceRequest;
 use App\Models\ServiceParameter;
@@ -35,7 +34,7 @@ class TestController extends Controller
         $folderPath = now()->timestamp;
 
         $mimeType = "xlsx";
-        
+
         // E services
         if ($request->has('e_services')) {
             $serviceImport = new ServiceImport;
@@ -77,7 +76,7 @@ class TestController extends Controller
             $balance_sheet = $BalanceSheetImport->data;
 
             $document = $request->balance_sheet;
-            
+
             $fileName = 'balance_sheet';
 
             Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
@@ -85,22 +84,22 @@ class TestController extends Controller
         } else {
             $balance_sheet = new stdClass;
 
-            $balance_sheet->income = [];
-            $balance_sheet->expense  = [];
-            $balance_sheet->asset  = [];
-            $balance_sheet->liability  = [];
-            $balance_sheet->equity  = [];
+            $balance_sheet->income    = [];
+            $balance_sheet->expense   = [];
+            $balance_sheet->asset     = [];
+            $balance_sheet->liability = [];
+            $balance_sheet->equity    = [];
         }
-        
-        // Account payables 
+
+        // Account payables
         if ($request->has('accounts_payables')) {
-            $accountspayablesimport = new AccountsPayablesImport ;
+            $accountspayablesimport = new AccountsPayablesImport;
 
             Excel::import($accountspayablesimport, $request->file('accounts_payables'));
             $accounts_payables = $accountspayablesimport->data;
 
             $document = $request->accounts_payables;
-            
+
             $fileName = 'accounts_payables';
 
             Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
@@ -115,9 +114,9 @@ class TestController extends Controller
 
             Excel::import($delinquentsImport, $request->file('delinquents'));
             $delinquents = $delinquentsImport->data;
-            
+
             $document = $request->delinquents;
-            
+
             $fileName = 'delinquents';
 
             Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
@@ -134,7 +133,7 @@ class TestController extends Controller
             $work_orders = $workordersimport->data;
 
             $document = $request->work_orders;
-            
+
             $fileName = 'work_orders';
 
             Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
@@ -151,7 +150,7 @@ class TestController extends Controller
             $reserve_fund = $ReserveFundImport->data;
 
             $document = $request->reserve_fund;
-            
+
             $fileName = 'reserve_fund';
 
             Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
@@ -159,8 +158,8 @@ class TestController extends Controller
         } else {
             $reserve_fund = new stdClass;
 
-            $reserve_fund->income = [];
-            $reserve_fund->expense  = [];
+            $reserve_fund->income  = [];
+            $reserve_fund->expense = [];
         }
 
         if ($request->has('budget_vs_actual')) {
@@ -171,15 +170,15 @@ class TestController extends Controller
             $budget_vs_actual = $budgetvsactual->data;
 
             $document = $request->budget_vs_actual;
-            
+
             $fileName = 'budget_vs_actual';
 
             Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
                 file_get_contents($document));
         } else {
-            $budget_vs_actual = new stdClass;
+            $budget_vs_actual                   = new stdClass;
             $budget_vs_actual->expense_accounts = [];
-            $budget_vs_actual->income_accounts = [];
+            $budget_vs_actual->income_accounts  = [];
         }
 
         if ($request->has('general_fund_statement')) {
@@ -190,7 +189,7 @@ class TestController extends Controller
             $general_fund_statement = $CentralFundStatementImport->data;
 
             $document = $request->general_fund_statement;
-            
+
             $fileName = 'general_fund_statement';
 
             Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
@@ -198,7 +197,7 @@ class TestController extends Controller
         } else {
             $general_fund_statement = new stdClass;
 
-            $general_fund_statement->income = [];
+            $general_fund_statement->income  = [];
             $general_fund_statement->expense = [];
         }
 
@@ -211,7 +210,7 @@ class TestController extends Controller
             $collection = $collectionImport->data;
 
             $document = $request->collections;
-            
+
             $fileName = 'collections';
 
             Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
@@ -225,21 +224,21 @@ class TestController extends Controller
 
         if ($request->has('bank_balance')) {
             $bankBalanceimport = new BankBalanceImport;
-            
+
             Excel::import($bankBalanceimport, $request->file('bank_balance'));
 
             $bankBalance = $bankBalanceimport->data;
 
             $document = $request->bank_balance;
-            
+
             $fileName = 'bank_balance';
 
             Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
                 file_get_contents($document));
         } else {
-            $bankBalance = new stdClass;
+            $bankBalance            = new stdClass;
             $bankBalance->statement = new stdClass;
-            $bankBalance->bankbook =  new stdClass;
+            $bankBalance->bankbook  = new stdClass;
         }
 
         if ($request->has('asset_list_and_expenses')) {
@@ -249,7 +248,7 @@ class TestController extends Controller
             $assets = $structuredData = $import->getResults();
 
             $document = $request->asset_list_and_expenses;
-            
+
             $fileName = 'asset_list_and_expenses';
 
             Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
@@ -265,7 +264,7 @@ class TestController extends Controller
             $utility = $uaImport->getResults();
 
             $document = $request->utility_expenses;
-            
+
             $fileName = 'utility_expenses';
 
             Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
@@ -296,7 +295,7 @@ class TestController extends Controller
         $response = Http::withoutVerifying()->withHeaders([
             'content-type' => 'application/json',
             'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
-        ])->post(env("MOLLAK_API_URL").'/managementreport/submit', $data);
+        ])->post(env("MOLLAK_API_URL") . '/managementreport/submit', $data);
 
         $response = json_decode($response->body());
 
@@ -314,7 +313,7 @@ class TestController extends Controller
 
         // return $response;
 
-        if($response->responseCode === 200) {
+        if ($response->responseCode === 200) {
             $oaData->update(['status' => "Success", 'mollak_id' => $response->response->id]);
             return response()->json(['status' => 'success', 'message' => "Uploaded successfully!"]);
         } else {
