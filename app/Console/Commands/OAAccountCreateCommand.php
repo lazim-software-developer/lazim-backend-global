@@ -44,20 +44,27 @@ class OAAccountCreateCommand extends Command
 
             if (!OaDetails::where('oa_id', $company->id)->exists()) {
                 $password = Str::random(12);
-                $user     = User::firstorcreate([
-                    'first_name' => $company->name->englishName,
-                    'email'      => $company->email,
-                    'phone'      => $company->contactNumber,
-                    'role_id'    => Role::where('name', 'OA')->value('id'),
-                    'password'   => Hash::make($password),
-                    'active'     => true,
-                ]);
-                AccountCreationJob::dispatch($user, $password);
-                OaDetails::firstorcreate([
+                $user     = User::firstOrCreate(
+                    ['email' => $company->email],
+                    [
+                        'first_name' => $company->name->englishName,
+                        'email'      => $company->email,
+                        'phone'      => $company->contactNumber,
+                        'role_id'    => Role::where('name', 'OA')->value('id'),
+                        'password'   => Hash::make($password),
+                        'active'     => true,
+                    ]
+                );
+                
+                OaDetails::firstOrCreate([
+                    'oa_id'   => $company->id,
+                ],
+                [
                     'oa_id'   => $company->id,
                     'user_id' => User::where('first_name', $company->name->englishName)->value('id'),
                 ]);
-
+                
+                AccountCreationJob::dispatch($user, $password)->delay(now()->addMinutes(1));
             }
         }
     }

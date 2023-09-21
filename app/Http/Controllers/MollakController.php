@@ -9,15 +9,14 @@ class MollakController extends Controller
 {
     public function getProperties()
     {
-
-        $oaId = OaDetails::where('user_id', auth()->user()->id)->pluck('oa_id');
+        $oaId = OaDetails::where('user_id', auth()->user()->id)->value('oa_id');
 
         $results = Http::withOptions(['verify' => false])->withHeaders([
             'content-type' => 'application/json',
             'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
-        ])->get(env("MOLLAK_API_URL") . "/sync/managementcompany/" , $oaId ,"/propertygroups");
+        ])->get(env("MOLLAK_API_URL") . "/sync/managementcompany/" . $oaId . "/propertygroups");
+        
         return $results;
-
     }
 
     // Get all service period for a given property id
