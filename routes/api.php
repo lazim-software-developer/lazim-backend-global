@@ -1,8 +1,8 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
-use App\Http\Controllers\TestController;
 use App\Http\Controllers\MollakController;
+use App\Http\Controllers\TestController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -30,17 +30,15 @@ Route::name('api.')
     ->group(function () {
     });
 
-    Route::get('services-requests', [TestController::class, 'serviceRequest']);
+Route::get('services-requests', [TestController::class, 'serviceRequest']);
 
-    Route::get('service-parameters', [TestController::class, 'serviceParameters']);
+Route::get('service-parameters', [TestController::class, 'serviceParameters']);
 
-    Route::post('upload-all', [TestController::class, 'uploadAll']);
+Route::post('upload-all', [TestController::class, 'uploadAll']);
 
-    Route::get('oa-service-details/{oaService}', [TestController::class, 'getOaService']);
-    // Get all propertirs
-    Route::get('get-all-properties/{oa_id}', [MollakController::class, 'getProperties']);
+Route::get('oa-service-details/{oaService}', [TestController::class, 'getOaService']);
+// Get all propertirs
+Route::get('get-all-properties/{oa_id}', [MollakController::class, 'getProperties'])->middleware('auth:sanctum');
 
-    // Get service periods for a given property Id
-    Route::get('get-service-periods/{propertyId}', [MollakController::class, 'getServicePeriod']);
-
-    
+// Get service periods for a given property Id
+Route::get('get-service-periods/{propertyId}', [MollakController::class, 'getServicePeriod']);

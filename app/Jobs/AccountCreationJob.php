@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Mail;
 use App\Mail\OaUserRegistration;
 
 
-class MailSendingJob implements ShouldQueue
+class AccountCreationJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -31,7 +31,7 @@ class MailSendingJob implements ShouldQueue
      */
     public function handle()
     {
-        Mail::to($this->user->email)->send(new OaUserRegistration($this->user,$this->password));
+        Mail::to('akhilaraghavan27@gmail.com')->send(new OaUserRegistration($this->user,$this->password));
 
 
     }
