@@ -31,7 +31,7 @@ class AccountCreationJob implements ShouldQueue
      */
     public function handle()
     {
-        Mail::to('akhilaraghavan27@gmail.com')->send(new OaUserRegistration($this->user,$this->password));
+        Mail::to($this->user->email)->send(new OaUserRegistration($this->user,$this->password));
 
 
     }
