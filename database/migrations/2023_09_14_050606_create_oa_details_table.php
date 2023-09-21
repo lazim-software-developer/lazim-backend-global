@@ -16,6 +16,8 @@ return new class extends Migration
             $table->integer('oa_id');
             $table->unsignedBigInteger('user_id');
             $table->timestamps();
+            $table->foreign('user_id')->references('id')->on('users')->onUpdate('CASCADE')->onDelete('CASCADE');
+
         });
     }
 
