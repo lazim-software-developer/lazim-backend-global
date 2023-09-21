@@ -47,7 +47,13 @@ class OaUserRegistration extends Mailable
 
     public function build()
     {
-        return $this->view('emails.oa-user_registration');
+        $beautymail = app()->make(Snowfire\Beautymail\Beautymail::class);
+        $beautymail->send('emails.oa-user_registration', [], function($message)
+        {
+            $message
+                ->to($user->email, $user->first_name)
+                ->subject('Welcome to Lazim!');
+        });
     }
 
     /**
