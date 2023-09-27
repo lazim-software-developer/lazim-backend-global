@@ -8,7 +8,7 @@
 
     </head>
     <body>
-        <p>Hello {{$user->first_name}}</p>
+        <p>Hello {{$user->name}}</p>
 
         <p>Your account has been created.</p>
         <p>Username:{{$user->email}}</p>
