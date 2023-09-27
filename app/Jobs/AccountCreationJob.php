@@ -9,6 +9,8 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Mail;
+// use App\Mail\OaUserRegistration;
+use Snowfire\Beautymail\Beautymail;
 
 class AccountCreationJob implements ShouldQueue
 {
@@ -31,7 +33,11 @@ class AccountCreationJob implements ShouldQueue
      */
     public function handle()
     {
-        Mail::to($this->user->email)->send(new OaUserRegistration($this->user, $this->password));
-
+        $beautymail = app()->make(Beautymail::class);
+        $beautymail->send('emails.oa-user_registration', ['user' => $this->user, 'password' => $this->password], function($message) {
+            $message
+                ->to($this->user->email, $this->user->first_name)
+                ->subject('Welcome to Lazim!');
+        });
     }
 }

@@ -17,6 +17,10 @@ use App\Imports\ReserveFundImport;
 use App\Imports\ServiceImport;
 use App\Imports\UtilityExpensesImport;
 use App\Imports\WorkOrdersImport;
+use App\Jobs\AccountCreationJob;
+use App\Jobs\MailSendingJob;
+use App\Models\Master\Role;
+use App\Models\OaDetails;
 use App\Models\OaServiceRequest;
 use App\Models\ServiceParameter;
 use Illuminate\Http\Request;
@@ -311,8 +315,6 @@ class TestController extends Controller
             'oa_service_file'      => $folderPath,
         ]);
 
-        // return $response;
-
         if ($response->responseCode === 200) {
             $oaData->update(['status' => "Success", 'mollak_id' => $response->response->id]);
             return response()->json(['status' => 'success', 'message' => "Uploaded successfully!"]);
@@ -322,10 +324,12 @@ class TestController extends Controller
         }
 
     }
+
     public function serviceParameters()
     {
         return ServiceParameterResource::collection(ServiceParameter::all());
     }
+
     public function serviceRequest()
     {
         return OaServiceRequestResource::collection(OaServiceRequest::paginate(10));
@@ -335,5 +339,6 @@ class TestController extends Controller
     {
         return new OaServiceRequestResource($oaService);
     }
+
 
 }
