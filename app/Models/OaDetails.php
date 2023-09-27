@@ -16,8 +16,8 @@ class OaDetails extends Model
     protected $searchableFields = ['*'];
 
     protected $table = 'oa_details';
-    public function user()
+    public function oaUserRegistration()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(OaUserRegistration::class);
     }
 }

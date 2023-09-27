@@ -2,14 +2,13 @@
 
 namespace App\Jobs;
 
+use App\Mail\OaUserRegistration;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Mail;
-use App\Mail\OaUserRegistration;
-
 
 class AccountCreationJob implements ShouldQueue
 {
@@ -20,10 +19,11 @@ class AccountCreationJob implements ShouldQueue
      */
     public $user;
     public $password;
-    public function __construct($user,$password)
+
+    public function __construct($user, $password)
     {
-        $this->user=$user;
-        $this->password=$password;
+        $this->user     = $user;
+        $this->password = $password;
     }
 
     /**
@@ -31,8 +31,7 @@ class AccountCreationJob implements ShouldQueue
      */
     public function handle()
     {
-        Mail::to($this->user->email)->send(new OaUserRegistration($this->user,$this->password));
-
+        Mail::to($this->user->email)->send(new OaUserRegistration($this->user, $this->password));
 
     }
 }

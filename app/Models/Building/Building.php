@@ -132,4 +132,5 @@ class Building extends Model
     {
         return $this->belongsToMany(User::class);
     }
+    
 }

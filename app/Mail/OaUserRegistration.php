@@ -18,10 +18,11 @@ class OaUserRegistration extends Mailable
 
     public $user;
     public $password;
-    public function __construct($user,$password)
+
+    public function __construct($user, $password)
     {
-        $this->user=$user;
-        $this->password=$password;
+        $this->user     = $user;
+        $this->password = $password;
 
     }
 

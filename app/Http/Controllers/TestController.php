@@ -17,18 +17,11 @@ use App\Imports\ReserveFundImport;
 use App\Imports\ServiceImport;
 use App\Imports\UtilityExpensesImport;
 use App\Imports\WorkOrdersImport;
-use App\Jobs\AccountCreationJob;
-use App\Jobs\MailSendingJob;
-use App\Models\Master\Role;
-use App\Models\OaDetails;
 use App\Models\OaServiceRequest;
 use App\Models\ServiceParameter;
-use App\Models\User\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
 use \stdClass;
 
@@ -343,5 +336,4 @@ class TestController extends Controller
         return new OaServiceRequestResource($oaService);
     }
 
-   
 }
