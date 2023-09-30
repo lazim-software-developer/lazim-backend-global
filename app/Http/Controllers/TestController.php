@@ -303,7 +303,7 @@ class TestController extends Controller
             'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
         ])->post(env("MOLLAK_API_URL") . '/managementreport/submit', $data);
 
-        $response = json_decode($response->body());
+        return $response = json_decode($response->body());
 
         $oaData = OaServiceRequest::create([
             'service_parameter_id' => 1,
