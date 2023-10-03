@@ -7,6 +7,7 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
+use Snowfire\Beautymail\Beautymail;
 
 class OaUserRegistration extends Mailable
 {
@@ -48,12 +49,13 @@ class OaUserRegistration extends Mailable
 
     public function build()
     {
-        $beautymail = app()->make(Snowfire\Beautymail\Beautymail::class);
-        $beautymail->send('emails.oa-user_registration', [], function($message)
-        {
+        $beautymail = app()->make(Beautymail::class);
+        $beautymail->send('emails.oa-user_registration', [], function ($message) {
             $message
-                ->to($user->email, $user->first_name)
+
+                ->to($this->user->email, $this->user->first_name)
                 ->subject('Welcome to Lazim!');
+
         });
     }
 
