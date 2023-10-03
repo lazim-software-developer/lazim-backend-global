@@ -15,8 +15,8 @@ return new class extends Migration {
             $table->string('name', 50);
             $table->boolean('custom')->nullable();
             $table->boolean('active')->nullable();
-            //$table->unsignedBigInteger('building_id');
-           
+            //$table->unsignedBigInteger('building_id')->nullable();
+
 
             $table->timestamps();
         });

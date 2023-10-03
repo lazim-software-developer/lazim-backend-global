@@ -3,41 +3,62 @@
 namespace App\Filament\Pages\Tenancy;
 
 use App\Models\Building\Building;
+use App\Models\Master\Facility;
+use App\Models\Master\Role;
+use App\Models\Master\Service;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Pages\Tenancy\RegisterTenant;
 use Illuminate\Database\Eloquent\Model;
- 
+
 class RegisterBuilding extends RegisterTenant
 {
     public static function getLabel(): string
     {
         return 'Register Building';
     }
-    
+
     public function form(Form $form): Form
     {
         return $form
             ->schema([
-                TextInput::make('name')->maxLength(50),
-                TextInput::make('unit_number')->unique()->maxLength(50),
-                TextInput::make('address_line1'),
+                TextInput::make('name')->maxLength(50)->required(),
+                TextInput::make('unit_number')->unique()->maxLength(50)->required(),
+                TextInput::make('address_line1')->required(),
                 TextInput::make('address_line2')->nullable(),
-                TextInput::make('area')->maxLength(50),
-                TextInput::make('city_id'),
+                TextInput::make('area')->maxLength(50)->required(),
+                Select::make('city_id')->label('City')->relationship('cities','name')->required(),
                 TextInput::make('lat')->nullable()->maxLength(50),
                 TextInput::make('lng')->nullable()->maxLength(50),
                 TextInput::make('description')->nullable(),
-                TextInput::make('floors'),
+                TextInput::make('floors')->required(),
+
             ]);
     }
-    
+
     protected function handleRegistration(array $data): Building
     {
-        $team = Building::create($data);
-        
-        $team->members()->attach(auth()->user());
-        
-        return $team;
+        $building = Building::create($data);
+
+        $building->members()->attach(auth()->user());
+
+        $services = Service::where('custom',0)->get();
+
+        foreach ($services as $service){
+            $building->services()->attach($service->id);
+        }
+        $roles=Role::all();
+        foreach($roles as $role)
+        {
+            $building->roles()->attach($role->id);
+        }
+        $facilities=Facility::all();
+        foreach($facilities as $facility)
+        {
+            $building->facilities()->attach($facility->id);
+        }
+
+        return $building;
     }
 }

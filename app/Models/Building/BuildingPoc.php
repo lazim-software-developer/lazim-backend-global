@@ -30,12 +30,10 @@ class BuildingPoc extends Model
         'active' => 'boolean',
         'emergency_contact' => 'boolean',
     ];
-
     public function building()
     {
         return $this->belongsTo(Building::class);
     }
-
     public function user()
     {
         return $this->belongsTo(User::class);

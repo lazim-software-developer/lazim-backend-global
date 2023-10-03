@@ -24,9 +24,9 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Table;
-//use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Forms\Components\Builder;
+use Filament\Forms\Components\FileUpload;
 
 class DocumentsResource extends Resource
 {
@@ -34,8 +34,7 @@ class DocumentsResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
     protected static ?string $navigationGroup = 'Building Management';
-
-
+    protected static bool $shouldRegisterNavigation = false;
     public static function form(Form $form): Form
     {
         return $form
@@ -50,117 +49,43 @@ class DocumentsResource extends Resource
                         ->required()
                         ->relationship('documentLibrary', 'name')
                         ->searchable()
-                        ->placeholder('Document Library')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
-                        // Select::make('building_id')
-                        // ->rules(['exists:buildings,id'])
-                        // ->required()
-                        // ->relationship('building', 'name')
-                        // ->searchable()
-                        // ->placeholder('Building')
-                        // ->columnSpan([
-                        //     'default' => 12,
-                        //     'md' => 12,
-                        //     'lg' => 12,
-                        // ]),
-
-                    RichEditor::make('url')
-                        ->rules(['max:255', 'string'])
+                        ->placeholder('Document Library'),
+                    FileUpload::make('url')->label('Document')
+                        ->disk('s3')
                         ->required()
-                        ->placeholder('Url')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
-
+                        ->downloadable()
+                        ->preserveFilenames(),
                     Select::make('status')
                         ->options([
                             'pending'=>'Pending'
                         ])
                         ->rules(['max:50', 'string'])
                         ->required()
-                        ->placeholder('Status')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
-
-                    // KeyValue::make('comments')
-                    //     ->required()
-                    //     ->addable(true)
-                    //     ->deletable(true),
-                    //     // ->columnSpan([
-                    //     //     'default' => 12,
-                    //     //     'md' => 12,
-                    //     //     'lg' => 12,
-                    //     // ]),
-                        
-                    Repeater::make('comments')
-                    ->schema([
-                        TextInput::make('key')->required(),
-                        
-                        TextInput::make('value')->required(),
-                        
-                    ])
-                    ->columns(2),
+                        ->placeholder('Status'),
+                    TextInput::make('comments')
+                        ->required(),
                     DatePicker::make('expiry_date')
                         ->rules(['date'])
                         ->required()
-                        ->placeholder('Expiry Date')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
-
+                        ->placeholder('Expiry Date'),
                     Select::make('accepted_by')
                         ->rules(['exists:users,id'])
                         ->required()
                         ->relationship('user', 'first_name')
                         ->searchable()
-                        ->placeholder('User')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
-
+                        ->placeholder('User'),
                     MorphToSelect::make('documentable')
-                        
                         ->types([
                             Type::make(Building::class)->titleAttribute('name'),
                             Type::make(FlatTenant::class)->titleAttribute('tenant_id'),
                             Type::make(Vendor::class)->titleAttribute('name')
-                        
-                        
-                        ])
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
                         ]),
-                        
-                       
-
                     TextInput::make('documentable_id')
                         ->rules(['max:255'])
                         ->required()
                         ->placeholder('Documentable Id')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
-                        
-                    
                 ]),
-            
+
             ]);
     }
 
@@ -172,7 +97,7 @@ class DocumentsResource extends Resource
             Tables\Columns\TextColumn::make('documentLibrary.name')
                 ->toggleable()
                 ->limit(50),
-            Tables\Columns\TextColumn::make('url')
+            Tables\Columns\TextColumn::make('url')->label('Uploaded Document')
                 ->toggleable()
                 ->searchable()
                 ->limit(50),
@@ -208,14 +133,14 @@ class DocumentsResource extends Resource
                 Tables\Actions\CreateAction::make(),
             ]);
     }
-    
+
     public static function getRelations(): array
     {
         return [
             //
         ];
     }
-    
+
     public static function getPages(): array
     {
         return [
@@ -223,5 +148,5 @@ class DocumentsResource extends Resource
             'create' => Pages\CreateDocuments::route('/create'),
             'edit' => Pages\EditDocuments::route('/{record}/edit'),
         ];
-    }    
+    }
 }

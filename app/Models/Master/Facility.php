@@ -26,13 +26,10 @@ class Facility extends Model
         return $this->hasMany(FacilityBooking::class);
     }
 
-    public function buildings()
+    public function building()
     {
-        return $this->belongsToMany(Building::class);
+        return $this->belongsToMany(Building::class,'building_facility','facility_id','building_id');
     }
-    // public function building()
-    // {
-    //     return $this->belongsTo(Building::class);
-    // }
+
 
 }

@@ -41,10 +41,10 @@ class Document extends Model
     {
         return $this->belongsTo(User::class, 'accepted_by');
     }
-    // public function building()
-    // {
-    //     return $this->belongsTo(Building::class);
-    // }
+    public function building()
+    {
+        return $this->belongsTo(Building::class);
+    }
     public function documentable()
     {
         return $this->morphTo();

@@ -21,9 +21,10 @@ class Role extends Model
     {
         return $this->hasMany(User::class);
     }
-    // public function building()
-    // {
-    //     return $this->belongsTo(Building::class);
-    // }
+
+    public function building()
+    {
+        return $this->belongsToMany(Building::class, 'building_roles','role_id','building_id');
+    }
 
 }
