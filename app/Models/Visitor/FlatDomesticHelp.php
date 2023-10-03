@@ -2,6 +2,7 @@
 
 namespace App\Models\Visitor;
 
+use App\Models\Building\Building;
 use App\Models\Building\Flat;
 use App\Models\Scopes\Searchable;
 use Illuminate\Database\Eloquent\Model;
@@ -17,6 +18,7 @@ class FlatDomesticHelp extends Model
         'first_name',
         'last_name',
         'phone',
+        'building_id',
         'profile_photo',
         'start_date',
         'end_date',
@@ -38,5 +40,9 @@ class FlatDomesticHelp extends Model
     public function flat()
     {
         return $this->belongsTo(Flat::class);
+    }
+    public function building()
+    {
+        return $this->belongsTo(Building::class);
     }
 }

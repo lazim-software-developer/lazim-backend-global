@@ -3,10 +3,20 @@
 namespace App\Filament\Resources\Visitor\FlatDomesticHelpResource\Pages;
 
 use App\Filament\Resources\Visitor\FlatDomesticHelpResource;
+use App\Models\Visitor\FlatDomesticHelp;
 use Filament\Actions;
+use Filament\Facades\Filament;
 use Filament\Resources\Pages\CreateRecord;
 
 class CreateFlatDomesticHelp extends CreateRecord
 {
     protected static string $resource = FlatDomesticHelpResource::class;
+    protected function afterCreate(){
+        $tenant=Filament::getTenant();
+        FlatDomesticHelp::where('id', $this->record->id)
+            ->update([
+                'building_id'=>$tenant->first()->id
+            ]);
+
+    }
 }

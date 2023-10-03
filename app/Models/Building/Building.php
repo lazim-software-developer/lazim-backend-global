@@ -17,6 +17,8 @@ use App\Models\Building\Complaint;
 use App\Models\Building\BuildingPoc;
 use App\Models\Vendor\Contact;
 use App\Models\Vendor\Vendor;
+use App\Models\Visitor\FlatDomesticHelp;
+use App\Models\Visitor\FlatVisitor;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -38,13 +40,14 @@ class Building extends Model
         'lng',
         'description',
         'floors',
+
     ];
 
     protected $searchableFields = ['*'];
 
     public function cities()
     {
-        return $this->belongsTo(City::class);
+        return $this->belongsTo(City::class, 'city_id');
     }
 
     public function buildingPocs()
@@ -57,48 +60,53 @@ class Building extends Model
         return $this->hasMany(Complaint::class);
     }
 
-    // public function document()
-    // {
-    //     return $this->hasMany(Document::class);
-    // }
+    public function document()
+    {
+        return $this->hasMany(Document::class);
+    }
 
-    // public function facilitybooking()
-    // {
-    //     return $this->hasMany(FacilityBooking::class);
-    // }
+    public function facilityBookings()
+    {
+        return $this->hasMany(FacilityBooking::class);
+    }
 
-    // public function flattenant()
-    // {
-    //     return $this->hasMany(FlatTenant::class);
-    // }
+    public function flatTenants()
+    {
+        return $this->hasMany(FlatTenant::class);
+    }
+    public function services()
+    {
+        return $this->belongsToMany(Service::class, 'building_services','building_id','service_id');
+    }
 
-    // public function documentlibrary()
-    // {
-    //     return $this->hasMany(DocumentLibrary::class);
-    // }
-
-    // public function facility()
-    // {
-    //     return $this->hasMany(Facility::class);
-    // }
-    // public function role()
-    // {
-    //     return $this->hasMany(Role::class);
-    // }
-    // public function service()
-    // {
-    //     return $this->hasMany(Service::class);
-    // }
-    // public function contact()
-    // {
-    //     return $this->hasMany(Contact::class);
-    // }
+    public function roles()
+    {
+        return $this->belongsToMany(Role::class, 'building_roles','building_id','role_id');
+    }
+    public function documentlibraries()
+    {
+        return $this->belongsToMany(Role::class, 'building_documentlibraries','building_id','documentlibrary_id');
+    }
+    public function facilities()
+    {
+        return $this->belongsToMany(Facility::class, 'building_facility','building_id','facility_id');
+    }
+    public function flatVisitors()
+    {
+        return $this->hasMany(FlatVisitor::class);
+    }
+    public function contact()
+    {
+        return $this->hasMany(Contact::class);
+    }
+    public function flatDomesticHelps()
+    {
+        return $this->hasMany(FlatDomesticHelp::class);
+    }
     public function vendor()
     {
         return $this->hasMany(Vendor::class);
     }
-
-
     public function attendances()
     {
         return $this->hasMany(Attendance::class);
@@ -108,22 +116,14 @@ class Building extends Model
     {
         return $this->hasMany(Flat::class);
     }
-
-    public function facilities()
-    {
-        return $this->belongsToMany(Facility::class);
-    }
-
     public function documents()
     {
         return $this->morphMany(Document::class, 'documentable');
     }
-
     public function complaints()
     {
         return $this->morphMany(Complaint::class, 'complaintable');
     }
-
     public function members()
     {
         return $this->belongsToMany(User::class);

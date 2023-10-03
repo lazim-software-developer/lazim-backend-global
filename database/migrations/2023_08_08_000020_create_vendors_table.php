@@ -15,7 +15,6 @@ return new class extends Migration {
             $table->string('name', 50);
             $table->unsignedBigInteger('owner_id');
             $table->unsignedBigInteger('building_id');
-            $table->foreign('building_id')->references('id')->on('buildings')->onDelete('cascade')->onUpdate('cascade');
             $table->string('tl_number', 50)->unique();
             $table->date('tl_expiry');
             $table->string('status', 50);

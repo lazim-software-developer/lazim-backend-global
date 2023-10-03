@@ -47,31 +47,9 @@ class Complaint extends Model
     }
 
     public function complaintable()
-    {   
-        
+    {
+
         return $this->morphTo();
     }
-    // public function getCombinedValueAttribute()
-    // {
-    //     if ($this->complaintable_type === Building::class && $this->complaintable()) {
-    //         return $value=$this->complaintable->name;
-    //     } elseif ($this->complaintable_type === FlatTenant::class && $this->complaintable()) {
-    //         return $value=$this->complaintable->flat_id;
-    //     }
 
-    //     return null;
-    // }
-    // public function getConcatenatedValuesAttribute()
-    // {
-    //     $complaintable = $this->complaintable;
-
-    //     if ($complaintable !== null && is_array($complaintable)) {
-    //         $name = $complaintable['name'] ?? '';
-    //         $flatId = $complaintable['flat_id'] ?? '';
-    //         return $name . ' (' . $flatId . ')';
-    //     }
-
-    //     return '';
-    // }
-    
 }

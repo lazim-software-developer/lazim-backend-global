@@ -41,23 +41,20 @@ class FlatTenant extends Model
     {
         return $this->belongsTo(Flat::class);
     }
-
     public function user()
     {
         return $this->belongsTo(User::class, 'tenant_id');
     }
-
     public function documents()
     {
         return $this->morphMany(Document::class, 'documentable');
     }
-
     public function complaints()
     {
         return $this->morphMany(Complaint::class, 'complaintable');
     }
-    // public function building()
-    // {
-    //     return $this->belongsTo(Building::class);
-    // }
+    public function building()
+    {
+        return $this->belongsTo(Building::class);
+    }
 }

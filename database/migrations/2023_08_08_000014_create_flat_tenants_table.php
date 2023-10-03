@@ -14,11 +14,11 @@ return new class extends Migration {
             $table->bigIncrements('id');
             $table->unsignedBigInteger('flat_id');
             $table->unsignedBigInteger('tenant_id');
-            //$table->unsignedBigInteger('building_id');
-            $table->boolean('primary');
+            $table->unsignedBigInteger('building_id');
+            $table->boolean('primary')->nullable();
             $table->dateTime('start_date');
-            $table->dateTime('end_date');
-            $table->boolean('active');
+            $table->dateTime('end_date')->nullable();
+            $table->boolean('active')->nullable();
 
             $table->timestamps();
         });

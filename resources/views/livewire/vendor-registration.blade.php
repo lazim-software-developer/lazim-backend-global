@@ -1,3 +1,12 @@
 <div>
-    {{-- If your happiness depends on money, you will never be happy with yourself. --}}
+    @livewire('vendor-registration')
+    <form wire:submit="create">
+        {{ $this->form }}
+
+        <button type="submit">
+            Submit
+        </button>
+    </form>
+
+    <x-filament-actions::modals />
 </div>

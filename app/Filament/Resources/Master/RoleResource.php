@@ -22,33 +22,20 @@ class RoleResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
     protected static ?string $navigationGroup = 'Master';
-
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Grid::make(['default' => 0])->schema([
+                Grid::make([
+                    'sm' => 1,
+                    'md' => 1,
+                    'lg' => 2,])
+                    ->schema([
                     TextInput::make('name')
                         ->rules(['max:50', 'string'])
                         ->required()
                         ->placeholder('Name')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
                 ]),
-            //     Select::make('building_id')
-            //     ->rules(['exists:buildings,id'])
-            //     ->required()
-            //     ->relationship('building', 'name')
-            //     ->searchable()
-            //     ->placeholder('Building')
-            //     ->columnSpan([
-            //         'default' => 12,
-            //         'md' => 12,
-            //         'lg' => 12,
-            //     ]),
              ]);
     }
 
@@ -77,14 +64,14 @@ class RoleResource extends Resource
                 Tables\Actions\CreateAction::make(),
             ]);
     }
-    
+
     public static function getRelations(): array
     {
         return [
             RoleResource\RelationManagers\UsersRelationManager::class
         ];
     }
-    
+
     public static function getPages(): array
     {
         return [
@@ -92,5 +79,5 @@ class RoleResource extends Resource
             'create' => Pages\CreateRole::route('/create'),
             'edit' => Pages\EditRole::route('/{record}/edit'),
         ];
-    }    
+    }
 }

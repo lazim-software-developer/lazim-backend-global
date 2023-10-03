@@ -13,7 +13,7 @@ return new class extends Migration {
         Schema::create('documents', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->unsignedBigInteger('document_library_id');
-            //$table->unsignedBigInteger('building_id');
+            $table->unsignedBigInteger('building_id')->nullable();
             $table->longText('url');
             $table->string('status', 50);
             $table->json('comments');

@@ -2,6 +2,7 @@
 
 namespace App\Models\Visitor;
 
+use App\Models\Building\Building;
 use App\Models\Building\Flat;
 use App\Models\User\User;
 use App\Models\Scopes\Searchable;
@@ -16,6 +17,7 @@ class FlatVisitor extends Model
     protected $fillable = [
         'flat_id',
         'name',
+        'building_id',
         'phone',
         'type',
         'start_time',
@@ -50,5 +52,9 @@ class FlatVisitor extends Model
     public function userApprovedBy()
     {
         return $this->belongsTo(User::class, 'approved_by');
+    }
+    public function building()
+    {
+        return $this->belongsTo(Building::class);
     }
 }
