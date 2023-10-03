@@ -2,13 +2,14 @@
 
 namespace App\Jobs;
 
+use App\Mail\OaUserRegistration;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Mail;
-use App\Mail\OaUserRegistration;
+// use App\Mail\OaUserRegistration;
 use Snowfire\Beautymail\Beautymail;
 
 class AccountCreationJob implements ShouldQueue
@@ -23,8 +24,8 @@ class AccountCreationJob implements ShouldQueue
 
     public function __construct($user, $password)
     {
-        $this->user=$user;
-        $this->password=$password;
+        $this->user     = $user;
+        $this->password = $password;
     }
 
     /**

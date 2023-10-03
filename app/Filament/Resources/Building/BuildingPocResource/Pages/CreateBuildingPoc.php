@@ -12,13 +12,13 @@ class CreateBuildingPoc extends CreateRecord
 {
     protected static string $resource = BuildingPocResource::class;
 
-    protected function afterCreate(){
-        $tenant=Filament::getTenant();
-        BuildingPoc::where('id', $this->record->id)
-            ->update([
-                'building_id'=>$tenant->first()->id
-            ]);
+    // protected function afterCreate(){
+    //     $tenant=Filament::getTenant();
+    //     BuildingPoc::where('id', $this->record->id)
+    //         ->update([
+    //             'building_id'=>$tenant->first()->id
+    //         ]);
 
-    }
+    // }
 
 }
