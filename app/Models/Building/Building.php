@@ -52,10 +52,10 @@ class Building extends Model
         return $this->hasMany(BuildingPoc::class);
     }
 
-    // public function complaint()
-    // {
-    //     return $this->hasMany(Complaint::class);
-    // }
+    public function complaint()
+    {
+        return $this->hasMany(Complaint::class);
+    }
 
     // public function document()
     // {
@@ -93,10 +93,10 @@ class Building extends Model
     // {
     //     return $this->hasMany(Contact::class);
     // }
-    // public function vendor()
-    // {
-    //     return $this->hasMany(Vendor::class);
-    // }
+    public function vendor()
+    {
+        return $this->hasMany(Vendor::class);
+    }
 
 
     public function attendances()

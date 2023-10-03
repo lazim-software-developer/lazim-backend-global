@@ -2,23 +2,25 @@
 
 namespace App\Filament\Resources\Vendor;
 
+use Filament\Forms;
+use Filament\Tables;
+use Filament\Forms\Form;
+use Filament\Tables\Table;
+use App\Models\Vendor\Vendor;
+use Filament\Resources\Resource;
+use App\Models\Building\Document;
+use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\KeyValue;
+use Illuminate\Database\Eloquent\Model;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\DatePicker;
+use Illuminate\Database\Eloquent\Builder;
+use App\Filament\Resources\Master\ServiceResource;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Filament\Resources\Building\DocumentsResource;
 use App\Filament\Resources\Vendor\VendorResource\Pages;
 use App\Filament\Resources\Vendor\VendorResource\RelationManagers;
-use App\Models\Building\Document;
-use App\Models\Vendor\Vendor;
-use Filament\Forms;
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\KeyValue;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
-use Filament\Tables;
-use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class VendorResource extends Resource
 {
@@ -32,17 +34,6 @@ class VendorResource extends Resource
     {
         return $form
             ->schema([
-                // Select::make('building_id')
-                // ->rules(['exists:buildings,id'])
-                // ->required()
-                // ->relationship('building', 'name')
-                // ->searchable()
-                // ->placeholder('Building')
-                // ->columnSpan([
-                //     'default' => 12,
-                //     'md' => 12,
-                //     'lg' => 12,
-                // ]),
                 Grid::make(['default' => 0])->schema([
                     TextInput::make('name')
                         ->required()
@@ -108,8 +99,8 @@ class VendorResource extends Resource
                             'md' => 12,
                             'lg' => 12,
                         ]),
-                    ]),
-                ]);
+                ]),
+            ]);
 
     }
 
@@ -158,7 +149,7 @@ class VendorResource extends Resource
     public static function getRelations(): array
     {
         return [
-            // VendorResource\RelationManagers\UsersRelationManager::class,
+                // VendorResource\RelationManagers\UsersRelationManager::class,
             VendorResource\RelationManagers\ServicesRelationManager::class,
             VendorResource\RelationManagers\UsersRelationManager::class,
             VendorResource\RelationManagers\ContactsRelationManager::class,

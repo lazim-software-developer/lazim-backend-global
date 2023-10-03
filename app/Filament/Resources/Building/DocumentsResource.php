@@ -157,7 +157,7 @@ class DocumentsResource extends Resource
                             'md' => 12,
                             'lg' => 12,
                         ]),
-
+                        
                     
                 ]),
             
