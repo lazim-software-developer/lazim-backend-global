@@ -18,6 +18,7 @@ return new class extends Migration {
             $table->string('escalation_level', 50);
             $table->boolean('active')->nullable();
             $table->boolean('emergency_contact')->nullable();
+            $table->foreign('building_id')->references('id')->on('buildings')->onUpdate('CASCADE')->onDelete("CASCADE");
 
             $table->timestamps();
         });
