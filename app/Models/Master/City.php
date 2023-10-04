@@ -17,7 +17,7 @@ class City extends Model
 
     protected $searchableFields = ['*'];
 
-    public function building()
+    public function buildings()
     {
         return $this->hasMany(Building::class);
     }

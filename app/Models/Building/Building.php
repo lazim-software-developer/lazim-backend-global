@@ -124,12 +124,4 @@ class Building extends Model
     {
         return $this->morphMany(Complaint::class, 'complaintable');
     }
-    public function members()
-    {
-        return $this->belongsToMany(User::class);
-    }
-    public function users():BelongsToMany
-    {
-        return $this->belongsToMany(User::class);
-    }
 }
