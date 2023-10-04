@@ -313,7 +313,7 @@ class TestController extends Controller
             'oa_service_file'      => $folderPath,
         ]);
 
-        return $response;
+        //return $response;
         Log::info('Response from Mollak', (array) $response);
 
         if($response->responseCode === 200) {
