@@ -48,8 +48,6 @@ class BuildingPocResource extends Resource
                         ->rules(['max:50', 'string'])
                         ->required()
                         ->placeholder('Escalation Level'),
-                    Toggle::make('active')
-                        ->rules(['boolean']),
                     Toggle::make('emergency_contact')
                         ->rules(['boolean'])
                 ]),
