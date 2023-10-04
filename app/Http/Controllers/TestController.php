@@ -25,6 +25,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
 use \stdClass;
+use Illuminate\Support\Facades\Log;
 
 class TestController extends Controller
 {
@@ -313,6 +314,7 @@ class TestController extends Controller
         ]);
 
         //return $response;
+        Log::info('Response from Mollak', $response);
 
         if($response->responseCode === 200) {
             $oaData->update(['status' => "Success", 'mollak_id' => $response->response->id]);
