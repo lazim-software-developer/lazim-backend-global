@@ -2,6 +2,7 @@
 
 namespace App\Models\User;
 
+use App\Mail\OaUserRegistration;
 use App\Models\Building\Building;
 use App\Models\Building\BuildingPoc;
 use App\Models\Building\Complaint;
@@ -75,9 +76,10 @@ class User extends Authenticatable implements FilamentUser, HasName, HasTenants
 
     }
 
-    public function oaDetails()
+    public function oaUserRegistration()
     {
-        return $this->hasMany(OaDetails::class);
+       return $this->hasMany(OaUserRegistration::class);
+
     }
     public function role()
     {
@@ -93,7 +95,10 @@ class User extends Authenticatable implements FilamentUser, HasName, HasTenants
     {
         return $this->hasMany(Document::class, 'accepted_by');
     }
-
+    public function oaUser()
+    {
+        return $this->hasMany(OaUserRegistration::class);
+    }
     public function pocs()
     {
         return $this->hasMany(BuildingPoc::class);

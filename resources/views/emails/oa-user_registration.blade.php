@@ -24,7 +24,7 @@
             Your Account Details:
 			</td>
 		</tr>
-        
+
 		<tr>
 			<td width="100%" height="10"></td>
 		</tr>
@@ -36,7 +36,7 @@
 		</tr>
         <tr>
             <td class="paragraph">
-                <strong>Password: </strong> {{$password}} 
+                <strong>Password: </strong> {{$password}}
                 <!-- (We recommend changing this password upon your first login for security reasons.) -->
 			</td>
 		</tr>
@@ -48,11 +48,11 @@
             Get Started:
 			</td>
 		</tr>
-        
+
 		<tr>
 			<td width="100%" height="10"></td>
 		</tr>
-        
+
         <tr>
             <td class="paragraph">
                 To access your account and use our platform, click on <a href="https://lazim.ae/">this link</a>
@@ -84,7 +84,7 @@
            Lazim team
 			</td>
 		</tr>
-		
+
 		<tr>
 			<td width="100%" height="25"></td>
 		</tr>
