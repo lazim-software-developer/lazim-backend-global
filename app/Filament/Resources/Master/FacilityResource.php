@@ -43,8 +43,7 @@ class FacilityResource extends Resource
                         ->placeholder('Name'),
                     FileUpload::make('icon')
                         ->disk('s3'),
-                    Toggle::make('active')
-                        ->rules(['boolean']),
+                    
                 ]),
             ]);
     }

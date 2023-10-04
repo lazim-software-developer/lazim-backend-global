@@ -11,12 +11,5 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateFlat extends CreateRecord
 {
     protected static string $resource = FlatResource::class;
-    protected function afterCreate(){
-        $tenant=Filament::getTenant();
-        Flat::where('id', $this->record->id)
-            ->update([
-                'building_id'=>$tenant->first()->id
-            ]);
-
-    }
+   
 }

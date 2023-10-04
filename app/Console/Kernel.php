@@ -12,7 +12,8 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        $schedule->command('lazim:oa-account-create')->hourly();
+        $schedule->command('lazim:oa-account-create')->everyMinute
+        ();
     }
 
     /**
