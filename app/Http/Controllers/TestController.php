@@ -314,7 +314,7 @@ class TestController extends Controller
         ]);
 
         //return $response;
-        Log::info('Response from Mollak', [json_encode($response)]);
+        Log::info('Response from Mollak', (array) $response);
 
         if($response->responseCode === 200) {
             $oaData->update(['status' => "Success", 'mollak_id' => $response->response->id]);
