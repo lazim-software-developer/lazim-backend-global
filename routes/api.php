@@ -30,17 +30,19 @@ Route::name('api.')
     ->group(function () {
     });
 
+Route::group(['middleware' => ["auth:sanctum", "verified"]], function () {
+
     Route::get('services-requests', [TestController::class, 'serviceRequest']);
 
     Route::get('service-parameters', [TestController::class, 'serviceParameters']);
-
+    
     Route::post('upload-all', [TestController::class, 'uploadAll']);
-
+    
     Route::get('oa-service-details/{oaService}', [TestController::class, 'getOaService']);
+    
     // Get all propertirs
-    Route::get('get-all-properties/{oa_id}', [MollakController::class, 'getProperties']);
-
+    Route::get('get-all-properties', [MollakController::class, 'getProperties']);
+    
     // Get service periods for a given property Id
     Route::get('get-service-periods/{propertyId}', [MollakController::class, 'getServicePeriod']);
-
-    Route::get('mollak-sync-api', [MollakController::class, 'getData']);
+});
