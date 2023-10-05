@@ -21,10 +21,6 @@ class CreateDocuments extends CreateRecord
             ->update([
                 'comments' => $jsonValue
             ]);
-        $tenant=Filament::getTenant();
-        Document::where('id', $this->record->id)
-                ->update([
-                    'building_id'=>$tenant->first()->id
-                ]);
+        
     }
 }

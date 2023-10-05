@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Filament\Resources\Building;
+namespace App\Filament\Resources;
 
-use App\Filament\Resources\Building\DocumentsResource\Pages\CreateDocuments;
-use App\Filament\Resources\Building\DocumentsResource\Pages\EditDocuments;
-use App\Filament\Resources\Building\DocumentsResource\Pages\ListDocuments;
+use App\Filament\Resources\FlatDocumentResource\Pages\CreateFlatDocument;
+use App\Filament\Resources\FlatDocumentResource\Pages\EditFlatDocument;
+use App\Filament\Resources\FlatDocumentResource\Pages\ListFlatDocuments;
 use App\Models\Building\Building;
 use App\Models\Building\Document;
 use App\Models\Building\FlatTenant;
@@ -30,13 +30,13 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Query\JoinClause;
 use Illuminate\Support\Facades\DB;
 
-class DocumentsResource extends Resource
+class FlatDocumentResource extends Resource
 {
     protected static ?string $model = Document::class;
 
     protected static ?string $navigationIcon  = 'heroicon-o-rectangle-stack';
     protected static ?string $navigationGroup = 'Document Management';
-    protected static ?string $navigationLabel = 'Vendor';
+    protected static ?string $navigationLabel = 'Flat';
 
     public static function form(Form $form): Form
     {
@@ -69,13 +69,6 @@ class DocumentsResource extends Resource
                         ->disk('s3')
                         ->required()
                         ->downloadable()
-                    // //->imagePreviewHeight('250')
-                    // ->IndicatorPosition('left')
-                    // ->panelAspectRatio('2:1')
-                    // ->panelLayout('integrated')
-                    // ->removeUploadedFileButtonPosition('right')
-                    // ->uploadButtonPosition('left')
-                    // ->uploadProgressIndicatorPosition('left')
                         ->preserveFilenames(),
                     Select::make('status')
                         ->options([
@@ -107,12 +100,11 @@ class DocumentsResource extends Resource
 
             ]);
     }
-
     public static function table(Table $table): Table
     {
         return $table
             ->poll('60s')
-            ->modifyQueryUsing(fn(Builder $query) => $query->where('documentable_type', 'App\Models\Vendor\Vendor')->withoutGlobalScopes())
+            ->modifyQueryUsing(fn(Builder $query) => $query->where('documentable_type', 'App\Models\Building\FlatTenant')->withoutGlobalScopes())
             ->columns([
                 TextColumn::make('documentLibrary.name')
                     ->toggleable()
@@ -164,9 +156,9 @@ class DocumentsResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => ListDocuments::route('/'),
-            'create' => CreateDocuments::route('/create'),
-            'edit'   => EditDocuments::route('/{record}/edit'),
+            'index'  => ListFlatDocuments::route('/'),
+            'create' => CreateFlatDocument::route('/create'),
+            'edit'   => EditFlatDocument::route('/{record}/edit'),
         ];
     }
 }
