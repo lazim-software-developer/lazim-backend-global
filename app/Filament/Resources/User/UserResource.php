@@ -1,11 +1,9 @@
 <?php
 
 namespace App\Filament\Resources\User;
+
 use App\Filament\Resources\User\UserResource\Pages;
-use App\Filament\Resources\User\UserResource\RelationManagers;
 use App\Models\User\User;
-use Filament\Forms;
-use Filament\Forms\Components\Component;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -14,44 +12,34 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Illuminate\Support\Facades\Hash;
 
 class UserResource extends Resource
 {
     protected static ?string $model = User::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon       = 'heroicon-o-rectangle-stack';
     protected static ?string $recordTitleAttribute = 'first_name';
-    protected static ?string $navigationLabel ='Owner';
-    protected static ?string $navigationGroup = 'Flat Management';
-
+    protected static ?string $navigationLabel      = 'Owner';
+    protected static ?string $navigationGroup      = 'Flat Management';
 
     public static function form(Form $form): Form
     {
         return $form->schema([
-                Grid::make(['default' => 0])->schema([
+            Grid::make([
+                'sm' => 1,
+                'md' => 1,
+                'lg' => 2])
+                ->schema([
                     TextInput::make('first_name')
                         ->rules(['max:50', 'string'])
                         ->required()
-                        ->placeholder('First Name')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+                        ->placeholder('First Name'),
 
                     TextInput::make('last_name')
                         ->rules(['max:50', 'string'])
                         ->nullable()
-                        ->placeholder('Last Name')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+                        ->placeholder('Last Name'),
 
                     TextInput::make('email')
                         ->rules(['email'])
@@ -62,12 +50,7 @@ class UserResource extends Resource
                             fn(?Model $record) => $record
                         )
                         ->email()
-                        ->placeholder('Email')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+                        ->placeholder('Email'),
 
                     TextInput::make('phone')
                         ->rules(['max:10', 'string'])
@@ -77,28 +60,7 @@ class UserResource extends Resource
                             'phone',
                             fn(?Model $record) => $record
                         )
-                        ->placeholder('Phone')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
-                    Toggle::make('phone_verified')
-                        ->rules(['boolean'])
-                        ->nullable()
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
-                    Toggle::make('active')
-                        ->rules(['boolean'])
-                        ->nullable()
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+                        ->placeholder('Phone'),
 
                     TextInput::make('lazim_id')
                         ->rules(['max:50', 'string'])
@@ -108,27 +70,23 @@ class UserResource extends Resource
                             'lazim_id',
                             fn(?Model $record) => $record
                         )
-                        ->placeholder('Lazim Id')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+                        ->placeholder('Lazim Id'),
 
                     Select::make('role_id')
                         ->rules(['exists:roles,id'])
                         ->required()
                         ->relationship('role', 'name')
                         ->searchable()
-                        ->placeholder('Role')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+                        ->placeholder('Role'),
+                    Toggle::make('phone_verified')
+                        ->rules(['boolean'])
+                        ->hidden()
+                        ->nullable(),
+
                 ]),
 
-            ]);
+        ]);
+
     }
 
     public static function table(Table $table): Table
@@ -152,9 +110,6 @@ class UserResource extends Resource
                     ->toggleable()
                     ->searchable(true, null, true)
                     ->limit(50),
-                Tables\Columns\IconColumn::make('phone_verified')
-                    ->toggleable()
-                    ->boolean(),
                 Tables\Columns\IconColumn::make('active')
                     ->toggleable()
                     ->boolean(),
@@ -200,9 +155,9 @@ class UserResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListUsers::route('/'),
+            'index'  => Pages\ListUsers::route('/'),
             'create' => Pages\CreateUser::route('/create'),
-            'edit' => Pages\EditUser::route('/{record}/edit'),
+            'edit'   => Pages\EditUser::route('/{record}/edit'),
         ];
     }
 }
