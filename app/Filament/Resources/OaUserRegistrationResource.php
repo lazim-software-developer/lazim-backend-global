@@ -15,9 +15,9 @@ use Illuminate\Support\Facades\DB;
 
 class OaUserRegistrationResource extends Resource
 {
-    protected static ?string $model           = OaUserRegistration::class;
-    protected static ?string $navigationLabel = 'OaUser';
-    protected static ?string $navigationIcon  = 'heroicon-o-rectangle-stack';
+    protected static ?string $model          = OaUserRegistration::class;
+    protected static ?string $modelLabel     = 'Owner Association';
+    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     public static function form(Form $form): Form
     {
@@ -53,7 +53,7 @@ class OaUserRegistrationResource extends Resource
                         ->required()
                         ->disabled(function () {
                             return DB::table('oa_user_registration')
-                                ->where('verified',1)
+                                ->where('verified', 1)
                                 ->exists();
                         })
                         ->placeholder('Email'),

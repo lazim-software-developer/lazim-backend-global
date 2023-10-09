@@ -11,8 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('flats', function (Blueprint $table) {
-            $table->unsignedBigInteger('building_id')->nullable()->change();
+        Schema::table('buildings', function (Blueprint $table) {
             $table->unsignedBigInteger('oa_user_registration_id')->nullable();
             $table->foreign('oa_user_registration_id')->references('id')->on('oa_user_registration')->onUpdate('CASCADE')->onDelete('CASCADE');
 
@@ -24,7 +23,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('flats', function (Blueprint $table) {
+        Schema::table('buildings', function (Blueprint $table) {
             $table->unsignedBigInteger('oa_user_registration_id')->nullable();
 
         });
