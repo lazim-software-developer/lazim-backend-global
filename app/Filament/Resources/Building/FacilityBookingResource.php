@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Building;
 use App\Filament\Resources\Building\FacilityBookingResource\Pages;
 use App\Filament\Resources\Building\FacilityBookingResource\RelationManagers;
 use App\Models\Building\FacilityBooking;
+use App\Models\Master\Facility;
 use Filament\Forms;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
@@ -20,6 +21,8 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Database\Query\JoinClause;
+use Illuminate\Support\Facades\DB;
 
 class FacilityBookingResource extends Resource
 {
@@ -39,11 +42,32 @@ class FacilityBookingResource extends Resource
                     'lg' => 2,])
                     ->schema([
 
+                    Select::make('building_id')
+                        ->rules(['exists:buildings,id'])
+                        ->relationship('building', 'name')
+                        ->reactive()
+                        ->preload()
+                        ->searchable()
+                        ->placeholder('Building'),
+                        
                     Select::make('facility_id')
                         ->rules(['exists:facilities,id'])
-                        ->required()
                         ->relationship('facility', 'name')
                         ->searchable()
+                        ->options(function (callable $get) {
+                            $facilityid = DB::table('building_facility')
+                                    ->where('building_facility.building_id', '=', $get('building_id'))
+                                    ->select('building_facility.facility_id')
+                                    ->pluck('building_facility.facility_id');
+                            
+                            return DB::table('facilities')
+                                    ->whereIn('facilities.id',$facilityid->concat([1, 2, 3, 4]))
+                                    ->select('facilities.id','facilities.name')
+                                    ->pluck('facilities.name')
+                                    ->toArray();
+                        })
+                        ->required()
+                        ->preload()
                         ->placeholder('Facilities'),
 
                     Select::make('user_id')
@@ -62,14 +86,6 @@ class FacilityBookingResource extends Resource
                     TimePicker::make('end_time')
                         ->required()
                         ->placeholder('End Time'),
-                    TextInput::make('order_id')
-                        ->rules(['max:255', 'string'])
-                        ->nullable()
-                        ->placeholder('Order Id'),
-                    TextInput::make('payment_status')
-                        ->rules(['max:50', 'string'])
-                        ->nullable()
-                        ->placeholder('Payment Status'),
                     TextInput::make('remarks')
                         ->required(),
                     TextInput::make('reference_number')
@@ -109,12 +125,6 @@ class FacilityBookingResource extends Resource
                 Tables\Columns\TextColumn::make('end_time')
                     ->toggleable()
                     ->date(),
-                Tables\Columns\TextColumn::make('order_id')
-                    ->toggleable()
-                    ->limit(50),
-                Tables\Columns\TextColumn::make('payment_status')
-                    ->toggleable()
-                    ->limit(50),
                 Tables\Columns\TextColumn::make('reference_number')
                     ->toggleable(),
                 Tables\Columns\IconColumn::make('approved')

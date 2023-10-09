@@ -66,7 +66,7 @@ class BuildingResource extends Resource
                     Select::make('city_id')
                         ->rules(['exists:cities,id'])
                         ->required()
-                        ->relationship('city', 'id')
+                        ->relationship('cities', 'name')
                         ->searchable()
                         ->placeholder('City'),
 
@@ -117,7 +117,7 @@ class BuildingResource extends Resource
                 ->toggleable()
                 ->searchable(true, null, true)
                 ->limit(50),
-            Tables\Columns\TextColumn::make('city.id')
+            Tables\Columns\TextColumn::make('cities.name')
                 ->toggleable()
                 ->limit(50),
             Tables\Columns\TextColumn::make('lat')
