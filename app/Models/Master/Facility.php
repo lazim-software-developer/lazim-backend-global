@@ -26,7 +26,7 @@ class Facility extends Model
         return $this->hasMany(FacilityBooking::class);
     }
 
-    public function building()
+    public function buildings()
     {
         return $this->belongsToMany(Building::class,'building_facility','facility_id','building_id');
     }

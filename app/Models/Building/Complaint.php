@@ -4,6 +4,7 @@ namespace App\Models\Building;
 
 use App\Models\Building\FlatTenant;
 use App\Models\Building\Building;
+use App\Models\OaUserRegistration;
 use App\Models\Scopes\Searchable;
 use App\Models\User\User;
 use Illuminate\Database\Eloquent\Model;
@@ -20,12 +21,12 @@ class Complaint extends Model
         'user_id',
         'complaint_type',
         'category',
-        'building_id',
         'open_time',
         'close_time',
         'photo',
         'remarks',
         'status',
+        'oa_user_registration_id'
     ];
 
     protected $searchableFields = ['*'];
@@ -50,6 +51,10 @@ class Complaint extends Model
     {
 
         return $this->morphTo();
+    }
+    public function oaUserRegistration()
+    {
+        return $this->belongsTo(OaUserRegistration::class);
     }
 
 }

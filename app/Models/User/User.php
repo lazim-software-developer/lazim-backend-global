@@ -12,6 +12,7 @@ use App\Models\Building\Flat;
 use App\Models\Building\FlatTenant;
 use App\Models\Master\Role;
 use App\Models\OaDetails;
+use App\Models\OaUserRegistration as ModelsOaUserRegistration;
 use App\Models\Scopes\Searchable;
 use App\Models\Vendor\Attendance;
 use App\Models\Vendor\Vendor;
@@ -174,17 +175,17 @@ class User extends Authenticatable implements FilamentUser, HasName, HasTenants
 
     public function getTenants(Panel $panel): Collection
     {
-        return $this->building;
+        return $this->team;
     }
 
-    public function building(): BelongsToMany
+    public function team(): BelongsToMany
     {
-        return $this->belongsToMany(Building::class);
+        return $this->belongsToMany(ModelsOaUserRegistration::class);
     }
 
     public function canAccessTenant(Model $tenant): bool
     {
-        return $this->building->contains($tenant);
+        return $this->team->contains($tenant);
     }
 
 }

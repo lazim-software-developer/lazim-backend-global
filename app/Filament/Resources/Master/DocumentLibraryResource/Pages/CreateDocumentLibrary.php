@@ -11,12 +11,5 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateDocumentLibrary extends CreateRecord
 {
     protected static string $resource = DocumentLibraryResource::class;
-    protected function afterCreate(){
-        $tenant=Filament::getTenant();
-        DocumentLibrary::where('id', $this->record->id)
-            ->update([
-                'building_id'=>$tenant->first()->id
-            ]);
 
-    }
 }

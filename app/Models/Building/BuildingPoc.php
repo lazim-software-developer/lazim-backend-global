@@ -3,6 +3,7 @@
 namespace App\Models\Building;
 
 use App\Models\Building\Building;
+use App\Models\OaUserRegistration;
 use App\Models\Scopes\Searchable;
 use App\Models\User\User;
 use Illuminate\Database\Eloquent\Model;
@@ -16,6 +17,7 @@ class BuildingPoc extends Model
     protected $fillable = [
         'building_id',
         'user_id',
+        'oa_user_registration_id',
         'role_name',
         'escalation_level',
         'active',
@@ -37,5 +39,9 @@ class BuildingPoc extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+    public function oaUserRegistration()
+    {
+        return $this->belongsTo(OaUserRegistration::class);
     }
 }
