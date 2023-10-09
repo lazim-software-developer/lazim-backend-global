@@ -24,7 +24,7 @@ class BuildingResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
     protected static ?string $navigationGroup = 'Building Management';
-    protected static bool $shouldRegisterNavigation = false;
+    protected static bool $shouldRegisterNavigation = true;
     public static function form(Form $form): Form
     {
         return $form
@@ -83,7 +83,7 @@ class BuildingResource extends Resource
                     Select::make('city_id')
                         ->rules(['exists:cities,id'])
                         ->required()
-                        ->relationship('city', 'id')
+                        ->relationship('cities', 'name')
                         ->searchable()
                         ->placeholder('City')
                         ->columnSpan([
@@ -154,7 +154,7 @@ class BuildingResource extends Resource
                 ->toggleable()
                 ->searchable(true, null, true)
                 ->limit(50),
-            Tables\Columns\TextColumn::make('city.id')
+            Tables\Columns\TextColumn::make('cities.name')
                 ->toggleable()
                 ->limit(50),
             Tables\Columns\TextColumn::make('lat')

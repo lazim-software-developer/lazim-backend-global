@@ -15,7 +15,7 @@ use Filament\Tables\Table;
 class OaUserRegistrationResource extends Resource
 {
     protected static ?string $model           = OaUserRegistration::class;
-    protected static ?string $navigationLabel = 'OaUser';
+    protected static ?string $modelLabel = 'Owner Association';
     protected static ?string $navigationIcon  = 'heroicon-o-rectangle-stack';
 
     public static function form(Form $form): Form

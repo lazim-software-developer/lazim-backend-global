@@ -9,7 +9,7 @@ use Filament\Resources\Pages\ListRecords;
 class ListOaUserRegistrations extends ListRecords
 {
     protected static string $resource = OaUserRegistrationResource::class;
-    protected ?string $heading        = 'OA User';
+    protected ?string $heading        = 'Owner Association';
 
     protected function getHeaderActions(): array
     {
