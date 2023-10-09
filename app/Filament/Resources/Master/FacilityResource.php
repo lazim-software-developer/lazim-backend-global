@@ -43,8 +43,7 @@ class FacilityResource extends Resource
                         ->placeholder('Name'),
                     FileUpload::make('icon')
                         ->disk('s3'),
-                    Toggle::make('active')
-                        ->rules(['boolean']),
+
                 ]),
             ]);
     }
@@ -55,10 +54,6 @@ class FacilityResource extends Resource
             ->poll('60s')
             ->columns([
                 TextColumn::make('name')
-                    ->toggleable()
-                    ->searchable(true, null, true)
-                    ->limit(50),
-                TextColumn::make('building.name')->label('Building Name')
                     ->toggleable()
                     ->searchable(true, null, true)
                     ->limit(50),

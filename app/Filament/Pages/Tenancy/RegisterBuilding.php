@@ -2,63 +2,89 @@
 
 namespace App\Filament\Pages\Tenancy;
 
-use App\Models\Building\Building;
-use App\Models\Master\Facility;
-use App\Models\Master\Role;
-use App\Models\Master\Service;
-use Filament\Forms\Components\Select;
+use App\Models\OaUserRegistration;
+use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
 use Filament\Pages\Tenancy\RegisterTenant;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class RegisterBuilding extends RegisterTenant
 {
     public static function getLabel(): string
     {
-        return 'Register Building';
+        return 'Register Owner Association';
     }
 
     public function form(Form $form): Form
     {
         return $form
             ->schema([
-                TextInput::make('name')->maxLength(50)->required(),
-                TextInput::make('unit_number')->unique()->maxLength(50)->required(),
-                TextInput::make('address_line1')->required(),
-                TextInput::make('address_line2')->nullable(),
-                TextInput::make('area')->maxLength(50)->required(),
-                Select::make('city_id')->label('City')->relationship('cities','name')->required(),
-                TextInput::make('lat')->nullable()->maxLength(50),
-                TextInput::make('lng')->nullable()->maxLength(50),
-                TextInput::make('description')->nullable(),
-                TextInput::make('floors')->required(),
+                Grid::make([
+                    'sm' => 1,
+                    'md' => 2,
+                    'lg' => 2,
+                ])->schema([
+                    TextInput::make('name')
+                        ->required()
+
+                        ->placeholder('User'),
+                    TextInput::make('oa_id')->label('Oa Number')
+                        ->required()
+                    //->disabled()
+                        ->placeholder('OA Number'),
+                    TextInput::make('trn')->label('TRN Number')
+                        ->required()
+                    //->disabled()
+                        ->placeholder('TRN Number'),
+                    TextInput::make('phone')
+                        ->rules(['max:20', 'string'])
+                        ->required()
+                        ->placeholder('Contact Number'),
+                    TextInput::make('address')
+
+                        ->required()
+                        ->placeholder('Address'),
+                    TextInput::make('email')
+                        ->rules(['max:50', 'string'])
+                        ->required()
+                        // ->disabled(function () {
+                        //     return DB::table('oa_user_registration')
+                        //         ->where('verified', 1)
+                        //         ->exists();
+                        // })
+                        ->placeholder('Email'),
+                    Toggle::make('verified')
+                        ->rules(['boolean']),
+
+                ]),
 
             ]);
     }
 
-    protected function handleRegistration(array $data): Building
+    protected function handleRegistration(array $data): OaUserRegistration
     {
-        $building = Building::create($data);
+        $team = OaUserRegistration::create($data);
 
-        $building->members()->attach(auth()->user());
+        $team->members()->attach(auth()->user());
 
-        $services = Service::where('custom',0)->get();
+        // $services = Service::where('custom',0)->get();
 
-        foreach ($services as $service){
-            $building->services()->attach($service->id);
-        }
-        $roles=Role::all();
-        foreach($roles as $role)
-        {
-            $building->roles()->attach($role->id);
-        }
-        $facilities=Facility::all();
-        foreach($facilities as $facility)
-        {
-            $building->facilities()->attach($facility->id);
-        }
+        // foreach ($services as $service){
+        //     $building->services()->attach($service->id);
+        // }
+        // $roles=Role::all();
+        // foreach($roles as $role)
+        // {
+        //     $building->roles()->attach($role->id);
+        // }
+        // $facilities=Facility::all();
+        // foreach($facilities as $facility)
+        // {
+        //     $building->facilities()->attach($facility->id);
+        // }
 
-        return $building;
+        return $team;
     }
 }
