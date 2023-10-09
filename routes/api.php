@@ -1,8 +1,8 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
-use App\Http\Controllers\TestController;
 use App\Http\Controllers\MollakController;
+use App\Http\Controllers\TestController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -25,10 +25,7 @@ Route::middleware('auth:sanctum')
     })
     ->name('api.user');
 
-Route::name('api.')
-    ->middleware('auth:sanctum')
-    ->group(function () {
-    });
+Route::group(['middleware' => ["auth:sanctum", "verified"]], function () {
 
 Route::group(['middleware' => ["auth:sanctum", "verified"]], function () {
 
@@ -46,5 +43,4 @@ Route::group(['middleware' => ["auth:sanctum", "verified"]], function () {
     // Get service periods for a given property Id
     Route::get('get-service-periods/{propertyId}', [MollakController::class, 'getServicePeriod']);
 
-    Route::get('mollak-sync-api', [MollakController::class, 'getData']);
 });
