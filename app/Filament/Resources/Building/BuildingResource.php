@@ -23,22 +23,21 @@ class BuildingResource extends Resource
     protected static ?string $model = Building::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-    protected static ?string $navigationGroup = 'Building Management';
+    protected static ?string $navigationGroup = 'Property Management';
     protected static bool $shouldRegisterNavigation = true;
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Grid::make(['default' => 0])->schema([
+                Grid::make([
+                     'sm' => 1,
+                    'md' => 1,
+                    'lg' => 2,])->schema([
                     TextInput::make('name')
                         ->rules(['max:50', 'string'])
                         ->required()
                         ->placeholder('Name')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+                       ,
                     TextInput::make('unit_number')
                         ->rules(['max:50', 'string'])
                         ->required()
@@ -47,84 +46,48 @@ class BuildingResource extends Resource
                             'unit_number',
                             fn(?Model $record) => $record
                         )
-                        ->placeholder('Unit Number')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+                        ->placeholder('Unit Number'),
+
                     RichEditor::make('address_line1')
                         ->rules(['max:255', 'string'])
                         ->required()
-                        ->placeholder('Address Line1')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+                        ->placeholder('Address Line1'),
+
                     RichEditor::make('address_line2')
                         ->rules(['max:255', 'string'])
                         ->nullable()
-                        ->placeholder('Address Line2')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+                        ->placeholder('Address Line2'),
+
                     TextInput::make('area')
                         ->rules(['max:50', 'string'])
                         ->required()
-                        ->placeholder('Area')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+                        ->placeholder('Area'),
+
                     Select::make('city_id')
                         ->rules(['exists:cities,id'])
                         ->required()
                         ->relationship('cities', 'name')
                         ->searchable()
-                        ->placeholder('City')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+                        ->placeholder('City'),
+
                     TextInput::make('lat')
                         ->rules(['max:50', 'string'])
-                        ->placeholder('Lat')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+                        ->placeholder('Lat'),
+
                     TextInput::make('lng')
                         ->rules(['max:50', 'string'])
-                        ->placeholder('Lng')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+                        ->placeholder('Lng'),
+
                     RichEditor::make('description')
                         ->rules(['max:255', 'string'])
-                        ->placeholder('Description')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+                        ->placeholder('Description'),
+
                     TextInput::make('floors')
                         ->rules(['numeric'])
                         ->required()
                         ->numeric()
                         ->placeholder('Floors')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+                       
                 ]),
             ]);
     }

@@ -11,6 +11,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\DB;
 
 class OaUserRegistrationResource extends Resource
 {
@@ -44,12 +45,17 @@ class OaUserRegistrationResource extends Resource
                         ->required()
                         ->placeholder('Contact Number'),
                     TextInput::make('address')
-                        
+
                         ->required()
                         ->placeholder('Address'),
                     TextInput::make('email')
                         ->rules(['max:50', 'string'])
                         ->required()
+                        ->disabled(function () {
+                            return DB::table('oa_user_registration')
+                                ->where('verified', 1)
+                                ->exists();
+                        })
                         ->placeholder('Email'),
                     Toggle::make('verified')
                         ->rules(['boolean']),

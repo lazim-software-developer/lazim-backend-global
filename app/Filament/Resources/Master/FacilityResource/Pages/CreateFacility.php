@@ -12,4 +12,12 @@ class CreateFacility extends CreateRecord
 {
     protected static string $resource = FacilityResource::class;
 
+    protected function afterCreate(){
+
+        Facility::where('id', $this->record->id)
+            ->update([
+                'active'=>1
+            ]);
+
+    }
 }

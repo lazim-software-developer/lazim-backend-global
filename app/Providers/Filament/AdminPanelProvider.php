@@ -13,6 +13,7 @@ use Illuminate\Session\Middleware\StartSession;
 use App\Filament\Pages\Tenancy\RegisterBuilding;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use App\Filament\Pages\Tenancy\EditBuildingProfile;
+use App\Models\OaUserRegistration;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
@@ -26,9 +27,9 @@ class AdminPanelProvider extends PanelProvider
     public function panel(Panel $panel): Panel
     {
         return $panel
-            // ->tenant(Building::class)
-            // ->tenantRegistration(RegisterBuilding::class)
-            // ->tenantProfile(EditBuildingProfile::class)
+            ->tenant(OaUserRegistration::class)
+            ->tenantRegistration(RegisterBuilding::class)
+            ->tenantProfile(EditBuildingProfile::class)
             ->default()
             ->id('admin')
             ->path('admin')
