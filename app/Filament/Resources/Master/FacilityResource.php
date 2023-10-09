@@ -41,6 +41,14 @@ class FacilityResource extends Resource
                         ->rules(['max:50', 'string'])
                         ->required()
                         ->placeholder('Name'),
+                    Select::make('building_id')
+                        ->rules(['exists:buildings,id'])
+                        ->relationship('buildings', 'name')
+                        ->preload()
+                        ->multiple()
+                        ->searchable()
+                        ->placeholder('Building'),
+                        
                     FileUpload::make('icon')
                         ->disk('s3'),
 
@@ -54,6 +62,11 @@ class FacilityResource extends Resource
             ->poll('60s')
             ->columns([
                 TextColumn::make('name')
+                    ->toggleable()
+                    ->searchable(true, null, true)
+                    ->limit(50),
+                TextColumn::make('buildings.name')
+                    ->label('Building Name')
                     ->toggleable()
                     ->searchable(true, null, true)
                     ->limit(50),
