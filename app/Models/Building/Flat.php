@@ -4,6 +4,7 @@ namespace App\Models\Building;
 
 use App\Models\Building\Building;
 use App\Models\Building\FlatTenant;
+use App\Models\OaUserRegistration;
 use App\Models\Scopes\Searchable;
 use App\Models\User\User;
 use App\Models\Visitor\FlatDomesticHelp;
@@ -44,5 +45,9 @@ class Flat extends Model
             'flat_id',
             'owner_id'
         );
+    }
+    public function oaUserRegistration()
+    {
+        return $this->belongsTo(OaUserRegistration::class);
     }
 }

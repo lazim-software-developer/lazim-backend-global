@@ -11,11 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('flats', function (Blueprint $table) {
-            $table->unsignedBigInteger('building_id')->nullable()->change();
-            $table->unsignedBigInteger('oa_user_registration_id')->nullable();
+        Schema::create('oa_user_registration_user', function (Blueprint $table) {
+           $table->unsignedBigInteger('user_id');
+            $table->unsignedBigInteger('oa_user_registration_id');
+            $table->foreign('user_id')->references('id')->on('users')->onUpdate('CASCADE')->onDelete('CASCADE');
             $table->foreign('oa_user_registration_id')->references('id')->on('oa_user_registration')->onUpdate('CASCADE')->onDelete('CASCADE');
-
         });
     }
 
@@ -24,9 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('flats', function (Blueprint $table) {
-            $table->unsignedBigInteger('oa_user_registration_id')->nullable();
-
-        });
+        Schema::dropIfExists('oa_user_registration_user');
     }
 };

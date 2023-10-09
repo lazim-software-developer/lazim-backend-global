@@ -17,7 +17,8 @@ use Illuminate\Support\Str;
 class EditOaUserRegistration extends EditRecord
 {
     protected static string $resource = OaUserRegistrationResource::class;
-    protected ?string $heading        = 'OA User';
+    protected ?string $heading        = 'Owner Association';
+    
 
     public $value;
     protected function getHeaderActions(): array
