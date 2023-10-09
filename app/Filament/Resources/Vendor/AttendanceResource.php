@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Vendor;
 
 use Filament\Forms;
+use Filament\Forms\Components\Hidden;
 use Filament\Tables;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
@@ -30,91 +31,48 @@ class AttendanceResource extends Resource
     {
         return $form
             ->schema([
-                Grid::make(['default' => 0])->schema([
-                    Select::make('building_id')
-                        ->rules(['exists:buildings,id'])
-                        ->required()
-                        ->relationship('building', 'name')
-                        ->searchable()
-                        ->placeholder('Building')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+                 Grid::make([
+                    'sm' => 1,
+                    'md' => 1,
+                    'lg' => 2])
+                    ->schema([
 
-                    Select::make('user_id')
-                        ->rules(['exists:users,id'])
-                        ->required()
-                        ->relationship('userAttendance', 'first_name')
-                        ->searchable()
-                        ->placeholder('User Attendance')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+                        Select::make('user_id')
+                            ->rules(['exists:users,id'])
+                            ->required()
+                            ->relationship('userAttendance', 'first_name')
+                            ->searchable()
+                            ->placeholder('User Attendance'),
 
-                    DatePicker::make('date')
-                        ->rules(['date'])
-                        ->required()
-                        ->placeholder('Date')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+                        DatePicker::make('date')
+                            ->rules(['date'])
+                            ->required()
+                            ->placeholder('Date'),
 
-                    TimePicker::make('entry_time')
-                        ->rules(['date_format:H:i:s'])
-                        ->nullable()
-                        ->placeholder('Entry Time')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+                        TimePicker::make('entry_time')
+                            ->rules(['date_format:H:i:s'])
+                            ->nullable()
+                            ->placeholder('Entry Time'),
 
-                    TimePicker::make('exit_time')
-                        ->rules(['date_format:H:i:s'])
-                        ->nullable()
-                        ->placeholder('Exit Time')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+                        TimePicker::make('exit_time')
+                            ->rules(['date_format:H:i:s'])
+                            ->nullable()
+                            ->placeholder('Exit Time'),
 
-                    Toggle::make('attendance')
-                        ->rules(['boolean'])
-                        ->required()
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+                        Select::make('approved_by')
+                            ->rules(['exists:users,id'])
+                            ->required()
+                            ->relationship('userAttendanceApprove', 'first_name')
+                            ->searchable()
+                            ->placeholder('User Attendance Approve'),
 
-                    Select::make('approved_by')
-                        ->rules(['exists:users,id'])
-                        ->required()
-                        ->relationship('userAttendanceApprove', 'first_name')
-                        ->searchable()
-                        ->placeholder('User Attendance Approve')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+                        Hidden::make('attendance')
+                            ->default(0),
+                        DateTimePicker::make('approved_on')
+                            ->rules(['date'])
+                            ->required()
+                            ->placeholder('Approved On'),
 
-                    DateTimePicker::make('approved_on')
-                        ->rules(['date'])
-                        ->required()
-                        ->placeholder('Approved On')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
                 ]),
             ]);
     }
@@ -124,9 +82,7 @@ class AttendanceResource extends Resource
         return $table
         ->poll('60s')
         ->columns([
-            Tables\Columns\TextColumn::make('building.name')
-                ->toggleable()
-                ->limit(50),
+           
             Tables\Columns\TextColumn::make('userAttendance.first_name')
                 ->toggleable()
                 ->limit(50),
@@ -166,14 +122,14 @@ class AttendanceResource extends Resource
                 Tables\Actions\CreateAction::make(),
             ]);
     }
-    
+
     public static function getRelations(): array
     {
         return [
             //
         ];
     }
-    
+
     public static function getPages(): array
     {
         return [
@@ -181,5 +137,5 @@ class AttendanceResource extends Resource
             'create' => Pages\CreateAttendance::route('/create'),
             'edit' => Pages\EditAttendance::route('/{record}/edit'),
         ];
-    }    
+    }
 }

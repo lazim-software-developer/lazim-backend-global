@@ -2,6 +2,7 @@
 
 namespace App\Models\Vendor;
 
+use App\Models\OaUserRegistration;
 use Filament\Panel;
 use App\Models\User\User;
 use App\Models\Building\Building;
@@ -48,14 +49,17 @@ class Attendance extends Model
     {
         return $this->belongsTo(User::class, 'approved_by');
     }
-
-    public function canAccessTenant(Model $tenant): bool
+    public function oaUserRegistration()
     {
-        return $this->building->contains($tenant);
+        return $this->belongsTo(OaUserRegistration::class);
     }
+    // public function canAccessTenant(Model $tenant): bool
+    // {
+    //     return $this->building->contains($tenant);
+    // }
 
-    public function getTenants(Panel $panel): Collection
-    {
-        return $this->building;
-    }
+    // public function getTenants(Panel $panel): Collection
+    // {
+    //     return $this->building;
+    // }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Models\Building;
 
+use App\Models\OaUserRegistration;
 use App\Models\User\User;
 use App\Models\Building\Flat;
 use App\Models\Building\Building;
@@ -56,5 +57,9 @@ class FlatTenant extends Model
     public function building()
     {
         return $this->belongsTo(Building::class);
+    }public function oaUserRegistration()
+    {
+        return $this->belongsTo(OaUserRegistration::class);
     }
+
 }
