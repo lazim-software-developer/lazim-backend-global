@@ -47,6 +47,15 @@ class AdminPanelProvider extends PanelProvider
                 Widgets\AccountWidget::class,
                 //Widgets\FilamentInfoWidget::class,
             ])
+             ->navigationGroups([
+                'Property Management',
+                'Flat Management',
+                'Document Management',
+                'Vendor Management',
+                'Visitor Management',
+                'Master'
+
+            ])
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
