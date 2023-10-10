@@ -3,6 +3,7 @@
 namespace App\Models\Master;
 
 use App\Models\Building\Building;
+use App\Models\OaUserRegistration;
 use App\Models\Scopes\Searchable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -20,5 +21,9 @@ class City extends Model
     public function buildings()
     {
         return $this->hasMany(Building::class);
+    }
+     public function oaUserRegistration()
+    {
+        return $this->belongsTo(OaUserRegistration::class);
     }
 }

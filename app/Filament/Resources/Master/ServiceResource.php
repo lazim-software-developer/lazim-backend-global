@@ -44,7 +44,10 @@ class ServiceResource extends Resource
 
     public static function table(Table $table): Table
     {
+        $query = Service::where('custom',[0,NULL]);
+
         return $table
+            ->query($query)
             ->poll('60s')
             ->columns([
                 TextColumn::make('name')
