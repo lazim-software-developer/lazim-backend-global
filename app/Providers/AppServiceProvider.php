@@ -20,5 +20,8 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Schema::defaultStringLength(191);
+
+        // TODO: NEED TO CHECK IF THIS WORKS AND TO BE REMOVED LATER
+        // JsonResource::withoutWrapping();
     }
 }
