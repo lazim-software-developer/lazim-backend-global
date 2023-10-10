@@ -21,15 +21,21 @@ use App\Http\Controllers\Api\Auth\ResetPasswordController;
 // OA Login
 Route::post('/login', [AuthController::class, 'login'])->name('api.login');
 
-// Login routes for mobile app
-Route::post('/customer-login', [AuthController::class, 'customerLogin']);
+// These APIs work only if the user's account is active
+Route::middleware(['active'])->group(function () {
+    // Login routes for mobile app
+    Route::post('/customer-login', [AuthController::class, 'customerLogin']);
 
-// Route for Refreshing the token
-Route::post('/refresh-token', [AuthController::class, 'refreshToken']);
+    // Route for Refreshing the token
+    Route::post('/refresh-token', [AuthController::class, 'refreshToken']);
 
-// Forgot password route
-Route::post('/forgot-password', [ResetPasswordController::class, 'forgotPassword']);
-Route::post('/reset-password', [ResetPasswordController::class, 'resetPassword']);
+    // Forgot password route
+    Route::post('/forgot-password',
+        [ResetPasswordController::class, 'forgotPassword']
+    );
+    Route::post('/reset-password', [ResetPasswordController::class, 'resetPassword']);
+});
+
 
 Route::middleware('auth:sanctum')
     ->get('/me', function (Request $request) {
