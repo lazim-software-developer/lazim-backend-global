@@ -53,10 +53,13 @@ Route::group(['middleware' => ["auth:sanctum", "verified"]], function () {
     
     Route::get('oa-service-details/{oaService}', [TestController::class, 'getOaService']);
     
-    // Get all propertirs
-    Route::get('get-all-properties/{oa_id}', [MollakController::class, 'getProperties']);
+    // Get all property groups
+    Route::get('/property-groups/{oaId}', [MollakController::class, 'fetchPropertyGroups']);
     
     // Get service periods for a given property Id
-    Route::get('get-service-periods/{propertyId}', [MollakController::class, 'getServicePeriod']);
+    Route::get('/service-periods/{propertyId}', [MollakController::class, 'fetchServicePeriods']);
+
+    // Get all unit numbers(flats) for a given propertygroup(building)
+    Route::get('/units/{propertyGroupId}', [MollakController::class, 'fetchUnits']);
 
 });
