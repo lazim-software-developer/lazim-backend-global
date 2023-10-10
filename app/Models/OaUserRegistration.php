@@ -9,6 +9,11 @@ use App\Models\Building\Document;
 use App\Models\Building\FacilityBooking;
 use App\Models\Building\Flat;
 use App\Models\Building\FlatTenant;
+use App\Models\Master\City;
+use App\Models\Master\DocumentLibrary;
+use App\Models\Master\Facility;
+use App\Models\Master\Role;
+use App\Models\Master\Service;
 use App\Models\OaDetails;
 use App\Models\User\User;
 use App\Models\Vendor\Attendance;
@@ -107,4 +112,25 @@ class OaUserRegistration extends Model
     {
         return $this->hasMany(Building::class);
     }
+    public function services()
+    {
+        return $this->hasMany(Service::class);
+    }
+    public function roles()
+    {
+        return $this->hasMany(Role::class);
+    }
+     public function facilities()
+    {
+        return $this->hasMany(Facility::class);
+    }
+     public function cities()
+    {
+        return $this->hasMany(City::class);
+    }
+     public function documentLibraries()
+    {
+        return $this->hasMany(DocumentLibrary::class);
+    }
+
 }

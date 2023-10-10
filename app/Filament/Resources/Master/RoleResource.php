@@ -2,25 +2,20 @@
 
 namespace App\Filament\Resources\Master;
 
-use Filament\Forms;
-use Filament\Tables;
-use Filament\Forms\Form;
-use Filament\Tables\Table;
-use App\Models\Master\Role;
-use Filament\Resources\Resource;
-use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\Master\RoleResource\Pages;
-use App\Filament\Resources\Master\RoleResource\RelationManagers;
+use App\Models\Master\Role;
+use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Form;
+use Filament\Resources\Resource;
+use Filament\Tables;
+use Filament\Tables\Table;
 
 class RoleResource extends Resource
 {
     protected static ?string $model = Role::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon  = 'heroicon-o-rectangle-stack';
     protected static ?string $navigationGroup = 'Master';
     public static function form(Form $form): Form
     {
@@ -29,19 +24,22 @@ class RoleResource extends Resource
                 Grid::make([
                     'sm' => 1,
                     'md' => 1,
-                    'lg' => 2,])
+                    'lg' => 2])
                     ->schema([
-                    TextInput::make('name')
-                        ->rules(['max:50', 'string'])
-                        ->required()
-                        ->placeholder('Name')
-                ]),
-             ]);
+                        TextInput::make('name')
+                            ->rules(['max:50', 'string'])
+                            ->required()
+                            ->placeholder('Name'),
+                    ]),
+            ]);
     }
 
     public static function table(Table $table): Table
     {
+        $roles     = Role::wherenotNuLL('name');
+
         return $table
+            ->query($roles)
             ->poll('60s')
             ->columns([
                 Tables\Columns\TextColumn::make('name')
@@ -68,16 +66,16 @@ class RoleResource extends Resource
     public static function getRelations(): array
     {
         return [
-            RoleResource\RelationManagers\UsersRelationManager::class
+            RoleResource\RelationManagers\UsersRelationManager::class,
         ];
     }
 
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListRoles::route('/'),
+            'index'  => Pages\ListRoles::route('/'),
             'create' => Pages\CreateRole::route('/create'),
-            'edit' => Pages\EditRole::route('/{record}/edit'),
+            'edit'   => Pages\EditRole::route('/{record}/edit'),
         ];
     }
 }

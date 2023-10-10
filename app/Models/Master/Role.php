@@ -2,6 +2,7 @@
 
 namespace App\Models\Master;
 
+use App\Models\OaUserRegistration;
 use App\Models\User\User;
 use App\Models\Building\Building;
 use App\Models\Scopes\Searchable;
@@ -25,6 +26,11 @@ class Role extends Model
     public function building()
     {
         return $this->belongsToMany(Building::class, 'building_roles','role_id','building_id');
+    }
+
+     public function oaUserRegistration()
+    {
+        return $this->belongsTo(OaUserRegistration::class);
     }
 
 }

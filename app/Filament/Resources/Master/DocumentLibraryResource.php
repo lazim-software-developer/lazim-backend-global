@@ -65,8 +65,11 @@ class DocumentLibraryResource extends Resource
 
     public static function table(Table $table): Table
     {
+        $documents = DocumentLibrary::wherenotNuLL('url');
+
         return $table
         ->poll('60s')
+        ->query($documents)
         ->columns([
             Tables\Columns\TextColumn::make('name')
                 ->toggleable()
