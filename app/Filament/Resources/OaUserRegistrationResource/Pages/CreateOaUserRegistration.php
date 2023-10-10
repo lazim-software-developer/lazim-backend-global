@@ -8,5 +8,7 @@ use Filament\Resources\Pages\CreateRecord;
 
 class CreateOaUserRegistration extends CreateRecord
 {
+    protected ?string $heading        = 'Owner Association';
+
     protected static string $resource = OaUserRegistrationResource::class;
 }

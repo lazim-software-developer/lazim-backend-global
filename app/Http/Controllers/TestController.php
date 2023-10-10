@@ -314,7 +314,7 @@ class TestController extends Controller
             'oa_service_file'      => $folderPath,
         ]);
 
-        if($response->responseCode === 200) {
+        if ($response->responseCode === 200) {
             $oaData->update(['status' => "Success", 'mollak_id' => $response->response->id]);
             return response()->json(['status' => 'success', 'message' => "Uploaded successfully!"]);
         } else {

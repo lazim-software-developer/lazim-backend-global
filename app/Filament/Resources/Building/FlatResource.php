@@ -62,9 +62,6 @@ class FlatResource extends Resource
                 Tables\Columns\TextColumn::make('floor')
                     ->toggleable()
                     ->searchable(true, null, true),
-                Tables\Columns\TextColumn::make('building.name')->label('Building Name')
-                    ->toggleable()
-                    ->limit(50),
                 Tables\Columns\TextColumn::make('description')
                     ->toggleable()
                     ->searchable(true, null, true)
