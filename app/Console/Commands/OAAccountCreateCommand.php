@@ -67,6 +67,7 @@ class OAAccountCreateCommand extends Command
                     'oa_id'   => $company->id,
                     'user_id' => User::where('first_name', $company->name->englishName)->value('id'),
                 ]);
+                
             }
 
         }

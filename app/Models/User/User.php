@@ -170,7 +170,7 @@ class User extends Authenticatable implements FilamentUser, HasName, HasTenants
     }
     public function canAccessPanel(Panel $panel): bool
     {
-        return str_ends_with($this->role_id, Role::where('name', 'Admin')->value('id'));
+        return true;
     }
 
     public function getTenants(Panel $panel): Collection
