@@ -24,6 +24,9 @@ Route::post('/login', [AuthController::class, 'login'])->name('api.login');
 // Login routes for mobile app
 Route::post('/customer-login', [AuthController::class, 'customerLogin']);
 
+// Route for Refreshing the token
+Route::post('/refresh-token', [AuthController::class, 'refreshToken']);
+
 // Forgot password route
 Route::post('/forgot-password', [ResetPasswordController::class, 'forgotPassword']);
 Route::post('/reset-password', [ResetPasswordController::class, 'resetPassword']);
