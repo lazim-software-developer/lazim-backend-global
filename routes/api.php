@@ -1,10 +1,11 @@
 <?php
 
-use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\MollakController;
 use App\Http\Controllers\TestController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\Auth\AuthController;
+use App\Http\Controllers\Api\Auth\ResetPasswordController;
 
 /*
 |--------------------------------------------------------------------------
@@ -17,15 +18,21 @@ use Illuminate\Support\Facades\Route;
 |
  */
 
+// OA Login
 Route::post('/login', [AuthController::class, 'login'])->name('api.login');
+
+// Login routes for mobile app
+Route::post('/customer-login', [AuthController::class, 'customerLogin']);
+
+// Forgot password route
+Route::post('/forgot-password', [ResetPasswordController::class, 'forgotPassword']);
+Route::post('/reset-password', [ResetPasswordController::class, 'resetPassword']);
 
 Route::middleware('auth:sanctum')
     ->get('/me', function (Request $request) {
         return $request->user();
     })
     ->name('api.user');
-
-Route::group(['middleware' => ["auth:sanctum", "verified"]], function () {
 
 Route::group(['middleware' => ["auth:sanctum", "verified"]], function () {
 
