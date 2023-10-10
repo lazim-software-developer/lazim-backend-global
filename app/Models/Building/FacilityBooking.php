@@ -2,6 +2,7 @@
 
 namespace App\Models\Building;
 
+use App\Models\OaUserRegistration;
 use App\Models\User\User;
 use App\Models\Master\Facility;
 use App\Models\Building\Building;
@@ -55,5 +56,9 @@ class FacilityBooking extends Model
     public function building()
     {
         return $this->belongsTo(Building::class);
+    }
+   public function oaUserRegistration()
+    {
+        return $this->belongsTo(OaUserRegistration::class);
     }
 }

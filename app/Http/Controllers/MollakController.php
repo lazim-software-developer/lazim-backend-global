@@ -29,14 +29,4 @@ class MollakController extends Controller
 
         return $results;
     }
-
-    // Get sync data 
-    public function getData() {
-        $results = Http::withOptions(['verify' => false])->withHeaders([
-            'content-type' => 'application/json',
-            'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
-        ])->get(env("MOLLAK_API_URL")."/sync/managementcompany");
-
-        return $results;
-    }
 }

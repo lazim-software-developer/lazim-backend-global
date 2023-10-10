@@ -5,6 +5,7 @@ use App\Models\User\User;
 use App\Models\Building\Building;
 use App\Models\Scopes\Searchable;
 use App\Models\Master\DocumentLibrary;
+use App\Models\OaUserRegistration;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -15,7 +16,7 @@ class Document extends Model
 
     protected $fillable = [
         'document_library_id',
-        'building_id',
+        'oa_user_registration_id',
         'url',
         'status',
         'comments',
@@ -48,5 +49,9 @@ class Document extends Model
     public function documentable()
     {
         return $this->morphTo();
+    }
+    public function oaUserRegistration()
+    {
+        return $this->belongsTo(OaUserRegistration::class);
     }
 }

@@ -5,6 +5,7 @@ namespace App\Models\Building;
 use App\Models\Master\DocumentLibrary;
 use App\Models\Master\Role;
 use App\Models\Master\Service;
+use App\Models\OaUserRegistration;
 use App\Models\User\User;
 use App\Models\Master\City;
 use App\Models\Building\Flat;
@@ -123,5 +124,9 @@ class Building extends Model
     public function complaints()
     {
         return $this->morphMany(Complaint::class, 'complaintable');
+    }
+    public function oaUserRegistration()
+    {
+        return $this->belongsTo(OaUserRegistration::class);
     }
 }
