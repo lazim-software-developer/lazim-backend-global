@@ -18,6 +18,8 @@ class OaUserRegistrationResource extends Resource
     protected static ?string $model           = OaUserRegistration::class;
     protected static ?string $modelLabel = 'Owner Association';
     protected static ?string $navigationIcon  = 'heroicon-o-rectangle-stack';
+    protected static bool $shouldRegisterNavigation = false;
+
 
     public static function form(Form $form): Form
     {

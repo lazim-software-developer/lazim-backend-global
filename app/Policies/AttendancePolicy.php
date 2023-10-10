@@ -15,7 +15,12 @@ class AttendancePolicy
      */
     public function viewAny(User $user): bool
     {
-        return true;
+        if ($user->id == 1) {
+            return true;
+        }
+
+        return false;
+
     }
 
     /**
@@ -23,7 +28,12 @@ class AttendancePolicy
      */
     public function view(User $user, Attendance $model): bool
     {
-        return true;
+        if ($user->id == 1) {
+            return true;
+        }
+
+        return false;
+
     }
 
     /**
@@ -31,7 +41,11 @@ class AttendancePolicy
      */
     public function create(User $user): bool
     {
-        return true;
+        if ($user->id == 1) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -39,7 +53,12 @@ class AttendancePolicy
      */
     public function update(User $user, Attendance $model): bool
     {
-        return true;
+        if ($user->id == 1) {
+            return true;
+        }
+
+        return false;
+
     }
 
     /**
@@ -47,7 +66,12 @@ class AttendancePolicy
      */
     public function delete(User $user, Attendance $model): bool
     {
-        return true;
+        if ($user->id == 1) {
+            return true;
+        }
+
+        return false;
+
     }
 
     /**
@@ -55,7 +79,12 @@ class AttendancePolicy
      */
     public function deleteAny(User $user): bool
     {
-        return true;
+        if ($user->id == 1) {
+            return true;
+        }
+
+        return false;
+
     }
 
     /**
