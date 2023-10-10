@@ -45,7 +45,6 @@ class OaUserRegistrationResource extends Resource
                         ->required()
                         ->placeholder('Contact Number'),
                     TextInput::make('address')
-
                         ->required()
                         ->placeholder('Address'),
                     TextInput::make('email')
