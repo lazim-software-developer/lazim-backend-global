@@ -4,6 +4,7 @@ namespace App\Models\Master;
 
 use App\Models\Building\Building;
 use App\Models\Building\FacilityBooking;
+use App\Models\OaUserRegistration;
 use App\Models\Scopes\Searchable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -29,6 +30,10 @@ class Facility extends Model
     public function buildings()
     {
         return $this->belongsToMany(Building::class,'building_facility','facility_id','building_id');
+    }
+     public function oaUserRegistration()
+    {
+        return $this->belongsTo(OaUserRegistration::class);
     }
 
 
