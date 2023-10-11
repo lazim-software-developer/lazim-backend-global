@@ -13,8 +13,7 @@ return new class extends Migration
     {
         Schema::table('roles', function (Blueprint $table) {
             $table->unsignedBigInteger('owner_association_id')->nullable();
-            $table->foreign('owner_association_id')->references('id')->on('oa_user_registration')->onUpdate('CASCADE')->onDelete('CASCADE');
-
+            $table->foreign('owner_association_id')->references('id')->on('oa_user_registration');
         });
     }
 
@@ -25,7 +24,6 @@ return new class extends Migration
     {
         Schema::table('roles', function (Blueprint $table) {
             $table->unsignedBigInteger('owner_association_id')->nullable();
-
         });
     }
 };

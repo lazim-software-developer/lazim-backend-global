@@ -22,7 +22,6 @@ return new class extends Migration {
             $table->string('lng', 50)->nullable();
             $table->longText('description')->nullable();
             $table->integer('floors');
-
             $table->timestamps();
         });
     }
