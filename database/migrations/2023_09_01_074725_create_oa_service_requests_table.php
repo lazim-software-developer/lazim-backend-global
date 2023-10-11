@@ -18,6 +18,10 @@ return new class extends Migration
             $table->date('from_date');
             $table->date('to_date');
             $table->string('status');
+            $table->string('property_name')->nullable();
+            $table->string('service_period')->nullable();
+            $table->string('mollak_id')->nullable();
+            $table->longText('oa_service_file')->nullable();
             $table->unsignedBigInteger('uploaded_by');
             $table->timestamps();
         });

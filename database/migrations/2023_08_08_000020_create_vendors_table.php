@@ -14,13 +14,15 @@ return new class extends Migration {
             $table->bigIncrements('id');
             $table->string('name', 50);
             $table->unsignedBigInteger('owner_id');
-            $table->unsignedBigInteger('building_id');
+            $table->unsignedBigInteger('building_id')->nullable();
             $table->string('tl_number', 50)->unique();
             $table->date('tl_expiry');
-            $table->string('status', 50);
-            $table->json('remarks');
-
+            $table->string('status', 50)->nullable();
+            $table->json('remarks')->nullable();
+            $table->unsignedBigInteger('owner_association_id')->nullable();
             $table->timestamps();
+            $table->foreign('owner_association_id')->references('id')->on('owner_associations');
+
         });
     }
 

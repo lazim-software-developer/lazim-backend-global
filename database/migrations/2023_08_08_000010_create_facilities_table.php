@@ -15,6 +15,8 @@ return new class extends Migration {
             $table->string('name', 50);
             $table->longText('icon')->nullable();
             $table->boolean('active')->nullable();
+            $table->unsignedBigInteger('owner_association_id')->nullable();
+            $table->foreign('owner_association_id')->references('id')->on('owner_associations');
             $table->timestamps();
 
         });
