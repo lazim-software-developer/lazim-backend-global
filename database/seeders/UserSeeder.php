@@ -6,6 +6,7 @@ use App\Models\Master\Role;
 use App\Models\User\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+//use Illuminate\Support\Facades\Hash;
 
 class UserSeeder extends Seeder
 {

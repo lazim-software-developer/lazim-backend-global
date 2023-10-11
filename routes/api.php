@@ -41,3 +41,4 @@ Route::group(['middleware' => ["auth:sanctum", "verified"]], function () {
     // Get service periods for a given property Id
     Route::get('get-service-periods/{propertyId}', [MollakController::class, 'getServicePeriod']);
 });
+
