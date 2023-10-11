@@ -2,8 +2,8 @@
 
 namespace App\Policies;
 
-use App\Models\User\User;
 use App\Models\Building\Document;
+use App\Models\User\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class DocumentPolicy
@@ -15,7 +15,12 @@ class DocumentPolicy
      */
     public function viewAny(User $user): bool
     {
-        return true;
+        if ($user->id == 1) {
+            return true;
+        }
+
+        return false;
+
     }
 
     /**
@@ -23,7 +28,12 @@ class DocumentPolicy
      */
     public function view(User $user, Document $model): bool
     {
-        return true;
+        if ($user->id == 1) {
+            return true;
+        }
+
+        return false;
+
     }
 
     /**
@@ -31,7 +41,12 @@ class DocumentPolicy
      */
     public function create(User $user): bool
     {
-        return true;
+        if ($user->id == 1) {
+            return true;
+        }
+
+        return false;
+
     }
 
     /**
@@ -39,7 +54,12 @@ class DocumentPolicy
      */
     public function update(User $user, Document $model): bool
     {
-        return true;
+        if ($user->id == 1) {
+            return true;
+        }
+
+        return false;
+
     }
 
     /**
@@ -47,7 +67,11 @@ class DocumentPolicy
      */
     public function delete(User $user, Document $model): bool
     {
-        return true;
+        if ($user->id == 1) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -55,7 +79,12 @@ class DocumentPolicy
      */
     public function deleteAny(User $user): bool
     {
-        return true;
+        if ($user->id == 1) {
+            return true;
+        }
+
+        return false;
+
     }
 
     /**

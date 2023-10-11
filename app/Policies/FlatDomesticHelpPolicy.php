@@ -15,7 +15,12 @@ class FlatDomesticHelpPolicy
      */
     public function viewAny(User $user): bool
     {
-        return true;
+        if ($user->id == 1) {
+            return true;
+        }
+
+        return false;
+
     }
 
     /**
@@ -23,7 +28,12 @@ class FlatDomesticHelpPolicy
      */
     public function view(User $user, FlatDomesticHelp $model): bool
     {
-        return true;
+        if ($user->id == 1) {
+            return true;
+        }
+
+        return false;
+
     }
 
     /**
@@ -31,7 +41,12 @@ class FlatDomesticHelpPolicy
      */
     public function create(User $user): bool
     {
-        return true;
+        if ($user->id == 1) {
+            return true;
+        }
+
+        return false;
+
     }
 
     /**
@@ -39,7 +54,11 @@ class FlatDomesticHelpPolicy
      */
     public function update(User $user, FlatDomesticHelp $model): bool
     {
-        return true;
+        if ($user->id == 1) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -47,7 +66,12 @@ class FlatDomesticHelpPolicy
      */
     public function delete(User $user, FlatDomesticHelp $model): bool
     {
-        return true;
+        if ($user->id == 1) {
+            return true;
+        }
+
+        return false;
+
     }
 
     /**
@@ -55,7 +79,12 @@ class FlatDomesticHelpPolicy
      */
     public function deleteAny(User $user): bool
     {
-        return true;
+        if ($user->id == 1) {
+            return true;
+        }
+
+        return false;
+
     }
 
     /**

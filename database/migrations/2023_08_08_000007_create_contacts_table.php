@@ -19,9 +19,10 @@ return new class extends Migration {
             $table->string('designation', 50);
             $table->string('contactable_type', 50);
             $table->unsignedBigInteger('contactable_id');
-
             $table->index('contactable_type');
             $table->index('contactable_id');
+            $table->unsignedBigInteger('owner_association_id')->nullable();
+            $table->foreign('owner_association_id')->references('id')->on('owner_associations');
 
             $table->timestamps();
         });

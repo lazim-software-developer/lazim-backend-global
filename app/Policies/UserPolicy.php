@@ -14,7 +14,11 @@ class UserPolicy
      */
     public function viewAny(User $user): bool
     {
-        return true;
+        if ($user->id == 1 || $user->id == 2) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -22,7 +26,11 @@ class UserPolicy
      */
     public function view(User $user, User $model): bool
     {
-       return true;
+        if ($user->id == 1 || $user->id == 2) {
+            return true;
+        }
+
+        return false;
 
     }
 
@@ -31,7 +39,11 @@ class UserPolicy
      */
     public function create(User $user): bool
     {
-        return true;
+        if ($user->id == 1 || $user->id == 2) {
+            return true;
+        }
+
+        return false;
 
     }
 
@@ -40,7 +52,11 @@ class UserPolicy
      */
     public function update(User $user, User $model): bool
     {
-        return true;
+        if ($user->id == 1 || $user->id == 2) {
+            return true;
+        }
+
+        return false;
 
     }
 
@@ -49,7 +65,11 @@ class UserPolicy
      */
     public function delete(User $user, User $model): bool
     {
-        return true;
+        if ($user->id == 1 || $user->id == 2) {
+            return true;
+        }
+
+        return false;
 
     }
 
@@ -58,7 +78,11 @@ class UserPolicy
      */
     public function deleteAny(User $user): bool
     {
-        return true;
+        if ($user->id == 1 || $user->id == 2) {
+            return true;
+        }
+
+        return false;
 
     }
 

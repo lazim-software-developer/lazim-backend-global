@@ -48,21 +48,21 @@ Route::group(['middleware' => ["auth:sanctum", "verified"]], function () {
     Route::get('services-requests', [TestController::class, 'serviceRequest']);
 
     Route::get('service-parameters', [TestController::class, 'serviceParameters']);
-    
+
     Route::post('upload-all', [TestController::class, 'uploadAll']);
-    
+
     Route::get('oa-service-details/{oaService}', [TestController::class, 'getOaService']);
-    
+
 });
 
 /**
  * Middleware Group: API Token Protection
- * 
- * This middleware group ensures that the API endpoints within are protected 
+ *
+ * This middleware group ensures that the API endpoints within are protected
  * using a custom API token mechanism. This allows for controlled access to these
  * endpoints without requiring user authentication via Sanctum.
- * 
- * Note: These endpoints are designed to be accessed in scenarios like registration forms 
+ *
+ * Note: These endpoints are designed to be accessed in scenarios like registration forms
  * where user authentication might not be available but controlled access is still required.
  */
 Route::middleware(['api.token'])->group(function () {
@@ -78,5 +78,8 @@ Route::middleware(['api.token'])->group(function () {
     // Get resident of a unit by mollak
     Route::get('/resident/{unitNumber}', [RegisterationController::class, 'fetchResidentDetails']);
 });
+
+
+Route::get('/resident/{unitNumber}', [RegisterationController::class, 'fetchResidentDetails']);
 
 Route::get('/resident/{unitNumber}', [RegisterationController::class, 'fetchResidentDetails']);
