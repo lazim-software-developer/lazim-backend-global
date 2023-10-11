@@ -2,8 +2,8 @@
 
 namespace App\Policies;
 
-use App\Models\User\User;
 use App\Models\Building\Building;
+use App\Models\User\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class BuildingPolicy
@@ -15,7 +15,12 @@ class BuildingPolicy
      */
     public function viewAny(User $user): bool
     {
-        return true;
+        if ($user->id == 1 || $user->id == 2) {
+            return true;
+        }
+
+        return false;
+
     }
 
     /**
@@ -23,7 +28,11 @@ class BuildingPolicy
      */
     public function view(User $user, Building $model): bool
     {
-        return true;
+        if ($user->id == 1 || $user->id == 2) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -31,7 +40,12 @@ class BuildingPolicy
      */
     public function create(User $user): bool
     {
-        return true;
+        if ($user->id == 1) {
+            return true;
+        }
+
+        return false;
+
     }
 
     /**
@@ -39,7 +53,12 @@ class BuildingPolicy
      */
     public function update(User $user, Building $model): bool
     {
-        return true;
+        if ($user->id == 1 || $user->id == 2) {
+            return true;
+        }
+
+        return false;
+
     }
 
     /**
@@ -47,7 +66,12 @@ class BuildingPolicy
      */
     public function delete(User $user, Building $model): bool
     {
-        return true;
+        if ($user->id == 1) {
+            return true;
+        }
+
+        return false;
+
     }
 
     /**
@@ -55,7 +79,12 @@ class BuildingPolicy
      */
     public function deleteAny(User $user): bool
     {
-        return true;
+        if ($user->id == 1) {
+            return true;
+        }
+
+        return false;
+
     }
 
     /**

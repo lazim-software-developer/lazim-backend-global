@@ -40,12 +40,12 @@ class OAAccountCreateCommand extends Command
 
         $data = json_decode($response);
 
-        return 
+        return
 
         $company_details = $data->response->managementCompanies;
         foreach ($company_details as $company) {
             OaUserRegistration::firstorcreate([
-                'oa_id'   => $company->id,
+                'mollak_id'   => $company->id,
                 'name'    => $company->name->englishName,
                 'email'   => $company->email,
                 'phone'   => $company->contactNumber,
@@ -53,7 +53,8 @@ class OAAccountCreateCommand extends Command
                 'address' => $company->address,
 
             ]);
-            if (!OaDetails::where('oa_id', $company->id)->exists()) {
+            $id= OaUserRegistration::where('oa_id',$company->id)->pluck('id')->get();
+
                 $password = Str::random(12);
 
                 $user = User::firstorcreate([
@@ -63,15 +64,14 @@ class OAAccountCreateCommand extends Command
                     'role_id'    => Role::where('name', 'OA')->value('id'),
                     'password'   => Hash::make($password),
                     'active'     => true,
+                   'oa_user_registration_id' =>$id
                 ]);
                 AccountCreationJob::dispatch($user, $password);
-                OaDetails::create([
-                    'oa_id'   => $company->id,
-                    'user_id' => User::where('first_name', $company->name->englishName)->value('id'),
-                ]);
+
+
             }
 
         }
-    }
+    
 
 }
