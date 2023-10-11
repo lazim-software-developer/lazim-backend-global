@@ -48,7 +48,7 @@ class FacilityResource extends Resource
                         ->multiple()
                         ->searchable()
                         ->placeholder('Building'),
-                        
+
                     FileUpload::make('icon')
                         ->disk('s3'),
 
@@ -58,8 +58,11 @@ class FacilityResource extends Resource
 
     public static function table(Table $table): Table
     {
+        $facilities = Facility::wherenotNuLL('name');
+
         return $table
             ->poll('60s')
+            ->query($facilities)
             ->columns([
                 TextColumn::make('name')
                     ->toggleable()

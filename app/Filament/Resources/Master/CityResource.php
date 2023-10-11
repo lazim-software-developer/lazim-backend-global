@@ -40,7 +40,11 @@ class CityResource extends Resource
     }
     public static function table(Table $table): Table
     {
+        $cities = City::wherenotNuLL('name');
+
         return $table
+            ->query($cities)
+            ->poll('60s')
             ->columns([
                 Tables\Columns\TextColumn::make('name')
                     ->toggleable()
