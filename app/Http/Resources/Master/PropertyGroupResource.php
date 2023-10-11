@@ -15,8 +15,8 @@ class PropertyGroupResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'propertyGroupId' => $this['propertyGroupId'],
-            'propertyGroupName' => $this['propertyGroupName']['englishName'],
+            'id' => $this['propertyGroupId'],
+            'name' => $this['propertyGroupName']['englishName'],
         ];
     }
 }
