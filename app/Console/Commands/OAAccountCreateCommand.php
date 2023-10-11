@@ -51,6 +51,7 @@ class OAAccountCreateCommand extends Command
                 'address' => $company->address,
 
             ]);
+            $id= OaUserRegistration::where('oa_id',$company->id)->pluck('id')->get();
             if (!OaDetails::where('oa_id', $company->id)->exists()) {
                 $password = Str::random(12);
 
@@ -61,13 +62,14 @@ class OAAccountCreateCommand extends Command
                     'role_id'    => Role::where('name', 'OA')->value('id'),
                     'password'   => Hash::make($password),
                     'active'     => true,
+                   'oa_user_registration_id' =>$id
                 ]);
                 AccountCreationJob::dispatch($user, $password);
                 OaDetails::create([
                     'oa_id'   => $company->id,
                     'user_id' => User::where('first_name', $company->name->englishName)->value('id'),
                 ]);
-                
+
             }
 
         }
