@@ -53,13 +53,16 @@ Route::group(['middleware' => ["auth:sanctum", "verified"]], function () {
     
     Route::get('oa-service-details/{oaService}', [TestController::class, 'getOaService']);
     
-    // Get all property groups
-    Route::get('/property-groups/{oaId}', [MollakController::class, 'fetchPropertyGroups']);
-    
     // Get service periods for a given property Id
     Route::get('/service-periods/{propertyId}', [MollakController::class, 'fetchServicePeriods']);
-
-    // Get all unit numbers(flats) for a given propertygroup(building)
-    Route::get('/units/{propertyGroupId}', [MollakController::class, 'fetchUnits']);
-
 });
+
+
+// Un authenticated routes
+// TODO: Need a mechanism to protect these routes
+
+// Get all property groups
+Route::get('/property-groups/{oaId}', [MollakController::class, 'fetchPropertyGroups']);
+
+// Get all unit numbers(flats) for a given propertygroup(building)
+Route::get('/units/{propertyGroupId}', [MollakController::class, 'fetchUnits']);
