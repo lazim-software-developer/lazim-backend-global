@@ -22,6 +22,9 @@ return new class extends Migration {
             $table->string('lng', 50)->nullable();
             $table->longText('description')->nullable();
             $table->integer('floors');
+            $table->unsignedBigInteger('owner_association_id')->nullable();
+            $table->foreign('owner_association_id')->references('id')->on('owner_associations');
+
             $table->timestamps();
         });
     }

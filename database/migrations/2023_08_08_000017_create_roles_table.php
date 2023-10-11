@@ -13,7 +13,10 @@ return new class extends Migration {
         Schema::create('roles', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('name', 50);
-            // $table->unsignedBigInteger('building_id')->nullable();
+            $table->unsignedBigInteger('owner_association_id')->nullable();
+            $table->foreign('owner_association_id')->references('id')->on('owner_associations');
+
+
             $table->timestamps();
         });
     }

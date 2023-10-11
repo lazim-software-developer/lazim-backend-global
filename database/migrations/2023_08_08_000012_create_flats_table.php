@@ -14,9 +14,13 @@ return new class extends Migration {
             $table->bigIncrements('id');
             $table->integer('number');
             $table->integer('floor');
-            $table->unsignedBigInteger('building_id');
+            $table->unsignedBigInteger('building_id')->nullable();
+            $table->unsignedBigInteger('owner_association_id')->nullable();
+
             $table->string('description', 50)->nullable();
             $table->timestamps();
+            $table->foreign('owner_association_id')->references('id')->on('owner_associations');
+
         });
     }
 

@@ -13,6 +13,8 @@ return new class extends Migration {
         Schema::create('cities', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('name', 50);
+            $table->unsignedBigInteger('owner_association_id')->nullable();
+            $table->foreign('owner_association_id')->references('id')->on('owner_associations');
             $table->timestamps();
         });
     }
