@@ -51,7 +51,7 @@ class OaUserRegistrationResource extends Resource
                         ->rules(['max:50', 'string'])
                         ->required()
                         ->disabled(function () {
-                            return DB::table('oa_user_registration')
+                            return DB::table('owner_associations')
                                 ->where('verified', 1)
                                 ->exists();
                         })
