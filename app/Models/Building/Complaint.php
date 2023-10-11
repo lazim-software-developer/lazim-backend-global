@@ -26,7 +26,7 @@ class Complaint extends Model
         'photo',
         'remarks',
         'status',
-        'oa_user_registration_id'
+        'owner_association_id'
     ];
 
     protected $searchableFields = ['*'];

@@ -13,9 +13,8 @@ return new class extends Migration
     {
         Schema::table('documents', function (Blueprint $table) {
             $table->json('comments')->nullable()->change();
-            $table->unsignedBigInteger('oa_user_registration_id')->nullable();
-            $table->foreign('oa_user_registration_id')->references('id')->on('oa_user_registration')->onUpdate('CASCADE')->onDelete('CASCADE');
-
+            $table->unsignedBigInteger('owner_association_id')->nullable();
+            $table->foreign('owner_association_id')->references('id')->on('owner_associations');
         });
     }
 
@@ -26,9 +25,7 @@ return new class extends Migration
     {
         Schema::table('documents', function (Blueprint $table) {
             $table->json('comments')->nullable()->change();
-            $table->unsignedBigInteger('oa_user_registration_id')->nullable();
-
-
+            $table->unsignedBigInteger('owner_association_id')->nullable();
         });
     }
 };

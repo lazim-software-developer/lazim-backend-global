@@ -15,8 +15,8 @@ return new class extends Migration
             $table->unsignedBigInteger('building_id')->nullable()->change();
             $table->string('status', 50)->nullable()->change();
             $table->json('remarks')->nullable()->change();
-            $table->unsignedBigInteger('oa_user_registration_id')->nullable();
-            $table->foreign('oa_user_registration_id')->references('id')->on('oa_user_registration')->onUpdate('CASCADE')->onDelete('CASCADE');
+            $table->unsignedBigInteger('owner_association_id')->nullable();
+            $table->foreign('owner_association_id')->references('id')->on('owner_associations');
 
         });
     }
@@ -30,7 +30,7 @@ return new class extends Migration
             $table->unsignedBigInteger('building_id')->nullable()->change();
             $table->string('status', 50)->nullable()->change();
             $table->json('remarks')->nullable()->change();
-            $table->unsignedBigInteger('oa_user_registration_id')->nullable();
+            $table->unsignedBigInteger('owner_association_id')->nullable();
 
 
         });
