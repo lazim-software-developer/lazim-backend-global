@@ -2,7 +2,7 @@
 
 namespace App\Filament\Pages\Tenancy;
 
-use App\Models\OaUserRegistration;
+use App\Models\OwnerAssociation;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -49,11 +49,6 @@ class RegisterBuilding extends RegisterTenant
                     TextInput::make('email')
                         ->rules(['max:50', 'string'])
                         ->required()
-                        // ->disabled(function () {
-                        //     return DB::table('oa_user_registration')
-                        //         ->where('verified', 1)
-                        //         ->exists();
-                        // })
                         ->placeholder('Email'),
                     Toggle::make('verified')
                         ->rules(['boolean']),
@@ -63,27 +58,11 @@ class RegisterBuilding extends RegisterTenant
             ]);
     }
 
-    protected function handleRegistration(array $data): OaUserRegistration
+    protected function handleRegistration(array $data): OwnerAssociation
     {
-        $team = OaUserRegistration::create($data);
+        $team = OwnerAssociation::create($data);
 
         $team->members()->attach(auth()->user());
-
-        // $services = Service::where('custom',0)->get();
-
-        // foreach ($services as $service){
-        //     $building->services()->attach($service->id);
-        // }
-        // $roles=Role::all();
-        // foreach($roles as $role)
-        // {
-        //     $building->roles()->attach($role->id);
-        // }
-        // $facilities=Facility::all();
-        // foreach($facilities as $facility)
-        // {
-        //     $building->facilities()->attach($facility->id);
-        // }
 
         return $team;
     }
