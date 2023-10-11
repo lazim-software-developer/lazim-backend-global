@@ -47,14 +47,13 @@ class OaUserRegistrationResource extends Resource
                         ->required()
                         ->placeholder('Contact Number'),
                     TextInput::make('address')
-
                         ->required()
                         ->placeholder('Address'),
                     TextInput::make('email')
                         ->rules(['max:50', 'string'])
                         ->required()
                         ->disabled(function () {
-                            return DB::table('oa_user_registration')
+                            return DB::table('owner_associations')
                                 ->where('verified', 1)
                                 ->exists();
                         })

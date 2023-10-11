@@ -17,7 +17,7 @@ class BuildingPoc extends Model
     protected $fillable = [
         'building_id',
         'user_id',
-        'oa_user_registration_id',
+        'owner_association_id',
         'role_name',
         'escalation_level',
         'active',

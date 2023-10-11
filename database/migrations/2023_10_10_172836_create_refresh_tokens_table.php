@@ -11,13 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('oa_details', function (Blueprint $table) {
+        Schema::create('refresh_tokens', function (Blueprint $table) {
             $table->id();
-            $table->integer('oa_id');
             $table->unsignedBigInteger('user_id');
+            $table->string('token', 64)->unique();  // 64 characters for the SHA-256 hash
+            $table->timestamp('expires_at');
             $table->timestamps();
-            $table->foreign('user_id')->references('id')->on('users')->onUpdate('CASCADE')->onDelete('CASCADE');
 
+            $table->foreign('user_id')->references('id')->on('users');
         });
     }
 
@@ -26,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('oa_details');
+        Schema::dropIfExists('refresh_tokens');
     }
 };

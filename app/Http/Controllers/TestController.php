@@ -24,6 +24,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
 use \stdClass;
+use Illuminate\Support\Facades\Log;
 
 class TestController extends Controller
 {
