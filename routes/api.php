@@ -82,4 +82,3 @@ Route::middleware(['api.token'])->group(function () {
 
 Route::get('/resident/{unitNumber}', [RegisterationController::class, 'fetchResidentDetails']);
 
-Route::get('/resident/{unitNumber}', [RegisterationController::class, 'fetchResidentDetails']);
