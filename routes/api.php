@@ -71,7 +71,12 @@ Route::middleware(['api.token'])->group(function () {
 
     // Get all unit numbers(flats) for a given propertygroup(building)
     Route::get('/units/{propertyGroupId}', [MollakController::class, 'fetchUnits']);
-    
+
     // Get service periods for a given property Id
     Route::get('/service-periods/{propertyId}', [MollakController::class, 'fetchServicePeriods']);
+
+    // Get resident of a unit by mollak
+    Route::get('/resident/{unitNumber}', [RegisterationController::class, 'fetchResidentDetails']);
 });
+
+Route::get('/resident/{unitNumber}', [RegisterationController::class, 'fetchResidentDetails']);

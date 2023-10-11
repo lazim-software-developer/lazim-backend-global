@@ -15,11 +15,8 @@ return new class extends Migration
             $table->unsignedBigInteger('user_id')->nullable()->change();
             $table->dateTime('open_time')->nullable()->change();
             $table->dateTime('close_time')->nullable()->change();
-            $table->unsignedBigInteger('oa_user_registration_id');
-            $table->foreign('oa_user_registration_id')->references('id')->on('oa_user_registration')->onUpdate('CASCADE')->onDelete('CASCADE');
-
-
-
+            $table->unsignedBigInteger('owner_association_id');
+            $table->foreign('owner_association_id')->references('id')->on('owner_associations');
         });
     }
 
@@ -32,9 +29,7 @@ return new class extends Migration
             $table->unsignedBigInteger('user_id')->nullable()->change();
             $table->dateTime('open_time')->nullable()->change();
             $table->dateTime('close_time')->nullable()->change();
-            $table->unsignedBigInteger('oa_user_registration_id');
-
-
+            $table->unsignedBigInteger('owner_associations');
         });
     }
 };
