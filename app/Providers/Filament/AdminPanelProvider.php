@@ -28,7 +28,7 @@ class AdminPanelProvider extends PanelProvider
     {
         return $panel
             ->tenant(OaUserRegistration::class)
-            //->tenantRegistration(RegisterBuilding::class)
+            ->tenantRegistration(RegisterBuilding::class)
              ->tenantProfile(EditBuildingProfile::class)
             ->default()
             ->id('admin')

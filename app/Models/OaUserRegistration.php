@@ -21,6 +21,8 @@ use App\Models\Vendor\Contact;
 use App\Models\Vendor\Vendor;
 use App\Models\Visitor\FlatDomesticHelp;
 use App\Models\Visitor\FlatVisitor;
+use Illuminate\Database\Eloquent\Builder;
+
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -59,78 +61,89 @@ class OaUserRegistration extends Model
         return $this->belongsToMany(User::class);
     }
 
-    public function users():BelongsToMany
-    {
-        return $this->belongsToMany(User::class);
+    // public function users():BelongsToMany
+    // {
+    //     return $this->belongsToMany(User::class);
 
-    }
-    public function documents()
+    // }
+
+     protected static function booted(): void
     {
-        return $this->hasMany(Document::class);
+        if (auth()->check()) {
+            static::addGlobalScope('team', function (Builder $query) {
+                $query->where('id', auth()->user()->oa_user_registration_id);
+                // // or with a `team` relationship defined:
+                // $query->whereBelongsTo(auth()->user()->team);
+            });
+        }
     }
-     public function buildingPocs()
-    {
-        return $this->hasMany(BuildingPoc::class);
-    }
-     public function complaints()
-    {
-        return $this->hasMany(Complaint::class);
-    }
-    public function facilitybookings()
-    {
-        return $this->hasMany(FacilityBooking::class);
-    }
-    public function flats()
-    {
-        return $this->hasMany(Flat::class);
-    }
-    public function flatTenants()
-    {
-        return $this->hasMany(FlatTenant::class);
-    }
-    public function flatdomestichelps()
-    {
-        return $this->hasMany(FlatDomesticHelp::class);
-    }
-    public function flatvisitors()
-    {
-        return $this->hasMany(FlatVisitor::class);
-    }
-    public function attendances()
-    {
-        return $this->hasMany(Attendance::class);
-    }
-    public function vednors()
-    {
-        return $this->hasMany(Vendor::class);
-    }
-    public function contacts()
-    {
-        return $this->hasMany(Contact::class);
-    }
-    public function buildings()
-    {
-        return $this->hasMany(Building::class);
-    }
-    public function services()
-    {
-        return $this->hasMany(Service::class);
-    }
-    public function roles()
-    {
-        return $this->hasMany(Role::class);
-    }
-     public function facilities()
-    {
-        return $this->hasMany(Facility::class);
-    }
-     public function cities()
-    {
-        return $this->hasMany(City::class);
-    }
-     public function documentLibraries()
-    {
-        return $this->hasMany(DocumentLibrary::class);
-    }
+    // public function documents()
+    // {
+    //     return $this->hasMany(Document::class);
+    // }
+    //  public function buildingPocs()
+    // {
+    //     return $this->hasMany(BuildingPoc::class);
+    // }
+    //  public function complaints()
+    // {
+    //     return $this->hasMany(Complaint::class);
+    // }
+    // public function facilitybookings()
+    // {
+    //     return $this->hasMany(FacilityBooking::class);
+    // }
+    // public function flats()
+    // {
+    //     return $this->hasMany(Flat::class);
+    // }
+    // public function flatTenants()
+    // {
+    //     return $this->hasMany(FlatTenant::class);
+    // }
+    // public function flatdomestichelps()
+    // {
+    //     return $this->hasMany(FlatDomesticHelp::class);
+    // }
+    // public function flatvisitors()
+    // {
+    //     return $this->hasMany(FlatVisitor::class);
+    // }
+    // public function attendances()
+    // {
+    //     return $this->hasMany(Attendance::class);
+    // }
+    // public function vednors()
+    // {
+    //     return $this->hasMany(Vendor::class);
+    // }
+    // public function contacts()
+    // {
+    //     return $this->hasMany(Contact::class);
+    // }
+    // public function buildings()
+    // {
+    //     return $this->hasMany(Building::class);
+    // }
+    // public function services()
+    // {
+    //     return $this->hasMany(Service::class);
+    // }
+    // public function roles()
+    // {
+    //     return $this->hasMany(Role::class);
+    // }
+    //  public function facilities()
+    // {
+    //     return $this->hasMany(Facility::class);
+    // }
+    //  public function cities()
+    // {
+    //     return $this->hasMany(City::class);
+    // }
+    //  public function documentLibraries()
+    // {
+    //     return $this->hasMany(DocumentLibrary::class);
+    // }
 
 }
