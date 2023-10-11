@@ -15,6 +15,7 @@ class CreateService extends CreateRecord
         Service::where('id',$this->record->id)
                 ->update([
                     'active'=>true,
+                    'custom'=>0
                 ]);
 
 

@@ -2,6 +2,8 @@
 
 namespace App\Models\Master;
 
+
+use App\Models\OaUserRegistration;
 use App\Models\Vendor\Vendor;
 use App\Models\Building\Building;
 use App\Models\Scopes\Searchable;
@@ -25,8 +27,9 @@ class Service extends Model
     {
         return $this->belongsToMany(Vendor::class);
     }
-    public function building()
+     public function oaUserRegistration()
     {
-        return $this->belongsToMany(Building::class, 'building_services','service_id','building_id');
+        return $this->belongsTo(OaUserRegistration::class);
     }
+
 }
