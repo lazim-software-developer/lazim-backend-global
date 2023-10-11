@@ -40,6 +40,8 @@ class OAAccountCreateCommand extends Command
 
         $data = json_decode($response);
 
+        return 
+
         $company_details = $data->response->managementCompanies;
         foreach ($company_details as $company) {
             OaUserRegistration::firstorcreate([
