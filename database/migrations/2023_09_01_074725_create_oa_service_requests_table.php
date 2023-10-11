@@ -23,6 +23,17 @@ return new class extends Migration
             $table->string('mollak_id')->nullable();
             $table->longText('oa_service_file')->nullable();
             $table->unsignedBigInteger('uploaded_by');
+
+            $table
+                ->foreign('service_parameter_id')
+                ->references('id')
+                ->on('service_parameters');
+
+            $table
+                ->foreign('uploaded_by')
+                ->references('id')
+                ->on('users');
+
             $table->timestamps();
         });
     }
