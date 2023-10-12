@@ -32,7 +32,7 @@ class Building extends Model
 
     protected $fillable = [
         'name',
-        'unit_number',
+        'property_group_id',
         'address_line1',
         'address_line2',
         'area',
@@ -41,7 +41,7 @@ class Building extends Model
         'lng',
         'description',
         'floors',
-
+        'owner_association_id'
     ];
 
     protected $searchableFields = ['*'];

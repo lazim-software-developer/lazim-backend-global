@@ -18,7 +18,6 @@ return new class extends Migration {
             $table->unsignedBigInteger('owner_association_id')->nullable();
             $table->foreign('owner_association_id')->references('id')->on('owner_associations');
             $table->timestamps();
-
         });
     }
 
