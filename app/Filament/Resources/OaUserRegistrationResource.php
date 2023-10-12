@@ -3,7 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\OaUserRegistrationResource\Pages;
-use App\Models\OaUserRegistration;
+use App\Models\OwnerAssociation;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -15,11 +15,10 @@ use Illuminate\Support\Facades\DB;
 
 class OaUserRegistrationResource extends Resource
 {
-    protected static ?string $model           = OaUserRegistration::class;
-    protected static ?string $modelLabel = 'Owner Association';
-    protected static ?string $navigationIcon  = 'heroicon-o-rectangle-stack';
-    protected static bool $shouldRegisterNavigation = false;
-
+    protected static ?string $model                 = OwnerAssociation::class;
+    protected static ?string $modelLabel            = 'Owner Association';
+    protected static ?string $navigationIcon        = 'heroicon-o-rectangle-stack';
+    protected static bool $shouldRegisterNavigation = true;
 
     public static function form(Form $form): Form
     {
@@ -32,15 +31,16 @@ class OaUserRegistrationResource extends Resource
                 ])->schema([
                     TextInput::make('name')
                         ->required()
-
                         ->placeholder('User'),
-                    TextInput::make('oa_id')->label('Oa Number')
+                    TextInput::make('mollak_id')->label('Oa Number')
                         ->required()
                         ->disabled()
+
                         ->placeholder('OA Number'),
-                    TextInput::make('trn')->label('TRN Number')
+                    TextInput::make('trn_number')->label('TRN Number')
                         ->required()
                         ->disabled()
+
                         ->placeholder('TRN Number'),
                     TextInput::make('phone')
                         ->rules(['max:20', 'string'])
@@ -70,7 +70,7 @@ class OaUserRegistrationResource extends Resource
         return $table
             ->poll('60s')
             ->columns([
-                Tables\Columns\TextColumn::make('oa_id')
+                Tables\Columns\TextColumn::make('mollak_id')
                     ->toggleable()
                     ->limit(50),
                 Tables\Columns\TextColumn::make('name')
@@ -83,7 +83,7 @@ class OaUserRegistrationResource extends Resource
                     ->toggleable()
                     ->searchable(true, null, true)
                     ->limit(50),
-                Tables\Columns\TextColumn::make('trn')
+                Tables\Columns\TextColumn::make('trn_number')
                     ->toggleable()
                     ->searchable(true, null, true)
                     ->limit(50),

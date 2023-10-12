@@ -53,6 +53,7 @@ class User extends Authenticatable implements FilamentUser,HasName
         'lazim_id',
         'role_id',
         'building_id',
+        'owner_association_id'
     ];
 
     protected $searchableFields = ['*'];
@@ -63,6 +64,7 @@ class User extends Authenticatable implements FilamentUser,HasName
         'email_verified' => 'boolean',
         'phone_verified' => 'boolean',
         'active'         => 'boolean',
+        'owner_association_id'=>'integer'
     ];
 
     public function getFilamentName(): string

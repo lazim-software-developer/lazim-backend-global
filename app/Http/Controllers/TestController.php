@@ -17,14 +17,19 @@ use App\Imports\ReserveFundImport;
 use App\Imports\ServiceImport;
 use App\Imports\UtilityExpensesImport;
 use App\Imports\WorkOrdersImport;
+use App\Jobs\AccountCreationJob;
+use App\Models\Master\Role;
 use App\Models\OaServiceRequest;
+use App\Models\OwnerAssociation;
 use App\Models\ServiceParameter;
+use App\Models\User\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
 use \stdClass;
-use Illuminate\Support\Facades\Log;
 
 class TestController extends Controller
 {
@@ -336,5 +341,44 @@ class TestController extends Controller
     {
         return new OaServiceRequestResource($oaService);
     }
+    public function test()
+    {
+        $response = Http::withoutVerifying()->withHeaders([
+            'content-type' => 'application/json',
+            'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
+        ])->get(env("MOLLAK_API_URL") . '/sync/managementcompany');
 
+        $managementCompanies = $response->json()['response']['managementCompanies'];
+        // return '$managementCompanies' ;
+
+        foreach ($managementCompanies as $company) {
+            OwnerAssociation::firstOrCreate(
+                ['mollak_id' => $company['id']],
+                [
+                    'name'       => $company['name']['englishName'],
+                    'phone'      => $company['contactNumber'],
+                    'email'      => $company['email'],
+                    'trn_number' => $company['trn'],
+                    'address'    => $company['address'],
+                ]
+
+            );
+            $ownerAssociationId = OwnerAssociation::where('mollak_id', $company['id'])->value('id');
+
+            $password = Str::random(12);
+            $user     = User::firstorcreate([
+                'first_name'           => $company['name']['englishName'],
+                'email'                => $company['email'],
+                'phone'                => $company['contactNumber'],
+                'role_id'              => Role::where('name', 'OA')->value('id'),
+                'password'             => Hash::make($password),
+                'active'               => true,
+                'owner_association_id' => $ownerAssociationId,
+            ]);
+            
+            AccountCreationJob::dispatch($user, $password);
+
+        }
+
+    }
 }
