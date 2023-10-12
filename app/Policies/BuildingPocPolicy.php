@@ -15,7 +15,7 @@ class BuildingPocPolicy
      */
     public function viewAny(User $user): bool
     {
-        if ($user->id == 1) {
+        if ($user->role_id == 9) {
             return true;
         }
 
@@ -28,7 +28,7 @@ class BuildingPocPolicy
      */
     public function view(User $user, BuildingPoc $model): bool
     {
-        if ($user->id == 1) {
+        if ($user->role_id == 9) {
             return true;
         }
 
@@ -41,7 +41,7 @@ class BuildingPocPolicy
      */
     public function create(User $user): bool
     {
-        if ($user->id == 1) {
+        if ($user->role_id == 9) {
             return true;
         }
 
@@ -53,7 +53,7 @@ class BuildingPocPolicy
      */
     public function update(User $user, BuildingPoc $model): bool
     {
-        if ($user->id == 1) {
+        if ($user->role_id == 9) {
             return true;
         }
 
@@ -66,7 +66,7 @@ class BuildingPocPolicy
      */
     public function delete(User $user, BuildingPoc $model): bool
     {
-        if ($user->id == 1) {
+        if ($user->role_id == 9) {
             return true;
         }
 
@@ -79,12 +79,12 @@ class BuildingPocPolicy
      */
     public function deleteAny(User $user): bool
     {
-        if ($user->id == 1) {
+        if ($user->role_id == 9) {
             return true;
         }
 
         return false;
-        
+
     }
 
     /**

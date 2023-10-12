@@ -15,7 +15,7 @@ class AttendancePolicy
      */
     public function viewAny(User $user): bool
     {
-        if ($user->id == 1) {
+        if ($user->role_id == 9) {
             return true;
         }
 
@@ -28,7 +28,7 @@ class AttendancePolicy
      */
     public function view(User $user, Attendance $model): bool
     {
-        if ($user->id == 1) {
+        if ($user->role_id == 9) {
             return true;
         }
 
@@ -41,7 +41,7 @@ class AttendancePolicy
      */
     public function create(User $user): bool
     {
-        if ($user->id == 1) {
+        if ($user->role_id == 9) {
             return true;
         }
 
@@ -53,7 +53,7 @@ class AttendancePolicy
      */
     public function update(User $user, Attendance $model): bool
     {
-        if ($user->id == 1) {
+        if ($user->role_id == 9) {
             return true;
         }
 
@@ -66,7 +66,7 @@ class AttendancePolicy
      */
     public function delete(User $user, Attendance $model): bool
     {
-        if ($user->id == 1) {
+        if ($user->role_id == 9) {
             return true;
         }
 
@@ -79,7 +79,7 @@ class AttendancePolicy
      */
     public function deleteAny(User $user): bool
     {
-        if ($user->id == 1) {
+        if ($user->role_id == 9) {
             return true;
         }
 

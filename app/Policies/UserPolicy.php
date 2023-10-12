@@ -14,7 +14,7 @@ class UserPolicy
      */
     public function viewAny(User $user): bool
     {
-        if ($user->id == 1 || $user->id == 2) {
+        if ($user->role_id == 9|| $user->role_id == 10) {
             return true;
         }
 
@@ -26,7 +26,7 @@ class UserPolicy
      */
     public function view(User $user, User $model): bool
     {
-        if ($user->id == 1 || $user->id == 2) {
+        if ($user->role_id == 9|| $user->role_id == 10) {
             return true;
         }
 
@@ -39,7 +39,7 @@ class UserPolicy
      */
     public function create(User $user): bool
     {
-        if ($user->id == 1 || $user->id == 2) {
+        if ($user->role_id == 9|| $user->role_id == 10) {
             return true;
         }
 
@@ -52,7 +52,7 @@ class UserPolicy
      */
     public function update(User $user, User $model): bool
     {
-        if ($user->id == 1 || $user->id == 2) {
+        if ($user->role_id == 9|| $user->role_id == 10) {
             return true;
         }
 
@@ -65,7 +65,7 @@ class UserPolicy
      */
     public function delete(User $user, User $model): bool
     {
-        if ($user->id == 1 || $user->id == 2) {
+        if ($user->role_id == 9|| $user->role_id == 10) {
             return true;
         }
 
@@ -78,7 +78,7 @@ class UserPolicy
      */
     public function deleteAny(User $user): bool
     {
-        if ($user->id == 1 || $user->id == 2) {
+        if ($user->role_id == 9|| $user->role_id == 10) {
             return true;
         }
 

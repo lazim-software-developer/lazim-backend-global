@@ -15,7 +15,7 @@ class ContactPolicy
      */
     public function viewAny(User $user): bool
     {
-        if ($user->id == 1) {
+        if ($user->role_id == 9) {
             return true;
         }
 
@@ -28,7 +28,7 @@ class ContactPolicy
      */
     public function view(User $user, Contact $model): bool
     {
-        if ($user->id == 1) {
+        if ($user->role_id == 9) {
             return true;
         }
 
@@ -41,7 +41,7 @@ class ContactPolicy
      */
     public function create(User $user): bool
     {
-        if ($user->id == 1) {
+        if ($user->role_id == 9) {
             return true;
         }
 
@@ -54,7 +54,7 @@ class ContactPolicy
      */
     public function update(User $user, Contact $model): bool
     {
-        if ($user->id == 1) {
+        if ($user->role_id == 9) {
             return true;
         }
 
@@ -67,7 +67,7 @@ class ContactPolicy
      */
     public function delete(User $user, Contact $model): bool
     {
-        if ($user->id == 1) {
+        if ($user->role_id == 9) {
             return true;
         }
 
@@ -80,7 +80,7 @@ class ContactPolicy
      */
     public function deleteAny(User $user): bool
     {
-        if ($user->id == 1) {
+        if ($user->role_id == 9) {
             return true;
         }
 
