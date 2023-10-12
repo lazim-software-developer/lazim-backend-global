@@ -64,7 +64,6 @@ class User extends Authenticatable implements FilamentUser,HasName
         'email_verified' => 'boolean',
         'phone_verified' => 'boolean',
         'active'         => 'boolean',
-        'owner_association_id'=>'integer'
     ];
 
     public function getFilamentName(): string

@@ -49,22 +49,7 @@ class SyncOwnerAssociations extends Command
                     'trn_number' => $company['trn'],
                     'address'    => $company['address'],
                 ]
-
-
             );
-            $ownerAssociationId = OwnerAssociation::where('mollak_id', $company['id'])->value('id');
-            $password = Str::random(12);
-            $user     = User::firstorcreate([
-                'first_name' => $company['name']['englishName'],
-                'email'      =>  $company['email'],
-                'phone'      =>$company['contactNumber'],
-                'role_id'    => Role::where('name', 'OA')->value('id'),
-                'password'   => Hash::make($password),
-                'active'     => true,
-                'owner_association_id'=> $ownerAssociationId
-            ]);
-            AccountCreationJob::dispatch($user, $password);
-
         }
     }
 }

@@ -59,7 +59,12 @@ class OaUserRegistrationResource extends Resource
                         })
                         ->placeholder('Email'),
                     Toggle::make('verified')
-                        ->rules(['boolean']),
+                        ->rules(['boolean'])
+                        ->disabled(function () {
+                            return DB::table('owner_associations')
+                                ->where('verified', 1)
+                                ->exists();
+                        }),
 
                 ]),
             ]);

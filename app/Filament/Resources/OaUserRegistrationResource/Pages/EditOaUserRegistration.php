@@ -4,22 +4,18 @@ namespace App\Filament\Resources\OaUserRegistrationResource\Pages;
 
 use App\Filament\Resources\OaUserRegistrationResource;
 use App\Jobs\AccountCreationJob;
-use App\Models\OaDetails;
-use App\Models\OaUserRegistration;
+use App\Models\Master\Role;
 use App\Models\OwnerAssociation;
 use App\Models\User\User;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
-
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
-
 
 class EditOaUserRegistration extends EditRecord
 {
     protected static string $resource = OaUserRegistrationResource::class;
     protected ?string $heading        = 'Owner Association';
-
 
     public $value;
     protected function getHeaderActions(): array
@@ -37,12 +33,36 @@ class EditOaUserRegistration extends EditRecord
     public function afterSave()
     {
 
-        if ($this->data['verified'] == 'true') {
+        OwnerAssociation::where('id', $this->data['id'])
+            ->update([
+                'name'    => $this->record->name,
+                'phone'   => $this->record->phone,
+                'address' => $this->record->address,
+            ]);
+        User::where('owner_association_id', $this->data['id'])
+            ->update([
+                'first_name' => $this->record->name,
+                'phone'      => $this->record->phone,
+            ]);
+
+        if ($this->record->verified == 'true') {
             OwnerAssociation::where('id', $this->data['id'])
                 ->update([
                     'verified_by' => auth()->id(),
 
                 ]);
+            $password = Str::random(12);
+            $user     = User::firstorcreate([
+                'first_name'           => $this->record->name,
+                'email'                => $this->record->email,
+                'phone'                => $this->record->phone,
+                'role_id'              => Role::where('name', 'OA')->value('id'),
+                'password'             => Hash::make($password),
+                'active'               => true,
+                'owner_association_id' => $this->record->id,
+
+            ]);
+            AccountCreationJob::dispatch($user, $password);
         } else {
 
             OwnerAssociation::where('id', $this->data['id'])
@@ -51,21 +71,6 @@ class EditOaUserRegistration extends EditRecord
 
                 ]);
         }
-    //     $oadetails = OaDetails::where('oa_id', $this->record->oa_id)->first();
-    //     $password = Str::random(12);
-    //     User::where('id', $oadetails->user_id)
-    //         ->update([
-    //             'first_name' => $this->record->name,
-    //             'email'      => $this->record->email,
-    //             'phone'      => $this->record->phone,
-    //             'password'  => Hash::make($password),
-    //         ]);
 
-    //     $user     = User::where('id',$oadetails->user_id)->first();
-    //     if ($this->value != $this->record->email) {
-    //         AccountCreationJob::dispatch($user, $password);
-
-    //     }
-
-     }
+    }
 }
