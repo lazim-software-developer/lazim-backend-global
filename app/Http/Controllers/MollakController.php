@@ -9,8 +9,10 @@ use App\Http\Resources\Master\UnitResource;
 
 class MollakController extends Controller
 {
-    public function fetchPropertyGroups($oaId)
+    public function fetchPropertyGroups()
     {
+        $oaId = auth()->user()->ownerAssociation->mollak_id;
+        
         $results = Http::withOptions(['verify' => false])->withHeaders([
             'content-type' => 'application/json',
             'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
