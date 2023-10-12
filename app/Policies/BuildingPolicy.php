@@ -15,11 +15,9 @@ class BuildingPolicy
      */
     public function viewAny(User $user): bool
     {
-        if ($user->role_id == 9|| $user->role_id == 10) {
-            return true;
-        }
 
-        return false;
+
+        return true;
 
     }
 
@@ -28,11 +26,8 @@ class BuildingPolicy
      */
     public function view(User $user, Building $model): bool
     {
-        if ($user->role_id == 9|| $user->role_id == 10) {
-            return true;
-        }
 
-        return false;
+        return true;
     }
 
     /**
@@ -40,11 +35,8 @@ class BuildingPolicy
      */
     public function create(User $user): bool
     {
-        if ($user->role_id == 9) {
-            return true;
-        }
 
-        return false;
+        return true;
 
     }
 
@@ -53,11 +45,8 @@ class BuildingPolicy
      */
     public function update(User $user, Building $model): bool
     {
-        if ($user->role_id == 9|| $user->role_id == 10) {
-            return true;
-        }
 
-        return false;
+        return true;
 
     }
 
@@ -66,11 +55,8 @@ class BuildingPolicy
      */
     public function delete(User $user, Building $model): bool
     {
-        if ($user->role_id == 9) {
-            return true;
-        }
 
-        return false;
+        return true;
 
     }
 
@@ -79,11 +65,9 @@ class BuildingPolicy
      */
     public function deleteAny(User $user): bool
     {
-        if ($user->role_id == 9) {
-            return true;
-        }
 
-        return false;
+
+        return true;
 
     }
 
