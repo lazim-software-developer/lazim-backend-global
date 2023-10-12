@@ -2,14 +2,9 @@
 
 namespace App\Console\Commands;
 
-use App\Jobs\AccountCreationJob;
-use App\Models\Master\Role;
 use App\Models\OwnerAssociation;
-use App\Models\User\User;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Str;
 
 class SyncOwnerAssociations extends Command
 {

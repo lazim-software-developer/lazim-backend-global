@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Filament\Resources\OaUserRegistrationResource\Pages;
+namespace App\Filament\Resources\OwnerAssociationResource\Pages;
 
-use App\Filament\Resources\OaUserRegistrationResource;
+use App\Filament\Resources\OwnerAssociationResource;
 use App\Jobs\AccountCreationJob;
 use App\Models\Master\Role;
 use App\Models\OwnerAssociation;
@@ -12,9 +12,9 @@ use Filament\Resources\Pages\EditRecord;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
-class EditOaUserRegistration extends EditRecord
+class EditOwnerAssociation extends EditRecord
 {
-    protected static string $resource = OaUserRegistrationResource::class;
+    protected static string $resource =OwnerAssociationResource::class;
     protected ?string $heading        = 'Owner Association';
 
     public $value;
