@@ -72,7 +72,6 @@ Route::group(['middleware' => ["auth:sanctum", "verified"]], function () {
     Route::get('/service-periods/{propertyId}', [MollakController::class, 'fetchServicePeriods']);
 
 });
-
 /**
  * Middleware Group: API Token Protection
  *
@@ -96,5 +95,3 @@ Route::middleware(['api.token'])->group(function () {
     // Get all unit numbers(flats) for a given propertygroup(building)
     Route::get('/flats/{building}', [FlatController::class, 'fetchFlats']);
 });
-
-
