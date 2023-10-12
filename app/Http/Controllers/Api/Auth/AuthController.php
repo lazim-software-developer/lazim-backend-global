@@ -8,6 +8,8 @@ use App\Models\User\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Http\Requests\SetPasswordRequest;
+use App\Http\Resources\CustomResponseResource;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Str;
 use Illuminate\Support\Carbon;
@@ -120,5 +122,21 @@ class AuthController extends Controller
         return response()->json([
             'access_token' => $newToken->plainTextToken
         ]);
+    }
+
+    public function setPassword(SetPasswordRequest $request)
+    {
+        // Fetch the user by email
+        $user = User::where('email', $request->email)->first();
+
+        // Set the new password
+        $user->password = Hash::make($request->password);
+        $user->save();
+
+        return (new CustomResponseResource([
+            'title' => 'Password set successfully!',
+            'message' => 'Test',
+            'errorCode' => 200, 
+        ]))->response()->setStatusCode(200);
     }
 }
