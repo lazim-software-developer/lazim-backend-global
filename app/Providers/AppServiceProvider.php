@@ -2,6 +2,10 @@
 
 namespace App\Providers;
 
+use App\Models\Building\Building;
+use App\Models\OwnerAssociation;
+use App\Observers\BuildingObserver;
+use App\Observers\OwnerAssociationObserver;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 
@@ -23,5 +27,9 @@ class AppServiceProvider extends ServiceProvider
 
         // TODO: NEED TO CHECK IF THIS WORKS AND TO BE REMOVED LATER
         // JsonResource::withoutWrapping();
+
+        // Observers
+        OwnerAssociation::observe(OwnerAssociationObserver::class);
+        Building::observe(BuildingObserver::class);
     }
 }
