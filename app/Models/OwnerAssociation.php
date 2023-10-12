@@ -12,4 +12,8 @@ class OwnerAssociation extends Model
     protected $fillable = ['name', 'phone', 'email', 'trn_number', 
         'address', 'mollak_id', 'verified', 'verified_by'
     ];
+
+    public function users() {
+        return $this->hasMany(User::class);
+    }
 }
