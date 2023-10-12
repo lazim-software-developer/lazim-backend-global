@@ -7,5 +7,7 @@ use Illuminate\Http\Request;
 
 class RegisterationController extends Controller
 {
-    //
+    public function testAPI() {
+        return "this";
+    }
 }

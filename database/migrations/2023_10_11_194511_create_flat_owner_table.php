@@ -10,20 +10,19 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::table('flat_owner', function (Blueprint $table) {
+        Schema::create('flat_owner', function (Blueprint $table) {
+            $table->unsignedBigInteger('owner_id');
+            $table->unsignedBigInteger('flat_id');
+
             $table
                 ->foreign('owner_id')
                 ->references('id')
-                ->on('users')
-                ->onUpdate('CASCADE')
-                ->onDelete('CASCADE');
+                ->on('apartment_owners');
 
             $table
                 ->foreign('flat_id')
                 ->references('id')
-                ->on('flats')
-                ->onUpdate('CASCADE')
-                ->onDelete('CASCADE');
+                ->on('flats');
         });
     }
 
@@ -32,9 +31,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::table('flat_owner', function (Blueprint $table) {
-            $table->dropForeign(['owner_id']);
-            $table->dropForeign(['flat_id']);
-        });
+        Schema::dropIfExists('flat_owner');
     }
 };
