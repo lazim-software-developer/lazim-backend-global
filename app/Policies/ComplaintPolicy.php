@@ -15,7 +15,7 @@ class ComplaintPolicy
      */
     public function viewAny(User $user): bool
     {
-        if ($user->id == 1) {
+        if ($user->role_id == 9) {
             return true;
         }
 
@@ -28,7 +28,7 @@ class ComplaintPolicy
      */
     public function view(User $user, Complaint $model): bool
     {
-        if ($user->id == 1) {
+        if ($user->role_id == 9) {
             return true;
         }
 
@@ -41,7 +41,7 @@ class ComplaintPolicy
      */
     public function create(User $user): bool
     {
-        if ($user->id == 1) {
+        if ($user->role_id == 9) {
             return true;
         }
 
@@ -54,7 +54,7 @@ class ComplaintPolicy
      */
     public function update(User $user, Complaint $model): bool
     {
-        if ($user->id == 1) {
+        if ($user->role_id == 9) {
             return true;
         }
 
@@ -67,7 +67,7 @@ class ComplaintPolicy
      */
     public function delete(User $user, Complaint $model): bool
     {
-        if ($user->id == 1) {
+        if ($user->role_id == 9) {
             return true;
         }
 
@@ -80,7 +80,7 @@ class ComplaintPolicy
      */
     public function deleteAny(User $user): bool
     {
-        if ($user->id == 1) {
+        if ($user->role_id == 9) {
             return true;
         }
 

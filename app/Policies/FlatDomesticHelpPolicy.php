@@ -15,7 +15,7 @@ class FlatDomesticHelpPolicy
      */
     public function viewAny(User $user): bool
     {
-        if ($user->id == 1) {
+        if ($user->role_id == 9) {
             return true;
         }
 
@@ -28,7 +28,7 @@ class FlatDomesticHelpPolicy
      */
     public function view(User $user, FlatDomesticHelp $model): bool
     {
-        if ($user->id == 1) {
+        if ($user->role_id == 9) {
             return true;
         }
 
@@ -41,7 +41,7 @@ class FlatDomesticHelpPolicy
      */
     public function create(User $user): bool
     {
-        if ($user->id == 1) {
+        if ($user->role_id == 9) {
             return true;
         }
 
@@ -54,7 +54,7 @@ class FlatDomesticHelpPolicy
      */
     public function update(User $user, FlatDomesticHelp $model): bool
     {
-        if ($user->id == 1) {
+        if ($user->role_id == 9) {
             return true;
         }
 
@@ -66,7 +66,7 @@ class FlatDomesticHelpPolicy
      */
     public function delete(User $user, FlatDomesticHelp $model): bool
     {
-        if ($user->id == 1) {
+        if ($user->role_id == 9) {
             return true;
         }
 
@@ -79,7 +79,7 @@ class FlatDomesticHelpPolicy
      */
     public function deleteAny(User $user): bool
     {
-        if ($user->id == 1) {
+        if ($user->role_id == 9) {
             return true;
         }
 
