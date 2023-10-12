@@ -31,18 +31,18 @@ class SyncOwnerAssociations extends Command
             'content-type' => 'application/json',
             'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
         ])->get(env("MOLLAK_API_URL") . '/sync/managementcompany');
-    
+
         $managementCompanies = $response->json()['response']['managementCompanies'];
 
         foreach ($managementCompanies as $company) {
             OwnerAssociation::firstOrCreate(
                 ['mollak_id' => $company['id']],
                 [
-                    'name' => $company['name']['englishName'],
-                    'phone' => $company['contactNumber'],
-                    'email' => $company['email'],
+                    'name'       => $company['name']['englishName'],
+                    'phone'      => $company['contactNumber'],
+                    'email'      => $company['email'],
                     'trn_number' => $company['trn'],
-                    'address' => $company['address'],
+                    'address'    => $company['address'],
                 ]
             );
         }

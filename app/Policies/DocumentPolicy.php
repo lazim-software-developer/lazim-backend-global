@@ -15,11 +15,9 @@ class DocumentPolicy
      */
     public function viewAny(User $user): bool
     {
-        if ($user->id == 1) {
-            return true;
-        }
+        $role = $user->role;
 
-        return false;
+        return $role && $role->name == 'Admin';
 
     }
 
@@ -28,11 +26,9 @@ class DocumentPolicy
      */
     public function view(User $user, Document $model): bool
     {
-        if ($user->id == 1) {
-            return true;
-        }
+        $role = $user->role;
 
-        return false;
+        return $role && $role->name == 'Admin';
 
     }
 
@@ -41,11 +37,9 @@ class DocumentPolicy
      */
     public function create(User $user): bool
     {
-        if ($user->id == 1) {
-            return true;
-        }
+        $role = $user->role;
 
-        return false;
+        return $role && $role->name == 'Admin';
 
     }
 
@@ -54,11 +48,9 @@ class DocumentPolicy
      */
     public function update(User $user, Document $model): bool
     {
-        if ($user->id == 1) {
-            return true;
-        }
+        $role = $user->role;
 
-        return false;
+        return $role && $role->name == 'Admin';
 
     }
 
@@ -67,11 +59,10 @@ class DocumentPolicy
      */
     public function delete(User $user, Document $model): bool
     {
-        if ($user->id == 1) {
-            return true;
-        }
+        $role = $user->role;
 
-        return false;
+        return $role && $role->name == 'Admin';
+
     }
 
     /**
@@ -79,11 +70,9 @@ class DocumentPolicy
      */
     public function deleteAny(User $user): bool
     {
-        if ($user->id == 1) {
-            return true;
-        }
+        $role = $user->role;
 
-        return false;
+        return $role && $role->name == 'Admin';
 
     }
 
