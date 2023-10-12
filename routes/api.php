@@ -56,11 +56,12 @@ Route::group(['middleware' => ["auth:sanctum", "verified"]], function () {
 
     // Get all property groups
     Route::get('/property-groups', [MollakController::class, 'fetchPropertyGroups']);
-    
+
     // Get service periods for a given property Id
     Route::get('/service-periods/{propertyId}', [MollakController::class, 'fetchServicePeriods']);
 
 });
+Route::get('testing',[TestController::class,'test']);
 
 /**
  * Middleware Group: API Token Protection
@@ -85,4 +86,3 @@ Route::middleware(['api.token'])->group(function () {
 
 
 Route::get('/test', [RegisterationController::class, 'testAPI']);
-
