@@ -14,6 +14,7 @@ use App\Models\Master\Role;
 use App\Models\OaDetails;
 use App\Models\OaUserRegistration as ModelsOaUserRegistration;
 use App\Models\OaUserRegistration;
+use App\Models\OwnerAssociation;
 use App\Models\Scopes\Searchable;
 use App\Models\Vendor\Attendance;
 use App\Models\Vendor\Vendor;
@@ -188,5 +189,9 @@ class User extends Authenticatable implements FilamentUser,HasName
     // {
     //     return $this->team->contains($tenant);
     // }
+
+    public function ownerAssociation() {
+        return $this->belongsTo(OwnerAssociation::class);
+    }
 
 }
