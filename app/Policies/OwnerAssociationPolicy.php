@@ -2,12 +2,16 @@
 
 namespace App\Policies;
 
+use App\Models\OwnerAssociation;
 use App\Models\User\User;
-use App\Models\Vendor\Attendance;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
-class AttendancePolicy
+class OwnerAssociationPolicy
 {
+    /**
+     * Create a new policy instance.
+     */
+
     use HandlesAuthorization;
 
     /**
@@ -25,7 +29,7 @@ class AttendancePolicy
     /**
      * Determine whether the attendance can view the model.
      */
-    public function view(User $user, Attendance $model): bool
+    public function view(User $user, OwnerAssociation $model): bool
     {
         $role = $user->role;
 
@@ -47,7 +51,7 @@ class AttendancePolicy
     /**
      * Determine whether the attendance can update the model.
      */
-    public function update(User $user, Attendance $model): bool
+    public function update(User $user, OwnerAssociation $model): bool
     {
         $role = $user->role;
 
@@ -58,7 +62,7 @@ class AttendancePolicy
     /**
      * Determine whether the attendance can delete the model.
      */
-    public function delete(User $user, Attendance $model): bool
+    public function delete(User $user, OwnerAssociation $model): bool
     {
         $role = $user->role;
 
@@ -82,7 +86,7 @@ class AttendancePolicy
     /**
      * Determine whether the attendance can restore the model.
      */
-    public function restore(User $user, Attendance $model): bool
+    public function restore(User $user, OwnerAssociation $model): bool
     {
         return false;
     }
@@ -90,8 +94,13 @@ class AttendancePolicy
     /**
      * Determine whether the attendance can permanently delete the model.
      */
-    public function forceDelete(User $user, Attendance $model): bool
+    public function forceDelete(User $user, OwnerAssociation $model): bool
     {
         return false;
+    }
+
+    public function __construct()
+    {
+        //
     }
 }
