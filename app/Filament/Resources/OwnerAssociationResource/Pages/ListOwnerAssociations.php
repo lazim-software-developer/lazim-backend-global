@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Filament\Resources\OaUserRegistrationResource\Pages;
+namespace App\Filament\Resources\OwnerAssociationResource\Pages;
 
-use App\Filament\Resources\OaUserRegistrationResource;
+use App\Filament\Resources\OwnerAssociationResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
 
-class ListOaUserRegistrations extends ListRecords
+class ListOwnerAssociations extends ListRecords
 {
-    protected static string $resource = OaUserRegistrationResource::class;
+    protected static string $resource = OwnerAssociationResource::class;
     protected ?string $heading        = 'Owner Association';
 
     protected function getHeaderActions(): array

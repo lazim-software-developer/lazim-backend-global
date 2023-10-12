@@ -2,7 +2,7 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\OaUserRegistrationResource\Pages;
+use App\Filament\Resources\OwnerAssociationResource\Pages;
 use App\Models\OwnerAssociation;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\TextInput;
@@ -13,7 +13,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\DB;
 
-class OaUserRegistrationResource extends Resource
+class OwnerAssociationResource extends Resource
 {
     protected static ?string $model                 = OwnerAssociation::class;
     protected static ?string $modelLabel            = 'Owner Association';
@@ -123,9 +123,9 @@ class OaUserRegistrationResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => Pages\ListOaUserRegistrations::route('/'),
-            'create' => Pages\CreateOaUserRegistration::route('/create'),
-            'edit'   => Pages\EditOaUserRegistration::route('/{record}/edit'),
+            'index'  => Pages\ListOwnerAssociations::route('/'),
+            'create' => Pages\CreateOwnerAssociation::route('/create'),
+            'edit'   => Pages\EditOwnerAssociation::route('/{record}/edit'),
         ];
     }
 }
