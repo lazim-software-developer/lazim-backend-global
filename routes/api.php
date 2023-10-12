@@ -7,6 +7,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Api\Auth\ResetPasswordController;
 use App\Http\Controllers\Auth\RegisterationController;
+use App\Http\Controllers\Auth\VerificationController;
+use App\Http\Controllers\Building\BuildingController;
+use App\Http\Controllers\Building\FlatController;
 
 /*
 |--------------------------------------------------------------------------
@@ -21,6 +24,14 @@ use App\Http\Controllers\Auth\RegisterationController;
 
 // OA Login
 Route::post('/login', [AuthController::class, 'login'])->name('api.login');
+
+// Resident registeration
+Route::post('/register', [RegisterationController::class, 'register']);
+// Verify email
+Route::post('/verify-otp', [VerificationController::class, 'verify']);
+
+// Verify phone
+Route::post('/register', [RegisterationController::class, 'register']);
 
 // These APIs work only if the user's account is active
 Route::middleware(['active'])->group(function () {
@@ -72,15 +83,15 @@ Route::group(['middleware' => ["auth:sanctum", "verified"]], function () {
  * where user authentication might not be available but controlled access is still required.
  */
 Route::middleware(['api.token'])->group(function () {
-    // Get all property groups
-    Route::get('/property-groups/{oaId}', [MollakController::class, 'fetchPropertyGroups']);
 
-    // Get all unit numbers(flats) for a given propertygroup(building)
-    Route::get('/units/{propertyGroupId}', [MollakController::class, 'fetchUnits']);
+    
 
     // Get resident of a unit by mollak
     Route::get('/resident/{unitNumber}', [RegisterationController::class, 'fetchResidentDetails']);
+
+    // Building API resource: Use only index method(To be changed a notmal route if we don't use other routes)
+    Route::apiResource('buildings', BuildingController::class)->only(['index']);
+
+    // Get all unit numbers(flats) for a given propertygroup(building)
+    Route::get('/flats/{building}', [FlatController::class, 'fetchFlats']);
 });
-
-
-Route::get('/test', [RegisterationController::class, 'testAPI']);

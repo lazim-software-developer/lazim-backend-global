@@ -56,5 +56,4 @@ class Flat extends Model
     public function owners() {
         return $this->belongsToMany(ApartmentOwner::class, 'flat_owner', 'flat_id', 'owner_id');
     }
-    
 }

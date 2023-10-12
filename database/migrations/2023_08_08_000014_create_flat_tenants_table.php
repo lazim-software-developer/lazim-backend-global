@@ -17,7 +17,7 @@ return new class extends Migration
             $table->unsignedBigInteger('tenant_id');
             $table->unsignedBigInteger('building_id')->nullable();
             $table->unsignedBigInteger('owner_association_id')->nullable();
-            $table->boolean('primary')->nullable();
+            $table->boolean('primary')->nullable()->comment("Is this person head of the family");
             $table->dateTime('start_date');
             $table->dateTime('end_date')->nullable();
             $table->boolean('active')->nullable();
