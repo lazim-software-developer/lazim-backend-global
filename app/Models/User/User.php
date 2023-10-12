@@ -33,7 +33,7 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Jetstream\HasProfilePhoto;
 use Laravel\Sanctum\HasApiTokens;
 
-class User extends Authenticatable implements FilamentUser, HasName, HasTenants
+class User extends Authenticatable implements FilamentUser,HasName
 {
     use Notifiable;
     use HasFactory;
@@ -53,6 +53,7 @@ class User extends Authenticatable implements FilamentUser, HasName, HasTenants
         'lazim_id',
         'role_id',
         'building_id',
+        'owner_association_id'
     ];
 
     protected $searchableFields = ['*'];
@@ -175,20 +176,20 @@ class User extends Authenticatable implements FilamentUser, HasName, HasTenants
         return true;
     }
 
-    public function getTenants(Panel $panel): Collection
-    {
-        return $this->team;
-    }
+    // public function getTenants(Panel $panel): Collection
+    // {
+    //     return $this->team;
+    // }
 
-    public function team(): BelongsToMany
-    {
-        return $this->belongsToMany(ModelsOaUserRegistration::class);
-    }
+    // public function team(): BelongsToMany
+    // {
+    //     return $this->belongsToMany(ModelsOaUserRegistration::class);
+    // }
 
-    public function canAccessTenant(Model $tenant): bool
-    {
-        return $this->team->contains($tenant);
-    }
+    // public function canAccessTenant(Model $tenant): bool
+    // {
+    //     return $this->team->contains($tenant);
+    // }
 
     public function ownerAssociation() {
         return $this->belongsTo(OwnerAssociation::class);
