@@ -2,8 +2,10 @@
 
 namespace App\Models\Building;
 
+use App\Models\ApartmentOwner;
 use App\Models\Building\Building;
 use App\Models\Building\FlatTenant;
+use App\Models\FlatOwner;
 use App\Models\OaUserRegistration;
 use App\Models\Scopes\Searchable;
 use App\Models\User\User;
@@ -17,7 +19,7 @@ class Flat extends Model
     use HasFactory;
     use Searchable;
 
-    protected $fillable = ['number', 'floor', 'building_id', 'description'];
+    protected $fillable = ['property_number', 'floor', 'building_id', 'description', 'mollak_property_id', 'property_type'];
 
     protected $searchableFields = ['*'];
 
@@ -37,17 +39,22 @@ class Flat extends Model
     {
         return $this->hasMany(FlatVisitor::class);
     }
-    public function users()
-    {
-        return $this->belongsToMany(
-            User::class,
-            'flat_owner',
-            'flat_id',
-            'owner_id'
-        );
-    }
+    // public function users()
+    // {
+    //     return $this->belongsToMany(
+    //         User::class,
+    //         'flat_owner',
+    //         'flat_id',
+    //         'owner_id'
+    //     );
+    // }
     public function oaUserRegistration()
     {
         return $this->belongsTo(OaUserRegistration::class);
     }
+
+    public function owners() {
+        return $this->belongsToMany(ApartmentOwner::class, 'flat_owner', 'flat_id', 'owner_id');
+    }
+    
 }

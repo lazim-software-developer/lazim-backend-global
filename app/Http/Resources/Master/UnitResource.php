@@ -15,10 +15,10 @@ class UnitResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'propertyId' => $this['mollakPropertyId'],
+            'id' => $this['mollakPropertyId'],
             'plotNumber' => $this['plotNumber'],
             'buildingName' => $this['building']['englishName'],
-            'unitNumber' => $this['unitNumber']
+            'name' => $this['unitNumber']
         ];
     }
 }

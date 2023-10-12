@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Api\Auth\ResetPasswordController;
+use App\Http\Controllers\Auth\RegisterationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -80,6 +81,5 @@ Route::middleware(['api.token'])->group(function () {
 });
 
 
-Route::get('/resident/{unitNumber}', [RegisterationController::class, 'fetchResidentDetails']);
+Route::get('/test', [RegisterationController::class, 'testAPI']);
 
-Route::get('/resident/{unitNumber}', [RegisterationController::class, 'fetchResidentDetails']);

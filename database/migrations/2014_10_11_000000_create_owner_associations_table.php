@@ -19,8 +19,6 @@ return new class extends Migration
             $table->string('trn_number')->unique();
             $table->text('address');
             $table->boolean('verified')->default(false);
-            $table->unsignedBigInteger('verified_by')->nullable();
-            $table->foreign('verified_by')->references('id')->on('users'); // Assuming you have a users table and you want to reference the user who verified the entry.
             $table->unsignedBigInteger('mollak_id')->unique();
             $table->timestamps();
         });
