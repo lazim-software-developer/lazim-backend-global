@@ -2,7 +2,7 @@
 
 namespace App\Models\User;
 
-use App\Mail\OaUserRegistration;
+
 use App\Models\Building\Building;
 use App\Models\Building\BuildingPoc;
 use App\Models\Building\Complaint;
@@ -13,6 +13,8 @@ use App\Models\Building\FlatTenant;
 use App\Models\Master\Role;
 use App\Models\OaDetails;
 use App\Models\OaUserRegistration as ModelsOaUserRegistration;
+use App\Models\OaUserRegistration;
+use App\Models\OwnerAssociation;
 use App\Models\Scopes\Searchable;
 use App\Models\Vendor\Attendance;
 use App\Models\Vendor\Vendor;
@@ -31,7 +33,7 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Jetstream\HasProfilePhoto;
 use Laravel\Sanctum\HasApiTokens;
 
-class User extends Authenticatable implements FilamentUser, HasName, HasTenants
+class User extends Authenticatable implements FilamentUser,HasName
 {
     use Notifiable;
     use HasFactory;
@@ -51,6 +53,7 @@ class User extends Authenticatable implements FilamentUser, HasName, HasTenants
         'lazim_id',
         'role_id',
         'building_id',
+        'owner_association_id'
     ];
 
     protected $searchableFields = ['*'];
@@ -96,10 +99,10 @@ class User extends Authenticatable implements FilamentUser, HasName, HasTenants
     {
         return $this->hasMany(Document::class, 'accepted_by');
     }
-    public function oaUser()
-    {
-        return $this->hasMany(OaUserRegistration::class);
-    }
+    // public function oaUser()
+    // {
+    //     return $this->hasMany(OaUserRegistration::class);
+    // }
     public function pocs()
     {
         return $this->hasMany(BuildingPoc::class);
@@ -170,22 +173,26 @@ class User extends Authenticatable implements FilamentUser, HasName, HasTenants
     }
     public function canAccessPanel(Panel $panel): bool
     {
-        return str_ends_with($this->role_id, Role::where('name', 'Admin')->value('id'));
+        return true;
     }
 
-    public function getTenants(Panel $panel): Collection
-    {
-        return $this->team;
-    }
+    // public function getTenants(Panel $panel): Collection
+    // {
+    //     return $this->team;
+    // }
 
-    public function team(): BelongsToMany
-    {
-        return $this->belongsToMany(ModelsOaUserRegistration::class);
-    }
+    // public function team(): BelongsToMany
+    // {
+    //     return $this->belongsToMany(ModelsOaUserRegistration::class);
+    // }
 
-    public function canAccessTenant(Model $tenant): bool
-    {
-        return $this->team->contains($tenant);
+    // public function canAccessTenant(Model $tenant): bool
+    // {
+    //     return $this->team->contains($tenant);
+    // }
+
+    public function ownerAssociation() {
+        return $this->belongsTo(OwnerAssociation::class);
     }
 
 }

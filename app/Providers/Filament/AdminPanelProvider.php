@@ -27,9 +27,9 @@ class AdminPanelProvider extends PanelProvider
     public function panel(Panel $panel): Panel
     {
         return $panel
-            ->tenant(OaUserRegistration::class)
-            ->tenantRegistration(RegisterBuilding::class)
-            ->tenantProfile(EditBuildingProfile::class)
+            // ->tenant(OaUserRegistration::class)
+            // ->tenantRegistration(RegisterBuilding::class)
+            //  ->tenantProfile(EditBuildingProfile::class)
             ->default()
             ->id('admin')
             ->path('admin')

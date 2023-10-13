@@ -12,7 +12,7 @@ return new class extends Migration {
     {
         Schema::create('attendances', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->unsignedBigInteger('building_id');
+            $table->unsignedBigInteger('building_id')->nullable();
             $table->unsignedBigInteger('user_id');
             $table->date('date');
             $table->time('entry_time')->nullable();
@@ -20,7 +20,8 @@ return new class extends Migration {
             $table->boolean('attendance');
             $table->unsignedBigInteger('approved_by');
             $table->dateTime('approved_on');
-
+            $table->unsignedBigInteger('owner_association_id')->nullable();
+            $table->foreign('owner_association_id')->references('id')->on('owner_associations');
             $table->timestamps();
         });
     }

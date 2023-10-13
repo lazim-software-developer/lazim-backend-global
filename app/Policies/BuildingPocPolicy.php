@@ -2,8 +2,8 @@
 
 namespace App\Policies;
 
-use App\Models\User\User;
 use App\Models\Building\BuildingPoc;
+use App\Models\User\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class BuildingPocPolicy
@@ -15,7 +15,10 @@ class BuildingPocPolicy
      */
     public function viewAny(User $user): bool
     {
-        return true;
+        $role = $user->role;
+
+        return $role && $role->name == 'Admin';
+
     }
 
     /**
@@ -23,7 +26,10 @@ class BuildingPocPolicy
      */
     public function view(User $user, BuildingPoc $model): bool
     {
-        return true;
+        $role = $user->role;
+
+        return $role && $role->name == 'Admin';
+
     }
 
     /**
@@ -31,7 +37,10 @@ class BuildingPocPolicy
      */
     public function create(User $user): bool
     {
-        return true;
+        $role = $user->role;
+
+        return $role && $role->name == 'Admin';
+
     }
 
     /**
@@ -39,7 +48,10 @@ class BuildingPocPolicy
      */
     public function update(User $user, BuildingPoc $model): bool
     {
-        return true;
+        $role = $user->role;
+
+        return $role && $role->name == 'Admin';
+
     }
 
     /**
@@ -47,7 +59,10 @@ class BuildingPocPolicy
      */
     public function delete(User $user, BuildingPoc $model): bool
     {
-        return true;
+        $role = $user->role;
+
+        return $role && $role->name == 'Admin';
+
     }
 
     /**
@@ -55,7 +70,10 @@ class BuildingPocPolicy
      */
     public function deleteAny(User $user): bool
     {
-        return true;
+        $role = $user->role;
+
+        return $role && $role->name == 'Admin';
+
     }
 
     /**
