@@ -6,8 +6,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Api\Auth\ResetPasswordController;
-use App\Http\Controllers\Auth\RegisterationController;
-use App\Http\Controllers\Auth\VerificationController;
+use App\Http\Controllers\Api\Auth\RegisterationController;
+use App\Http\Controllers\Api\Auth\VerificationController;
 use App\Http\Controllers\Building\BuildingController;
 use App\Http\Controllers\Building\FlatController;
 
@@ -30,8 +30,8 @@ Route::post('/register', [RegisterationController::class, 'register']);
 // Verify email
 Route::post('/verify-otp', [VerificationController::class, 'verify']);
 
-// Verify phone
-Route::post('/register', [RegisterationController::class, 'register']);
+// Set password
+Route::post('/set-password', [AuthController::class, 'setPassword']);
 
 // These APIs work only if the user's account is active
 Route::middleware(['active'])->group(function () {
@@ -83,9 +83,6 @@ Route::group(['middleware' => ["auth:sanctum", "verified"]], function () {
  * where user authentication might not be available but controlled access is still required.
  */
 Route::middleware(['api.token'])->group(function () {
-
-    
-
     // Get resident of a unit by mollak
     Route::get('/resident/{unitNumber}', [RegisterationController::class, 'fetchResidentDetails']);
 

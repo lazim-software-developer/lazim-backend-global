@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Middleware;
+namespace App\Http\Middleware\Custom;
 
 use App\Http\Resources\CustomResponseResource;
 use Closure;
