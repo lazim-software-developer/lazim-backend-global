@@ -59,7 +59,7 @@ class BuildingPocResource extends Resource
         return $table
         ->poll('60s')
         ->columns([
-            Tables\Columns\TextColumn::make('oaUserRegistration.name')
+            Tables\Columns\TextColumn::make('building.name')
                 ->toggleable()
                 ->limit(50)
                 ->label('Owner Association'),
