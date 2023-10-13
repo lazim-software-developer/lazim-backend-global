@@ -15,7 +15,10 @@ class VendorPolicy
      */
     public function viewAny(User $user): bool
     {
-        return true;
+        $role = $user->role;
+
+        return $role && $role->name == 'Admin';
+
     }
 
     /**
@@ -23,7 +26,10 @@ class VendorPolicy
      */
     public function view(User $user, Vendor $model): bool
     {
-        return true;
+        $role = $user->role;
+
+        return $role && $role->name == 'Admin';
+
     }
 
     /**
@@ -31,7 +37,10 @@ class VendorPolicy
      */
     public function create(User $user): bool
     {
-        return true;
+        $role = $user->role;
+
+        return $role && $role->name == 'Admin';
+
     }
 
     /**
@@ -39,7 +48,10 @@ class VendorPolicy
      */
     public function update(User $user, Vendor $model): bool
     {
-        return true;
+        $role = $user->role;
+
+        return $role && $role->name == 'Admin';
+
     }
 
     /**
@@ -47,7 +59,10 @@ class VendorPolicy
      */
     public function delete(User $user, Vendor $model): bool
     {
-        return true;
+        $role = $user->role;
+
+        return $role && $role->name == 'Admin';
+
     }
 
     /**
@@ -55,7 +70,10 @@ class VendorPolicy
      */
     public function deleteAny(User $user): bool
     {
-        return true;
+        $role = $user->role;
+
+        return $role && $role->name == 'Admin';
+
     }
 
     /**

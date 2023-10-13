@@ -2,8 +2,8 @@
 
 namespace App\Policies;
 
-use App\Models\User\User;
 use App\Models\Building\Complaint;
+use App\Models\User\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class ComplaintPolicy
@@ -15,7 +15,10 @@ class ComplaintPolicy
      */
     public function viewAny(User $user): bool
     {
-        return true;
+        $role = $user->role;
+
+        return $role && $role->name == 'Admin';
+
     }
 
     /**
@@ -23,7 +26,10 @@ class ComplaintPolicy
      */
     public function view(User $user, Complaint $model): bool
     {
-        return true;
+        $role = $user->role;
+
+        return $role && $role->name == 'Admin';
+
     }
 
     /**
@@ -31,7 +37,10 @@ class ComplaintPolicy
      */
     public function create(User $user): bool
     {
-        return true;
+        $role = $user->role;
+
+        return $role && $role->name == 'Admin';
+
     }
 
     /**
@@ -39,7 +48,10 @@ class ComplaintPolicy
      */
     public function update(User $user, Complaint $model): bool
     {
-        return true;
+        $role = $user->role;
+
+        return $role && $role->name == 'Admin';
+
     }
 
     /**
@@ -47,7 +59,10 @@ class ComplaintPolicy
      */
     public function delete(User $user, Complaint $model): bool
     {
-        return true;
+        $role = $user->role;
+
+        return $role && $role->name == 'Admin';
+
     }
 
     /**
@@ -55,7 +70,10 @@ class ComplaintPolicy
      */
     public function deleteAny(User $user): bool
     {
-        return true;
+        $role = $user->role;
+
+        return $role && $role->name == 'Admin';
+
     }
 
     /**

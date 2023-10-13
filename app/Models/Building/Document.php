@@ -16,7 +16,7 @@ class Document extends Model
 
     protected $fillable = [
         'document_library_id',
-        'oa_user_registration_id',
+        'owner_association_id',
         'url',
         'status',
         'comments',

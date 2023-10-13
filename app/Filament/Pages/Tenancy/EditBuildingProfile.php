@@ -50,11 +50,6 @@ class EditBuildingProfile extends EditTenantProfile
                     TextInput::make('email')
                         ->rules(['max:50', 'string'])
                         ->required()
-                        // ->disabled(function () {
-                        //     return DB::table('oa_user_registration')
-                        //         ->where('verified',1)
-                        //         ->exists();
-                        // })
                         ->placeholder('Email'),
                     Toggle::make('verified')
                         ->rules(['boolean']),
