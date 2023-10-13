@@ -8,7 +8,7 @@ use App\Models\User\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Requests\Auth\LoginRequest;
-use App\Http\Requests\SetPasswordRequest;
+use App\Http\Requests\Auth\SetPasswordRequest;
 use App\Http\Resources\CustomResponseResource;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Str;
