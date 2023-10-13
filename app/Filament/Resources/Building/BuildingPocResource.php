@@ -61,7 +61,8 @@ class BuildingPocResource extends Resource
         ->columns([
             Tables\Columns\TextColumn::make('building.name')
                 ->toggleable()
-                ->limit(50),
+                ->limit(50)
+                ->label('Owner Association'),
             Tables\Columns\TextColumn::make('user.first_name')
                 ->toggleable()
                 ->limit(50),
