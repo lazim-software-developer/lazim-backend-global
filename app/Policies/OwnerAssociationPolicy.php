@@ -42,9 +42,7 @@ class OwnerAssociationPolicy
      */
     public function create(User $user): bool
     {
-        $role = $user->role;
-
-        return $role && $role->name == 'Admin';
+        return false;
 
     }
 
