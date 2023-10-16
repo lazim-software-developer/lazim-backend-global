@@ -29,16 +29,22 @@
             <td width="100%" height="10"></td>
         </tr>
 
-        <tr>
-            <td class="paragraph">
-                <strong>Email OTP: </strong> {{$data['emailOtp']}}
-            </td>
-        </tr>
-        <tr>
-            <td class="paragraph">
-                <strong>Mobile OTP: </strong> {{$data['phoneOtp']}}
-            </td>
-        </tr>
+        @if($data['emailOtp'])
+            <tr>
+                <td class="paragraph">
+                    <strong>Email OTP: </strong> {{$data['emailOtp']}}
+                </td>
+            </tr>
+        @endif
+
+        
+        @if($data['phoneOtp'])
+            <tr>
+                <td class="paragraph">
+                    <strong>Mobile OTP: </strong> {{$data['phoneOtp']}}
+                </td>
+            </tr>
+        @endif
         <tr>
             <td width="100%" height="25"></td>
         </tr>
