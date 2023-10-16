@@ -2,8 +2,10 @@
 
 namespace App\Models\Community;
 
+use App\Models\Media;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Community\PostLike;
 
 class Post extends Model
 {
@@ -12,6 +14,8 @@ class Post extends Model
     protected $fillable = [
         'user_id', 'content', 'status', 'scheduled_at', 'building_id', 'is_announcement'
     ];
+
+    protected $appends = ['is_liked_by_user'];
 
     public function user()
     {
@@ -26,5 +30,23 @@ class Post extends Model
     public function media()
     {
         return $this->morphMany(Media::class, 'mediaable');
+    }
+
+    public function likes()
+    {
+        return $this->hasMany(PostLike::class);
+    }
+
+    public function comments()
+    {
+        return $this->morphMany(Comment::class, 'commentable');
+    }
+
+    public function getIsLikedByUserAttribute()
+    {
+        if (auth()->check()) {
+            return $this->likes->where('user_id', auth()->user()->id)->isNotEmpty();
+        }
+        return false;
     }
 }
