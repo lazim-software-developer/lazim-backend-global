@@ -8,6 +8,8 @@ use App\Models\User\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Http\Requests\Auth\SetPasswordRequest;
+use App\Http\Resources\CustomResponseResource;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Str;
 use Illuminate\Support\Carbon;
@@ -64,7 +66,7 @@ class AuthController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @param  string  $request->email      The email of the user trying to log in.
      * @param  string  $request->password   The password of the user trying to log in.
-     * @param  string  $request->role       The role of the user (either 'residents' or 'vendors').
+     * @param  string  $request->role       The role of the user (either 'Owner' or 'Tenant').
      *
      * @return \Illuminate\Http\JsonResponse
      * @return 200  array  ['token' => $token, 'refresh_token' => $refreshToken]  On successful login, returns a JSON with the access and refresh tokens.
@@ -120,5 +122,22 @@ class AuthController extends Controller
         return response()->json([
             'access_token' => $newToken->plainTextToken
         ]);
+    }
+
+    public function setPassword(SetPasswordRequest $request)
+    {
+        // Fetch the user by email
+        $user = User::where('email', $request->email)->first();
+
+        // Set the new password
+        $user->password = Hash::make($request->password);
+        $user->save();
+
+        return (new CustomResponseResource([
+            'title' => 'Password set successfully!',
+            'message' => 'Test',
+            'errorCode' => 200, 
+            'status' => 'success'
+        ]))->response()->setStatusCode(200);
     }
 }

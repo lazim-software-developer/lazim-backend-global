@@ -176,23 +176,11 @@ class User extends Authenticatable implements FilamentUser,HasName
         return true;
     }
 
-    // public function getTenants(Panel $panel): Collection
-    // {
-    //     return $this->team;
-    // }
-
-    // public function team(): BelongsToMany
-    // {
-    //     return $this->belongsToMany(ModelsOaUserRegistration::class);
-    // }
-
-    // public function canAccessTenant(Model $tenant): bool
-    // {
-    //     return $this->team->contains($tenant);
-    // }
-
     public function ownerAssociation() {
         return $this->belongsTo(OwnerAssociation::class);
     }
 
+    public function residences() {
+        return $this->belongsToMany(Flat::class, 'flat_tenants', 'tenant_id');
+    }
 }
