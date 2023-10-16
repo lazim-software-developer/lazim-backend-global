@@ -11,6 +11,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 
 class OwnerAssociationResource extends Resource
@@ -30,6 +31,7 @@ class OwnerAssociationResource extends Resource
                     'lg' => 2,
                 ])->schema([
                     TextInput::make('name')
+                        ->rules(['regex:/^[a-zA-Z\s]*$/'])
                         ->required()
                         ->placeholder('User'),
                     TextInput::make('mollak_id')->label('Oa Number')
@@ -43,28 +45,33 @@ class OwnerAssociationResource extends Resource
 
                         ->placeholder('TRN Number'),
                     TextInput::make('phone')
-                        ->rules(['max:20', 'string'])
+                        ->rules(['digits:10', 'integer', 'regex:/^[6-9]\d{9}$/'])
                         ->required()
-                        ->placeholder('Contact Number'),
+                        ->placeholder('Contact Number')
+                        ->unique(
+                            'users',
+                            'phone',
+                            fn(?Model $record) => $record
+                        ),
                     TextInput::make('address')
                         ->required()
                         ->placeholder('Address'),
                     TextInput::make('email')
-                        ->rules(['max:50', 'string'])
+                        ->rules(['min:6', 'max:30', 'regex:/^[a-z0-9.]+@[a-z]+\.[a-z]{2,}$/'])
                         ->required()
                         ->disabled(function () {
                             return DB::table('owner_associations')
                                 ->where('verified', 1)
                                 ->exists();
                         })
-                        ->placeholder('Email'),
+                        ->placeholder('Email')
+                        ->unique(
+                            'users',
+                            'email',
+                            fn(?Model $record) => $record
+                        ),
                     Toggle::make('verified')
-                        ->rules(['boolean'])
-                        ->disabled(function () {
-                            return DB::table('owner_associations')
-                                ->where('verified', 1)
-                                ->exists();
-                        }),
+                        ->rules(['boolean']),
 
                 ]),
             ]);
