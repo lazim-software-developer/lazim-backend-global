@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\Auth\RegisterationController;
 use App\Http\Controllers\Api\Auth\VerificationController;
 use App\Http\Controllers\Building\BuildingController;
 use App\Http\Controllers\Building\FlatController;
+use App\Http\Controllers\Community\PostController;
 
 /*
 |--------------------------------------------------------------------------
@@ -34,7 +35,7 @@ Route::post('/verify-otp', [VerificationController::class, 'verify']);
 Route::post('/set-password', [AuthController::class, 'setPassword']);
 
 // These APIs work only if the user's account is active
-Route::middleware(['active'])->group(function () {
+Route::middleware(['active', 'email.verified', 'phone.verified'])->group(function () {
     // Login routes for mobile app
     Route::post('/customer-login', [AuthController::class, 'customerLogin']);
 
@@ -91,4 +92,12 @@ Route::middleware(['api.token'])->group(function () {
 
     // Get all unit numbers(flats) for a given propertygroup(building)
     Route::get('/flats/{building}', [FlatController::class, 'fetchFlats']);
+});
+
+/**
+ * Community related APIs
+ */
+Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified'])->group(function () {
+    //  List all posts for the buidling
+    Route::get('/building/{building}/posts', [PostController::class, 'index']);
 });

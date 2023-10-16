@@ -92,6 +92,7 @@ class RegisterationController extends Controller
             'title' => 'Registration successful!',
             'message' => "We've sent verification code to your email Id and phone. Please verify to continue using the application",
             'errorCode' => 201, 
+            'status' => 'success'
         ]))->response()->setStatusCode(201);
     }
     
