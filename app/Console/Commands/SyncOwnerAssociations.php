@@ -36,7 +36,10 @@ class SyncOwnerAssociations extends Command
 
         foreach ($managementCompanies as $company) {
             OwnerAssociation::firstOrCreate(
-                ['mollak_id' => $company['id']],
+                [
+                    'mollak_id' => $company['id'],
+                    'trn_number' => $company['trn_number']
+                ],
                 [
                     'name'       => $company['name']['englishName'],
                     'phone'      => $company['contactNumber'],
