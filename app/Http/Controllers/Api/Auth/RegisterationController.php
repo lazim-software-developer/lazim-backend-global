@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Auth;
+namespace App\Http\Controllers\Api\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\RegisterRequest;
@@ -16,7 +16,7 @@ class RegisterationController extends Controller
     public function register(RegisterRequest $request) {
         // Fetch the flat using the provided flat_id
         $flat = Flat::find($request->flat_id);
-
+    
         // Check if flat exists
         if (!$flat) {
             return (new CustomResponseResource([
@@ -25,11 +25,10 @@ class RegisterationController extends Controller
                 'errorCode' => 400, 
             ]))->response()->setStatusCode(400);
         }
-
+    
         // Check if the given flat_id is already alloted to someone with active true
-        $flatOwner = DB::table('flat_tenants')->where(['flat_id' => $flat->id, 'active' => 1])
-        ->exists();
-
+        $flatOwner = DB::table('flat_tenants')->where(['flat_id' => $flat->id, 'active' => 1])->exists();
+    
         if ($flatOwner) {
             return (new CustomResponseResource([
                 'title' => 'Error',
@@ -37,29 +36,45 @@ class RegisterationController extends Controller
                 'errorCode' => 400, 
             ]))->response()->setStatusCode(400);
         }
+    
+        // Check the owner details based on the provided information
+        $ownerQuery = $flat->owners();
+    
+        if ($request->email && $request->mobile) {
+            $ownerQuery->where('email', $request->email)
+                       ->where('mobile', $request->mobile);
+        } elseif ($request->passport) {
+            $ownerQuery->where('passport', $request->passport);
+        } elseif ($request->emirates_id) {
+            $ownerQuery->where('emirates_id', $request->emirates_id);
+        }
+    
+        if
+        (!$ownerQuery->exists()) {
+            $errorMessage = 'Your details are not matching with Mollak data. Please enter valid details.';
 
-        // Check if the email and mobile combination exists for the owners of the fetched flat
-        $owner = $flat->owners()
-                        ->where('email', $request->email)
-                        ->where('mobile', $request->mobile);
+            if ($request->email && $request->mobile) {
+                $errorMessage = 'Your details are not matching with Mollak data. Try registering using Passport or Emirates ID.';
+            } elseif ($request->passport || $request->emirates_id) {
+                $errorMessage = 'Your details are not matching with Mollak data. Try registering with Email and Phone.';
+            }
 
-        if (!$owner->exists()) {
             return (new CustomResponseResource([
                 'title' => 'Error',
-                'message' => 'Your details are not matching with Mollak data. Please enter valid details.',
-                'errorCode' => 400, 
+                'message' => $errorMessage,
+                'errorCode' => 400,
             ]))->response()->setStatusCode(400);
         }
-
+        
         // If the check passes, store the user details in the users table
         $user = User::create([
             'email' => $request->email,
-            'first_name' => $owner->first()->name,
+            'first_name' => $ownerQuery->first()->name,
             'phone' => $request->mobile,
             'role_id' => 1,
             'active' => 1
         ]);
-
+    
         // Store details to Flat tenants table
         FlatTenant::create([
             'flat_id' => $request->flat_id,
@@ -69,14 +84,17 @@ class RegisterationController extends Controller
             'start_date' => now(), //This needs to change - Fetch from Mollak
             'active' => 1
         ]);
-
+    
         // Send email after 5 seconds
         SendVerificationOtp::dispatch($user)->delay(now()->addSeconds(5));
-
+    
         return (new CustomResponseResource([
             'title' => 'Registration successful!',
             'message' => "We've sent verification code to your email Id and phone. Please verify to continue using the application",
             'errorCode' => 201, 
+            'status' => 'success'
         ]))->response()->setStatusCode(201);
     }
+    
+    
 }

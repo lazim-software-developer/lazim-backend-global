@@ -16,7 +16,7 @@ class LoginRequest extends FormRequest
         return [
             'email' => 'required|email',
             'password' => 'required',
-            'role' => 'required|in:Resident,Vendor'
+            'role' => 'required|in:Owner,Tenant'
         ];
     }
 
@@ -26,7 +26,7 @@ class LoginRequest extends FormRequest
             'email.required' => 'Email is required.',
             'password.required' => 'Password is required.',
             'role.required' => 'Role is required.',
-            'role.in' => 'Role must be either Resident or Vendor.'
+            'role.in' => 'Role must be either Owner or Tenant.'
         ];
     }
 }
