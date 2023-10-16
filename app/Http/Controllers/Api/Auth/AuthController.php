@@ -66,7 +66,7 @@ class AuthController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @param  string  $request->email      The email of the user trying to log in.
      * @param  string  $request->password   The password of the user trying to log in.
-     * @param  string  $request->role       The role of the user (either 'residents' or 'vendors').
+     * @param  string  $request->role       The role of the user (either 'Owner' or 'Tenant').
      *
      * @return \Illuminate\Http\JsonResponse
      * @return 200  array  ['token' => $token, 'refresh_token' => $refreshToken]  On successful login, returns a JSON with the access and refresh tokens.
@@ -137,6 +137,7 @@ class AuthController extends Controller
             'title' => 'Password set successfully!',
             'message' => 'Test',
             'errorCode' => 200, 
+            'status' => 'success'
         ]))->response()->setStatusCode(200);
     }
 }

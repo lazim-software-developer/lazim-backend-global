@@ -2,11 +2,9 @@
 
 namespace App\Models\Building;
 
-use App\Models\Master\DocumentLibrary;
 use App\Models\Master\Role;
 use App\Models\Master\Service;
 use App\Models\OaUserRegistration;
-use App\Models\User\User;
 use App\Models\Master\City;
 use App\Models\Building\Flat;
 use App\Models\Master\Facility;
@@ -14,7 +12,8 @@ use App\Models\Building\Document;
 use App\Models\Scopes\Searchable;
 use App\Models\Vendor\Attendance;
 use App\Models\Building\Complaint;
-
+use Spatie\Sluggable\HasSlug;
+use Spatie\Sluggable\SlugOptions;
 use App\Models\Building\BuildingPoc;
 use App\Models\Vendor\Contact;
 use App\Models\Vendor\Vendor;
@@ -22,13 +21,10 @@ use App\Models\Visitor\FlatDomesticHelp;
 use App\Models\Visitor\FlatVisitor;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Building extends Model
 {
-    use HasFactory;
-    use Searchable;
+    use HasFactory, Searchable, HasSlug;
 
     protected $fillable = [
         'name',
@@ -45,6 +41,13 @@ class Building extends Model
     ];
 
     protected $searchableFields = ['*'];
+
+    public function sluggable(): SlugOptions
+    {
+        return SlugOptions::create()
+            ->generateSlugsFrom('name') // Assuming 'name' is the column you want to base the slug on
+            ->saveSlugsTo('slug');
+    }
 
     public function cities()
     {

@@ -12,7 +12,7 @@ return new class extends Migration {
     {
         Schema::create('buildings', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->string('name', 50);
+            $table->string('name', 150);
             $table->string('unit_number', 50)->unique();
             $table->longText('address_line1');
             $table->longText('address_line2')->nullable();

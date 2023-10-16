@@ -1,0 +1,36 @@
+<?php
+
+namespace App\Policies\Community;
+
+use App\Models\User\User;
+use Illuminate\Auth\Access\HandlesAuthorization;
+
+class PostPolicy
+{
+    use HandlesAuthorization;
+
+    /**
+     * Determine whether the user can view any posts for a specific building.
+     *
+     * @param  \App\Models\User  $user
+     * @param  Integer $buildingId;
+     * @return mixed
+     */
+    public function viewAny(User $user, $buildingId)
+    {
+        // If the user is a tenant or Owner, they can view any post
+        if (in_array($user->role->name, ['Owner', 'Tenant'])) {
+            return $user->residences()
+            ->whereHas('building', function ($query) use ($buildingId) {
+                $query->where('id', $buildingId);
+            })
+            ->where('active', 1)
+            ->exists();
+        }
+
+        // TODO: Write logic for allowing OA admin to view all posts of all buildings which belongs to their OA
+
+        // If the user's role is not owner or tenant, they can't view the posts
+        return true;
+    }
+}
