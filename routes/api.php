@@ -92,6 +92,9 @@ Route::middleware(['api.token'])->group(function () {
 
     // Get all unit numbers(flats) for a given propertygroup(building)
     Route::get('/flats/{building}', [FlatController::class, 'fetchFlats']);
+
+    // Resend otp
+    Route::post('/resend-otp', [RegisterationController::class, 'resendOtp']);
 });
 
 /**
