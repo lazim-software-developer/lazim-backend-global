@@ -28,7 +28,7 @@ class RegisterRequest extends FormRequest
     {
         return [
             'building_id' => "Please select a building",
-            'flat' => "Please select a flat",
+            'flat_id' => "Please select a flat",
             'email.unique' => 'The provided email is already registered.',
             'mobile.unique' => 'The provided mobile number is already registered.',
         ];
