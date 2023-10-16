@@ -1,49 +1,35 @@
 <?php
 
-namespace App\Jobs;
+namespace App\Jobs\Auth;
 
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\DB;
 use Snowfire\Beautymail\Beautymail;
 
-class SendVerificationOtp implements ShouldQueue
+class ResendOtpEmail implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected $user;
+    protected $otp;
+    protected $type;
 
-    public function __construct($user)
+    public function __construct($user, $otp, $type)
     {
         $this->user = $user;
+        $this->otp = $otp;
+        $this->type = $type;
     }
 
     public function handle()
     {
-        // Generate OTPs
-        $emailOtp = rand(1000, 9999);
-        $phoneOtp = rand(1000, 9999);
-
-        // Store OTPs in the database
-        DB::table('otp_verifications')->insert([
-            'otp' => $emailOtp,
-            'type' => 'email',
-            'contact_value' => $this->user->email,
-        ]);
-
-        DB::table('otp_verifications')->insert([
-            'otp' => $phoneOtp,
-            'type' => 'phone',
-            'contact_value' => $this->user->phone,
-        ]);
-
-        // Send the email with the OTPs
         $data = [
-            'emailOtp' => $emailOtp ?? '',
-            'phoneOtp' => $phoneOtp ?? '',
+            'emailOtp' => $this->type == 'email' ? $this->otp : '',
+            'phoneOtp' => $this->type == 'phone' ? $this->otp : '',
         ];
 
         $beautymail = app()->make(Beautymail::class);
