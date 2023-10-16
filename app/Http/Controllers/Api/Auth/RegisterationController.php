@@ -4,7 +4,10 @@ namespace App\Http\Controllers\Api\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\RegisterRequest;
+use App\Http\Requests\Auth\ResendOtpRequest;
+use App\Http\Requests\Auth\ResetPasswordRequest;
 use App\Http\Resources\CustomResponseResource;
+use App\Jobs\Auth\ResendOtpEmail;
 use App\Jobs\SendVerificationOtp;
 use App\Models\Building\Flat;
 use App\Models\Building\FlatTenant;
@@ -74,7 +77,7 @@ class RegisterationController extends Controller
             'role_id' => 1,
             'active' => 1
         ]);
-    
+
         // Store details to Flat tenants table
         FlatTenant::create([
             'flat_id' => $request->flat_id,
@@ -95,6 +98,58 @@ class RegisterationController extends Controller
             'status' => 'success'
         ]))->response()->setStatusCode(201);
     }
+
+    public function resendOtp(ResendOtpRequest $request)
+    {
+        // Validate the type and contact_value
+        $type = $request->type;
+        $contactValue = $request->contact_value;
+
+        // Generate OTP
+        $otp = rand(1000, 9999);
+
+        if($type == 'email') {
+            $user = user::where('email', $contactValue)->first();
+        } else {
+            $user = user::where('phone', $contactValue)->first();
+        }
+
+        if($user) {
+
+            // Check if email or phone is already verified. If yes, don't need to verify again
+
+            if(($type == 'email' && $user->email_verified) || ($type == 'phone' && $user->phone_verified)) {
+                return (new CustomResponseResource([
+                    'title' => 'Error',
+                    'message' => 'The provided '.$type.' is already verified.',
+                    'errorCode' => 404,
+                ]))->response()->setStatusCode(404);
+            }
+
+            // Store OTP in the database
+            DB::table('otp_verifications')->updateOrInsert(
+                ['type' => $type, 'contact_value' => $contactValue],
+                ['otp' => $otp]
+            );
     
+            // If type is email, send the OTP to the email
+            ResendOtpEmail::dispatch($user, $otp, $type)->delay(now()->addSeconds(5));
     
+            //TODO: If type is phone, you can integrate with an SMS service to send the OTP
+            // (This part is left out for now as it depends on the SMS service)
+    
+            return (new CustomResponseResource([
+                'title' => 'Success',
+                'message' => 'OTP sent successfully!',
+                'errorCode' => 200,
+            ]))->response()->setStatusCode(200);
+        }
+        
+        return (new CustomResponseResource([
+            'title' => 'Error',
+            'message' => 'The provided '.$type.' is not registered in our system.',
+            'errorCode' => 404,
+        ]))->response()->setStatusCode(404);
+    }
+
 }

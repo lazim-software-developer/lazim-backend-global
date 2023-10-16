@@ -7,6 +7,7 @@ use App\Http\Requests\Auth\EmailVerificationRequest;
 use App\Http\Resources\CustomResponseResource;
 use App\Models\User\User;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class VerificationController extends Controller
 {
@@ -37,7 +38,7 @@ class VerificationController extends Controller
         DB::table('otp_verifications')->where('id', $otpEntry->id)->delete();
 
         return response()->json([
-            'message' => 'Email successfully verified.',
+            'message' => Str::of($request->type)->ucfirst().' successfully verified.',
             'status' => 'success'
         ], 200);
     }
