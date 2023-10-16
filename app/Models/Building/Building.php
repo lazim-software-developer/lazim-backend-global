@@ -12,8 +12,6 @@ use App\Models\Building\Document;
 use App\Models\Scopes\Searchable;
 use App\Models\Vendor\Attendance;
 use App\Models\Building\Complaint;
-use Spatie\Sluggable\HasSlug;
-use Spatie\Sluggable\SlugOptions;
 use App\Models\Building\BuildingPoc;
 use App\Models\Vendor\Contact;
 use App\Models\Vendor\Vendor;
@@ -24,7 +22,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Building extends Model
 {
-    use HasFactory, Searchable, HasSlug;
+    use HasFactory, Searchable;
 
     protected $fillable = [
         'name',
@@ -41,13 +39,6 @@ class Building extends Model
     ];
 
     protected $searchableFields = ['*'];
-
-    public function sluggable(): SlugOptions
-    {
-        return SlugOptions::create()
-            ->generateSlugsFrom('name') // Assuming 'name' is the column you want to base the slug on
-            ->saveSlugsTo('slug');
-    }
 
     public function cities()
     {
