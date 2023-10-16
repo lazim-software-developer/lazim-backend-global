@@ -11,6 +11,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 
 class OwnerAssociationResource extends Resource
@@ -45,7 +46,12 @@ class OwnerAssociationResource extends Resource
                     TextInput::make('phone')
                         ->rules(['max:20', 'string'])
                         ->required()
-                        ->placeholder('Contact Number'),
+                        ->placeholder('Contact Number')
+                        ->unique(
+                            'users',
+                            'phone',
+                            fn(?Model $record) => $record
+                        ),
                     TextInput::make('address')
                         ->required()
                         ->placeholder('Address'),
@@ -57,7 +63,12 @@ class OwnerAssociationResource extends Resource
                                 ->where('verified', 1)
                                 ->exists();
                         })
-                        ->placeholder('Email'),
+                        ->placeholder('Email')
+                        ->unique(
+                            'users',
+                            'email',
+                            fn(?Model $record) => $record
+                        ),
                     Toggle::make('verified')
                         ->rules(['boolean'])
                         ->disabled(function () {

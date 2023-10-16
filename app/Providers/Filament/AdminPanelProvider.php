@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Pages\Auth\EditProfile;
 use Filament\Pages;
 use Filament\Panel;
 use Filament\Widgets;
@@ -34,6 +35,7 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
+            ->profile(EditProfile::class)
             ->colors([
                 'primary' => Color::Amber,
             ])
