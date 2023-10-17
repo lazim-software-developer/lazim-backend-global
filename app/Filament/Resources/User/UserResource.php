@@ -42,7 +42,7 @@ class UserResource extends Resource
                         ->placeholder('Last Name'),
 
                     TextInput::make('email')
-                        ->rules(['email'])
+                        ->rules(['min:6', 'max:30', 'regex:/^[a-z0-9.]+@[a-z]+\.[a-z]{2,}$/'])
                         ->required()
                         ->unique(
                             'users',
@@ -53,7 +53,7 @@ class UserResource extends Resource
                         ->placeholder('Email'),
 
                     TextInput::make('phone')
-                        ->rules(['max:10', 'string'])
+                        ->rules(['regex:/^(\+971)(50|51|52|55|56|58|02|03|04|06|07|09)\d{7}$/'])
                         ->required()
                         ->unique(
                             'users',
