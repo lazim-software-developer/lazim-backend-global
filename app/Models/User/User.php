@@ -33,7 +33,7 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Jetstream\HasProfilePhoto;
 use Laravel\Sanctum\HasApiTokens;
 
-class User extends Authenticatable implements FilamentUser,HasName
+class User extends Authenticatable implements FilamentUser, HasName
 {
     use Notifiable;
     use HasFactory;
@@ -70,20 +70,17 @@ class User extends Authenticatable implements FilamentUser,HasName
     {
 
         return $this->fullName;
-
     }
 
     public function getFullNameAttribute(): string
     {
 
         return "{$this->first_name} {$this->last_name}";
-
     }
 
     public function oaUserRegistration()
     {
-       return $this->hasMany(OaUserRegistration::class);
-
+        return $this->hasMany(OaUserRegistration::class);
     }
     public function role()
     {
@@ -180,11 +177,18 @@ class User extends Authenticatable implements FilamentUser,HasName
         return false;
     }
 
-    public function ownerAssociation() {
+    public function ownerAssociation()
+    {
         return $this->belongsTo(OwnerAssociation::class);
     }
 
-    public function residences() {
+    public function residences()
+    {
         return $this->belongsToMany(Flat::class, 'flat_tenants', 'tenant_id');
+    }
+
+    public function likedPosts()
+    {
+        return $this->hasMany(PostLike::class);
     }
 }

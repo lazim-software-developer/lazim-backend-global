@@ -10,7 +10,9 @@ use App\Http\Controllers\Api\Auth\RegisterationController;
 use App\Http\Controllers\Api\Auth\VerificationController;
 use App\Http\Controllers\Building\BuildingController;
 use App\Http\Controllers\Building\FlatController;
+use App\Http\Controllers\Community\CommentController;
 use App\Http\Controllers\Community\PostController;
+use App\Http\Controllers\Community\PostLikeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -35,7 +37,7 @@ Route::post('/verify-otp', [VerificationController::class, 'verify']);
 Route::post('/set-password', [AuthController::class, 'setPassword']);
 
 // These APIs work only if the user's account is active
-Route::middleware(['active', 'email.verified', 'phone.verified'])->group(function () {
+Route::middleware(['active'])->group(function () {
     // Login routes for mobile app
     Route::post('/customer-login', [AuthController::class, 'customerLogin']);
 
@@ -43,7 +45,8 @@ Route::middleware(['active', 'email.verified', 'phone.verified'])->group(functio
     Route::post('/refresh-token', [AuthController::class, 'refreshToken']);
 
     // Forgot password route
-    Route::post('/forgot-password',
+    Route::post(
+        '/forgot-password',
         [ResetPasswordController::class, 'forgotPassword']
     );
     Route::post('/reset-password', [ResetPasswordController::class, 'resetPassword']);
@@ -71,7 +74,6 @@ Route::group(['middleware' => ["auth:sanctum", "verified"]], function () {
 
     // Get service periods for a given property Id
     Route::get('/service-periods/{propertyId}', [MollakController::class, 'fetchServicePeriods']);
-
 });
 /**
  * Middleware Group: API Token Protection
@@ -100,7 +102,21 @@ Route::middleware(['api.token'])->group(function () {
 /**
  * Community related APIs
  */
-Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified'])->group(function () {
+Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active'])->group(function () {
     //  List all posts for the buidling
     Route::get('/building/{building}/posts', [PostController::class, 'index']);
+
+    // create a post
+    Route::post('/building/{building}/posts', [PostController::class, 'store']);
+    Route::get('/posts/{post}', [PostController::class, 'show']);
+
+    // Post a comment on a post
+    Route::post('/posts/{post}/comments', [CommentController::class, 'store']);
+    Route::get('/posts/{post}/comments', [CommentController::class, 'index']);
+
+    // Like and unlike a post
+    Route::post('/posts/{post}/like', [PostLikeController::class, 'like'])->name('posts.like');
+    Route::delete('/posts/{post}/unlike', [PostLikeController::class, 'unlike'])->name('posts.unlike');
+    // List all users who liked the post
+    Route::get('/posts/{post}/likers', [PostLikeController::class, 'likers'])->name('posts.likers');
 });

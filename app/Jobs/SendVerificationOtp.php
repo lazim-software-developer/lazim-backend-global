@@ -26,19 +26,17 @@ class SendVerificationOtp implements ShouldQueue
         // Generate OTPs
         $emailOtp = rand(1000, 9999);
         $phoneOtp = rand(1000, 9999);
-
+        
         // Store OTPs in the database
-        DB::table('otp_verifications')->insert([
-            'otp' => $emailOtp,
-            'type' => 'email',
-            'contact_value' => $this->user->email,
-        ]);
+        DB::table('otp_verifications')->updateOrInsert(
+            ['type' => 'email', 'contact_value' => $this->user->emai],
+            ['otp' => $emailOtp]
+        );
 
-        DB::table('otp_verifications')->insert([
-            'otp' => $phoneOtp,
-            'type' => 'phone',
-            'contact_value' => $this->user->phone,
-        ]);
+        DB::table('otp_verifications')->updateOrInsert(
+            ['type' => 'phone', 'contact_value' => $this->user->phone],
+            ['otp' => $phoneOtp]
+        );
 
         // Send the email with the OTPs
         $data = [

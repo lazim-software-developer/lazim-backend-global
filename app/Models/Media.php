@@ -9,6 +9,8 @@ class Media extends Model
 {
     use HasFactory;
 
+    protected $fillable = ['name', 'url', 'mediaable_id', 'mediaable_type'];
+
     public function mediaable()
     {
         return $this->morphTo();
