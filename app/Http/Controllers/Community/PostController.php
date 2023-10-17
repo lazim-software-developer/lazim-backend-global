@@ -21,7 +21,9 @@ class PostController extends Controller
     {
         $this->authorize('viewAny', [Post::class, $buildingId]);
 
-        $query = Post::where('building_id', $buildingId);
+        $query = Post::where('building_id', $buildingId)
+                 ->where('status', 'published')
+                 ->where('scheduled_at', '<=', now());
 
         // If the request has a type parameter, filter by it
         if ($request->has('type')) {
@@ -47,6 +49,7 @@ class PostController extends Controller
             'content' => $request->content,
             'building_id' => $buildingId,
             'user_id' => auth()->user()->id,
+            'is_announcement' => $request->is_announcement ?? false
         ]);
 
         // Change this to upload images

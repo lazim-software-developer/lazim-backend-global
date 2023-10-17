@@ -6,6 +6,7 @@ use App\Models\Media;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Community\PostLike;
+use Carbon\Carbon;
 
 class Post extends Model
 {
@@ -48,5 +49,10 @@ class Post extends Model
             return $this->likes->where('user_id', auth()->user()->id)->isNotEmpty();
         }
         return false;
+    }
+
+    public function getScheduledAtDiffAttribute()
+    {
+        return Carbon::parse($this->attributes['scheduled_at'])->diffForHumans();
     }
 }
