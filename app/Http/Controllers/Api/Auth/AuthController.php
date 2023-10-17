@@ -82,6 +82,24 @@ class AuthController extends Controller
             ]);
         }
 
+        // Check if the user's email and phone number is verified
+
+        if (!$user->email_verified) {
+            return (new CustomResponseResource([
+                'title' => 'Email Verification Required',
+                'message' => 'Email is not verified.',
+                'errorCode' => 403,
+            ]))->response()->setStatusCode(403);
+        }
+
+        if (!$user->phon_verified) {
+            return (new CustomResponseResource([
+                'title' => 'Phone Verification Required',
+                'message' => 'Phone number is not verified.',
+                'errorCode' => 403,
+            ]))->response()->setStatusCode(403);
+        }
+
         // Create a new access token
         $token = $user->createToken($request->role)->plainTextToken;
 
@@ -136,7 +154,7 @@ class AuthController extends Controller
         return (new CustomResponseResource([
             'title' => 'Password set successfully!',
             'message' => 'Test',
-            'errorCode' => 200, 
+            'errorCode' => 200,
             'status' => 'success'
         ]))->response()->setStatusCode(200);
     }
