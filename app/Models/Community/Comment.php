@@ -1,17 +1,15 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Community;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Media extends Model
+class Comment extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'url', 'mediaable_id', 'mediaable_type'];
-
-    public function mediaable()
+    public function commentable()
     {
         return $this->morphTo();
     }
