@@ -1,12 +1,12 @@
 <?php
- 
+
 namespace App\Filament\Pages\Auth;
- 
+
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Pages\Auth\EditProfile as BaseEditProfile;
 use Illuminate\Database\Eloquent\Model;
- 
+
 class EditProfile extends BaseEditProfile
 {
     public function form(Form $form): Form
@@ -17,7 +17,7 @@ class EditProfile extends BaseEditProfile
                     ->required()
                     ->label('Name')
                     ->maxLength(255),
-                
+
                 TextInput::make('email')
                     ->rules(['email'])
                     ->required()
@@ -30,7 +30,7 @@ class EditProfile extends BaseEditProfile
                     ->placeholder('Email'),
 
                 TextInput::make('phone')
-                    ->rules(['max:10', 'string'])
+                    ->rules(['regex:/^\+971-?4-?\d{7}$/', 'string'])
                     ->required()
                     ->unique(
                         'users',
