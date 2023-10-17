@@ -45,14 +45,13 @@ class OwnerAssociationResource extends Resource
 
                         ->placeholder('TRN Number'),
                     TextInput::make('phone')
-                        ->rules(['digits:10', 'integer', 'regex:/^[6-9]\d{9}$/'])
+                        ->rules(['digits:10', 'integer', 'regex:/^(\+971)(50|51|52|55|56|58|2|3|4|6|7|9)\d{7}$/'])
                         ->required()
-                        ->placeholder('Contact Number')
                         ->unique(
                             'users',
                             'phone',
-                            fn(?Model $record) => $record
-                        ),
+                        )
+                        ->placeholder('Contact Number'),
                     TextInput::make('address')
                         ->required()
                         ->placeholder('Address'),
@@ -64,13 +63,15 @@ class OwnerAssociationResource extends Resource
                                 ->where('verified', 1)
                                 ->exists();
                         })
-                        ->placeholder('Email')
                         ->unique(
                             'users',
                             'email',
-                            fn(?Model $record) => $record
-                        ),
+                        )
+                        ->placeholder('Email'),
                     Toggle::make('verified')
+                        ->rules(['boolean']),
+                    Toggle::make('active')
+                        ->label('Active')
                         ->rules(['boolean']),
 
                 ]),

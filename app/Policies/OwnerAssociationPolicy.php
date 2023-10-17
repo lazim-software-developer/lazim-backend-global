@@ -62,9 +62,6 @@ class OwnerAssociationPolicy
      */
     public function delete(User $user, OwnerAssociation $model): bool
     {
-        $role = $user->role;
-
-        return $role && $role->name == 'Admin';
 
         return false;
 
@@ -75,9 +72,7 @@ class OwnerAssociationPolicy
      */
     public function deleteAny(User $user): bool
     {
-        $role = $user->role;
-
-        return $role && $role->name == 'Admin';
+        return false;
 
     }
 
