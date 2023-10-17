@@ -92,7 +92,7 @@ class AuthController extends Controller
             ]))->response()->setStatusCode(403);
         }
 
-        if (!$user->phon_verified) {
+        if (!$user->phone_verified) {
             return (new CustomResponseResource([
                 'title' => 'Phone Verification Required',
                 'message' => 'Phone number is not verified.',
