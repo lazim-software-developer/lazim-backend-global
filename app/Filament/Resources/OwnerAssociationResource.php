@@ -45,7 +45,7 @@ class OwnerAssociationResource extends Resource
 
                         ->placeholder('TRN Number'),
                     TextInput::make('phone')
-                        ->rules(['digits:10', 'integer', 'regex:/^(\+971)(50|51|52|55|56|58|2|3|4|6|7|9)\d{7}$/'])
+                        ->rules(['regex:/^(\+971)(50|51|52|55|56|58|02|03|04|06|07|09)\d{7}$/'])
                         ->required()
                         ->unique(
                             'users',
@@ -94,11 +94,11 @@ class OwnerAssociationResource extends Resource
                     ->limit(50),
                 Tables\Columns\TextColumn::make('email')
                     ->toggleable()
-                    ->searchable(true, null, true)
+                    ->searchable()
                     ->limit(50),
                 Tables\Columns\TextColumn::make('trn_number')
                     ->toggleable()
-                    ->searchable(true, null, true)
+                    ->searchable()
                     ->limit(50),
                 Tables\Columns\TextColumn::make('address')
                     ->toggleable(),
