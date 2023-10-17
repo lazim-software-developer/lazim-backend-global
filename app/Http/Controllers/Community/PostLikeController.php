@@ -2,19 +2,18 @@
 
 namespace App\Http\Controllers\Community;
 
-use App\Filament\Resources\User\UserResource;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\CustomResponseResource;
+use App\Http\Resources\User\UserResource;
 use App\Models\Community\Post;
 use App\Models\Community\PostLike;
-use Illuminate\Http\Request;
 
 class PostLikeController extends Controller
 {
-    public function like(Post $post, Request $request)
+    public function like(Post $post)
     {
         $existingLike = PostLike::where('post_id', $post->id)
-            ->where('user_id', $request->user()->id)
+            ->where('user_id', auth()->user()->id)
             ->first();
 
         if ($existingLike) {
@@ -27,7 +26,7 @@ class PostLikeController extends Controller
 
         PostLike::create([
             'post_id' => $post->id,
-            'user_id' => $request->user()->id
+            'user_id' => auth()->user()->id
         ]);
 
         return (new CustomResponseResource([
@@ -37,10 +36,10 @@ class PostLikeController extends Controller
         ]))->response()->setStatusCode(200);
     }
 
-    public function unlike(Post $post, Request $request)
+    public function unlike(Post $post)
     {
         $existingLike = PostLike::where('post_id', $post->id)
-            ->where('user_id', $request->user()->id)
+            ->where('user_id', auth()->user()->id)
             ->first();
 
         if (!$existingLike) {
@@ -63,7 +62,9 @@ class PostLikeController extends Controller
     public function likers(Post $post)
     {
         // Fetch users who liked the post
-        $users = $post->likes->pluck('user');
+        $users = $post->likes->map(function ($like) {
+            return $like->user;
+        });
 
         return UserResource::collection($users);
     }
