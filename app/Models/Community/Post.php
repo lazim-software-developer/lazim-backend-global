@@ -2,7 +2,9 @@
 
 namespace App\Models\Community;
 
+use App\Models\Building\Building;
 use App\Models\Media;
+use App\Models\User\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Community\PostLike;
@@ -16,7 +18,9 @@ class Post extends Model
     protected $fillable = [
         'user_id', 'content', 'status', 'scheduled_at', 'building_id', 'is_announcement'
     ];
-
+    protected $casts = [
+        'is_announcement' => 'boolean',
+    ];
     protected $appends = ['is_liked_by_user'];
 
     public function user()
