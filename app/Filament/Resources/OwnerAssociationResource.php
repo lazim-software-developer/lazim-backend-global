@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\OwnerAssociationResource\Pages;
 use App\Models\OwnerAssociation;
+use Filament\Forms\Components\Component;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -68,21 +69,13 @@ class OwnerAssociationResource extends Resource
                         ->unique(
                             'users',
                             'email',
-                            // function(callable $get)
-                            // {
-                            //     $check = DB::table('owner_associations')
-                            //     ->where('phone',$get('phone'))
-                            //     ->where('verified', 0)
-                            //     ->exists();
-                            //     return $check;
-                            // }
-                            // modifyRuleUsing: function (Unique $rule,callable $get) {
-                            //     if(DB::table('owner_associations')->where('email',$get('email'))->where('verified', 1)->exists())
-                            //     {
-                            //         return $rule->whereNot('email',$get('email'));
-                            //     }
-                            //     return $rule->where('email',$get('email'));
-                            // }
+                            modifyRuleUsing: function (Unique $rule,callable $get,?Model $record) {
+                                if(DB::table('users')->where('owner_association_id',$record->id)->exists())
+                                {
+                                    return $rule->whereNot('email',$get('email'));
+                                }
+                                return $rule->where('email',$get('email'));
+                            }
                         )
                         ->placeholder('Email'),
                     Toggle::make('verified')
