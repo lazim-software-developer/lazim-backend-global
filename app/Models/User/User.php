@@ -10,6 +10,7 @@ use App\Models\Building\Document;
 use App\Models\Building\FacilityBooking;
 use App\Models\Building\Flat;
 use App\Models\Building\FlatTenant;
+use App\Models\Community\Post;
 use App\Models\Master\Role;
 use App\Models\OaDetails;
 use App\Models\OaUserRegistration as ModelsOaUserRegistration;
@@ -190,5 +191,9 @@ class User extends Authenticatable implements FilamentUser, HasName
     public function likedPosts()
     {
         return $this->hasMany(PostLike::class);
+    }
+    public function Posts()
+    {
+        return $this->hasMany(Post::class);
     }
 }
