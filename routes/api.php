@@ -14,6 +14,7 @@ use App\Http\Controllers\Community\CommentController;
 use App\Http\Controllers\Community\PostController;
 use App\Http\Controllers\Community\PostLikeController;
 use App\Http\Controllers\Facility\FacilityController;
+use App\Http\Controllers\User\UserController;
 
 /*
 |--------------------------------------------------------------------------
@@ -75,6 +76,9 @@ Route::group(['middleware' => ["auth:sanctum", "verified"]], function () {
 
     // Get service periods for a given property Id
     Route::get('/service-periods/{propertyId}', [MollakController::class, 'fetchServicePeriods']);
+
+    // List all buildings for the logged in user
+    Route::get('/user/flats', [UserController::class, 'fetchUserFlats']);
 });
 /**
  * Middleware Group: API Token Protection
