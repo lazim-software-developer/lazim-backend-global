@@ -11,7 +11,6 @@ class UserController extends Controller
     {
         $user = auth()->user();
 
-        // Assuming you have a relationship defined in the User model for flats
         $flats = $user->residences;
 
         return UserFlatResource::collection($flats);
