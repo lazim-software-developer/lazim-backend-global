@@ -135,4 +135,7 @@ Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active']
 
     // Book a facility
     Route::post('buildings/{building}/book/facility', [FacilityController::class, 'bookFacility'])->name('facility.book');
+    
+    // My bookings API - List all bookings for logged in user
+    Route::get('building/{building}/user-bookings', [FacilityController::class, 'userBookings']);
 });
