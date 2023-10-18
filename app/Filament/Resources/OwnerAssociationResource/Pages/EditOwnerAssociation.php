@@ -38,6 +38,7 @@ class EditOwnerAssociation extends EditRecord
                 'name'    => $this->record->name,
                 'phone'   => $this->record->phone,
                 'address' => $this->record->address,
+                'active'  => $this->record->active,
             ]);
         User::where('owner_association_id', $this->data['id'])
             ->update([
@@ -45,7 +46,7 @@ class EditOwnerAssociation extends EditRecord
                 'phone'      => $this->record->phone,
             ]);
 
-        if ($this->record->verified == 'true') {
+        if ($this->record->verified == 'true' && OwnerAssociation::where('id',$this->data['id'])->pluck('verified_by')[0] != 1) {
             OwnerAssociation::where('id', $this->data['id'])
                 ->update([
                     'verified_by' => auth()->id(),
@@ -63,14 +64,15 @@ class EditOwnerAssociation extends EditRecord
 
             ]);
             AccountCreationJob::dispatch($user, $password);
-        } else {
+        } 
+        // else {
 
-            OwnerAssociation::where('id', $this->data['id'])
-                ->update([
-                    'verified_by' => null,
+        //     OwnerAssociation::where('id', $this->data['id'])
+        //         ->update([
+        //             'verified_by' => null,
 
-                ]);
-        }
+        //         ]);
+        // }
 
     }
 }

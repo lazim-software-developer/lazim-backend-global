@@ -2,6 +2,7 @@
 
 namespace App\Models\Building;
 
+use App\Models\Community\Post;
 use App\Models\Master\Role;
 use App\Models\Master\Service;
 use App\Models\OwnerAssociation;
@@ -123,4 +124,9 @@ class Building extends Model
     {
         return $this->belongsTo(OwnerAssociation::class);
     }
+    public function posts()
+    {
+        return $this->hasMany(Post::class);
+    }
+
 }
