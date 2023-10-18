@@ -18,7 +18,7 @@ class RegisterRequest extends FormRequest
     {
         return [
             'email' => 'required|unique:users,email|regex:/^[a-zA-Z0-9_.-]+@[a-zA-Z]+\.[a-zA-Z]+$/',
-            'mobile' => 'required|string|unique:users,phone|regex:/^\+971-?4-?\d{7}$/',
+            'mobile' => 'required|string|unique:users,phone',
             'building_id' => 'required|integer',
             'flat_id' => 'required|integer',
         ];
