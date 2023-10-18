@@ -2,8 +2,10 @@
 
 namespace App\Providers;
 
+use App\Models\Building\FacilityBooking;
 use App\Models\Community\Post;
 use App\Policies\Community\PostPolicy;
+use App\Policies\FacilityPolicy;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 
@@ -16,6 +18,7 @@ class AuthServiceProvider extends ServiceProvider
      */
     protected $policies = [
         Post::class => PostPolicy::class,
+        FacilityBooking::class => FacilityPolicy::class,
     ];
 
     /**

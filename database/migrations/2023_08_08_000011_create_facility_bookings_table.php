@@ -27,8 +27,6 @@ return new class extends Migration {
             $table->unsignedBigInteger('approved_by')->nullable();
             $table->timestamps();
             $table->foreign('owner_association_id')->references('id')->on('owner_associations');
-
-
         });
     }
 

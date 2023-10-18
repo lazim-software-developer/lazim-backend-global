@@ -6,6 +6,7 @@ use App\Models\Media;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Community\PostLike;
+use App\Models\User\User;
 use Carbon\Carbon;
 
 class Post extends Model
