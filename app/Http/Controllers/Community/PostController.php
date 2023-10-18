@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Community\CreatePostRequest;
 use App\Models\Community\Post;
 use App\Http\Resources\Community\PostResource;
+use App\Http\Resources\CustomResponseResource;
 use App\Models\Media;
 use Illuminate\Http\Request;
 
@@ -45,22 +46,34 @@ class PostController extends Controller
         $this->authorize('create', [Post::class, $buildingId]);
         // Create a new post with the provided data and the building_id and user_id
         $post = Post::create([
-            'title' => $request->title,
             'content' => $request->content,
             'building_id' => $buildingId,
             'user_id' => auth()->user()->id,
             'is_announcement' => $request->is_announcement ?? false
         ]);
 
-        // Change this to upload images
-        $media = new Media([
-            'name' => 'one',
-            'url' => 'path',
-        ]);
 
-        $post->media()->save($media);
+        // Handle multiple images
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $image) {
+                $imagePath = optimizeAndUpload($image, 'dev');
 
-        return $post;
+                // Create a new media entry for each image
+                $media = new Media([
+                    'name' => basename($imagePath), // Extracts filename from the full path
+                    'url' => $imagePath,
+                ]);
+
+                // Attach the media to the post
+                $post->media()->save($media);
+            }
+
+            return (new CustomResponseResource([
+                'title' => 'Success',
+                'message' => 'Post created successfully!',
+                'errorCode' => 201,
+            ]))->response()->setStatusCode(201);
+        }
     }
 
     /**
