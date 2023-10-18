@@ -1,12 +1,12 @@
 <?php
- 
+
 namespace App\Filament\Pages\Auth;
- 
+
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Pages\Auth\EditProfile as BaseEditProfile;
 use Illuminate\Database\Eloquent\Model;
- 
+
 class EditProfile extends BaseEditProfile
 {
     protected ?string $heading = 'Edit Profile';
@@ -19,7 +19,7 @@ class EditProfile extends BaseEditProfile
                     ->required()
                     ->label('Name')
                     ->maxLength(255),
-                
+
                 TextInput::make('email')
                     ->rules(['min:6', 'max:30', 'regex:/^[a-z0-9.]+@[a-z]+\.[a-z]{2,}$/'])
                     ->required()
