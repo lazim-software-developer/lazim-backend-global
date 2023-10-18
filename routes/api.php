@@ -13,6 +13,7 @@ use App\Http\Controllers\Building\FlatController;
 use App\Http\Controllers\Community\CommentController;
 use App\Http\Controllers\Community\PostController;
 use App\Http\Controllers\Community\PostLikeController;
+use App\Http\Controllers\Facility\FacilityController;
 
 /*
 |--------------------------------------------------------------------------
@@ -119,4 +120,15 @@ Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active']
     Route::delete('/posts/{post}/unlike', [PostLikeController::class, 'unlike'])->name('posts.unlike');
     // List all users who liked the post
     Route::get('/posts/{post}/likers', [PostLikeController::class, 'likers'])->name('posts.likers');
+});
+
+
+/**
+ * Facility related APIs
+ */
+Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active'])->group(function () {
+    Route::get('buildings/{building}/facilities', [FacilityController::class, 'index']);
+
+    // Book a facility
+    Route::post('buildings/{building}/book/facility', [FacilityController::class, 'bookFacility'])->name('facility.book');
 });

@@ -4,7 +4,7 @@ namespace App\Models\Building;
 
 use App\Models\Master\Role;
 use App\Models\Master\Service;
-use App\Models\OaUserRegistration;
+use App\Models\OwnerAssociation;
 use App\Models\Master\City;
 use App\Models\Building\Flat;
 use App\Models\Master\Facility;
@@ -119,8 +119,8 @@ class Building extends Model
     {
         return $this->morphMany(Complaint::class, 'complaintable');
     }
-    public function oaUserRegistration()
+    public function ownerAssociation()
     {
-        return $this->belongsTo(OaUserRegistration::class);
+        return $this->belongsTo(OwnerAssociation::class);
     }
 }
