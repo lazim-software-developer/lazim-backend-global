@@ -9,18 +9,21 @@ use Illuminate\Database\Eloquent\Model;
 
 class EditProfile extends BaseEditProfile
 {
+    protected ?string $heading = 'Edit Profile';
     public function form(Form $form): Form
     {
         return $form
             ->schema([
                 TextInput::make('first_name')
+                    ->rules(['max:50', 'string'])
                     ->required()
                     ->label('Name')
                     ->maxLength(255),
 
                 TextInput::make('email')
-                    ->rules(['email'])
+                    ->rules(['min:6', 'max:30', 'regex:/^[a-z0-9.]+@[a-z]+\.[a-z]{2,}$/'])
                     ->required()
+                    ->disabled()
                     ->unique(
                         'users',
                         'email',
@@ -30,7 +33,7 @@ class EditProfile extends BaseEditProfile
                     ->placeholder('Email'),
 
                 TextInput::make('phone')
-                    ->rules(['regex:/^\+971-?4-?\d{7}$/', 'string'])
+                    ->rules(['regex:/^(\+971)(50|51|52|55|56|58|02|03|04|06|07|09)\d{7}$/'])
                     ->required()
                     ->unique(
                         'users',
@@ -38,10 +41,10 @@ class EditProfile extends BaseEditProfile
                         fn(?Model $record) => $record
                     )
                     ->placeholder('Phone'),
-                // $this->getNameFormComponent(),
-                // $this->getEmailFormComponent(),
-                // $this->getPasswordFormComponent(),
-                // $this->getPasswordConfirmationFormComponent(),
+                //$this->getNameFormComponent(),
+                //$this->getEmailFormComponent(),
+                $this->getPasswordFormComponent(),
+                $this->getPasswordConfirmationFormComponent(),
             ]);
     }
 }
