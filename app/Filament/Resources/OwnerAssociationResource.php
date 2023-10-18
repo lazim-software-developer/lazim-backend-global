@@ -13,6 +13,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rules\Unique;
 
 class OwnerAssociationResource extends Resource
 {
@@ -58,18 +59,40 @@ class OwnerAssociationResource extends Resource
                     TextInput::make('email')
                         ->rules(['min:6', 'max:30', 'regex:/^[a-z0-9.]+@[a-z]+\.[a-z]{2,}$/'])
                         ->required()
-                        ->disabled(function () {
+                        ->disabled(function (callable $get) {
                             return DB::table('owner_associations')
+                                ->where('phone',$get('phone'))
                                 ->where('verified', 1)
                                 ->exists();
                         })
                         ->unique(
                             'users',
                             'email',
+                            // function(callable $get)
+                            // {
+                            //     $check = DB::table('owner_associations')
+                            //     ->where('phone',$get('phone'))
+                            //     ->where('verified', 0)
+                            //     ->exists();
+                            //     return $check;
+                            // }
+                            // modifyRuleUsing: function (Unique $rule,callable $get) {
+                            //     if(DB::table('owner_associations')->where('email',$get('email'))->where('verified', 1)->exists())
+                            //     {
+                            //         return $rule->whereNot('email',$get('email'));
+                            //     }
+                            //     return $rule->where('email',$get('email'));
+                            // }
                         )
                         ->placeholder('Email'),
                     Toggle::make('verified')
-                        ->rules(['boolean']),
+                        ->rules(['boolean'])
+                        ->disabled(function (callable $get) {
+                            return DB::table('owner_associations')
+                                ->where('phone',$get('phone'))
+                                ->where('verified', 1)
+                                ->exists();
+                        }),
                     Toggle::make('active')
                         ->label('Active')
                         ->rules(['boolean']),
@@ -88,6 +111,7 @@ class OwnerAssociationResource extends Resource
                     ->limit(50),
                 Tables\Columns\TextColumn::make('name')
                     ->toggleable()
+                    ->searchable()
                     ->limit(50),
                 Tables\Columns\TextColumn::make('phone')
                     ->toggleable()
