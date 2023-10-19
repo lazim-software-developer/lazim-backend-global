@@ -83,15 +83,17 @@ class ComplaintResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('complaintable_type')
                     ->toggleable()
-                    ->searchable(true, null, true),
+                    ->searchable(),
                 ViewColumn::make('Name')->view('tables.columns.combined-column')
-                    ->toggleable(),
+                    ->toggleable()
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('user.first_name')
                     ->toggleable()
+                    ->searchable()
                     ->limit(50),
                 Tables\Columns\TextColumn::make('category')
                     ->toggleable()
-                    ->searchable(true, null, true)
+                    ->searchable()
                     ->limit(50),
                 Tables\Columns\TextColumn::make('open_time')
                     ->toggleable()
@@ -105,7 +107,7 @@ class ComplaintResource extends Resource
                     ->toggleable(),
                 Tables\Columns\TextColumn::make('status')
                     ->toggleable()
-                    ->searchable(true, null, true)
+                    ->searchable()
                     ->limit(50),
             ])
             ->filters([
