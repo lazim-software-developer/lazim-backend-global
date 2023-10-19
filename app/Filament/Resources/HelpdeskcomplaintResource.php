@@ -2,7 +2,8 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\SnaggingResource\Pages;
+use App\Filament\Resources\HelpdeskcomplaintResource\Pages;
+use App\Filament\Resources\HelpdeskcomplaintResource\RelationManagers;
 use App\Models\Building\Building;
 use App\Models\Building\Complaint;
 use App\Models\Building\FlatTenant;
@@ -15,18 +16,20 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-class SnaggingResource extends Resource
+class HelpdeskcomplaintResource extends Resource
 {
     protected static ?string $model = Complaint::class;
 
-    protected static ?string $navigationIcon  = 'heroicon-o-rectangle-stack';
-    protected static ?string $navigationLabel = 'Snags';
+    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $modelLabel = 'Complaint';
 
-    protected static ?string $navigationGroup = 'Property Management';
+    protected static ?string $navigationGroup = 'Help Desk';
 
     public static function form(Form $form): Form
     {
@@ -38,11 +41,8 @@ class SnaggingResource extends Resource
                     'lg' => 2])
                     ->schema([
                         MorphToSelect::make('complaintable')
-
                             ->types([
-                                Type::make(Building::class)->titleAttribute('name'),
                                 Type::make(FlatTenant::class)->titleAttribute('tenant_id'),
-
                             ]),
                         TextInput::make('complaintable_id')
                             ->rules(['max:255'])
@@ -79,30 +79,26 @@ class SnaggingResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn(Builder $query) => $query->where('complaintable_type', 'App\Models\Building\Building')->withoutGlobalScopes())
-            ->poll('60s')
+            // ->modifyQueryUsing(fn(Builder $query) => $query->where('complaintable_type', 'App\Models\Building\Building')->withoutGlobalScopes())
+            // ->poll('60s')
             ->columns([
-                Tables\Columns\TextColumn::make('complaintable_type')
-                    ->toggleable()
-                    ->searchable()
-                    ->limit(50),
                 ViewColumn::make('name')->view('tables.columns.combined-column')
                     ->toggleable(),
-                Tables\Columns\TextColumn::make('user.first_name')
+                TextColumn::make('user.first_name')
                     ->toggleable()
                     ->limit(50),
-                Tables\Columns\TextColumn::make('category')
+                TextColumn::make('category')
                     ->toggleable()
                     ->searchable()
                     ->limit(50),
-                Tables\Columns\TextColumn::make('open_time')
+                TextColumn::make('open_time')
                     ->toggleable()
                     ->dateTime(),
-                Tables\Columns\TextColumn::make('status')
+                TextColumn::make('status')
                     ->toggleable()
                     ->searchable()
                     ->limit(50),
-                Tables\Columns\TextColumn::make('close_time')
+                TextColumn::make('close_time')
                     ->toggleable()
                     ->dateTime(),
 
@@ -122,20 +118,20 @@ class SnaggingResource extends Resource
                 Tables\Actions\CreateAction::make(),
             ]);
     }
-
+    
     public static function getRelations(): array
     {
         return [
             //
         ];
     }
-
+    
     public static function getPages(): array
     {
         return [
-            'index'  => Pages\ListSnaggings::route('/'),
-            'create' => Pages\CreateSnagging::route('/create'),
-            'edit'   => Pages\EditSnagging::route('/{record}/edit'),
+            'index' => Pages\ListHelpdeskcomplaints::route('/'),
+            'create' => Pages\CreateHelpdeskcomplaint::route('/create'),
+            'edit' => Pages\EditHelpdeskcomplaint::route('/{record}/edit'),
         ];
-    }
+    }    
 }
