@@ -2,11 +2,13 @@
 
 namespace App\Models\Building;
 
-use App\Models\Building\FlatTenant;
 use App\Models\Building\Building;
+use App\Models\Community\Comment;
+use App\Models\Media;
 use App\Models\OaUserRegistration;
 use App\Models\Scopes\Searchable;
 use App\Models\User\User;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -19,14 +21,16 @@ class Complaint extends Model
         'complaintable_type',
         'complaintable_id',
         'user_id',
-        'complaint_type',
+        'complaint',
         'category',
         'open_time',
         'close_time',
         'photo',
         'remarks',
         'status',
-        'owner_association_id'
+        'owner_association_id',
+        'building_id',
+        'closed_by'
     ];
 
     protected $searchableFields = ['*'];
@@ -56,5 +60,19 @@ class Complaint extends Model
     {
         return $this->belongsTo(OaUserRegistration::class);
     }
+    
+    public function comments()
+    {
+        return $this->morphMany(Comment::class, 'commentable');
+    }
 
+    public function media()
+    {
+        return $this->morphMany(Media::class, 'mediaable');
+    }
+
+    public function getOpenTimeDiffAttribute()
+    {
+        return Carbon::parse($this->attributes['open_time'])->diffForHumans();
+    }
 }
