@@ -16,5 +16,5 @@ function optimizeAndUpload($image, $path, $width = 474, $height = 622) {
 
     Storage::disk('s3')->put($fullPath, (string) $optimizedImage, 'public');
 
-    return Storage::disk('s3')->url($fullPath);
+    return $fullPath;
 }
