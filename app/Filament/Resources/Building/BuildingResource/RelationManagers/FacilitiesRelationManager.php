@@ -3,7 +3,9 @@
 namespace App\Filament\Resources\Building\BuildingResource\RelationManagers;
 
 use Filament\Forms;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -31,16 +33,16 @@ class FacilitiesRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
-                    RichEditor::make('icon')
-                        ->rules(['max:255', 'string'])
-                        ->placeholder('Icon')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
-    
+
+                    FileUpload::make('icon')
+                    ->disk('s3')
+                    ->directory('dev')
+                    ->image()
+                    ->columnSpan([
+                        'default' => 12,
+                        'md' => 12,
+                        'lg' => 12,
+                    ]),
                     Toggle::make('active')
                         ->rules(['boolean'])
                         ->columnSpan([
@@ -48,6 +50,8 @@ class FacilitiesRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
+                    // Hidden::make('owner_association_id')
+                    //     ->default(auth()->user()->id),
                 ]),
             ]);
     }
