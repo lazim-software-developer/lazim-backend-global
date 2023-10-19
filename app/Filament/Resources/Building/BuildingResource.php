@@ -119,6 +119,7 @@ class BuildingResource extends Resource
                 ->limit(50),
             Tables\Columns\TextColumn::make('cities.name')
                 ->toggleable()
+                ->searchable()
                 ->limit(50),
             Tables\Columns\TextColumn::make('lat')
                 ->toggleable()
