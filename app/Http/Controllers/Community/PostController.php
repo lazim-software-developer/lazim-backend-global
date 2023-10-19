@@ -56,7 +56,7 @@ class PostController extends Controller
         // Handle multiple images
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $image) {
-                $imagePath = optimizeAndUpload($image, 'dev');
+               $imagePath = optimizeAndUpload($image, 'dev');
 
                 // Create a new media entry for each image
                 $media = new Media([

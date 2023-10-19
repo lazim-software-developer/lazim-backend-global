@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Storage;
 
 class MediaResource extends JsonResource
 {
@@ -16,7 +17,7 @@ class MediaResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'url'=> $this->url
+            'url'=> Storage::disk('s3')->url($this->url)
         ];
     }
 }
