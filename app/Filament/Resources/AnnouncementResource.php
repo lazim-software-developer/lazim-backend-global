@@ -8,10 +8,13 @@ use App\Models\Announcement;
 use App\Models\Community\Post;
 use Filament\Forms;
 use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -69,14 +72,38 @@ class AnnouncementResource extends Resource
                         ->relationship('building', 'name')
                         ->searchable()
                         ->preload()
-                        ->required(), 
+                        ->required()
+                        ->columnSpan([
+                            'sm' => 1,
+                            'md' => 1,
+                            'lg' => 2,
+                        ]), 
                     
                     Hidden::make('user_id')
                         ->default(auth()->user()->id), 
 
                     Hidden::make('is_announcement')
                         ->default(true),
-
+                        
+                    Repeater::make('media')
+                        ->relationship('media')
+                        ->schema([
+                            TextInput::make('name')
+                                ->rules(['max:30','regex:/^[a-zA-Z\s]*$/'])
+                                ->required()
+                                ->placeholder('Name'),
+                            FileUpload::make('url')
+                                ->image()
+                                ->required()
+                                ->disk('s3')
+                                ->directory('dev')
+                                
+                        ])
+                        ->columnSpan([
+                            'sm' => 1,
+                            'md' => 1,
+                            'lg' => 2,
+                        ])
                 ])
             ]);
     }
