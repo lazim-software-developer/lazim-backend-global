@@ -10,6 +10,7 @@ use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -32,21 +33,16 @@ class BuildingResource extends Resource
                 Grid::make([
                      'sm' => 1,
                     'md' => 1,
-                    'lg' => 2,])->schema([
+                    'lg' => 1,])->schema([
                     TextInput::make('name')
                         ->rules(['max:50', 'string'])
                         ->required()
-                        ->placeholder('Name')
-                       ,
-                    TextInput::make('unit_number')
+                        ->placeholder('Name'),
+                       
+                    TextInput::make('property_group_id')
                         ->rules(['max:50', 'string'])
                         ->required()
-                        ->unique(
-                            'buildings',
-                            'unit_number',
-                            fn(?Model $record) => $record
-                        )
-                        ->placeholder('Unit Number'),
+                        ->placeholder('Property Group Id'),
 
                     RichEditor::make('address_line1')
                         ->rules(['max:255', 'string'])
@@ -71,11 +67,11 @@ class BuildingResource extends Resource
                         ->placeholder('City'),
 
                     TextInput::make('lat')
-                        ->rules(['max:50', 'string'])
+                        ->rules(['numeric'])
                         ->placeholder('Lat'),
 
                     TextInput::make('lng')
-                        ->rules(['max:50', 'string'])
+                        ->rules(['numeric'])
                         ->placeholder('Lng'),
 
                     RichEditor::make('description')
@@ -86,8 +82,12 @@ class BuildingResource extends Resource
                         ->rules(['numeric'])
                         ->required()
                         ->numeric()
-                        ->placeholder('Floors')
-                       
+                        ->placeholder('Floors'),
+
+                    Toggle::make('allow_postupload')
+                        ->rules(['boolean'])
+                        ->default(0)
+                        ->label('Allow Post Upload')
                 ]),
             ]);
     }
@@ -99,11 +99,11 @@ class BuildingResource extends Resource
         ->columns([
             Tables\Columns\TextColumn::make('name')
                 ->toggleable()
-                ->searchable(true, null, true)
+                ->searchable()
                 ->limit(50),
-            Tables\Columns\TextColumn::make('unit_number')
+            Tables\Columns\TextColumn::make('property_group_id')
                 ->toggleable()
-                ->searchable(true, null, true)
+                ->searchable()
                 ->limit(50),
             Tables\Columns\TextColumn::make('address_line1')
                 ->toggleable()
@@ -115,18 +115,18 @@ class BuildingResource extends Resource
                 ->limit(50),
             Tables\Columns\TextColumn::make('area')
                 ->toggleable()
-                ->searchable(true, null, true)
+                ->searchable()
                 ->limit(50),
             Tables\Columns\TextColumn::make('cities.name')
                 ->toggleable()
                 ->limit(50),
             Tables\Columns\TextColumn::make('lat')
                 ->toggleable()
-                ->searchable(true, null, true)
+                ->searchable()
                 ->limit(50),
             Tables\Columns\TextColumn::make('lng')
                 ->toggleable()
-                ->searchable(true, null, true)
+                ->searchable()
                 ->limit(50),
             Tables\Columns\TextColumn::make('description')
                 ->toggleable()
@@ -134,7 +134,7 @@ class BuildingResource extends Resource
                 ->limit(50),
             Tables\Columns\TextColumn::make('floors')
                 ->toggleable()
-                ->searchable(true, null, true),
+                ->searchable(),
         ])
             ->filters([
                 //
