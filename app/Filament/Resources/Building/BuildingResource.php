@@ -156,6 +156,7 @@ class BuildingResource extends Resource
     public static function getRelations(): array
     {
         return [
+            BuildingResource\RelationManagers\FacilityBookingsRelationManager::class,
             BuildingResource\RelationManagers\AttendanceRelationManager::class,
             BuildingResource\RelationManagers\BuildingPocsRelationManager::class,
             BuildingResource\RelationManagers\ComplaintsRelationManager::class,
