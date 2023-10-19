@@ -101,6 +101,7 @@ class OwnerAssociationResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('mollak_id')
                     ->toggleable()
+                    ->searchable()
                     ->limit(50),
                 Tables\Columns\TextColumn::make('name')
                     ->toggleable()
@@ -108,6 +109,7 @@ class OwnerAssociationResource extends Resource
                     ->limit(50),
                 Tables\Columns\TextColumn::make('phone')
                     ->toggleable()
+                    ->searchable()
                     ->limit(50),
                 Tables\Columns\TextColumn::make('email')
                     ->toggleable()
@@ -118,9 +120,8 @@ class OwnerAssociationResource extends Resource
                     ->searchable()
                     ->limit(50),
                 Tables\Columns\TextColumn::make('address')
-                    ->toggleable(),
-                Tables\Columns\TextColumn::make('address')
-                    ->toggleable(),
+                    ->toggleable()
+                    ->searchable(),
             ])
             ->filters([
                 //
