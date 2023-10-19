@@ -14,7 +14,7 @@ class Facility extends Model
     use HasFactory;
     use Searchable;
 
-    protected $fillable = ['name', 'icon','building_id', 'active'];
+    protected $fillable = ['name', 'icon','building_id', 'active','owner_association_id'];
 
     protected $searchableFields = ['*'];
 
