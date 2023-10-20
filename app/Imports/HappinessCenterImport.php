@@ -17,7 +17,7 @@ class HappinessCenterImport implements ToCollection, WithHeadingRow
     {
         foreach ($rows as $row) 
         {
-            if($row['happiness_center_id'] && $row['open'] && $row['resolved'] && $row['total']) {
+            if($row['happiness_center_id'] && $row['open'] !=='' && $row['resolved'] !=='' && $row['total'] !=='') {
                 $this->data[] = [
                     'happiness_center_id'  => $row['happiness_center_id'],
                     'open' => $row['open'],
