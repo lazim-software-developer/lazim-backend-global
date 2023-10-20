@@ -72,9 +72,9 @@ class ComplaintscomplaintResource extends Resource
                         FileUpload::make('photo')
                             ->nullable(),
                         TextInput::make('complaint')
-                            ->label('Complaint'),
+                            ->placeholder('Complaint'),
                         TextInput::make('complaint_details')
-                            ->lable('Complaint Details'),
+                            ->placeholder('Complaint Details'),
                         Select::make('status')
                             ->options([
                                 'pending'   => 'Pending',
