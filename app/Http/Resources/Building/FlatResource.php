@@ -17,6 +17,8 @@ class FlatResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->property_number,
+            'building' => $this->building->name,
+            'building_id' => $this->building->id
         ];
     }
 }
