@@ -34,7 +34,8 @@ class CommentController extends Controller
             'title' => 'Success',
             'message' => "Comment added successfully",
             'errorCode' => 201,
-            'status' => 'success'
+            'status' => 'success',
+            'data' => new CommentResource($comment)
         ]))->response()->setStatusCode(201);
     }
 
