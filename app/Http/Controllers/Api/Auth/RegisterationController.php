@@ -8,6 +8,7 @@ use App\Http\Requests\Auth\ResendOtpRequest;
 use App\Http\Requests\Auth\ResetPasswordRequest;
 use App\Http\Resources\CustomResponseResource;
 use App\Jobs\Auth\ResendOtpEmail;
+use App\Jobs\Building\AssignFlatsToTenant;
 use App\Jobs\SendVerificationOtp;
 use App\Models\Building\Flat;
 use App\Models\Building\FlatTenant;
@@ -90,7 +91,10 @@ class RegisterationController extends Controller
     
         // Send email after 5 seconds
         SendVerificationOtp::dispatch($user)->delay(now()->addSeconds(5));
-    
+
+        // Find all the flats that this user is owner of and attach them to flat_tenant table using the job
+        AssignFlatsToTenant::dispatch($request->email)->delay(now()->addSeconds(5));
+        
         return (new CustomResponseResource([
             'title' => 'Registration successful!',
             'message' => "We've sent verification code to your email Id and phone. Please verify to continue using the application",
