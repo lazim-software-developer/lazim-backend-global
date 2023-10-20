@@ -23,7 +23,7 @@ class PostResource extends JsonResource
             'media' => MediaResource::collection($this->media),
             'liked' => $this->is_liked_by_user,
             'likes' => $this->likes()->count(),
-            'comments' => $this->whenLoaded('comments'),
+            'comments' => CommentResource::collection($this->whenLoaded('comments')),
             'date' => $this->scheduled_at_diff
         ];
     }
