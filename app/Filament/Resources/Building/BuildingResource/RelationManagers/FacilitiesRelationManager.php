@@ -2,19 +2,24 @@
 
 namespace App\Filament\Resources\Building\BuildingResource\RelationManagers;
 
+use App\Models\Building\Building;
+use App\Models\Master\Facility;
 use Filament\Forms;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\RichEditor;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Filament\Tables\Actions\AttachAction;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\DB;
 
 class FacilitiesRelationManager extends RelationManager
 {
@@ -24,35 +29,7 @@ class FacilitiesRelationManager extends RelationManager
     {
         return $form
             ->schema([
-                Grid::make(['default' => 0])->schema([
-                    TextInput::make('name')
-                        ->rules(['max:50', 'string'])
-                        ->placeholder('Name')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
 
-                    FileUpload::make('icon')
-                    ->disk('s3')
-                    ->directory('dev')
-                    ->image()
-                    ->columnSpan([
-                        'default' => 12,
-                        'md' => 12,
-                        'lg' => 12,
-                    ]),
-                    Toggle::make('active')
-                        ->rules(['boolean'])
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
-                    // Hidden::make('owner_association_id')
-                    //     ->default(auth()->user()->id),
-                ]),
             ]);
     }
 
@@ -62,13 +39,10 @@ class FacilitiesRelationManager extends RelationManager
         ->columns([
             Tables\Columns\TextColumn::make('name')->limit(50),
             Tables\Columns\TextColumn::make('icon')->limit(50),
-            Tables\Columns\IconColumn::make('active'),
+            // Tables\Columns\IconColumn::make('active'),
         ])
             ->filters([
                 //
-            ])
-            ->headerActions([
-                Tables\Actions\CreateAction::make(),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
@@ -79,8 +53,16 @@ class FacilitiesRelationManager extends RelationManager
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ])
-            ->emptyStateActions([
-                Tables\Actions\CreateAction::make(),
+            ->headerActions([
+                Tables\Actions\AttachAction::make()
+                    ->label('Add')
+                    ->recordSelect(fn () => Select::make('recordId')
+                            ->label('Facility')
+                            ->relationship('buildings', 'facility_id')
+                            ->options(Facility::all()->pluck('name', 'id'))
+                            ->searchable()
+                            ->preload()
+                        )
             ]);
     }
 }
