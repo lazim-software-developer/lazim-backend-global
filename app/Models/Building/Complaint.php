@@ -30,7 +30,8 @@ class Complaint extends Model
         'status',
         'owner_association_id',
         'building_id',
-        'closed_by'
+        'closed_by',
+        'complaint_type'
     ];
 
     protected $searchableFields = ['*'];
