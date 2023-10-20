@@ -20,7 +20,7 @@ class ProfileResource extends JsonResource
             'last_name' => $this->last_name,
             'email' => $this->email,
             'phone' => $this->phone,
-            'photo' => $this->profile_photo ? Storage::disk('s3')->url($this->profile_photo) : ''
+            'profile_pic' => $this->profile_photo ? Storage::disk('s3')->url($this->profile_photo) : null
         ];
     }
 }
