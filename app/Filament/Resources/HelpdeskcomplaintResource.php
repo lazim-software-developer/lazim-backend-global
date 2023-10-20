@@ -77,7 +77,7 @@ class HelpdeskcomplaintResource extends Resource
                         FileUpload::make('photo')
                             ->nullable(),
                         TextInput::make('complaint')
-                            ->label('Complaint'),
+                            ->placeholder('Complaint'),
                         Select::make('status')
                             ->options([
                                 'pending'   => 'Pending',
