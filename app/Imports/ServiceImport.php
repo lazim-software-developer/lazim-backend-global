@@ -17,7 +17,7 @@ class ServiceImport implements ToCollection, WithHeadingRow
     {
         foreach ($rows as $row) 
         {
-            if($row['eservice_id'] && $row['open'] && $row['resolved'] && $row['total']) {
+            if($row['eservice_id'] && $row['open'] !=='' && $row['resolved'] !=='' && $row['total'] !=='') {
                 $this->data[] = [
                     'eservice_id'  => $row['eservice_id'],
                     'open' => $row['open'],
