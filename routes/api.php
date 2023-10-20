@@ -16,6 +16,7 @@ use App\Http\Controllers\Community\PostLikeController;
 use App\Http\Controllers\Facility\FacilityController;
 use App\Http\Controllers\HelpDesk\ComplaintController;
 use App\Http\Controllers\TagController;
+use App\Http\Controllers\User\ProfileController;
 use App\Http\Controllers\User\UserController;
 
 /*
@@ -163,4 +164,24 @@ Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active']
 
     // mark a complaint as resolved
     Route::post('complaints/{complaint}/resolve', [ComplaintController::class, 'resolve']);
+});
+
+/**
+ * Profile related APIs
+ */
+Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active'])->group(function () {
+    // Details of user
+    Route::get('/profile', [ProfileController::class, 'show']);
+
+    // Update profile
+    Route::post('/profile/update', [ProfileController::class, 'update']);
+
+    // Upload profile picture
+    Route::post('/profile/upload-picture', [ProfileController::class, 'uploadPicture']);
+
+    // Change password
+    Route::post('/profile/change-password', [ProfileController::class, 'changePassword']);
+
+    // Fetch all matching flats for the logged in user
+    Route::get('/tenant/flats', [UserController::class, 'getUserFlats']);
 });
