@@ -21,6 +21,8 @@ class Complaintresource extends JsonResource
             'opened_on' => $this->open_time_diff,
             'resolved' => $this->status == 'open' ? false : true,
             'media' => MediaResource::collection($this->media),
+            'complaint_type' => $this->complaint_type,
+            'complaint_details' => $this->complaint_details
         ];
     }
 }

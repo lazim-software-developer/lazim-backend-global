@@ -147,7 +147,7 @@ Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active']
 });
 
 /**
- * Help desk related APIs
+ * Help desk and happiness center related APIs
  */
 Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active'])->group(function () {
     // Create complaint
