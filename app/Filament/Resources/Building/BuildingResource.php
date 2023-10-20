@@ -7,16 +7,12 @@ use App\Filament\Resources\Building\BuildingResource\RelationManagers;
 use App\Models\Building\Building;
 use Filament\Forms;
 use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class BuildingResource extends Resource
 {
@@ -38,22 +34,22 @@ class BuildingResource extends Resource
                         ->required()
                         ->placeholder('Name')
                        ,
-                    TextInput::make('unit_number')
-                        ->rules(['max:50', 'string'])
-                        ->required()
-                        ->unique(
-                            'buildings',
-                            'unit_number',
-                            fn(?Model $record) => $record
-                        )
-                        ->placeholder('Unit Number'),
+                    // TextInput::make('unit_number')
+                    //     ->rules(['max:50', 'string'])
+                    //     ->required()
+                    //     ->unique(
+                    //         'buildings',
+                    //         'unit_number',
+                    //         fn(?Model $record) => $record
+                    //     )
+                    //     ->placeholder('Unit Number'),
 
-                    RichEditor::make('address_line1')
+                    TextInput::make('address_line1')
                         ->rules(['max:255', 'string'])
                         ->required()
                         ->placeholder('Address Line1'),
 
-                    RichEditor::make('address_line2')
+                    TextInput::make('address_line2')
                         ->rules(['max:255', 'string'])
                         ->nullable()
                         ->placeholder('Address Line2'),
@@ -78,7 +74,7 @@ class BuildingResource extends Resource
                         ->rules(['max:50', 'string'])
                         ->placeholder('Lng'),
 
-                    RichEditor::make('description')
+                    TextInput::make('description')
                         ->rules(['max:255', 'string'])
                         ->placeholder('Description'),
 
@@ -86,8 +82,7 @@ class BuildingResource extends Resource
                         ->rules(['numeric'])
                         ->required()
                         ->numeric()
-                        ->placeholder('Floors')
-                       
+                        ->placeholder('Floors'),
                 ]),
             ]);
     }
@@ -155,12 +150,13 @@ class BuildingResource extends Resource
     public static function getRelations(): array
     {
         return [
-            BuildingResource\RelationManagers\AttendanceRelationManager::class,
+            // BuildingResource\RelationManagers\AttendanceRelationManager::class,
             BuildingResource\RelationManagers\BuildingPocsRelationManager::class,
             BuildingResource\RelationManagers\ComplaintsRelationManager::class,
-            BuildingResource\RelationManagers\DocumentsRelationManager::class,
+            // BuildingResource\RelationManagers\DocumentsRelationManager::class,
             BuildingResource\RelationManagers\FacilitiesRelationManager::class,
             BuildingResource\RelationManagers\FlatsRelationManager::class,
+            BuildingResource\RelationManagers\VendorRelationManager::class,
         ];
 
     }

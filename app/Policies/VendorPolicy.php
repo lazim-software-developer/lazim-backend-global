@@ -40,9 +40,13 @@ class VendorPolicy
      */
     public function create(User $user): bool
     {
-        $role = $user->role;
+        $role = $user->role->name == 'Admin';
 
-        return $role && $role->name == 'Admin';
+        if($role)
+        {
+            return false;
+        }
+        return true;
 
     }
 
