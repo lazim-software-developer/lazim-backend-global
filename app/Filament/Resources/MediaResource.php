@@ -44,10 +44,10 @@ class MediaResource extends Resource
                                 ->placeholder('Name'),
 
                             FileUpload::make('url')
-                                ->image()
-                                ->required()
                                 ->disk('s3')
-                                ->directory('dev'),
+                                ->directory('dev')
+                                ->image()
+                                ->required(),
 
                             MorphToSelect::make('mediaable')
                                 ->types([
