@@ -17,9 +17,9 @@ class AccountsPayablesImport implements ToCollection, WithHeadingRow
     {
         foreach ($rows as $row) 
         {
-            if($row['service_code']&& $row['account_name'] && $row['bill']  && $row['payment'] && $row['opening_balance'] && $row['closing_balance']) {
+            if($row['account_name'] && $row['bill']  && $row['payment'] && $row['opening_balance'] && $row['closing_balance']) {
                 $this->data[] = [
-                    'service_code'  => $row['service_code'],
+                    'service_code'  => $row['service_code'] ?? '',
                     'account_name' => $row['account_name'],
                     'bill'  => $row['bill'],
                     'payment' => $row['payment'],
