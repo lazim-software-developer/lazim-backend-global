@@ -97,10 +97,10 @@ class PostResource extends Resource
                                 ->required()
                                 ->placeholder('Name'),
                             FileUpload::make('url')
-                                ->image()
-                                ->required()
                                 ->disk('s3')
                                 ->directory('dev')
+                                ->image()
+                                ->required()
                                 
                         ])
                         ->columnSpan([
