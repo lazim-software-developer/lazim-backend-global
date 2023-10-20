@@ -35,24 +35,26 @@ class MediaResource extends Resource
                 Card::make()->schema([
                     Grid::make([
                         'sm' => 1,
-                        'md' => 2,
-                        'lg' => 2,
+                        'md' => 1,
+                        'lg' => 1,
                     ])->schema([
                             TextInput::make('name')
                                 ->rules(['max:30','regex:/^[a-zA-Z\s]*$/'])
                                 ->required()
                                 ->placeholder('Name'),
+
                             FileUpload::make('url')
-                                ->image()
-                                ->required()
                                 ->disk('s3')
-                                ->directory('dev'),
+                                ->directory('dev')
+                                ->image()
+                                ->required(),
+
                             MorphToSelect::make('mediaable')
                                 ->types([
-                                    Type::make(Post::class)->titleColumnName('content'),
-                                    // Type::make(Venue::class)->titleColumnName('name'),
-                                    // Type::make(Session::class)->titleColumnName('name'),
-                                ]),
+                                    Type::make(Post::class)->titleAttribute('content'),
+                                ])
+                                ->label('Mediaable')
+                                ->required(),
                     ])
                 ])
             ]);

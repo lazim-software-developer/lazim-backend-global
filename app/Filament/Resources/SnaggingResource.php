@@ -84,7 +84,7 @@ class SnaggingResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('complaintable_type')
                     ->toggleable()
-                    ->searchable(true, null, true)
+                    ->searchable()
                     ->limit(50),
                 ViewColumn::make('name')->view('tables.columns.combined-column')
                     ->toggleable(),
@@ -93,14 +93,14 @@ class SnaggingResource extends Resource
                     ->limit(50),
                 Tables\Columns\TextColumn::make('category')
                     ->toggleable()
-                    ->searchable(true, null, true)
+                    ->searchable()
                     ->limit(50),
                 Tables\Columns\TextColumn::make('open_time')
                     ->toggleable()
                     ->dateTime(),
                 Tables\Columns\TextColumn::make('status')
                     ->toggleable()
-                    ->searchable(true, null, true)
+                    ->searchable()
                     ->limit(50),
                 Tables\Columns\TextColumn::make('close_time')
                     ->toggleable()
