@@ -61,9 +61,9 @@ class FacilityBookingResource extends Resource
                                     ->pluck('building_facility.facility_id');
                             
                             return DB::table('facilities')
-                                    ->whereIn('facilities.id',$facilityid->concat([1, 2, 3, 4]))
+                                    ->whereIn('facilities.id',$facilityid)
                                     ->select('facilities.id','facilities.name')
-                                    ->pluck('facilities.name')
+                                    ->pluck('facilities.name','facilities.id')
                                     ->toArray();
                         })
                         ->required()
