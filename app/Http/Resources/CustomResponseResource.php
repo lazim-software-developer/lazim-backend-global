@@ -21,7 +21,8 @@ class CustomResponseResource extends JsonResource
             'title' => $this['title'] ?? 'Response',
             'message' => $this['message'],
             'code' => $this['errorCode'] ?? null,
-            'status' => $this['status'] ?? 'error'
+            'status' => $this['status'] ?? 'error',
+            'data' => $this['data'] ?? null
         ];
     }
 }

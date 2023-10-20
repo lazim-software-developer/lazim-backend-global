@@ -72,6 +72,10 @@ class Vendor extends Model
     {
         return $this->belongsTo(Building::class);
     }
+    public function buildings()
+    {
+        return $this->belongsToMany(Building::class, 'building_vendor', 'building_id','vendor_id');
+    }
     public function oaUserRegistration()
     {
         return $this->belongsTo(OaUserRegistration::class);
