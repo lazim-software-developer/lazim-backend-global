@@ -2,17 +2,14 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\HelpdeskcomplaintResource\Pages;
-use App\Filament\Resources\HelpdeskcomplaintResource\RelationManagers;
-use App\Models\Building\Building;
+use App\Filament\Resources\ComplaintscomplaintResource\Pages;
+use App\Filament\Resources\ComplaintscomplaintResource\RelationManagers;
 use App\Models\Building\Complaint;
-use App\Models\Building\FlatTenant;
-use Filament\Forms\Components\CheckboxList;
+use App\Models\Complaintscomplaint;
+use Filament\Forms;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\MorphToSelect;
-use Filament\Forms\Components\MorphToSelect\Type;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
@@ -20,21 +17,19 @@ use Filament\Forms\Get;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\DB;
 
-class HelpdeskcomplaintResource extends Resource
+class ComplaintscomplaintResource extends Resource
 {
     protected static ?string $model = Complaint::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
     protected static ?string $modelLabel = 'Complaint';
 
-    protected static ?string $navigationGroup = 'Help Desk';
-
+    protected static ?string $navigationGroup = 'Happiness center';
     public static function form(Form $form): Form
     {
         return $form
@@ -78,6 +73,8 @@ class HelpdeskcomplaintResource extends Resource
                             ->nullable(),
                         TextInput::make('complaint')
                             ->placeholder('Complaint'),
+                        TextInput::make('complaint_details')
+                            ->placeholder('Complaint Details'),
                         Select::make('status')
                             ->options([
                                 'pending'   => 'Pending',
@@ -88,41 +85,41 @@ class HelpdeskcomplaintResource extends Resource
                                 ->placeholder('Status'),
                             ])
                             ->live(),
+                        Hidden::make('complaint_type')
+                            ->default('tenant_complaint'),
                         TextInput::make('remarks')
                             ->disabled(fn (Get $get) => $get('status') !== 'completed')
                             ->hiddenOn('create')
                             ->label('Remarks'),
-                        Hidden::make('complaint_type')
-                            ->default('help_desk'),
             ]);
     }
 
     public static function table(Table $table): Table
     {
         return $table
-            // ->modifyQueryUsing(fn(Builder $query) => $query->where('complaintable_type', 'App\Models\Building\Building')->withoutGlobalScopes())
-            // ->poll('60s')
-            ->columns([
-                // ViewColumn::make('name')->view('tables.columns.combined-column')
-                //     ->toggleable(),
-                TextColumn::make('user.first_name')
-                    ->toggleable()
-                    ->searchable()
-                    ->limit(50),
-                TextColumn::make('category')
-                    ->toggleable()
-                    ->searchable()
-                    ->limit(50),
-                TextColumn::make('complaint')
-                    ->toggleable()
-                    ->searchable(),
-                TextColumn::make('status')
-                    ->toggleable()
-                    ->searchable()
-                    ->limit(50),
-                
+        ->columns([
+            TextColumn::make('user.first_name')
+                ->toggleable()
+                ->searchable()
+                ->limit(50),
+            TextColumn::make('category')
+                ->toggleable()
+                ->searchable()
+                ->limit(50),
+            TextColumn::make('complaint')
+                ->toggleable()
+                ->searchable()
+                ->label('Complaint'),
+            TextColumn::make('complaint_details')
+                ->toggleable()
+                ->searchable()
+                ->label('Complaint Details'),
+            TextColumn::make('status')
+                ->toggleable()
+                ->searchable()
+                ->limit(50),
 
-            ])
+        ])
             ->filters([
                 //
             ])
@@ -149,9 +146,9 @@ class HelpdeskcomplaintResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListHelpdeskcomplaints::route('/'),
-            'create' => Pages\CreateHelpdeskcomplaint::route('/create'),
-            'edit' => Pages\EditHelpdeskcomplaint::route('/{record}/edit'),
+            'index' => Pages\ListComplaintscomplaints::route('/'),
+            'create' => Pages\CreateComplaintscomplaint::route('/create'),
+            'edit' => Pages\EditComplaintscomplaint::route('/{record}/edit'),
         ];
     }    
 }
