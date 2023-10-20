@@ -22,8 +22,11 @@ class ComplaintController extends Controller
      */
     public function index(Request $request, Building $building)
     {
-        $query = Complaint::where('user_id', auth()->user()->id)
-            ->where('building_id', $building->id);
+        $query = Complaint::where([
+            'user_id' => auth()->user()->id,
+            'building_id' => $building->id,
+            'complaint_type' => $request->type
+        ]);
 
         // Filter based on status if provided
         if ($request->has('status')) {
@@ -58,11 +61,12 @@ class ComplaintController extends Controller
             ]))->response()->setStatusCode(403);
         }
 
-        $category = Tag::where('id', $request->category)->value('name');
+        $category = $request->category ? Tag::where('id', $request->category)->value('name') : '';
 
         // Create the complaint
         $complaint = Complaint::create([
             'complaint' => $request->complaint,
+            'complaint_type' => $request->complaint_type,
             'complaintable_type' => FlatTenant::class,
             'complaintable_id' => $flatTenant->id,
             'user_id' => auth()->user()->id,
@@ -71,6 +75,7 @@ class ComplaintController extends Controller
             'status' => 'open',
             'building_id' => $building->id,
             'owner_association_id' => $building->owner_association_id,
+            'complaint_details' => $request->complaint_details ?? null
         ]);
 
         // Save images in media table with name "before". Once resolved, we'll store media with "after" name
