@@ -149,7 +149,7 @@ class BuildingResource extends Resource
     {
         return [
             BuildingResource\RelationManagers\FacilityBookingsRelationManager::class,
-            BuildingResource\RelationManagers\AttendanceRelationManager::class,
+            // BuildingResource\RelationManagers\AttendanceRelationManager::class,
             BuildingResource\RelationManagers\BuildingPocsRelationManager::class,
             BuildingResource\RelationManagers\ComplaintsRelationManager::class,
             // BuildingResource\RelationManagers\DocumentsRelationManager::class,
