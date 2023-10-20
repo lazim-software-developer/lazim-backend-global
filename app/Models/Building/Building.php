@@ -36,11 +36,14 @@ class Building extends Model
         'lng',
         'description',
         'floors',
-        'owner_association_id'
+        'owner_association_id',
+        'allow_postupload'
     ];
 
     protected $searchableFields = ['*'];
-
+    protected $casts = [
+        'allow_postupload'         => 'boolean',
+    ];
     public function cities()
     {
         return $this->belongsTo(City::class, 'city_id');

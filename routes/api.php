@@ -14,6 +14,8 @@ use App\Http\Controllers\Community\CommentController;
 use App\Http\Controllers\Community\PostController;
 use App\Http\Controllers\Community\PostLikeController;
 use App\Http\Controllers\Facility\FacilityController;
+use App\Http\Controllers\HelpDesk\ComplaintController;
+use App\Http\Controllers\TagController;
 use App\Http\Controllers\User\UserController;
 
 /*
@@ -102,6 +104,9 @@ Route::middleware(['api.token'])->group(function () {
 
     // Resend otp
     Route::post('/resend-otp', [RegisterationController::class, 'resendOtp']);
+
+    // List all tags
+    Route::get('/tags', [TagController::class, 'index']);
 });
 
 /**
@@ -138,4 +143,24 @@ Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active']
     
     // My bookings API - List all bookings for logged in user
     Route::get('building/{building}/user-bookings', [FacilityController::class, 'userBookings']);
+});
+
+/**
+ * Help desk related APIs
+ */
+Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active'])->group(function () {
+    // Create complaint
+    Route::post('building/{building}/complaints', [ComplaintController::class, 'create']);
+
+    // List all complaints
+    Route::get('/buildings/{building}/complaints', [ComplaintController::class, 'index']);
+
+    // Add a comment for a complaint
+    Route::post('complaints/{complaint}/comments', [CommentController::class, 'addComment']);
+
+    // List all comments for a given post
+    Route::get('complaints/{complaint}/comments', [CommentController::class, 'listComplaintComments']);
+
+    // mark a complaint as resolved
+    Route::post('complaints/{complaint}/resolve', [ComplaintController::class, 'resolve']);
 });
