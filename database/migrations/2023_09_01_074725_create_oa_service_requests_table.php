@@ -1,0 +1,48 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('oa_service_requests', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedBigInteger('service_parameter_id');
+            $table->string('property_group');
+            $table->date('from_date');
+            $table->date('to_date');
+            $table->string('status');
+            $table->string('property_name')->nullable();
+            $table->string('service_period')->nullable();
+            $table->string('mollak_id')->nullable();
+            $table->longText('oa_service_file')->nullable();
+            $table->unsignedBigInteger('uploaded_by');
+
+            $table
+                ->foreign('service_parameter_id')
+                ->references('id')
+                ->on('service_parameters');
+
+            $table
+                ->foreign('uploaded_by')
+                ->references('id')
+                ->on('users');
+
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('oa__service__requests');
+    }
+};
