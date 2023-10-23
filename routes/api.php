@@ -15,6 +15,7 @@ use App\Http\Controllers\Community\PostController;
 use App\Http\Controllers\Community\PostLikeController;
 use App\Http\Controllers\Facility\FacilityController;
 use App\Http\Controllers\HelpDesk\ComplaintController;
+use App\Http\Controllers\Services\ServiceController;
 use App\Http\Controllers\TagController;
 use App\Http\Controllers\User\ProfileController;
 use App\Http\Controllers\User\UserController;
@@ -156,6 +157,9 @@ Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active']
     // List all complaints
     Route::get('/buildings/{building}/complaints', [ComplaintController::class, 'index']);
 
+    // Complaint details API
+    Route::get('complaints/{complaint}', [ComplaintController::class, 'show']);
+
     // Add a comment for a complaint
     Route::post('complaints/{complaint}/comments', [CommentController::class, 'addComment']);
 
@@ -184,4 +188,11 @@ Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active']
 
     // Fetch all matching flats for the logged in user
     Route::get('/tenant/flats', [UserController::class, 'getUserFlats']);
+});
+
+/**
+ * Services related APIs
+ */
+Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active'])->group(function () {
+ Route::get('/buildings/{building}/services', [ServiceController::class, 'listServicesForBuilding']);
 });

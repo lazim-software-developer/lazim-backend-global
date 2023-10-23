@@ -40,6 +40,20 @@ class ComplaintController extends Controller
     }
 
     /**
+     * Display a comaplaint and details about the complaint.
+     *
+     * @param  Complaint  $complaint
+     * @return \Illuminate\Http\Response
+     */
+    public function show(Complaint $complaint)
+    {
+        $this->authorize('view', $complaint);
+
+        $complaint->load('comments');
+        return new Complaintresource($complaint);
+    }
+
+    /**
      * Show the form for creating a new complaint.
      *
      * @return \Illuminate\Http\Response
