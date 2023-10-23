@@ -64,6 +64,7 @@ class FacilitiesRelationManager extends RelationManager
                             ->relationship('buildings', 'facility_id')
                             ->options(Facility::all()->pluck('name', 'id'))
                             ->searchable()
+                            ->required()
                             ->preload()
                         )
             ]);
