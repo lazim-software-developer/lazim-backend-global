@@ -75,20 +75,20 @@ class Building extends Model
     }
     public function services()
     {
-        return $this->belongsToMany(Service::class, 'building_services','building_id','service_id');
+        return $this->belongsToMany(Service::class, 'building_services', 'building_id', 'service_id');
     }
 
     public function roles()
     {
-        return $this->belongsToMany(Role::class, 'building_roles','building_id','role_id');
+        return $this->belongsToMany(Role::class, 'building_roles', 'building_id', 'role_id');
     }
     public function documentlibraries()
     {
-        return $this->belongsToMany(Role::class, 'building_documentlibraries','building_id','documentlibrary_id');
+        return $this->belongsToMany(Role::class, 'building_documentlibraries', 'building_id', 'documentlibrary_id');
     }
     public function facilities()
     {
-        return $this->belongsToMany(Facility::class, 'building_facility','building_id','facility_id');
+        return $this->belongsToMany(Facility::class, 'building_facility', 'building_id', 'facility_id');
     }
     public function flatVisitors()
     {
@@ -102,10 +102,10 @@ class Building extends Model
     {
         return $this->hasMany(FlatDomesticHelp::class);
     }
-    public function vendor()
-    {
-        return $this->hasMany(Vendor::class);
-    }
+    // public function vendor()
+    // {
+    //     return $this->hasMany(Vendor::class);
+    // }
     public function attendances()
     {
         return $this->hasMany(Attendance::class);
@@ -133,7 +133,6 @@ class Building extends Model
     }
     public function vendors()
     {
-        return $this->belongsToMany(Vendor::class, 'building_vendor', 'building_id','vendor_id');
+        return $this->belongsToMany(Vendor::class, 'building_vendor');
     }
-
 }
