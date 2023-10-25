@@ -47,6 +47,7 @@ class VendorResource extends Resource
                     Select::make('owner_id')->label('Manager Name')
                         ->rules(['exists:users,id'])
                         ->required()
+                        ->preload()
                         ->relationship('user', 'first_name')
                         ->searchable()
                         ->getSearchResultsUsing(fn(string $search): array=> User::where('role_id', 1, "%{$search}%")->limit(50)->pluck('first_name', 'id')->toArray())
