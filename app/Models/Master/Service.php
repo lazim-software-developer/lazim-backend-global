@@ -15,7 +15,7 @@ class Service extends Model
     use HasFactory;
     use Searchable;
 
-    protected $fillable = ['name', 'building_id','active'];
+    protected $fillable = ['name', 'building_id', 'active'];
 
     protected $searchableFields = ['*'];
 
@@ -27,9 +27,13 @@ class Service extends Model
     {
         return $this->belongsToMany(Vendor::class);
     }
-     public function oaUserRegistration()
+    public function oaUserRegistration()
     {
         return $this->belongsTo(OaUserRegistration::class);
     }
 
+    public function vendors()
+    {
+        return $this->belongsToMany(Vendor::class, 'service_vendor');
+    }
 }

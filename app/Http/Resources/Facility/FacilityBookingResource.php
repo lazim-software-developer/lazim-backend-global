@@ -17,7 +17,7 @@ class FacilityBookingResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'facility_id' => $this->facility->name,
+            'facility_name' => $this->facility->name,
             'facility_id' => $this->facility->id,
             'facility_icon' => $this->facility->icon,
             'date' => Carbon::parse($this->date)->format('jS M Y'),
