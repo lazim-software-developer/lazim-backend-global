@@ -39,20 +39,22 @@ class FacilitiesRelationManager extends RelationManager
         ->columns([
             Tables\Columns\TextColumn::make('name')->limit(50),
             Tables\Columns\TextColumn::make('icon')->limit(50),
-            // Tables\Columns\IconColumn::make('active'),
+            Tables\Columns\IconColumn::make('active')
+            ->boolean()
+            ->trueIcon('heroicon-o-check-badge')
+            ->falseIcon('heroicon-o-x-mark'),
         ])
             ->filters([
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\DetachAction::make() ->label('Remove'),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ])
+            // ->bulkActions([
+            //     Tables\Actions\BulkActionGroup::make([
+            //         Tables\Actions\DetachAction::make() ->label('Remove'),
+            //     ]),
+            // ])
             ->headerActions([
                 Tables\Actions\AttachAction::make()
                     ->label('Add')
@@ -61,6 +63,7 @@ class FacilitiesRelationManager extends RelationManager
                             ->relationship('buildings', 'facility_id')
                             ->options(Facility::all()->pluck('name', 'id'))
                             ->searchable()
+                            ->required()
                             ->preload()
                         )
             ]);
