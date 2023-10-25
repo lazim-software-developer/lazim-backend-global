@@ -69,6 +69,12 @@ class MediaResource extends Resource
                     ->searchable(),
                 
                 ImageColumn::make('url')
+                    ->disk('s3')
+                    ->circular()
+                    ->alignCenter()
+                    ->width(200)
+                    ->height(50)
+                    ->size(40)
                     ->toggleable()
                     ->searchable(),
 

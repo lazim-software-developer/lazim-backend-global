@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Building\BuildingResource\RelationManagers;
 use Filament\Forms;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\TimePicker;
@@ -32,28 +33,35 @@ class FacilityBookingsRelationManager extends RelationManager
                     'lg' => 2,])
                     ->schema([
 
-                    Select::make('building_id')
-                        ->rules(['exists:buildings,id'])
-                        ->relationship('building', 'name')
-                        ->reactive()
-                        ->preload()
-                        ->searchable()
-                        ->placeholder('Building'),
+                    // Select::make('building_id')
+                    //     ->rules(['exists:buildings,id'])
+                    //     ->relationship('building', 'name')
+                    //     ->options(function(RelationManager $livewire){
+                    //         //dd($livewire->ownerRecord->id);
+                    //     })
+                    //     ->reactive()
+                    //     ->preload()
+                    //     ->searchable()
+                    //     ->placeholder('Building'),
+                    Hidden::make('building_id')
+                        ->default(function(RelationManager $livewire){
+                            return $livewire->ownerRecord->id;
+                        }),
                         
                     Select::make('facility_id')
                         ->rules(['exists:facilities,id'])
                         ->relationship('facility', 'name')
                         ->searchable()
-                        ->options(function (callable $get) {
+                        ->options(function (callable $get,RelationManager $livewire) {
                             $facilityid = DB::table('building_facility')
-                                    ->where('building_facility.building_id', '=', $get('building_id'))
+                                    ->where('building_facility.building_id', '=', $livewire->ownerRecord->id)
                                     ->select('building_facility.facility_id')
                                     ->pluck('building_facility.facility_id');
                             
                             return DB::table('facilities')
-                                    ->whereIn('facilities.id',$facilityid->concat([1, 2, 3, 4]))
+                                    ->whereIn('facilities.id',$facilityid)
                                     ->select('facilities.id','facilities.name')
-                                    ->pluck('facilities.name')
+                                    ->pluck('facilities.name','facilities.id')
                                     ->toArray();
                         })
                         ->required()
