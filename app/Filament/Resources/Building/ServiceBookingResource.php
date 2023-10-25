@@ -2,16 +2,14 @@
 
 namespace App\Filament\Resources\Building;
 
-use App\Filament\Resources\Building\FacilityBookingResource\Pages;
-use App\Filament\Resources\Building\FacilityBookingResource\RelationManagers;
+use App\Filament\Resources\Building\ServiceBookingResource\Pages;
+use App\Filament\Resources\Building\ServiceBookingResource\RelationManagers;
 use App\Models\Building\FacilityBooking;
-use App\Models\Master\Facility;
+use App\Models\Building\ServiceBooking;
 use Filament\Forms;
 use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\KeyValue;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\TimePicker;
@@ -22,17 +20,15 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Illuminate\Database\Query\JoinClause;
 use Illuminate\Support\Facades\DB;
 
-class FacilityBookingResource extends Resource
+class ServiceBookingResource extends Resource
 {
     protected static ?string $model = FacilityBooking::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-    protected static ?string $navigationLabel = 'Facility Bookings';
+    protected static ?string $modelLabel = 'Service Bookings';
     protected static ?string $navigationGroup = 'Property Management';
-
     public static function form(Form $form): Form
     {
         return $form
@@ -50,39 +46,19 @@ class FacilityBookingResource extends Resource
                         ->preload()
                         ->searchable()
                         ->placeholder('Building'),
-                        
-                    // Select::make('facility_id')
-                    //     ->rules(['exists:facilities,id'])
-                    //     ->relationship('facility', 'name')
-                    //     ->searchable()
-                    //     ->options(function (callable $get) {
-                    //         $facilityid = DB::table('building_facility')
-                    //                 ->where('building_facility.building_id', '=', $get('building_id'))
-                    //                 ->select('building_facility.facility_id')
-                    //                 ->pluck('building_facility.facility_id');
-                            
-                    //         return DB::table('facilities')
-                    //                 ->whereIn('facilities.id',$facilityid)
-                    //                 ->select('facilities.id','facilities.name')
-                    //                 ->pluck('facilities.name','facilities.id')
-                    //                 ->toArray();
-                    //     })
-                    //     ->required()
-                    //     ->preload()
-                    //     ->placeholder('Facilities'),
                     
                     Select::make('bookable_id')
                         ->options(
-                            DB::table('facilities')
+                            DB::table('services')
                                 ->pluck('name', 'id')
                                 ->toArray()
                         )
                     ->searchable()
                     ->preload()
-                    ->placeholder('Facility'),
+                    ->placeholder('Service'),
 
                     Hidden::make('bookable_type')
-                        ->default('App\Models\Master\Facility'),
+                        ->default('App\Models\Master\Service'),
 
                     Select::make('user_id')
                         ->rules(['exists:users,id'])
@@ -115,36 +91,33 @@ class FacilityBookingResource extends Resource
             ]);
     }
 
+
     public static function table(Table $table): Table
     {
         return $table
-            ->poll('60s')
-            ->columns([
-                Tables\Columns\TextColumn::make('building.name')
+        ->columns([
+            Tables\Columns\TextColumn::make('building.name')
+            ->toggleable()
+            ->limit(50),
+            Tables\Columns\TextColumn::make('bookable.name')
                 ->toggleable()
                 ->limit(50),
-                Tables\Columns\TextColumn::make('bookable.name')
-                    ->toggleable()
-                    ->limit(50),
-                Tables\Columns\TextColumn::make('user.first_name')
-                    ->toggleable()
-                    ->searchable(isIndividual: false, isGlobal: true)
-                    ->limit(50),
-                Tables\Columns\TextColumn::make('date')
-                    ->toggleable()
-                    ->date(),
-                Tables\Columns\TextColumn::make('start_time')
-                    ->toggleable()
-                    ->time(),
-                Tables\Columns\TextColumn::make('end_time')
-                    ->toggleable()
-                    ->time(),
-                Tables\Columns\TextColumn::make('reference_number')
-                    ->toggleable(),
-                Tables\Columns\IconColumn::make('approved')
-                    ->toggleable()
-                    ->boolean(),
-            ])
+            Tables\Columns\TextColumn::make('user.first_name')
+                ->toggleable()
+                ->searchable(isIndividual: false, isGlobal: true)
+                ->limit(50),
+            Tables\Columns\TextColumn::make('date')
+                ->toggleable()
+                ->date(),
+            Tables\Columns\TextColumn::make('start_time')
+                ->toggleable()
+                ->time(),
+            Tables\Columns\TextColumn::make('reference_number')
+                ->toggleable(),
+            Tables\Columns\IconColumn::make('approved')
+                ->toggleable()
+                ->boolean(),
+        ])
             ->filters([
                 //
             ])
@@ -160,20 +133,20 @@ class FacilityBookingResource extends Resource
                 Tables\Actions\CreateAction::make(),
             ]);
     }
-
+    
     public static function getRelations(): array
     {
         return [
             //
         ];
     }
-
+    
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListFacilityBookings::route('/'),
-            'create' => Pages\CreateFacilityBooking::route('/create'),
-            'edit' => Pages\EditFacilityBooking::route('/{record}/edit'),
+            'index' => Pages\ListServiceBookings::route('/'),
+            'create' => Pages\CreateServiceBooking::route('/create'),
+            'edit' => Pages\EditServiceBooking::route('/{record}/edit'),
         ];
-    }
+    }    
 }

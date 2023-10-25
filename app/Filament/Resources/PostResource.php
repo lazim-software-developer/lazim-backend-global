@@ -118,9 +118,11 @@ class PostResource extends Resource
             ->columns([
                 TextColumn::make('content')
                     ->toggleable()
+                    ->searchable()
                     ->limit(50),
                 TextColumn::make('status')
                     ->toggleable()
+                    ->searchable()
                     ->limit(50),
                 TextColumn::make('scheduled_at')
                     ->toggleable()
@@ -138,11 +140,13 @@ class PostResource extends Resource
                 SelectFilter::make('user_id')
                     ->relationship('user', 'first_name')
                     ->searchable()
-                    ->preload(),
+                    ->preload()
+                    ->label('User'),
                 SelectFilter::make('building_id')
                     ->relationship('building', 'name')
                     ->searchable()
-                    ->preload(),
+                    ->preload()
+                    ->label('Building'),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

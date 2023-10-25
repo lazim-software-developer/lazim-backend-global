@@ -9,6 +9,7 @@ use App\Http\Requests\Facility\FacilityBookingRequest;
 use App\Http\Resources\CustomResponseResource;
 use App\Models\Building\Building;
 use App\Models\Building\FacilityBooking;
+use Illuminate\Http\Request;
 
 class FacilityController extends Controller
 {
@@ -20,16 +21,29 @@ class FacilityController extends Controller
 
     public function bookFacility(FacilityBookingRequest $request, Building $building)
     {
-        $oaId = $building->ownerAssociation->id;
-
         // Check for existing bookings for the same facility, date, and time range
-        $existingBooking = FacilityBooking::where('facility_id', $request->facility_id)
-            ->where('date', $request->date)
-            ->where(function ($query) use ($request) {
-                $query->whereBetween('start_time', [$request->start_time, $request->end_time])
-                    ->orWhereBetween('end_time', [$request->start_time, $request->end_time]);
-            })
-            ->first();
+        $existingBooking = FacilityBooking::where([
+            'bookable_id' => $request->facility_id,
+            'bookable_type' => 'App\Models\Master\Facility',
+            'date' => $request->date,
+        ])
+        ->where(function ($query) use ($request) {
+            // New booking starts during an existing booking
+            $query->whereBetween('start_time', [$request->start_time, $request->end_time])
+                // New booking ends during an existing booking
+                ->orWhereBetween('end_time', [$request->start_time, $request->end_time])
+                // New booking completely overlaps an existing booking
+                ->orWhere(function ($subQuery) use ($request) {
+                    $subQuery->where('start_time', '<=', $request->start_time)
+                        ->where('end_time', '>=', $request->end_time);
+                })
+                // New booking starts and ends within the duration of an existing booking
+                ->orWhere(function ($subQuery) use ($request) {
+                    $subQuery->where('start_time', '>=', $request->start_time)
+                        ->where('end_time', '<=', $request->end_time);
+                });
+        })
+        ->exists();
 
         if ($existingBooking) {
             return (new CustomResponseResource([
@@ -40,10 +54,10 @@ class FacilityController extends Controller
         }
 
         $booking = FacilityBooking::create([
-            'facility_id' => $request->facility_id,
+            'bookable_id' => $request->facility_id,
+            'bookable_type' => 'App\Models\Master\Facility',
             'user_id' => auth()->user()->id,
             'building_id' => $building->id,
-            'owner_association_id' => $oaId,
             'date' => $request->date,
             'start_time' => $request->start_time,
             'end_time' => $request->end_time,
@@ -52,16 +66,24 @@ class FacilityController extends Controller
         return new CustomResponseResource([
             'title' => 'Booking Successful',
             'message' => 'Facility booking has been successfully created.',
-            'data' => new FacilityResource($booking),
+            'errorCode' => 200,
         ]);
     }
 
     // User booking
-    public function userBookings(Building $building)
+    public function userBookings(Request $request, Building $building)
     {
-        $bookings = FacilityBooking::where('user_id', auth()->user()->id)
-            ->where('building_id', $building->id)
-            ->get();
+        $type = $request->input('type');
+        
+        $query = FacilityBooking::where('user_id', auth()->user()->id)
+            ->where('building_id', $building->id);
+
+        if ($type === 'facilities') {
+            $query->where('bookable_type', 'App\Models\Master\Facility');
+        } elseif ($type === 'services') {
+            $query->where('bookable_type', 'App\Models\Master\Service');
+        } 
+        $bookings = $query->latest()->get();
 
         return FacilityBookingResource::collection($bookings);
     }
