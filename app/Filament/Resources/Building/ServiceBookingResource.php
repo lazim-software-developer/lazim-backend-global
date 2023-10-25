@@ -111,7 +111,7 @@ class ServiceBookingResource extends Resource
                 ->date(),
             Tables\Columns\TextColumn::make('start_time')
                 ->toggleable()
-                ->date(),
+                ->time(),
             Tables\Columns\TextColumn::make('reference_number')
                 ->toggleable(),
             Tables\Columns\IconColumn::make('approved')
