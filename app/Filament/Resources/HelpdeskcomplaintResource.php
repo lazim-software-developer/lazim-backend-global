@@ -75,25 +75,28 @@ class HelpdeskcomplaintResource extends Resource
                             ->required()
                             ->placeholder('Category'),
                         FileUpload::make('photo')
+                            ->disk('s3')
+                            ->directory('dev')
+                            ->image()
                             ->nullable(),
                         TextInput::make('complaint')
                             ->placeholder('Complaint'),
                         Select::make('status')
                             ->options([
                                 'pending'   => 'Pending',
-                                'completed' => 'Completed',
+                                'resolved' => 'Resolved',
                                 ])
-                                ->searchable()
-                                ->required()
-                                ->placeholder('Status'),
-                            ])
+                            ->searchable()
+                            ->required()
+                            ->placeholder('Status')
                             ->live(),
                         TextInput::make('remarks')
-                            ->disabled(fn (Get $get) => $get('status') !== 'completed')
+                            ->disabled(fn (Get $get) => $get('status') !== 'resolved')
                             ->hiddenOn('create')
                             ->label('Remarks'),
                         Hidden::make('complaint_type')
                             ->default('help_desk'),
+                    ])
             ]);
     }
 
