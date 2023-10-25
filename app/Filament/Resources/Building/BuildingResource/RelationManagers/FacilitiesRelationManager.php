@@ -48,14 +48,13 @@ class FacilitiesRelationManager extends RelationManager
                 //
             ])
             ->actions([
-                Tables\Actions\DetachAction::make(),
+                Tables\Actions\DetachAction::make() ->label('Remove'),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make()
-                        ->label('Remove'),
-                ]),
-            ])
+            // ->bulkActions([
+            //     Tables\Actions\BulkActionGroup::make([
+            //         Tables\Actions\DetachAction::make() ->label('Remove'),
+            //     ]),
+            // ])
             ->headerActions([
                 Tables\Actions\AttachAction::make()
                     ->label('Add')
