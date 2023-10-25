@@ -26,7 +26,7 @@ class ComplaintResource extends Resource
 
     protected static ?string $navigationIcon  = 'heroicon-o-rectangle-stack';
     protected static ?string $navigationLabel = 'Incident Reports';
-
+    protected static bool $shouldRegisterNavigation = false;
     protected static ?string $navigationGroup = 'Property Management';
     public static function form(Form $form): Form
     {

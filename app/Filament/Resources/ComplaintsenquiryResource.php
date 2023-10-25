@@ -70,6 +70,9 @@ class ComplaintsenquiryResource extends Resource
                         ->required()
                         ->placeholder('Category'),
                     FileUpload::make('photo')
+                        ->disk('s3')
+                        ->directory('dev')
+                        ->image()
                         ->nullable(),
                     TextInput::make('complaint')
                         ->placeholder('Enquiry'),
@@ -80,10 +83,10 @@ class ComplaintsenquiryResource extends Resource
                             'pending'   => 'Pending',
                             'completed' => 'Completed',
                             ])
-                            ->searchable()
-                            ->required()
-                            ->placeholder('Status'),
-                        ])
+                        ->default('pending')
+                        ->searchable()
+                        ->required()
+                        ->placeholder('Status')
                         ->live(),
                     Hidden::make('complaint_type')
                         ->default('enquiries'),
@@ -91,6 +94,7 @@ class ComplaintsenquiryResource extends Resource
                         ->disabled(fn (Get $get) => $get('status') !== 'completed')
                         ->hiddenOn('create')
                         ->label('Remarks'),
+                ])
         ]);
     }
 

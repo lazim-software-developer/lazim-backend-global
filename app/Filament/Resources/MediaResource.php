@@ -75,16 +75,13 @@ class MediaResource extends Resource
                     ->width(200)
                     ->height(50)
                     ->size(40)
-                    ->toggleable()
-                    ->searchable(),
+                    ->toggleable(),
 
                 TextColumn::make('mediaable.content')
-                    ->toggleable()
-                    ->searchable(),
+                    ->toggleable(),
                 
                 TextColumn::make('mediaable_type')
-                    ->toggleable()
-                    ->searchable(),
+                    ->toggleable(),
                 
             ])
             ->filters([

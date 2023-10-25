@@ -19,10 +19,9 @@ class UserResource extends Resource
     protected static ?string $model = User::class;
 
     protected static ?string $navigationIcon       = 'heroicon-o-rectangle-stack';
-    protected static ?string $recordTitleAttribute = 'first_name';
     protected static ?string $navigationLabel      = 'Owner';
     protected static ?string $navigationGroup      = 'Flat Management';
-
+    protected static bool $shouldRegisterNavigation = false;
     public static function form(Form $form): Form
     {
         return $form->schema([

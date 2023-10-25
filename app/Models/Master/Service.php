@@ -36,4 +36,22 @@ class Service extends Model
     {
         return $this->belongsToMany(Vendor::class, 'service_vendor');
     }
+
+    public function bookings()
+    {
+        return $this->morphMany(FacilityBooking::class, 'bookable');
+    }
+
+    public function getFormattedPriceAttribute()
+    {
+        if ($this->relationLoaded('vendors') && $this->vendors->isNotEmpty()) {
+            $price = number_format($this->vendors->first()->price, 2);
+            if (substr($price, -3) == '.00') {
+                $price = substr($price, 0, -3);
+            }
+            return "AED " . $price;
+        }
+        return null;
+    }
+
 }
