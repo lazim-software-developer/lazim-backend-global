@@ -16,6 +16,7 @@ class UserFlatResource extends JsonResource
     {
         return [
             'flat_name' => $this->property_number,
+            'flat_id' => $this->id,
             'building_name' => $this->building->name,
             'building_id' => $this->building->id,
         ];;
