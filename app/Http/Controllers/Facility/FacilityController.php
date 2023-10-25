@@ -9,6 +9,7 @@ use App\Http\Requests\Facility\FacilityBookingRequest;
 use App\Http\Resources\CustomResponseResource;
 use App\Models\Building\Building;
 use App\Models\Building\FacilityBooking;
+use Illuminate\Http\Request;
 
 class FacilityController extends Controller
 {
@@ -70,11 +71,19 @@ class FacilityController extends Controller
     }
 
     // User booking
-    public function userBookings(Building $building)
+    public function userBookings(Request $request, Building $building)
     {
-        $bookings = FacilityBooking::where('user_id', auth()->user()->id)
-            ->where('building_id', $building->id)
-            ->get();
+        $type = $request->input('type');
+        
+        $query = FacilityBooking::where('user_id', auth()->user()->id)
+            ->where('building_id', $building->id);
+
+        if ($type === 'facilities') {
+            $query->where('bookable_type', 'App\Models\Master\Facility');
+        } elseif ($type === 'services') {
+            $query->where('bookable_type', 'App\Models\Master\Service');
+        } 
+        $bookings = $query->latest()->get();
 
         return FacilityBookingResource::collection($bookings);
     }
