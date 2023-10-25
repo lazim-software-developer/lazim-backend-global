@@ -20,16 +20,17 @@ class FacilityController extends Controller
 
     public function bookFacility(FacilityBookingRequest $request, Building $building)
     {
-        $oaId = $building->ownerAssociation->id;
-
         // Check for existing bookings for the same facility, date, and time range
-        $existingBooking = FacilityBooking::where('facility_id', $request->facility_id)
-            ->where('date', $request->date)
+        $existingBooking = FacilityBooking::where([
+            'bookable_id' => $request->facility_id,
+            'bookable_type' => 'App\Models\Master\Facility',
+            'date' => $request->date,
+        ])
             ->where(function ($query) use ($request) {
                 $query->whereBetween('start_time', [$request->start_time, $request->end_time])
                     ->orWhereBetween('end_time', [$request->start_time, $request->end_time]);
             })
-            ->first();
+            ->exists(); // Just check for existence
 
         if ($existingBooking) {
             return (new CustomResponseResource([
@@ -40,10 +41,10 @@ class FacilityController extends Controller
         }
 
         $booking = FacilityBooking::create([
-            'facility_id' => $request->facility_id,
+            'bookable_id' => $request->facility_id,
+            'bookable_type' => 'App\Models\Master\Facility',
             'user_id' => auth()->user()->id,
             'building_id' => $building->id,
-            'owner_association_id' => $oaId,
             'date' => $request->date,
             'start_time' => $request->start_time,
             'end_time' => $request->end_time,

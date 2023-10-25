@@ -142,7 +142,7 @@ Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active']
 
     // Book a facility
     Route::post('buildings/{building}/book/facility', [FacilityController::class, 'bookFacility'])->name('facility.book');
-    
+
     // My bookings API - List all bookings for logged in user
     Route::get('building/{building}/user-bookings', [FacilityController::class, 'userBookings']);
 });
@@ -194,5 +194,6 @@ Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active']
  * Services related APIs
  */
 Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active'])->group(function () {
- Route::get('/buildings/{building}/services', [ServiceController::class, 'listServicesForBuilding']);
+    Route::get('/buildings/{building}/services', [ServiceController::class, 'listServicesForBuilding']);
+    Route::post('buildings/{building}/book/service', [ServiceController::class, 'bookService']);
 });
