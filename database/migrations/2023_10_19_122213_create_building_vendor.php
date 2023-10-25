@@ -18,7 +18,6 @@ return new class extends Migration
             $table->boolean('active')->default(true);
             $table->foreign('vendor_id')->references('id')->on('vendors')->onDelete('cascade');
             $table->foreign('building_id')->references('id')->on('buildings')->onDelete('cascade');
-
         });
     }
 
