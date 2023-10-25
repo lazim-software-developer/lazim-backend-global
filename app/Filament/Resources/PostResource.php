@@ -140,11 +140,13 @@ class PostResource extends Resource
                 SelectFilter::make('user_id')
                     ->relationship('user', 'first_name')
                     ->searchable()
-                    ->preload(),
+                    ->preload()
+                    ->label('User'),
                 SelectFilter::make('building_id')
                     ->relationship('building', 'name')
                     ->searchable()
-                    ->preload(),
+                    ->preload()
+                    ->label('Building'),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
