@@ -75,6 +75,9 @@ class HelpdeskcomplaintResource extends Resource
                             ->required()
                             ->placeholder('Category'),
                         FileUpload::make('photo')
+                            ->disk('s3')
+                            ->directory('dev')
+                            ->image()
                             ->nullable(),
                         TextInput::make('complaint')
                             ->placeholder('Complaint'),
@@ -83,10 +86,9 @@ class HelpdeskcomplaintResource extends Resource
                                 'pending'   => 'Pending',
                                 'resolved' => 'Resolved',
                                 ])
-                                ->searchable()
-                                ->required()
-                                ->placeholder('Status'),
-                            ])
+                            ->searchable()
+                            ->required()
+                            ->placeholder('Status')
                             ->live(),
                         TextInput::make('remarks')
                             ->disabled(fn (Get $get) => $get('status') !== 'resolved')
@@ -94,6 +96,7 @@ class HelpdeskcomplaintResource extends Resource
                             ->label('Remarks'),
                         Hidden::make('complaint_type')
                             ->default('help_desk'),
+                    ])
             ]);
     }
 
