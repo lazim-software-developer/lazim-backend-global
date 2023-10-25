@@ -6,6 +6,7 @@ use App\Models\ApartmentOwner;
 use App\Models\Building\Building;
 use App\Models\Building\FlatTenant;
 use App\Models\FlatOwner;
+use App\Models\MollakTenant;
 use App\Models\OaUserRegistration;
 use App\Models\Scopes\Searchable;
 use App\Models\User\User;
@@ -55,5 +56,9 @@ class Flat extends Model
 
     public function owners() {
         return $this->belongsToMany(ApartmentOwner::class, 'flat_owner', 'flat_id', 'owner_id');
+    }
+
+    public function mollakTenants() {
+        return $this->hasMany(MollakTenant::class);
     }
 }
