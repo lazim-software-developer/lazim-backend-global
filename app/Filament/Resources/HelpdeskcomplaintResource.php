@@ -81,7 +81,7 @@ class HelpdeskcomplaintResource extends Resource
                         Select::make('status')
                             ->options([
                                 'pending'   => 'Pending',
-                                'completed' => 'Completed',
+                                'resolved' => 'Resolved',
                                 ])
                                 ->searchable()
                                 ->required()
@@ -89,7 +89,7 @@ class HelpdeskcomplaintResource extends Resource
                             ])
                             ->live(),
                         TextInput::make('remarks')
-                            ->disabled(fn (Get $get) => $get('status') !== 'completed')
+                            ->disabled(fn (Get $get) => $get('status') !== 'resolved')
                             ->hiddenOn('create')
                             ->label('Remarks'),
                         Hidden::make('complaint_type')
