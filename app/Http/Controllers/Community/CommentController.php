@@ -21,7 +21,7 @@ class CommentController extends Controller
         return CommentResource::collection($comments);
     }
 
-    // Add a comment foa a post in community
+    // Add a comment for a post in community
     public function store(StoreCommentRequest $request, Post $post)
     {
         $comment = new Comment($request->all());
@@ -39,7 +39,7 @@ class CommentController extends Controller
         ]))->response()->setStatusCode(201);
     }
 
-    // Add a comment for acomplaint in helpdesk
+    // Add a comment for a complaint in help-desk
     public function addComment(StoreCommentRequest $request, Complaint $complaint)
     {
         $comment = new Comment([
@@ -53,7 +53,8 @@ class CommentController extends Controller
             'title' => 'Success',
             'message' => "Comment added successfully",
             'errorCode' => 201,
-            'status' => 'success'
+            'status' => 'success',
+            'data' => new CommentResource($comment)
         ]))->response()->setStatusCode(201);
     }
 
