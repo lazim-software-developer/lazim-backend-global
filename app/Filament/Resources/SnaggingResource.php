@@ -27,7 +27,7 @@ class SnaggingResource extends Resource
     protected static ?string $navigationLabel = 'Snags';
 
     protected static ?string $navigationGroup = 'Property Management';
-
+    protected static bool $shouldRegisterNavigation = false;
     public static function form(Form $form): Form
     {
         return $form
