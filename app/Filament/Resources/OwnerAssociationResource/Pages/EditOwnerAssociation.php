@@ -49,7 +49,7 @@ class EditOwnerAssociation extends EditRecord
             ]);
 
         // If updated value of verified is true and the value is DB is false(This happens only for the first time)
-        if($this->record->verified == 'true' && DB::table('owner_associations')->where('id',1)->value('verified_by') == null) {
+        if($this->record->verified == 'true' && DB::table('owner_associations')->where('id',$this->record->id)->value('verified_by') == null) {
             // Update verified in owner_association table
             OwnerAssociation::where('id', $this->data['id'])
                 ->update([
