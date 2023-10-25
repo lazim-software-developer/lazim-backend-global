@@ -26,11 +26,23 @@ class FacilityController extends Controller
             'bookable_type' => 'App\Models\Master\Facility',
             'date' => $request->date,
         ])
-            ->where(function ($query) use ($request) {
-                $query->whereBetween('start_time', [$request->start_time, $request->end_time])
-                    ->orWhereBetween('end_time', [$request->start_time, $request->end_time]);
-            })
-            ->exists(); // Just check for existence
+        ->where(function ($query) use ($request) {
+            // New booking starts during an existing booking
+            $query->whereBetween('start_time', [$request->start_time, $request->end_time])
+                // New booking ends during an existing booking
+                ->orWhereBetween('end_time', [$request->start_time, $request->end_time])
+                // New booking completely overlaps an existing booking
+                ->orWhere(function ($subQuery) use ($request) {
+                    $subQuery->where('start_time', '<=', $request->start_time)
+                        ->where('end_time', '>=', $request->end_time);
+                })
+                // New booking starts and ends within the duration of an existing booking
+                ->orWhere(function ($subQuery) use ($request) {
+                    $subQuery->where('start_time', '>=', $request->start_time)
+                        ->where('end_time', '<=', $request->end_time);
+                });
+        })
+        ->exists();
 
         if ($existingBooking) {
             return (new CustomResponseResource([
@@ -53,7 +65,7 @@ class FacilityController extends Controller
         return new CustomResponseResource([
             'title' => 'Booking Successful',
             'message' => 'Facility booking has been successfully created.',
-            'data' => new FacilityResource($booking),
+            'errorCode' => 200,
         ]);
     }
 
