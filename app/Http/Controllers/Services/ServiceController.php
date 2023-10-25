@@ -64,7 +64,7 @@ class ServiceController extends Controller
         return new CustomResponseResource([
             'title' => 'Booking Successful',
             'message' => 'Service booking has been successfully created.',
-            'data' => new FacilityResource($booking),
+            'errorCode' => 200,
         ]);
     }
 }
