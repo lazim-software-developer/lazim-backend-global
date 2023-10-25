@@ -118,9 +118,11 @@ class PostResource extends Resource
             ->columns([
                 TextColumn::make('content')
                     ->toggleable()
+                    ->searchable()
                     ->limit(50),
                 TextColumn::make('status')
                     ->toggleable()
+                    ->searchable()
                     ->limit(50),
                 TextColumn::make('scheduled_at')
                     ->toggleable()
