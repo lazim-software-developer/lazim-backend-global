@@ -16,8 +16,9 @@ class FacilityBooking extends Model
     use Searchable;
 
     protected $fillable = [
-        'facility_id',
+        'bookable_id',
         'user_id',
+        'bookable_type',
         'building_id',
         'date',
         'start_time',
@@ -60,5 +61,10 @@ class FacilityBooking extends Model
    public function oaUserRegistration()
     {
         return $this->belongsTo(OaUserRegistration::class);
+    }
+
+    public function bookable()
+    {
+        return $this->morphTo();
     }
 }
