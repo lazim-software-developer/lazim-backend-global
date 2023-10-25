@@ -12,8 +12,12 @@ class DocumentLibrarySeeder extends Seeder
      */
     public function run(): void
     {
-        DocumentLibrary::factory()
-            ->count(5)
-            ->create();
+        $doc = [
+            ['id' => 1, 'name' => 'Passport', 'url'=>'dev/B5iVUw6NbQ4bSkss0cUQ3fmIRSippW-metaU2NyZWVuc2hvdCAoMTEpLnBuZw==-.png', 'type'=>'tenant'],
+            ['id' => 2, 'name' => 'Visa', 'url'=>'dev/B5iVUw6NbQ4bSkss0cUQ3fmIRSippW-metaU2NyZWVuc2hvdCAoMTEpLnBuZw==-.png', 'type'=>'tenant'],
+            ['id' => 3, 'name' => 'Eid', 'url'=>'dev/B5iVUw6NbQ4bSkss0cUQ3fmIRSippW-metaU2NyZWVuc2hvdCAoMTEpLnBuZw==-.png', 'type'=>'tenant'],
+            ['id' => 4, 'name' => 'Title deed', 'url'=>'dev/B5iVUw6NbQ4bSkss0cUQ3fmIRSippW-metaU2NyZWVuc2hvdCAoMTEpLnBuZw==-.png', 'type'=>'tenant'],
+        ];
+        DocumentLibrary::insert($doc);
     }
 }

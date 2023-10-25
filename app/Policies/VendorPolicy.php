@@ -55,9 +55,11 @@ class VendorPolicy
      */
     public function update(User $user, Vendor $model): bool
     {
-        $role = $user->role;
+        $allowedRoles = ['OA','Admin'];
 
-        return $role && $role->name == 'Admin';
+        if (in_array($user->role->name, $allowedRoles)) {
+        return true;
+        }
 
     }
 
