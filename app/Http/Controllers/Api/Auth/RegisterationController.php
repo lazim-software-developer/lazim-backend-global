@@ -79,7 +79,7 @@ class RegisterationController extends Controller
 
             return (new CustomResponseResource([
                 'title' => 'Error',
-                'message' => $errorMessage,
+                'message' => "Your details are not matching with Mollak data. Please enter valid details.",
                 'errorCode' => 400,
             ]))->response()->setStatusCode(400);
         }
