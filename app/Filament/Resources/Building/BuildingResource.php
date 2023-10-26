@@ -92,41 +92,51 @@ class BuildingResource extends Resource
             Tables\Columns\TextColumn::make('name')
                 ->toggleable()
                 ->searchable()
+                ->default('NA')
                 ->limit(50),
             Tables\Columns\TextColumn::make('property_group_id')
                 ->toggleable()
                 ->searchable()
+                ->default('NA')
                 ->limit(50),
             Tables\Columns\TextColumn::make('address_line1')
                 ->toggleable()
                 ->searchable()
+                ->default('NA')
                 ->limit(50),
             Tables\Columns\TextColumn::make('address_line2')
                 ->toggleable()
                 ->searchable()
+                ->default('NA')
                 ->limit(50),
             Tables\Columns\TextColumn::make('area')
                 ->toggleable()
                 ->searchable()
+                ->default('NA')
                 ->limit(50),
             Tables\Columns\TextColumn::make('cities.name')
                 ->toggleable()
                 ->searchable()
+                ->default('NA')
                 ->limit(50),
             Tables\Columns\TextColumn::make('lat')
                 ->toggleable()
                 ->searchable()
+                ->default('NA')
                 ->limit(50),
             Tables\Columns\TextColumn::make('lng')
                 ->toggleable()
                 ->searchable()
+                ->default('NA')
                 ->limit(50),
             Tables\Columns\TextColumn::make('description')
                 ->toggleable()
                 ->searchable()
+                ->default('NA')
                 ->limit(50),
             Tables\Columns\TextColumn::make('floors')
                 ->toggleable()
+                ->default('NA')
                 ->searchable(),
         ])
             ->filters([

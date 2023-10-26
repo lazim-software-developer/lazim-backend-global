@@ -119,10 +119,12 @@ class PostResource extends Resource
                 TextColumn::make('content')
                     ->toggleable()
                     ->searchable()
+                    ->default('NA')
                     ->limit(50),
                 TextColumn::make('status')
                     ->toggleable()
                     ->searchable()
+                    ->default('NA')
                     ->limit(50),
                 TextColumn::make('scheduled_at')
                     ->toggleable()
@@ -130,10 +132,12 @@ class PostResource extends Resource
                 TextColumn::make('building.name')
                     ->toggleable()
                     ->searchable()
+                    ->default('NA')
                     ->limit(50),
                 TextColumn::make('user.first_name')
                     ->toggleable()
                     ->searchable()
+                    ->default('NA')
                     ->limit(50),
             ])
             ->filters([

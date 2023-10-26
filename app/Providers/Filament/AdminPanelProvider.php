@@ -63,6 +63,8 @@ class AdminPanelProvider extends PanelProvider
                                 ->url('/admin'),
                             ]),
             ]);
+           if(auth()->user()->id == 1)
+           {
             $builder->groups([
                 NavigationGroup::make('Master')
                     ->items([
@@ -108,7 +110,8 @@ class AdminPanelProvider extends PanelProvider
                                 ->activeIcon('heroicon-s-user-group')
                                 ->sort(7),
                             ]),
-            ]);                  
+            ]);    
+           }              
             $builder->groups([
                 NavigationGroup::make('Community')
                     ->items([
