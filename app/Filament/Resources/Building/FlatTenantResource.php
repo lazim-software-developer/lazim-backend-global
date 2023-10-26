@@ -34,7 +34,7 @@ class FlatTenantResource extends Resource
                         Select::make('flat_id')
                             ->rules(['exists:flats,id'])
                             ->required()
-                            ->relationship('flat', 'number')
+                            ->relationship('flat', 'property_number')
                             ->searchable()
                             ->placeholder('Flat'),
                         Select::make('tenant_id')
@@ -61,11 +61,13 @@ class FlatTenantResource extends Resource
         return $table
             ->poll('60s')
             ->columns([
-                TextColumn::make('flat.number')
+                TextColumn::make('flat.property_number')
                     ->toggleable()
+                    ->default('NA')
                     ->limit(50),
                 TextColumn::make('user.first_name')
                     ->toggleable()
+                    ->default('NA')
                     ->limit(50),
 
                 TextColumn::make('start_date')
