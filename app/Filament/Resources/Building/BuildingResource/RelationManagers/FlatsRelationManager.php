@@ -4,6 +4,8 @@ namespace App\Filament\Resources\Building\BuildingResource\RelationManagers;
 
 use Filament\Forms;
 use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -21,34 +23,20 @@ class FlatsRelationManager extends RelationManager
         return $form
             ->schema([
                 Grid::make(['default' => 0])->schema([
-                    TextInput::make('number')
+                    TextInput::make('property_number')
                         ->rules(['numeric'])
                         ->numeric()
-                        ->placeholder('Number')
+                        ->placeholder('Property Number')
                         ->columnSpan([
                             'default' => 12,
                             'md' => 12,
                             'lg' => 12,
                         ]),
     
-                    TextInput::make('floor')
-                        ->rules(['numeric'])
-                        ->numeric()
-                        ->placeholder('Floor')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
-    
-                    TextInput::make('description')
-                        ->rules(['max:50', 'string'])
-                        ->placeholder('Description')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+                    Hidden::make('building_id')
+                        ->default(function(RelationManager $livewire){
+                            return $livewire->ownerRecord->id;
+                        }),
                 ]),
             ]);
     }
@@ -57,17 +45,16 @@ class FlatsRelationManager extends RelationManager
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('number'),
-                Tables\Columns\TextColumn::make('floor'),
+                Tables\Columns\TextColumn::make('property_number'),
                 Tables\Columns\TextColumn::make('building.name')->limit(50),
-                Tables\Columns\TextColumn::make('description')->limit(50),
+                //Tables\Columns\TextColumn::make('description')->limit(50),
             ])
             ->filters([
                 //
             ])
-            ->headerActions([
-                Tables\Actions\CreateAction::make(),
-            ])
+            // ->headerActions([
+            //     Tables\Actions\CreateAction::make(),
+            // ])
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
@@ -76,9 +63,9 @@ class FlatsRelationManager extends RelationManager
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
-            ])
-            ->emptyStateActions([
-                Tables\Actions\CreateAction::make(),
             ]);
+            // ->emptyStateActions([
+            //     Tables\Actions\CreateAction::make(),
+            // ]);
     }
 }
