@@ -2,8 +2,10 @@
 
 namespace App\Filament\Resources\Vendor\VendorResource\RelationManagers;
 
+use App\Models\Master\Service;
 use Filament\Forms;
 use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
@@ -47,25 +49,33 @@ class ServicesRelationManager extends RelationManager
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')->limit(50),
-                Tables\Columns\IconColumn::make('active'),
+                Tables\Columns\IconColumn::make('active')->boolean(),
             ])
             ->filters([
                 //
             ])
-            ->headerActions([
-                Tables\Actions\CreateAction::make(),
-            ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\DetachAction::make() ->label('Remove'),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ])
-            ->emptyStateActions([
-                Tables\Actions\CreateAction::make(),
+            // ->bulkActions([
+            //     Tables\Actions\BulkActionGroup::make([
+            //         Tables\Actions\DeleteBulkAction::make(),
+            //     ]),
+            // ])
+            // ->emptyStateActions([
+            //     Tables\Actions\CreateAction::make(),
+            // ])
+            ->headerActions([
+                Tables\Actions\AttachAction::make()
+                    ->label('Add')
+                    ->recordSelect(fn () => Select::make('recordId')
+                            ->label('Services')
+                            ->relationship('vendors', 'service_vendor')
+                            ->options(Service::all()->pluck('name', 'id'))
+                            ->searchable()
+                            ->required()
+                            ->preload()
+                        )
             ]);
     }
 }
