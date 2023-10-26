@@ -48,32 +48,38 @@ class BuildingDocumentResource extends Resource
                     'lg' => 2,
                 ])->schema([
 
+                    TextInput::make('name')
+                    ->required(),
                     Select::make('document_library_id')
-                        ->rules(['exists:document_libraries,id'])
-                        ->required()
-                        ->relationship('documentLibrary', 'name')
+                    // ->rules(['exists:document_libraries,id'])
+                    ->required()
+                    ->relationship('documentLibrary', 'name')
+                    ->preload()
+                    ->searchable()
+                    ->placeholder('Document Library')
+                    ->getSearchResultsUsing(fn(string $search) => DB::table('document_libraries')
+                            ->join('building_documentlibraries', function (JoinClause $join) {
+                                $join->on('document_libraries.id', '=', 'building_documentlibraries.documentlibrary_id')
+                                    ->where([
+                                        ['building_id', '=', Filament::getTenant()->id],
 
-                        ->searchable()
-                        ->placeholder('Document Library')
-                        ->getSearchResultsUsing(fn(string $search) => DB::table('document_libraries')
-                                ->join('building_documentlibraries', function (JoinClause $join) {
-                                    $join->on('document_libraries.id', '=', 'building_documentlibraries.documentlibrary_id')
-                                        ->where([
-                                            ['building_id', '=', Filament::getTenant()->id],
-
-                                        ]);
-                                })
-                                ->pluck('document_libraries.name', 'document_libraries.id')
-                        ),
+                                    ]);
+                            })
+                            ->pluck('document_libraries.name', 'document_libraries.id')
+                    ),
                     FileUpload::make('url')->label('Document')
                         ->disk('s3')
+                        ->directory('dev')
                         ->required()
+                        ->acceptedFileTypes(['image/pdf'])
                         ->downloadable()
                         ->preserveFilenames(),
                     Select::make('status')
-                        ->options([
-                            'pending' => 'Pending',
-                        ])
+                    ->options([
+                        'pending' => 'Pending',
+                        'submitted' => 'Submitted',
+                        'approved' => 'Approved',
+                    ])
                         ->rules(['max:50', 'string'])
                         ->required()
                         ->placeholder('Status'),
@@ -86,9 +92,7 @@ class BuildingDocumentResource extends Resource
 
                     MorphToSelect::make('documentable')
                         ->types([
-                            Type::make(Vendor::class)->titleAttribute('name'),
                             Type::make(Building::class)->titleAttribute('name'),
-                            Type::make(FlatTenant::class)->titleAttribute('tenant_id'),
 
                         ]),
                     TextInput::make('documentable_id')
@@ -116,7 +120,6 @@ class BuildingDocumentResource extends Resource
                     ->limit(50),
                 TextColumn::make('status')
                     ->toggleable()
-                    ->searchable(true, null, true)
                     ->limit(50),
                 TextColumn::make('expiry_date')
                     ->toggleable()
@@ -128,7 +131,6 @@ class BuildingDocumentResource extends Resource
                     ->toggleable(),
                 TextColumn::make('documentable_type')
                     ->toggleable()
-                    ->searchable(true, null, true)
                     ->limit(50),
             ])
             ->filters([
