@@ -18,8 +18,11 @@ class DocumentsController extends Controller
 {
     public function index()
     {
-        $documents = DocumentLibrary::all();
-        return DocumentLibraryResource::collection($documents);
+        $documentLibraries = DocumentLibrary::leftJoin('documents', 'documents.document_library_id', '=', 'document_libraries.id')
+            ->select('document_libraries.*', 'documents.name AS document_name', 'documents.status AS document_status') // Select specific columns
+            ->get();
+
+    return DocumentLibraryResource::collection($documentLibraries);
     }
 
     public function create(DocumentRequest $request)
