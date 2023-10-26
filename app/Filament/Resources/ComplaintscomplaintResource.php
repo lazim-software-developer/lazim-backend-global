@@ -43,6 +43,13 @@ class ComplaintscomplaintResource extends Resource
                             ->default('App\Models\Building\FlatTenant'),
                         Hidden::make('complaintable_id')
                             ->default(1),
+                        Select::make('building_id')
+                            ->rules(['exists:buildings,id'])
+                            ->relationship('building', 'name')
+                            ->reactive()
+                            ->preload()
+                            ->searchable()
+                            ->placeholder('Building'),
                         Select::make('user_id')
                             ->relationship('user','id')
                             ->options(function(){
@@ -81,7 +88,7 @@ class ComplaintscomplaintResource extends Resource
                         Select::make('status')
                             ->options([
                                 'pending'   => 'Pending',
-                                'completed' => 'Completed',
+                                'resolved' => 'Resolved',
                                 ])
                             ->default('pending')
                             ->searchable()
@@ -91,7 +98,7 @@ class ComplaintscomplaintResource extends Resource
                         Hidden::make('complaint_type')
                             ->default('tenant_complaint'),
                         TextInput::make('remarks')
-                            ->disabled(fn (Get $get) => $get('status') !== 'completed')
+                            ->disabled(fn (Get $get) => $get('status') !== 'resolved')
                             ->hiddenOn('create')
                             ->label('Remarks'),
                     ])
@@ -102,6 +109,10 @@ class ComplaintscomplaintResource extends Resource
     {
         return $table
         ->columns([
+            TextColumn::make('building.name')
+                    ->default('NA')
+                    ->searchable()
+                    ->limit(50),
             TextColumn::make('user.first_name')
                 ->toggleable()
                 ->searchable()
