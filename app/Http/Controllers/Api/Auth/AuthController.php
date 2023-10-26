@@ -152,8 +152,8 @@ class AuthController extends Controller
         $user->save();
 
         return (new CustomResponseResource([
-            'title' => 'Password set successfully!',
-            'message' => 'Test',
+            'title' => 'Success',
+            'message' => 'Password set successfully!',
             'errorCode' => 200,
             'status' => 'success'
         ]))->response()->setStatusCode(200);

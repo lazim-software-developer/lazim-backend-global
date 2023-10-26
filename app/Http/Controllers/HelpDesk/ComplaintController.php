@@ -110,7 +110,7 @@ class ComplaintController extends Controller
 
         return (new CustomResponseResource([
             'title' => 'Success',
-            'message' => 'Complaint created successfully!',
+            'message' => "We'll get back to you at the earliest!",
             'errorCode' => 201,
         ]))->response()->setStatusCode(201);
     }
