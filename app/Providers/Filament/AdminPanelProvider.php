@@ -127,58 +127,46 @@ class AdminPanelProvider extends PanelProvider
                                 ->sort(2),
                             ]),
             ]);
-            if(auth()->user()->id != 1)
-            {
-                $builder->groups([
-                    NavigationGroup::make('Property Management')
-                        ->items([
-                                NavigationItem::make('Building Managers')
-                                    ->url('/admin/building/building-pocs')
-                                    ->hidden(auth()->user()->id == 1 ? true : false)
-                                    ->icon('heroicon-o-calendar-days')
-                                    ->activeIcon('heroicon-o-calendar-days')
-                                    ->sort(1),
-                                NavigationItem::make('Buildings')
-                                    ->url('/admin/building/buildings')
-                                    ->hidden(auth()->user()->id == 1 ? true : false)
-                                    ->icon('heroicon-m-clipboard-document-check')
-                                    ->activeIcon('heroicon-m-clipboard-document-check')
-                                    ->sort(2),
-                                NavigationItem::make('Facility Bookings')
-                                    ->url('/admin/building/facility-bookings')
-                                    ->hidden(auth()->user()->id == 1 ? true : false)
-                                    ->icon('heroicon-s-speaker-wave')
-                                    ->activeIcon('heroicon-s-speaker-wave')
-                                    ->sort(3),
-                                NavigationItem::make('Service Bookings')
-                                    ->url('/admin/building/service-bookings')
-                                    ->hidden(auth()->user()->id == 1 ? true : false)
-                                    ->icon('heroicon-s-user-group')
-                                    ->activeIcon('heroicon-s-user-group')
-                                    ->sort(4),
-                                ]),
-                ]);
-            }
-            if(auth()->user()->id != 1)
-            {
-                $builder->groups([
-                    NavigationGroup::make('Flat Management')
-                        ->items([
-                                NavigationItem::make('Flats')
-                                    ->url('/admin/building/flats')
-                                    ->hidden(auth()->user()->id == 1 ? true : false)
-                                    ->icon('heroicon-o-information-circle')
-                                    ->activeIcon('heroicon-o-information-circle')
-                                    ->sort(1),
-                                NavigationItem::make('Tenants')
-                                    ->url('/admin/building/flat-tenants')
-                                    ->hidden(auth()->user()->id == 1 ? true : false)
-                                    ->icon('heroicon-o-user-circle')
-                                    ->activeIcon('heroicon-o-user-circle')
-                                    ->sort(2),
-                                ]),
-                ]);
-            }
+            $builder->groups([
+                NavigationGroup::make('Property Management')
+                    ->items([
+                            NavigationItem::make('Building Managers')
+                                ->url('/admin/building/building-pocs')
+                                ->icon('heroicon-o-calendar-days')
+                                ->activeIcon('heroicon-o-calendar-days')
+                                ->sort(1),
+                            NavigationItem::make('Buildings')
+                                ->url('/admin/building/buildings')
+                                ->icon('heroicon-m-clipboard-document-check')
+                                ->activeIcon('heroicon-m-clipboard-document-check')
+                                ->sort(2),
+                            NavigationItem::make('Facility Bookings')
+                                ->url('/admin/building/facility-bookings')
+                                ->icon('heroicon-s-speaker-wave')
+                                ->activeIcon('heroicon-s-speaker-wave')
+                                ->sort(3),
+                            NavigationItem::make('Service Bookings')
+                                ->url('/admin/building/service-bookings')
+                                ->icon('heroicon-s-user-group')
+                                ->activeIcon('heroicon-s-user-group')
+                                ->sort(4),
+                            ]),
+            ]);
+            $builder->groups([
+                NavigationGroup::make('Flat Management')
+                    ->items([
+                            NavigationItem::make('Flats')
+                                ->url('/admin/building/flats')
+                                ->icon('heroicon-o-information-circle')
+                                ->activeIcon('heroicon-o-information-circle')
+                                ->sort(1),
+                            NavigationItem::make('Tenants')
+                                ->url('/admin/building/flat-tenants')
+                                ->icon('heroicon-o-user-circle')
+                                ->activeIcon('heroicon-o-user-circle')
+                                ->sort(2),
+                            ]),
+            ]);
             if(auth()->user()->id != 1)
             {
                 $builder->groups([
