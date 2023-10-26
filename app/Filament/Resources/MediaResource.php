@@ -66,6 +66,7 @@ class MediaResource extends Resource
             ->columns([
                 TextColumn::make('name')
                     ->toggleable()
+                    ->default('NA')
                     ->searchable(),
                 
                 ImageColumn::make('url')
@@ -78,9 +79,11 @@ class MediaResource extends Resource
                     ->toggleable(),
 
                 TextColumn::make('mediaable.content')
+                    ->default('NA')
                     ->toggleable(),
                 
                 TextColumn::make('mediaable_type')
+                    ->default('NA')
                     ->toggleable(),
                 
             ])

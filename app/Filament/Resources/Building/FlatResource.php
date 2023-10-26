@@ -58,8 +58,10 @@ class FlatResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('property_number')
                     ->toggleable()
+                    ->default('NA')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('building.name')
+                    ->default('NA')
                     ->limit(50),
             ])
             ->filters([
