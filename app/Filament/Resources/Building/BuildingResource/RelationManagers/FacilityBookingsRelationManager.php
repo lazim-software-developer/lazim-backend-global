@@ -48,31 +48,25 @@ class FacilityBookingsRelationManager extends RelationManager
                             return $livewire->ownerRecord->id;
                         }),
                         
-                    Select::make('facility_id')
-                        ->rules(['exists:facilities,id'])
-                        ->relationship('facility', 'name')
-                        ->searchable()
-                        ->options(function (callable $get,RelationManager $livewire) {
-                            $facilityid = DB::table('building_facility')
-                                    ->where('building_facility.building_id', '=', $livewire->ownerRecord->id)
-                                    ->select('building_facility.facility_id')
-                                    ->pluck('building_facility.facility_id');
-                            
-                            return DB::table('facilities')
-                                    ->whereIn('facilities.id',$facilityid)
-                                    ->select('facilities.id','facilities.name')
-                                    ->pluck('facilities.name','facilities.id')
-                                    ->toArray();
-                        })
-                        ->required()
-                        ->preload()
-                        ->placeholder('Facilities'),
+                    Select::make('bookable_id')
+                        ->options(
+                            DB::table('facilities')
+                                ->pluck('name', 'id')
+                                ->toArray()
+                        )
+                    ->searchable()
+                    ->preload()
+                    ->placeholder('Facility'),
+
+                    Hidden::make('bookable_type')
+                        ->default('App\Models\Master\Facility'),
 
                     Select::make('user_id')
                         ->rules(['exists:users,id'])
                         ->required()
                         ->relationship('user', 'first_name')
                         ->searchable()
+                        ->preload()
                         ->placeholder('User'),
                     DatePicker::make('date')
                         ->rules(['date'])
@@ -97,20 +91,25 @@ class FacilityBookingsRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('building_id')
             ->columns([
-                TextColumn::make('facility.name')
+                TextColumn::make('bookable.name')
                     ->searchable()
+                    ->default('NA')
                     ->label('Facility'),
                 TextColumn::make('user.first_name')
                     ->searchable()
+                    ->default('NA')
                     ->label('User'),
                 TextColumn::make('date')
                     ->searchable()
+                    ->default('NA')
                     ->label('Date'),
                 TextColumn::make('start_time')
                     ->searchable()
+                    ->default('NA')
                     ->label('Start Time'),
                 TextColumn::make('end_time')
                     ->searchable()
+                    ->default('NA')
                     ->label('End Time'),
             ])
             ->filters([

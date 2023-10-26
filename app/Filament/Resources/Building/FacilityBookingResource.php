@@ -122,24 +122,31 @@ class FacilityBookingResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('building.name')
                 ->toggleable()
+                ->default('NA')
                 ->limit(50),
                 Tables\Columns\TextColumn::make('bookable.name')
                     ->toggleable()
+                    ->default('NA')
                     ->limit(50),
                 Tables\Columns\TextColumn::make('user.first_name')
                     ->toggleable()
-                    ->searchable(isIndividual: false, isGlobal: true)
+                    ->searchable()
+                    ->default('NA')
                     ->limit(50),
                 Tables\Columns\TextColumn::make('date')
                     ->toggleable()
+                    ->default('NA')
                     ->date(),
                 Tables\Columns\TextColumn::make('start_time')
                     ->toggleable()
+                    ->default('NA')
                     ->time(),
                 Tables\Columns\TextColumn::make('end_time')
                     ->toggleable()
+                    ->default('NA')
                     ->time(),
                 Tables\Columns\TextColumn::make('reference_number')
+                    ->default('NA')
                     ->toggleable(),
                 Tables\Columns\IconColumn::make('approved')
                     ->toggleable()
