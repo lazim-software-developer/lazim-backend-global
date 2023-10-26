@@ -24,7 +24,7 @@ class VendorResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     protected static ?string $navigationGroup = 'Vendor Management';
-    protected static bool $shouldRegisterNavigation = false;
+    protected static bool $shouldRegisterNavigation = true;
     public static function form(Form $form): Form
     {
         return $form
@@ -139,14 +139,17 @@ class VendorResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('name')
                     ->toggleable()
-                    ->searchable(true, null, true)
+                    ->searchable()
+                    ->default('NA')
                     ->limit(50),
                 Tables\Columns\TextColumn::make('user.first_name')
                     ->toggleable()
+                    ->default('NA')
                     ->limit(50),
                 Tables\Columns\TextColumn::make('tl_number')
                     ->toggleable()
-                    ->searchable(true, null, true)
+                    ->searchable()
+                    ->default('NA')
                     ->limit(50),
                 Tables\Columns\TextColumn::make('tl_expiry')
                     ->toggleable()

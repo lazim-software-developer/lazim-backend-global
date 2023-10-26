@@ -12,6 +12,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 
 class FlatTenantResource extends Resource
@@ -36,13 +37,22 @@ class FlatTenantResource extends Resource
                             ->required()
                             ->relationship('flat', 'property_number')
                             ->searchable()
+                            ->preload()
                             ->placeholder('Flat'),
                         Select::make('tenant_id')
                             ->rules(['exists:users,id'])
                             ->required()
                             ->relationship('user', 'first_name')
                             ->searchable()
+                            ->preload()
                             ->placeholder('User'),
+                        Select::make('building_id')
+                            ->rules(['exists:buildings,id'])
+                            ->relationship('building', 'name')
+                            ->reactive()
+                            ->preload()
+                            ->searchable()
+                            ->placeholder('Building'),
                         DatePicker::make('start_date')
                             ->rules(['date'])
                             ->required()
@@ -64,21 +74,30 @@ class FlatTenantResource extends Resource
                 TextColumn::make('flat.property_number')
                     ->toggleable()
                     ->default('NA')
+                    ->searchable()
                     ->limit(50),
                 TextColumn::make('user.first_name')
                     ->toggleable()
                     ->default('NA')
+                    ->searchable()
                     ->limit(50),
 
                 TextColumn::make('start_date')
                     ->toggleable()
                     ->date(),
+                TextColumn::make('building.name')
+                    ->default('NA')
+                    ->searchable()
+                    ->limit(50),
                 TextColumn::make('end_date')
                     ->toggleable()
                     ->date(),
             ])
             ->filters([
-                //
+                SelectFilter::make('building_id')
+                    ->relationship('building', 'name')
+                    ->searchable()
+                    ->preload()
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
