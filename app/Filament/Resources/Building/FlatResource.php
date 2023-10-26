@@ -56,15 +56,12 @@ class FlatResource extends Resource
         return $table
             ->poll('60s')
             ->columns([
-                Tables\Columns\TextColumn::make('number')
+                Tables\Columns\TextColumn::make('property_number')
                     ->toggleable()
-                    ->searchable(true, null, true),
-                Tables\Columns\TextColumn::make('floor')
-                    ->toggleable()
-                    ->searchable(true, null, true),
-                Tables\Columns\TextColumn::make('description')
-                    ->toggleable()
-                    ->searchable(true, null, true)
+                    ->default('NA')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('building.name')
+                    ->default('NA')
                     ->limit(50),
             ])
             ->filters([
@@ -79,7 +76,7 @@ class FlatResource extends Resource
                 ]),
             ])
             ->emptyStateActions([
-                Tables\Actions\CreateAction::make(),
+                //Tables\Actions\CreateAction::make(),
             ]);
     }
 
@@ -97,7 +94,7 @@ class FlatResource extends Resource
     {
         return [
             'index' => Pages\ListFlats::route('/'),
-            'create' => Pages\CreateFlat::route('/create'),
+            //'create' => Pages\CreateFlat::route('/create'),
             'edit' => Pages\EditFlat::route('/{record}/edit'),
         ];
     }
