@@ -17,6 +17,7 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
+use Filament\Forms\Get;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
@@ -58,12 +59,21 @@ class AnnouncementResource extends Resource
                             'draft' => 'Draft',
                             'archived' => 'Archived',
                         ])
+                        ->live()
                         ->required()
                         ->default('draft'),
                 
                     DateTimePicker::make('scheduled_at')
                         ->rules(['date'])
                         ->displayFormat('d-M-Y h:i A')
+                        ->hidden(function(Get $get){
+                            if($get('status') == 'published')
+                            {
+                                return true;
+                            }
+                            return false;
+                        })
+                        ->live()
                         ->minDate(now())
                         ->required()
                         ->placeholder('Scheduled At'),
@@ -85,25 +95,6 @@ class AnnouncementResource extends Resource
                     Hidden::make('is_announcement')
                         ->default(true),
                         
-                    Repeater::make('media')
-                        ->relationship('media')
-                        ->schema([
-                            TextInput::make('name')
-                                ->rules(['max:30','regex:/^[a-zA-Z\s]*$/'])
-                                ->required()
-                                ->placeholder('Name'),
-                            FileUpload::make('url')
-                                ->disk('s3')
-                                ->directory('dev')
-                                ->image()
-                                ->required()
-                                
-                        ])
-                        ->columnSpan([
-                            'sm' => 1,
-                            'md' => 1,
-                            'lg' => 2,
-                        ])
                 ])
             ]);
     }
@@ -115,10 +106,12 @@ class AnnouncementResource extends Resource
             TextColumn::make('content')
                 ->toggleable()
                 ->searchable()
+                ->default('NA')
                 ->limit(50),
             TextColumn::make('status')
                 ->toggleable()
                 ->searchable()
+                ->default('NA')
                 ->limit(50),
             TextColumn::make('scheduled_at')
                 ->toggleable()
@@ -126,10 +119,12 @@ class AnnouncementResource extends Resource
             TextColumn::make('building.name')
                 ->toggleable()
                 ->searchable()
+                ->default('NA')
                 ->limit(50),
             TextColumn::make('user.first_name')
                 ->toggleable()
                 ->searchable()
+                ->default('NA')
                 ->limit(50),
         ])
             ->filters([
