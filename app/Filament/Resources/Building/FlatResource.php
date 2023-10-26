@@ -12,6 +12,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -59,13 +60,17 @@ class FlatResource extends Resource
                 Tables\Columns\TextColumn::make('property_number')
                     ->toggleable()
                     ->default('NA')
-                    ->searchable(),
+                    ->searchable()
+                    ->label('Flats'),
                 Tables\Columns\TextColumn::make('building.name')
                     ->default('NA')
                     ->limit(50),
             ])
             ->filters([
-                //
+                SelectFilter::make('building_id')
+                    ->relationship('building', 'name')
+                    ->searchable()
+                    ->preload()
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
