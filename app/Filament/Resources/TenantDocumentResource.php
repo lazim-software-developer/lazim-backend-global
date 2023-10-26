@@ -66,6 +66,7 @@ class TenantDocumentResource extends Resource
                     ),
                 FileUpload::make('url')->label('Document')
                     ->disk('s3')
+                    ->directory('dev')
                     ->required()
                     ->downloadable()
                     ->preserveFilenames(),
