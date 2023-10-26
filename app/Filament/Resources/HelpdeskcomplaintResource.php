@@ -48,6 +48,13 @@ class HelpdeskcomplaintResource extends Resource
                             ->default('App\Models\Building\FlatTenant'),
                         Hidden::make('complaintable_id')
                             ->default(1),
+                        Select::make('building_id')
+                            ->rules(['exists:buildings,id'])
+                            ->relationship('building', 'name')
+                            ->reactive()
+                            ->preload()
+                            ->searchable()
+                            ->placeholder('Building'),
                         Select::make('user_id')
                             ->relationship('user','id')
                             ->options(function(){
@@ -108,6 +115,10 @@ class HelpdeskcomplaintResource extends Resource
             ->columns([
                 // ViewColumn::make('name')->view('tables.columns.combined-column')
                 //     ->toggleable(),
+                TextColumn::make('building.name')
+                    ->default('NA')
+                    ->searchable()
+                    ->limit(50),
                 TextColumn::make('user.first_name')
                     ->toggleable()
                     ->searchable()

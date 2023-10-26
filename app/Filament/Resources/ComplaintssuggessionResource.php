@@ -81,7 +81,7 @@ class ComplaintssuggessionResource extends Resource
                     Select::make('status')
                         ->options([
                             'pending'   => 'Pending',
-                            'completed' => 'Completed',
+                            'resolved' => 'Resolved',
                             ])
                         ->default('pending')
                         ->searchable()
@@ -91,7 +91,7 @@ class ComplaintssuggessionResource extends Resource
                     Hidden::make('complaint_type')
                         ->default('suggestions'),
                     TextInput::make('remarks')
-                        ->disabled(fn (Get $get) => $get('status') !== 'completed')
+                        ->disabled(fn (Get $get) => $get('status') !== 'resolved')
                         ->hiddenOn('create')
                         ->label('Remarks'),
                 ])
