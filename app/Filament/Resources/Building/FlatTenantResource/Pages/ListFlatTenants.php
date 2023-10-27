@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Building\FlatTenantResource\Pages;
 use App\Filament\Resources\Building\FlatTenantResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
+use Illuminate\Contracts\View\View;
 
 class ListFlatTenants extends ListRecords
 {
@@ -16,4 +17,8 @@ class ListFlatTenants extends ListRecords
     //         Actions\CreateAction::make(),
     //     ];
     // }
+    public function getHeader(): ?View
+    {
+        return view('filament.custom.tenant-import');
+    }
 }
