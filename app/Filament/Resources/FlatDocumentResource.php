@@ -55,7 +55,8 @@ class FlatDocumentResource extends Resource
 
                         ->searchable()
                         ->placeholder('Document Library')
-                        ->getSearchResultsUsing(fn(string $search) => DB::table('document_libraries')
+                        ->getSearchResultsUsing(
+                            fn (string $search) => DB::table('document_libraries')
                                 ->join('building_documentlibraries', function (JoinClause $join) {
                                     $join->on('document_libraries.id', '=', 'building_documentlibraries.documentlibrary_id')
                                         ->where([
@@ -67,6 +68,7 @@ class FlatDocumentResource extends Resource
                         ),
                     FileUpload::make('url')->label('Document')
                         ->disk('s3')
+                        ->directory('dev')
                         ->required()
                         ->downloadable()
                         ->preserveFilenames(),
@@ -104,7 +106,7 @@ class FlatDocumentResource extends Resource
     {
         return $table
             ->poll('60s')
-            ->modifyQueryUsing(fn(Builder $query) => $query->where('documentable_type', 'App\Models\Building\FlatTenant')->withoutGlobalScopes())
+            ->modifyQueryUsing(fn (Builder $query) => $query->where('documentable_type', 'App\Models\Building\FlatTenant')->withoutGlobalScopes())
             ->columns([
                 TextColumn::make('documentLibrary.name')
                     ->toggleable()
