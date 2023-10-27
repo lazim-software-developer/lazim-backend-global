@@ -52,7 +52,7 @@ class AdminPanelProvider extends PanelProvider
                 Widgets\AccountWidget::class,
                 //Widgets\FilamentInfoWidget::class,
             ])
-            ->navigation(function (NavigationBuilder $builder): NavigationBuilder 
+            ->navigation(function (NavigationBuilder $builder): NavigationBuilder
             {
             $builder->groups([
                 NavigationGroup::make('Dashboard')
@@ -78,7 +78,7 @@ class AdminPanelProvider extends PanelProvider
                                 ->hidden(auth()->user()->id == 1 ? false : true)
                                 ->icon('heroicon-o-calendar-days')
                                 ->activeIcon('heroicon-o-calendar-days')
-                                ->sort(1),   
+                                ->sort(1),
                             NavigationItem::make('Cities')
                                 ->hidden(auth()->user()->id == 1 ? false : true)
                                 ->url('/admin/master/cities')
@@ -110,8 +110,8 @@ class AdminPanelProvider extends PanelProvider
                                 ->activeIcon('heroicon-s-user-group')
                                 ->sort(7),
                             ]),
-            ]);    
-           }              
+            ]);
+           }
             $builder->groups([
                 NavigationGroup::make('Community')
                     ->items([
@@ -183,6 +183,12 @@ class AdminPanelProvider extends PanelProvider
                                     ->hidden(auth()->user()->id == 1 ? true : false)
                                     ->icon('heroicon-m-clipboard-document-check')
                                     ->activeIcon('heroicon-m-clipboard-document-check')
+                                    ->sort(2),
+                                NavigationItem::make('Tenant')
+                                    ->url('/admin/tenant-documents')
+                                    ->hidden(auth()->user()->id == 1 ? true : false)
+                                    ->icon('heroicon-o-user-circle')
+                                    ->activeIcon('heroicon-o-user-circle')
                                     ->sort(2),
                                 ]),
                 ]);
