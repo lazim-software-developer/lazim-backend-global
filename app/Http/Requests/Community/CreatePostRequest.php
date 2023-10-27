@@ -25,7 +25,7 @@ class CreatePostRequest extends FormRequest
             'content' => 'required|string',
             'is_announcement' => 'required|boolean',
             'scheduled_at' => 'nullable|date',
-            'status' => 'required|in:published,draft,archived',
+            'status' => 'nullable|in:published,draft,archived',
         ];
     }
 }
