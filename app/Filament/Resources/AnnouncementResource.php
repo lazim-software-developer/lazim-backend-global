@@ -81,13 +81,9 @@ class AnnouncementResource extends Resource
                     Select::make('building_id')
                         ->relationship('building', 'name')
                         ->searchable()
+                        ->multiple()
                         ->preload()
-                        ->required()
-                        ->columnSpan([
-                            'sm' => 1,
-                            'md' => 1,
-                            'lg' => 2,
-                        ]), 
+                        ->required(), 
                     
                     Hidden::make('user_id')
                         ->default(auth()->user()->id), 
