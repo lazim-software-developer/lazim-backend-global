@@ -40,15 +40,15 @@ class Flat extends Model
     {
         return $this->hasMany(FlatVisitor::class);
     }
-    // public function users()
-    // {
-    //     return $this->belongsToMany(
-    //         User::class,
-    //         'flat_owner',
-    //         'flat_id',
-    //         'owner_id'
-    //     );
-    // }
+    public function users()
+    {
+        return $this->belongsToMany(
+            User::class,
+            'flat_owner',
+            'flat_id',
+            'owner_id'
+        );
+    }
     public function oaUserRegistration()
     {
         return $this->belongsTo(OaUserRegistration::class);

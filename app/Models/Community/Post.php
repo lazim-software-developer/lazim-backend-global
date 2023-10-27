@@ -19,6 +19,7 @@ class Post extends Model
     ];
     protected $casts = [
         'is_announcement' => 'boolean',
+        'building_id' => 'array',
     ];
     protected $appends = ['is_liked_by_user'];
 
@@ -29,7 +30,7 @@ class Post extends Model
 
     public function building()
     {
-        return $this->belongsTo(Building::class);
+        return $this->belongsToMany(Building::class);
     }
 
     public function media()
