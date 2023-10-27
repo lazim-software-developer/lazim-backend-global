@@ -25,6 +25,7 @@ class DocumentRequest extends FormRequest
             'building_id' => 'required|exists:buildings,id',
             'document_library_id' => 'required|exists:document_libraries,id',
             'name' => 'required|string',
+            'file' => 'required|file|max:2048'
         ];
     }
 }
