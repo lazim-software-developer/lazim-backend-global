@@ -33,7 +33,7 @@ class OwnerAssociationResource extends Resource
                     'lg' => 2,
                 ])->schema([
                     TextInput::make('name')
-                        ->rules(['max:30','regex:/^[a-zA-Z\s]*$/'])
+                        ->rules(['regex:/^[a-zA-Z\s]*$/'])
                         ->required()
                         ->placeholder('User'),
                     TextInput::make('mollak_id')->label('Oa Number')
