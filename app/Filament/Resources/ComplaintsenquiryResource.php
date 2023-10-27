@@ -80,6 +80,7 @@ class ComplaintsenquiryResource extends Resource
                     FileUpload::make('photo')
                         ->disk('s3')
                         ->directory('dev')
+                        ->maxSize(2048)
                         ->image()
                         ->nullable(),
                     TextInput::make('complaint')

@@ -50,7 +50,10 @@ class FacilityResource extends Resource
                         ->placeholder('Building'),
 
                     FileUpload::make('icon')
-                        ->disk('s3'),
+                        ->disk('s3')
+                        ->directory('dev')
+                        ->image()
+                        ->maxSize(2048),
 
                 ]),
             ]);

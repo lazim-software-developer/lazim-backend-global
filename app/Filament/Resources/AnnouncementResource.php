@@ -81,6 +81,7 @@ class AnnouncementResource extends Resource
                     Select::make('building_id')
                         ->relationship('building', 'name')
                         ->searchable()
+                        ->multiple()
                         ->preload()
                         ->required(), 
                     
