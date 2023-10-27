@@ -17,6 +17,7 @@ use Filament\Forms\Get;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -43,6 +44,13 @@ class ComplaintsenquiryResource extends Resource
                         ->default('App\Models\Building\FlatTenant'),
                     Hidden::make('complaintable_id')
                         ->default(1),
+                    Select::make('building_id')
+                            ->rules(['exists:buildings,id'])
+                            ->relationship('building', 'name')
+                            ->reactive()
+                            ->preload()
+                            ->searchable()
+                            ->placeholder('Building'),
                     Select::make('user_id')
                         ->relationship('user','id')
                         ->options(function(){
@@ -81,7 +89,7 @@ class ComplaintsenquiryResource extends Resource
                     Select::make('status')
                         ->options([
                             'pending'   => 'Pending',
-                            'completed' => 'Completed',
+                            'resolved' => 'Resolved',
                             ])
                         ->default('pending')
                         ->searchable()
@@ -91,7 +99,7 @@ class ComplaintsenquiryResource extends Resource
                     Hidden::make('complaint_type')
                         ->default('enquiries'),
                     TextInput::make('remarks')
-                        ->disabled(fn (Get $get) => $get('status') !== 'completed')
+                        ->disabled(fn (Get $get) => $get('status') !== 'resolved')
                         ->hiddenOn('create')
                         ->label('Remarks'),
                 ])
@@ -102,6 +110,10 @@ class ComplaintsenquiryResource extends Resource
     {
         return $table
         ->columns([
+            TextColumn::make('building.name')
+                    ->default('NA')
+                    ->searchable()
+                    ->limit(50),
             TextColumn::make('user.first_name')
                 ->toggleable()
                 ->searchable()
@@ -125,7 +137,11 @@ class ComplaintsenquiryResource extends Resource
 
         ])
             ->filters([
-                //
+                SelectFilter::make('building_id')
+                    ->relationship('building', 'name')
+                    ->searchable()
+                    ->label('Building')
+                    ->preload()
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

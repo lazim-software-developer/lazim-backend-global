@@ -68,11 +68,11 @@ class FacilityResource extends Resource
                     ->toggleable()
                     ->searchable(true, null, true)
                     ->limit(50),
-                TextColumn::make('buildings.name')
-                    ->label('Building Name')
-                    ->toggleable()
-                    ->searchable(true, null, true)
-                    ->limit(50),
+                // TextColumn::make('buildings.name')
+                //     ->label('Building Name')
+                //     ->toggleable()
+                //     ->searchable(true, null, true)
+                //     ->limit(50),
                 ImageColumn::make('icon')
                     ->disk('s3')
                     ->toggleable()

@@ -12,6 +12,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 
 class FlatTenantResource extends Resource
@@ -19,7 +20,7 @@ class FlatTenantResource extends Resource
     protected static ?string $model = FlatTenant::class;
 
     protected static ?string $navigationIcon  = 'heroicon-o-rectangle-stack';
-    protected static ?string $navigationLabel = 'Tenants';
+    protected static ?string $modelLabel = 'Tenants';
     protected static ?string $navigationGroup = 'Flat Management';
 
     public static function form(Form $form): Form
@@ -34,15 +35,24 @@ class FlatTenantResource extends Resource
                         Select::make('flat_id')
                             ->rules(['exists:flats,id'])
                             ->required()
-                            ->relationship('flat', 'number')
+                            ->relationship('flat', 'property_number')
                             ->searchable()
+                            ->preload()
                             ->placeholder('Flat'),
                         Select::make('tenant_id')
                             ->rules(['exists:users,id'])
                             ->required()
                             ->relationship('user', 'first_name')
                             ->searchable()
+                            ->preload()
                             ->placeholder('User'),
+                        Select::make('building_id')
+                            ->rules(['exists:buildings,id'])
+                            ->relationship('building', 'name')
+                            ->reactive()
+                            ->preload()
+                            ->searchable()
+                            ->placeholder('Building'),
                         DatePicker::make('start_date')
                             ->rules(['date'])
                             ->required()
@@ -61,22 +71,31 @@ class FlatTenantResource extends Resource
         return $table
             ->poll('60s')
             ->columns([
-                TextColumn::make('flat.number')
-                    ->toggleable()
+                TextColumn::make('flat.property_number')
+                    ->default('NA')
+                    ->searchable()
+                    ->label('Flat Number')
                     ->limit(50),
                 TextColumn::make('user.first_name')
-                    ->toggleable()
+                    ->default('NA')
+                    ->searchable()
                     ->limit(50),
 
                 TextColumn::make('start_date')
-                    ->toggleable()
                     ->date(),
+                TextColumn::make('building.name')
+                    ->default('NA')
+                    ->searchable()
+                    ->limit(50),
                 TextColumn::make('end_date')
-                    ->toggleable()
                     ->date(),
             ])
             ->filters([
-                //
+                SelectFilter::make('building_id')
+                    ->relationship('building', 'name')
+                    ->searchable()
+                    ->label('Building')
+                    ->preload()
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
@@ -103,7 +122,7 @@ class FlatTenantResource extends Resource
     {
         return [
             'index'  => Pages\ListFlatTenants::route('/'),
-            'create' => Pages\CreateFlatTenant::route('/create'),
+            //'create' => Pages\CreateFlatTenant::route('/create'),
             'edit'   => Pages\EditFlatTenant::route('/{record}/edit'),
         ];
     }

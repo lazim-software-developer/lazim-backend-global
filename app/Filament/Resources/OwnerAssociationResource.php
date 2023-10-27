@@ -33,7 +33,7 @@ class OwnerAssociationResource extends Resource
                     'lg' => 2,
                 ])->schema([
                     TextInput::make('name')
-                        ->rules(['max:30','regex:/^[a-zA-Z\s]*$/'])
+                        ->rules(['regex:/^[a-zA-Z\s]*$/'])
                         ->required()
                         ->placeholder('User'),
                     TextInput::make('mollak_id')->label('Oa Number')
@@ -102,25 +102,31 @@ class OwnerAssociationResource extends Resource
                 Tables\Columns\TextColumn::make('mollak_id')
                     ->toggleable()
                     ->searchable()
+                    ->default('NA')
                     ->limit(50),
                 Tables\Columns\TextColumn::make('name')
                     ->toggleable()
                     ->searchable()
+                    ->default('NA')
                     ->limit(50),
                 Tables\Columns\TextColumn::make('phone')
                     ->toggleable()
                     ->searchable()
+                    ->default('NA')
                     ->limit(50),
                 Tables\Columns\TextColumn::make('email')
                     ->toggleable()
                     ->searchable()
+                    ->default('NA')
                     ->limit(50),
                 Tables\Columns\TextColumn::make('trn_number')
                     ->toggleable()
                     ->searchable()
+                    ->default('NA')
                     ->limit(50),
                 Tables\Columns\TextColumn::make('address')
                     ->toggleable()
+                    ->default('NA')
                     ->searchable(),
             ])
             ->filters([

@@ -76,7 +76,8 @@ class AuthController extends Controller
     {
         $user = User::where('email', $request->email)->first();
 
-        if (!$user || !Hash::check($request->password, $user->password) || $user->role->name !== $request->role) {
+        // if (!$user || !Hash::check($request->password, $user->password) || $user->role->name !== $request->role) {
+            if (!$user || !Hash::check($request->password, $user->password)) {
             throw ValidationException::withMessages([
                 'email' => ['The provided credentials are incorrect.'],
             ]);
@@ -152,8 +153,8 @@ class AuthController extends Controller
         $user->save();
 
         return (new CustomResponseResource([
-            'title' => 'Password set successfully!',
-            'message' => 'Test',
+            'title' => 'Success',
+            'message' => 'Password set successfully!',
             'errorCode' => 200,
             'status' => 'success'
         ]))->response()->setStatusCode(200);
