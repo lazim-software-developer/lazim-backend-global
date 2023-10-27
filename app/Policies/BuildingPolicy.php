@@ -15,12 +15,6 @@ class BuildingPolicy
      */
     public function viewAny(User $user): bool
     {
-        $role = $user->role->name == 'Admin';
-
-        if($role)
-        {
-            return false;
-        }
         return true;
 
     }

@@ -19,6 +19,7 @@ use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -121,32 +122,38 @@ class FacilityBookingResource extends Resource
             ->poll('60s')
             ->columns([
                 Tables\Columns\TextColumn::make('building.name')
-                ->toggleable()
-                ->limit(50),
+                    ->default('NA')
+                    ->searchable()
+                    ->limit(50),
                 Tables\Columns\TextColumn::make('bookable.name')
-                    ->toggleable()
+                    ->default('NA')
+                    ->searchable()
                     ->limit(50),
                 Tables\Columns\TextColumn::make('user.first_name')
-                    ->toggleable()
-                    ->searchable(isIndividual: false, isGlobal: true)
+                    ->searchable()
+                    ->default('NA')
                     ->limit(50),
                 Tables\Columns\TextColumn::make('date')
-                    ->toggleable()
+                    ->default('NA')
+                    ->searchable()
                     ->date(),
                 Tables\Columns\TextColumn::make('start_time')
-                    ->toggleable()
+                    ->default('NA')
                     ->time(),
                 Tables\Columns\TextColumn::make('end_time')
-                    ->toggleable()
+                    ->default('NA')
                     ->time(),
                 Tables\Columns\TextColumn::make('reference_number')
-                    ->toggleable(),
+                    ->default('NA')
+                    ->searchable(),
                 Tables\Columns\IconColumn::make('approved')
-                    ->toggleable()
                     ->boolean(),
             ])
             ->filters([
-                //
+                SelectFilter::make('building_id')
+                    ->relationship('building', 'name')
+                    ->searchable()
+                    ->preload()
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
