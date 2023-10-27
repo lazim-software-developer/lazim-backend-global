@@ -13,6 +13,7 @@ use Filament\Facades\Filament;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\MorphToSelect;
 use Filament\Forms\Components\MorphToSelect\Type;
 use Filament\Forms\Components\Select;
@@ -37,7 +38,7 @@ class DocumentsResource extends Resource
     protected static ?string $navigationIcon  = 'heroicon-o-rectangle-stack';
     protected static ?string $navigationGroup = 'Document Management';
     protected static ?string $navigationLabel = 'Vendor';
-    protected static bool $shouldRegisterNavigation = false;
+    protected static bool $shouldRegisterNavigation = true;
     public static function form(Form $form): Form
     {
         return $form
@@ -51,8 +52,8 @@ class DocumentsResource extends Resource
                     Select::make('document_library_id')
                         ->rules(['exists:document_libraries,id'])
                         ->required()
+                        ->preload()
                         ->relationship('documentLibrary', 'name')
-
                         ->searchable()
                         ->placeholder('Document Library')
                         ->getSearchResultsUsing(fn(string $search) => DB::table('document_libraries')
@@ -65,23 +66,16 @@ class DocumentsResource extends Resource
                                 })
                                 ->pluck('document_libraries.name', 'document_libraries.id')
                         ),
-                    FileUpload::make('url')->label('Document')
+                    FileUpload::make('url')
                         ->disk('s3')
-                        ->required()
-                        ->downloadable()
-                    // //->imagePreviewHeight('250')
-                    // ->IndicatorPosition('left')
-                    // ->panelAspectRatio('2:1')
-                    // ->panelLayout('integrated')
-                    // ->removeUploadedFileButtonPosition('right')
-                    // ->uploadButtonPosition('left')
-                    // ->uploadProgressIndicatorPosition('left')
-                        ->preserveFilenames(),
+                        ->directory('dev')
+                        ->label('Document')
+                        ->required(),
                     Select::make('status')
                         ->options([
                             'pending' => 'Pending',
                         ])
-                        ->rules(['max:50', 'string'])
+                        ->searchable()
                         ->required()
                         ->placeholder('Status'),
                     TextInput::make('comments'),
@@ -91,17 +85,19 @@ class DocumentsResource extends Resource
                         ->required()
                         ->placeholder('Expiry Date'),
 
-                    MorphToSelect::make('documentable')
-                        ->types([
-                            Type::make(Vendor::class)->titleAttribute('name'),
-                            Type::make(Building::class)->titleAttribute('name'),
-                            Type::make(FlatTenant::class)->titleAttribute('tenant_id'),
+                    Hidden::make('accepted_by')
+                        ->default(auth()->user()->id),
 
-                        ]),
-                    TextInput::make('documentable_id')
-                        ->rules(['max:255'])
+                    Hidden::make('documentable_type')
+                        ->default('App\Models\Vendor\Vendor'),
+
+                    Select::make('documentable_id')
+                        ->options(
+                            DB::table('vendors')->pluck('name', 'id')->toArray()
+                        )
+                        ->searchable()
+                        ->preload()
                         ->required()
-                        ->hidden()
                         ->placeholder('Documentable Id'),
                 ]),
 
@@ -115,6 +111,8 @@ class DocumentsResource extends Resource
             ->modifyQueryUsing(fn(Builder $query) => $query->where('documentable_type', 'App\Models\Vendor\Vendor')->withoutGlobalScopes())
             ->columns([
                 TextColumn::make('documentLibrary.name')
+                    ->searchable()
+                    ->default('NA')
                     ->toggleable()
                     ->limit(50),
                 TextColumn::make('url')->label('Uploaded Document')
@@ -123,19 +121,23 @@ class DocumentsResource extends Resource
                     ->limit(50),
                 TextColumn::make('status')
                     ->toggleable()
-                    ->searchable(true, null, true)
+                    ->searchable()
                     ->limit(50),
                 TextColumn::make('expiry_date')
                     ->toggleable()
                     ->date(),
                 TextColumn::make('user.first_name')
                     ->toggleable()
+                    ->searchable()
+                    ->default('NA')
                     ->limit(50),
                 ViewColumn::make('name')->view('tables.columns.document')
+                    ->searchable()
+                    ->default('NA')
                     ->toggleable(),
                 TextColumn::make('documentable_type')
                     ->toggleable()
-                    ->searchable(true, null, true)
+                    ->searchable()
                     ->limit(50),
             ])
             ->filters([

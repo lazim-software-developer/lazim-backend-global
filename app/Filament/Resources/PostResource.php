@@ -100,6 +100,7 @@ class PostResource extends Resource
                                 ->disk('s3')
                                 ->directory('dev')
                                 ->image()
+                                ->maxSize(2048)
                                 ->required()
                                 
                         ])
