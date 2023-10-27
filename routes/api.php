@@ -14,6 +14,7 @@ use App\Http\Controllers\Building\FlatController;
 use App\Http\Controllers\Community\CommentController;
 use App\Http\Controllers\Community\PostController;
 use App\Http\Controllers\Community\PostLikeController;
+use App\Http\Controllers\Documents\DocumentsController;
 use App\Http\Controllers\Facility\FacilityController;
 use App\Http\Controllers\HelpDesk\ComplaintController;
 use App\Http\Controllers\Services\ServiceController;
@@ -147,6 +148,7 @@ Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active']
     // Book a facility
     Route::post('buildings/{building}/book/facility', [FacilityController::class, 'bookFacility'])->name('facility.book');
 
+
     // My bookings API - List all bookings for logged in user
     Route::get('building/{building}/user-bookings', [FacilityController::class, 'userBookings']);
 });
@@ -200,4 +202,13 @@ Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active']
 Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active'])->group(function () {
     Route::get('/buildings/{building}/services', [ServiceController::class, 'listServicesForBuilding']);
     Route::post('buildings/{building}/book/service', [ServiceController::class, 'bookService']);
+});
+
+
+/**
+ * Documents related APIs
+ */
+Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active'])->group(function () {
+    Route::get('/document-library', [DocumentsController::class, 'index']);
+    Route::post('/document-upload', [DocumentsController::class, 'create']);
 });

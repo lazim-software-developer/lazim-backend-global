@@ -37,15 +37,33 @@ class VendorResource extends Resource
                     TextInput::make('name')
                         ->required()
                         ->placeholder('Name'),
+                    TextInput::make('email')
+                        ->required()
+                        ->placeholder('Email'),
+                    TextInput::make('phone')
+                        ->required()
+                        ->placeholder('Phone'),
 
-                    TextInput::make('tl_number')
-                        ->label('Trade Lisence Number')
+                    Select::make('owner_id')->label('Manager Name')
+                        ->rules(['exists:users,id'])
+                        ->required()
+                        ->preload()
+                        ->relationship('user', 'first_name')
+                        ->searchable()
+                        ->getSearchResultsUsing(fn (string $search): array => User::where('role_id', 1, "%{$search}%")->limit(50)->pluck('first_name', 'id')->toArray())
+                        ->getOptionLabelUsing(fn ($value): ?string => User::find($value)?->first_name)
+                        ->placeholder('Manager Name'),
+                    TextInput::make('manager_email')->label('Manager Email')
+                        ->placeholder('Manager Email'),
+                    TextInput::make('manager_phone')->label('Manager Phone')
+                        ->placeholder('Manager Phone'),
+                    TextInput::make('tl_number')->label('Trade Lisence Number')
                         ->rules(['max:50', 'string'])
                         ->required()
                         ->unique(
                             'vendors',
                             'tl_number',
-                            fn(?Model $record) => $record
+                            fn (?Model $record) => $record
                         )
                         ->placeholder('Trade Lisence Number'),
 
@@ -101,11 +119,9 @@ class VendorResource extends Resource
                     TextInput::make('other')
                         ->label('Other service Details')
                         ->required()
-                        ->hidden(fn(Get $get) => $get('service') != 'other'),
-
-                    FileUpload::make('tl_document')
-                        ->label('TL Document')
-                        // ->required()
+                        ->hidden(fn (Get $get) => $get('service') != 'other'),
+                    FileUpload::make('tl_document')->label('TL Document')
+                        ->required()
                         ->preserveFilenames()
                         ->downloadable()
                         ->previewable()
@@ -152,7 +168,6 @@ class VendorResource extends Resource
 
                 ]),
             ]);
-
     }
 
     public static function table(Table $table): Table
@@ -213,5 +228,4 @@ class VendorResource extends Resource
             'edit'   => Pages\EditVendor::route('/{record}/edit'),
         ];
     }
-
 }
