@@ -86,7 +86,7 @@ class AdminPanelProvider extends PanelProvider
                                 ->activeIcon('heroicon-o-calendar-days')
                                 ->sort(3),
                             NavigationItem::make('Document Libraries')
-                                ->hidden(auth()->user()->id == 1 ? false : true)
+                                ->hidden(auth()->user()->id == 1 ? true : false)
                                 ->url('/admin/master/document-libraries')
                                 ->icon('heroicon-m-clipboard-document-check')
                                 ->activeIcon('heroicon-m-clipboard-document-check')
@@ -184,6 +184,12 @@ class AdminPanelProvider extends PanelProvider
                                     ->icon('heroicon-m-clipboard-document-check')
                                     ->activeIcon('heroicon-m-clipboard-document-check')
                                     ->sort(2),
+                                NavigationItem::make('Vendors')
+                                    ->url('/admin/building/documents')
+                                    ->hidden(auth()->user()->id == 1 ? true : false)
+                                    ->icon('heroicon-m-clipboard-document-check')
+                                    ->activeIcon('heroicon-m-clipboard-document-check')
+                                    ->sort(3),
                                 ]),
                 ]);
             }
