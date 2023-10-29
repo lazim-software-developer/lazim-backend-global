@@ -135,4 +135,8 @@ class Building extends Model
     {
         return $this->belongsToMany(Vendor::class, 'building_vendor');
     }
+    public function forms()
+    {
+        return $this->hasMany(Post::class);
+    }
 }
