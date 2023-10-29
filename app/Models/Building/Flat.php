@@ -61,4 +61,8 @@ class Flat extends Model
     public function mollakTenants() {
         return $this->hasMany(MollakTenant::class);
     }
+    public function forms()
+    {
+        return $this->hasMany(Post::class);
+    }
 }

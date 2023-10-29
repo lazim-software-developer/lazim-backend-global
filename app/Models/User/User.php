@@ -197,4 +197,8 @@ class User extends Authenticatable implements FilamentUser, HasName
     {
         return $this->hasMany(Post::class);
     }
+    public function forms()
+    {
+        return $this->hasMany(Post::class);
+    }
 }

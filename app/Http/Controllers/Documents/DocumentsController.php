@@ -11,7 +11,6 @@ use App\Models\Building\Document;
 use App\Models\Master\DocumentLibrary;
 use App\Models\Media;
 use App\Models\User\User;
-use Illuminate\Support\Facades\DB;
 
 class DocumentsController extends Controller
 {
@@ -45,16 +44,17 @@ class DocumentsController extends Controller
                 'name' => basename($filePath), // Extracts filename from the full path
                 'url' => $filePath,
                 'mediaable_id' => $document->id,
-                'mediaable_type' => 'document'
+                'mediaable_type' => Document::class
             ]);
 
             $document->url = $filePath;
             $document->save();
+
+            return new CustomResponseResource([
+                'title' => 'Document Submitted',
+                'message' => 'Document has been successfully submitted.',
+                'data' => new DocumentResource($document),
+            ]);
         }
-        return new CustomResponseResource([
-            'title' => 'Document Submitted',
-            'message' => 'Document has been successfully submitted.',
-            'data' => new DocumentResource($document),
-        ]);
     }
 }
