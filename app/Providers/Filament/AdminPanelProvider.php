@@ -86,7 +86,7 @@ class AdminPanelProvider extends PanelProvider
                                 ->activeIcon('heroicon-o-calendar-days')
                                 ->sort(3),
                             NavigationItem::make('Document Libraries')
-                                ->hidden(auth()->user()->id == 1 ? false : true)
+                                ->hidden(auth()->user()->id == 1 ? true : false)
                                 ->url('/admin/master/document-libraries')
                                 ->icon('heroicon-m-clipboard-document-check')
                                 ->activeIcon('heroicon-m-clipboard-document-check')
