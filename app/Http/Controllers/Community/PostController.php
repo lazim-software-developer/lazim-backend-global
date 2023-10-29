@@ -7,6 +7,7 @@ use App\Http\Requests\Community\CreatePostRequest;
 use App\Models\Community\Post;
 use App\Http\Resources\Community\PostResource;
 use App\Http\Resources\CustomResponseResource;
+use App\Models\Building\Building;
 use App\Models\Media;
 use Illuminate\Http\Request;
 
@@ -18,13 +19,16 @@ class PostController extends Controller
      * @param  int  $buildingId
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request, $buildingId)
+    public function index(Request $request, Building $building)
     {
-        $this->authorize('viewAny', [Post::class, $buildingId]);
+        $this->authorize('viewAny', [Post::class, $building->id]);
 
-        $query = Post::where('building_id', $buildingId)
-                 ->where('status', 'published')
-                 ->where('scheduled_at', '<=', now());
+        // Start the query on the Post model
+        $query = Post::where('status', 'published')
+        ->where('scheduled_at', '<=', now())
+            ->whereHas('building', function ($q) use ($building) {
+                $q->where('buildings.id', $building->id);
+            });
 
         // If the request has a type parameter, filter by it
         if ($request->has('type')) {
@@ -41,17 +45,20 @@ class PostController extends Controller
         return PostResource::collection($posts);
     }
 
-    public function store(CreatePostRequest $request, $buildingId)
+    public function store(CreatePostRequest $request, Building $building)
     {
-        $this->authorize('create', [Post::class, $buildingId]);
+        $this->authorize('create', [Post::class, $building->id]);
         // Create a new post with the provided data and the building_id and user_id
         $post = Post::create([
             'content' => $request->content,
-            'building_id' => $buildingId,
             'user_id' => auth()->user()->id,
-            'is_announcement' => $request->is_announcement ?? false
+            'is_announcement' => $request->is_announcement ?? false,
+            'status' => 'published',
+            'scheduled_at' => now()
         ]);
 
+        // Attach building to post
+        $post->Building()->sync($building);
 
         // Handle multiple images
         if ($request->hasFile('images')) {

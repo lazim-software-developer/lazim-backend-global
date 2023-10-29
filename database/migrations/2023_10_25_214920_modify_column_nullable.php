@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::table('documents', function (Blueprint $table) {
             $table->string('url')->nullable()->change();
-            $table->string('expiry_date')->nullable()->change();
-            $table->string('accepted_by')->nullable()->change();
+            $table->date('expiry_date')->nullable()->change();
+            $table->unsignedBigInteger('accepted_by')->nullable()->change();
         });
     }
 
@@ -25,8 +25,8 @@ return new class extends Migration
     {
         Schema::table('documents', function (Blueprint $table) {
             $table->string('url')->nullable(false)->change();
-            $table->string('expiry_date')->nullable(false)->change();
-            $table->string('accepted_by')->nullable(false)->change();
+            $table->date('expiry_date')->nullable(false)->change();
+            $table->unsignedBigInteger('accepted_by')->nullable(false)->change();
         });
     }
 };

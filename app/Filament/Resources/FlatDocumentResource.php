@@ -1,7 +1,7 @@
 <?php
-
+ 
 namespace App\Filament\Resources;
-
+ 
 use App\Filament\Resources\FlatDocumentResource\Pages\CreateFlatDocument;
 use App\Filament\Resources\FlatDocumentResource\Pages\EditFlatDocument;
 use App\Filament\Resources\FlatDocumentResource\Pages\ListFlatDocuments;
@@ -29,15 +29,15 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Query\JoinClause;
 use Illuminate\Support\Facades\DB;
-
+ 
 class FlatDocumentResource extends Resource
 {
     protected static ?string $model = Document::class;
-
+ 
     protected static ?string $navigationIcon  = 'heroicon-o-rectangle-stack';
     protected static ?string $navigationGroup = 'Document Management';
     protected static ?string $navigationLabel = 'Flat';
-
+ 
     public static function form(Form $form): Form
     {
         return $form
@@ -47,12 +47,12 @@ class FlatDocumentResource extends Resource
                     'md' => 1,
                     'lg' => 2,
                 ])->schema([
-
+ 
                     Select::make('document_library_id')
                         ->rules(['exists:document_libraries,id'])
                         ->required()
                         ->relationship('documentLibrary', 'name')
-
+ 
                         ->searchable()
                         ->placeholder('Document Library')
                         ->getSearchResultsUsing(
@@ -61,7 +61,7 @@ class FlatDocumentResource extends Resource
                                     $join->on('document_libraries.id', '=', 'building_documentlibraries.documentlibrary_id')
                                         ->where([
                                             ['building_id', '=', Filament::getTenant()->id],
-
+ 
                                         ]);
                                 })
                                 ->pluck('document_libraries.name', 'document_libraries.id')
@@ -85,13 +85,13 @@ class FlatDocumentResource extends Resource
                         ->rules(['date'])
                         ->required()
                         ->placeholder('Expiry Date'),
-
+ 
                     MorphToSelect::make('documentable')
                         ->types([
                             Type::make(Vendor::class)->titleAttribute('name'),
                             Type::make(Building::class)->titleAttribute('name'),
                             Type::make(FlatTenant::class)->titleAttribute('tenant_id'),
-
+ 
                         ]),
                     TextInput::make('documentable_id')
                         ->rules(['max:255'])
@@ -99,7 +99,7 @@ class FlatDocumentResource extends Resource
                         ->hidden()
                         ->placeholder('Documentable Id'),
                 ]),
-
+ 
             ]);
     }
     public static function table(Table $table): Table
@@ -147,14 +147,14 @@ class FlatDocumentResource extends Resource
                 CreateAction::make(),
             ]);
     }
-
+ 
     public static function getRelations(): array
     {
         return [
             //
         ];
     }
-
+ 
     public static function getPages(): array
     {
         return [
