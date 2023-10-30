@@ -68,6 +68,11 @@ class AdminPanelProvider extends PanelProvider
             $builder->groups([
                 NavigationGroup::make('Master')
                     ->items([
+                            NavigationItem::make('MollakTenant')
+                                ->url('/admin/mollak-tenants')
+                                ->icon('heroicon-o-calendar-days')
+                                ->activeIcon('heroicon-o-calendar-days')
+                                ->sort(1),
                             NavigationItem::make('Medias')
                                 ->url('/admin/media')
                                 ->icon('heroicon-o-calendar-days')
@@ -78,37 +83,37 @@ class AdminPanelProvider extends PanelProvider
                                 ->hidden(auth()->user()->id == 1 ? false : true)
                                 ->icon('heroicon-o-calendar-days')
                                 ->activeIcon('heroicon-o-calendar-days')
-                                ->sort(1),
+                                ->sort(3),
                             NavigationItem::make('Cities')
                                 ->hidden(auth()->user()->id == 1 ? false : true)
                                 ->url('/admin/master/cities')
                                 ->icon('heroicon-o-calendar-days')
                                 ->activeIcon('heroicon-o-calendar-days')
-                                ->sort(3),
+                                ->sort(4),
                             NavigationItem::make('Document Libraries')
                                 ->hidden(auth()->user()->id == 1 ? true : false)
                                 ->url('/admin/master/document-libraries')
                                 ->icon('heroicon-m-clipboard-document-check')
                                 ->activeIcon('heroicon-m-clipboard-document-check')
-                                ->sort(4),
+                                ->sort(5),
                             NavigationItem::make('Facilities')
                                 ->hidden(auth()->user()->id == 1 ? false : true)
                                 ->url('/admin/master/facilities')
                                 ->icon('heroicon-s-speaker-wave')
                                 ->activeIcon('heroicon-s-speaker-wave')
-                                ->sort(5),
+                                ->sort(6),
                             NavigationItem::make('Roles')
                                 ->hidden(auth()->user()->id == 1 ? false : true)
                                 ->url('/admin/master/roles')
                                 ->icon('heroicon-s-user-group')
                                 ->activeIcon('heroicon-s-user-group')
-                                ->sort(6),
+                                ->sort(7),
                             NavigationItem::make('Services')
                                 ->hidden(auth()->user()->id == 1 ? false : true)
                                 ->url('/admin/master/services')
                                 ->icon('heroicon-s-user-group')
                                 ->activeIcon('heroicon-s-user-group')
-                                ->sort(7),
+                                ->sort(8),
                             ]),
             ]);
            }
