@@ -16,7 +16,7 @@ use App\Http\Controllers\Community\PostController;
 use App\Http\Controllers\Community\PostLikeController;
 use App\Http\Controllers\Documents\DocumentsController;
 use App\Http\Controllers\Facility\FacilityController;
-use App\Http\Controllers\Forms\FormController;
+use App\Http\Controllers\Forms\MoveInOutController;
 use App\Http\Controllers\Forms\GuestController;
 use App\Http\Controllers\HelpDesk\ComplaintController;
 use App\Http\Controllers\Services\ServiceController;
@@ -218,6 +218,6 @@ Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active']
  * Forms related APIs
  */
 Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active'])->group(function () {
-    Route::post('/forms/move-in-out', [FormController::class, 'create']);
+    Route::post('/forms/move-in-out', [MoveInOutController::class, 'create']);
     Route::post('/forms/guest-registration', [GuestController::class, 'create']);
 });
