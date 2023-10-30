@@ -33,10 +33,6 @@ use App\Http\Controllers\User\UserController;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
  */
-
-//Import Function
-Route::post('/formspeaker',[TenantimportController::class,'import'])->name('formspeaker');
-
 // OA Login
 Route::post('/login', [AuthController::class, 'login'])->name('api.login');
 
