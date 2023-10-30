@@ -196,6 +196,20 @@ class AdminPanelProvider extends PanelProvider
             if(auth()->user()->id != 1)
             {
                 $builder->groups([
+                    NavigationGroup::make('Forms Document')
+                        ->items([
+                                NavigationItem::make('Move-IN')
+                                    ->url('/admin/move-in-forms-documents')
+                                    ->hidden(auth()->user()->id == 1 ? true : false)
+                                    ->icon('heroicon-o-calendar-days')
+                                    ->activeIcon('heroicon-o-calendar-days')
+                                    ->sort(1),
+                                ]),
+                ]);
+            }
+            if(auth()->user()->id != 1)
+            {
+                $builder->groups([
                     NavigationGroup::make('Vendor Management')
                         ->items([
                                 NavigationItem::make('Vendor')
