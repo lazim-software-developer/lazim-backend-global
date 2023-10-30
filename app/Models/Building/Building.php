@@ -5,6 +5,7 @@ namespace App\Models\Building;
 use App\Models\Community\Post;
 use App\Models\Master\Role;
 use App\Models\Master\Service;
+use App\Models\MollakTenant;
 use App\Models\OwnerAssociation;
 use App\Models\Master\City;
 use App\Models\Building\Flat;
@@ -103,10 +104,6 @@ class Building extends Model
     {
         return $this->hasMany(FlatDomesticHelp::class);
     }
-    // public function vendor()
-    // {
-    //     return $this->hasMany(Vendor::class);
-    // }
     public function attendances()
     {
         return $this->hasMany(Attendance::class);
@@ -139,6 +136,10 @@ class Building extends Model
     public function forms()
     {
         return $this->hasMany(Form::class);
+    }
+    public function mollakTenants()
+    {
+        return $this->hasMany(MollakTenant::class);
     }
     public function guests()
     {
