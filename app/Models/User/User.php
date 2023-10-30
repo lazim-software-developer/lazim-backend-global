@@ -212,4 +212,9 @@ class User extends Authenticatable implements FilamentUser, HasName
     {
         return $this->hasMany(Guest::class);
     }
+
+    public function userDocuments()
+    {
+        return $this->hasMany(Document::class, 'documentable_id');
+    }
 }
