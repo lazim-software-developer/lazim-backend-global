@@ -214,5 +214,5 @@ Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active']
  * Forms related APIs
  */
 Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active'])->group(function () {
-    Route::post('/forms/move-in', [FormController::class, 'create']);
+    Route::post('/forms/move-in-out', [FormController::class, 'create']);
 });
