@@ -207,4 +207,9 @@ class User extends Authenticatable implements FilamentUser, HasName
     {
         return $this->hasMany(Guest::class);
     }
+
+    public function nocForms()
+    {
+        return $this->hasMany(Guest::class);
+    }
 }
