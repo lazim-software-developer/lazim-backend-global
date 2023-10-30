@@ -36,6 +36,8 @@ class MoveInOut extends Model
         'movers_liability',
     ];
 
+    protected $table = 'move_in_out';
+
     protected $searchableFields = ['*'];
     
     protected $casts = [
