@@ -4,6 +4,7 @@ namespace App\Models\Visitor;
 
 use App\Models\Building\Building;
 use App\Models\Building\Flat;
+use App\Models\Forms\Guest;
 use App\Models\OaUserRegistration;
 use App\Models\User\User;
 use App\Models\Scopes\Searchable;
@@ -40,7 +41,10 @@ class FlatVisitor extends Model
         'end_time' => 'datetime',
         'remarks' => 'array',
     ];
-
+    public function guests()
+    {
+        return $this->hasMany(Guest::class);
+    }
     public function flat()
     {
         return $this->belongsTo(Flat::class);
