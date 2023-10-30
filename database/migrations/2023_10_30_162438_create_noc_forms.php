@@ -32,7 +32,7 @@ return new class extends Migration
             $table->unsignedBigInteger('verified_by');
             $table->unsignedBigInteger('flat_id');
             $table->foreign('building_id')->references('id')->on('buildings');
-            $table->foreign('verified_by')->references('id')->on('user');
+            $table->foreign('verified_by')->references('id')->on('users');
             $table->foreign('flat_id')->references('id')->on('flats');
             $table->timestamps();
         });
