@@ -27,6 +27,7 @@ class FlatVisitor extends Model
         'initiated_by',
         'approved_by',
         'remarks',
+        'email',
         'number_of_visitors',
     ];
 

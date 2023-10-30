@@ -3,6 +3,7 @@
 namespace App\Models\Building;
 
 use App\Models\Community\Post;
+use App\Models\Forms\Guest;
 use App\Models\Master\Role;
 use App\Models\Master\Service;
 use App\Models\MollakTenant;
@@ -129,6 +130,10 @@ class Building extends Model
     {
         return $this->belongsTo(OwnerAssociation::class);
     }
+    public function mollakTenants() 
+    {
+        return $this->hasMany(MollakTenant::class);
+    }
     public function posts()
     {
         return $this->belongsToMany(Post::class);
@@ -141,8 +146,8 @@ class Building extends Model
     {
         return $this->hasMany(Form::class);
     }
-    public function mollakTenants() 
+    public function guests()
     {
-        return $this->hasMany(MollakTenant::class);
+        return $this->hasMany(Guest::class);
     }
 }
