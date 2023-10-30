@@ -2,40 +2,33 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\TenantDocumentResource\Pages;
-use App\Filament\Resources\TenantDocumentResource\RelationManagers;
+use App\Filament\Resources\MoveInFormsDocumentResource\Pages;
+use App\Filament\Resources\MoveInFormsDocumentResource\RelationManagers;
 use App\Models\Building\Document;
-use App\Models\TenantDocument;
-use App\Models\User\User;
+use App\Models\MoveInFormsDocument;
 use Filament\Facades\Filament;
 use Filament\Forms;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\MorphToSelect;
-use Filament\Forms\Components\MorphToSelect\Type;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Database\Query\JoinClause;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
-class TenantDocumentResource extends Resource
+class MoveInFormsDocumentResource extends Resource
 {
     protected static ?string $model = Document::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-user-circle';
-    protected static ?string $navigationGroup = 'Document Management';
-    protected static ?string $navigationLabel = 'Tenant';
+    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     public static function form(Form $form): Form
     {
@@ -99,7 +92,7 @@ class TenantDocumentResource extends Resource
     {
         return $table
             ->poll('60s')
-            ->modifyQueryUsing(fn(Builder $query) => $query->where('documentable_type', 'App\Models\User\User')->withoutGlobalScopes())
+            ->modifyQueryUsing(fn(Builder $query) => $query->where('type', 'move-in')->withoutGlobalScopes())
             ->columns([
                 TextColumn::make('name')
                     ->toggleable()
@@ -138,9 +131,9 @@ class TenantDocumentResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListTenantDocuments::route('/'),
-            'create' => Pages\CreateTenantDocument::route('/create'),
-            'edit' => Pages\EditTenantDocument::route('/{record}/edit'),
+            'index' => Pages\ListMoveInFormsDocuments::route('/'),
+            'create' => Pages\CreateMoveInFormsDocument::route('/create'),
+            'edit' => Pages\EditMoveInFormsDocument::route('/{record}/edit'),
         ];
     }
 }
