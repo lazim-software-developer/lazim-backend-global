@@ -29,7 +29,7 @@ return new class extends Migration
             $table->unsignedBigInteger('noc_form_id');
             $table->foreign('noc_form_id')->references('id')->on('noc_forms');
             $table->unsignedBigInteger('documents_verified_by');
-            $table->foreign('documents_verified_by')->references('id')->on('user');
+            $table->foreign('documents_verified_by')->references('id')->on('users');
             $table->timestamps();
         });
     }
