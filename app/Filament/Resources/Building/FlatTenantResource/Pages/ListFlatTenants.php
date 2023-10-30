@@ -17,8 +17,8 @@ class ListFlatTenants extends ListRecords
     //         Actions\CreateAction::make(),
     //     ];
     // }
-    public function getHeader(): ?View
-    {
-        return view('filament.custom.tenant-import');
-    }
+    // public function getHeader(): ?View
+    // {
+    //     return view('filament.custom.tenant-import');
+    // }
 }
