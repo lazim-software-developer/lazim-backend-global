@@ -11,7 +11,7 @@ use App\Models\Building\FacilityBooking;
 use App\Models\Building\Flat;
 use App\Models\Building\FlatTenant;
 use App\Models\Community\Post;
-use App\Models\Forms\Form;
+use App\Models\Forms\MoveInOut;
 use App\Models\Forms\Guest;
 use App\Models\Master\Role;
 use App\Models\OaDetails;
@@ -199,9 +199,9 @@ class User extends Authenticatable implements FilamentUser, HasName
     {
         return $this->hasMany(Post::class);
     }
-    public function forms()
+    public function moveinOut()
     {
-        return $this->hasMany(Form::class);
+        return $this->hasMany(MoveInOut::class);
     }
     public function guests()
     {
