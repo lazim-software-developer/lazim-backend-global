@@ -63,9 +63,9 @@ class Flat extends Model
     public function mollakTenants() {
         return $this->hasMany(MollakTenant::class);
     }
-    public function forms()
+    public function moveinOut()
     {
-        return $this->hasMany(Form::class);
+        return $this->hasMany(MoveInOut::class);
     }
     public function guests()
     {
