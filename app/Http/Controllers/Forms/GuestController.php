@@ -43,7 +43,7 @@ class GuestController extends Controller
                     'url' => $filePath,
                     'expiry_date' => date('Y-m-d', strtotime('+1 year', strtotime($currentDate))),
                     'documentable_type' => FlatVisitor::class,
-                    'name' => $request->document_name,
+                    'name' => $request->type,
                 ]);
 
                 Document::create($request->all());
