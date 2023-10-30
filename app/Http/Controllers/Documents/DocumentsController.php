@@ -18,7 +18,8 @@ class DocumentsController extends Controller
     {
         $documentLibraries = DocumentLibrary::with(['documents' => function ($query) {
             $query->where('documentable_id', auth()->user()->id);
-        }])->get();
+        }])->where('label','master')->
+        get();
         return DocumentLibraryResource::collection($documentLibraries);
     }
 
