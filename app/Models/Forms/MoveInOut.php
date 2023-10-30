@@ -8,7 +8,7 @@ use App\Models\User\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Form extends Model
+class MoveInOut extends Model
 {
     use HasFactory;
     protected $fillable = [
@@ -22,12 +22,24 @@ class Form extends Model
         'type',
         'preference',
         'moving_date',
-        'moving_time'
+        'moving_time',
+        'handover_acceptance',
+        'receipt_charges',
+        'contract',
+        'title_deed',
+        'passport',
+        'dewa',
+        'cooling_registration',
+        'gas_registration',
+        'vehicle_registration',
+        'movers_license',
+        'movers_liability',
     ];
 
     protected $searchableFields = ['*'];
+    
     protected $casts = [
-        'allow_postupload'         => 'boolean',
+        'allow_postupload' => 'boolean',
     ];
 
     public function user()
