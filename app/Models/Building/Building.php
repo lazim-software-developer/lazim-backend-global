@@ -15,6 +15,7 @@ use App\Models\Scopes\Searchable;
 use App\Models\Vendor\Attendance;
 use App\Models\Building\Complaint;
 use App\Models\Building\BuildingPoc;
+use App\Models\Forms\Form;
 use App\Models\Vendor\Contact;
 use App\Models\Vendor\Vendor;
 use App\Models\Visitor\FlatDomesticHelp;
@@ -135,6 +136,10 @@ class Building extends Model
     public function vendors()
     {
         return $this->belongsToMany(Vendor::class, 'building_vendor');
+    }
+    public function forms()
+    {
+        return $this->hasMany(Form::class);
     }
     public function mollakTenants() 
     {
