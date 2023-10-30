@@ -140,4 +140,8 @@ class Building extends Model
     {
         return $this->hasMany(Form::class);
     }
+    public function guests()
+    {
+        return $this->hasMany(Guest::class);
+    }
 }
