@@ -11,16 +11,13 @@ use App\Models\Building\Document;
 use App\Models\Master\DocumentLibrary;
 use App\Models\Media;
 use App\Models\User\User;
-use Illuminate\Support\Facades\DB;
 
 class DocumentsController extends Controller
 {
     public function index()
     {
-        $documentLibraries = DocumentLibrary::with(['documents' => function ($query) {
-            $query->where('documentable_id', auth()->user()->id);
-        }])->get();
-        return DocumentLibraryResource::collection($documentLibraries);
+        $documents = DocumentLibrary::where('label', 'master')->get();
+        return DocumentLibraryResource::collection($documents);
     }
 
     public function create(DocumentRequest $request)
@@ -45,16 +42,17 @@ class DocumentsController extends Controller
                 'name' => basename($filePath), // Extracts filename from the full path
                 'url' => $filePath,
                 'mediaable_id' => $document->id,
-                'mediaable_type' => 'document'
+                'mediaable_type' => Document::class
             ]);
 
             $document->url = $filePath;
             $document->save();
+
+            return new CustomResponseResource([
+                'title' => 'Document Submitted',
+                'message' => 'Document has been successfully submitted.',
+                'data' => new DocumentResource($document),
+            ]);
         }
-        return new CustomResponseResource([
-            'title' => 'Document Submitted',
-            'message' => 'Document has been successfully submitted.',
-            'data' => new DocumentResource($document),
-        ]);
     }
 }
