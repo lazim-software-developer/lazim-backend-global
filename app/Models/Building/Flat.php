@@ -6,6 +6,7 @@ use App\Models\ApartmentOwner;
 use App\Models\Building\Building;
 use App\Models\Building\FlatTenant;
 use App\Models\FlatOwner;
+use App\Models\Forms\Form;
 use App\Models\MollakTenant;
 use App\Models\OaUserRegistration;
 use App\Models\Scopes\Searchable;
@@ -60,5 +61,9 @@ class Flat extends Model
 
     public function mollakTenants() {
         return $this->hasMany(MollakTenant::class);
+    }
+    public function forms()
+    {
+        return $this->hasMany(Form::class);
     }
 }

@@ -15,6 +15,7 @@ use App\Http\Controllers\Community\PostController;
 use App\Http\Controllers\Community\PostLikeController;
 use App\Http\Controllers\Documents\DocumentsController;
 use App\Http\Controllers\Facility\FacilityController;
+use App\Http\Controllers\Forms\FormController;
 use App\Http\Controllers\HelpDesk\ComplaintController;
 use App\Http\Controllers\Services\ServiceController;
 use App\Http\Controllers\TagController;
@@ -207,4 +208,11 @@ Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active']
 Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active'])->group(function () {
     Route::get('/document-library', [DocumentsController::class, 'index']);
     Route::post('/document-upload', [DocumentsController::class, 'create']);
+});
+
+/**
+ * Forms related APIs
+ */
+Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active'])->group(function () {
+    Route::post('/forms/move-in-out', [FormController::class, 'create']);
 });
