@@ -37,7 +37,6 @@ class CreateGuestRequest extends FormRequest
             'number_of_visitors' => 'required|integer',
             'type' => 'required',
             'end_date' => 'required',
-            'document_name'=> 'required',
             'email' => 'required|regex:/^[a-zA-Z0-9_.-]+@[a-zA-Z]+\.[a-zA-Z]+$/',
 
         ];
