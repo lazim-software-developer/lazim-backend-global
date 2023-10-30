@@ -12,6 +12,7 @@ use App\Models\Building\Flat;
 use App\Models\Building\FlatTenant;
 use App\Models\Community\Post;
 use App\Models\Forms\Form;
+use App\Models\Forms\Guest;
 use App\Models\Master\Role;
 use App\Models\OaDetails;
 use App\Models\OaUserRegistration as ModelsOaUserRegistration;
@@ -201,5 +202,14 @@ class User extends Authenticatable implements FilamentUser, HasName
     public function forms()
     {
         return $this->hasMany(Form::class);
+    }
+    public function guests()
+    {
+        return $this->hasMany(Guest::class);
+    }
+
+    public function nocForms()
+    {
+        return $this->hasMany(Guest::class);
     }
 }
