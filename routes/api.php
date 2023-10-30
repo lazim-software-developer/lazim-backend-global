@@ -36,8 +36,11 @@ use App\Http\Controllers\User\UserController;
 // OA Login
 Route::post('/login', [AuthController::class, 'login'])->name('api.login');
 
-// Resident registeration
-Route::post('/register', [RegisterationController::class, 'register']);
+// Resident registeration with email and phone
+Route::post('/register', [RegisterationController::class, 'registerWithEmailPhone']);
+// Resident registeration with Passport/Emirates id
+Route::post('/register-with-passport', [RegisterationController::class, 'registerWithEmiratesOrPassport']);
+
 // Verify email
 Route::post('/verify-otp', [VerificationController::class, 'verify']);
 
