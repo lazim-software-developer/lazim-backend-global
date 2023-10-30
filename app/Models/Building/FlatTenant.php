@@ -25,6 +25,7 @@ class FlatTenant extends Model
         'start_date',
         'end_date',
         'active',
+        'role'
     ];
 
     protected $searchableFields = ['*'];
