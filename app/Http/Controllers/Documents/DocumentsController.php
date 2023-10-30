@@ -55,4 +55,12 @@ class DocumentsController extends Controller
             ]);
         }
     }
+
+    // Fetch other documents for the user
+    function fetchOtherDocuments() {
+        $documents = auth()->user()->userDocuments()->where('documentable_type', 'App\Models\User\User')
+        ->where('document_library_id', 5)->get();
+        
+        return DocumentResource::collection($documents);
+    }
 }
