@@ -209,7 +209,7 @@ Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active']
  * Documents related APIs
  */
 Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active'])->group(function () {
-    Route::get('/document-library', [DocumentsController::class, 'index']);
+    Route::get('/documents', [DocumentsController::class, 'index']);
     Route::post('/document-upload', [DocumentsController::class, 'create']);
 });
 

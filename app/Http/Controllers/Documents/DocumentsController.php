@@ -16,10 +16,8 @@ class DocumentsController extends Controller
 {
     public function index()
     {
-        $documentLibraries = DocumentLibrary::with(['documents' => function ($query) {
-            $query->where('documentable_id', auth()->user()->id);
-        }])->get();
-        return DocumentLibraryResource::collection($documentLibraries);
+        $documents = DocumentLibrary::where('label', 'master')->get();
+        return DocumentLibraryResource::collection($documents);
     }
 
     public function create(DocumentRequest $request)
