@@ -47,6 +47,7 @@ class MediaResource extends Resource
                                 ->disk('s3')
                                 ->directory('dev')
                                 ->image()
+                                ->maxSize(2048)
                                 ->required(),
 
                             MorphToSelect::make('mediaable')
@@ -72,6 +73,7 @@ class MediaResource extends Resource
                 ImageColumn::make('url')
                     ->disk('s3')
                     ->circular()
+                    ->default('NA')
                     ->alignCenter()
                     ->width(200)
                     ->height(50)
@@ -79,6 +81,7 @@ class MediaResource extends Resource
                     ->toggleable(),
 
                 TextColumn::make('mediaable.content')
+                    ->searchable()
                     ->default('NA')
                     ->toggleable(),
                 

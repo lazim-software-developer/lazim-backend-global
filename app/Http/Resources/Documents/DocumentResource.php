@@ -18,8 +18,8 @@ class DocumentResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
-            'url'=> Storage::disk('s3')->url($this->url),
             'status'=> $this->status,
+            'url' => Storage::disk('s3')->url($this->url)
         ];
     }
 }

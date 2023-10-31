@@ -7,69 +7,60 @@ use App\Http\Requests\Document\DocumentRequest;
 use App\Http\Resources\CustomResponseResource;
 use App\Http\Resources\Documents\DocumentLibraryResource;
 use App\Http\Resources\Documents\DocumentResource;
-use App\Models\Building\Building;
 use App\Models\Building\Document;
 use App\Models\Master\DocumentLibrary;
 use App\Models\Media;
 use App\Models\User\User;
-use Illuminate\Http\Request;
 
 class DocumentsController extends Controller
 {
     public function index()
     {
-        $documents = DocumentLibrary::all();
+        $documents = DocumentLibrary::where('label', 'master')->get();
         return DocumentLibraryResource::collection($documents);
     }
 
     public function create(DocumentRequest $request)
     {
-
         $currentDate = date('Y-m-d');
         $document = Document::create([
             'document_library_id' => $request->document_library_id,
             'building_id' => $request->building_id,
-            // 'documentable_id' => auth()->user()->id,
-            'documentable_id' => 2,
+            'documentable_id' => auth()->user()->id,
             'status' => 'submitted',
-            'expiry_date'=>date('Y-m-d', strtotime('+1 year', strtotime($currentDate))),
-            'accepted_by'=>1,
-            'documentable_type'=>User::class,
+            'expiry_date' => date('Y-m-d', strtotime('+1 year', strtotime($currentDate))), //to do need to make changes for expiry date
+            'documentable_type' => User::class,
             'name' => $request->name,
         ]);
 
         // Handle multiple images
-        if ($request->file('images')) {
-               $imagePath = optimizeAndUpload($request->images, 'dev');
+        if ($request->file('file')) {
+            $filePath = optimizeDocumentAndUpload($request->file, 'dev');
 
-                // Create a new media entry for image
-                Media::create([
-                    'name' => basename($imagePath), // Extracts filename from the full path
-                    'url' => $imagePath,
-                    'mediaable_id' => $document->id,
-                    'mediaable_type'=> 'document'
-                ]);
-
-                $document->url = $imagePath;
-                $document->save();
-        }elseif($request->file('pdf')){
-               $pdfPath = optimizeDocumentAndUpload($request->pdf, 'dev');
-               // Create a new media entry for pdf
-               Media::create([
-                'name' => basename($pdfPath), // Extracts filename from the full path
-                'url' => $pdfPath,
+            // Create a new media entry for image
+            Media::create([
+                'name' => basename($filePath), // Extracts filename from the full path
+                'url' => $filePath,
                 'mediaable_id' => $document->id,
-                'mediaable_type'=> 'document'
+                'mediaable_type' => Document::class
             ]);
 
-            $document->url = $pdfPath;
+            $document->url = $filePath;
             $document->save();
-        }
+
             return new CustomResponseResource([
                 'title' => 'Document Submitted',
                 'message' => 'Document has been successfully submitted.',
                 'data' => new DocumentResource($document),
             ]);
+        }
+    }
 
+    // Fetch other documents for the user
+    function fetchOtherDocuments() {
+        $documents = auth()->user()->userDocuments()->where('documentable_type', 'App\Models\User\User')
+        ->where('document_library_id', 5)->get();
+        
+        return DocumentResource::collection($documents);
     }
 }

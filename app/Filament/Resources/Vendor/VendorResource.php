@@ -24,7 +24,7 @@ class VendorResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     protected static ?string $navigationGroup = 'Vendor Management';
-    protected static bool $shouldRegisterNavigation = false;
+    protected static bool $shouldRegisterNavigation = true;
     public static function form(Form $form): Form
     {
         return $form
@@ -50,8 +50,8 @@ class VendorResource extends Resource
                         ->preload()
                         ->relationship('user', 'first_name')
                         ->searchable()
-                        ->getSearchResultsUsing(fn(string $search): array=> User::where('role_id', 1, "%{$search}%")->limit(50)->pluck('first_name', 'id')->toArray())
-                        ->getOptionLabelUsing(fn($value): ?string => User::find($value)?->first_name)
+                        ->getSearchResultsUsing(fn (string $search): array => User::where('role_id', 1, "%{$search}%")->limit(50)->pluck('first_name', 'id')->toArray())
+                        ->getOptionLabelUsing(fn ($value): ?string => User::find($value)?->first_name)
                         ->placeholder('Manager Name'),
                     TextInput::make('manager_email')->label('Manager Email')
                         ->placeholder('Manager Email'),
@@ -63,15 +63,41 @@ class VendorResource extends Resource
                         ->unique(
                             'vendors',
                             'tl_number',
-                            fn(?Model $record) => $record
+                            fn (?Model $record) => $record
                         )
                         ->placeholder('Trade Lisence Number'),
-                    DatePicker::make('tl_expiry')->label('Trade Licence Expiry')
+
+                    DatePicker::make('tl_expiry')
+                        ->label('Trade Licence Expiry')
                         ->rules(['date'])
                         ->required()
                         ->placeholder('Trade Lisence Expiry'),
+                    Select::make('owner_id')
+                        ->label('Manager Name')
+                        ->rules(['exists:users,id'])
+                        ->required()
+                        ->relationship('user', 'first_name')
+                        ->searchable()
+                        ->preload()
+                        // ->getSearchResultsUsing(fn(string $search): array=> User::where('role_id', 1, "%{$search}%")->limit(50)->pluck('first_name', 'id')->toArray())
+                        // ->getOptionLabelUsing(fn($value): ?string => User::find($value)?->first_name)
+                        ->placeholder('Manager Name'),
 
-                    Select::make('service')->label('Enter Service Details')
+                    TextInput::make('manager_email')
+                        ->label('Manager Email')
+                        ->placeholder('Manager Email'),
+                    TextInput::make('email')
+                        // ->required()
+                        ->placeholder('Email'),
+                    TextInput::make('phone')
+                        // ->required()
+                        ->placeholder('Phone'),
+                    TextInput::make('manager_phone')
+                        ->label('Manager Phone')
+                        ->placeholder('Manager Phone'),
+
+                    Select::make('service')
+                        ->label('Enter Service Details')
                         ->options([
                             'cleaning service'      => 'Cleaning Service',
                             'mep service'           => 'MEP Service',
@@ -87,50 +113,61 @@ class VendorResource extends Resource
                             'fire system'           => 'Fire System',
                             'other'                 => 'Other',
                         ])
-                        ->live()
-                        ->required(),
-                    TextInput::make('other')->label('Other service Details')
+                        ->live(),
+                        // ->required(),
+
+                    TextInput::make('other')
+                        ->label('Other service Details')
                         ->required()
-                        ->hidden(fn(Get $get) => $get('service') != 'other'),
+                        ->hidden(fn (Get $get) => $get('service') != 'other'),
                     FileUpload::make('tl_document')->label('TL Document')
                         ->required()
                         ->preserveFilenames()
                         ->downloadable()
                         ->previewable()
                         ->disk('s3'),
-                    FileUpload::make('trn_certificate')->label('TRN Certificate')
-                        ->required()
-                        ->preserveFilenames()
-                        ->downloadable()
-                        ->previewable()
-                        ->disk('s3'),
-                    FileUpload::make('third_party_certificate')->label('Third Party Liability Certificate')
-                        ->required()
-                        ->preserveFilenames()
-                        ->downloadable()
-                        ->previewable()
-                        ->disk('s3'),
-                    FileUpload::make('risk_assessment')->label('Risk Assessment')
-                        ->required()
-                        ->preserveFilenames()
-                        ->downloadable()
-                        ->previewable()
-                        ->disk('s3'),
-                    FileUpload::make('safety_policy')->label('Safety Policy')
-                        ->preserveFilenames()
-                        ->downloadable()
-                        ->previewable()
-                        ->disk('s3'),
-                    FileUpload::make('bank_details')->label('Bank Details On Company Letter Head With Stamp')
 
+                    FileUpload::make('trn_certificate')
+                        ->label('TRN Certificate')
+                        // ->required()
+                        ->preserveFilenames()
+                        ->downloadable()
+                        ->previewable()
                         ->disk('s3'),
-                    FileUpload::make('authority_approval')->label('Authority Approval')
 
+                    FileUpload::make('third_party_certificate')
+                        ->label('Third Party Liability Certificate')
+                        // ->required()
+                        ->preserveFilenames()
+                        ->downloadable()
+                        ->previewable()
+                        ->disk('s3'),
+
+                    FileUpload::make('risk_assessment')
+                        ->label('Risk Assessment')
+                        // ->required()
+                        ->preserveFilenames()
+                        ->downloadable()
+                        ->previewable()
+                        ->disk('s3'),
+
+                    FileUpload::make('safety_policy')
+                        ->label('Safety Policy')
+                        ->preserveFilenames()
+                        ->downloadable()
+                        ->previewable()
+                        ->disk('s3'),
+
+                    FileUpload::make('bank_details')
+                        ->label('Bank Details On Company Letter Head With Stamp')
+                        ->disk('s3'),
+
+                    FileUpload::make('authority_approval')
+                        ->label('Authority Approval')
                         ->disk('s3'),
 
                 ]),
             ]);
-
     }
 
     public static function table(Table $table): Table
@@ -140,14 +177,17 @@ class VendorResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('name')
                     ->toggleable()
-                    ->searchable(true, null, true)
+                    ->searchable()
+                    ->default('NA')
                     ->limit(50),
                 Tables\Columns\TextColumn::make('user.first_name')
                     ->toggleable()
+                    ->default('NA')
                     ->limit(50),
                 Tables\Columns\TextColumn::make('tl_number')
                     ->toggleable()
-                    ->searchable(true, null, true)
+                    ->searchable()
+                    ->default('NA')
                     ->limit(50),
                 Tables\Columns\TextColumn::make('tl_expiry')
                     ->toggleable()
@@ -188,5 +228,4 @@ class VendorResource extends Resource
             'edit'   => Pages\EditVendor::route('/{record}/edit'),
         ];
     }
-
 }

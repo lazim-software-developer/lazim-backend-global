@@ -14,7 +14,7 @@ class DocumentLibrary extends Model
     use HasFactory;
     use Searchable;
 
-    protected $fillable = ['name','building_id','url','type'];
+    protected $fillable = ['name','url','type', 'label'];
 
     protected $searchableFields = ['*'];
 

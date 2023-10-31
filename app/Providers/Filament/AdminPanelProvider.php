@@ -52,7 +52,7 @@ class AdminPanelProvider extends PanelProvider
                 Widgets\AccountWidget::class,
                 //Widgets\FilamentInfoWidget::class,
             ])
-            ->navigation(function (NavigationBuilder $builder): NavigationBuilder 
+            ->navigation(function (NavigationBuilder $builder): NavigationBuilder
             {
             $builder->groups([
                 NavigationGroup::make('Dashboard')
@@ -68,6 +68,11 @@ class AdminPanelProvider extends PanelProvider
             $builder->groups([
                 NavigationGroup::make('Master')
                     ->items([
+                            NavigationItem::make('MollakTenant')
+                                ->url('/admin/mollak-tenants')
+                                ->icon('heroicon-o-calendar-days')
+                                ->activeIcon('heroicon-o-calendar-days')
+                                ->sort(1),
                             NavigationItem::make('Medias')
                                 ->url('/admin/media')
                                 ->icon('heroicon-o-calendar-days')
@@ -78,40 +83,40 @@ class AdminPanelProvider extends PanelProvider
                                 ->hidden(auth()->user()->id == 1 ? false : true)
                                 ->icon('heroicon-o-calendar-days')
                                 ->activeIcon('heroicon-o-calendar-days')
-                                ->sort(1),   
+                                ->sort(3),
                             NavigationItem::make('Cities')
                                 ->hidden(auth()->user()->id == 1 ? false : true)
                                 ->url('/admin/master/cities')
                                 ->icon('heroicon-o-calendar-days')
                                 ->activeIcon('heroicon-o-calendar-days')
-                                ->sort(3),
+                                ->sort(4),
                             NavigationItem::make('Document Libraries')
-                                ->hidden(auth()->user()->id == 1 ? false : true)
+                                ->hidden(auth()->user()->id == 1 ? true : false)
                                 ->url('/admin/master/document-libraries')
                                 ->icon('heroicon-m-clipboard-document-check')
                                 ->activeIcon('heroicon-m-clipboard-document-check')
-                                ->sort(4),
+                                ->sort(5),
                             NavigationItem::make('Facilities')
                                 ->hidden(auth()->user()->id == 1 ? false : true)
                                 ->url('/admin/master/facilities')
                                 ->icon('heroicon-s-speaker-wave')
                                 ->activeIcon('heroicon-s-speaker-wave')
-                                ->sort(5),
+                                ->sort(6),
                             NavigationItem::make('Roles')
                                 ->hidden(auth()->user()->id == 1 ? false : true)
                                 ->url('/admin/master/roles')
                                 ->icon('heroicon-s-user-group')
                                 ->activeIcon('heroicon-s-user-group')
-                                ->sort(6),
+                                ->sort(7),
                             NavigationItem::make('Services')
                                 ->hidden(auth()->user()->id == 1 ? false : true)
                                 ->url('/admin/master/services')
                                 ->icon('heroicon-s-user-group')
                                 ->activeIcon('heroicon-s-user-group')
-                                ->sort(7),
+                                ->sort(8),
                             ]),
-            ]);    
-           }              
+            ]);
+           }
             $builder->groups([
                 NavigationGroup::make('Community')
                     ->items([
@@ -184,6 +189,52 @@ class AdminPanelProvider extends PanelProvider
                                     ->icon('heroicon-m-clipboard-document-check')
                                     ->activeIcon('heroicon-m-clipboard-document-check')
                                     ->sort(2),
+                                NavigationItem::make('Tenant')
+                                    ->url('/admin/tenant-documents')
+                                    ->hidden(auth()->user()->id == 1 ? true : false)
+                                    ->icon('heroicon-o-user-circle')
+                                    ->activeIcon('heroicon-o-user-circle')
+                                    ->sort(2),
+                                ]),
+                ]);
+            }
+            if(auth()->user()->id != 1)
+            {
+                $builder->groups([
+                    NavigationGroup::make('Forms Document')
+                        ->items([
+                                NavigationItem::make('Guest Registration')
+                                    ->url('/admin/guest-registrations')
+                                    ->hidden(auth()->user()->id == 1 ? true : false)
+                                    ->icon('heroicon-o-calendar-days')
+                                    ->activeIcon('heroicon-o-calendar-days')
+                                    ->sort(1),
+                                NavigationItem::make('Move-IN')
+                                    ->url('/admin/move-in-forms-documents')
+                                    ->hidden(auth()->user()->id == 1 ? true : false)
+                                    ->icon('heroicon-o-calendar-days')
+                                    ->activeIcon('heroicon-o-calendar-days')
+                                    ->sort(2),
+                                NavigationItem::make('Move-Out')
+                                    ->url('/admin/move-out-forms-documents')
+                                    ->hidden(auth()->user()->id == 1 ? true : false)
+                                    ->icon('heroicon-o-calendar-days')
+                                    ->activeIcon('heroicon-o-calendar-days')
+                                    ->sort(3),
+                                ]),
+                ]);
+            }
+            if(auth()->user()->id != 1)
+            {
+                $builder->groups([
+                    NavigationGroup::make('Vendor Management')
+                        ->items([
+                                NavigationItem::make('Vendor')
+                                    ->url('/admin/vendor/vendors')
+                                    ->hidden(auth()->user()->id == 1 ? true : false)
+                                    ->icon('heroicon-o-calendar-days')
+                                    ->activeIcon('heroicon-o-calendar-days')
+                                    ->sort(1),
                                 ]),
                 ]);
             }

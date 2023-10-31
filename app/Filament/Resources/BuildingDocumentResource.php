@@ -13,6 +13,7 @@ use Filament\Facades\Filament;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\MorphToSelect;
 use Filament\Forms\Components\MorphToSelect\Type;
 use Filament\Forms\Components\Select;
@@ -41,20 +42,18 @@ class BuildingDocumentResource extends Resource
     public static function form(Form $form): Form
     {
         return $form
-            ->schema([
-                Grid::make([
-                    'sm' => 1,
-                    'md' => 1,
-                    'lg' => 2,
-                ])->schema([
+        ->schema([
+            Grid::make([
+                'sm' => 1,
+                'md' => 1,
+                'lg' => 2,
+            ])->schema([
 
-                    TextInput::make('name')
-                    ->required(),
-                    Select::make('document_library_id')
-                    // ->rules(['exists:document_libraries,id'])
+                Select::make('document_library_id')
+                    ->rules(['exists:document_libraries,id'])
                     ->required()
-                    ->relationship('documentLibrary', 'name')
                     ->preload()
+                    ->relationship('documentLibrary', 'name')
                     ->searchable()
                     ->placeholder('Document Library')
                     ->getSearchResultsUsing(fn(string $search) => DB::table('document_libraries')
@@ -63,23 +62,19 @@ class BuildingDocumentResource extends Resource
                                     ->where([
                                         ['building_id', '=', Filament::getTenant()->id],
 
-                                    ]);
-                            })
-                            ->pluck('document_libraries.name', 'document_libraries.id')
-                    ),
+                                        ]);
+                                })
+                                ->pluck('document_libraries.name', 'document_libraries.id')
+                        ),
                     FileUpload::make('url')->label('Document')
                         ->disk('s3')
-                        ->directory('dev')
                         ->required()
-                        ->acceptedFileTypes(['image/pdf'])
                         ->downloadable()
                         ->preserveFilenames(),
                     Select::make('status')
-                    ->options([
-                        'pending' => 'Pending',
-                        'submitted' => 'Submitted',
-                        'approved' => 'Approved',
-                    ])
+                        ->options([
+                            'pending' => 'Pending',
+                        ])
                         ->rules(['max:50', 'string'])
                         ->required()
                         ->placeholder('Status'),
@@ -90,19 +85,23 @@ class BuildingDocumentResource extends Resource
                         ->required()
                         ->placeholder('Expiry Date'),
 
-                    MorphToSelect::make('documentable')
-                        ->types([
-                            Type::make(Building::class)->titleAttribute('name'),
+                Hidden::make('accepted_by')
+                    ->default(auth()->user()->id),
 
-                        ]),
-                    TextInput::make('documentable_id')
-                        ->rules(['max:255'])
-                        ->required()
-                        ->hidden()
-                        ->placeholder('Documentable Id'),
-                ]),
+                Hidden::make('documentable_type')
+                    ->default('App\Models\Building\Building'),
 
-            ]);
+                Select::make('documentable_id')
+                    ->options(
+                        DB::table('buildings')->pluck('name','id')->toArray()
+                    )
+                    ->searchable()
+                    ->preload()
+                    ->required()
+                    ->placeholder('Documentable Id'),
+            ]),
+
+        ]);
     }
 
     public static function table(Table $table): Table
@@ -112,6 +111,8 @@ class BuildingDocumentResource extends Resource
             ->modifyQueryUsing(fn(Builder $query) => $query->where('documentable_type', 'App\Models\Building\Building')->withoutGlobalScopes())
             ->columns([
                 TextColumn::make('documentLibrary.name')
+                    ->searchable()
+                    ->default('NA')
                     ->toggleable()
                     ->limit(50),
                 TextColumn::make('url')->label('Uploaded Document')
@@ -120,17 +121,23 @@ class BuildingDocumentResource extends Resource
                     ->limit(50),
                 TextColumn::make('status')
                     ->toggleable()
+                    ->searchable()
                     ->limit(50),
                 TextColumn::make('expiry_date')
                     ->toggleable()
                     ->date(),
                 TextColumn::make('user.first_name')
                     ->toggleable()
+                    ->searchable()
+                    ->default('NA')
                     ->limit(50),
                 ViewColumn::make('name')->view('tables.columns.document')
+                    ->searchable()
+                    ->default('NA')
                     ->toggleable(),
                 TextColumn::make('documentable_type')
                     ->toggleable()
+                    ->searchable()
                     ->limit(50),
             ])
             ->filters([

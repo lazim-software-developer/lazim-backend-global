@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Api\Auth\ResetPasswordController;
 use App\Http\Controllers\Api\Auth\RegisterationController;
 use App\Http\Controllers\Api\Auth\VerificationController;
+use App\Http\Controllers\Api\TenantimportController;
 use App\Http\Controllers\Building\BuildingController;
 use App\Http\Controllers\Building\FlatController;
 use App\Http\Controllers\Community\CommentController;
@@ -15,6 +16,8 @@ use App\Http\Controllers\Community\PostController;
 use App\Http\Controllers\Community\PostLikeController;
 use App\Http\Controllers\Documents\DocumentsController;
 use App\Http\Controllers\Facility\FacilityController;
+use App\Http\Controllers\Forms\MoveInOutController;
+use App\Http\Controllers\Forms\GuestController;
 use App\Http\Controllers\HelpDesk\ComplaintController;
 use App\Http\Controllers\Services\ServiceController;
 use App\Http\Controllers\TagController;
@@ -31,12 +34,14 @@ use App\Http\Controllers\User\UserController;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
  */
-
 // OA Login
 Route::post('/login', [AuthController::class, 'login'])->name('api.login');
 
-// Resident registeration
-Route::post('/register', [RegisterationController::class, 'register']);
+// Resident registeration with email and phone
+Route::post('/register', [RegisterationController::class, 'registerWithEmailPhone']);
+// Resident registeration with Passport/Emirates id
+Route::post('/register-with-passport', [RegisterationController::class, 'registerWithEmiratesOrPassport']);
+
 // Verify email
 Route::post('/verify-otp', [VerificationController::class, 'verify']);
 
@@ -205,6 +210,15 @@ Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active']
  * Documents related APIs
  */
 Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active'])->group(function () {
-    Route::get('/document-library', [DocumentsController::class, 'index']);
-    Route::post('/document', [DocumentsController::class, 'create']);
+    Route::get('/documents', [DocumentsController::class, 'index']);
+    Route::post('/document-upload', [DocumentsController::class, 'create']);
+    Route::get('/fetch-other-documents', [DocumentsController::class, 'fetchOtherDocuments']);
+});
+
+/**
+ * Forms related APIs
+ */
+Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active'])->group(function () {
+    Route::post('/forms/move-in-out', [MoveInOutController::class, 'create']);
+    Route::post('/forms/guest-registration', [GuestController::class, 'create']);
 });
