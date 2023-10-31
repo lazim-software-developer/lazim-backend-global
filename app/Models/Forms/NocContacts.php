@@ -4,6 +4,7 @@ namespace App\Models\Forms;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Forms\SaleNOC;
 
 class NocContacts extends Model
 {
@@ -18,15 +19,19 @@ class NocContacts extends Model
         'passport_number',
         'visa_number',
         'emirates_document_url',
-        'vis_document_url',
+        'visa_document_url',
         'passport_document_url',
-        'documents_verified_url',
         'noc_form_id',
         'documents_verified_by',
     ];
 
     protected $searchableFields = ['*'];
+
     protected $casts = [
-        'allow_postupload'         => 'boolean',
+        'allow_postupload' => 'boolean',
     ];
+
+    public function noc() {
+        return $this->belongsTo(SaleNOC::class);
+    }
 }

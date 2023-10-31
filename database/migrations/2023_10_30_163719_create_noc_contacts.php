@@ -22,14 +22,11 @@ return new class extends Migration
             $table->string('passport_number',20)->nullable();
             $table->string('visa_number',20)->nullable();
             $table->string('emirates_document_url');
-            $table->string('vis_document_url');
+            $table->string('visa_document_url');
             $table->string('passport_document_url');
-            $table->string('documents_verified_url');
 
             $table->unsignedBigInteger('noc_form_id');
             $table->foreign('noc_form_id')->references('id')->on('noc_forms');
-            $table->unsignedBigInteger('documents_verified_by');
-            $table->foreign('documents_verified_by')->references('id')->on('users');
             $table->timestamps();
         });
     }
