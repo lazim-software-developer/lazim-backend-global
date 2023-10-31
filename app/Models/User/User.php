@@ -11,6 +11,7 @@ use App\Models\Building\FacilityBooking;
 use App\Models\Building\Flat;
 use App\Models\Building\FlatTenant;
 use App\Models\Community\Post;
+use App\Models\Forms\AccessCard;
 use App\Models\Forms\FitOutForm;
 use App\Models\Forms\MoveInOut;
 use App\Models\Forms\Guest;
@@ -221,5 +222,9 @@ class User extends Authenticatable implements FilamentUser, HasName
     public function fitOut()
     {
         return $this->hasMany(FitOutForm::class);
+    }
+    public function accessCard()
+    {
+        return $this->hasMany(AccessCard::class);
     }
 }
