@@ -73,7 +73,9 @@ class BuildingDocumentResource extends Resource
                     ->required(),
                 Select::make('status')
                     ->options([
-                        'pending' => 'Pending',
+                        'submitted' => 'Submitted',
+                        'approved' => 'Approved',
+                        'rejected' => 'Rejected',
                     ])
                     ->searchable()
                     ->required()

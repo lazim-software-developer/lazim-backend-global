@@ -5,6 +5,7 @@ namespace App\Models\Forms;
 use App\Models\Building\Building;
 use App\Models\Building\Flat;
 use App\Models\User\User;
+use App\Models\Visitor\FlatVisitor;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -20,7 +21,7 @@ class Guest extends Model
         'original_passport',
         'guest_registration',
         'flat_visitor_id',
-        'dtmc_license',
+        'dtmc_license_url',
     ];
 
     protected $searchableFields = ['*'];
@@ -32,7 +33,10 @@ class Guest extends Model
     {
         return $this->belongsTo(User::class);
     }
-
+    public function flatVisitor()
+    {
+        return $this->belongsTo(FlatVisitor::class);
+    }
     public function building()
     {
         return $this->belongsTo(Building::class);

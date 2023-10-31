@@ -71,10 +71,11 @@ class TenantDocumentResource extends Resource
                     ->preserveFilenames(),
                 Select::make('status')
                     ->options([
-                        'Submitted' => 'Submitted',
-                        'Approved' => 'Approved',
+                        'submitted' => 'Submitted',
+                        'approved' => 'Approved',
+                        'rejected' => 'Rejected',
                     ])
-                    ->rules(['max:50', 'string'])
+                    ->searchable()
                     ->required()
                     ->placeholder('Status'),
                 TextInput::make('comments')
