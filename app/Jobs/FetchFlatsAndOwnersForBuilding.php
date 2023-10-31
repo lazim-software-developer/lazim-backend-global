@@ -33,7 +33,7 @@ class FetchFlatsAndOwnersForBuilding implements ShouldQueue
         Log::info("FetchFlatsAndOwnersForBuilding", [3]);
 
         $data = $response->json();
-        if ($data['response'] != null) {
+        // if ($data['response'] != null) {
             foreach ($data['response']['properties'] as $property) {
                 $flat = Flat::create([
                     'property_number' => $property['propertyNumber'],
@@ -59,6 +59,6 @@ class FetchFlatsAndOwnersForBuilding implements ShouldQueue
                     $flat->owners()->attach($owner->id);
                 }
             }
-        }
+        // }
     }
 }
