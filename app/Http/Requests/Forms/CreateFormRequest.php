@@ -31,7 +31,17 @@ class CreateFormRequest extends FormRequest
             'moving_time'=> 'required',
             'time_preference'=> 'required',
             'email' => 'required|regex:/^[a-zA-Z0-9_.-]+@[a-zA-Z]+\.[a-zA-Z]+$/',
-            // 'file' => 'required|file |max:2048'
+            'handover_acceptance' => 'required|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
+            'receipt_charges' => 'required|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
+            'contract' => 'required|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
+            'title_deed' => 'required|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
+            'passport' => 'required|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
+            'dewa' => 'required|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
+            'cooling_registration' => 'required|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
+            'gas_registration' => 'required|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
+            'vehicle_registration' => 'required|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
+            'movers_license' => 'required|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
+            'movers_liability' => 'required|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
         ];
     }
     public function messages()
