@@ -21,6 +21,9 @@ class FitOutFormsController extends Controller
             'phone'=> $request->phone,
             'email' =>$request->email,
             'user_id'=> auth()->user()->id,
+            'undertaking_of_waterproofing'=>$request->undertaking_of_waterproofing,
+            'no_objection'=>$request->no_objection
+
         ]);
 
         return (new CustomResponseResource([
