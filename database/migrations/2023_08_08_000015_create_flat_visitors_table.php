@@ -13,7 +13,8 @@ return new class extends Migration {
         Schema::create('flat_visitors', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->unsignedBigInteger('flat_id');
-            $table->unsignedBigInteger('building_id');
+            $table->unsignedBigInteger('building_id')->nullable();
+            $table->unsignedBigInteger('owner_association_id')->nullable();
             $table->string('name', 50);
             $table->string('phone', 10)->unique();
             $table->string('type', 50);
@@ -24,6 +25,7 @@ return new class extends Migration {
             $table->unsignedBigInteger('approved_by');
             $table->json('remarks');
             $table->integer('number_of_visitors');
+            $table->foreign('owner_association_id')->references('id')->on('owner_associations');
             $table->timestamps();
         });
     }

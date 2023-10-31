@@ -12,6 +12,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -34,19 +35,18 @@ class FlatResource extends Resource
                     'md' => 1,
                     'lg' => 2,])
                     ->schema([
-                    TextInput::make('number')
+                    TextInput::make('property_number')
                         ->rules(['numeric'])
                         ->required()
                         ->numeric()
                         ->placeholder('Number'),
-                    TextInput::make('floor')
-                        ->rules(['numeric'])
-                        ->required()
-                        ->numeric()
-                        ->placeholder('Floor'),
-                    TextInput::make('description')
-                        ->rules(['max:50', 'string'])
-                        ->placeholder('Description'),
+                    Select::make('building_id')
+                        ->rules(['exists:buildings,id'])
+                        ->relationship('building', 'name')
+                        ->reactive()
+                        ->preload()
+                        ->searchable()
+                        ->placeholder('Building'),
                 ]),
             ]);
     }
@@ -56,22 +56,21 @@ class FlatResource extends Resource
         return $table
             ->poll('60s')
             ->columns([
-                Tables\Columns\TextColumn::make('number')
-                    ->toggleable()
-                    ->searchable(true, null, true),
-                Tables\Columns\TextColumn::make('floor')
-                    ->toggleable()
-                    ->searchable(true, null, true),
-                Tables\Columns\TextColumn::make('building.name')->label('Building Name')
-                    ->toggleable()
-                    ->limit(50),
-                Tables\Columns\TextColumn::make('description')
-                    ->toggleable()
-                    ->searchable(true, null, true)
+                Tables\Columns\TextColumn::make('property_number')
+                    ->default('NA')
+                    ->searchable()
+                    ->label('Flat Number'),
+                Tables\Columns\TextColumn::make('building.name')
+                    ->default('NA')
+                    ->searchable()
                     ->limit(50),
             ])
             ->filters([
-                //
+                SelectFilter::make('building_id')
+                    ->relationship('building', 'name')
+                    ->searchable()
+                    ->label('Building')
+                    ->preload()
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
@@ -82,7 +81,7 @@ class FlatResource extends Resource
                 ]),
             ])
             ->emptyStateActions([
-                Tables\Actions\CreateAction::make(),
+                //Tables\Actions\CreateAction::make(),
             ]);
     }
 
@@ -100,7 +99,7 @@ class FlatResource extends Resource
     {
         return [
             'index' => Pages\ListFlats::route('/'),
-            'create' => Pages\CreateFlat::route('/create'),
+            //'create' => Pages\CreateFlat::route('/create'),
             'edit' => Pages\EditFlat::route('/{record}/edit'),
         ];
     }

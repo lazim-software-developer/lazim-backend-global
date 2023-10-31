@@ -13,8 +13,15 @@ class AttendancePolicy
     /**
      * Determine whether the attendance can view any models.
      */
+
     public function viewAny(User $user): bool
     {
+        $role = $user->role->name == 'Admin';
+
+        if($role)
+        {
+            return false;
+        }
         return true;
     }
 
@@ -23,7 +30,10 @@ class AttendancePolicy
      */
     public function view(User $user, Attendance $model): bool
     {
-        return true;
+        $role = $user->role;
+
+        return $role && $role->name == 'Admin';
+
     }
 
     /**
@@ -31,7 +41,10 @@ class AttendancePolicy
      */
     public function create(User $user): bool
     {
-        return true;
+        $role = $user->role;
+
+        return $role && $role->name == 'Admin';
+
     }
 
     /**
@@ -39,7 +52,10 @@ class AttendancePolicy
      */
     public function update(User $user, Attendance $model): bool
     {
-        return true;
+        $role = $user->role;
+
+        return $role && $role->name == 'Admin';
+
     }
 
     /**
@@ -47,7 +63,12 @@ class AttendancePolicy
      */
     public function delete(User $user, Attendance $model): bool
     {
-        return true;
+        $role = $user->role;
+
+        return $role && $role->name == 'Admin';
+
+        return false;
+
     }
 
     /**
@@ -55,7 +76,10 @@ class AttendancePolicy
      */
     public function deleteAny(User $user): bool
     {
-        return true;
+        $role = $user->role;
+
+        return $role && $role->name == 'Admin';
+
     }
 
     /**

@@ -2,8 +2,8 @@
 
 namespace App\Policies;
 
-use App\Models\User\User;
 use App\Models\Building\Document;
+use App\Models\User\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class DocumentPolicy
@@ -15,7 +15,12 @@ class DocumentPolicy
      */
     public function viewAny(User $user): bool
     {
+        $allowedRoles = ['OA','Admin'];
+
+        if (in_array($user->role->name, $allowedRoles)) {
         return true;
+        }
+
     }
 
     /**
@@ -23,7 +28,12 @@ class DocumentPolicy
      */
     public function view(User $user, Document $model): bool
     {
+        $allowedRoles = ['OA','Admin'];
+
+        if (in_array($user->role->name, $allowedRoles)) {
         return true;
+        }
+
     }
 
     /**
@@ -31,7 +41,9 @@ class DocumentPolicy
      */
     public function create(User $user): bool
     {
-        return true;
+        $role = $user->role;
+
+        return $role && $role->name == 'Admin';
     }
 
     /**
@@ -39,7 +51,12 @@ class DocumentPolicy
      */
     public function update(User $user, Document $model): bool
     {
+        $allowedRoles = ['OA','Admin'];
+
+        if (in_array($user->role->name, $allowedRoles)) {
         return true;
+        }
+
     }
 
     /**
@@ -47,7 +64,12 @@ class DocumentPolicy
      */
     public function delete(User $user, Document $model): bool
     {
+        $allowedRoles = ['OA','Admin'];
+
+        if (in_array($user->role->name, $allowedRoles)) {
         return true;
+        }
+
     }
 
     /**
@@ -55,7 +77,10 @@ class DocumentPolicy
      */
     public function deleteAny(User $user): bool
     {
-        return true;
+        $role = $user->role;
+
+        return $role && $role->name == 'Admin';
+
     }
 
     /**

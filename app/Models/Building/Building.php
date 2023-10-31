@@ -2,10 +2,11 @@
 
 namespace App\Models\Building;
 
-use App\Models\Master\DocumentLibrary;
+use App\Models\Community\Post;
 use App\Models\Master\Role;
 use App\Models\Master\Service;
-use App\Models\User\User;
+use App\Models\MollakTenant;
+use App\Models\OwnerAssociation;
 use App\Models\Master\City;
 use App\Models\Building\Flat;
 use App\Models\Master\Facility;
@@ -13,25 +14,22 @@ use App\Models\Building\Document;
 use App\Models\Scopes\Searchable;
 use App\Models\Vendor\Attendance;
 use App\Models\Building\Complaint;
-
 use App\Models\Building\BuildingPoc;
+use App\Models\Forms\MoveInOut;
 use App\Models\Vendor\Contact;
 use App\Models\Vendor\Vendor;
 use App\Models\Visitor\FlatDomesticHelp;
 use App\Models\Visitor\FlatVisitor;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Building extends Model
 {
-    use HasFactory;
-    use Searchable;
+    use HasFactory, Searchable;
 
     protected $fillable = [
         'name',
-        'unit_number',
+        'property_group_id',
         'address_line1',
         'address_line2',
         'area',
@@ -40,11 +38,14 @@ class Building extends Model
         'lng',
         'description',
         'floors',
-
+        'owner_association_id',
+        'allow_postupload'
     ];
 
     protected $searchableFields = ['*'];
-
+    protected $casts = [
+        'allow_postupload'         => 'boolean',
+    ];
     public function cities()
     {
         return $this->belongsTo(City::class, 'city_id');
@@ -76,20 +77,20 @@ class Building extends Model
     }
     public function services()
     {
-        return $this->belongsToMany(Service::class, 'building_services','building_id','service_id');
+        return $this->belongsToMany(Service::class, 'building_services', 'building_id', 'service_id');
     }
 
     public function roles()
     {
-        return $this->belongsToMany(Role::class, 'building_roles','building_id','role_id');
+        return $this->belongsToMany(Role::class, 'building_roles', 'building_id', 'role_id');
     }
     public function documentlibraries()
     {
-        return $this->belongsToMany(Role::class, 'building_documentlibraries','building_id','documentlibrary_id');
+        return $this->belongsToMany(Role::class, 'building_documentlibraries', 'building_id', 'documentlibrary_id');
     }
     public function facilities()
     {
-        return $this->belongsToMany(Facility::class, 'building_facility','building_id','facility_id');
+        return $this->belongsToMany(Facility::class, 'building_facility', 'building_id', 'facility_id');
     }
     public function flatVisitors()
     {
@@ -102,10 +103,6 @@ class Building extends Model
     public function flatDomesticHelps()
     {
         return $this->hasMany(FlatDomesticHelp::class);
-    }
-    public function vendor()
-    {
-        return $this->hasMany(Vendor::class);
     }
     public function attendances()
     {
@@ -124,12 +121,28 @@ class Building extends Model
     {
         return $this->morphMany(Complaint::class, 'complaintable');
     }
-    public function members()
+    public function ownerAssociation()
     {
-        return $this->belongsToMany(User::class);
+        return $this->belongsTo(OwnerAssociation::class);
     }
-    public function users():BelongsToMany
+    public function posts()
     {
-        return $this->belongsToMany(User::class);
+        return $this->belongsToMany(Post::class);
+    }
+    public function vendors()
+    {
+        return $this->belongsToMany(Vendor::class, 'building_vendor');
+    }
+    public function moveinOut()
+    {
+        return $this->hasMany(MoveInOut::class);
+    }
+    public function mollakTenants()
+    {
+        return $this->hasMany(MollakTenant::class);
+    }
+    public function guests()
+    {
+        return $this->hasMany(Guest::class);
     }
 }

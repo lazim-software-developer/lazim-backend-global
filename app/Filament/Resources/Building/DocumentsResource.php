@@ -2,39 +2,43 @@
 
 namespace App\Filament\Resources\Building;
 
-use App\Filament\Resources\Building\DocumentsResource\Pages;
-use App\Filament\Resources\Building\DocumentsResource\RelationManagers;
+use App\Filament\Resources\Building\DocumentsResource\Pages\CreateDocuments;
+use App\Filament\Resources\Building\DocumentsResource\Pages\EditDocuments;
+use App\Filament\Resources\Building\DocumentsResource\Pages\ListDocuments;
 use App\Models\Building\Building;
 use App\Models\Building\Document;
 use App\Models\Building\FlatTenant;
 use App\Models\Vendor\Vendor;
-use Filament\Forms;
+use Filament\Facades\Filament;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\KeyValue;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\MorphToSelect;
 use Filament\Forms\Components\MorphToSelect\Type;
-use Filament\Forms\Components\Repeater;
-use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
-use Filament\Tables;
+use Filament\Tables\Actions\BulkActionGroup;
+use Filament\Tables\Actions\CreateAction;
+use Filament\Tables\Actions\DeleteBulkAction;
+use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Filament\Forms\Components\Builder;
-use Filament\Forms\Components\FileUpload;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Query\JoinClause;
+use Illuminate\Support\Facades\DB;
 
 class DocumentsResource extends Resource
 {
     protected static ?string $model = Document::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-    protected static ?string $navigationGroup = 'Building Management';
-    protected static bool $shouldRegisterNavigation = false;
+    protected static ?string $navigationIcon  = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationGroup = 'Document Management';
+    protected static ?string $navigationLabel = 'Vendor';
+    protected static bool $shouldRegisterNavigation = true;
     public static function form(Form $form): Form
     {
         return $form
@@ -44,46 +48,57 @@ class DocumentsResource extends Resource
                     'md' => 1,
                     'lg' => 2,
                 ])->schema([
+
                     Select::make('document_library_id')
                         ->rules(['exists:document_libraries,id'])
                         ->required()
+                        ->preload()
                         ->relationship('documentLibrary', 'name')
                         ->searchable()
-                        ->placeholder('Document Library'),
-                    FileUpload::make('url')->label('Document')
+                        ->placeholder('Document Library')
+                        ->getSearchResultsUsing(fn(string $search) => DB::table('document_libraries')
+                                ->join('building_documentlibraries', function (JoinClause $join) {
+                                    $join->on('document_libraries.id', '=', 'building_documentlibraries.documentlibrary_id')
+                                        ->where([
+                                            ['building_id', '=', Filament::getTenant()->id],
+
+                                        ]);
+                                })
+                                ->pluck('document_libraries.name', 'document_libraries.id')
+                        ),
+                    FileUpload::make('url')
                         ->disk('s3')
-                        ->required()
-                        ->downloadable()
-                        ->preserveFilenames(),
+                        ->directory('dev')
+                        ->label('Document')
+                        ->required(),
                     Select::make('status')
                         ->options([
-                            'pending'=>'Pending'
+                            'pending' => 'Pending',
                         ])
-                        ->rules(['max:50', 'string'])
+                        ->searchable()
                         ->required()
                         ->placeholder('Status'),
-                    TextInput::make('comments')
-                        ->required(),
+                    TextInput::make('comments'),
+                    //->required(),
                     DatePicker::make('expiry_date')
                         ->rules(['date'])
                         ->required()
                         ->placeholder('Expiry Date'),
-                    Select::make('accepted_by')
-                        ->rules(['exists:users,id'])
-                        ->required()
-                        ->relationship('user', 'first_name')
+
+                    Hidden::make('accepted_by')
+                        ->default(auth()->user()->id),
+
+                    Hidden::make('documentable_type')
+                        ->default('App\Models\Vendor\Vendor'),
+
+                    Select::make('documentable_id')
+                        ->options(
+                            DB::table('vendors')->pluck('name', 'id')->toArray()
+                        )
                         ->searchable()
-                        ->placeholder('User'),
-                    MorphToSelect::make('documentable')
-                        ->types([
-                            Type::make(Building::class)->titleAttribute('name'),
-                            Type::make(FlatTenant::class)->titleAttribute('tenant_id'),
-                            Type::make(Vendor::class)->titleAttribute('name')
-                        ]),
-                    TextInput::make('documentable_id')
-                        ->rules(['max:255'])
+                        ->preload()
                         ->required()
-                        ->placeholder('Documentable Id')
+                        ->placeholder('Documentable Id'),
                 ]),
 
             ]);
@@ -92,45 +107,52 @@ class DocumentsResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-        ->poll('60s')
-        ->columns([
-            Tables\Columns\TextColumn::make('documentLibrary.name')
-                ->toggleable()
-                ->limit(50),
-            Tables\Columns\TextColumn::make('url')->label('Uploaded Document')
-                ->toggleable()
-                ->searchable()
-                ->limit(50),
-            Tables\Columns\TextColumn::make('status')
-                ->toggleable()
-                ->searchable(true, null, true)
-                ->limit(50),
-            Tables\Columns\TextColumn::make('expiry_date')
-                ->toggleable()
-                ->date(),
-            Tables\Columns\TextColumn::make('user.first_name')
-                ->toggleable()
-                ->limit(50),
-            ViewColumn::make('name')->view('tables.columns.document')
-                ->toggleable(),
-            Tables\Columns\TextColumn::make('documentable_type')
-                ->toggleable()
-                ->searchable(true, null, true)
-                ->limit(50),
-        ])
+            ->poll('60s')
+            ->modifyQueryUsing(fn(Builder $query) => $query->where('documentable_type', 'App\Models\Vendor\Vendor')->withoutGlobalScopes())
+            ->columns([
+                TextColumn::make('documentLibrary.name')
+                    ->searchable()
+                    ->default('NA')
+                    ->toggleable()
+                    ->limit(50),
+                TextColumn::make('url')->label('Uploaded Document')
+                    ->toggleable()
+                    ->searchable()
+                    ->limit(50),
+                TextColumn::make('status')
+                    ->toggleable()
+                    ->searchable()
+                    ->limit(50),
+                TextColumn::make('expiry_date')
+                    ->toggleable()
+                    ->date(),
+                TextColumn::make('user.first_name')
+                    ->toggleable()
+                    ->searchable()
+                    ->default('NA')
+                    ->limit(50),
+                ViewColumn::make('name')->view('tables.columns.document')
+                    ->searchable()
+                    ->default('NA')
+                    ->toggleable(),
+                TextColumn::make('documentable_type')
+                    ->toggleable()
+                    ->searchable()
+                    ->limit(50),
+            ])
             ->filters([
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                EditAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                 ]),
             ])
             ->emptyStateActions([
-                Tables\Actions\CreateAction::make(),
+                CreateAction::make(),
             ]);
     }
 
@@ -144,9 +166,9 @@ class DocumentsResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListDocuments::route('/'),
-            'create' => Pages\CreateDocuments::route('/create'),
-            'edit' => Pages\EditDocuments::route('/{record}/edit'),
+            'index'  => ListDocuments::route('/'),
+            'create' => CreateDocuments::route('/create'),
+            'edit'   => EditDocuments::route('/{record}/edit'),
         ];
     }
 }

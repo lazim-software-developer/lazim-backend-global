@@ -15,7 +15,9 @@ class DocumentLibraryPolicy
      */
     public function viewAny(User $user): bool
     {
-        return true;
+        $role = $user->role;
+
+        return $role && $role->name == 'Admin';
     }
 
     /**
@@ -23,7 +25,9 @@ class DocumentLibraryPolicy
      */
     public function view(User $user, DocumentLibrary $model): bool
     {
-        return true;
+        $role = $user->role;
+
+        return $role && $role->name == 'Admin';
     }
 
     /**
@@ -31,7 +35,9 @@ class DocumentLibraryPolicy
      */
     public function create(User $user): bool
     {
-        return true;
+        $role = $user->role;
+
+        return $role && $role->name == 'Admin';
     }
 
     /**
@@ -39,7 +45,9 @@ class DocumentLibraryPolicy
      */
     public function update(User $user, DocumentLibrary $model): bool
     {
-        return true;
+        $role = $user->role;
+
+        return $role && $role->name == 'Admin';
     }
 
     /**

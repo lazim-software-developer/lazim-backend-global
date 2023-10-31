@@ -15,13 +15,8 @@ class CreateService extends CreateRecord
         Service::where('id',$this->record->id)
                 ->update([
                     'active'=>true,
+                    'custom'=>0
                 ]);
-
-        $tenant=Filament::getTenant();
-        Service::where('id', $this->record->id)
-            ->update([
-                'building_id'=>$tenant->first()->id
-            ]);
 
 
     }

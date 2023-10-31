@@ -16,6 +16,7 @@ return new class extends Migration {
             $table->string('first_name', 50);
             $table->string('last_name', 50)->nullable();
             $table->unsignedBigInteger('building_id')->nullable();
+            $table->unsignedBigInteger('owner_association_id')->nullable();
             $table->string('phone', 10)->unique();
             $table->json('profile_photo')->nullable();
             $table->dateTime('start_date');
@@ -23,6 +24,8 @@ return new class extends Migration {
             $table->string('role_name', 50);
             $table->boolean('active');
             $table->timestamps();
+            $table->foreign('owner_association_id')->references('id')->on('owner_associations');
+
         });
     }
 

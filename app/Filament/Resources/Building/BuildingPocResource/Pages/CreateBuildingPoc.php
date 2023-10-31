@@ -10,15 +10,15 @@ use Filament\Resources\Pages\CreateRecord;
 
 class CreateBuildingPoc extends CreateRecord
 {
+    protected ?string $heading        = 'Building Manager';
     protected static string $resource = BuildingPocResource::class;
 
-    protected function afterCreate(){
-        $tenant=Filament::getTenant();
+    protected function afterCreate()
+    {
         BuildingPoc::where('id', $this->record->id)
             ->update([
-                'building_id'=>$tenant->first()->id
+                'active'=>1,
             ]);
 
     }
-
 }

@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
             ServiceSeeder::class,
             UserSeeder::class,
             ServiceParameterSeeder::class,
+            DocumentLibrarySeeder::class,
         ]);
     }
 }

@@ -15,7 +15,14 @@ class FlatVisitorPolicy
      */
     public function viewAny(User $user): bool
     {
+        $role = $user->role->name == 'Admin';
+
+        if($role)
+        {
+            return false;
+        }
         return true;
+
     }
 
     /**
@@ -23,7 +30,10 @@ class FlatVisitorPolicy
      */
     public function view(User $user, FlatVisitor $model): bool
     {
-        return true;
+        $role = $user->role;
+
+        return $role && $role->name == 'Admin';
+
     }
 
     /**
@@ -31,7 +41,10 @@ class FlatVisitorPolicy
      */
     public function create(User $user): bool
     {
-        return true;
+        $role = $user->role;
+
+        return $role && $role->name == 'Admin';
+
     }
 
     /**
@@ -39,7 +52,10 @@ class FlatVisitorPolicy
      */
     public function update(User $user, FlatVisitor $model): bool
     {
-        return true;
+        $role = $user->role;
+
+        return $role && $role->name == 'Admin';
+
     }
 
     /**
@@ -47,7 +63,10 @@ class FlatVisitorPolicy
      */
     public function delete(User $user, FlatVisitor $model): bool
     {
-        return true;
+        $role = $user->role;
+
+        return $role && $role->name == 'Admin';
+
     }
 
     /**
@@ -55,7 +74,10 @@ class FlatVisitorPolicy
      */
     public function deleteAny(User $user): bool
     {
-        return true;
+        $role = $user->role;
+
+        return $role && $role->name == 'Admin';
+
     }
 
     /**

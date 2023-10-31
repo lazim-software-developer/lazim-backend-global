@@ -26,7 +26,7 @@ class FlatVisitorResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
     protected static ?string $navigationLabel = 'Guests';
     protected static ?string $navigationGroup = 'Flat Management';
-
+    protected static bool $shouldRegisterNavigation = false;
 
     public static function form(Form $form): Form
     {
@@ -40,7 +40,7 @@ class FlatVisitorResource extends Resource
                     Select::make('flat_id')
                         ->rules(['exists:flats,id'])
                         ->required()
-                        ->relationship('flat', 'id')
+                        ->relationship('flat', 'number')
                         ->searchable()
                         ->placeholder('Flat'),
                     TextInput::make('name')
@@ -58,6 +58,7 @@ class FlatVisitorResource extends Resource
                         ->placeholder('Phone'),
 
                     Select::make('type')
+                        ->required()
                         ->options([
                             'Visitor'=>'Visitor',
                             'Guest'=>'Guest',
@@ -116,10 +117,7 @@ class FlatVisitorResource extends Resource
         return $table
             ->poll('60s')
             ->columns([
-                Tables\Columns\TextColumn::make('building.name')->label('Building Name')
-                    ->toggleable()
-                    ->limit(50),
-                Tables\Columns\TextColumn::make('flat.id')
+                Tables\Columns\TextColumn::make('flat.number')->label('Flat Number')
                     ->toggleable()
                     ->limit(50),
                 Tables\Columns\TextColumn::make('name')

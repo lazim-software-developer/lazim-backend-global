@@ -41,27 +41,41 @@ class FacilityResource extends Resource
                         ->rules(['max:50', 'string'])
                         ->required()
                         ->placeholder('Name'),
+                    Select::make('building_id')
+                        ->rules(['exists:buildings,id'])
+                        ->relationship('buildings', 'name')
+                        ->preload()
+                        ->multiple()
+                        ->searchable()
+                        ->placeholder('Building'),
+
                     FileUpload::make('icon')
-                        ->disk('s3'),
-                    Toggle::make('active')
-                        ->rules(['boolean']),
+                        ->disk('s3')
+                        ->directory('dev')
+                        ->image()
+                        ->maxSize(2048),
+
                 ]),
             ]);
     }
 
     public static function table(Table $table): Table
     {
+        $facilities = Facility::wherenotNuLL('name');
+
         return $table
             ->poll('60s')
+            ->query($facilities)
             ->columns([
                 TextColumn::make('name')
                     ->toggleable()
                     ->searchable(true, null, true)
                     ->limit(50),
-                TextColumn::make('building.name')->label('Building Name')
-                    ->toggleable()
-                    ->searchable(true, null, true)
-                    ->limit(50),
+                // TextColumn::make('buildings.name')
+                //     ->label('Building Name')
+                //     ->toggleable()
+                //     ->searchable(true, null, true)
+                //     ->limit(50),
                 ImageColumn::make('icon')
                     ->disk('s3')
                     ->toggleable()
