@@ -222,3 +222,7 @@ Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active']
     Route::post('/forms/move-in-out', [MoveInOutController::class, 'create']);
     Route::post('/forms/guest-registration', [GuestController::class, 'create']);
 });
+
+
+// Test API for Mollak
+Route::get('/test-api', [MollakController::class, 'test']);
