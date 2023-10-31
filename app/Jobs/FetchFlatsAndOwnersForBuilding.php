@@ -30,8 +30,7 @@ class FetchFlatsAndOwnersForBuilding implements ShouldQueue
         ])->get(env("MOLLAK_API_URL") . "/sync/owners/" . $this->building->property_group_id);
 
         $data = $response->json();
-        if($data['response'] != null)
-        {
+
         foreach ($data['response']['properties'] as $property) {
             $flat = Flat::create([
                 'property_number' => $property['propertyNumber'],
@@ -56,7 +55,6 @@ class FetchFlatsAndOwnersForBuilding implements ShouldQueue
                 // Attach the owner to the flat
                 $flat->owners()->attach($owner->id);
             }
-        }
         }
     }
 }
