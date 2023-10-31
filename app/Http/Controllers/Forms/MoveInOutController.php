@@ -35,7 +35,6 @@ class MoveInOutController extends Controller
         foreach ($document_paths as $document) {
             $file = $request->file($document);
             $filePath = optimizeDocumentAndUpload($file, 'dev');
-            $currentDate = date('Y-m-d');
 
             $request->merge([$document =>  $filePath]);
         }
@@ -44,7 +43,7 @@ class MoveInOutController extends Controller
         
         return (new CustomResponseResource([
             'title' => 'Success',
-            'message' => 'Move-IN created successfully!',
+            'message' => 'Form submitted successfully!',
             'errorCode' => 201,
         ]))->response()->setStatusCode(201);
     }
