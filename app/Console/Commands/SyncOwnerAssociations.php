@@ -38,7 +38,7 @@ class SyncOwnerAssociations extends Command
             OwnerAssociation::firstOrCreate(
                 [
                     'mollak_id' => $company['id'],
-                    'trn_number' => $company['trn_number']
+                    'trn_number' => $company['trn']
                 ],
                 [
                     'name'       => $company['name']['englishName'],
