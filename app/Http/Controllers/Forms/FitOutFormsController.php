@@ -12,7 +12,7 @@ class FitOutFormsController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create(CreateFitOutFormsRequest $request)
+    public function store(CreateFitOutFormsRequest $request)
     {
         FitOutForm::create([
             'building_id' => $request->building_id,

@@ -22,6 +22,7 @@ class CreateAccessCardFormsRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'building_id' => 'required|integer',
             'flat_id' => 'required|integer',
             'mobile'=> 'required',
             'email' => 'required|regex:/^[a-zA-Z0-9_.-]+@[a-zA-Z]+\.[a-zA-Z]+$/',
