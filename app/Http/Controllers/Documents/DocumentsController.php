@@ -31,6 +31,7 @@ class DocumentsController extends Controller
             'expiry_date' => date('Y-m-d', strtotime('+1 year', strtotime($currentDate))), //to do need to make changes for expiry date
             'documentable_type' => User::class,
             'name' => $request->name,
+            'flat_id' => $request->flat ?? null
         ]);
 
         // Handle multiple images
