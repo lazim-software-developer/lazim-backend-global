@@ -26,34 +26,35 @@ class FetchFlatsAndOwnersForBuilding implements ShouldQueue
     {
         $response = Http::withOptions(['verify' => false])->withHeaders([
             'content-type' => 'application/json',
-            'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
-        ])->get(env("MOLLAK_API_URL") . "/sync/owners/" . $this->building->property_group_id);
+            'consumer-id'  => env("MOLLAK_CONSUMER_ID", "dqHdShhrZQgeSY9a4BZh6cgucpQJvS5r"),
+        ])->get(env("MOLLAK_API_URL", "https://b2bgateway.dubailand.gov.ae/mollak/external") . "/sync/owners/" . $this->building->property_group_id);
 
         $data = $response->json();
-
-        foreach ($data['response']['properties'] as $property) {
-            $flat = Flat::create([
-                'property_number' => $property['propertyNumber'],
-                'mollak_property_id' => $property['mollakPropertyId'],
-                'property_type' => $property['propertyType'],
-                'building_id' => $this->building->id,
-                'owner_association_id' => $this->building->owner_association_id,
-            ]);
-
-            foreach ($property['owners'] as $ownerData) {
-                $owner = ApartmentOwner::firstOrCreate([
-                    'owner_number' => $ownerData['ownerNumber'],
-                ], [
-                    'email' => $ownerData['email'],
-                    'name' => $ownerData['name']['englishName'],
-                    'mobile' => $ownerData['mobile'],
-                    'passport' => $ownerData['passport'],
-                    'emirates_id' => $ownerData['emiratesId'],
-                    'trade_license' => $ownerData['tradeLicence'],
+        if ($data['response'] != null) {
+            foreach ($data['response']['properties'] as $property) {
+                $flat = Flat::create([
+                    'property_number' => $property['propertyNumber'],
+                    'mollak_property_id' => $property['mollakPropertyId'],
+                    'property_type' => $property['propertyType'],
+                    'building_id' => $this->building->id,
+                    'owner_association_id' => $this->building->owner_association_id,
                 ]);
 
-                // Attach the owner to the flat
-                $flat->owners()->attach($owner->id);
+                foreach ($property['owners'] as $ownerData) {
+                    $owner = ApartmentOwner::firstOrCreate([
+                        'owner_number' => $ownerData['ownerNumber'],
+                    ], [
+                        'email' => $ownerData['email'],
+                        'name' => $ownerData['name']['englishName'],
+                        'mobile' => $ownerData['mobile'],
+                        'passport' => $ownerData['passport'],
+                        'emirates_id' => $ownerData['emiratesId'],
+                        'trade_license' => $ownerData['tradeLicence'],
+                    ]);
+
+                    // Attach the owner to the flat
+                    $flat->owners()->attach($owner->id);
+                }
             }
         }
     }
