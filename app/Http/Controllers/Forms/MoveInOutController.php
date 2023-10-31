@@ -15,7 +15,7 @@ class MoveInOutController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create(CreateFormRequest $request)
+    public function store(CreateFormRequest $request)
     {
         // Handle multiple images
         $document_paths = [
