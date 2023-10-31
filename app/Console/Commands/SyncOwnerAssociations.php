@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Models\OwnerAssociation;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class SyncOwnerAssociations extends Command
 {
@@ -33,6 +34,8 @@ class SyncOwnerAssociations extends Command
         ])->get(env("MOLLAK_API_URL", "https://b2bgateway.dubailand.gov.ae/mollak/external") . '/sync/managementcompany');
 
         $managementCompanies = $response->json()['response']['managementCompanies'];
+
+        Log::info("Sync Owner Association", [1]);
 
         foreach ($managementCompanies as $company) {
             OwnerAssociation::firstOrCreate(
