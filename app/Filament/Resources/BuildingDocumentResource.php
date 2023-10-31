@@ -62,24 +62,26 @@ class BuildingDocumentResource extends Resource
                                     ->where([
                                         ['building_id', '=', Filament::getTenant()->id],
 
-                                        ]);
+                                    ]);
                                 })
                                 ->pluck('document_libraries.name', 'document_libraries.id')
                         ),
-                    FileUpload::make('url')->label('Document')
+                    FileUpload::make('url')
                         ->disk('s3')
-                        ->required()
-                        ->downloadable()
-                        ->preserveFilenames(),
+                        ->directory('dev')
+                        ->label('Document')
+                        ->required(),
                     Select::make('status')
                         ->options([
-                            'pending' => 'Pending',
+                            'submitted' => 'Submitted',
+                            'approved' => 'Approved',
+                            'rejected' => 'Rejected',
                         ])
-                        ->rules(['max:50', 'string'])
+                        ->searchable()
                         ->required()
                         ->placeholder('Status'),
                     TextInput::make('comments'),
-                    // ->required(),
+                    //->required(),
                     DatePicker::make('expiry_date')
                         ->rules(['date'])
                         ->required()

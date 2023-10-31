@@ -49,37 +49,37 @@ class FlatDocumentResource extends Resource
                 ])->schema([
 
                     Select::make('document_library_id')
-                    // ->rules(['exists:document_libraries,id'])
-                    ->required()
-                    ->relationship('documentLibrary', 'name')
-                    ->preload()
-                    ->searchable()
-                    ->placeholder('Document Library')
-                    ->getSearchResultsUsing(fn(string $search) => DB::table('document_libraries')
-                            ->join('building_documentlibraries', function (JoinClause $join) {
-                                $join->on('document_libraries.id', '=', 'building_documentlibraries.documentlibrary_id')
-                                    ->where([
-                                        ['building_id', '=', Filament::getTenant()->id],
+                        // ->rules(['exists:document_libraries,id'])
+                        ->required()
+                        ->relationship('documentLibrary', 'name')
+                        ->preload()
+                        ->searchable()
+                        ->placeholder('Document Library')
+                        ->getSearchResultsUsing(
+                            fn (string $search) => DB::table('document_libraries')
+                                ->join('building_documentlibraries', function (JoinClause $join) {
+                                    $join->on('document_libraries.id', '=', 'building_documentlibraries.documentlibrary_id')
+                                        ->where([
+                                            ['building_id', '=', Filament::getTenant()->id],
 
-                                    ]);
-                            })
-                            ->pluck('document_libraries.name', 'document_libraries.id')
-                    ),
+                                        ]);
+                                })
+                                ->pluck('document_libraries.name', 'document_libraries.id')
+                        ),
                     FileUpload::make('url')->label('Document')
                         ->disk('s3')
-                        ->directory('dev')
                         ->directory('dev')
                         ->required()
                         ->downloadable()
                         ->acceptedFileTypes(['image/pdf'])
                         ->preserveFilenames(),
                     Select::make('status')
-                    ->options([
-                        'pending' => 'Pending',
-                        'submitted' => 'Submitted',
-                        'approved' => 'Approved',
-                    ])
-                        ->rules(['max:50', 'string'])
+                        ->options([
+                            'submitted' => 'Submitted',
+                            'approved' => 'Approved',
+                            'rejected' => 'Rejected',
+                        ])
+                        ->searchable()
                         ->required()
                         ->placeholder('Status'),
                     TextInput::make('comments'),
@@ -118,6 +118,7 @@ class FlatDocumentResource extends Resource
                     ->limit(50),
                 TextColumn::make('status')
                     ->toggleable()
+                    ->searchable()
                     ->limit(50),
                 TextColumn::make('expiry_date')
                     ->toggleable()

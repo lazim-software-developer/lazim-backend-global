@@ -16,6 +16,7 @@ use App\Http\Controllers\Community\PostController;
 use App\Http\Controllers\Community\PostLikeController;
 use App\Http\Controllers\Documents\DocumentsController;
 use App\Http\Controllers\Facility\FacilityController;
+use App\Http\Controllers\Forms\FitOutFormsController;
 use App\Http\Controllers\Forms\MoveInOutController;
 use App\Http\Controllers\Forms\GuestController;
 use App\Http\Controllers\Forms\SaleNocController;
@@ -223,6 +224,7 @@ Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active']
     Route::post('/move-in-out', [MoveInOutController::class, 'create']);
     Route::post('/guest-registration', [GuestController::class, 'create']);
     Route::post('/sale-noc', [SaleNocController::class, 'store']);
+    Route::post('/fit-out', [FitOutFormsController::class, 'store']);
 });
 
 
