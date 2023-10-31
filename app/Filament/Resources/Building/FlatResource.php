@@ -12,6 +12,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -34,19 +35,18 @@ class FlatResource extends Resource
                     'md' => 1,
                     'lg' => 2,])
                     ->schema([
-                    TextInput::make('number')
+                    TextInput::make('property_number')
                         ->rules(['numeric'])
                         ->required()
                         ->numeric()
                         ->placeholder('Number'),
-                    TextInput::make('floor')
-                        ->rules(['numeric'])
-                        ->required()
-                        ->numeric()
-                        ->placeholder('Floor'),
-                    TextInput::make('description')
-                        ->rules(['max:50', 'string'])
-                        ->placeholder('Description'),
+                    Select::make('building_id')
+                        ->rules(['exists:buildings,id'])
+                        ->relationship('building', 'name')
+                        ->reactive()
+                        ->preload()
+                        ->searchable()
+                        ->placeholder('Building'),
                 ]),
             ]);
     }
@@ -57,15 +57,20 @@ class FlatResource extends Resource
             ->poll('60s')
             ->columns([
                 Tables\Columns\TextColumn::make('property_number')
-                    ->toggleable()
                     ->default('NA')
-                    ->searchable(),
+                    ->searchable()
+                    ->label('Flat Number'),
                 Tables\Columns\TextColumn::make('building.name')
                     ->default('NA')
+                    ->searchable()
                     ->limit(50),
             ])
             ->filters([
-                //
+                SelectFilter::make('building_id')
+                    ->relationship('building', 'name')
+                    ->searchable()
+                    ->label('Building')
+                    ->preload()
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

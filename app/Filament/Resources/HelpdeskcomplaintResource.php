@@ -21,6 +21,7 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ViewColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -48,6 +49,13 @@ class HelpdeskcomplaintResource extends Resource
                             ->default('App\Models\Building\FlatTenant'),
                         Hidden::make('complaintable_id')
                             ->default(1),
+                        Select::make('building_id')
+                            ->rules(['exists:buildings,id'])
+                            ->relationship('building', 'name')
+                            ->reactive()
+                            ->preload()
+                            ->searchable()
+                            ->placeholder('Building'),
                         Select::make('user_id')
                             ->relationship('user','id')
                             ->options(function(){
@@ -77,6 +85,7 @@ class HelpdeskcomplaintResource extends Resource
                         FileUpload::make('photo')
                             ->disk('s3')
                             ->directory('dev')
+                            ->maxSize(2048)
                             ->image()
                             ->nullable(),
                         TextInput::make('complaint')
@@ -108,6 +117,10 @@ class HelpdeskcomplaintResource extends Resource
             ->columns([
                 // ViewColumn::make('name')->view('tables.columns.combined-column')
                 //     ->toggleable(),
+                TextColumn::make('building.name')
+                    ->default('NA')
+                    ->searchable()
+                    ->limit(50),
                 TextColumn::make('user.first_name')
                     ->toggleable()
                     ->searchable()
@@ -127,7 +140,11 @@ class HelpdeskcomplaintResource extends Resource
 
             ])
             ->filters([
-                //
+                SelectFilter::make('building_id')
+                    ->relationship('building', 'name')
+                    ->searchable()
+                    ->label('Building')
+                    ->preload()
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

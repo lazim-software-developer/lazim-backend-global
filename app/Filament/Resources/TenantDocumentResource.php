@@ -33,7 +33,7 @@ class TenantDocumentResource extends Resource
 {
     protected static ?string $model = Document::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-user-circle';
     protected static ?string $navigationGroup = 'Document Management';
     protected static ?string $navigationLabel = 'Tenant';
 
@@ -48,7 +48,6 @@ class TenantDocumentResource extends Resource
             ])->schema([
 
                 Select::make('document_library_id')
-                    // ->rules(['exists:document_libraries,id'])
                     ->required()
                     ->relationship('documentLibrary', 'name')
                     ->preload()
@@ -72,28 +71,25 @@ class TenantDocumentResource extends Resource
                     ->preserveFilenames(),
                 Select::make('status')
                     ->options([
-                        'pending' => 'Pending',
                         'submitted' => 'Submitted',
                         'approved' => 'Approved',
+                        'rejected' => 'Rejected',
                     ])
-                    ->rules(['max:50', 'string'])
+                    ->searchable()
                     ->required()
                     ->placeholder('Status'),
                 TextInput::make('comments')
                     ->readonly(),
-                //->required(),
                 DatePicker::make('expiry_date')
                     ->rules(['date'])
                     ->required()
                     ->readonly()
                     ->placeholder('Expiry Date'),
 
-                Hidden::make('documentable_type')
-                    ->default('App\Models\User\User'),
-                Hidden::make('documentable_id')
-                    ->default(Auth::id()),
-                // Hidden::make('accepted_by')
-                //     ->default(Auth::id()),
+                // Hidden::make('documentable_type')
+                //     ->default('App\Models\User\User'),
+                // Hidden::make('documentable_id')
+                //     ->default(Auth()->user()->id),
             ]),
 
         ]);
@@ -124,9 +120,7 @@ class TenantDocumentResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make()
-                ->recordTitle(fn () => Hidden::make('accepted_by')
-                ->default(Auth::id()))
+                Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

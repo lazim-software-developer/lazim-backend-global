@@ -47,8 +47,7 @@ class FlatDocumentResource extends Resource
                     'md' => 1,
                     'lg' => 2,
                 ])->schema([
-                    TextInput::make('name')
-                    ->required(),
+
                     Select::make('document_library_id')
                     // ->rules(['exists:document_libraries,id'])
                     ->required()
@@ -68,6 +67,7 @@ class FlatDocumentResource extends Resource
                     ),
                     FileUpload::make('url')->label('Document')
                         ->disk('s3')
+                        ->directory('dev')
                         ->directory('dev')
                         ->required()
                         ->downloadable()
@@ -107,7 +107,7 @@ class FlatDocumentResource extends Resource
     {
         return $table
             ->poll('60s')
-            ->modifyQueryUsing(fn(Builder $query) => $query->where('documentable_type', 'App\Models\Building\FlatTenant')->withoutGlobalScopes())
+            ->modifyQueryUsing(fn (Builder $query) => $query->where('documentable_type', 'App\Models\Building\FlatTenant')->withoutGlobalScopes())
             ->columns([
                 TextColumn::make('documentLibrary.name')
                     ->toggleable()
