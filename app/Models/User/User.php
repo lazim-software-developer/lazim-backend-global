@@ -11,6 +11,7 @@ use App\Models\Building\FacilityBooking;
 use App\Models\Building\Flat;
 use App\Models\Building\FlatTenant;
 use App\Models\Community\Post;
+use App\Models\Forms\FitOutForm;
 use App\Models\Forms\MoveInOut;
 use App\Models\Forms\Guest;
 use App\Models\Master\Role;
@@ -216,5 +217,9 @@ class User extends Authenticatable implements FilamentUser, HasName
     public function userDocuments()
     {
         return $this->hasMany(Document::class, 'documentable_id');
+    }
+    public function fitOut()
+    {
+        return $this->hasMany(FitOutForm::class);
     }
 }

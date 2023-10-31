@@ -31,21 +31,23 @@ class MoveInOutController extends Controller
             'movers_license',
             'movers_liability',
         ];
-
+        
+        $data = $request->all();  // Get all request data
+        
         foreach ($document_paths as $document) {
-            $file = $request->file($document);
-            $filePath = optimizeDocumentAndUpload($file, 'dev');
-            $currentDate = date('Y-m-d');
-
-            $request->merge([$document =>  $filePath]);
+            if ($request->hasFile($document)) {
+                $file = $request->file($document);
+                $data[$document] = optimizeDocumentAndUpload($file, 'dev');
+            }
         }
-
-        MoveInOut::create($request->all());
+        
+        MoveInOut::create($data);
         
         return (new CustomResponseResource([
             'title' => 'Success',
-            'message' => 'Move-IN created successfully!',
+            'message' => 'Form submitted successfully!',
             'errorCode' => 201,
+            'status' => 'success',
         ]))->response()->setStatusCode(201);
     }
 }

@@ -63,29 +63,29 @@ class BuildingDocumentResource extends Resource
                                         ['building_id', '=', Filament::getTenant()->id],
 
                                     ]);
-                            })
-                            ->pluck('document_libraries.name', 'document_libraries.id')
-                    ),
-                FileUpload::make('url')
-                    ->disk('s3')
-                    ->directory('dev')
-                    ->label('Document')
-                    ->required(),
-                Select::make('status')
-                    ->options([
-                        'submitted' => 'Submitted',
-                        'approved' => 'Approved',
-                        'rejected' => 'Rejected',
-                    ])
-                    ->searchable()
-                    ->required()
-                    ->placeholder('Status'),
-                TextInput::make('comments'),
-                //->required(),
-                DatePicker::make('expiry_date')
-                    ->rules(['date'])
-                    ->required()
-                    ->placeholder('Expiry Date'),
+                                })
+                                ->pluck('document_libraries.name', 'document_libraries.id')
+                        ),
+                    FileUpload::make('url')
+                        ->disk('s3')
+                        ->directory('dev')
+                        ->label('Document')
+                        ->required(),
+                    Select::make('status')
+                        ->options([
+                            'submitted' => 'Submitted',
+                            'approved' => 'Approved',
+                            'rejected' => 'Rejected',
+                        ])
+                        ->searchable()
+                        ->required()
+                        ->placeholder('Status'),
+                    TextInput::make('comments'),
+                    //->required(),
+                    DatePicker::make('expiry_date')
+                        ->rules(['date'])
+                        ->required()
+                        ->placeholder('Expiry Date'),
 
                 Hidden::make('accepted_by')
                     ->default(auth()->user()->id),
