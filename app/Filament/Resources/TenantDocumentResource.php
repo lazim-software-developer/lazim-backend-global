@@ -35,7 +35,7 @@ class TenantDocumentResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-user-circle';
     protected static ?string $navigationGroup = 'Document Management';
-    protected static ?string $navigationLabel = 'Tenant';
+    protected static ?string $navigationLabel = 'Resident';
 
     public static function form(Form $form): Form
     {
@@ -112,6 +112,16 @@ class TenantDocumentResource extends Resource
                     ->default('NA')
                     ->label('Document Library Name')
                     ->limit(50),
+                TextColumn::make('building.name')
+                    ->searchable()
+                    ->default('NA')
+                    ->label('Building Name')
+                    ->limit(50),
+                TextColumn::make('flat.property_number')
+                    ->searchable()
+                    ->default('NA')
+                    ->label('Flat Property Number')
+                    ->limit(50),
                 TextColumn::make('status')
                     ->searchable()
                     ->default('NA')
@@ -121,7 +131,8 @@ class TenantDocumentResource extends Resource
                 TextColumn::make('documentUsers.first_name')
                     ->searchable()
                     ->label('Tenant Name')
-                    ->default('NA')
+                    ->default('NA'),
+                ViewColumn::make('Role')->view('tables.columns.role')
             ])
             ->filters([
                 //
