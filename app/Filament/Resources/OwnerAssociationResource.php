@@ -100,32 +100,26 @@ class OwnerAssociationResource extends Resource
             ->poll('60s')
             ->columns([
                 Tables\Columns\TextColumn::make('mollak_id')
-                    ->toggleable()
                     ->searchable()
                     ->default('NA')
                     ->limit(50),
                 Tables\Columns\TextColumn::make('name')
-                    ->toggleable()
                     ->searchable()
                     ->default('NA')
                     ->limit(50),
                 Tables\Columns\TextColumn::make('phone')
-                    ->toggleable()
                     ->searchable()
                     ->default('NA')
                     ->limit(50),
                 Tables\Columns\TextColumn::make('email')
-                    ->toggleable()
                     ->searchable()
                     ->default('NA')
                     ->limit(50),
                 Tables\Columns\TextColumn::make('trn_number')
-                    ->toggleable()
                     ->searchable()
                     ->default('NA')
                     ->limit(50),
                 Tables\Columns\TextColumn::make('address')
-                    ->toggleable()
                     ->default('NA')
                     ->searchable(),
             ])

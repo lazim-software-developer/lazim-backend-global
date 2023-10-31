@@ -72,6 +72,7 @@ class MediaResource extends Resource
                 
                 ImageColumn::make('url')
                     ->disk('s3')
+                    ->directory('dev')
                     ->circular()
                     ->default('NA')
                     ->alignCenter()
