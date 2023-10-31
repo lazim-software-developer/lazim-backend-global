@@ -3,6 +3,7 @@
 namespace App\Models\Building;
 
 use App\Models\Community\Post;
+use App\Models\Forms\Guest;
 use App\Models\Master\Role;
 use App\Models\Master\Service;
 use App\Models\MollakTenant;

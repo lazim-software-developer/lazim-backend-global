@@ -203,12 +203,24 @@ class AdminPanelProvider extends PanelProvider
                 $builder->groups([
                     NavigationGroup::make('Forms Document')
                         ->items([
+                                NavigationItem::make('Guest Registration')
+                                    ->url('/admin/guest-registrations')
+                                    ->hidden(auth()->user()->id == 1 ? true : false)
+                                    ->icon('heroicon-o-calendar-days')
+                                    ->activeIcon('heroicon-o-calendar-days')
+                                    ->sort(1),
                                 NavigationItem::make('Move-IN')
                                     ->url('/admin/move-in-forms-documents')
                                     ->hidden(auth()->user()->id == 1 ? true : false)
                                     ->icon('heroicon-o-calendar-days')
                                     ->activeIcon('heroicon-o-calendar-days')
-                                    ->sort(1),
+                                    ->sort(2),
+                                NavigationItem::make('Move-Out')
+                                    ->url('/admin/move-out-forms-documents')
+                                    ->hidden(auth()->user()->id == 1 ? true : false)
+                                    ->icon('heroicon-o-calendar-days')
+                                    ->activeIcon('heroicon-o-calendar-days')
+                                    ->sort(3),
                                 ]),
                 ]);
             }
