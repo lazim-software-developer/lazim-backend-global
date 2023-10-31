@@ -33,7 +33,7 @@ class NocForms extends Model
 
     protected $searchableFields = ['*'];
     protected $casts = [
-        'allow_postupload'         => 'boolean',
+        'verified'         => 'boolean',
     ];
 
     public function user()
