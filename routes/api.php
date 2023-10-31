@@ -19,6 +19,7 @@ use App\Http\Controllers\Facility\FacilityController;
 use App\Http\Controllers\Forms\FitOutFormsController;
 use App\Http\Controllers\Forms\MoveInOutController;
 use App\Http\Controllers\Forms\GuestController;
+use App\Http\Controllers\Forms\SaleNocController;
 use App\Http\Controllers\HelpDesk\ComplaintController;
 use App\Http\Controllers\Services\ServiceController;
 use App\Http\Controllers\TagController;
@@ -219,8 +220,13 @@ Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active']
 /**
  * Forms related APIs
  */
-Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active'])->group(function () {
-    Route::post('/forms/move-in-out', [MoveInOutController::class, 'create']);
-    Route::post('/forms/guest-registration', [GuestController::class, 'create']);
-    Route::post('/forms/fit-out', [FitOutFormsController::class, 'create']);
+Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active'])->prefix('forms')->group(function () {
+    Route::post('/move-in-out', [MoveInOutController::class, 'create']);
+    Route::post('/guest-registration', [GuestController::class, 'create']);
+    Route::post('/sale-noc', [SaleNocController::class, 'store']);
+    Route::post('/fit-out', [FitOutFormsController::class, 'store']);
 });
+
+
+// Test API for Mollak
+Route::get('/test-api', [MollakController::class, 'test']);

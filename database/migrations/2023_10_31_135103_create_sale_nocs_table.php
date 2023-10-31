@@ -11,28 +11,30 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('noc_forms', function (Blueprint $table) {
+        Schema::create('sale_nocs', function (Blueprint $table) {
             $table->id();
-            $table->string('unit_occupied_by');
-            $table->string('applicant');
-            $table->string('unit_area');
+            $table->enum('unit_occupied_by', ['owner', 'tenant', 'vacant']);
+            $table->string('applicant', 100);
+            $table->string('unit_area', 100);
             $table->string('sale_price');
             $table->boolean('cooling_bill_paid')->default(0);
             $table->boolean('service_charge_paid')->default(0);
             $table->boolean('noc_fee_paid')->default(0);
             $table->date('service_charge_paid_till');
-            $table->string('cooling_receipt_url');
-            $table->string('cooling_soa_url',100);
-            $table->string('cooling_clearance_url',100);
-            $table->string('payment_receipt_url',100);
-            $table->string('status', 100)->default('pending seller sign');
+            $table->string('cooling_receipt', 100);
+            $table->string('cooling_soa', 100);
+            $table->string('cooling_clearance', 100);
+            $table->string('payment_receipt', 100);
+            $table->string('status', 100);
             $table->boolean('verified')->default(0);
-
+            $table->unsignedBigInteger('verified_by')->nullable();
             $table->unsignedBigInteger('building_id');
-            $table->unsignedBigInteger('verified_by');
             $table->unsignedBigInteger('flat_id');
-            $table->foreign('building_id')->references('id')->on('buildings');
+            $table->unsignedBigInteger('user_id');
+
+            $table->foreign('user_id')->references('id')->on('users');
             $table->foreign('verified_by')->references('id')->on('users');
+            $table->foreign('building_id')->references('id')->on('buildings');
             $table->foreign('flat_id')->references('id')->on('flats');
             $table->timestamps();
         });
@@ -43,6 +45,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('noc_forms');
+        Schema::dropIfExists('sale_nocs');
     }
 };
