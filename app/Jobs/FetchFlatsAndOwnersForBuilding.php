@@ -29,10 +29,9 @@ class FetchFlatsAndOwnersForBuilding implements ShouldQueue
             'content-type' => 'application/json',
             'consumer-id'  => env("MOLLAK_CONSUMER_ID", "dqHdShhrZQgeSY9a4BZh6cgucpQJvS5r"),
         ])->get(env("MOLLAK_API_URL", "https://b2bgateway.dubailand.gov.ae/mollak/external") . "/sync/owners/" . $this->building->property_group_id);
-
-        Log::info("FetchFlatsAndOwnersForBuilding", [3]);
-
+        
         $data = $response->json();
+        Log::info("FetchFlatsAndOwnersForBuilding", [$data]);
         // if ($data['response'] != null) {
             foreach ($data['response']['properties'] as $property) {
                 $flat = Flat::create([
