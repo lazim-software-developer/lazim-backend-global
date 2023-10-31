@@ -27,6 +27,8 @@ class CreateFitOutFormsRequest extends FormRequest
             'name' => 'required|string',
             'phone'=> 'required',
             'email' => 'required|regex:/^[a-zA-Z0-9_.-]+@[a-zA-Z]+\.[a-zA-Z]+$/',
+            'no_objection'=>'required|integer',
+            'undertaking_of_waterproofing'=>'required|integer',
         ];
     }
 }
