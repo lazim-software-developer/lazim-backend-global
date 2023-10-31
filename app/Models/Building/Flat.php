@@ -6,6 +6,7 @@ use App\Models\ApartmentOwner;
 use App\Models\Building\Building;
 use App\Models\Building\FlatTenant;
 use App\Models\FlatOwner;
+use App\Models\Forms\FitOutForm;
 use App\Models\Forms\Form;
 use App\Models\Forms\Guest;
 use App\Models\MollakTenant;
@@ -70,5 +71,9 @@ class Flat extends Model
     public function guests()
     {
         return $this->hasMany(Guest::class);
+    }
+    public function fitOut()
+    {
+        return $this->hasMany(FitOutForm::class);
     }
 }
