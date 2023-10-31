@@ -41,9 +41,12 @@ class DocumentPolicy
      */
     public function create(User $user): bool
     {
-        $role = $user->role;
+        $allowedRoles = ['OA','Admin'];
 
-        return $role && $role->name == 'Admin';
+        if (in_array($user->role->name, $allowedRoles)) {
+        return true;
+        }
+
     }
 
     /**
