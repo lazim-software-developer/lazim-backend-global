@@ -130,6 +130,7 @@ class FlatDocumentResource extends Resource
                     ->toggleable(),
                 TextColumn::make('documentable_type')
                     ->toggleable()
+                    ->searchable()
                     ->limit(50),
             ])
             ->filters([
