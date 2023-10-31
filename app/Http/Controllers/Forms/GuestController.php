@@ -26,7 +26,7 @@ class GuestController extends Controller
         $filePath = optimizeDocumentAndUpload($request->file('image'), 'dev');
         $request->merge([
             'flat_visitor_id'=> $guest->id,
-            'dtmc_license'=>$filePath,
+            'dtmc_license_url'=>$filePath,
         ]);
         Guest::create($request->all());
 

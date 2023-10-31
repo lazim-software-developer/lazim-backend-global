@@ -2,36 +2,29 @@
 
 namespace App\Models\Forms;
 
-use App\Models\Building\Building;
 use App\Models\Building\Flat;
 use App\Models\User\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class FitOutForm extends Model
+class AccessCard extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'contractor_name',
-        'flat_id',
-        'phone',
+        'mobile',
         'email',
-        'no_objection',
-        'undertaking_of_waterproofing',
-        'building_id',
+        'card_type',
+        'reason',
+        'parking_details',
+        'passport',
+        'tenancy',
+        'vehicle_registration',
+        'flat_id',
         'user_id',
     ];
 
     protected $searchableFields = ['*'];
-    protected $casts = [
-        'no_objection'         => 'boolean',
-        'undertaking_of_waterproofing'         => 'boolean',
-    ];
 
-    public function building()
-    {
-        return $this->belongsTo(Building::class);
-    }
     public function flat()
     {
         return $this->belongsTo(Flat::class);
