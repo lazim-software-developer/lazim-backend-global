@@ -119,7 +119,7 @@ class FlatDocumentResource extends Resource
                     ->limit(50),
                 TextColumn::make('status')
                     ->toggleable()
-                    ->searchable(true, null, true)
+                    ->searchable()
                     ->limit(50),
                 TextColumn::make('expiry_date')
                     ->toggleable()
@@ -131,7 +131,7 @@ class FlatDocumentResource extends Resource
                     ->toggleable(),
                 TextColumn::make('documentable_type')
                     ->toggleable()
-                    ->searchable(true, null, true)
+                    ->searchable()
                     ->limit(50),
             ])
             ->filters([
