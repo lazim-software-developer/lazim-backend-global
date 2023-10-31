@@ -52,6 +52,10 @@ class Document extends Model
     {
         return $this->belongsTo(Building::class);
     }
+    public function flat()
+    {
+        return $this->belongsTo(Flat::class);
+    }
     public function documentable()
     {
         return $this->morphTo();
