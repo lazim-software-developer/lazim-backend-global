@@ -20,6 +20,7 @@ use App\Http\Controllers\Forms\AccessCardController;
 use App\Http\Controllers\Forms\FitOutFormsController;
 use App\Http\Controllers\Forms\MoveInOutController;
 use App\Http\Controllers\Forms\GuestController;
+use App\Http\Controllers\Forms\ResidentialFormController;
 use App\Http\Controllers\Forms\SaleNocController;
 use App\Http\Controllers\HelpDesk\ComplaintController;
 use App\Http\Controllers\Services\ServiceController;
@@ -222,10 +223,11 @@ Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active']
  * Forms related APIs
  */
 Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active'])->prefix('forms')->group(function () {
-    Route::post('/move-in-out', [MoveInOutController::class, 'create']);
-    Route::post('/guest-registration', [GuestController::class, 'create']);
+    Route::post('/move-in-out', [MoveInOutController::class, 'store']);
+    Route::post('/guest-registration', [GuestController::class, 'store']);
     Route::post('/sale-noc', [SaleNocController::class, 'store']);
-    Route::post('/fit-out', [FitOutFormsController::class, 'create']);
+    Route::post('/fit-out', [FitOutFormsController::class, 'store']);
+    Route::post('/residential', [ResidentialFormController::class, 'store']);
     Route::post('/access-card', [AccessCardController::class, 'create']);
 });
 
