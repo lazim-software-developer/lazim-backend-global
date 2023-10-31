@@ -215,6 +215,12 @@ class AdminPanelProvider extends PanelProvider
                                     ->icon('heroicon-o-calendar-days')
                                     ->activeIcon('heroicon-o-calendar-days')
                                     ->sort(2),
+                                NavigationItem::make('Move-Out')
+                                    ->url('/admin/move-out-forms-documents')
+                                    ->hidden(auth()->user()->id == 1 ? true : false)
+                                    ->icon('heroicon-o-calendar-days')
+                                    ->activeIcon('heroicon-o-calendar-days')
+                                    ->sort(3),
                                 ]),
                 ]);
             }

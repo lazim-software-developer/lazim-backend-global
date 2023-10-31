@@ -17,8 +17,10 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 use function Laravel\Prompts\select;
@@ -87,7 +89,12 @@ class GuestRegistrationResource extends Resource
                             ->searchable()
                             ->label('Property No'),
                         TextInput::make('name'),
-                        TextInput::make('phone'),
+                        TextInput::make('phone')
+                        ->unique(
+                            'flat_visitors',
+                            'phone',
+                            fn(?Model $record) => $record
+                        ),
                         Hidden::make('type')
                             ->default('Guest'),
                         Hidden::make('initiated_by')
@@ -96,9 +103,15 @@ class GuestRegistrationResource extends Resource
                             ->default(auth()->user()->id),
                         TextInput::make('email'),
                         DatePicker::make('start_time')
+                            ->rules(['date'])
+                            ->required()
+                            ->placeholder('From Date')
                             ->label('From Date'),
                         DatePicker::make('end_time')
-                            ->label('To Date'),
+                            ->label('To Date')
+                            ->rules(['date'])
+                            ->required()
+                            ->placeholder('To Date'),
                         TextInput::make('number_of_visitors'),
                     ])
                     ->label('Flat Visitor'),
@@ -122,22 +135,24 @@ class GuestRegistrationResource extends Resource
                 TextColumn::make('stay_duration')
                     ->searchable()
                     ->default('NA'),
+                ViewColumn::make('Flat')->view('tables.columns.flat'),
+                ViewColumn::make('Building')->view('tables.columns.building'),
 
             ])
             ->filters([
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                //Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
-            ])
-            ->emptyStateActions([
-                Tables\Actions\CreateAction::make(),
             ]);
+            // ->emptyStateActions([
+            //     Tables\Actions\CreateAction::make(),
+            // ]);
     }
     
     public static function getRelations(): array
@@ -151,8 +166,8 @@ class GuestRegistrationResource extends Resource
     {
         return [
             'index' => Pages\ListGuestRegistrations::route('/'),
-            'create' => Pages\CreateGuestRegistration::route('/create'),
-            'edit' => Pages\EditGuestRegistration::route('/{record}/edit'),
+            //'create' => Pages\CreateGuestRegistration::route('/create'),
+            //'edit' => Pages\EditGuestRegistration::route('/{record}/edit'),
         ];
     }    
 }

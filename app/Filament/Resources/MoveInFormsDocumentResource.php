@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\MoveInFormsDocumentResource\Pages;
 use App\Filament\Resources\MoveInFormsDocumentResource\RelationManagers;
 use App\Models\Building\Document;
+use App\Models\Forms\MoveInOut;
 use App\Models\MoveInFormsDocument;
 use Filament\Facades\Filament;
 use Filament\Forms;
@@ -14,9 +15,11 @@ use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -26,10 +29,10 @@ use Illuminate\Support\Facades\DB;
 
 class MoveInFormsDocumentResource extends Resource
 {
-    protected static ?string $model = Document::class;
-
+    protected static ?string $model = MoveInOut::class;
+    protected static ?string $modelLabel = 'MoveIn';
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-
+    protected static ?string $navigationGroup = 'Forms Document';
     public static function form(Form $form): Form
     {
         return $form
@@ -40,48 +43,48 @@ class MoveInFormsDocumentResource extends Resource
                 'lg' => 2,
             ])->schema([
 
-                Select::make('document_library_id')
-                    ->required()
-                    ->relationship('documentLibrary', 'name')
-                    ->preload()
-                    ->searchable()
-                    ->placeholder('Document Library')
-                    ->getSearchResultsUsing(fn(string $search) => DB::table('document_libraries')
-                            ->join('building_documentlibraries', function (JoinClause $join) {
-                                $join->on('document_libraries.id', '=', 'building_documentlibraries.documentlibrary_id')
-                                    ->where([
-                                        ['building_id', '=', Filament::getTenant()->id],
+                // Select::make('document_library_id')
+                //     ->required()
+                //     ->relationship('documentLibrary', 'name')
+                //     ->preload()
+                //     ->searchable()
+                //     ->placeholder('Document Library')
+                //     ->getSearchResultsUsing(fn(string $search) => DB::table('document_libraries')
+                //             ->join('building_documentlibraries', function (JoinClause $join) {
+                //                 $join->on('document_libraries.id', '=', 'building_documentlibraries.documentlibrary_id')
+                //                     ->where([
+                //                         ['building_id', '=', Filament::getTenant()->id],
 
-                                    ]);
-                            })
-                            ->pluck('document_libraries.name', 'document_libraries.id')
-                    ),
-                FileUpload::make('url')->label('Document')
-                    ->disk('s3')
-                    ->directory('dev')
-                    ->required()
-                    ->downloadable()
-                    ->preserveFilenames(),
-                Select::make('status')
-                    ->options([
-                        'Submitted' => 'Submitted',
-                        'Approved' => 'Approved',
-                    ])
-                    ->rules(['max:50', 'string'])
-                    ->required()
-                    ->placeholder('Status'),
-                TextInput::make('comments')
-                    ->readonly(),
-                DatePicker::make('expiry_date')
-                    ->rules(['date'])
-                    ->required()
-                    ->readonly()
-                    ->placeholder('Expiry Date'),
+                //                     ]);
+                //             })
+                //             ->pluck('document_libraries.name', 'document_libraries.id')
+                //     ),
+                // FileUpload::make('url')->label('Document')
+                //     ->disk('s3')
+                //     ->directory('dev')
+                //     ->required()
+                //     ->downloadable()
+                //     ->preserveFilenames(),
+                // Select::make('status')
+                //     ->options([
+                //         'Submitted' => 'Submitted',
+                //         'Approved' => 'Approved',
+                //     ])
+                //     ->rules(['max:50', 'string'])
+                //     ->required()
+                //     ->placeholder('Status'),
+                // TextInput::make('comments')
+                //     ->readonly(),
+                // DatePicker::make('expiry_date')
+                //     ->rules(['date'])
+                //     ->required()
+                //     ->readonly()
+                //     ->placeholder('Expiry Date'),
 
-                // Hidden::make('documentable_type')
-                //     ->default('App\Models\User\User'),
-                // Hidden::make('documentable_id')
-                //     ->default(Auth()->user()->id),
+                // // Hidden::make('documentable_type')
+                // //     ->default('App\Models\User\User'),
+                // // Hidden::make('documentable_id')
+                // //     ->default(Auth()->user()->id),
             ]),
 
         ]);
@@ -95,24 +98,92 @@ class MoveInFormsDocumentResource extends Resource
             ->modifyQueryUsing(fn(Builder $query) => $query->where('type', 'move-in')->withoutGlobalScopes())
             ->columns([
                 TextColumn::make('name')
+                    ->searchable()
+                    ->default('NA')
+                    ->limit(50),
+                TextColumn::make('email')
+                    ->searchable()
+                    ->default('NA')
+                    ->limit(50),
+                TextColumn::make('phone')
+                    ->searchable()
+                    ->default('NA')
+                    ->limit(50),
+                TextColumn::make('type')
+                ->searchable()
+                ->default('NA')
+                    ->limit(50),
+                TextColumn::make('moving_date')
                     ->toggleable()
                     ->limit(50),
-                TextColumn::make('documentLibrary.name')
+                TextColumn::make('moving_time')
                     ->toggleable()
                     ->limit(50),
-                TextColumn::make('status')
-                    ->toggleable()
-                    ->searchable(true, null, true)
+                TextColumn::make('building.name')
+                    ->searchable()
+                    ->default('NA')
                     ->limit(50),
-                TextColumn::make('expiry_date')
-                    ->toggleable()
-                    ->date(),
+                TextColumn::make('user.first_name')
+                    ->searchable()
+                    ->default('NA')
+                    ->limit(50),
+                TextColumn::make('flat.property_number')
+                    ->searchable()
+                    ->default('NA')
+                    ->limit(50),
+                TextColumn::make('handover_acceptance')
+                    ->searchable()
+                    ->default('NA')
+                    ->limit(50),
+                TextColumn::make('receipt_charges')
+                    ->searchable()
+                    ->default('NA')
+                    ->limit(50),
+                TextColumn::make('contract')
+                    ->searchable()
+                    ->default('NA')
+                    ->limit(50),
+                TextColumn::make('title_deed')
+                    ->searchable()
+                    ->default('NA')
+                    ->limit(50),
+                TextColumn::make('passport')
+                    ->searchable()
+                    ->default('NA')
+                    ->limit(50),
+                TextColumn::make('dewa')
+                    ->searchable()
+                    ->default('NA')
+                    ->limit(50),
+                TextColumn::make('cooling_registration')
+                    ->searchable()
+                    ->default('NA')
+                    ->limit(50),
+                TextColumn::make('gas_registration')
+                    ->searchable()
+                    ->default('NA')
+                    ->limit(50),
+                TextColumn::make('vehicle_registration')
+                    ->searchable()
+                    ->default('NA')
+                    ->limit(50),
+                TextColumn::make('movers_license')
+                    ->searchable()
+                    ->default('NA')
+                    ->limit(50),
+                TextColumn::make('movers_liability')
+                    ->searchable()
+                    ->default('NA')
+                    ->limit(50),
+                IconColumn::make('approved')
+                    ->boolean(),
+                
             ])
             ->filters([
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                //Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -132,8 +203,8 @@ class MoveInFormsDocumentResource extends Resource
     {
         return [
             'index' => Pages\ListMoveInFormsDocuments::route('/'),
-            'create' => Pages\CreateMoveInFormsDocument::route('/create'),
-            'edit' => Pages\EditMoveInFormsDocument::route('/{record}/edit'),
+            //'create' => Pages\CreateMoveInFormsDocument::route('/create'),
+            //'edit' => Pages\EditMoveInFormsDocument::route('/{record}/edit'),
         ];
     }
 }
