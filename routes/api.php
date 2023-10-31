@@ -16,6 +16,7 @@ use App\Http\Controllers\Community\PostController;
 use App\Http\Controllers\Community\PostLikeController;
 use App\Http\Controllers\Documents\DocumentsController;
 use App\Http\Controllers\Facility\FacilityController;
+use App\Http\Controllers\Forms\FitOutFormsController;
 use App\Http\Controllers\Forms\MoveInOutController;
 use App\Http\Controllers\Forms\GuestController;
 use App\Http\Controllers\HelpDesk\ComplaintController;
@@ -221,4 +222,5 @@ Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active']
 Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active'])->group(function () {
     Route::post('/forms/move-in-out', [MoveInOutController::class, 'create']);
     Route::post('/forms/guest-registration', [GuestController::class, 'create']);
+    Route::post('/forms/fit-out', [FitOutFormsController::class, 'create']);
 });
