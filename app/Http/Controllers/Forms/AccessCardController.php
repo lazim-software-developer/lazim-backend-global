@@ -21,16 +21,13 @@ class AccessCardController extends Controller
             'vehicle_registration',
         ];
 
+        $data = $request->all();
         foreach ($document_paths as $document) {
             $file = $request->file($document);
-            $filePath = optimizeDocumentAndUpload($file, 'dev');
-
-            $request->merge([$document =>  $filePath]);
+            $data[$document] = optimizeDocumentAndUpload($file, 'dev');
         }
-        $request->merge([
-            'user_id'=> auth()->user()->id,
-        ]);
-        AccessCard::create($request->all());
+        $data['user_id'] = auth()->user()->id;
+        AccessCard::create($data);
         return (new CustomResponseResource([
             'title' => 'Success',
             'message' => 'Access card submitted successfully!',
