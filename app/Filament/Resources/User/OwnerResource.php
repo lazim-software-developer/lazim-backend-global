@@ -2,26 +2,31 @@
 
 namespace App\Filament\Resources\User;
 
-use App\Filament\Resources\User\UserResource\Pages;
+use App\Filament\Resources\User\OwnerResource\Pages;
+use App\Filament\Resources\User\OwnerResource\RelationManagers;
+use App\Filament\Resources\User\OwnerResource\RelationManagers\UserDocumentsRelationManager;
+use App\Models\User\Owner;
 use App\Models\User\User;
+use Filament\Forms;
 use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-class UserResource extends Resource
+class OwnerResource extends Resource
 {
     protected static ?string $model = User::class;
+    protected static ?string $modelLabel      = 'Owner';
+    protected static ?string $navigationGroup      = 'User Management';
+    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
-    protected static ?string $navigationIcon       = 'heroicon-o-rectangle-stack';
-    protected static ?string $navigationLabel      = 'Owner';
-    protected static ?string $navigationGroup      = 'Flat Management';
-    protected static bool $shouldRegisterNavigation = false;
     public static function form(Form $form): Form
     {
         return $form->schema([
@@ -61,22 +66,8 @@ class UserResource extends Resource
                         )
                         ->placeholder('Phone'),
 
-                    TextInput::make('lazim_id')
-                        ->rules(['max:50', 'string'])
-                        ->required()
-                        ->unique(
-                            'users',
-                            'lazim_id',
-                            fn(?Model $record) => $record
-                        )
-                        ->placeholder('Lazim Id'),
-
-                    Select::make('role_id')
-                        ->rules(['exists:roles,id'])
-                        ->required()
-                        ->relationship('role', 'name')
-                        ->searchable()
-                        ->placeholder('Role'),
+                    Hidden::make('role_id')
+                        ->default(11),
                     Toggle::make('phone_verified')
                         ->rules(['boolean'])
                         ->hidden()
@@ -85,13 +76,11 @@ class UserResource extends Resource
                 ]),
 
         ]);
-
     }
 
     public static function table(Table $table): Table
     {
         return $table
-            ->poll('60s')
             ->columns([
                 Tables\Columns\TextColumn::make('first_name')
                     ->toggleable()
@@ -109,16 +98,6 @@ class UserResource extends Resource
                     ->toggleable()
                     ->searchable()
                     ->limit(50),
-                Tables\Columns\IconColumn::make('active')
-                    ->toggleable()
-                    ->boolean(),
-                Tables\Columns\TextColumn::make('lazim_id')
-                    ->toggleable()
-                    ->searchable()
-                    ->limit(50),
-                Tables\Columns\TextColumn::make('role.name')
-                    ->toggleable()
-                    ->limit(50),
             ])
             ->filters([
                 //
@@ -135,28 +114,20 @@ class UserResource extends Resource
                 Tables\Actions\CreateAction::make(),
             ]);
     }
-
+    
     public static function getRelations(): array
     {
         return [
-            UserResource\RelationManagers\AttendancesRelationManager::class,
-            UserResource\RelationManagers\BuildingPocsRelationManager::class,
-            UserResource\RelationManagers\DocumentsRelationManager::class,
-            UserResource\RelationManagers\ComplaintsRelationManager::class,
-            UserResource\RelationManagers\FacilityBookingsRelationManager::class,
-            UserResource\RelationManagers\FlatTenantsRelationManager::class,
-            UserResource\RelationManagers\FlatVisitorsRelationManager::class,
-            UserResource\RelationManagers\VendorsRelationManager::class,
-            UserResource\RelationManagers\FlatsRelationManager::class,
+            UserDocumentsRelationManager::class,
         ];
     }
-
+    
     public static function getPages(): array
     {
         return [
-            'index'  => Pages\ListUsers::route('/'),
-            'create' => Pages\CreateUser::route('/create'),
-            'edit'   => Pages\EditUser::route('/{record}/edit'),
+            'index' => Pages\ListOwners::route('/'),
+            'create' => Pages\CreateOwner::route('/create'),
+            'edit' => Pages\EditOwner::route('/{record}/edit'),
         ];
-    }
+    }    
 }

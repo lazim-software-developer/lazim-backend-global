@@ -132,6 +132,24 @@ class AdminPanelProvider extends PanelProvider
                                 ->sort(2),
                             ]),
             ]);
+            if(auth()->user()->id != 1)
+            {
+                $builder->groups([
+                    NavigationGroup::make('User Management')
+                        ->items([
+                                NavigationItem::make('Owners')
+                                    ->url('/admin/user/owners')
+                                    ->icon('heroicon-o-calendar-days')
+                                    ->activeIcon('heroicon-o-calendar-days')
+                                    ->sort(1),
+                                NavigationItem::make('Tenants')
+                                    ->url('/admin/user/tenants')
+                                    ->icon('heroicon-m-clipboard-document-check')
+                                    ->activeIcon('heroicon-m-clipboard-document-check')
+                                    ->sort(2),
+                                ]),
+                ]);
+            }
             $builder->groups([
                 NavigationGroup::make('Property Management')
                     ->items([
@@ -189,7 +207,7 @@ class AdminPanelProvider extends PanelProvider
                                     ->icon('heroicon-m-clipboard-document-check')
                                     ->activeIcon('heroicon-m-clipboard-document-check')
                                     ->sort(2),
-                                NavigationItem::make('Tenant')
+                                NavigationItem::make('Residents')
                                     ->url('/admin/tenant-documents')
                                     ->hidden(auth()->user()->id == 1 ? true : false)
                                     ->icon('heroicon-o-user-circle')
