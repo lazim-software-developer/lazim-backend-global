@@ -13,11 +13,11 @@ class CreateFacilityBooking extends CreateRecord
 {
     protected static string $resource = FacilityBookingResource::class;
     protected function afterCreate(){
-        $tenant=Filament::getTenant();
-        FacilityBooking::where('id', $this->record->id)
-            ->update([
-                'building_id'=>$tenant->first()->id
-            ]);
+        // $tenant=Filament::getTenant();
+        // FacilityBooking::where('id', $this->record->id)
+        //     ->update([
+        //         'building_id'=>$tenant->first()->id
+        //     ]);
         // $user= User::where('id',$this->record->user_id)->first()->first_name;
         FacilityBooking::where('id', $this->record->id)
 

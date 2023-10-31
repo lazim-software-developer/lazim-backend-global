@@ -2,6 +2,8 @@
 
 namespace App\Models\Master;
 
+
+use App\Models\OaUserRegistration;
 use App\Models\Vendor\Vendor;
 use App\Models\Building\Building;
 use App\Models\Scopes\Searchable;
@@ -13,7 +15,7 @@ class Service extends Model
     use HasFactory;
     use Searchable;
 
-    protected $fillable = ['name', 'building_id','active'];
+    protected $fillable = ['name', 'building_id', 'active'];
 
     protected $searchableFields = ['*'];
 
@@ -25,8 +27,31 @@ class Service extends Model
     {
         return $this->belongsToMany(Vendor::class);
     }
-    public function building()
+    public function oaUserRegistration()
     {
-        return $this->belongsToMany(Building::class, 'building_services','service_id','building_id');
+        return $this->belongsTo(OaUserRegistration::class);
     }
+
+    public function vendors()
+    {
+        return $this->belongsToMany(Vendor::class, 'service_vendor');
+    }
+
+    public function bookings()
+    {
+        return $this->morphMany(FacilityBooking::class, 'bookable');
+    }
+
+    public function getFormattedPriceAttribute()
+    {
+        if ($this->relationLoaded('vendors') && $this->vendors->isNotEmpty()) {
+            $price = number_format($this->vendors->first()->price, 2);
+            if (substr($price, -3) == '.00') {
+                $price = substr($price, 0, -3);
+            }
+            return "AED " . $price;
+        }
+        return null;
+    }
+
 }

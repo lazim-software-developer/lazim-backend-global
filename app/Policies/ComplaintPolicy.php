@@ -2,8 +2,8 @@
 
 namespace App\Policies;
 
-use App\Models\User\User;
 use App\Models\Building\Complaint;
+use App\Models\User\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class ComplaintPolicy
@@ -15,6 +15,12 @@ class ComplaintPolicy
      */
     public function viewAny(User $user): bool
     {
+        $role = $user->role->name == 'Admin';
+
+        if($role)
+        {
+            return false;
+        }
         return true;
     }
 
@@ -23,6 +29,12 @@ class ComplaintPolicy
      */
     public function view(User $user, Complaint $model): bool
     {
+        $role = $user->role->name == 'Admin';
+
+        if($role)
+        {
+            return false;
+        }
         return true;
     }
 
@@ -31,7 +43,14 @@ class ComplaintPolicy
      */
     public function create(User $user): bool
     {
+        $role = $user->role->name == 'Admin';
+
+        if($role)
+        {
+            return false;
+        }
         return true;
+
     }
 
     /**
@@ -39,6 +58,12 @@ class ComplaintPolicy
      */
     public function update(User $user, Complaint $model): bool
     {
+        $role = $user->role->name == 'Admin';
+
+        if($role)
+        {
+            return false;
+        }
         return true;
     }
 
@@ -47,7 +72,7 @@ class ComplaintPolicy
      */
     public function delete(User $user, Complaint $model): bool
     {
-        return true;
+        return false;
     }
 
     /**
@@ -55,22 +80,22 @@ class ComplaintPolicy
      */
     public function deleteAny(User $user): bool
     {
-        return true;
+      return false;
     }
 
     /**
      * Determine whether the complaint can restore the model.
      */
-    public function restore(User $user, Complaint $model): bool
-    {
-        return false;
-    }
+    // public function restore(User $user, Complaint $model): bool
+    // {
+    //     return false;
+    // }
 
-    /**
-     * Determine whether the complaint can permanently delete the model.
-     */
-    public function forceDelete(User $user, Complaint $model): bool
-    {
-        return false;
-    }
+    // /**
+    //  * Determine whether the complaint can permanently delete the model.
+    //  */
+    // public function forceDelete(User $user, Complaint $model): bool
+    // {
+    //     return false;
+    // }
 }

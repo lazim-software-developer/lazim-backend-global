@@ -2,6 +2,7 @@
 
 namespace App\Models\Vendor;
 
+use App\Models\OaUserRegistration;
 use App\Models\User\User;
 use App\Models\Master\Service;
 use App\Models\Vendor\Contact;
@@ -70,5 +71,13 @@ class Vendor extends Model
     public function building()
     {
         return $this->belongsTo(Building::class);
+    }
+    public function buildings()
+    {
+        return $this->belongsToMany(Building::class, 'building_vendor', 'building_id','vendor_id');
+    }
+    public function oaUserRegistration()
+    {
+        return $this->belongsTo(OaUserRegistration::class);
     }
 }

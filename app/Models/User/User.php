@@ -2,35 +2,41 @@
 
 namespace App\Models\User;
 
-use Filament\Panel;
-use App\Models\Master\Role;
-use App\Models\Building\Flat;
-use App\Models\Vendor\Vendor;
+
 use App\Models\Building\Building;
+use App\Models\Building\BuildingPoc;
+use App\Models\Building\Complaint;
 use App\Models\Building\Document;
+use App\Models\Building\FacilityBooking;
+use App\Models\Building\Flat;
+use App\Models\Building\FlatTenant;
+use App\Models\Community\Post;
+use App\Models\Forms\MoveInOut;
+use App\Models\Forms\Guest;
+use App\Models\Master\Role;
+use App\Models\OaDetails;
+use App\Models\OaUserRegistration as ModelsOaUserRegistration;
+use App\Models\OaUserRegistration;
+use App\Models\OwnerAssociation;
 use App\Models\Scopes\Searchable;
 use App\Models\Vendor\Attendance;
-use Laravel\Sanctum\HasApiTokens;
-use App\Models\Building\Complaint;
-use Illuminate\Support\Collection;
-use App\Models\Building\FlatTenant;
+use App\Models\Vendor\Vendor;
 use App\Models\Visitor\FlatVisitor;
-use App\Models\Building\BuildingPoc;
-use Filament\Models\Contracts\HasName;
-use Laravel\Jetstream\HasProfilePhoto;
-use Illuminate\Database\Eloquent\Model;
-use App\Models\Building\FacilityBooking;
-use Filament\Models\Contracts\HasAvatar;
-use Illuminate\Notifications\Notifiable;
-use Filament\Models\Contracts\HasTenants;
 use Filament\Models\Contracts\FilamentUser;
-use Laravel\Fortify\TwoFactorAuthenticatable;
-use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Filament\Models\Contracts\HasName;
+use Filament\Models\Contracts\HasTenants;
+use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Collection;
+use Laravel\Fortify\TwoFactorAuthenticatable;
+use Laravel\Jetstream\HasProfilePhoto;
+use Laravel\Sanctum\HasApiTokens;
 
-class User extends Authenticatable implements FilamentUser, HasName , HasTenants
+class User extends Authenticatable implements FilamentUser, HasName
 {
     use Notifiable;
     use HasFactory;
@@ -49,7 +55,9 @@ class User extends Authenticatable implements FilamentUser, HasName , HasTenants
         'active',
         'lazim_id',
         'role_id',
-        'building_id'
+        'building_id',
+        'owner_association_id',
+        'profile_photo'
     ];
 
     protected $searchableFields = ['*'];
@@ -59,24 +67,24 @@ class User extends Authenticatable implements FilamentUser, HasName , HasTenants
     protected $casts = [
         'email_verified' => 'boolean',
         'phone_verified' => 'boolean',
-        'active' => 'boolean',
+        'active'         => 'boolean',
     ];
-
-
-
 
     public function getFilamentName(): string
     {
 
-            return $this->fullName;
-
+        return $this->fullName;
     }
 
     public function getFullNameAttribute(): string
     {
 
         return "{$this->first_name} {$this->last_name}";
+    }
 
+    public function oaUserRegistration()
+    {
+        return $this->hasMany(OaUserRegistration::class);
     }
     public function role()
     {
@@ -92,7 +100,10 @@ class User extends Authenticatable implements FilamentUser, HasName , HasTenants
     {
         return $this->hasMany(Document::class, 'accepted_by');
     }
-
+    // public function oaUser()
+    // {
+    //     return $this->hasMany(OaUserRegistration::class);
+    // }
     public function pocs()
     {
         return $this->hasMany(BuildingPoc::class);
@@ -163,22 +174,47 @@ class User extends Authenticatable implements FilamentUser, HasName , HasTenants
     }
     public function canAccessPanel(Panel $panel): bool
     {
-        return str_ends_with($this->role_id, Role::where('name', 'Admin')->value('id'));
+        if($this->role_id == 10 || $this->role_id == 9)
+        {
+            return true;
+        }
+        return false;
     }
 
-    public function getTenants(Panel $panel): Collection
+    public function ownerAssociation()
     {
-        return $this->building;
+        return $this->belongsTo(OwnerAssociation::class);
     }
 
-    public function building(): BelongsToMany
+    public function residences()
     {
-        return $this->belongsToMany(Building::class);
+        return $this->belongsToMany(Flat::class, 'flat_tenants', 'tenant_id');
     }
 
-    public function canAccessTenant(Model $tenant): bool
+    public function likedPosts()
     {
-        return $this->building->contains($tenant);
+        return $this->hasMany(PostLike::class);
+    }
+    public function Posts()
+    {
+        return $this->hasMany(Post::class);
+    }
+    public function moveinOut()
+    {
+        return $this->hasMany(MoveInOut::class);
+    }
+    public function guests()
+    {
+        return $this->hasMany(Guest::class);
     }
 
+    public function nocForms()
+    {
+        return $this->hasMany(Guest::class);
+    }
+
+    public function userDocuments()
+    {
+        return $this->hasMany(Document::class, 'documentable_id');
+    }
 }

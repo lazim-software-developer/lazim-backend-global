@@ -15,7 +15,9 @@ class ServicePolicy
      */
     public function viewAny(User $user): bool
     {
-        return true;
+        $role = $user->role;
+
+        return $role && $role->name == 'Admin';
     }
 
     /**

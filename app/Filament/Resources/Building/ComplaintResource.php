@@ -3,16 +3,11 @@
 namespace App\Filament\Resources\Building;
 
 use App\Filament\Resources\Building\ComplaintResource\Pages;
-use App\Filament\Resources\Building\ComplaintResource\RelationManagers;
 use App\Models\Building\Building;
 use App\Models\Building\Complaint;
 use App\Models\Building\FlatTenant;
-use Closure;
-use Filament\Forms;
-use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\KeyValue;
 use Filament\Forms\Components\MorphToSelect;
 use Filament\Forms\Components\MorphToSelect\Type;
 use Filament\Forms\Components\Select;
@@ -20,30 +15,28 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\Relationship;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Filament\Tables\Columns\ViewColumn;
-
 
 class ComplaintResource extends Resource
 {
     protected static ?string $model = Complaint::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon  = 'heroicon-o-rectangle-stack';
     protected static ?string $navigationLabel = 'Incident Reports';
-
+    protected static bool $shouldRegisterNavigation = false;
     protected static ?string $navigationGroup = 'Property Management';
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
                 Grid::make([
-                        'sm' => 1,
-                        'md' => 1,
-                        'lg' => 2,
-                    ])->schema([
+                    'sm' => 1,
+                    'md' => 1,
+                    'lg' => 2,
+                ])->schema([
                     MorphToSelect::make('complaintable')
 
                         ->types([
@@ -52,45 +45,33 @@ class ComplaintResource extends Resource
                         ]),
                     TextInput::make('complaintable_id')
                         ->rules(['max:255'])
+                        ->hidden()
                         ->placeholder('Complaintable Id'),
-                    Select::make('user_id')
-                        ->rules(['exists:users,id'])
-                        ->required()
-                        ->relationship('user', 'first_name')
-                        ->searchable()
-                        ->placeholder('User'),
                     Select::make('category')
                         ->options([
-                            'civil'=>'Civil',
-                            'MIP'=>'MIP',
-                            'security'=>'Security',
-                            'cleaning'=>'Cleaning',
-                            'others'=>'Others'
+                            'civil'    => 'Civil',
+                            'MIP'      => 'MIP',
+                            'security' => 'Security',
+                            'cleaning' => 'Cleaning',
+                            'others'   => 'Others',
                         ])
                         ->rules(['max:50', 'string'])
                         ->required()
                         ->placeholder('Category'),
-                    DateTimePicker::make('open_time')
-                        ->rules(['date'])
-                        ->required()
-                        ->placeholder('Open Time'),
-                    DateTimePicker::make('close_time')
-                        ->rules(['date'])
-                        ->required()
-                        ->placeholder('Close Time'),
                     FileUpload::make('photo')
                         ->nullable()
                         ->disk('s3'),
-                    TextInput::make('remarks')
-                        ->required(),
+                    TextInput::make('remarks'),
+
                     Select::make('status')
                         ->options([
-                            'pending'=>'Pending'
+                            'pending'   => 'Pending',
+                            'completed' => 'Completed',
                         ])
                         ->rules(['max:50', 'string'])
                         ->required()
                         ->placeholder('Status'),
-                 ]),
+                ]),
             ]);
     }
 
@@ -98,19 +79,21 @@ class ComplaintResource extends Resource
     {
         return $table
             ->poll('60s')
-            ->modifyQueryUsing(fn (Builder $query) => $query->where('complaintable_type','App\Models\Building\Building')->withoutGlobalScopes())
+            ->modifyQueryUsing(fn(Builder $query) => $query->where('complaintable_type', 'App\Models\Building\Building')->withoutGlobalScopes())
             ->columns([
                 Tables\Columns\TextColumn::make('complaintable_type')
                     ->toggleable()
-                    ->searchable(true, null, true),
+                    ->searchable(),
                 ViewColumn::make('Name')->view('tables.columns.combined-column')
-                     ->toggleable(),
+                    ->toggleable()
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('user.first_name')
                     ->toggleable()
+                    ->searchable()
                     ->limit(50),
                 Tables\Columns\TextColumn::make('category')
                     ->toggleable()
-                    ->searchable(true, null, true)
+                    ->searchable()
                     ->limit(50),
                 Tables\Columns\TextColumn::make('open_time')
                     ->toggleable()
@@ -124,7 +107,7 @@ class ComplaintResource extends Resource
                     ->toggleable(),
                 Tables\Columns\TextColumn::make('status')
                     ->toggleable()
-                    ->searchable(true, null, true)
+                    ->searchable()
                     ->limit(50),
             ])
             ->filters([
@@ -153,9 +136,9 @@ class ComplaintResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListComplaints::route('/'),
+            'index'  => Pages\ListComplaints::route('/'),
             'create' => Pages\CreateComplaint::route('/create'),
-            'edit' => Pages\EditComplaint::route('/{record}/edit'),
+            'edit'   => Pages\EditComplaint::route('/{record}/edit'),
         ];
     }
 }

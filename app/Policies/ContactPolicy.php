@@ -15,7 +15,14 @@ class ContactPolicy
      */
     public function viewAny(User $user): bool
     {
+        $role = $user->role->name == 'Admin';
+
+        if($role)
+        {
+            return false;
+        }
         return true;
+
     }
 
     /**
@@ -23,7 +30,10 @@ class ContactPolicy
      */
     public function view(User $user, Contact $model): bool
     {
-        return true;
+        $role = $user->role;
+
+        return $role && $role->name == 'Admin';
+
     }
 
     /**
@@ -31,7 +41,10 @@ class ContactPolicy
      */
     public function create(User $user): bool
     {
-        return true;
+        $role = $user->role;
+
+        return $role && $role->name == 'Admin';
+
     }
 
     /**
@@ -39,7 +52,10 @@ class ContactPolicy
      */
     public function update(User $user, Contact $model): bool
     {
-        return true;
+        $role = $user->role;
+
+        return $role && $role->name == 'Admin';
+
     }
 
     /**
@@ -47,7 +63,10 @@ class ContactPolicy
      */
     public function delete(User $user, Contact $model): bool
     {
-        return true;
+        $role = $user->role;
+
+        return $role && $role->name == 'Admin';
+
     }
 
     /**
@@ -55,7 +74,10 @@ class ContactPolicy
      */
     public function deleteAny(User $user): bool
     {
-        return true;
+        $role = $user->role;
+
+        return $role && $role->name == 'Admin';
+
     }
 
     /**

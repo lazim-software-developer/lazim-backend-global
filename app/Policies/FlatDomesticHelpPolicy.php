@@ -15,6 +15,12 @@ class FlatDomesticHelpPolicy
      */
     public function viewAny(User $user): bool
     {
+        $role = $user->role->name == 'Admin';
+
+        if($role)
+        {
+            return false;
+        }
         return true;
     }
 
@@ -23,7 +29,10 @@ class FlatDomesticHelpPolicy
      */
     public function view(User $user, FlatDomesticHelp $model): bool
     {
-        return true;
+        $role = $user->role;
+
+        return $role && $role->name == 'Admin';
+
     }
 
     /**
@@ -31,7 +40,10 @@ class FlatDomesticHelpPolicy
      */
     public function create(User $user): bool
     {
-        return true;
+        $role = $user->role;
+
+        return $role && $role->name == 'Admin';
+
     }
 
     /**
@@ -39,7 +51,10 @@ class FlatDomesticHelpPolicy
      */
     public function update(User $user, FlatDomesticHelp $model): bool
     {
-        return true;
+        $role = $user->role;
+
+        return $role && $role->name == 'Admin';
+
     }
 
     /**
@@ -47,7 +62,10 @@ class FlatDomesticHelpPolicy
      */
     public function delete(User $user, FlatDomesticHelp $model): bool
     {
-        return true;
+        $role = $user->role;
+
+        return $role && $role->name == 'Admin';
+
     }
 
     /**
@@ -55,7 +73,10 @@ class FlatDomesticHelpPolicy
      */
     public function deleteAny(User $user): bool
     {
-        return true;
+        $role = $user->role;
+
+        return $role && $role->name == 'Admin';
+
     }
 
     /**

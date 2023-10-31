@@ -2,33 +2,59 @@
 
 namespace App\Filament\Pages\Tenancy;
 
+use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
 use Filament\Pages\Tenancy\EditTenantProfile;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class EditBuildingProfile extends EditTenantProfile
 {
     public static function getLabel(): string
     {
-        return 'Building profile';
+        return 'Owner Association profile';
     }
 
     public function form(Form $form): Form
     {
         return $form
             ->schema([
-                TextInput::make('name')->maxLength(50)->required(),
-                TextInput::make('unit_number')->unique()->maxLength(50)->required(),
-                TextInput::make('address_line1')->required(),
-                TextInput::make('address_line2')->nullable(),
-                TextInput::make('area')->maxLength(50),
-                Select::make('city_id')->label('City')->relationship('cities','name')->required(),
-                TextInput::make('lat')->nullable()->maxLength(50),
-                TextInput::make('lng')->nullable()->maxLength(50),
-                TextInput::make('description')->nullable(),
-                TextInput::make('floors')->required(),
+                Grid::make([
+                    'sm' => 1,
+                    'md' => 2,
+                    'lg' => 2,
+                ])->schema([
+                    TextInput::make('name')
+                        ->required()
+
+                        ->placeholder('User'),
+                    TextInput::make('oa_id')->label('Oa Number')
+                        ->required()
+                        //->disabled()
+                        ->placeholder('OA Number'),
+                    TextInput::make('trn')->label('TRN Number')
+                        ->required()
+                        //->disabled()
+                        ->placeholder('TRN Number'),
+                    TextInput::make('phone')
+                        ->rules(['max:20', 'string'])
+                        ->required()
+                        ->placeholder('Contact Number'),
+                    TextInput::make('address')
+
+                        ->required()
+                        ->placeholder('Address'),
+                    TextInput::make('email')
+                        ->rules(['max:50', 'string'])
+                        ->required()
+                        ->placeholder('Email'),
+                    Toggle::make('verified')
+                        ->rules(['boolean']),
+
+                ]),
             ]);
     }
 }

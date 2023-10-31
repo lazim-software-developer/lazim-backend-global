@@ -6,6 +6,7 @@ use App\Models\Master\Role;
 use App\Models\User\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+//use Illuminate\Support\Facades\Hash;
 
 class UserSeeder extends Seeder
 {
@@ -15,17 +16,9 @@ class UserSeeder extends Seeder
     public function run(): void
     {
         $user = [
-
-            'first_name' => 'Admin',
-            'last_name' => 'Admin',
-            'role_id' => Role::where('name', 'Admin')->value('id'),
-            'phone' => '9234567890',
-            'email' => 'admin@gmail.com',
-            'password' => Hash::make('test1234'),
-            'active' =>1
-
+            ['id'   => 1, 'first_name' => 'Shilpa', 'last_name'=> 'Gowda', 'email' => 'admin@gmail.com','phone' => '9234567890', 'password' => Hash::make('test1234'), 'active' => 1, 'role_id'=> Role::where('name', 'Admin')->value('id'),],
         ];
 
-        User::create($user);
+        User::insert($user);
     }
 }

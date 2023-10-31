@@ -11,12 +11,5 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateFlatVisitor extends CreateRecord
 {
     protected static string $resource = FlatVisitorResource::class;
-    protected function afterCreate(){
-        $tenant=Filament::getTenant();
-        FlatVisitor::where('id', $this->record->id)
-            ->update([
-                'building_id'=>$tenant->first()->id
-            ]);
-
-    }
+  
 }

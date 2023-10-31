@@ -1,10 +1,11 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
+return new class extends Migration
+{
     /**
      * Run the migrations.
      */
@@ -14,17 +15,16 @@ return new class extends Migration {
             $table->bigIncrements('id');
             $table->unsignedBigInteger('document_library_id');
             $table->unsignedBigInteger('building_id')->nullable();
-            $table->longText('url');
+            $table->unsignedBigInteger('owner_association_id')->nullable();
+            $table->string('url');
             $table->string('status', 50);
-            $table->json('comments');
+            $table->json('comments')->nullable();
             $table->date('expiry_date');
             $table->unsignedBigInteger('accepted_by');
             $table->unsignedBigInteger('documentable_id');
             $table->string('documentable_type');
-
             $table->index('documentable_id');
-            $table->index('documentable_type');
-
+            $table->index('documentable_type'); $table->foreign('owner_association_id')->references('id')->on('owner_associations');
             $table->timestamps();
         });
     }

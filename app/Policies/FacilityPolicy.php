@@ -37,7 +37,7 @@ class FacilityPolicy
     /**
      * Determine whether the facility can update the model.
      */
-    public function update(User $user, Facility $model): bool
+    public function update(User $user): bool
     {
         return true;
     }
@@ -45,7 +45,7 @@ class FacilityPolicy
     /**
      * Determine whether the facility can delete the model.
      */
-    public function delete(User $user, Facility $model): bool
+    public function delete(User $user): bool
     {
         return true;
     }
