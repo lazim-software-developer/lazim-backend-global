@@ -25,13 +25,11 @@ class CreateFormRequest extends FormRequest
             'building_id' => 'required|integer',
             'flat_id' => 'required|integer',
             'name' => 'required|string',
-            'document_name' => 'required|string',
             'type' =>'required',
             'phone'=> 'required',
             'moving_date'=> 'required',
             'moving_time'=> 'required',
-            'document_library_id'=> 'required',
-            'preference'=> 'required',
+            'time_preference'=> 'required',
             'email' => 'required|regex:/^[a-zA-Z0-9_.-]+@[a-zA-Z]+\.[a-zA-Z]+$/',
             // 'file' => 'required|file |max:2048'
         ];
