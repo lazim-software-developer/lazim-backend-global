@@ -224,7 +224,7 @@ Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active']
     Route::post('/move-in-out', [MoveInOutController::class, 'create']);
     Route::post('/guest-registration', [GuestController::class, 'create']);
     Route::post('/sale-noc', [SaleNocController::class, 'store']);
-    Route::post('/fit-out', [FitOutFormsController::class, 'store']);
+    Route::post('/fit-out', [FitOutFormsController::class, 'create']);
 });
 
 
