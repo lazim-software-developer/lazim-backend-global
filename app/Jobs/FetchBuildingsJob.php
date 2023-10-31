@@ -31,8 +31,8 @@ class FetchBuildingsJob implements ShouldQueue
     {
         $response = Http::withOptions(['verify' => false])->withHeaders([
             'content-type' => 'application/json',
-            'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
-        ])->get(env("MOLLAK_API_URL") . "/sync/managementcompany/" . $this->ownerAssociation->mollak_id . "/propertygroups");
+            'consumer-id'  => env("MOLLAK_CONSUMER_ID", "dqHdShhrZQgeSY9a4BZh6cgucpQJvS5r"),
+        ])->get(env("MOLLAK_API_URL", "https://b2bgateway.dubailand.gov.ae/mollak/external") . "/sync/managementcompany/" . $this->ownerAssociation->mollak_id . "/propertygroups");
     
 
         // Save buildings to Building table 

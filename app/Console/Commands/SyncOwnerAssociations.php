@@ -29,8 +29,8 @@ class SyncOwnerAssociations extends Command
     {
         $response = Http::withoutVerifying()->withHeaders([
             'content-type' => 'application/json',
-            'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
-        ])->get(env("MOLLAK_API_URL") . '/sync/managementcompany');
+            'consumer-id'  => env("MOLLAK_CONSUMER_ID", "dqHdShhrZQgeSY9a4BZh6cgucpQJvS5r"),
+        ])->get(env("MOLLAK_API_URL", "https://b2bgateway.dubailand.gov.ae/mollak/external") . '/sync/managementcompany');
 
         $managementCompanies = $response->json()['response']['managementCompanies'];
 
