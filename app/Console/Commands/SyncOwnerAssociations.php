@@ -5,7 +5,6 @@ namespace App\Console\Commands;
 use App\Models\OwnerAssociation;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
 
 class SyncOwnerAssociations extends Command
 {
@@ -30,18 +29,16 @@ class SyncOwnerAssociations extends Command
     {
         $response = Http::withoutVerifying()->withHeaders([
             'content-type' => 'application/json',
-            'consumer-id'  => env("MOLLAK_CONSUMER_ID", "dqHdShhrZQgeSY9a4BZh6cgucpQJvS5r"),
-        ])->get(env("MOLLAK_API_URL", "https://b2bgateway.dubailand.gov.ae/mollak/external") . '/sync/managementcompany');
+            'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
+        ])->get(env("MOLLAK_API_URL") . '/sync/managementcompany');
 
         $managementCompanies = $response->json()['response']['managementCompanies'];
-
-        Log::info("Sync Owner Association", [1]);
 
         foreach ($managementCompanies as $company) {
             OwnerAssociation::firstOrCreate(
                 [
                     'mollak_id' => $company['id'],
-                    'trn_number' => $company['trn']
+                    'trn_number' => $company['trn_number']
                 ],
                 [
                     'name'       => $company['name']['englishName'],
