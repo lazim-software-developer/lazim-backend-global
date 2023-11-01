@@ -279,7 +279,7 @@ class AdminPanelProvider extends PanelProvider
                                     ->icon('heroicon-o-calendar-days')
                                     ->activeIcon('heroicon-o-calendar-days')
                                     ->sort(1),
-                                NavigationItem::make('Enquirys')
+                                NavigationItem::make('Enquiries')
                                     ->url('/admin/complaintsenquiries')
                                     ->hidden(auth()->user()->id == 1 ? true : false)
                                     ->icon('heroicon-m-clipboard-document-check')
