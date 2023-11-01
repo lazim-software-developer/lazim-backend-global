@@ -22,6 +22,7 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ViewColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -107,10 +108,10 @@ class TenantDocumentResource extends Resource
                     ->label('Document Name')
                     ->default('NA')
                     ->limit(50),
-                TextColumn::make('documentLibrary.name')
+                TextColumn::make('documentLibrary.type')
                     ->searchable()
                     ->default('NA')
-                    ->label('Document Library Name')
+                    ->label('Type')
                     ->limit(50),
                 TextColumn::make('building.name')
                     ->searchable()
@@ -120,14 +121,12 @@ class TenantDocumentResource extends Resource
                 TextColumn::make('flat.property_number')
                     ->searchable()
                     ->default('NA')
-                    ->label('Flat Property Number')
+                    ->label('Flat Number')
                     ->limit(50),
                 TextColumn::make('status')
                     ->searchable()
                     ->default('NA')
                     ->limit(50),
-                TextColumn::make('expiry_date')
-                    ->date(),
                 TextColumn::make('documentUsers.first_name')
                     ->searchable()
                     ->label('Tenant Name')
@@ -135,7 +134,21 @@ class TenantDocumentResource extends Resource
                 ViewColumn::make('Role')->view('tables.columns.role')
             ])
             ->filters([
-                //
+                SelectFilter::make('documentable_id')
+                    ->relationship('documentUsers', 'first_name')
+                    ->searchable()
+                    ->preload()
+                    ->label('Tenant'),
+                SelectFilter::make('document_library_id')
+                    ->relationship('documentLibrary', 'type')
+                    ->searchable()
+                    ->preload()
+                    ->label('Type'),
+                SelectFilter::make('building_id')
+                    ->relationship('building', 'name')
+                    ->searchable()
+                    ->preload()
+                    ->label('Building'),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
