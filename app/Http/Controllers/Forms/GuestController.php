@@ -48,11 +48,11 @@ class GuestController extends Controller
 
                 Document::create($request->all());
             }
-            return (new CustomResponseResource([
+        }
+        return (new CustomResponseResource([
                 'title' => 'Success',
-                'message' => 'Move-IN created successfully!',
+                'message' => ' created successfully!',
                 'errorCode' => 201,
             ]))->response()->setStatusCode(201);
-        }
     }
 }

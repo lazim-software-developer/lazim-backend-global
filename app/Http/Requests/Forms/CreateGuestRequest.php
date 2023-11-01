@@ -22,23 +22,22 @@ class CreateGuestRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'passport_number' => 'required',
-            'visa_validity_date' => 'required|string',
+            'passport_number' => 'required|digits:10|not_in:000000000',
+            'visa_validity_date' => 'required|date',
             'stay_duration' => 'required',
-            'expiry_date' => 'required|string',
-            'access_card_holder' => 'required',
-            'original_passport' => 'required',
-            'guest_registration' => 'required',
+            'expiry_date' => 'required|date',
+            'access_card_holder' => 'required|integer',
+            'original_passport' => 'required|integer',
+            'guest_registration' => 'required|integer|digits_between:0,1',
             'building_id' => 'required|integer',
             'flat_id' => 'required|integer',
             'name' => 'required|string',
-            'phone' => 'required',
-            'start_date' => 'required',
+            'phone' => ['required','regex:/^(?:\+971)?(?:50|51|52|55|56|2|3|4|6|7|9)\d{7}$/'],
+            'start_date' => 'required|date',
             'number_of_visitors' => 'required|integer',
             'type' => 'required',
-            'end_date' => 'required',
+            'end_date' => 'required|date|after:start_date',
             'email' => 'required|regex:/^[a-zA-Z0-9_.-]+@[a-zA-Z]+\.[a-zA-Z]+$/',
-
         ];
     }
 }
