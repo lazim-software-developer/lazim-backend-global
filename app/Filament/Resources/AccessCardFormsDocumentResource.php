@@ -88,16 +88,8 @@ class AccessCardFormsDocumentResource extends Resource
             ->actions([
                 //Tables\Actions\EditAction::make(),
                 Action::make('Update Status')
+                    ->visible(fn ($record) => $record->status === null)
                     ->button()
-                    ->visible(fn (AccessCard $record): array => [
-                        'status' => function () use ($record) {
-                            if ($record->status === null) {
-                                return true;
-                            } else {
-                                return false;
-                            }
-                        },
-                    ])
                     ->form([
                         Select::make('status')
                             ->options([
