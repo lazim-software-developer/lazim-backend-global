@@ -14,7 +14,7 @@ class GuestController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create(CreateGuestRequest $request)
+    public function store(CreateGuestRequest $request)
     {
         $request->merge([
             'start_time' => $request->start_date,
