@@ -26,7 +26,9 @@ class Guest extends Model
 
     protected $searchableFields = ['*'];
     protected $casts = [
-        'allow_postupload'         => 'boolean',
+        'access_card_holder' => 'boolean',
+        'original_passport' => 'boolean',
+        'guest_registration' => 'boolean',
     ];
 
     public function user()
