@@ -23,7 +23,7 @@ class CreateAccessCardFormsRequest extends FormRequest
     {
         return [
             'flat_id' => 'required|integer',
-            'mobile'=> 'required',
+            'mobile'=> ['required','regex:/^(?:\+971)?(?:50|51|52|55|56|2|3|4|6|7|9)\d{7}$/'],
             'email' => 'required|regex:/^[a-zA-Z0-9_.-]+@[a-zA-Z]+\.[a-zA-Z]+$/',
             'card_type'=>'required|string',
             'reason'=>'nullable|string',
