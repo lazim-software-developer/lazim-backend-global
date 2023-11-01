@@ -7,12 +7,16 @@ use App\Filament\Resources\MoveOutFormsDocumentResource\RelationManagers;
 use App\Models\Forms\MoveInOut;
 use App\Models\MoveOutFormsDocument;
 use Filament\Forms;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Actions\Action;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -50,14 +54,12 @@ class MoveOutFormsDocumentResource extends Resource
                 ->default('NA')
                 ->limit(50),
             TextColumn::make('type')
-            ->searchable()
-            ->default('NA')
+                ->searchable()
+                ->default('NA')
                 ->limit(50),
             TextColumn::make('moving_date')
-                ->toggleable()
                 ->limit(50),
             TextColumn::make('moving_time')
-                ->toggleable()
                 ->limit(50),
             TextColumn::make('building.name')
                 ->searchable()
@@ -72,51 +74,38 @@ class MoveOutFormsDocumentResource extends Resource
                 ->default('NA')
                 ->limit(50),
             ImageColumn::make('handover_acceptance')
-                ->circular()
                 ->disk('s3')
-                ->directory('dev'),
+                ->circular(),
             ImageColumn::make('receipt_charges')
                 ->circular()
-                ->disk('s3')
-                ->directory('dev'),
+                ->disk('s3'),
             ImageColumn::make('contract')
                 ->circular()
-                ->disk('s3')
-                ->directory('dev'),
+                ->disk('s3'),
             ImageColumn::make('title_deed')
                 ->circular()
-                ->disk('s3')
-                ->directory('dev'),
+                ->disk('s3'),
             ImageColumn::make('passport')
                 ->circular()
-                ->disk('s3')
-                ->directory('dev'),
+                ->disk('s3'),
             ImageColumn::make('dewa')
                 ->circular()
-                ->disk('s3')
-                ->directory('dev'),
+                ->disk('s3'),
             ImageColumn::make('cooling_registration')
                 ->circular()
-                ->disk('s3')
-                ->directory('dev'),
+                ->disk('s3'),
             ImageColumn::make('gas_registration')
                 ->circular()
-                ->disk('s3')
-                ->directory('dev'),
+                ->disk('s3'),
             ImageColumn::make('vehicle_registration')
                 ->circular()
-                ->disk('s3')
-                ->directory('dev'),
+                ->disk('s3'),
             ImageColumn::make('movers_license')
                 ->circular()
-                ->disk('s3')
-                ->directory('dev'),
+                ->disk('s3'),
             ImageColumn::make('movers_liability')
                 ->circular()
-                ->disk('s3')
-                ->directory('dev'),
-            IconColumn::make('approved')
-                ->boolean(),
+                ->disk('s3'),
             
         ])
             ->filters([
@@ -124,10 +113,39 @@ class MoveOutFormsDocumentResource extends Resource
             ])
             ->actions([
                 //Tables\Actions\EditAction::make(),
+                Action::make('Update Status')
+                    ->form([
+                        Select::make('status')
+                            ->options([
+                                'approved' => 'Approved',
+                                'rejected' => 'Rejected',
+                            ])
+                            ->searchable()
+                            ->live(),
+                        TextInput::make('remarks')
+                            ->rules(['max:255'])
+                            ->visible(function(callable $get){
+                                if($get('status')=='rejected')
+                                {
+                                    return true;
+                                }
+                                return false;
+                            }),
+                    ])
+                    ->fillForm(fn (MoveInOut $record): array => [
+                        'status' => $record->status,
+                        'remarks' => $record->remarks,
+                    ])
+                    ->action(function (MoveInOut $record,array $data): void {
+                        $record->status = $data['status'];
+                        $record->remarks = $data['remarks'];
+                        $record->save();
+                    })
+                    ->slideOver()
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    //Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ])
             ->emptyStateActions([
