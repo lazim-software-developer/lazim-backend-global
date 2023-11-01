@@ -239,6 +239,18 @@ class AdminPanelProvider extends PanelProvider
                                     ->icon('heroicon-o-calendar-days')
                                     ->activeIcon('heroicon-o-calendar-days')
                                     ->sort(3),
+                                NavigationItem::make('Residential')
+                                    ->url('/admin/residential-forms')
+                                    ->hidden(auth()->user()->id == 1 ? true : false)
+                                    ->icon('heroicon-o-calendar-days')
+                                    ->activeIcon('heroicon-o-calendar-days')
+                                    ->sort(4),
+                                NavigationItem::make('Noc')
+                                    ->url('/admin/noc-forms')
+                                    ->hidden(auth()->user()->id == 1 ? true : false)
+                                    ->icon('heroicon-o-calendar-days')
+                                    ->activeIcon('heroicon-o-calendar-days')
+                                    ->sort(5),
                                 ]),
                 ]);
             }

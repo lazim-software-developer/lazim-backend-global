@@ -137,9 +137,17 @@ class MoveOutFormsDocumentResource extends Resource
                         'remarks' => $record->remarks,
                     ])
                     ->action(function (MoveInOut $record,array $data): void {
-                        $record->status = $data['status'];
-                        $record->remarks = $data['remarks'];
-                        $record->save();
+                        if($data['status'] == 'rejected')
+                        {
+                            $record->status = $data['status'];
+                            $record->remarks = $data['remarks'];
+                            $record->save();
+                        }
+                        else
+                        {
+                            $record->status = $data['status'];
+                            $record->save();
+                        }
                     })
                     ->slideOver()
             ])
