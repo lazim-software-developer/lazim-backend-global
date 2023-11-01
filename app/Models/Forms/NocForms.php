@@ -41,7 +41,7 @@ class NocForms extends Model
     {
         return $this->belongsTo(User::class);
     }
-    public function contacts() 
+    public function contact() 
     {
         return $this->hasMany(NocContacts::class);
     }

@@ -7,6 +7,9 @@ use App\Filament\Resources\NocFormResource\RelationManagers;
 use App\Models\Forms\NocForms;
 use App\Models\NocForm;
 use Filament\Forms;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -39,6 +42,47 @@ class NocFormResource extends Resource
                 Toggle::make('cooling_bill_paid'),
                 Toggle::make('service_charge_paid'),
                 Toggle::make('noc_fee_paid'),
+                Select::make('building_id')
+                        ->relationship('building','name')
+                        ->preload()
+                        ->searchable()
+                        ->label('Building Name'),
+                Select::make('flat_id')
+                        ->relationship('flat','property_number')
+                        ->preload()
+                        ->searchable()
+                        ->label('Property No'),
+                DatePicker::make('service_charge_paid_till')
+                        ->date(),
+                FileUpload::make('cooling_receipt_url')
+                        ->disk('s3')
+                        ->directory('dev'),
+                FileUpload::make('cooling_soa_url')
+                        ->disk('s3')
+                        ->directory('dev'),
+                FileUpload::make('cooling_clearance_url')
+                        ->disk('s3')
+                        ->directory('dev'),
+                FileUpload::make('payment_receipt_url')
+                        ->disk('s3')
+                        ->directory('dev'),
+                Repeater::make('contact')
+                        ->relationship('contact')
+                        ->schema([
+                            TextInput::make('type'),
+                            TextInput::make('first_name'),
+                            TextInput::make('last_name'),
+                            TextInput::make('email'),
+                            TextInput::make('mobile'),
+                            TextInput::make('emirates_id'),
+                            TextInput::make('passport_number'),
+                            TextInput::make('visa_number'),
+                        ])
+                        ->columnSpan([
+                            'sm' => 1,
+                            'md' => 1,
+                            'lg' => 2,
+                        ])
             ]);
     }
 
