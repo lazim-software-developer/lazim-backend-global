@@ -153,7 +153,7 @@ class AdminPanelProvider extends PanelProvider
             $builder->groups([
                 NavigationGroup::make('Property Management')
                     ->items([
-                            NavigationItem::make('Building Managers')
+                            NavigationItem::make('Security')
                                 ->url('/admin/building/building-pocs')
                                 ->icon('heroicon-o-calendar-days')
                                 ->activeIcon('heroicon-o-calendar-days')
