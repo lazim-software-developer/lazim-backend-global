@@ -43,7 +43,8 @@ class MoveInOutController extends Controller
 
         $data['name'] = auth()->user()->first_name;
         $data['phone']= auth()->user()->phone;
-        $data['email' ]= auth()->user()->email;
+        $data['email']= auth()->user()->email;
+        $data['user_id']= auth()->user()->id;
         
         MoveInOut::create($data);
 
