@@ -29,6 +29,7 @@ class CreateAccessCardFormsRequest extends FormRequest
             'card_type'=>'required|string',
             'reason'=>'nullable|string',
             'parking_details'=>'nullable|json',
+            'occupied_by' => 'required'
         ];
     }
 }
