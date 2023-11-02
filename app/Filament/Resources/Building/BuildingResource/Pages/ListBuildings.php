@@ -12,7 +12,11 @@ class ListBuildings extends ListRecords
     protected static string $resource = BuildingResource::class;
     protected function getTableQuery(): Builder
     {
-        return parent::getTableQuery()->where('owner_association_id',auth()->user()->owner_association_id);
+        if(auth()->user()->id != 1) 
+        {
+            return parent::getTableQuery()->where('owner_association_id',auth()->user()->owner_association_id);
+        }
+        return parent::getTableQuery();
     }
     protected function getHeaderActions(): array
     {

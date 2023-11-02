@@ -19,6 +19,10 @@ class ListFlats extends ListRecords
     // }
     protected function getTableQuery(): Builder
     {
+        if(auth()->user()->id == 1)
+        {
+            return parent::getTableQuery();
+        }
         return parent::getTableQuery()->where('owner_association_id',auth()->user()->owner_association_id);
     }
 }
