@@ -136,7 +136,7 @@ class AccessCardFormsDocumentResource extends Resource
     {
         return [
             'index' => Pages\ListAccessCardFormsDocuments::route('/'),
-            'create' => Pages\CreateAccessCardFormsDocument::route('/create'),
+            //'create' => Pages\CreateAccessCardFormsDocument::route('/create'),
             'edit' => Pages\EditAccessCardFormsDocument::route('/{record}/edit'),
         ];
     }
