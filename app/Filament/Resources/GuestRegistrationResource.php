@@ -6,6 +6,7 @@ use App\Filament\Resources\GuestRegistrationResource\Pages;
 use App\Filament\Resources\GuestRegistrationResource\RelationManagers;
 use App\Models\Forms\Guest;
 use App\Models\GuestRegistration;
+use App\Models\Visitor\FlatVisitor;
 use Filament\Forms;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Fieldset;
@@ -16,13 +17,16 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Actions\Action;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ViewColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
+use Illuminate\Database\Query\JoinClause;
 use function Laravel\Prompts\select;
 
 class GuestRegistrationResource extends Resource
@@ -134,16 +138,67 @@ class GuestRegistrationResource extends Resource
                     ->default('NA'),
                 TextColumn::make('stay_duration')
                     ->searchable()
-                    ->default('NA'),
+                    ->alignCenter()
+                    ->default('NA')
+                    ->label('Stay duration(days)'),
                 ViewColumn::make('Flat')->view('tables.columns.flat'),
                 ViewColumn::make('Building')->view('tables.columns.building'),
 
             ])
             ->filters([
-                //
+                // SelectFilter::make('flat_visitor_id')
+                // ->relationship('flatVisitor','name')
+                // ->options(function () {
+                //     return FlatVisitor::join('buildings', function (JoinClause $join) {
+                //             $join->on('flat_visitors.building_id', '=', 'buildings.id');
+                //         })
+                //         ->select('flat_visitors.id', 'buildings.name')
+                //         ->pluck('name', 'id')
+                //         ->toArray();
+                // })
+                // ->label('Building'),
             ])
             ->actions([
                 //Tables\Actions\EditAction::make(),
+                Action::make('Update Status')
+                    ->visible(fn ($record) => $record->status === null)
+                    ->button()
+                    ->form([
+                        Select::make('status')
+                            ->options([
+                                'approved' => 'Approved',
+                                'rejected' => 'Rejected',
+                            ])
+                            ->searchable()
+                            ->live(),
+                        TextInput::make('remarks')
+                            ->rules(['max:255'])
+                            ->visible(function(callable $get){
+                                if($get('status')=='rejected')
+                                {
+                                    return true;
+                                }
+                                return false;
+                            }),
+                    ])
+                    ->fillForm(fn (Guest $record): array => [
+                        'status' => $record->status,
+                        'remarks' => $record->remarks,
+                    ])
+                    ->action(function (Guest $record,array $data): void {
+                        if($data['status'] == 'rejected')
+                        {
+                            $record->status = $data['status'];
+                            $record->remarks = $data['remarks'];
+                            $record->save();
+                        }
+                        else
+                        {
+                            $record->status = $data['status'];
+                            $record->save();
+                        }
+                    })
+                    ->slideOver()
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

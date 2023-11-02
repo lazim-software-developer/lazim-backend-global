@@ -2,6 +2,7 @@
 
 namespace App\Models\Forms;
 
+use App\Models\Forms\NocForms;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Forms\SaleNOC;
@@ -31,7 +32,12 @@ class NocContacts extends Model
         'allow_postupload' => 'boolean',
     ];
 
-    public function noc() {
+    public function noc() 
+    {
         return $this->belongsTo(SaleNOC::class);
+    }
+    public function nocforms() 
+    {
+        return $this->belongsTo(NocForms::class);
     }
 }

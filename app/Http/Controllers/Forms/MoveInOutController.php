@@ -31,18 +31,22 @@ class MoveInOutController extends Controller
             'movers_license',
             'movers_liability',
         ];
-        
+
         $data = $request->all();  // Get all request data
-        
+
         foreach ($document_paths as $document) {
             if ($request->hasFile($document)) {
                 $file = $request->file($document);
                 $data[$document] = optimizeDocumentAndUpload($file, 'dev');
             }
         }
+
+        $data['name'] = auth()->user()->first_name;
+        $data['phone']= auth()->user()->phone;
+        $data['email' ]= auth()->user()->email;
         
         MoveInOut::create($data);
-        
+
         return (new CustomResponseResource([
             'title' => 'Success',
             'message' => 'Form submitted successfully!',
