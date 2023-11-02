@@ -175,6 +175,8 @@ class MoveInFormsDocumentResource extends Resource
             ->actions([
                 //Tables\Actions\EditAction::make(),
                 Action::make('Update Status')
+                    ->visible(fn ($record) => $record->status === null)
+                    ->button()
                     ->form([
                         Select::make('status')
                             ->options([
@@ -198,9 +200,17 @@ class MoveInFormsDocumentResource extends Resource
                         'remarks' => $record->remarks,
                     ])
                     ->action(function (MoveInOut $record,array $data): void {
-                        $record->status = $data['status'];
-                        $record->remarks = $data['remarks'];
-                        $record->save();
+                        if($data['status'] == 'rejected')
+                        {
+                            $record->status = $data['status'];
+                            $record->remarks = $data['remarks'];
+                            $record->save();
+                        }
+                        else
+                        {
+                            $record->status = $data['status'];
+                            $record->save();
+                        }
                     })
                     ->slideOver()
             ])
