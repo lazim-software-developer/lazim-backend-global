@@ -92,10 +92,6 @@ class ComplaintscomplaintResource extends Resource
                             ->default('pending'),
                         Hidden::make('complaint_type')
                             ->default('tenant_complaint'),
-                        // TextInput::make('remarks')
-                        //     ->disabled(fn (Get $get) => $get('status') !== 'resolved')
-                        //     ->hiddenOn('create')
-                        //     ->label('Remarks'),
                     ])
             ]);
     }
