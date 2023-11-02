@@ -24,13 +24,10 @@ class CreateFormRequest extends FormRequest
         return [
             'building_id' => 'required|integer',
             'flat_id' => 'required|integer',
-            'name' => 'required|string',
             'type' =>'required',
-            'phone'=> 'required',
             'moving_date'=> 'required',
             'moving_time'=> 'required',
             'time_preference'=> 'required',
-            'email' => 'required|regex:/^[a-zA-Z0-9_.-]+@[a-zA-Z]+\.[a-zA-Z]+$/',
             'handover_acceptance' => 'required|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
             'receipt_charges' => 'required|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
             'contract' => 'required|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
@@ -49,9 +46,6 @@ class CreateFormRequest extends FormRequest
         return [
             'building_id' => "Please select a building",
             'flat_id' => "Please select a flat",
-            'email.required' => 'Email is required.',
-            'name.required' =>'Name is required.',
-            'phone.required' =>'Phone is required.',
             'type.required' =>'Type is required.'
         ];
     }
