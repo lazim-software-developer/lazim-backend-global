@@ -31,13 +31,10 @@ class CreateGuestRequest extends FormRequest
             'guest_registration' => 'required',
             'building_id' => 'required|integer',
             'flat_id' => 'required|integer',
-            'name' => 'required|string',
-            'phone' => ['required','regex:/^(?:\+971)?(?:50|51|52|55|56|2|3|4|6|7|9)\d{7}$/'],
             'start_date' => 'required|date',
             'number_of_visitors' => 'required|integer',
             'type' => 'required',
             'end_date' => 'required|date|after:start_date',
-            'email' => 'required|regex:/^[a-zA-Z0-9_.-]+@[a-zA-Z]+\.[a-zA-Z]+$/',
         ];
     }
 }
