@@ -9,6 +9,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables\Actions\Action;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
@@ -45,12 +46,14 @@ class FitOutFormsDocumentResource extends Resource
                     ->searchable()
                     ->default('NA')
                     ->limit(50),
-                TextColumn::make('no_objection')
-                    ->searchable()
-                    ->default('NA')
-                    ->limit(50),
-                TextColumn::make('undertaking_of_waterproofing')
-                    ->limit(50),
+                IconColumn::make('no_objection')
+                    ->boolean()
+                    ->trueIcon('heroicon-o-check-badge')
+                    ->falseIcon('heroicon-o-x-mark'),
+                IconColumn::make('undertaking_of_waterproofing')
+                    ->boolean()
+                    ->trueIcon('heroicon-o-check-badge')
+                    ->falseIcon('heroicon-o-x-mark'),
                 TextColumn::make('building.name')
                     ->searchable()
                     ->default('NA')

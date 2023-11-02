@@ -18,8 +18,8 @@ class FitOutFormsController extends Controller
             'building_id' => $request->building_id,
             'flat_id' => $request->flat_id,
             'contractor_name' => $request->name,
-            'phone'=> $request->phone,
-            'email' =>$request->email,
+            'phone'=> auth()->user()->phone,
+            'email' =>auth()->user()->email,
             'user_id'=> auth()->user()->id,
             'undertaking_of_waterproofing'=>$request->undertaking_of_waterproofing,
             'no_objection'=>$request->no_objection
