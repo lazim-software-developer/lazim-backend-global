@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\User\TenantResource\RelationManagers;
 
+use App\Models\Building\Document;
 use Filament\Forms;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
@@ -11,6 +12,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
+use Filament\Tables\Actions\Action;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -26,21 +28,24 @@ class UserDocumentsRelationManager extends RelationManager
             ->schema([
                 TextInput::make('name')
                     ->required()
-                    ->maxLength(255),
-
-                Select::make('document_library_id')
-                    ->rules(['exists:document_libraries,id'])
-                    ->required()
-                    ->preload()
-                    ->relationship('documentLibrary', 'name')
-                    ->searchable()
-                    ->placeholder('Document Library'),
+                    ->label('Document Name')
+                    ->maxLength(255)
+                    ->columnSpan([
+                        'sl'=>1,
+                        'md'=>1,
+                        'lg'=>2,
+                    ]),
 
                 FileUpload::make('url')
                         ->disk('s3')
                         ->directory('dev')
                         ->label('Document')
-                        ->required(),
+                        ->required()
+                        ->columnSpan([
+                            'sl'=>1,
+                            'md'=>1,
+                            'lg'=>2,
+                        ]),
 
                 Select::make('status')
                         ->options([
@@ -50,15 +55,17 @@ class UserDocumentsRelationManager extends RelationManager
                         ])
                         ->searchable()
                         ->required()
+                        ->live()
                         ->placeholder('Status'),
 
-                TextInput::make('comments'),
-                Hidden::make('documentable_type')
-                    ->default('App\Models\Building\FlatTenant'),
-                DatePicker::make('expiry_date')
-                        ->rules(['date'])
-                        ->required()
-                        ->placeholder('Expiry Date'),
+                TextInput::make('remarks')
+                        ->rules(['max:255'])
+                        ->visible(function (callable $get) {
+                            if ($get('status') == 'rejected') {
+                                return true;
+                            }
+                                return false;
+                        }),
             ]);
     }
 
@@ -92,11 +99,11 @@ class UserDocumentsRelationManager extends RelationManager
                 //
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make(),
+                //Tables\Actions\CreateAction::make(),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                //Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -104,7 +111,7 @@ class UserDocumentsRelationManager extends RelationManager
                 ]),
             ])
             ->emptyStateActions([
-                Tables\Actions\CreateAction::make(),
+                //Tables\Actions\CreateAction::make(),
             ]);
     }
 }
