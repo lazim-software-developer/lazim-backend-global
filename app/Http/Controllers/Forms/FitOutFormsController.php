@@ -17,9 +17,9 @@ class FitOutFormsController extends Controller
         FitOutForm::create([
             'building_id' => $request->building_id,
             'flat_id' => $request->flat_id,
-            'contractor_name' => $request->name,
-            'phone'=> $request->phone,
-            'email' =>$request->email,
+            'contractor_name' => $request->contractor_name,
+            'phone'=> auth()->user()->phone,
+            'email' =>auth()->user()->email,
             'user_id'=> auth()->user()->id,
             'undertaking_of_waterproofing'=>$request->undertaking_of_waterproofing,
             'no_objection'=>$request->no_objection

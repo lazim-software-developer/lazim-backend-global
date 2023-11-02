@@ -53,6 +53,7 @@ class FacilityBookingResource extends Resource
                         ->placeholder('Building'),
                         
                     Select::make('bookable_id')
+                        ->label('Facility ')
                         ->options(
                             DB::table('facilities')
                                 ->pluck('name', 'id')

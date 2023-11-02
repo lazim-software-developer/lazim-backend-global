@@ -20,6 +20,9 @@ class GuestController extends Controller
             'start_time' => $request->start_date,
             'end_time' => $request->end_date,
             'initiated_by' => auth()->user()->id,
+            'name' => auth()->user()->first_name,
+            'phone' => auth()->user()->phone,
+            'email' => auth()->user()->email,
         ]);
         $guest = FlatVisitor::create($request->all());
 
