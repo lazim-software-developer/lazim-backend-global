@@ -109,10 +109,11 @@ class FacilityBookingResource extends Resource
                             ->required()
                             ->placeholder('End Time'),
                         TextInput::make('remarks')
+                            ->default('NA')
                             ->required(),
                         TextInput::make('reference_number')
                             ->rules(['numeric'])
-                            ->required()
+                            ->default('NA')
                             ->numeric()
                             ->placeholder('References Number'),
                         Toggle::make('approved')
