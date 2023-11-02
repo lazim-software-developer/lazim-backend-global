@@ -16,18 +16,24 @@ class AccessCardController extends Controller
     {
         // Handle multiple images
         $document_paths = [
-            'passport',
             'tenancy',
             'vehicle_registration',
         ];
-
+        
         $data = $request->all();
         foreach ($document_paths as $document) {
-            $file = $request->file($document);
-            $data[$document] = optimizeDocumentAndUpload($file, 'dev');
+            if($request->has($document)) {
+                $file = $request->file($document);
+                $data[$document] = optimizeDocumentAndUpload($file, 'dev');
+            }
         }
+
         $data['user_id'] = auth()->user()->id;
+        $data['mobile']= auth()->user()->phone;
+        $data['email'] = auth()->user()->email;
+
         AccessCard::create($data);
+
         return (new CustomResponseResource([
             'title' => 'Success',
             'message' => 'Access card submitted successfully!',
