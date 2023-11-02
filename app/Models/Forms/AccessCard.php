@@ -16,12 +16,12 @@ class AccessCard extends Model
         'card_type',
         'reason',
         'parking_details',
-        'passport',
+        'occupied_by',
         'tenancy',
         'vehicle_registration',
         'flat_id',
         'user_id',
-        'building_id'
+        'building_id',
     ];
 
     protected $searchableFields = ['*'];
