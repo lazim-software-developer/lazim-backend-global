@@ -201,6 +201,9 @@ Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active']
 
     // Fetch all matching flats for the logged in user
     Route::get('/tenant/flats', [UserController::class, 'getUserFlats']);
+
+    // List all family members of logged in user
+    Route::get('/family-members/{building}', [UserController::class, 'getFamilyMembers']);
 });
 
 /**
@@ -233,7 +236,7 @@ Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active']
     Route::post('/access-card', [AccessCardController::class, 'create']);
 
     // View form status
-    Route::get('/status', [AccessCardController::class, 'fetchFormStatus']);
+    Route::get('/status/{building}', [AccessCardController::class, 'fetchFormStatus']);
 });
 
 // API  to fetch Security for a building
