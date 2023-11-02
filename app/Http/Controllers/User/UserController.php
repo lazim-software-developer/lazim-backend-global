@@ -7,6 +7,7 @@ use App\Http\Resources\Building\FlatResource;
 use App\Http\Resources\CustomResponseResource;
 use App\Http\Resources\User\UserFlatResource;
 use App\Models\ApartmentOwner;
+use App\Models\Building\Building;
 use App\Models\Building\Flat;
 use Illuminate\Support\Facades\DB;
 
@@ -27,5 +28,10 @@ class UserController extends Controller
         $flats = auth()->user()->flats;
     
         return FlatResource::collection(($flats));
+    }
+
+    // List all family members from Residential form
+    public function getFamilyMembers(Building $building) {
+        return auth()->user()->residentialForm()->where('building_id', $building->id)->get(['name']);
     }
 }
