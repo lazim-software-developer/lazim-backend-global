@@ -12,7 +12,11 @@ class ListServiceBookings extends ListRecords
     protected static string $resource = ServiceBookingResource::class;
     protected function getTableQuery(): Builder
     {
-        return parent::getTableQuery()->where('bookable_type','App\Models\Master\Service');
+        if(auth()->user()->id == 1) 
+        {
+            return parent::getTableQuery()->where('bookable_type','App\Models\Master\Service');
+        }
+        return parent::getTableQuery()->where('bookable_type','App\Models\Master\Service')->where('owner_association_id',auth()->user()->owner_association_id);
     }
     protected function getHeaderActions(): array
     {

@@ -25,6 +25,7 @@ class Vendor extends Model
         'tl_expiry',
         'status',
         'remarks',
+        'owner_association_id',
     ];
 
     protected $searchableFields = ['*'];

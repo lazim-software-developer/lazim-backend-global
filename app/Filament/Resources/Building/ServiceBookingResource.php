@@ -56,6 +56,7 @@ class ServiceBookingResource extends Resource
                         )
                     ->searchable()
                     ->preload()
+                    ->label('Service')
                     ->placeholder('Service'),
 
                     Hidden::make('bookable_type')
@@ -66,6 +67,8 @@ class ServiceBookingResource extends Resource
                         ->required()
                         ->relationship('user', 'first_name')
                         ->searchable()
+                        ->preload()
+                        // ->label('Approved By')
                         ->placeholder('User'),
                     DatePicker::make('date')
                         ->rules(['date'])
