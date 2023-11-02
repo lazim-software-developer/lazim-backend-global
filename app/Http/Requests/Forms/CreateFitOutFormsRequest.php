@@ -24,7 +24,7 @@ class CreateFitOutFormsRequest extends FormRequest
         return [
             'building_id' => 'required|integer',
             'flat_id' => 'required|integer',
-            'name' => 'required|string',
+            'contractor_name' => 'required|string',
             'no_objection'=>'required|integer',
             'undertaking_of_waterproofing'=>'required|integer',
         ];
