@@ -31,6 +31,7 @@ class ResidentialForm extends Model
         'passport_url',
         'emirates_url',
         'title_deed_url',
+        'owner_association_id',
     ];
 
     protected $casts = [

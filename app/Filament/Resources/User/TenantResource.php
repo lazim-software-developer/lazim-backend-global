@@ -40,7 +40,8 @@ class TenantResource extends Resource
                         ->rules(['max:50', 'string'])
                         ->required()
                         ->placeholder('First Name'),
-
+                    Hidden::make('owner_association_id')
+                        ->default(auth()->user()->owner_association_id),
                     TextInput::make('last_name')
                         ->rules(['max:50', 'string'])
                         ->nullable()

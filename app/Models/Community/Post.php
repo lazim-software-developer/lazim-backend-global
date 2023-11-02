@@ -15,7 +15,7 @@ class Post extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id', 'content', 'status', 'scheduled_at', 'building_id', 'is_announcement'
+        'user_id', 'content', 'status', 'scheduled_at', 'building_id', 'is_announcement', 'owner_association_id'
     ];
     protected $casts = [
         'is_announcement' => 'boolean',

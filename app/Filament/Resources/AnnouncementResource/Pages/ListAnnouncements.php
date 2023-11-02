@@ -13,6 +13,10 @@ class ListAnnouncements extends ListRecords
 
     protected function getTableQuery(): Builder
     {
+        if(auth()->user()->id != 1) 
+        {
+            return parent::getTableQuery()->where('is_announcement',1)->where('owner_association_id',auth()->user()->owner_association_id);
+        }
         return parent::getTableQuery()->where('is_announcement',1);
     }
     protected function getHeaderActions(): array
