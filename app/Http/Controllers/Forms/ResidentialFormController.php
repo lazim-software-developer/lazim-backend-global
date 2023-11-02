@@ -17,7 +17,6 @@ class ResidentialFormController extends Controller
         $validated['title_deed_url'] = optimizeDocumentAndUpload($request->file('title_deed_url'));
 
         $validated['user_id'] = auth()->user()->id;
-        $validated['name'] = auth()->user()->first_name;
 
         $residentialForm = ResidentialForm::create($validated);
 
