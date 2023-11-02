@@ -22,6 +22,7 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ViewColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -35,7 +36,7 @@ class TenantDocumentResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-user-circle';
     protected static ?string $navigationGroup = 'Document Management';
-    protected static ?string $navigationLabel = 'Tenant';
+    protected static ?string $navigationLabel = 'Resident';
 
     public static function form(Form $form): Form
     {
@@ -71,10 +72,11 @@ class TenantDocumentResource extends Resource
                     ->preserveFilenames(),
                 Select::make('status')
                     ->options([
-                        'Submitted' => 'Submitted',
-                        'Approved' => 'Approved',
+                        'submitted' => 'Submitted',
+                        'approved' => 'Approved',
+                        'rejected' => 'Rejected',
                     ])
-                    ->rules(['max:50', 'string'])
+                    ->searchable()
                     ->required()
                     ->placeholder('Status'),
                 TextInput::make('comments')
@@ -102,24 +104,44 @@ class TenantDocumentResource extends Resource
             ->modifyQueryUsing(fn(Builder $query) => $query->where('documentable_type', 'App\Models\User\User')->withoutGlobalScopes())
             ->columns([
                 TextColumn::make('name')
-                    ->toggleable()
+                    ->searchable()
+                    ->label('Document Name')
+                    ->default('NA')
                     ->limit(50),
-                TextColumn::make('documentLibrary.name')
-                    ->toggleable()
+                TextColumn::make('building.name')
+                    ->searchable()
+                    ->default('NA')
+                    ->label('Building Name')
+                    ->limit(50),
+                TextColumn::make('flat.property_number')
+                    ->searchable()
+                    ->default('NA')
+                    ->label('Flat Number')
                     ->limit(50),
                 TextColumn::make('status')
-                    ->toggleable()
-                    ->searchable(true, null, true)
+                    ->searchable()
+                    ->default('NA')
                     ->limit(50),
-                TextColumn::make('expiry_date')
-                    ->toggleable()
-                    ->date(),
+                TextColumn::make('documentUsers.first_name')
+                    ->searchable()
+                    ->label('Tenant Name')
+                    ->default('NA'),
+                ViewColumn::make('Role')->view('tables.columns.role')
             ])
             ->filters([
-                //
+                SelectFilter::make('documentable_id')
+                    ->relationship('documentUsers', 'first_name')
+                    ->searchable()
+                    ->preload()
+                    ->label('Tenant'),
+                SelectFilter::make('building_id')
+                    ->relationship('building', 'name')
+                    ->searchable()
+                    ->preload()
+                    ->label('Building'),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\EditAction::make()->button(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -139,7 +161,7 @@ class TenantDocumentResource extends Resource
     {
         return [
             'index' => Pages\ListTenantDocuments::route('/'),
-            'create' => Pages\CreateTenantDocument::route('/create'),
+            //'create' => Pages\CreateTenantDocument::route('/create'),
             'edit' => Pages\EditTenantDocument::route('/{record}/edit'),
         ];
     }

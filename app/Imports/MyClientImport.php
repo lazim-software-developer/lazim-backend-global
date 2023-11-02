@@ -25,6 +25,7 @@ class MyClientImport implements ToCollection
                     'name'=> $collection[$int][1],],
                     ['property_group_id'=> $collection[$int][0],
                     'address_line1'=> 'Define',
+                    'owner_association_id'=> auth()->user()->owner_association_id,
 
                 ]);
            
@@ -33,6 +34,7 @@ class MyClientImport implements ToCollection
                     ['mollak_property_id'=> $collection[$int][2],
                     'property_type'=> 'owner',
                     'building_id'=> $createbuild->id,
+                    'owner_association_id'=> auth()->user()->owner_association_id,
                 ]);
             
             MollakTenant::create([

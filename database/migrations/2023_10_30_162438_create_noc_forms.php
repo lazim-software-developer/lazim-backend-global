@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('unit_occupied_by');
             $table->string('applicant');
             $table->string('unit_area');
-            $table->decimal('sale_price',10,6);
+            $table->string('sale_price');
             $table->boolean('cooling_bill_paid')->default(0);
             $table->boolean('service_charge_paid')->default(0);
             $table->boolean('noc_fee_paid')->default(0);

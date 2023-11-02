@@ -132,10 +132,28 @@ class AdminPanelProvider extends PanelProvider
                                 ->sort(2),
                             ]),
             ]);
+            if(auth()->user()->id != 1)
+            {
+                $builder->groups([
+                    NavigationGroup::make('User Management')
+                        ->items([
+                                NavigationItem::make('Owners')
+                                    ->url('/admin/user/owners')
+                                    ->icon('heroicon-o-calendar-days')
+                                    ->activeIcon('heroicon-o-calendar-days')
+                                    ->sort(1),
+                                NavigationItem::make('Tenants')
+                                    ->url('/admin/user/tenants')
+                                    ->icon('heroicon-m-clipboard-document-check')
+                                    ->activeIcon('heroicon-m-clipboard-document-check')
+                                    ->sort(2),
+                                ]),
+                ]);
+            }
             $builder->groups([
                 NavigationGroup::make('Property Management')
                     ->items([
-                            NavigationItem::make('Building Managers')
+                            NavigationItem::make('Security')
                                 ->url('/admin/building/building-pocs')
                                 ->icon('heroicon-o-calendar-days')
                                 ->activeIcon('heroicon-o-calendar-days')
@@ -189,7 +207,7 @@ class AdminPanelProvider extends PanelProvider
                                     ->icon('heroicon-m-clipboard-document-check')
                                     ->activeIcon('heroicon-m-clipboard-document-check')
                                     ->sort(2),
-                                NavigationItem::make('Tenant')
+                                NavigationItem::make('Residents')
                                     ->url('/admin/tenant-documents')
                                     ->hidden(auth()->user()->id == 1 ? true : false)
                                     ->icon('heroicon-o-user-circle')
@@ -203,12 +221,48 @@ class AdminPanelProvider extends PanelProvider
                 $builder->groups([
                     NavigationGroup::make('Forms Document')
                         ->items([
+                                NavigationItem::make('Guest Registration')
+                                    ->url('/admin/guest-registrations')
+                                    ->hidden(auth()->user()->id == 1 ? true : false)
+                                    ->icon('heroicon-o-calendar-days')
+                                    ->activeIcon('heroicon-o-calendar-days')
+                                    ->sort(1),
                                 NavigationItem::make('Move-IN')
                                     ->url('/admin/move-in-forms-documents')
                                     ->hidden(auth()->user()->id == 1 ? true : false)
                                     ->icon('heroicon-o-calendar-days')
                                     ->activeIcon('heroicon-o-calendar-days')
-                                    ->sort(1),
+                                    ->sort(2),
+                                NavigationItem::make('Move-Out')
+                                    ->url('/admin/move-out-forms-documents')
+                                    ->hidden(auth()->user()->id == 1 ? true : false)
+                                    ->icon('heroicon-o-calendar-days')
+                                    ->activeIcon('heroicon-o-calendar-days')
+                                    ->sort(3),
+                                NavigationItem::make('fit-Out')
+                                    ->url('/admin/fit-out-forms-documents')
+                                    ->hidden(auth()->user()->id == 1 ? true : false)
+                                    ->icon('heroicon-o-calendar-days')
+                                    ->activeIcon('heroicon-o-calendar-days')
+                                    ->sort(3),
+                                NavigationItem::make('Access Card')
+                                    ->url('/admin/access-card-forms-documents')
+                                    ->hidden(auth()->user()->id == 1 ? true : false)
+                                    ->icon('heroicon-o-calendar-days')
+                                    ->activeIcon('heroicon-o-calendar-days')
+                                    ->sort(3),
+                                NavigationItem::make('Residential')
+                                    ->url('/admin/residential-forms')
+                                    ->hidden(auth()->user()->id == 1 ? true : false)
+                                    ->icon('heroicon-o-calendar-days')
+                                    ->activeIcon('heroicon-o-calendar-days')
+                                    ->sort(4),
+                                NavigationItem::make('Noc')
+                                    ->url('/admin/noc-forms')
+                                    ->hidden(auth()->user()->id == 1 ? true : false)
+                                    ->icon('heroicon-o-calendar-days')
+                                    ->activeIcon('heroicon-o-calendar-days')
+                                    ->sort(5),
                                 ]),
                 ]);
             }
@@ -237,7 +291,7 @@ class AdminPanelProvider extends PanelProvider
                                     ->icon('heroicon-o-calendar-days')
                                     ->activeIcon('heroicon-o-calendar-days')
                                     ->sort(1),
-                                NavigationItem::make('Enquirys')
+                                NavigationItem::make('Enquiries')
                                     ->url('/admin/complaintsenquiries')
                                     ->hidden(auth()->user()->id == 1 ? true : false)
                                     ->icon('heroicon-m-clipboard-document-check')

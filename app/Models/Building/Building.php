@@ -3,6 +3,7 @@
 namespace App\Models\Building;
 
 use App\Models\Community\Post;
+use App\Models\Forms\Guest;
 use App\Models\Master\Role;
 use App\Models\Master\Service;
 use App\Models\MollakTenant;
@@ -15,6 +16,7 @@ use App\Models\Scopes\Searchable;
 use App\Models\Vendor\Attendance;
 use App\Models\Building\Complaint;
 use App\Models\Building\BuildingPoc;
+use App\Models\Forms\FitOutForm;
 use App\Models\Forms\MoveInOut;
 use App\Models\Vendor\Contact;
 use App\Models\Vendor\Vendor;
@@ -144,5 +146,9 @@ class Building extends Model
     public function guests()
     {
         return $this->hasMany(Guest::class);
+    }
+    public function fitOut()
+    {
+        return $this->hasMany(FitOutForm::class);
     }
 }

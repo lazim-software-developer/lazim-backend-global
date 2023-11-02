@@ -24,14 +24,21 @@ class CreateFormRequest extends FormRequest
         return [
             'building_id' => 'required|integer',
             'flat_id' => 'required|integer',
-            'name' => 'required|string',
             'type' =>'required',
-            'phone'=> 'required',
             'moving_date'=> 'required',
             'moving_time'=> 'required',
             'time_preference'=> 'required',
-            'email' => 'required|regex:/^[a-zA-Z0-9_.-]+@[a-zA-Z]+\.[a-zA-Z]+$/',
-            // 'file' => 'required|file |max:2048'
+            'handover_acceptance' => 'required|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
+            'receipt_charges' => 'required|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
+            'contract' => 'required|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
+            'title_deed' => 'required|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
+            'passport' => 'required|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
+            'dewa' => 'required|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
+            'cooling_registration' => 'required|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
+            'gas_registration' => 'required|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
+            'vehicle_registration' => 'required|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
+            'movers_license' => 'required|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
+            'movers_liability' => 'required|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
         ];
     }
     public function messages()
@@ -39,9 +46,6 @@ class CreateFormRequest extends FormRequest
         return [
             'building_id' => "Please select a building",
             'flat_id' => "Please select a flat",
-            'email.required' => 'Email is required.',
-            'name.required' =>'Name is required.',
-            'phone.required' =>'Phone is required.',
             'type.required' =>'Type is required.'
         ];
     }

@@ -12,7 +12,6 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 class AssignFlatsToTenant implements ShouldQueue
 {
@@ -29,8 +28,6 @@ class AssignFlatsToTenant implements ShouldQueue
     {
         // Fetch the owner using the provided email
         $owner = ApartmentOwner::where('email', $this->email)->first();
-
-        Log::info("AssignFlatsToTenant", [4]);
 
         $user = User::where('email', $this->email)->first();
 

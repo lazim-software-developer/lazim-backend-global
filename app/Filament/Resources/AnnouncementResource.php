@@ -86,7 +86,10 @@ class AnnouncementResource extends Resource
                         ->required(), 
                     
                     Hidden::make('user_id')
-                        ->default(auth()->user()->id), 
+                        ->default(auth()->user()->id),
+
+                    Hidden::make('owner_association_id')
+                        ->default(auth()->user()->owner_association_id), 
 
                     Hidden::make('is_announcement')
                         ->default(true),
@@ -100,25 +103,20 @@ class AnnouncementResource extends Resource
         return $table
         ->columns([
             TextColumn::make('content')
-                ->toggleable()
                 ->searchable()
                 ->default('NA')
                 ->limit(50),
             TextColumn::make('status')
-                ->toggleable()
                 ->searchable()
                 ->default('NA')
                 ->limit(50),
             TextColumn::make('scheduled_at')
-                ->toggleable()
                 ->dateTime(),
             TextColumn::make('building.name')
-                ->toggleable()
                 ->searchable()
                 ->default('NA')
                 ->limit(50),
             TextColumn::make('user.first_name')
-                ->toggleable()
                 ->searchable()
                 ->default('NA')
                 ->limit(50),

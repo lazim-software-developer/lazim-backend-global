@@ -15,7 +15,7 @@ class MoveInOutController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create(CreateFormRequest $request)
+    public function store(CreateFormRequest $request)
     {
         // Handle multiple images
         $document_paths = [
@@ -32,20 +32,27 @@ class MoveInOutController extends Controller
             'movers_liability',
         ];
 
-        foreach ($document_paths as $document) {
-            $file = $request->file($document);
-            $filePath = optimizeDocumentAndUpload($file, 'dev');
-            $currentDate = date('Y-m-d');
+        $data = $request->all();  // Get all request data
 
-            $request->merge([$document =>  $filePath]);
+        foreach ($document_paths as $document) {
+            if ($request->hasFile($document)) {
+                $file = $request->file($document);
+                $data[$document] = optimizeDocumentAndUpload($file, 'dev');
+            }
         }
 
-        MoveInOut::create($request->all());
+        $data['name'] = auth()->user()->first_name;
+        $data['phone']= auth()->user()->phone;
+        $data['email']= auth()->user()->email;
+        $data['user_id']= auth()->user()->id;
         
+        MoveInOut::create($data);
+
         return (new CustomResponseResource([
             'title' => 'Success',
-            'message' => 'Move-IN created successfully!',
+            'message' => 'Form submitted successfully!',
             'errorCode' => 201,
+            'status' => 'success',
         ]))->response()->setStatusCode(201);
     }
 }

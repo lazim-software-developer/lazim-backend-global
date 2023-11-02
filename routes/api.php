@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\Auth\ResetPasswordController;
 use App\Http\Controllers\Api\Auth\RegisterationController;
 use App\Http\Controllers\Api\Auth\VerificationController;
 use App\Http\Controllers\Api\TenantimportController;
+use App\Http\Controllers\AppFeedbackController;
 use App\Http\Controllers\Building\BuildingController;
 use App\Http\Controllers\Building\FlatController;
 use App\Http\Controllers\Community\CommentController;
@@ -16,9 +17,14 @@ use App\Http\Controllers\Community\PostController;
 use App\Http\Controllers\Community\PostLikeController;
 use App\Http\Controllers\Documents\DocumentsController;
 use App\Http\Controllers\Facility\FacilityController;
+use App\Http\Controllers\Forms\AccessCardController;
+use App\Http\Controllers\Forms\FitOutFormsController;
 use App\Http\Controllers\Forms\MoveInOutController;
 use App\Http\Controllers\Forms\GuestController;
+use App\Http\Controllers\Forms\ResidentialFormController;
+use App\Http\Controllers\Forms\SaleNocController;
 use App\Http\Controllers\HelpDesk\ComplaintController;
+use App\Http\Controllers\Security\SecurityController;
 use App\Http\Controllers\Services\ServiceController;
 use App\Http\Controllers\TagController;
 use App\Http\Controllers\User\ProfileController;
@@ -195,6 +201,9 @@ Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active']
 
     // Fetch all matching flats for the logged in user
     Route::get('/tenant/flats', [UserController::class, 'getUserFlats']);
+
+    // List all family members of logged in user
+    Route::get('/family-members/{building}', [UserController::class, 'getFamilyMembers']);
 });
 
 /**
@@ -218,11 +227,27 @@ Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active']
 /**
  * Forms related APIs
  */
-Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active'])->group(function () {
-    Route::post('/forms/move-in-out', [MoveInOutController::class, 'create']);
-    Route::post('/forms/guest-registration', [GuestController::class, 'create']);
+Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active'])->prefix('forms')->group(function () {
+    Route::post('/move-in-out', [MoveInOutController::class, 'store']);
+    Route::post('/guest-registration', [GuestController::class, 'store']);
+    Route::post('/sale-noc', [SaleNocController::class, 'store']);
+    Route::post('/fit-out', [FitOutFormsController::class, 'store']);
+    Route::post('/residential', [ResidentialFormController::class, 'store']);
+    Route::post('/access-card', [AccessCardController::class, 'create']);
+
+    // View form status
+    Route::get('/status/{building}', [AccessCardController::class, 'fetchFormStatus']);
 });
 
+// API  to fetch Security for a building
+Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active'])->prefix('building')->group(function () {
+    Route::get('/{building}/security', [SecurityController::class, 'fetchSecurity']);
+});
+
+// App suggestion and feedback
+Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active'])->group(function () {
+    Route::post('/feedback', [AppFeedbackController::class, 'store']);
+});
 
 // Test API for Mollak
 Route::get('/test-api', [MollakController::class, 'test']);

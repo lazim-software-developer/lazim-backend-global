@@ -12,17 +12,17 @@ return new class extends Migration
     public function up()
     {
         Schema::table('move_in_out', function (Blueprint $table) {
-            $table->string('handover_acceptance', 100)->nullable();
-            $table->string('receipt_charges', 100)->nullable();
-            $table->string('contract', 100)->nullable();
-            $table->string('title_deed', 100)->nullable();
-            $table->string('passport', 100)->nullable();
-            $table->string('dewa', 100)->nullable();
-            $table->string('cooling_registration', 100)->nullable();
-            $table->string('gas_registration', 100)->nullable();
-            $table->string('vehicle_registration', 100)->nullable();
-            $table->string('movers_license', 100)->nullable();
-            $table->string('movers_liability', 100)->nullable();
+            $table->string('handover_acceptance')->nullable();
+            $table->string('receipt_charges')->nullable();
+            $table->string('contract')->nullable();
+            $table->string('title_deed')->nullable();
+            $table->string('passport')->nullable();
+            $table->string('dewa')->nullable();
+            $table->string('cooling_registration')->nullable();
+            $table->string('gas_registration')->nullable();
+            $table->string('vehicle_registration')->nullable();
+            $table->string('movers_license')->nullable();
+            $table->string('movers_liability')->nullable();
         });
     }
 
