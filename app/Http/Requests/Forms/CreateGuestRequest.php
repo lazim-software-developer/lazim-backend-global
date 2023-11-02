@@ -22,7 +22,7 @@ class CreateGuestRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'passport_number' => 'required|string',
+            'passport_number' => 'required|alpha_num',
             'visa_validity_date' => 'required|date',
             'stay_duration' => 'required',
             'expiry_date' => 'required|date',
