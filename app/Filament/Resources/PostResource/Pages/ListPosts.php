@@ -12,7 +12,7 @@ class ListPosts extends ListRecords
     protected static string $resource = PostResource::class;
     protected function getTableQuery(): Builder
     {
-        return parent::getTableQuery()->where('is_announcement',0);
+        return parent::getTableQuery()->where('is_announcement',0)->where('owner_association_id',auth()->user()->owner_association_id);
     }
     protected function getHeaderActions(): array
     {

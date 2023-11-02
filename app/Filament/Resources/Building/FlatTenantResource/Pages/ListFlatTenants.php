@@ -6,6 +6,7 @@ use App\Filament\Resources\Building\FlatTenantResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
 use Illuminate\Contracts\View\View;
+use Illuminate\Database\Eloquent\Builder;
 
 class ListFlatTenants extends ListRecords
 {
@@ -17,8 +18,8 @@ class ListFlatTenants extends ListRecords
     //         Actions\CreateAction::make(),
     //     ];
     // }
-    // public function getHeader(): ?View
-    // {
-    //     return view('filament.custom.tenant-import');
-    // }
+    protected function getTableQuery(): Builder
+    {
+        return parent::getTableQuery()->where('owner_association_id',auth()->user()->owner_association_id);
+    }
 }

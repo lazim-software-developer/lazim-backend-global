@@ -52,26 +52,6 @@ class FacilityBookingResource extends Resource
                         ->searchable()
                         ->placeholder('Building'),
                         
-                    // Select::make('facility_id')
-                    //     ->rules(['exists:facilities,id'])
-                    //     ->relationship('facility', 'name')
-                    //     ->searchable()
-                    //     ->options(function (callable $get) {
-                    //         $facilityid = DB::table('building_facility')
-                    //                 ->where('building_facility.building_id', '=', $get('building_id'))
-                    //                 ->select('building_facility.facility_id')
-                    //                 ->pluck('building_facility.facility_id');
-                            
-                    //         return DB::table('facilities')
-                    //                 ->whereIn('facilities.id',$facilityid)
-                    //                 ->select('facilities.id','facilities.name')
-                    //                 ->pluck('facilities.name','facilities.id')
-                    //                 ->toArray();
-                    //     })
-                    //     ->required()
-                    //     ->preload()
-                    //     ->placeholder('Facilities'),
-                    
                     Select::make('bookable_id')
                         ->options(
                             DB::table('facilities')
@@ -80,6 +60,7 @@ class FacilityBookingResource extends Resource
                         )
                     ->searchable()
                     ->preload()
+                    ->label('Facility')
                     ->placeholder('Facility'),
 
                     Hidden::make('bookable_type')
@@ -90,7 +71,10 @@ class FacilityBookingResource extends Resource
                         ->required()
                         ->relationship('user', 'first_name')
                         ->searchable()
+                        ->preload()
+                        // ->label('Approved By')
                         ->placeholder('User'),
+
                     DatePicker::make('date')
                         ->rules(['date'])
                         ->required()

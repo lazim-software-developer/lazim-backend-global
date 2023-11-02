@@ -22,6 +22,7 @@ class Guest extends Model
         'guest_registration',
         'flat_visitor_id',
         'dtmc_license_url',
+        'owner_association_id',
     ];
 
     protected $searchableFields = ['*'];

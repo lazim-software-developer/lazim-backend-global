@@ -12,7 +12,7 @@ class ListOwners extends ListRecords
     protected static string $resource = OwnerResource::class;
     protected function getTableQuery(): Builder
     {
-        return parent::getTableQuery()->where('role_id',1);
+        return parent::getTableQuery()->where('role_id',1)->where('owner_association_id',auth()->user()->owner_association_id);
     }
     protected function getHeaderActions(): array
     {
