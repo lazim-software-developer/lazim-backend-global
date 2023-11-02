@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\Auth\ResetPasswordController;
 use App\Http\Controllers\Api\Auth\RegisterationController;
 use App\Http\Controllers\Api\Auth\VerificationController;
 use App\Http\Controllers\Api\TenantimportController;
+use App\Http\Controllers\AppFeedbackController;
 use App\Http\Controllers\Building\BuildingController;
 use App\Http\Controllers\Building\FlatController;
 use App\Http\Controllers\Community\CommentController;
@@ -238,6 +239,11 @@ Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active']
 // API  to fetch Security for a building
 Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active'])->prefix('building')->group(function () {
     Route::get('/{building}/security', [SecurityController::class, 'fetchSecurity']);
+});
+
+// App suggestion and feedback
+Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active'])->group(function () {
+    Route::post('/feedback', [AppFeedbackController::class, 'store']);
 });
 
 // Test API for Mollak
