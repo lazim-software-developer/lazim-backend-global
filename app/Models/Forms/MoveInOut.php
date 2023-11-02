@@ -34,6 +34,7 @@ class MoveInOut extends Model
         'vehicle_registration',
         'movers_license',
         'movers_liability',
+        'owner_association_id',
     ];
 
     protected $table = 'move_in_out';

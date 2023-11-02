@@ -20,6 +20,7 @@ class FitOutForm extends Model
         'undertaking_of_waterproofing',
         'building_id',
         'user_id',
+        'owner_association_id',
     ];
 
     protected $searchableFields = ['*'];

@@ -8,6 +8,7 @@ use App\Models\Vendor\Vendor;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
@@ -43,7 +44,8 @@ class VendorResource extends Resource
                     TextInput::make('phone')
                         ->required()
                         ->placeholder('Phone'),
-
+                    Hidden::make('owner_association_id')
+                        ->default(auth()->user()->owner_association_id),
                     Select::make('owner_id')->label('Manager Name')
                         ->rules(['exists:users,id'])
                         ->required()

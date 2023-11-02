@@ -7,6 +7,7 @@ use App\Filament\Resources\Building\BuildingResource\RelationManagers;
 use App\Models\Building\Building;
 use Filament\Forms;
 use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -49,6 +50,8 @@ class BuildingResource extends Resource
                         ->rules(['max:255', 'string'])
                         ->nullable()
                         ->placeholder('Address Line2'),
+                    Hidden::make('owner_association_id')
+                        ->default(auth()->user()->owner_association_id),
 
                     TextInput::make('area')
                         ->rules(['max:50', 'string'])

@@ -23,6 +23,7 @@ use App\Http\Controllers\Forms\GuestController;
 use App\Http\Controllers\Forms\ResidentialFormController;
 use App\Http\Controllers\Forms\SaleNocController;
 use App\Http\Controllers\HelpDesk\ComplaintController;
+use App\Http\Controllers\Security\SecurityController;
 use App\Http\Controllers\Services\ServiceController;
 use App\Http\Controllers\TagController;
 use App\Http\Controllers\User\ProfileController;
@@ -231,6 +232,10 @@ Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active']
     Route::post('/access-card', [AccessCardController::class, 'create']);
 });
 
+// API  to fetch Security for a building
+Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active'])->prefix('building')->group(function () {
+    Route::get('/{building}/security', [SecurityController::class, 'fetchSecurity']);
+});
 
 // Test API for Mollak
 Route::get('/test-api', [MollakController::class, 'test']);
