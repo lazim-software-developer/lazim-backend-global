@@ -23,6 +23,7 @@ class ResidentialFormRequest extends FormRequest
     {
         return [
             'unit_occupied_by' => 'required|string',
+            'name' => 'required|string',
             'building_id' => 'required|exists:buildings,id',
             'flat_id' => 'required|exists:flats,id',
             'passport_number' => 'nullable|string',
