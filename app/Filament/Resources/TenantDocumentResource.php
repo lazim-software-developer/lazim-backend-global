@@ -108,11 +108,6 @@ class TenantDocumentResource extends Resource
                     ->label('Document Name')
                     ->default('NA')
                     ->limit(50),
-                TextColumn::make('documentLibrary.type')
-                    ->searchable()
-                    ->default('NA')
-                    ->label('Type')
-                    ->limit(50),
                 TextColumn::make('building.name')
                     ->searchable()
                     ->default('NA')
@@ -139,11 +134,6 @@ class TenantDocumentResource extends Resource
                     ->searchable()
                     ->preload()
                     ->label('Tenant'),
-                SelectFilter::make('document_library_id')
-                    ->relationship('documentLibrary', 'type')
-                    ->searchable()
-                    ->preload()
-                    ->label('Type'),
                 SelectFilter::make('building_id')
                     ->relationship('building', 'name')
                     ->searchable()
