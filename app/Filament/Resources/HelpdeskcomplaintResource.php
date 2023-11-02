@@ -19,6 +19,7 @@ use Filament\Forms\Form;
 use Filament\Forms\Get;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Actions\Action;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Filters\SelectFilter;
@@ -90,19 +91,8 @@ class HelpdeskcomplaintResource extends Resource
                             ->nullable(),
                         TextInput::make('complaint')
                             ->placeholder('Complaint'),
-                        Select::make('status')
-                            ->options([
-                                'pending'   => 'Pending',
-                                'resolved' => 'Resolved',
-                                ])
-                            ->searchable()
-                            ->required()
-                            ->placeholder('Status')
-                            ->live(),
-                        TextInput::make('remarks')
-                            ->disabled(fn (Get $get) => $get('status') !== 'resolved')
-                            ->hiddenOn('create')
-                            ->label('Remarks'),
+                        Hidden::make('status')
+                            ->default('pending'),
                         Hidden::make('complaint_type')
                             ->default('help_desk'),
                     ])
@@ -136,7 +126,7 @@ class HelpdeskcomplaintResource extends Resource
                     ->toggleable()
                     ->searchable()
                     ->limit(50),
-                
+
 
             ])
             ->filters([
@@ -147,7 +137,42 @@ class HelpdeskcomplaintResource extends Resource
                     ->preload()
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                //Tables\Actions\EditAction::make(),
+                Action::make('Update Status')
+                    ->visible(fn ($record) => $record->status === 'pending')
+                    ->button()
+                    ->form([
+                        Select::make('status')
+                            ->options([
+                                'pending'   => 'Pending',
+                                'resolved' => 'Resolved',
+                            ])
+                            ->searchable()
+                            ->live(),
+                        TextInput::make('remarks')
+                            ->rules(['max:255'])
+                            ->visible(function (callable $get) {
+                                if ($get('status') == 'resolved') {
+                                    return true;
+                                }
+                                return false;
+                            }),
+                    ])
+                    ->fillForm(fn (Complaint $record): array => [
+                        'status' => $record->status,
+                        'remarks' => $record->remarks,
+                    ])
+                    ->action(function (Complaint $record, array $data): void {
+                        if ($data['status'] == 'resolved') {
+                            $record->status = $data['status'];
+                            $record->remarks = $data['remarks'];
+                            $record->save();
+                        } else {
+                            $record->status = $data['status'];
+                            $record->save();
+                        }
+                    })
+                    ->slideOver()
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -158,14 +183,14 @@ class HelpdeskcomplaintResource extends Resource
                 Tables\Actions\CreateAction::make(),
             ]);
     }
-    
+
     public static function getRelations(): array
     {
         return [
             //
         ];
     }
-    
+
     public static function getPages(): array
     {
         return [
@@ -173,5 +198,5 @@ class HelpdeskcomplaintResource extends Resource
             'create' => Pages\CreateHelpdeskcomplaint::route('/create'),
             'edit' => Pages\EditHelpdeskcomplaint::route('/{record}/edit'),
         ];
-    }    
+    }
 }
