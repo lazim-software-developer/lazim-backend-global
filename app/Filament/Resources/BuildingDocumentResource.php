@@ -81,14 +81,15 @@ class BuildingDocumentResource extends Resource
                         ->required()
                         ->placeholder('Status'),
                     TextInput::make('comments'),
+                    TextInput::make('name'),
                     //->required(),
                     DatePicker::make('expiry_date')
                         ->rules(['date'])
                         ->required()
                         ->placeholder('Expiry Date'),
 
-                Hidden::make('accepted_by')
-                    ->default(auth()->user()->id),
+                Hidden::make('owner_association_id')
+                    ->default(auth()->user()->owner_association_id),
 
                 Hidden::make('documentable_type')
                     ->default('App\Models\Building\Building'),
@@ -100,6 +101,7 @@ class BuildingDocumentResource extends Resource
                     ->searchable()
                     ->preload()
                     ->required()
+                    ->label('Building')
                     ->placeholder('Documentable Id'),
             ]),
 
@@ -117,10 +119,6 @@ class BuildingDocumentResource extends Resource
                     ->default('NA')
                     ->toggleable()
                     ->limit(50),
-                TextColumn::make('url')->label('Uploaded Document')
-                    ->toggleable()
-                    ->searchable()
-                    ->limit(50),
                 TextColumn::make('status')
                     ->toggleable()
                     ->searchable()
@@ -128,19 +126,10 @@ class BuildingDocumentResource extends Resource
                 TextColumn::make('expiry_date')
                     ->toggleable()
                     ->date(),
-                TextColumn::make('user.first_name')
-                    ->toggleable()
-                    ->searchable()
-                    ->default('NA')
-                    ->limit(50),
-                ViewColumn::make('name')->view('tables.columns.document')
+                ViewColumn::make('Building Name')->view('tables.columns.document')
                     ->searchable()
                     ->default('NA')
                     ->toggleable(),
-                TextColumn::make('documentable_type')
-                    ->toggleable()
-                    ->searchable()
-                    ->limit(50),
             ])
             ->filters([
                 //

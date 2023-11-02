@@ -55,6 +55,7 @@ class FacilityBookingsRelationManager extends RelationManager
                                 ->toArray()
                         )
                     ->searchable()
+                    ->label('Facility')
                     ->preload()
                     ->placeholder('Facility'),
 
@@ -68,6 +69,10 @@ class FacilityBookingsRelationManager extends RelationManager
                         ->searchable()
                         ->preload()
                         ->placeholder('User'),
+                    
+                    Hidden::make('owner_association_id')
+                            ->default(auth()->user()->owner_association_id),
+                    
                     DatePicker::make('date')
                         ->rules(['date'])
                         ->required()
