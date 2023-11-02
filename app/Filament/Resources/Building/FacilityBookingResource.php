@@ -51,7 +51,7 @@ class FacilityBookingResource extends Resource
                         ->preload()
                         ->searchable()
                         ->placeholder('Building'),
-                        
+
                     // Select::make('facility_id')
                     //     ->rules(['exists:facilities,id'])
                     //     ->relationship('facility', 'name')
@@ -61,7 +61,7 @@ class FacilityBookingResource extends Resource
                     //                 ->where('building_facility.building_id', '=', $get('building_id'))
                     //                 ->select('building_facility.facility_id')
                     //                 ->pluck('building_facility.facility_id');
-                            
+
                     //         return DB::table('facilities')
                     //                 ->whereIn('facilities.id',$facilityid)
                     //                 ->select('facilities.id','facilities.name')
@@ -71,8 +71,9 @@ class FacilityBookingResource extends Resource
                     //     ->required()
                     //     ->preload()
                     //     ->placeholder('Facilities'),
-                    
+
                     Select::make('bookable_id')
+                        ->label('Facility ')
                         ->options(
                             DB::table('facilities')
                                 ->pluck('name', 'id')
