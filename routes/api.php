@@ -230,6 +230,9 @@ Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active']
     Route::post('/fit-out', [FitOutFormsController::class, 'store']);
     Route::post('/residential', [ResidentialFormController::class, 'store']);
     Route::post('/access-card', [AccessCardController::class, 'create']);
+
+    // View form status
+    Route::get('/status', [AccessCardController::class, 'fetchFormStatus']);
 });
 
 // API  to fetch Security for a building
