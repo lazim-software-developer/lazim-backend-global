@@ -45,6 +45,8 @@ class ComplaintscomplaintResource extends Resource
                             ->default('App\Models\Building\FlatTenant'),
                         Hidden::make('complaintable_id')
                             ->default(1),
+                        Hidden::make('owner_association_id')
+                            ->default(auth()->user()->owner_association_id),
                         Select::make('building_id')
                             ->rules(['exists:buildings,id'])
                             ->relationship('building', 'name')
@@ -77,6 +79,7 @@ class ComplaintscomplaintResource extends Resource
                             ])
                             ->rules(['max:50', 'string'])
                             ->required()
+                            ->searchable()
                             ->placeholder('Category'),
                         FileUpload::make('photo')
                             ->disk('s3')

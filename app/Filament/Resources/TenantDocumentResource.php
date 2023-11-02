@@ -161,7 +161,7 @@ class TenantDocumentResource extends Resource
     {
         return [
             'index' => Pages\ListTenantDocuments::route('/'),
-            'create' => Pages\CreateTenantDocument::route('/create'),
+            //'create' => Pages\CreateTenantDocument::route('/create'),
             'edit' => Pages\EditTenantDocument::route('/{record}/edit'),
         ];
     }

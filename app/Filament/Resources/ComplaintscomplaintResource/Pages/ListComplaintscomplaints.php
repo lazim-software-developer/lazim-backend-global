@@ -12,7 +12,7 @@ class ListComplaintscomplaints extends ListRecords
     protected static string $resource = ComplaintscomplaintResource::class;
     protected function getTableQuery(): Builder
     {
-        return parent::getTableQuery()->where('complaint_type', 'tenant_complaint');
+        return parent::getTableQuery()->where('complaint_type', 'tenant_complaint')->where('owner_association_id',auth()->user()->owner_association_id);
     }
     protected function getHeaderActions(): array
     {
