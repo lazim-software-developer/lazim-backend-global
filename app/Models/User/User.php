@@ -3,7 +3,6 @@
 namespace App\Models\User;
 
 
-use App\Models\Building\Building;
 use App\Models\Building\BuildingPoc;
 use App\Models\Building\Complaint;
 use App\Models\Building\Document;
@@ -11,27 +10,25 @@ use App\Models\Building\FacilityBooking;
 use App\Models\Building\Flat;
 use App\Models\Building\FlatTenant;
 use App\Models\Community\Post;
+use App\Models\Forms\AccessCard;
+use App\Models\Forms\FitOutForm;
 use App\Models\Forms\MoveInOut;
 use App\Models\Forms\Guest;
+use App\Models\Forms\SaleNOC;
 use App\Models\Master\Role;
-use App\Models\OaDetails;
-use App\Models\OaUserRegistration as ModelsOaUserRegistration;
 use App\Models\OaUserRegistration;
 use App\Models\OwnerAssociation;
+use App\Models\ResidentialForm;
 use App\Models\Scopes\Searchable;
 use App\Models\Vendor\Attendance;
 use App\Models\Vendor\Vendor;
 use App\Models\Visitor\FlatVisitor;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Models\Contracts\HasName;
-use Filament\Models\Contracts\HasTenants;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Support\Collection;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Jetstream\HasProfilePhoto;
 use Laravel\Sanctum\HasApiTokens;
@@ -216,5 +213,29 @@ class User extends Authenticatable implements FilamentUser, HasName
     public function userDocuments()
     {
         return $this->hasMany(Document::class, 'documentable_id');
+    }
+    public function fitOut()
+    {
+        return $this->hasMany(FitOutForm::class);
+    }
+    public function accessCard()
+    {
+        return $this->hasMany(AccessCard::class);
+    }
+    public function residentialForm()
+    {
+        return $this->hasMany(ResidentialForm::class);
+    }
+    public function guestRegsitration()
+    {
+        return $this->hasMany(Guest::class);
+    }
+    public function moveinData()
+    {
+        return $this->hasMany(MoveInOut::class);
+    }
+    public function saleNoc()
+    {
+        return $this->hasMany(SaleNOC::class);
     }
 }

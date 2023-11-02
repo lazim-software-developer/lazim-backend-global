@@ -44,9 +44,17 @@ class Document extends Model
     {
         return $this->belongsTo(User::class, 'accepted_by');
     }
+    public function documentUsers()
+    {
+        return $this->belongsTo(User::class, 'documentable_id');
+    }
     public function building()
     {
         return $this->belongsTo(Building::class);
+    }
+    public function flat()
+    {
+        return $this->belongsTo(Flat::class);
     }
     public function documentable()
     {

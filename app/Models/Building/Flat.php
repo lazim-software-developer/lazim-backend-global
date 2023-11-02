@@ -6,7 +6,10 @@ use App\Models\ApartmentOwner;
 use App\Models\Building\Building;
 use App\Models\Building\FlatTenant;
 use App\Models\FlatOwner;
-use App\Models\Forms\MoveInOut;
+use App\Models\Forms\AccessCard;
+use App\Models\Forms\FitOutForm;
+use App\Models\Forms\Form;
+use App\Models\Forms\Guest;
 use App\Models\MollakTenant;
 use App\Models\OaUserRegistration;
 use App\Models\Scopes\Searchable;
@@ -58,7 +61,10 @@ class Flat extends Model
     public function owners() {
         return $this->belongsToMany(ApartmentOwner::class, 'flat_owner', 'flat_id', 'owner_id');
     }
-
+    public function documents()
+    {
+        return $this->hasMany(Document::class);
+    }
     public function mollakTenants() {
         return $this->hasMany(MollakTenant::class);
     }
@@ -69,5 +75,13 @@ class Flat extends Model
     public function guests()
     {
         return $this->hasMany(Guest::class);
+    }
+    public function fitOut()
+    {
+        return $this->hasMany(FitOutForm::class);
+    }
+    public function accessCard()
+    {
+        return $this->hasMany(AccessCard::class);
     }
 }

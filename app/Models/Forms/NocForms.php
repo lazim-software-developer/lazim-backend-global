@@ -4,6 +4,7 @@ namespace App\Models\Forms;
 
 use App\Models\Building\Building;
 use App\Models\Building\Flat;
+use App\Models\Forms\NocContacts;
 use App\Models\User\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -29,18 +30,22 @@ class NocForms extends Model
         'building_id',
         'verified_by',
         'flat_id',
+        'owner_association_id',
     ];
 
     protected $searchableFields = ['*'];
     protected $casts = [
-        'allow_postupload'         => 'boolean',
+        'verified'         => 'boolean',
     ];
 
     public function user()
     {
         return $this->belongsTo(User::class);
     }
-
+    public function contact() 
+    {
+        return $this->hasMany(NocContacts::class);
+    }
     public function building()
     {
         return $this->belongsTo(Building::class);

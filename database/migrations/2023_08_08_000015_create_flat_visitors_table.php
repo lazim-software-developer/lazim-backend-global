@@ -16,11 +16,11 @@ return new class extends Migration {
             $table->unsignedBigInteger('building_id')->nullable();
             $table->unsignedBigInteger('owner_association_id')->nullable();
             $table->string('name', 50);
-            $table->string('phone', 10)->unique();
+            $table->string('phone', 10);
             $table->string('type', 50);
             $table->dateTime('start_time');
             $table->dateTime('end_time');
-            $table->integer('verification_code')->unique();
+            $table->integer('verification_code');
             $table->unsignedBigInteger('initiated_by');
             $table->unsignedBigInteger('approved_by');
             $table->json('remarks');

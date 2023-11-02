@@ -14,19 +14,22 @@ class GuestController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create(CreateGuestRequest $request)
+    public function store(CreateGuestRequest $request)
     {
         $request->merge([
             'start_time' => $request->start_date,
             'end_time' => $request->end_date,
             'initiated_by' => auth()->user()->id,
+            'name' => auth()->user()->first_name,
+            'phone' => auth()->user()->phone,
+            'email' => auth()->user()->email,
         ]);
         $guest = FlatVisitor::create($request->all());
 
         $filePath = optimizeDocumentAndUpload($request->file('image'), 'dev');
         $request->merge([
             'flat_visitor_id'=> $guest->id,
-            'dtmc_license'=>$filePath,
+            'dtmc_license_url'=>$filePath,
         ]);
         Guest::create($request->all());
 
@@ -48,11 +51,11 @@ class GuestController extends Controller
 
                 Document::create($request->all());
             }
-            return (new CustomResponseResource([
+        }
+        return (new CustomResponseResource([
                 'title' => 'Success',
-                'message' => 'Move-IN created successfully!',
+                'message' => ' created successfully!',
                 'errorCode' => 201,
             ]))->response()->setStatusCode(201);
-        }
     }
 }

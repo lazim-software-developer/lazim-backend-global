@@ -21,9 +21,8 @@ function optimizeAndUpload($image, $path, $width = 474, $height = 622)
     return $fullPath;
 }
 
-function optimizeDocumentAndUpload($file, $path, $width = 474, $height = 622)
+function optimizeDocumentAndUpload($file, $path = 'dev', $width = 474, $height = 622)
 {
-
     if ($file) {
         $extension = $file->getClientOriginalExtension();
 

@@ -7,6 +7,7 @@ use App\Filament\Resources\Building\BuildingResource\RelationManagers;
 use App\Models\Building\Building;
 use Filament\Forms;
 use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -14,6 +15,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 
 class BuildingResource extends Resource
 {
@@ -38,7 +40,12 @@ class BuildingResource extends Resource
                     TextInput::make('property_group_id')
                         ->rules(['max:50', 'string'])
                         ->required()
-                        ->placeholder('Property Group Id'),
+                        ->placeholder('Property Group Id')
+                        ->unique(
+                            'buildings',
+                            'property_group_id',
+                            fn(?Model $record) => $record
+                        ),
 
                     TextInput::make('address_line1')
                         ->rules(['max:255', 'string'])
@@ -49,6 +56,8 @@ class BuildingResource extends Resource
                         ->rules(['max:255', 'string'])
                         ->nullable()
                         ->placeholder('Address Line2'),
+                    Hidden::make('owner_association_id')
+                        ->default(auth()->user()->owner_association_id),
 
                     TextInput::make('area')
                         ->rules(['max:50', 'string'])
@@ -58,6 +67,7 @@ class BuildingResource extends Resource
                     Select::make('city_id')
                         ->rules(['exists:cities,id'])
                         ->required()
+                        ->preload()
                         ->relationship('cities', 'name')
                         ->searchable()
                         ->placeholder('City'),

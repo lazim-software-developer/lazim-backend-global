@@ -25,9 +25,11 @@ use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\PostResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\PostResource\RelationManagers;
+use App\Models\Building\Building;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Grid;
 
+use Illuminate\Support\Facades\DB;
 use function Laravel\Prompts\select;
 
 class PostResource extends Resource
@@ -73,11 +75,12 @@ class PostResource extends Resource
                         ->required()
                         ->placeholder('Scheduled At'),
 
-                    Select::make('building_id')
+                    Select::make('building')
                         ->relationship('building', 'name')
                         ->searchable()
                         ->preload()
                         ->required()
+                        ->label('Building')
                         ->columnSpan([
                             'sm' => 1,
                             'md' => 1,
@@ -86,6 +89,9 @@ class PostResource extends Resource
                     
                     Hidden::make('user_id')
                         ->default(auth()->user()->id), 
+
+                    Hidden::make('owner_association_id')
+                        ->default(auth()->user()->owner_association_id), 
 
                     Hidden::make('is_announcement')
                         ->default(false),
@@ -118,25 +124,20 @@ class PostResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('content')
-                    ->toggleable()
                     ->searchable()
                     ->default('NA')
                     ->limit(50),
                 TextColumn::make('status')
-                    ->toggleable()
                     ->searchable()
                     ->default('NA')
                     ->limit(50),
                 TextColumn::make('scheduled_at')
-                    ->toggleable()
                     ->dateTime(),
                 TextColumn::make('building.name')
-                    ->toggleable()
                     ->searchable()
                     ->default('NA')
                     ->limit(50),
                 TextColumn::make('user.first_name')
-                    ->toggleable()
                     ->searchable()
                     ->default('NA')
                     ->limit(50),

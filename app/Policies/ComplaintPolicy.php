@@ -58,13 +58,7 @@ class ComplaintPolicy
      */
     public function update(User $user, Complaint $model): bool
     {
-        $role = $user->role->name == 'Admin';
-
-        if($role)
-        {
-            return false;
-        }
-        return true;
+        return false;
     }
 
     /**

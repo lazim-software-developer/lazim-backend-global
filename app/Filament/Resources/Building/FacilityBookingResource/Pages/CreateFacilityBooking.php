@@ -22,7 +22,8 @@ class CreateFacilityBooking extends CreateRecord
         FacilityBooking::where('id', $this->record->id)
 
             ->update([
-                'approved_by'=>$this->record->user_id
+                // 'approved_by'=>$this->record->user_id,
+                'owner_association_id'=>auth()->user()->owner_association_id
             ]);
 
     }
