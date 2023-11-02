@@ -38,76 +38,84 @@ class MoveOutFormsDocumentResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-        ->poll('60s')
-        ->modifyQueryUsing(fn(Builder $query) => $query->where('type', 'move-out')->withoutGlobalScopes())
-        ->columns([
-            TextColumn::make('name')
-                ->searchable()
-                ->default('NA')
-                ->limit(50),
-            TextColumn::make('email')
-                ->searchable()
-                ->default('NA')
-                ->limit(50),
-            TextColumn::make('phone')
-                ->searchable()
-                ->default('NA')
-                ->limit(50),
-            TextColumn::make('type')
-                ->searchable()
-                ->default('NA')
-                ->limit(50),
-            TextColumn::make('moving_date')
-                ->limit(50),
-            TextColumn::make('moving_time')
-                ->limit(50),
-            TextColumn::make('building.name')
-                ->searchable()
-                ->default('NA')
-                ->limit(50),
-            TextColumn::make('user.first_name')
-                ->searchable()
-                ->default('NA')
-                ->limit(50),
-            TextColumn::make('flat.property_number')
-                ->searchable()
-                ->default('NA')
-                ->limit(50),
-            ImageColumn::make('handover_acceptance')
-                ->disk('s3')
-                ->circular(),
-            ImageColumn::make('receipt_charges')
-                ->circular()
-                ->disk('s3'),
-            ImageColumn::make('contract')
-                ->circular()
-                ->disk('s3'),
-            ImageColumn::make('title_deed')
-                ->circular()
-                ->disk('s3'),
-            ImageColumn::make('passport')
-                ->circular()
-                ->disk('s3'),
-            ImageColumn::make('dewa')
-                ->circular()
-                ->disk('s3'),
-            ImageColumn::make('cooling_registration')
-                ->circular()
-                ->disk('s3'),
-            ImageColumn::make('gas_registration')
-                ->circular()
-                ->disk('s3'),
-            ImageColumn::make('vehicle_registration')
-                ->circular()
-                ->disk('s3'),
-            ImageColumn::make('movers_license')
-                ->circular()
-                ->disk('s3'),
-            ImageColumn::make('movers_liability')
-                ->circular()
-                ->disk('s3'),
-            
-        ])
+            ->poll('60s')
+            ->modifyQueryUsing(fn (Builder $query) => $query->where('type', 'move-out')->withoutGlobalScopes())
+            ->columns([
+                TextColumn::make('name')
+                    ->searchable()
+                    ->default('NA')
+                    ->limit(50),
+                TextColumn::make('email')
+                    ->searchable()
+                    ->default('NA')
+                    ->limit(50),
+                TextColumn::make('phone')
+                    ->searchable()
+                    ->default('NA')
+                    ->limit(50),
+                TextColumn::make('type')
+                    ->searchable()
+                    ->default('NA')
+                    ->limit(50),
+                TextColumn::make('status')
+                    ->searchable()
+                    ->default('NA')
+                    ->limit(50),
+                TextColumn::make('remarks')
+                    ->searchable()
+                    ->default('NA')
+                    ->limit(50),
+                TextColumn::make('moving_date')
+                    ->limit(50),
+                TextColumn::make('moving_time')
+                    ->limit(50),
+                TextColumn::make('building.name')
+                    ->searchable()
+                    ->default('NA')
+                    ->limit(50),
+                TextColumn::make('user.first_name')
+                    ->searchable()
+                    ->default('NA')
+                    ->limit(50),
+                TextColumn::make('flat.property_number')
+                    ->searchable()
+                    ->default('NA')
+                    ->limit(50),
+                ImageColumn::make('handover_acceptance')
+                    ->disk('s3')
+                    ->circular(),
+                ImageColumn::make('receipt_charges')
+                    ->circular()
+                    ->disk('s3'),
+                ImageColumn::make('contract')
+                    ->circular()
+                    ->disk('s3'),
+                ImageColumn::make('title_deed')
+                    ->circular()
+                    ->disk('s3'),
+                ImageColumn::make('passport')
+                    ->circular()
+                    ->disk('s3'),
+                ImageColumn::make('dewa')
+                    ->circular()
+                    ->disk('s3'),
+                ImageColumn::make('cooling_registration')
+                    ->circular()
+                    ->disk('s3'),
+                ImageColumn::make('gas_registration')
+                    ->circular()
+                    ->disk('s3'),
+                ImageColumn::make('vehicle_registration')
+                    ->circular()
+                    ->disk('s3'),
+                ImageColumn::make('movers_license')
+                    ->circular()
+                    ->disk('s3'),
+                ImageColumn::make('movers_liability')
+                    ->circular()
+                    ->disk('s3'),
+
+            ])
             ->filters([
                 //
             ])
@@ -126,9 +134,8 @@ class MoveOutFormsDocumentResource extends Resource
                             ->live(),
                         TextInput::make('remarks')
                             ->rules(['max:255'])
-                            ->visible(function(callable $get){
-                                if($get('status')=='rejected')
-                                {
+                            ->visible(function (callable $get) {
+                                if ($get('status') == 'rejected') {
                                     return true;
                                 }
                                 return false;
@@ -138,15 +145,12 @@ class MoveOutFormsDocumentResource extends Resource
                         'status' => $record->status,
                         'remarks' => $record->remarks,
                     ])
-                    ->action(function (MoveInOut $record,array $data): void {
-                        if($data['status'] == 'rejected')
-                        {
+                    ->action(function (MoveInOut $record, array $data): void {
+                        if ($data['status'] == 'rejected') {
                             $record->status = $data['status'];
                             $record->remarks = $data['remarks'];
                             $record->save();
-                        }
-                        else
-                        {
+                        } else {
                             $record->status = $data['status'];
                             $record->save();
                         }
@@ -162,14 +166,14 @@ class MoveOutFormsDocumentResource extends Resource
                 //Tables\Actions\CreateAction::make(),
             ]);
     }
-    
+
     public static function getRelations(): array
     {
         return [
             //
         ];
     }
-    
+
     public static function getPages(): array
     {
         return [
@@ -177,5 +181,5 @@ class MoveOutFormsDocumentResource extends Resource
             //'create' => Pages\CreateMoveOutFormsDocument::route('/create'),
             //'edit' => Pages\EditMoveOutFormsDocument::route('/{record}/edit'),
         ];
-    }    
+    }
 }
