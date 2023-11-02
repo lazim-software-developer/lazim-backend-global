@@ -55,17 +55,8 @@ class BuildingDocumentResource extends Resource
                     ->preload()
                     ->relationship('documentLibrary', 'name')
                     ->searchable()
-                    ->placeholder('Document Library')
-                    ->getSearchResultsUsing(fn(string $search) => DB::table('document_libraries')
-                            ->join('building_documentlibraries', function (JoinClause $join) {
-                                $join->on('document_libraries.id', '=', 'building_documentlibraries.documentlibrary_id')
-                                    ->where([
-                                        ['building_id', '=', Filament::getTenant()->id],
+                    ->placeholder('Document Library'),
 
-                                    ]);
-                                })
-                                ->pluck('document_libraries.name', 'document_libraries.id')
-                        ),
                     FileUpload::make('url')
                         ->disk('s3')
                         ->directory('dev')
