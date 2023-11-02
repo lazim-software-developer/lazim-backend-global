@@ -26,10 +26,13 @@ class AccessCardController extends Controller
             $file = $request->file($document);
             $data[$document] = optimizeDocumentAndUpload($file, 'dev');
         }
+
         $data['user_id'] = auth()->user()->id;
         $data['mobile']= auth()->user()->phone;
         $data['email'] = auth()->user()->email;
+        
         AccessCard::create($data);
+
         return (new CustomResponseResource([
             'title' => 'Success',
             'message' => 'Access card submitted successfully!',
