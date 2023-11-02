@@ -32,6 +32,6 @@ class UserController extends Controller
 
     // List all family members from Residential form
     public function getFamilyMembers(Building $building) {
-        return auth()->user()->residentialForm()->where('building_id', $building->id)->get(['name']);
+        return auth()->user()->residentialForm()->where('building_id', $building->id)->where('status', 'approved')->get(['id', 'name']);
     }
 }
