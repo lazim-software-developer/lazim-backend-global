@@ -86,7 +86,10 @@ class AnnouncementResource extends Resource
                         ->required(), 
                     
                     Hidden::make('user_id')
-                        ->default(auth()->user()->id), 
+                        ->default(auth()->user()->id),
+
+                    Hidden::make('owner_association_id')
+                        ->default(auth()->user()->owner_association_id), 
 
                     Hidden::make('is_announcement')
                         ->default(true),

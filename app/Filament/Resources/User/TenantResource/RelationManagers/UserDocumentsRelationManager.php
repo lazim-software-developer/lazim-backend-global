@@ -3,6 +3,11 @@
 namespace App\Filament\Resources\User\TenantResource\RelationManagers;
 
 use Filament\Forms;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
@@ -19,9 +24,41 @@ class UserDocumentsRelationManager extends RelationManager
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('name')
+                TextInput::make('name')
                     ->required()
                     ->maxLength(255),
+
+                Select::make('document_library_id')
+                    ->rules(['exists:document_libraries,id'])
+                    ->required()
+                    ->preload()
+                    ->relationship('documentLibrary', 'name')
+                    ->searchable()
+                    ->placeholder('Document Library'),
+
+                FileUpload::make('url')
+                        ->disk('s3')
+                        ->directory('dev')
+                        ->label('Document')
+                        ->required(),
+
+                Select::make('status')
+                        ->options([
+                            'submitted' => 'Submitted',
+                            'approved' => 'Approved',
+                            'rejected' => 'Rejected',
+                        ])
+                        ->searchable()
+                        ->required()
+                        ->placeholder('Status'),
+
+                TextInput::make('comments'),
+                Hidden::make('documentable_type')
+                    ->default('App\Models\Building\FlatTenant'),
+                DatePicker::make('expiry_date')
+                        ->rules(['date'])
+                        ->required()
+                        ->placeholder('Expiry Date'),
             ]);
     }
 

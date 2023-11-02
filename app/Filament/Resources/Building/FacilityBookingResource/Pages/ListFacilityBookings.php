@@ -12,6 +12,10 @@ class ListFacilityBookings extends ListRecords
     protected static string $resource = FacilityBookingResource::class;
     protected function getTableQuery(): Builder
     {
+        if(auth()->user()->id != 1) 
+        {
+            return parent::getTableQuery()->where('bookable_type','App\Models\Master\Facility')->where('owner_association_id',auth()->user()->owner_association_id);
+        }
         return parent::getTableQuery()->where('bookable_type','App\Models\Master\Facility');
     }
     protected function getHeaderActions(): array
