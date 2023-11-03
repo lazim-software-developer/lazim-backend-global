@@ -17,6 +17,7 @@ use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Actions\Action;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -47,7 +48,7 @@ class ServiceBookingResource extends Resource
                         ->preload()
                         ->searchable()
                         ->placeholder('Building'),
-                    
+
                     Select::make('bookable_id')
                         ->options(
                             DB::table('services')
@@ -81,15 +82,17 @@ class ServiceBookingResource extends Resource
                         ->required()
                         ->placeholder('End Time'),
                     TextInput::make('remarks')
+                    ->default('NA')
                         ->required(),
                     TextInput::make('reference_number')
                         ->rules(['numeric'])
+                        ->default('0')
                         ->required()
                         ->numeric()
                         ->placeholder('References Number'),
-                    Toggle::make('approved')
-                        ->rules(['boolean'])
-                        ->required(),
+                    // Toggle::make('approved')
+                    //     ->rules(['boolean'])
+                    //     ->required(),
                 ]),
 
             ]);
@@ -133,7 +136,22 @@ class ServiceBookingResource extends Resource
                     ->preload()
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                Action::make('Update Status')
+                    ->button()
+                    ->form([
+                        Toggle::make('approved')
+                            ->rules(['boolean'])
+                            ->required()
+                            ->live(),
+                    ])
+                    ->fillForm(fn (FacilityBooking $record): array => [
+                        'approved' => $record->status,
+                    ])
+                    ->action(function (FacilityBooking $record, array $data): void {
+                        $record->approved = $data['approved'];
+                        $record->save();
+                    })
+                    ->slideOver()
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -144,20 +162,21 @@ class ServiceBookingResource extends Resource
                 Tables\Actions\CreateAction::make(),
             ]);
     }
-    
+
     public static function getRelations(): array
     {
         return [
             //
         ];
     }
-    
+
     public static function getPages(): array
     {
         return [
             'index' => Pages\ListServiceBookings::route('/'),
             'create' => Pages\CreateServiceBooking::route('/create'),
-            'edit' => Pages\EditServiceBooking::route('/{record}/edit'),
+            'view' => Pages\ViewServiceBooking::route('/{record}'),
+            // 'edit' => Pages\EditServiceBooking::route('/{record}/edit'),
         ];
-    }    
+    }
 }
