@@ -96,13 +96,13 @@ class FacilityBookingResource extends Resource
                             ->placeholder('User'),
                         DatePicker::make('date')
                             ->rules(['date'])
-                            ->minDate(now())
+                            ->minDate(now()->subYears(150))
                             ->closeOnDateSelection()
                             ->required()
                             ->placeholder('Date'),
                         TimePicker::make('start_time')
                             ->required()
-                            ->minDate(now())
+                            ->minDate(now()->subYears(150))
                             ->placeholder('Start Time'),
                         TimePicker::make('end_time')
                             ->after('start_time')
