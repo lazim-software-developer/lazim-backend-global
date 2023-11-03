@@ -143,6 +143,9 @@ Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active']
     Route::delete('/posts/{post}/unlike', [PostLikeController::class, 'unlike'])->name('posts.unlike');
     // List all users who liked the post
     Route::get('/posts/{post}/likers', [PostLikeController::class, 'likers'])->name('posts.likers');
+
+    // Check if post upload is enabled for a building
+    Route::get('/buildings/{building}/post-upload-permission', [PostController::class, 'checkPostUploadPermission']);
 });
 
 
