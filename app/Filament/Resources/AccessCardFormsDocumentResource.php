@@ -49,6 +49,7 @@ class AccessCardFormsDocumentResource extends Resource
                     ->default('NA')
                     ->limit(50),
                 TextColumn::make('parking_details')
+                ->default('NA')
                     ->limit(50),
                 TextColumn::make('building.name')
                     ->searchable()
@@ -64,13 +65,16 @@ class AccessCardFormsDocumentResource extends Resource
                     ->limit(50),
                 ImageColumn::make('passport')
                     ->circular()
+                    ->default('NA')
                     ->disk('s3'),
                 ImageColumn::make('tenancy')
                     ->circular()
+                    ->default('NA')
                     ->disk('s3'),
                 ImageColumn::make('vehicle_registration')
                     ->label('Vehicle Registration')
                     ->circular()
+                    ->default('NA')
                     ->disk('s3'),
                 TextColumn::make('status')
                     ->searchable()
