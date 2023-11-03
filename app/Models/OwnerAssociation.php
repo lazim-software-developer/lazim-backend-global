@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Forms\SaleNOC;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -15,5 +16,9 @@ class OwnerAssociation extends Model
 
     public function users() {
         return $this->hasMany(User::class);
+    }
+    public function saleNoc()
+    {
+        return $this->hasMany(SaleNOC::class);
     }
 }

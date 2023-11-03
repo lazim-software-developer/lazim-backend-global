@@ -34,7 +34,8 @@ class EditOwnerAssociation extends EditRecord
     }
     public function afterSave()
     {
-
+        // $phone = OwnerAssociation::where('id',$this->data['id'])->pluck('phone');
+        // dd($phone->first() == $this->data['phone']);
         OwnerAssociation::where('id', $this->data['id'])
             ->update([
                 'name'    => $this->record->name,
