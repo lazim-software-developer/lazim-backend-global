@@ -20,14 +20,24 @@ use Illuminate\Support\Facades\DB;
 class RegisterationController extends Controller
 {
     public function registerWithEmailPhone(RegisterRequest $request) {
+        if(User::where(['email' => $request->email, 'phone' => $request->mobile])
+            ->where('email_verified', 0)->orWhere('phone_verified', 0)->exists()) {
+            return (new CustomResponseResource([
+                'title' => 'account_present',
+                'message' => "Your account is not verified. You'll be redirected account verification page",
+                'errorCode' => 403, 
+            ]))->response()->setStatusCode(400);
+        }
+
         // Check if user exists in our DB
-        if(User::where(['email' => $request->email, 'phone' => $request->mobile])->exists()) {
+        if (User::where(['email' => $request->email, 'phone' => $request->mobile, 'email_verified' => 1, 'phone_verified' => 1])->exists()) {
             return (new CustomResponseResource([
                 'title' => 'account_present',
                 'message' => 'Your email is already registered in our application. Please try login instead!',
-                'errorCode' => 400, 
+                'errorCode' => 400,
             ]))->response()->setStatusCode(400);
         }
+
         // Fetch the flat using the provided flat_id
         $flat = Flat::find($request->flat_id);
     
