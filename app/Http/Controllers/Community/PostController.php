@@ -54,7 +54,8 @@ class PostController extends Controller
             'user_id' => auth()->user()->id,
             'is_announcement' => $request->is_announcement ?? false,
             'status' => 'published',
-            'scheduled_at' => now()
+            'scheduled_at' => now(),
+            'owner_association_id' => $building->owner_association_id
         ]);
 
         // Attach building to post
@@ -74,13 +75,13 @@ class PostController extends Controller
                 // Attach the media to the post
                 $post->media()->save($media);
             }
-
-            return (new CustomResponseResource([
-                'title' => 'Success',
-                'message' => 'Post created successfully!',
-                'errorCode' => 201,
-            ]))->response()->setStatusCode(201);
         }
+
+        return (new CustomResponseResource([
+            'title' => 'Success',
+            'message' => 'Post created successfully!',
+            'errorCode' => 201,
+        ]))->response()->setStatusCode(201);
     }
 
     /**
