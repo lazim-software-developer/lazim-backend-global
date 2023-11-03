@@ -97,4 +97,15 @@ class PostController extends Controller
         $post->load('comments');
         return new PostResource($post);
     }
+
+    /**
+     * Check if post uploading is enabled for this building
+     *
+     * @param  Post  $post
+     * @return \Illuminate\Http\Response
+     */
+    public function checkPostUploadPermission(Building $building)
+    {
+        return response()->json(['allow_post_upload' => $building->allow_postupload]);
+    }
 }
