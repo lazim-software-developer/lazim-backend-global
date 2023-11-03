@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Builder;
 class ListFitOutFormsDocuments extends ListRecords
 {
     protected static string $resource = FitOutFormsDocumentResource::class;
+    protected static ?string $title = 'FitOut';
     protected function getTableQuery(): Builder
     {
         return parent::getTableQuery()->where('owner_association_id',auth()->user()->owner_association_id);

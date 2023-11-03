@@ -6,6 +6,8 @@ use App\Filament\Resources\ResidentialFormResource\Pages;
 use App\Filament\Resources\ResidentialFormResource\RelationManagers;
 use App\Models\ResidentialForm;
 use Filament\Forms;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
@@ -29,7 +31,89 @@ class ResidentialFormResource extends Resource
     {
         return $form
             ->schema([
-                //
+                Grid::make([
+                    'sm' => 1,
+                    'md' => 1,
+                    'lg' => 2,
+                ])->schema([
+                    TextInput::make('unit_occupied_by')
+                        ->label('Unit Occupied By'),
+                    TextInput::make('passport_number')
+                        ->label('Passport Number')
+                        ->placeholder('Passport Number'),
+                    TextInput::make('number_of_children')
+                        ->label('Number Of Children')
+                        ->placeholder('Number Of Children'),
+                    TextInput::make('number_of_adults')
+                        ->label('Number Of Adults'),
+                    Select::make('building_id')
+                        ->relationship('building','name')
+                        ->preload()
+                        ->searchable()
+                        ->label('Building Name'),
+                    Select::make('flat_id')
+                        ->relationship('flat','property_number')
+                        ->preload()
+                        ->searchable()
+                        ->label('Property No'),
+                    Select::make('user_id')
+                        ->rules(['exists:users,id'])
+                        ->relationship('user', 'first_name')
+                        ->required()
+                        ->preload()
+                        ->searchable()
+                        ->label('User'),
+                    TextInput::make('office_number')
+                        ->label('Office Number'),
+                    TextInput::make('trn_number')
+                        ->label('TRN Number'),
+                    TextInput::make('unit_occupied_by')
+                        ->label('Unit Occupied By'),
+                    TextInput::make('emirates_id')
+                        ->label('Emirates Id'),
+                    TextInput::make('title_deed_number')
+                        ->label('Title Deed Number'),
+                    TextInput::make('status')
+                        ->required()
+                        ->label('Status'),
+                    TextInput::make('remarks')
+                        ->required()
+                        ->label('Remarks'),
+                    FileUpload::make('title_deed_url')
+                        ->disk('s3')
+                        ->directory('dev')
+                        ->label('Title Deed Url')
+                        ->downloadable()
+                        ->openable()
+                        ->columnSpan([
+                            'sl'=>1,
+                            'md'=>1,
+                            'lg'=>2,
+                        ]),
+                    FileUpload::make('emirates_url')
+                        ->disk('s3')
+                        ->directory('dev')
+                        ->label('Emirates Url')
+                        ->downloadable()
+                        ->openable()
+                        ->columnSpan([
+                            'sl'=>1,
+                            'md'=>1,
+                            'lg'=>2,
+                        ]),
+                    FileUpload::make('passport_url')
+                        ->disk('s3')
+                        ->directory('dev')
+                        ->label('Passport Url')
+                        ->downloadable()
+                        ->openable()
+                        ->columnSpan([
+                            'sl'=>1,
+                            'md'=>1,
+                            'lg'=>2,
+                        ]),
+
+                ]),
             ]);
     }
 
@@ -37,15 +121,6 @@ class ResidentialFormResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('unit_occupied_by')
-                    ->searchable()
-                    ->default('NA'),
-                TextColumn::make('name')
-                    ->searchable()
-                    ->default('NA'),
-                TextColumn::make('passport_number')
-                    ->searchable()
-                    ->default('NA'),
                 TextColumn::make('building.name')
                     ->searchable()
                     ->label('Building')
@@ -58,45 +133,23 @@ class ResidentialFormResource extends Resource
                     ->searchable()
                     ->label('Flat Number')
                     ->default('NA'),
-                TextColumn::make('number_of_adults')
-                    ->searchable()
-                    ->default('NA'),
-                TextColumn::make('number_of_children')
-                    ->searchable()
-                    ->default('NA'),
-                TextColumn::make('office_number')
-                    ->searchable()
-                    ->default('NA'),
-                TextColumn::make('trn_number')
-                    ->searchable()
-                    ->default('NA'),
-                TextColumn::make('unit_occupied_by')
-                    ->searchable()
-                    ->default('NA'),
-                TextColumn::make('passport_expires_on')
-                    ->date()
-                    ->searchable(),
-                TextColumn::make('emirates_id')
-                    ->searchable()
-                    ->default('NA'),
-                TextColumn::make('emirates_expires_on')
-                    ->date()
-                    ->searchable(),
-                TextColumn::make('title_deed_number')
-                    ->searchable()
-                    ->default('NA'),
-                // TextColumn::make('emergency_contact')
-                //     ->searchable()
-                //     ->default('NA'),
                 ImageColumn::make('passport_url')
-                    ->circular()
+                    ->square()
                     ->disk('s3'),
                 ImageColumn::make('emirates_url')
-                    ->circular()
+                    ->square()
                     ->disk('s3'),
                 ImageColumn::make('title_deed_url')
-                    ->circular()
+                    ->square()
                     ->disk('s3'),
+                TextColumn::make('status')
+                    ->searchable()
+                    ->default('NA')
+                    ->limit(50),
+                TextColumn::make('remarks')
+                    ->searchable()
+                    ->default('NA')
+                    ->limit(50),
             ])
             ->filters([
                 SelectFilter::make('user_id')
@@ -180,6 +233,7 @@ class ResidentialFormResource extends Resource
             'index' => Pages\ListResidentialForms::route('/'),
             //'create' => Pages\CreateResidentialForm::route('/create'),
             //'edit' => Pages\EditResidentialForm::route('/{record}/edit'),
+            'view' => Pages\ViewResidentialForm::route('/{record}'),
         ];
     }    
 }
