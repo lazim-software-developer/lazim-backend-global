@@ -29,6 +29,7 @@ class UserDocumentsRelationManager extends RelationManager
                 TextInput::make('name')
                     ->required()
                     ->label('Document Name')
+                    ->disabled()
                     ->maxLength(255)
                     ->columnSpan([
                         'sl'=>1,
@@ -40,6 +41,7 @@ class UserDocumentsRelationManager extends RelationManager
                         ->disk('s3')
                         ->directory('dev')
                         ->label('Document')
+                        ->disabled()
                         ->required()
                         ->columnSpan([
                             'sl'=>1,
@@ -49,7 +51,6 @@ class UserDocumentsRelationManager extends RelationManager
 
                 Select::make('status')
                         ->options([
-                            'submitted' => 'Submitted',
                             'approved' => 'Approved',
                             'rejected' => 'Rejected',
                         ])
@@ -79,17 +80,10 @@ class UserDocumentsRelationManager extends RelationManager
                     ->label('Document Name')
                     ->default('NA')
                     ->limit(50),
-                TextColumn::make('documentLibrary.name')
-                    ->searchable()
-                    ->default('NA')
-                    ->label('Document Library Name')
-                    ->limit(50),
                 TextColumn::make('status')
                     ->searchable()
                     ->default('NA')
                     ->limit(50),
-                TextColumn::make('expiry_date')
-                    ->date(),
                 TextColumn::make('documentUsers.first_name')
                     ->searchable()
                     ->label('Tenant Name')

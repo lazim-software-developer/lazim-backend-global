@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\NocFormResource\Pages;
 use App\Filament\Resources\NocFormResource\RelationManagers;
 use App\Models\Forms\NocForms;
+use App\Models\Forms\SaleNOC;
 use App\Models\NocForm;
 use Filament\Forms;
 use Filament\Forms\Components\DatePicker;
@@ -27,8 +28,8 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class NocFormResource extends Resource
 {
-    protected static ?string $model = NocForms::class;
-
+    protected static ?string $model = SaleNOC::class;
+    protected static ?string $modelLabel = 'Sale NOC';
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     public static function form(Form $form): Form
@@ -39,9 +40,15 @@ class NocFormResource extends Resource
                 TextInput::make('applicant'),
                 TextInput::make('unit_area'),
                 TextInput::make('sale_price'),
-                Toggle::make('cooling_bill_paid'),
-                Toggle::make('service_charge_paid'),
-                Toggle::make('noc_fee_paid'),
+                TextInput::make('status'),
+                TextInput::make('remarks'),
+                Select::make('user_id')
+                        ->rules(['exists:users,id'])
+                        ->relationship('user', 'first_name')
+                        ->required()
+                        ->preload()
+                        ->searchable()
+                        ->label('User'),
                 Select::make('building_id')
                         ->relationship('building','name')
                         ->preload()
@@ -54,35 +61,68 @@ class NocFormResource extends Resource
                         ->label('Property No'),
                 DatePicker::make('service_charge_paid_till')
                         ->date(),
-                FileUpload::make('cooling_receipt_url')
+                FileUpload::make('cooling_receipt')
                         ->disk('s3')
-                        ->directory('dev'),
-                FileUpload::make('cooling_soa_url')
-                        ->disk('s3')
-                        ->directory('dev'),
-                FileUpload::make('cooling_clearance_url')
-                        ->disk('s3')
-                        ->directory('dev'),
-                FileUpload::make('payment_receipt_url')
-                        ->disk('s3')
-                        ->directory('dev'),
-                Repeater::make('contact')
-                        ->relationship('contact')
-                        ->schema([
-                            TextInput::make('type'),
-                            TextInput::make('first_name'),
-                            TextInput::make('last_name'),
-                            TextInput::make('email'),
-                            TextInput::make('mobile'),
-                            TextInput::make('emirates_id'),
-                            TextInput::make('passport_number'),
-                            TextInput::make('visa_number'),
-                        ])
+                        ->directory('dev')
+                        ->label('Cooling Receipt')
+                        ->downloadable()
+                        ->openable()
                         ->columnSpan([
-                            'sm' => 1,
-                            'md' => 1,
-                            'lg' => 2,
-                        ])
+                            'sm'=> '1',
+                            'md'=> '1',
+                            'lg'=> '2',
+                        ]),
+                FileUpload::make('cooling_soa')
+                        ->disk('s3')
+                        ->directory('dev')
+                        ->label('Cooling Soa')
+                        ->downloadable()
+                        ->openable()
+                        ->columnSpan([
+                            'sm'=> '1',
+                            'md'=> '1',
+                            'lg'=> '2',
+                        ]),
+                FileUpload::make('cooling_clearance')
+                        ->disk('s3')
+                        ->directory('dev')
+                        ->label('Cooling Clearance')
+                        ->downloadable()
+                        ->openable()
+                        ->columnSpan([
+                            'sm'=> '1',
+                            'md'=> '1',
+                            'lg'=> '2',
+                        ]),
+                FileUpload::make('payment_receipt')
+                        ->disk('s3')
+                        ->directory('dev')
+                        ->label('Payment Receipt')
+                        ->downloadable()
+                        ->openable()
+                        ->columnSpan([
+                            'sm'=> '1',
+                            'md'=> '1',
+                            'lg'=> '2',
+                        ]),
+                Toggle::make('cooling_bill_paid')
+                ->columnSpan([
+                    'sm'=> '1',
+                    'md'=> '1',
+                    'lg'=> '2',
+                ]),
+                Toggle::make('service_charge_paid')
+                ->columnSpan([
+                    'sm'=> '1',
+                    'md'=> '1',
+                    'lg'=> '2',
+                ]),
+                Toggle::make('noc_fee_paid')
+                ->columnSpan([
+                    'sm'=> '1',
+                    'md'=> '1',
+                    'lg'=> '2',
+                ]),
             ]);
     }
 
@@ -90,44 +130,37 @@ class NocFormResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('unit_occupied_by')
+                TextColumn::make('user.first_name')
                     ->searchable()
                     ->default('NA'),
-                TextColumn::make('applicant')
-                    ->searchable()
-                    ->default('NA'),
-                TextColumn::make('unit_area')
-                    ->searchable()
-                    ->default('NA'),
-                TextColumn::make('sale_price')
-                    ->searchable()
-                    ->default('NA'),
-                IconColumn::make('cooling_bill_paid')
-                    ->boolean(),
-                IconColumn::make('service_charge_paid')
-                    ->boolean(),
-                IconColumn::make('noc_fee_paid')
-                    ->boolean(),
                 TextColumn::make('building.name')
                     ->searchable()
                     ->default('NA'),
                 TextColumn::make('flat.property_number')
                     ->searchable()
                     ->default('NA'),
-                TextColumn::make('service_charge_paid_till')
-                    ->date(),
-                ImageColumn::make('cooling_receipt_url')
-                    ->circular()
+                ImageColumn::make('cooling_receipt')
+                    ->square()
+                    ->alignCenter()
                     ->disk('s3'),
-                ImageColumn::make('cooling_soa_url')
-                    ->circular()
+                ImageColumn::make('cooling_soa')
+                    ->square()
+                    ->alignCenter()
                     ->disk('s3'),
-                ImageColumn::make('cooling_clearance_url')
-                    ->circular()
+                ImageColumn::make('cooling_clearance')
+                    ->square()
+                    ->alignCenter()
                     ->disk('s3'),
-                ImageColumn::make('payment_receipt_url')
-                    ->circular()
+                ImageColumn::make('payment_receipt')
+                    ->square()
+                    ->alignCenter()
                     ->disk('s3'),
+                TextColumn::make('status')
+                    ->searchable()
+                    ->default('NA'),
+                TextColumn::make('remarks')
+                    ->searchable()
+                    ->default('NA'),
             ])
             ->filters([
                 SelectFilter::make('building_id')

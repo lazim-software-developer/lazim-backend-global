@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\OwnerAssociationResource\Pages;
 use App\Models\OwnerAssociation;
+use Closure;
 use Filament\Forms\Components\Component;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\TextInput;
@@ -35,6 +36,12 @@ class OwnerAssociationResource extends Resource
                     TextInput::make('name')
                         ->rules(['regex:/^[a-zA-Z\s]*$/'])
                         ->required()
+                        ->disabled(function (callable $get) {
+                            return DB::table('owner_associations')
+                                ->where('email',$get('email'))
+                                ->where('verified', 1)
+                                ->exists();
+                        })
                         ->placeholder('User'),
                     TextInput::make('mollak_id')->label('Oa Number')
                         ->required()
@@ -53,13 +60,33 @@ class OwnerAssociationResource extends Resource
                             'users',
                             'phone',
                         )
+                        ->live()
+                        ->disabled(function (callable $get) {
+                            return DB::table('owner_associations')
+                                ->where('email',$get('email'))
+                                ->where('verified', 1)
+                                ->exists();
+                        })
                         ->placeholder('Contact Number'),
                     TextInput::make('address')
                         ->required()
+                        ->disabled(function (callable $get) {
+                            return DB::table('owner_associations')
+                                ->where('email',$get('email'))
+                                ->where('verified', 1)
+                                ->exists();
+                        })
                         ->placeholder('Address'),
                     TextInput::make('email')
-                        ->rules(['min:6', 'max:30', 'regex:/^[a-z0-9.]+@[a-z]+\.[a-z]{2,}$/'])
+                        ->rules(['min:6', 'max:30', 'regex:/^[a-z0-9.]+@[a-z]+\.[a-z]{2,}$/',function () {
+                            return function (string $attribute, $value, Closure $fail) {
+                                if (DB::table('owner_associations')->where('email', $value)->where('verified',1)->exists()) {
+                                    $fail('The email is already taken.');
+                                }
+                            };
+                        },])
                         ->required()
+                        ->live()
                         ->disabled(function (callable $get) {
                             return DB::table('owner_associations')
                                 ->where('phone',$get('phone'))
