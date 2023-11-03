@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('noc_forms', function (Blueprint $table) {
+        Schema::table('sale_nocs', function (Blueprint $table) {
             $table->unsignedBigInteger('owner_association_id')->nullable();
             $table->foreign('owner_association_id')->references('id')->on('owner_associations')->onUpdate('CASCADE')->onDelete('CASCADE');
         });
@@ -22,7 +22,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('noc_forms', function (Blueprint $table) {
+        Schema::table('sale_nocs', function (Blueprint $table) {
             $table->dropForeign(['owner_association_id']);
             $table->dropColumn('owner_association_id');
         });
