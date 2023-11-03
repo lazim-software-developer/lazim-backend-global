@@ -67,7 +67,7 @@ class UserDocumentsRelationManager extends RelationManager
                         }
                             return false;
                     }),
-              
+
             ]);
     }
 
@@ -94,7 +94,7 @@ class UserDocumentsRelationManager extends RelationManager
                     ->date(),
                 TextColumn::make('documentUsers.first_name')
                     ->searchable()
-                    ->label('Tenant Name')
+                    ->label('Owner Name')
                     ->default('NA')
             ])
             ->filters([
@@ -104,7 +104,7 @@ class UserDocumentsRelationManager extends RelationManager
                 //Tables\Actions\CreateAction::make(),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                // Tables\Actions\EditAction::make(),
                 //Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
