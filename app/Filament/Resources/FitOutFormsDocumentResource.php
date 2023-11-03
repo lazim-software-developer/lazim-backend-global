@@ -4,8 +4,10 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\FitOutFormsDocumentResource\Pages;
 use App\Models\Forms\FitOutForm;
+use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables\Actions\Action;
@@ -25,7 +27,49 @@ class FitOutFormsDocumentResource extends Resource
     {
         return $form
             ->schema([
-                //
+                Grid::make([
+                    'sm' => 1,
+                    'md' => 1,
+                    'lg' => 2,
+                ])->schema([
+                    TextInput::make('contractor_name')
+                        ->required()
+                        ->label('Contractor Name'),
+                    TextInput::make('email')
+                        ->label('Email')
+                        ->required()
+                        ->placeholder('Email'),
+                    TextInput::make('phone')
+                        ->label('Phone Number')
+                        ->required()
+                        ->placeholder('Phone Number'),
+                    Select::make('building_id')
+                        ->relationship('building','name')
+                        ->preload()
+                        ->searchable()
+                        ->label('Building Name'),
+                    Select::make('flat_id')
+                        ->relationship('flat','property_number')
+                        ->preload()
+                        ->searchable()
+                        ->label('Property No'),
+                    Select::make('user_id')
+                        ->rules(['exists:users,id'])
+                        ->relationship('user', 'first_name')
+                        ->required()
+                        ->preload()
+                        ->searchable()
+                        ->label('User'),
+                    TextInput::make('status')
+                        ->required()
+                        ->label('Status'),
+                    TextInput::make('remarks')
+                        ->required()
+                        ->label('Remarks'),
+                    Toggle::make('no_objection'),
+                    Toggle::make('undertaking_of_waterproofing'),
+
+                ]),
             ]);
     }
 
@@ -34,26 +78,6 @@ class FitOutFormsDocumentResource extends Resource
         return $table
             ->poll('60s')
             ->columns([
-                TextColumn::make('contractor_name')
-                    ->searchable()
-                    ->default('NA')
-                    ->limit(50),
-                TextColumn::make('email')
-                    ->searchable()
-                    ->default('NA')
-                    ->limit(50),
-                TextColumn::make('phone')
-                    ->searchable()
-                    ->default('NA')
-                    ->limit(50),
-                IconColumn::make('no_objection')
-                    ->boolean()
-                    ->trueIcon('heroicon-o-check-badge')
-                    ->falseIcon('heroicon-o-x-mark'),
-                IconColumn::make('undertaking_of_waterproofing')
-                    ->boolean()
-                    ->trueIcon('heroicon-o-check-badge')
-                    ->falseIcon('heroicon-o-x-mark'),
                 TextColumn::make('building.name')
                     ->searchable()
                     ->default('NA')
@@ -73,7 +97,15 @@ class FitOutFormsDocumentResource extends Resource
                 TextColumn::make('remarks')
                     ->searchable()
                     ->default('NA')
-                    ->limit(50),
+                    ->limit(50), 
+                IconColumn::make('no_objection')
+                    ->boolean()
+                    ->trueIcon('heroicon-o-check-badge')
+                    ->falseIcon('heroicon-o-x-mark'),
+                IconColumn::make('undertaking_of_waterproofing')
+                    ->boolean()
+                    ->trueIcon('heroicon-o-check-badge')
+                    ->falseIcon('heroicon-o-x-mark'),
 
             ])
             ->filters([
@@ -131,7 +163,9 @@ class FitOutFormsDocumentResource extends Resource
         return [
             'index' => Pages\ListFitOutFormsDocuments::route('/'),
             //'create' => Pages\CreateFitOutFormsDocument::route('/create'),
-            'edit' => Pages\EditFitOutFormsDocument::route('/{record}/edit'),
+            //'edit' => Pages\EditFitOutFormsDocument::route('/{record}/edit'),
+            'view' => Pages\ViewFitOutFormsDocument::route('/{record}'),
+
         ];
     }
 }

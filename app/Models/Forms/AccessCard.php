@@ -2,6 +2,7 @@
 
 namespace App\Models\Forms;
 
+use App\Models\Building\Building;
 use App\Models\Building\Flat;
 use App\Models\User\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -34,5 +35,9 @@ class AccessCard extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+    public function building()
+    {
+        return $this->belongsTo(Building::class);
     }
 }

@@ -50,7 +50,6 @@ class UserDocumentsRelationManager extends RelationManager
 
                 Select::make('status')
                         ->options([
-                            'submitted' => 'Submitted',
                             'approved' => 'Approved',
                             'rejected' => 'Rejected',
                         ])
@@ -81,20 +80,13 @@ class UserDocumentsRelationManager extends RelationManager
                     ->label('Document Name')
                     ->default('NA')
                     ->limit(50),
-                TextColumn::make('documentLibrary.name')
-                    ->searchable()
-                    ->default('NA')
-                    ->label('Document Library Name')
-                    ->limit(50),
                 TextColumn::make('status')
                     ->searchable()
                     ->default('NA')
                     ->limit(50),
-                TextColumn::make('expiry_date')
-                    ->date(),
                 TextColumn::make('documentUsers.first_name')
                     ->searchable()
-                    ->label('Tenant Name')
+                    ->label('Owner Name')
                     ->default('NA')
             ])
             ->filters([
