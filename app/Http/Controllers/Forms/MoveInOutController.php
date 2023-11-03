@@ -5,10 +5,8 @@ namespace App\Http\Controllers\Forms;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Forms\CreateFormRequest;
 use App\Http\Resources\CustomResponseResource;
-use App\Models\Building\Document;
-use App\Models\Forms\Form;
+use App\Models\Building\Building;
 use App\Models\Forms\MoveInOut;
-use App\Models\User\User;
 
 class MoveInOutController extends Controller
 {
@@ -17,6 +15,8 @@ class MoveInOutController extends Controller
      */
     public function store(CreateFormRequest $request)
     {
+        $ownerAssociationId = Building::find($request->building_id)->owner_association_id;
+
         // Handle multiple images
         $document_paths = [
             'handover_acceptance',
@@ -45,6 +45,7 @@ class MoveInOutController extends Controller
         $data['phone']= auth()->user()->phone;
         $data['email']= auth()->user()->email;
         $data['user_id']= auth()->user()->id;
+        $data['owner_association_id']= $ownerAssociationId;
         
         MoveInOut::create($data);
 

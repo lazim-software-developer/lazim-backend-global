@@ -16,6 +16,8 @@ class AccessCardController extends Controller
      */
     public function create(CreateAccessCardFormsRequest $request)
     {
+        $ownerAssociationId = Building::find($request->building_id)->owner_association_id;
+        
         // Handle multiple images
         $document_paths = [
             'tenancy',
@@ -33,6 +35,7 @@ class AccessCardController extends Controller
         $data['user_id'] = auth()->user()->id;
         $data['mobile']= auth()->user()->phone;
         $data['email'] = auth()->user()->email;
+        $data['owner_association_id'] = $ownerAssociationId;
 
         AccessCard::create($data);
 
