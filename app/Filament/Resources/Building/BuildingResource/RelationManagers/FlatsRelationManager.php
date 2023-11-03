@@ -32,7 +32,7 @@ class FlatsRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     Hidden::make('building_id')
                         ->default(function(RelationManager $livewire){
                             return $livewire->ownerRecord->id;
@@ -47,25 +47,12 @@ class FlatsRelationManager extends RelationManager
             ->columns([
                 Tables\Columns\TextColumn::make('property_number'),
                 Tables\Columns\TextColumn::make('building.name')->limit(50),
-                //Tables\Columns\TextColumn::make('description')->limit(50),
             ])
             ->filters([
                 //
             ])
-            // ->headerActions([
-            //     Tables\Actions\CreateAction::make(),
-            // ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                //
             ]);
-            // ->emptyStateActions([
-            //     Tables\Actions\CreateAction::make(),
-            // ]);
     }
 }
