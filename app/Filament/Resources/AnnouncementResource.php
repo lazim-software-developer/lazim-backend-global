@@ -46,12 +46,13 @@ class AnnouncementResource extends Resource
                         ->minLength(10)
                         ->maxLength(255)
                         ->required()
+                        ->helperText('Maximum 255 characters')
                         ->columnSpan([
                             'sm' => 1,
                             'md' => 1,
                             'lg' => 2,
                         ]),
-                
+
                     Select::make('status')
                         ->searchable()
                         ->options([
@@ -62,7 +63,7 @@ class AnnouncementResource extends Resource
                         ->live()
                         ->required()
                         ->default('draft'),
-                
+
                     DateTimePicker::make('scheduled_at')
                         ->rules(['date'])
                         ->displayFormat('d-M-Y h:i A')
@@ -83,17 +84,17 @@ class AnnouncementResource extends Resource
                         ->searchable()
                         ->multiple()
                         ->preload()
-                        ->required(), 
-                    
+                        ->required(),
+
                     Hidden::make('user_id')
                         ->default(auth()->user()->id),
 
                     Hidden::make('owner_association_id')
-                        ->default(auth()->user()->owner_association_id), 
+                        ->default(auth()->user()->owner_association_id),
 
                     Hidden::make('is_announcement')
                         ->default(true),
-                        
+
                 ])
             ]);
     }
@@ -145,14 +146,14 @@ class AnnouncementResource extends Resource
                 Tables\Actions\CreateAction::make(),
             ]);
     }
-    
+
     public static function getRelations(): array
     {
         return [
             //
         ];
     }
-    
+
     public static function getPages(): array
     {
         return [
@@ -160,5 +161,5 @@ class AnnouncementResource extends Resource
             'create' => Pages\CreateAnnouncement::route('/create'),
             'edit' => Pages\EditAnnouncement::route('/{record}/edit'),
         ];
-    }    
+    }
 }
