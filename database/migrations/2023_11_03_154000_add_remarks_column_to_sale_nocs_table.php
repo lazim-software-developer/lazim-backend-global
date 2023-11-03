@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::table('sale_nocs', function (Blueprint $table) {
             $table->string('status', 100)->nullable()->change();
-            $table->string('remarks')->nullable()->after('status');
         });
     }
 
@@ -24,7 +23,6 @@ return new class extends Migration
     {
         Schema::table('sale_nocs', function (Blueprint $table) {
             $table->dropColumn(['status']);
-            $table->dropColumn(['remarks']);
         });
     }
 };
