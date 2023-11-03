@@ -45,6 +45,7 @@ class ServiceBookingResource extends Resource
                         ->rules(['exists:buildings,id'])
                         ->relationship('building', 'name')
                         ->reactive()
+                        ->required()
                         ->preload()
                         ->searchable()
                         ->placeholder('Building'),
@@ -58,6 +59,7 @@ class ServiceBookingResource extends Resource
                     ->searchable()
                     ->preload()
                     ->label('Service')
+                    ->required()
                     ->placeholder('Service'),
 
                     Hidden::make('bookable_type')
