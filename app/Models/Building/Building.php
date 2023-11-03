@@ -3,7 +3,9 @@
 namespace App\Models\Building;
 
 use App\Models\Community\Post;
+use App\Models\Forms\AccessCard;
 use App\Models\Forms\Guest;
+use App\Models\Forms\SaleNOC;
 use App\Models\Master\Role;
 use App\Models\Master\Service;
 use App\Models\MollakTenant;
@@ -57,7 +59,10 @@ class Building extends Model
     {
         return $this->hasMany(BuildingPoc::class);
     }
-
+    public function saleNoc()
+    {
+        return $this->hasMany(SaleNOC::class);
+    }
     public function complaint()
     {
         return $this->hasMany(Complaint::class);
@@ -150,5 +155,9 @@ class Building extends Model
     public function fitOut()
     {
         return $this->hasMany(FitOutForm::class);
+    }
+    public function accesscards()
+    {
+        return $this->hasMany(AccessCard::class);
     }
 }

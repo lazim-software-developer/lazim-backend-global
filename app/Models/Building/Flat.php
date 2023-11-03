@@ -10,6 +10,7 @@ use App\Models\Forms\AccessCard;
 use App\Models\Forms\FitOutForm;
 use App\Models\Forms\Form;
 use App\Models\Forms\Guest;
+use App\Models\Forms\SaleNOC;
 use App\Models\MollakTenant;
 use App\Models\OaUserRegistration;
 use App\Models\Scopes\Searchable;
@@ -83,5 +84,9 @@ class Flat extends Model
     public function accessCard()
     {
         return $this->hasMany(AccessCard::class);
+    }
+    public function saleNoc()
+    {
+        return $this->hasMany(SaleNOC::class);
     }
 }

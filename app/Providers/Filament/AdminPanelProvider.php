@@ -227,19 +227,19 @@ class AdminPanelProvider extends PanelProvider
                                     ->icon('heroicon-o-calendar-days')
                                     ->activeIcon('heroicon-o-calendar-days')
                                     ->sort(1),
-                                NavigationItem::make('Move-IN')
+                                NavigationItem::make('MoveIn')
                                     ->url('/admin/move-in-forms-documents')
                                     ->hidden(auth()->user()->id == 1 ? true : false)
                                     ->icon('heroicon-o-calendar-days')
                                     ->activeIcon('heroicon-o-calendar-days')
                                     ->sort(2),
-                                NavigationItem::make('Move-Out')
+                                NavigationItem::make('MoveOut')
                                     ->url('/admin/move-out-forms-documents')
                                     ->hidden(auth()->user()->id == 1 ? true : false)
                                     ->icon('heroicon-o-calendar-days')
                                     ->activeIcon('heroicon-o-calendar-days')
                                     ->sort(3),
-                                NavigationItem::make('fit-Out')
+                                NavigationItem::make('FitOut')
                                     ->url('/admin/fit-out-forms-documents')
                                     ->hidden(auth()->user()->id == 1 ? true : false)
                                     ->icon('heroicon-o-calendar-days')
@@ -257,7 +257,7 @@ class AdminPanelProvider extends PanelProvider
                                     ->icon('heroicon-o-calendar-days')
                                     ->activeIcon('heroicon-o-calendar-days')
                                     ->sort(4),
-                                NavigationItem::make('Noc')
+                                NavigationItem::make('Sale NOC')
                                     ->url('/admin/noc-forms')
                                     ->hidden(auth()->user()->id == 1 ? true : false)
                                     ->icon('heroicon-o-calendar-days')
