@@ -26,7 +26,7 @@ return new class extends Migration
             $table->string('passport_document_url');
 
             $table->unsignedBigInteger('noc_form_id');
-            $table->foreign('noc_form_id')->references('id')->on('noc_forms');
+            $table->foreign('noc_form_id')->references('id')->on('sale_nocs');
             $table->timestamps();
         });
     }
