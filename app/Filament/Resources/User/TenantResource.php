@@ -116,20 +116,21 @@ class TenantResource extends Resource
                 Tables\Actions\CreateAction::make(),
             ]);
     }
-    
+
     public static function getRelations(): array
     {
         return [
             UserDocumentsRelationManager::class,
         ];
     }
-    
+
     public static function getPages(): array
     {
         return [
             'index' => Pages\ListTenants::route('/'),
             'create' => Pages\CreateTenant::route('/create'),
-            'edit' => Pages\EditTenant::route('/{record}/edit'),
+            'view' => Pages\ViewTenant::route('/{record}'),
+            // 'edit' => Pages\EditTenant::route('/{record}/edit'),
         ];
-    }    
+    }
 }

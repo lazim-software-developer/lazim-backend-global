@@ -19,6 +19,7 @@ use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Actions\Action;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -96,13 +97,13 @@ class FacilityBookingResource extends Resource
                             ->placeholder('User'),
                         DatePicker::make('date')
                             ->rules(['date'])
-                            ->minDate(now())
+                            ->minDate(now()->subYears(150))
                             ->closeOnDateSelection()
                             ->required()
                             ->placeholder('Date'),
                         TimePicker::make('start_time')
                             ->required()
-                            ->minDate(now())
+                            ->minDate(now()->subYears(150))
                             ->placeholder('Start Time'),
                         TimePicker::make('end_time')
                             ->after('start_time')
@@ -113,12 +114,10 @@ class FacilityBookingResource extends Resource
                             ->required(),
                         TextInput::make('reference_number')
                             ->rules(['numeric'])
-                            ->default('NA')
+                            ->default('00')
                             ->numeric()
                             ->placeholder('References Number'),
-                        Toggle::make('approved')
-                            ->rules(['boolean'])
-                            ->required(),
+
                     ]),
 
             ]);
@@ -152,7 +151,7 @@ class FacilityBookingResource extends Resource
                     ->default('NA')
                     ->time(),
                 Tables\Columns\TextColumn::make('reference_number')
-                    ->default('NA')
+                    ->default('0')
                     ->searchable(),
                 Tables\Columns\IconColumn::make('approved')
                     ->boolean(),
@@ -164,7 +163,22 @@ class FacilityBookingResource extends Resource
                     ->preload()
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                Action::make('Update Status')
+                    ->button()
+                    ->form([
+                        Toggle::make('approved')
+                            ->rules(['boolean'])
+                            ->required()
+                            ->live(),
+                    ])
+                    ->fillForm(fn (FacilityBooking $record): array => [
+                        'approved' => $record->status,
+                    ])
+                    ->action(function (FacilityBooking $record, array $data): void {
+                        $record->approved = $data['approved'];
+                        $record->save();
+                    })
+                    ->slideOver()
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -188,7 +202,8 @@ class FacilityBookingResource extends Resource
         return [
             'index' => Pages\ListFacilityBookings::route('/'),
             'create' => Pages\CreateFacilityBooking::route('/create'),
-            'edit' => Pages\EditFacilityBooking::route('/{record}/edit'),
+            'view' => Pages\ViewFacilityBooking::route('/{record}'),
+            // 'edit' => Pages\EditFacilityBooking::route('/{record}/edit'),
         ];
     }
 }
