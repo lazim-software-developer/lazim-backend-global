@@ -8,6 +8,7 @@ use App\Http\Resources\CustomResponseResource;
 use App\Models\Building\Building;
 use App\Models\Building\Document;
 use App\Models\Forms\Guest;
+use App\Models\Master\DocumentLibrary;
 use App\Models\Visitor\FlatVisitor;
 
 class GuestController extends Controller
@@ -44,8 +45,11 @@ class GuestController extends Controller
                 $currentDate = date('Y-m-d');
 
                 //TODO: NEED TO CHANGE EXPIRY_DATE LOGIC
+                $passportId = DocumentLibrary::where('name', 'Passport')->value('id');
+                
                 $request->merge([
                     'documentable_id' => $guest->id,
+                    'document_library_id' => $passportId,
                     'status' => 'pending',
                     'url' => $filePath,
                     'expiry_date' => date('Y-m-d', strtotime('+1 year', strtotime($currentDate))),
