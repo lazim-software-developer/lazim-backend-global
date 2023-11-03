@@ -21,7 +21,7 @@ class FacilityPolicy
     /**
      * Determine whether the facility can view the model.
      */
-    public function view(User $user, Facility $model): bool
+    public function view(User $user): bool
     {
         return true;
     }

@@ -51,14 +51,15 @@ class ServiceController extends Controller
             ]))->response()->setStatusCode(400);
         }
 
-        $booking = FacilityBooking::create([
+        FacilityBooking::create([
             'bookable_id' => $request->service_id,
             'bookable_type' => 'App\Models\Master\Service',
             'user_id' => auth()->user()->id,
             'building_id' => $building->id,
             'date' => $request->date,
             'start_time' => $request->start_time,
-            'end_time' => now()->addDays(7)
+            'end_time' => now()->addDays(7), //TODO: NEEDS TO CHANGE
+            'owner_association_id' => $building->owner_association_id
         ]);
 
         return new CustomResponseResource([

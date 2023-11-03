@@ -90,6 +90,7 @@ class AuthController extends Controller
                 'title' => 'Email Verification Required',
                 'message' => 'Email is not verified.',
                 'errorCode' => 403,
+                'data' => $user
             ]))->response()->setStatusCode(403);
         }
 
@@ -98,6 +99,7 @@ class AuthController extends Controller
                 'title' => 'Phone Verification Required',
                 'message' => 'Phone number is not verified.',
                 'errorCode' => 403,
+                'data' => $user
             ]))->response()->setStatusCode(403);
         }
 
