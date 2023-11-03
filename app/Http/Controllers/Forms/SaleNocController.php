@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Forms;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Forms\SaleNocRequest;
+use App\Models\Building\Building;
 use App\Models\Forms\NocContacts;
 use App\Models\Forms\SaleNOC;
 
@@ -14,6 +15,8 @@ class SaleNocController extends Controller
         // Upload files using the fucntion optimizeDocumentAndUpload
         $validated = $request->validated();
 
+        $ownerAssociationId = Building::find($request->building_id)->owner_association_id;
+
         // Handle the file uploads using the optimizeDocumentAndUpload function
         $validated['cooling_receipt'] = optimizeDocumentAndUpload($request->file('cooling_receipt'));
         $validated['cooling_soa'] = optimizeDocumentAndUpload($request->file('cooling_soa'));
@@ -22,7 +25,7 @@ class SaleNocController extends Controller
 
 
         $validated['user_id'] = auth()->user()->id;
-        $validated['status'] = 'submitted';
+        $validated['owner_association_id'] = $ownerAssociationId;
 
         // Create the SaleNoc entry
         $saleNoc = SaleNoc::create($validated);

@@ -25,7 +25,8 @@ class ComplaintController extends Controller
         $query = Complaint::where([
             'user_id' => auth()->user()->id,
             'building_id' => $building->id,
-            'complaint_type' => $request->type
+            'complaint_type' => $request->type,
+            'owner_association_id' => $building->owner_association_id
         ]);
 
         // Filter based on status if provided
