@@ -80,7 +80,8 @@ class RegisterationController extends Controller
             'first_name' => $firstName,
             'phone' => $request->mobile,
             'role_id' => $role,
-            'active' => 1
+            'active' => 1,
+            'building_id' => $request->building_id
         ]);
     
         // Store details to Flat tenants table

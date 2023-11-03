@@ -61,6 +61,7 @@ class FacilityController extends Controller
             'date' => $request->date,
             'start_time' => $request->start_time,
             'end_time' => $request->end_time,
+            'owner_association_id' => $building->owner_association_id
         ]);
 
         return new CustomResponseResource([
