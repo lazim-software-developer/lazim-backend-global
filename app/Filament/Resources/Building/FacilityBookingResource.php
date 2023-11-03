@@ -114,7 +114,7 @@ class FacilityBookingResource extends Resource
                             ->required(),
                         TextInput::make('reference_number')
                             ->rules(['numeric'])
-                            ->default('00')
+                            ->default('0')
                             ->numeric()
                             ->placeholder('References Number'),
 
