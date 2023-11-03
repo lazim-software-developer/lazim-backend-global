@@ -3,10 +3,8 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\MediaResource\Pages;
-use App\Filament\Resources\MediaResource\RelationManagers;
 use App\Models\Community\Post;
 use App\Models\Media;
-use Filament\Forms;
 use Filament\Forms\Components\Card;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
@@ -19,8 +17,6 @@ use Filament\Tables;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class MediaResource extends Resource
 {
@@ -47,7 +43,7 @@ class MediaResource extends Resource
                                 ->disk('s3')
                                 ->directory('dev')
                                 ->image()
-                                ->maxSize(2048)
+                                ->helperText('The uploaded image must be less than 2MB.')
                                 ->required(),
 
                             MorphToSelect::make('mediaable')
@@ -69,7 +65,7 @@ class MediaResource extends Resource
                     ->toggleable()
                     ->default('NA')
                     ->searchable(),
-                
+
                 ImageColumn::make('url')
                     ->disk('s3')
                     ->circular()
@@ -84,11 +80,11 @@ class MediaResource extends Resource
                     ->searchable()
                     ->default('NA')
                     ->toggleable(),
-                
+
                 TextColumn::make('mediaable_type')
                     ->default('NA')
                     ->toggleable(),
-                
+
             ])
             ->filters([
                 //
@@ -105,14 +101,14 @@ class MediaResource extends Resource
                 Tables\Actions\CreateAction::make(),
             ]);
     }
-    
+
     public static function getRelations(): array
     {
         return [
             //
         ];
     }
-    
+
     public static function getPages(): array
     {
         return [
@@ -120,5 +116,19 @@ class MediaResource extends Resource
             'create' => Pages\CreateMedia::route('/create'),
             'edit' => Pages\EditMedia::route('/{record}/edit'),
         ];
-    }    
+    }
+
+    public function rules(): array
+    {
+        return [
+            'url' => 'max:2048', // Add any other rules as needed
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'url.max' => 'The uploaded image must be less than 2MB.',
+        ];
+    }
 }
