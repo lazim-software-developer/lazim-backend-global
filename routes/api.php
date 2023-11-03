@@ -143,6 +143,9 @@ Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active']
     Route::delete('/posts/{post}/unlike', [PostLikeController::class, 'unlike'])->name('posts.unlike');
     // List all users who liked the post
     Route::get('/posts/{post}/likers', [PostLikeController::class, 'likers'])->name('posts.likers');
+
+    // Check if post upload is enabled for a building
+    Route::get('/buildings/{building}/post-upload-permission', [PostController::class, 'checkPostUploadPermission']);
 });
 
 
@@ -201,6 +204,9 @@ Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active']
 
     // Fetch all matching flats for the logged in user
     Route::get('/tenant/flats', [UserController::class, 'getUserFlats']);
+
+    // List all family members of logged in user
+    Route::get('/family-members/{building}', [UserController::class, 'getFamilyMembers']);
 });
 
 /**
@@ -233,7 +239,7 @@ Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active']
     Route::post('/access-card', [AccessCardController::class, 'create']);
 
     // View form status
-    Route::get('/status', [AccessCardController::class, 'fetchFormStatus']);
+    Route::get('/status/{building}', [AccessCardController::class, 'fetchFormStatus']);
 });
 
 // API  to fetch Security for a building
