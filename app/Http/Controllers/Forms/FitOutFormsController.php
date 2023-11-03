@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Forms;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Forms\CreateFitOutFormsRequest;
 use App\Http\Resources\CustomResponseResource;
+use App\Models\Building\Building;
 use App\Models\Forms\FitOutForm;
 
 class FitOutFormsController extends Controller
@@ -14,6 +15,8 @@ class FitOutFormsController extends Controller
      */
     public function store(CreateFitOutFormsRequest $request)
     {
+        $ownerAssociationId = Building::find($request->building_id)->owner_association_id;
+
         FitOutForm::create([
             'building_id' => $request->building_id,
             'flat_id' => $request->flat_id,
@@ -22,8 +25,8 @@ class FitOutFormsController extends Controller
             'email' =>auth()->user()->email,
             'user_id'=> auth()->user()->id,
             'undertaking_of_waterproofing'=>$request->undertaking_of_waterproofing,
-            'no_objection'=>$request->no_objection
-
+            'no_objection'=>$request->no_objection,
+            'owner_association_id' => $ownerAssociationId
         ]);
 
         return (new CustomResponseResource([
