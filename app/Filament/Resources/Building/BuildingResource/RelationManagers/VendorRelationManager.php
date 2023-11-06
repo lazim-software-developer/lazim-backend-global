@@ -15,6 +15,7 @@ use Filament\Tables\Table;
 use Filament\Tables\Actions\AttachAction;
 use Filament\Resources\RelationManagers\RelationManager;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class VendorRelationManager extends RelationManager
 {
@@ -83,21 +84,26 @@ class VendorRelationManager extends RelationManager
             ->actions([
                 Tables\Actions\DetachAction::make() ->label('Remove'),
             ])
-            // ->bulkActions([
-            //     Tables\Actions\BulkActionGroup::make([
-            //         Tables\Actions\DeleteBulkAction::make(),
-            //     ]),
-            // ])
             ->headerActions([
                 Tables\Actions\AttachAction::make()
                     ->label('Add')
-                    ->recordSelect(fn () => Select::make('recordId')
-                            ->label('Vendor')
-                            ->relationship('buildings', 'vendor_id')
-                            ->options(Vendor::all()->pluck('name', 'id'))
+                    ->recordSelect(function () {
+                        // Get all the Vendors
+                        $allVendors = Vendor::all()->pluck('name', 'id')->toArray();
+
+                        // Get the IDs of the selected Vendors
+                        $selectedVendorIds = DB::table('building_vendor')->pluck('vendor_id')->toArray();
+
+                        // Filter out the selected Vendors from the list of all Vendors
+                        $availableVendors = array_diff_key($allVendors, array_flip($selectedVendorIds));
+
+                        return Select::make('recordId')
+                            ->label('Facility')
+                            ->options($availableVendors)
                             ->searchable()
-                            ->preload()
-                        )
+                            ->required()
+                            ->preload();
+                    })
             ]);
     }
 }

@@ -14,6 +14,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\DB;
 
 class ServicesRelationManager extends RelationManager
 {
@@ -32,7 +33,7 @@ class ServicesRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     Toggle::make('active')
                         ->rules(['boolean'])
                         ->columnSpan([
@@ -57,25 +58,26 @@ class ServicesRelationManager extends RelationManager
             ->actions([
                 Tables\Actions\DetachAction::make() ->label('Remove'),
             ])
-            // ->bulkActions([
-            //     Tables\Actions\BulkActionGroup::make([
-            //         Tables\Actions\DeleteBulkAction::make(),
-            //     ]),
-            // ])
-            // ->emptyStateActions([
-            //     Tables\Actions\CreateAction::make(),
-            // ])
             ->headerActions([
                 Tables\Actions\AttachAction::make()
                     ->label('Add')
-                    ->recordSelect(fn () => Select::make('recordId')
+                    ->recordSelect(function () {
+                        // Get all the Services
+                        $allServices = Service::all()->pluck('name', 'id')->toArray();
+
+                        // Get the IDs of the selected Services
+                        $selectedServiceIds = DB::table('service_vendor')->pluck('service_id')->toArray();
+
+                        // Filter out the selected Services from the list of all Services
+                        $availableServices = array_diff_key($allServices, array_flip($selectedServiceIds));
+
+                        return Select::make('recordId')
                             ->label('Services')
-                            ->relationship('vendors', 'service_vendor')
-                            ->options(Service::all()->pluck('name', 'id'))
+                            ->options($availableServices)
                             ->searchable()
                             ->required()
-                            ->preload()
-                        )
+                            ->preload();
+                    })
             ]);
     }
 }
