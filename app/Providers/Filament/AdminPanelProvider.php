@@ -122,8 +122,8 @@ class AdminPanelProvider extends PanelProvider
                     ->items([
                             NavigationItem::make('Announcements')
                                 ->url('/admin/announcements')
-                                ->icon('heroicon-o-calendar-days')
-                                ->activeIcon('heroicon-o-calendar-days')
+                                ->icon('heroicon-m-megaphone')
+                                ->activeIcon('heroicon-m-megaphone')
                                 ->sort(1),
                             NavigationItem::make('Posts')
                                 ->url('/admin/posts')
@@ -155,8 +155,8 @@ class AdminPanelProvider extends PanelProvider
                     ->items([
                             NavigationItem::make('Security')
                                 ->url('/admin/building/building-pocs')
-                                ->icon('heroicon-o-calendar-days')
-                                ->activeIcon('heroicon-o-calendar-days')
+                                ->icon('heroicon-m-shield-exclamation')
+                                ->activeIcon('heroicon-m-shield-exclamation')
                                 ->sort(1),
                             NavigationItem::make('Buildings')
                                 ->url('/admin/building/buildings')
@@ -224,44 +224,44 @@ class AdminPanelProvider extends PanelProvider
                                 NavigationItem::make('Guest Registration')
                                     ->url('/admin/guest-registrations')
                                     ->hidden(auth()->user()->id == 1 ? true : false)
-                                    ->icon('heroicon-o-calendar-days')
-                                    ->activeIcon('heroicon-o-calendar-days')
+                                    ->icon('heroicon-m-identification')
+                                    ->activeIcon('heroicon-m-identification')
                                     ->sort(1),
                                 NavigationItem::make('MoveIn')
                                     ->url('/admin/move-in-forms-documents')
                                     ->hidden(auth()->user()->id == 1 ? true : false)
-                                    ->icon('heroicon-o-calendar-days')
-                                    ->activeIcon('heroicon-o-calendar-days')
+                                    ->icon('heroicon-o-arrow-right')
+                                    ->activeIcon('heroicon-o-arrow-right')
                                     ->sort(2),
                                 NavigationItem::make('MoveOut')
                                     ->url('/admin/move-out-forms-documents')
                                     ->hidden(auth()->user()->id == 1 ? true : false)
-                                    ->icon('heroicon-o-calendar-days')
-                                    ->activeIcon('heroicon-o-calendar-days')
+                                    ->icon('heroicon-m-arrow-left')
+                                    ->activeIcon('heroicon-m-arrow-left')
                                     ->sort(3),
                                 NavigationItem::make('FitOut')
                                     ->url('/admin/fit-out-forms-documents')
                                     ->hidden(auth()->user()->id == 1 ? true : false)
-                                    ->icon('heroicon-o-calendar-days')
-                                    ->activeIcon('heroicon-o-calendar-days')
+                                    ->icon('heroicon-s-face-smile')
+                                    ->activeIcon('heroicon-s-face-smile')
                                     ->sort(3),
                                 NavigationItem::make('Access Card')
                                     ->url('/admin/access-card-forms-documents')
                                     ->hidden(auth()->user()->id == 1 ? true : false)
-                                    ->icon('heroicon-o-calendar-days')
-                                    ->activeIcon('heroicon-o-calendar-days')
+                                    ->icon('heroicon-s-rectangle-stack')
+                                    ->activeIcon('heroicon-s-rectangle-stack')
                                     ->sort(3),
                                 NavigationItem::make('Residential')
                                     ->url('/admin/residential-forms')
                                     ->hidden(auth()->user()->id == 1 ? true : false)
-                                    ->icon('heroicon-o-calendar-days')
-                                    ->activeIcon('heroicon-o-calendar-days')
+                                    ->icon('heroicon-s-building-library')
+                                    ->activeIcon('heroicon-s-building-library')
                                     ->sort(4),
                                 NavigationItem::make('Sale NOC')
                                     ->url('/admin/noc-forms')
                                     ->hidden(auth()->user()->id == 1 ? true : false)
-                                    ->icon('heroicon-o-calendar-days')
-                                    ->activeIcon('heroicon-o-calendar-days')
+                                    ->icon('heroicon-s-building-storefront')
+                                    ->activeIcon('heroicon-s-building-storefront')
                                     ->sort(5),
                                 ]),
                 ]);
