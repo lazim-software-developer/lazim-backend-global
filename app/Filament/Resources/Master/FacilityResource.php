@@ -54,6 +54,7 @@ class FacilityResource extends Resource
                             ->disk('s3')
                             ->directory('dev')
                             ->image()
+                            ->required()
                             ->maxSize(2048),
 
                     ]),
