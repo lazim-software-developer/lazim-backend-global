@@ -26,7 +26,7 @@ class RegisterationController extends Controller
                 'title' => 'account_present',
                 'message' => "Your account is not verified. You'll be redirected account verification page",
                 'errorCode' => 403, 
-            ]))->response()->setStatusCode(400);
+            ]))->response()->setStatusCode(403);
         }
 
         // Check if user exists in our DB
@@ -121,6 +121,16 @@ class RegisterationController extends Controller
     }
     
     public function registerWithEmiratesOrPassport(RegisterWithEmiratesOrPassportRequest $request) {
+
+        if(User::where(['email' => $request->email, 'phone' => $request->mobile])
+            ->where('email_verified', 0)->orWhere('phone_verified', 0)->exists()) {
+            return (new CustomResponseResource([
+                'title' => 'account_present',
+                'message' => "Your account is not verified. You'll be redirected account verification page",
+                'errorCode' => 403, 
+            ]))->response()->setStatusCode(403);
+        }
+
         // Check if user with same email already present
         if(User::where(['email' => $request->email, 'phone' => $request->mobile])->exists()) {
             return (new CustomResponseResource([
