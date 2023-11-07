@@ -136,14 +136,13 @@ class ComplaintscomplaintResource extends Resource
                     ->preload()
             ])
             ->actions([
-                //Tables\Actions\EditAction::make(),
                 Action::make('Update Status')
-                    ->visible(fn ($record) => $record->status === 'pending')
+                    ->visible(fn ($record) => $record->status === 'open')
                     ->button()
                     ->form([
                         Select::make('status')
                             ->options([
-                                'pending'   => 'Pending',
+                                'open'   => 'Open',
                                 'resolved' => 'Resolved',
                             ])
                             ->searchable()
@@ -172,14 +171,6 @@ class ComplaintscomplaintResource extends Resource
                         }
                     })
                     ->slideOver()
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ])
-            ->emptyStateActions([
-                Tables\Actions\CreateAction::make(),
             ]);
     }
 
@@ -194,8 +185,6 @@ class ComplaintscomplaintResource extends Resource
     {
         return [
             'index' => Pages\ListComplaintscomplaints::route('/'),
-            'create' => Pages\CreateComplaintscomplaint::route('/create'),
-            'edit' => Pages\EditComplaintscomplaint::route('/{record}/edit'),
         ];
     }
 }

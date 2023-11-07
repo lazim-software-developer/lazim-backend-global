@@ -4,6 +4,8 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\AccessCardFormsDocumentResource\Pages;
 use App\Models\Forms\AccessCard;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
@@ -24,7 +26,76 @@ class AccessCardFormsDocumentResource extends Resource
     {
         return $form
             ->schema([
-                //
+                Grid::make([
+                    'sm' => 1,
+                    'md' => 1,
+                    'lg' => 2,
+                ])->schema([
+                    TextInput::make('card_type')
+                        ->required()
+                        ->label('Card Type'),
+                    TextInput::make('email')
+                        ->label('Email')
+                        ->required()
+                        ->placeholder('Email'),
+                    TextInput::make('mobile')
+                        ->label('Mobile Number')
+                        ->required()
+                        ->placeholder('Mobile Number'),
+                    TextInput::make('parking_details')
+                        ->required()
+                        ->placeholder('Parking Details'),
+                    Select::make('building_id')
+                        ->relationship('building','name')
+                        ->preload()
+                        ->searchable()
+                        ->label('Building Name'),
+                    Select::make('flat_id')
+                        ->relationship('flat','property_number')
+                        ->preload()
+                        ->searchable()
+                        ->label('Property No'),
+                    Select::make('user_id')
+                        ->rules(['exists:users,id'])
+                        ->relationship('user', 'first_name')
+                        ->required()
+                        ->preload()
+                        ->searchable()
+                        ->label('User'),
+                    TextInput::make('status')
+                        ->required()
+                        ->label('Status'),
+                    TextInput::make('remarks')
+                        ->required()
+                        ->label('Remarks'),
+                    // FileUpload::make('passport')
+                    //     ->disk('s3')
+                    //     ->directory('dev')
+                    //     ->label('Passport'),
+                    FileUpload::make('tenancy')
+                        ->disk('s3')
+                        ->directory('dev')
+                        ->downloadable()
+                        ->openable()
+                        ->label('Tenancy')
+                        ->columnSpan([
+                            'sm'=> 1,
+                            'md'=> 1,
+                            'lg'=> 2,
+                        ]),
+                    FileUpload::make('vehicle_registration')
+                        ->disk('s3')
+                        ->directory('dev')
+                        ->downloadable()
+                        ->openable()
+                        ->label('Vehicle Registration')
+                        ->columnSpan([
+                            'sm'=> 1,
+                            'md'=> 1,
+                            'lg'=> 2,
+                        ]),
+
+                ]),
             ]);
     }
 
@@ -36,25 +107,11 @@ class AccessCardFormsDocumentResource extends Resource
                     ->searchable()
                     ->default('NA')
                     ->limit(50),
-                TextColumn::make('email')
-                    ->searchable()
-                    ->default('NA')
-                    ->limit(50),
-                TextColumn::make('mobile')
-                    ->searchable()
-                    ->default('NA')
-                    ->limit(50),
-                TextColumn::make('reason')
-                    ->searchable()
-                    ->default('NA')
-                    ->limit(50),
-                TextColumn::make('parking_details')
-                    ->limit(50),
-                TextColumn::make('building.name')
-                    ->searchable()
-                    ->default('NA')
-                    ->limit(50),
                 TextColumn::make('user.first_name')
+                        ->searchable()
+                        ->default('NA')
+                        ->limit(50),
+                TextColumn::make('building.name')
                     ->searchable()
                     ->default('NA')
                     ->limit(50),
@@ -62,15 +119,15 @@ class AccessCardFormsDocumentResource extends Resource
                     ->searchable()
                     ->default('NA')
                     ->limit(50),
-                ImageColumn::make('passport')
-                    ->circular()
-                    ->disk('s3'),
                 ImageColumn::make('tenancy')
-                    ->circular()
+                    ->label('Tenancy')
+                    ->square()
+                    ->alignCenter()
                     ->disk('s3'),
                 ImageColumn::make('vehicle_registration')
                     ->label('Vehicle Registration')
-                    ->circular()
+                    ->square()
+                    ->alignCenter()
                     ->disk('s3'),
                 TextColumn::make('status')
                     ->searchable()
@@ -137,7 +194,8 @@ class AccessCardFormsDocumentResource extends Resource
         return [
             'index' => Pages\ListAccessCardFormsDocuments::route('/'),
             //'create' => Pages\CreateAccessCardFormsDocument::route('/create'),
-            'edit' => Pages\EditAccessCardFormsDocument::route('/{record}/edit'),
+            //'edit' => Pages\EditAccessCardFormsDocument::route('/{record}/edit'),
+            'view' => Pages\ViewAccessCardFormsDocument::route('/{record}'),
         ];
     }
 }

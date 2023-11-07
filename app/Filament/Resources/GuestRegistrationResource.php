@@ -11,13 +11,17 @@ use Filament\Forms;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
+use Filament\Forms\Components\ViewField;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Actions\Action;
+use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Filters\SelectFilter;
@@ -33,109 +37,118 @@ class GuestRegistrationResource extends Resource
 {
     protected static ?string $model = Guest::class;
 
+    protected static ?string $modeLabel = "Guest Registration";
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                TextInput::make('passport_number'),
-                DatePicker::make('visa_validity_date'),
-                DatePicker::make('expiry_date'),
-                TextInput::make('stay_duration'),
-                FileUpload::make('dtmc_license_url')
-                    ->disk('s3')
-                    ->directory('dev')
-                    ->label('Dtmc License')
-                    ->required(),
-                Hidden::make('access_card_holder')
-                    ->default(1),
-                Hidden::make('original_passport')
-                    ->default(1),
-                Hidden::make('guest_registration')
-                    ->default(1),
-
-                select::make('flat_visitor_id')
-                    ->relationship('flatVisitor','name')
-                    ->createOptionForm([
-                        Select::make('building_id')
-                            ->relationship('building','name')
-                            ->preload()
-                            ->searchable()
-                            ->label('Building Name'),
-                        Select::make('flat_id')
-                            ->relationship('flat','property_number')
-                            ->preload()
-                            ->searchable()
-                            ->label('Property No'),
-                        TextInput::make('name'),
-                        TextInput::make('phone'),
-                        Hidden::make('type')
-                            ->default('Guest'),
-                        Hidden::make('initiated_by')
-                            ->default(auth()->user()->id),
-                        TextInput::make('email'),
-                        DatePicker::make('start_time')
-                            ->label('From Date'),
-                        DatePicker::make('end_time')
-                            ->label('To Date'),
-                        TextInput::make('number_of_visitors'),
-                    ])
-                    ->editOptionForm([
-                        Select::make('building_id')
-                            ->relationship('building','name')
-                            ->preload()
-                            ->searchable()
-                            ->label('Building Name'),
-                        Select::make('flat_id')
-                            ->relationship('flat','property_number')
-                            ->preload()
-                            ->searchable()
-                            ->label('Property No'),
-                        TextInput::make('name'),
-                        TextInput::make('phone')
-                        ->unique(
-                            'flat_visitors',
-                            'phone',
-                            fn(?Model $record) => $record
-                        ),
-                        Hidden::make('type')
-                            ->default('Guest'),
-                        Hidden::make('initiated_by')
-                            ->default(auth()->user()->id),
-                        Hidden::make('approved_by')
-                            ->default(auth()->user()->id),
-                        TextInput::make('email'),
-                        DatePicker::make('start_time')
-                            ->rules(['date'])
-                            ->required()
-                            ->placeholder('From Date')
-                            ->label('From Date'),
-                        DatePicker::make('end_time')
-                            ->label('To Date')
-                            ->rules(['date'])
-                            ->required()
-                            ->placeholder('To Date'),
-                        TextInput::make('number_of_visitors'),
-                    ])
-                    ->label('Flat Visitor'),
-
+                Grid::make([
+                    'sm' => 1,
+                    'md' => 1,
+                    'lg' => 2,
+                ])->schema([
+                    TextInput::make('passport_number'),
+                    DatePicker::make('visa_validity_date'),
+                    DatePicker::make('expiry_date'),
+                    TextInput::make('stay_duration'),
+                    FileUpload::make('dtmc_license_url')
+                        ->disk('s3')
+                        ->directory('dev')
+                        ->downloadable()
+                        ->openable()
+                        ->label('Dtmc License')
+                        ->required()
+                        ->columnSpan([
+                            'sm'=> 1,
+                            'md'=> 1,
+                            'lg'=> 2,
+                        ]),
+                    // ViewField::make('Building')
+                    //     ->view('forms.components.fieldbuilding'),
+                    select::make('flat_visitor_id')
+                        ->relationship('flatVisitor','name')
+                        ->createOptionForm([
+                            Select::make('building_id')
+                                ->relationship('building','name')
+                                ->preload()
+                                ->searchable()
+                                ->label('Building Name'),
+                            Select::make('flat_id')
+                                ->relationship('flat','property_number')
+                                ->preload()
+                                ->searchable()
+                                ->label('Property No'),
+                            TextInput::make('name'),
+                            TextInput::make('phone'),
+                            Hidden::make('type')
+                                ->default('Guest'),
+                            Hidden::make('initiated_by')
+                                ->default(auth()->user()->id),
+                            TextInput::make('email'),
+                            DatePicker::make('start_time')
+                                ->label('From Date'),
+                            DatePicker::make('end_time')
+                                ->label('To Date'),
+                            TextInput::make('number_of_visitors'),
+                        ])
+                        ->editOptionForm([
+                            Select::make('building_id')
+                                ->relationship('building','name')
+                                ->preload()
+                                ->searchable()
+                                ->label('Building Name'),
+                            Select::make('flat_id')
+                                ->relationship('flat','property_number')
+                                ->preload()
+                                ->searchable()
+                                ->label('Property No'),
+                            TextInput::make('name'),
+                            TextInput::make('phone')
+                            ->unique(
+                                'flat_visitors',
+                                'phone',
+                                fn(?Model $record) => $record
+                            ),
+                            Hidden::make('type')
+                                ->default('Guest'),
+                            Hidden::make('initiated_by')
+                                ->default(auth()->user()->id),
+                            Hidden::make('approved_by')
+                                ->default(auth()->user()->id),
+                            TextInput::make('email'),
+                            DatePicker::make('start_time')
+                                ->rules(['date'])
+                                ->required()
+                                ->placeholder('From Date')
+                                ->label('From Date'),
+                            DatePicker::make('end_time')
+                                ->label('To Date')
+                                ->rules(['date'])
+                                ->required()
+                                ->placeholder('To Date'),
+                            TextInput::make('number_of_visitors'),
+                        ])
+                        ->label('Flat Visitor')
+                        ->columnSpan([
+                            'sm'=> 1,
+                            'md'=> 1,
+                            'lg'=> 2,
+                        ]),
+                        Toggle::make('access_card_holder'),
+                        Toggle::make('original_passport'),
+                        Toggle::make('guest_registration'),
+                ])
             ]);
+            
     }
 
     public static function table(Table $table): Table
     {
         return $table
-            ->columns([
-                TextColumn::make('passport_number')
-                    ->searchable()
-                    ->default('NA'),
-                TextColumn::make('visa_validity_date')
-                    ->searchable()
-                    ->default('NA'),
-                TextColumn::make('expiry_date')
-                    ->searchable()
-                    ->default('NA'),
+        ->columns([
+                ViewColumn::make('Name')->view('tables.columns.name'),
                 TextColumn::make('stay_duration')
                     ->searchable()
                     ->alignCenter()
@@ -143,6 +156,19 @@ class GuestRegistrationResource extends Resource
                     ->label('Stay duration(days)'),
                 ViewColumn::make('Flat')->view('tables.columns.flat'),
                 ViewColumn::make('Building')->view('tables.columns.building'),
+               
+                ImageColumn::make('dtmc_license_url')
+                    ->disk('s3')
+                    ->square()
+                    ->alignCenter()
+                    ->label('DTMC License URL'),
+                
+                TextColumn::make('remarks')
+                    ->searchable()
+                    ->default('NA'),
+                TextColumn::make('status')
+                    ->searchable()
+                    ->default('NA'),
 
             ])
             ->filters([
@@ -223,6 +249,7 @@ class GuestRegistrationResource extends Resource
             'index' => Pages\ListGuestRegistrations::route('/'),
             //'create' => Pages\CreateGuestRegistration::route('/create'),
             //'edit' => Pages\EditGuestRegistration::route('/{record}/edit'),
+            'view' => Pages\ViewGuestRegistration::route('/{record}'),
         ];
     }    
 }

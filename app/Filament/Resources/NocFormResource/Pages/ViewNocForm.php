@@ -9,4 +9,5 @@ use Filament\Resources\Pages\ViewRecord;
 class ViewNocForm extends ViewRecord
 {
     protected static string $resource = NocFormResource::class;
+    protected static ?string $title = 'Sale NOC';
 }
