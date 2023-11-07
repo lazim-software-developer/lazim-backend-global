@@ -16,6 +16,6 @@ class BuildingController extends Controller
     {
         $buildings = Building::get(); // Fetch 10 buildings per page. Adjust as needed.
         // $buildings = Building::paginate(10); // Fetch 10 buildings per page. Adjust as needed.
-    return new BuildingResourceCollection($buildings);
+        return new BuildingResourceCollection($buildings);
     }
 }
