@@ -73,7 +73,7 @@ class RegisterationController extends Controller
         if (!$queryModel->exists()) {
             return (new CustomResponseResource([
                 'title' => 'Error',
-                'message' => "Your details are not matching with Mollak data. Please enter valid details.",
+                'message' => "Your details are not matching with Mollak data. Please use your emirates ID or Passport instead",
                 'errorCode' => 400,
             ]))->response()->setStatusCode(400);
         }
