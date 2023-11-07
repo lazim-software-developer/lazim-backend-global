@@ -9,7 +9,6 @@ use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Api\Auth\ResetPasswordController;
 use App\Http\Controllers\Api\Auth\RegisterationController;
 use App\Http\Controllers\Api\Auth\VerificationController;
-use App\Http\Controllers\Api\TenantimportController;
 use App\Http\Controllers\AppFeedbackController;
 use App\Http\Controllers\Building\BuildingController;
 use App\Http\Controllers\Building\FlatController;
@@ -203,9 +202,6 @@ Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active']
     // Change password
     Route::post('/profile/change-password', [ProfileController::class, 'changePassword']);
 
-    // Fetch all matching flats for the logged in user
-    Route::get('/tenant/flats', [UserController::class, 'getUserFlats']);
-
     // List all family members of logged in user
     Route::get('/family-members/{building}', [UserController::class, 'getFamilyMembers']);
 });
@@ -226,6 +222,9 @@ Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active']
     Route::get('/documents', [DocumentsController::class, 'index']);
     Route::post('/document-upload', [DocumentsController::class, 'create']);
     Route::get('/fetch-other-documents', [DocumentsController::class, 'fetchOtherDocuments']);
+
+    // List all Owners for a given flat
+    Route::get('/flat/{flat}/owners', [FlatController::class, 'fetchFlatOwners']);
 });
 
 /**
