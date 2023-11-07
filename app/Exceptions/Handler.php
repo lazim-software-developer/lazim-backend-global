@@ -31,7 +31,7 @@ class Handler extends ExceptionHandler
             ]))->response()->setStatusCode(401);
         }
 
-        return redirect()->guest(route('/'));
+        return redirect('/admin/login');
     }
 
     /**
