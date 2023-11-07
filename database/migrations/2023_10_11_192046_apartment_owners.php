@@ -13,13 +13,13 @@ return new class extends Migration
     {
         Schema::create('apartment_owners', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->string('owner_number', 50);
-            $table->string('email', 100);
-            $table->string('name', 100);
-            $table->string('mobile', 15);
-            $table->string('passport', 50)->nullable();
-            $table->string('emirates_id', 50)->nullable();
-            $table->string('trade_license', 50)->nullable();
+            $table->string('owner_number', 100);
+            $table->string('email', 100)->nullable();
+            $table->string('name', 100)->nullable();
+            $table->string('mobile', 100)->nullable();
+            $table->string('passport', 100)->nullable();
+            $table->string('emirates_id', 100)->nullable();
+            $table->string('trade_license', 100)->nullable();
             $table->timestamps();
         });
        
