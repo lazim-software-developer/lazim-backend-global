@@ -12,6 +12,7 @@ use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -41,12 +42,14 @@ class AnnouncementResource extends Resource
                 'md' => 1,
                 'lg' => 2,
                 ])->schema([
-                    Textarea::make('content')
-                        ->autosize()
-                        ->minLength(10)
-                        ->maxLength(255)
-                        ->required()
-                        ->helperText('Maximum 255 characters')
+                    RichEditor::make('content')
+                        ->disableToolbarButtons([
+                            'blockquote',
+                            'strike',
+                        ])
+                        ->fileAttachmentsDisk('s3')
+                        ->fileAttachmentsDirectory('dev')
+                        ->live()
                         ->columnSpan([
                             'sm' => 1,
                             'md' => 1,
@@ -68,7 +71,7 @@ class AnnouncementResource extends Resource
                         ->rules(['date'])
                         ->displayFormat('d-M-Y h:i A')
                         ->hidden(function(Get $get){
-                            if($get('status') == 'published')
+                            if($get('status') == 'published' && (post::where('content',$get('content'))->where('scheduled_at',null)->exists() || post::where('content',$get('content'))->exists() == false))
                             {
                                 return true;
                             }
@@ -94,6 +97,27 @@ class AnnouncementResource extends Resource
 
                     Hidden::make('is_announcement')
                         ->default(true),
+                        
+                    Repeater::make('media')
+                        ->relationship('media')
+                        ->schema([
+                            TextInput::make('name')
+                                ->rules(['max:30','regex:/^[a-zA-Z\s]*$/'])
+                                ->required()
+                                ->placeholder('Name'),
+                            FileUpload::make('url')
+                                ->disk('s3')
+                                ->directory('dev')
+                                ->image()
+                                ->maxSize(2048)
+                                ->required()
+                                
+                        ])
+                        ->columnSpan([
+                            'sm' => 1,
+                            'md' => 1,
+                            'lg' => 2,
+                        ])
 
                 ])
             ]);
