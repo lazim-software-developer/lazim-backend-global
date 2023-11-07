@@ -129,6 +129,7 @@ class ComplaintsenquiryResource extends Resource
                     ->limit(50),
 
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 SelectFilter::make('building_id')
                     ->relationship('building', 'name')

@@ -44,12 +44,12 @@ class FitOutFormsDocumentResource extends Resource
                         ->required()
                         ->placeholder('Phone Number'),
                     Select::make('building_id')
-                        ->relationship('building','name')
+                        ->relationship('building', 'name')
                         ->preload()
                         ->searchable()
                         ->label('Building Name'),
                     Select::make('flat_id')
-                        ->relationship('flat','property_number')
+                        ->relationship('flat', 'property_number')
                         ->preload()
                         ->searchable()
                         ->label('Property No'),
@@ -97,7 +97,7 @@ class FitOutFormsDocumentResource extends Resource
                 TextColumn::make('remarks')
                     ->searchable()
                     ->default('NA')
-                    ->limit(50), 
+                    ->limit(50),
                 IconColumn::make('no_objection')
                     ->boolean()
                     ->trueIcon('heroicon-o-check-badge')
@@ -108,6 +108,7 @@ class FitOutFormsDocumentResource extends Resource
                     ->falseIcon('heroicon-o-x-mark'),
 
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])
