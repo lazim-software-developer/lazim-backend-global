@@ -24,8 +24,16 @@ class VendorRegisterRequest extends FormRequest
         return [
             'name'      => 'required',
             'email'     => 'required|unique:users,email|regex:/^[a-zA-Z0-9_.-]+@[a-zA-Z]+\.[a-zA-Z]+$/',
-            'mobile'    => 'required|string|unique:users,phone',
+            'phone'    => 'required|string|unique:users,phone',
             'owner_association_id'     => 'required|integer'
+        ];
+    }
+
+    public function messages()
+    {
+        return [
+            'email.unique' => 'The provided email is already registered.',
+            'phone.unique' => 'The provided mobile number is already registered.',
         ];
     }
 }
