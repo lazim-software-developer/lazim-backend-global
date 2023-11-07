@@ -9,6 +9,6 @@ class OwnerAssociationObserver
 {
     public function created(OwnerAssociation $ownerAssociation)
     {
-        FetchBuildingsJob::dispatch($ownerAssociation);
+        // FetchBuildingsJob::dispatch($ownerAssociation);
     }
 }
