@@ -13,7 +13,9 @@ class MediaPolicy
      */
     public function viewAny(User $user): bool
     {
-        return true;
+        $role = $user->role;
+
+        return $role && $role->name == 'Admin';
     }
 
     /**
@@ -21,7 +23,9 @@ class MediaPolicy
      */
     public function view(User $user, Media $media): bool
     {
-        return true;
+        $role = $user->role;
+
+        return $role && $role->name == 'Admin';
     }
 
     /**
@@ -29,7 +33,9 @@ class MediaPolicy
      */
     public function create(User $user): bool
     {
-        return true;
+        $role = $user->role;
+
+        return $role && $role->name == 'Admin';
     }
 
     /**

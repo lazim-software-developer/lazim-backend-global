@@ -118,10 +118,6 @@ class HelpdeskcomplaintResource extends Resource
                     ->toggleable()
                     ->searchable()
                     ->limit(50),
-                TextColumn::make('category')
-                    ->toggleable()
-                    ->searchable()
-                    ->limit(50),
                 TextColumn::make('complaint')
                     ->toggleable()
                     ->searchable(),
@@ -142,12 +138,12 @@ class HelpdeskcomplaintResource extends Resource
             ->actions([
                 //Tables\Actions\EditAction::make(),
                 Action::make('Update Status')
-                    ->visible(fn ($record) => $record->status === 'pending')
+                    ->visible(fn ($record) => $record->status === 'open')
                     ->button()
                     ->form([
                         Select::make('status')
                             ->options([
-                                'pending'   => 'Pending',
+                                'open'   => 'Open',
                                 'resolved' => 'Resolved',
                             ])
                             ->searchable()
@@ -176,14 +172,6 @@ class HelpdeskcomplaintResource extends Resource
                         }
                     })
                     ->slideOver()
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ])
-            ->emptyStateActions([
-                Tables\Actions\CreateAction::make(),
             ]);
     }
 
@@ -198,8 +186,6 @@ class HelpdeskcomplaintResource extends Resource
     {
         return [
             'index' => Pages\ListHelpdeskcomplaints::route('/'),
-            'create' => Pages\CreateHelpdeskcomplaint::route('/create'),
-            'edit' => Pages\EditHelpdeskcomplaint::route('/{record}/edit'),
         ];
     }
 }

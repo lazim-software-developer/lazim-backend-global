@@ -50,22 +50,26 @@ class FacilitiesRelationManager extends RelationManager
             ->actions([
                 Tables\Actions\DetachAction::make() ->label('Remove'),
             ])
-            // ->bulkActions([
-            //     Tables\Actions\BulkActionGroup::make([
-            //         Tables\Actions\DetachAction::make() ->label('Remove'),
-            //     ]),
-            // ])
             ->headerActions([
                 Tables\Actions\AttachAction::make()
                     ->label('Add')
-                    ->recordSelect(fn () => Select::make('recordId')
+                    ->recordSelect(function () {
+                        // Get all the facilities
+                        $allFacilities = Facility::all()->pluck('name', 'id')->toArray();
+
+                        // Get the IDs of the selected facilities
+                        $selectedFacilityIds = DB::table('building_facility')->pluck('facility_id')->toArray();
+
+                        // Filter out the selected facilities from the list of all facilities
+                        $availableFacilities = array_diff_key($allFacilities, array_flip($selectedFacilityIds));
+
+                        return Select::make('recordId')
                             ->label('Facility')
-                            ->relationship('buildings', 'facility_id')
-                            ->options(Facility::all()->pluck('name', 'id'))
+                            ->options($availableFacilities)
                             ->searchable()
                             ->required()
-                            ->preload()
-                        )
+                            ->preload();
+                    })
             ]);
     }
 }
