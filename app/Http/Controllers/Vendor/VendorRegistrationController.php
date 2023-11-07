@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Vendor;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Vendor\VendorRegisterRequest;
+use App\Http\Resources\CustomResponseResource;
 use App\Jobs\SendVerificationOtp;
 use App\Models\Master\Role;
 use App\Models\User\User;
@@ -16,19 +17,19 @@ class VendorRegistrationController extends Controller
         // Check if the user is already registered and verified
         if(User::where(['email' => $request->email, 'phone' => $request->mobile])
             ->where('email_verified', 0)->orWhere('phone_verified', 0)->exists()) {
-            return response()->jason([
+            return (new CustomResponseResource([
                 'title' => 'account_present',
                 'message' => "Your account is not verified. You'll be redirected account verification page",
                 'errorCode' => 403, 
-            ])->setStatusCode(403);
+            ]))->response()->setStatusCode(403);
         }
 
         if (User::where(['email' => $request->email, 'phone' => $request->mobile, 'email_verified' => 1, 'phone_verified' => 1])->exists()) {
-            return response()->jason([
+            return (new CustomResponseResource([
                 'title' => 'account_present',
                 'message' => 'Your email is already registered in our application. Please try login instead!',
                 'errorCode' => 400,
-            ])->setStatusCode(400);
+            ]))->response()->setStatusCode(400);
         }
         
         $role = Role::where('name', 'Vendor')->value('id');
@@ -39,11 +40,11 @@ class VendorRegistrationController extends Controller
         // Send email after 5 seconds
         SendVerificationOtp::dispatch($user)->delay(now()->addSeconds(5));
         
-        return response()->jason([
+        return (new CustomResponseResource([
             'title' => 'Registration successful!',
             'message' => "We've sent verification code to your email Id and phone. Please verify to continue using the application",
             'errorCode' => 201,
             'status' => 'success'
-        ])->setStatusCode(201);
+        ]))->response()->setStatusCode(201);
     }
 }
