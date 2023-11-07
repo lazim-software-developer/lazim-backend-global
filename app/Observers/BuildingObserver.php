@@ -14,6 +14,6 @@ class BuildingObserver
     public function created(Building $building): void
     {
         Log::info("This executed");
-        FetchFlatsAndOwnersForBuilding::dispatch($building);
+        // FetchFlatsAndOwnersForBuilding::dispatch($building);
     }
 }
