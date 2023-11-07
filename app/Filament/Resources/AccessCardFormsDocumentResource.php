@@ -75,8 +75,8 @@ class AccessCardFormsDocumentResource extends Resource
                     FileUpload::make('tenancy')
                         ->disk('s3')
                         ->directory('dev')
-                        ->downloadable()
-                        ->openable()
+                        ->downloadable(true)
+                        ->openable(true)
                         ->label('Tenancy')
                         ->columnSpan([
                             'sm' => 1,
@@ -86,8 +86,8 @@ class AccessCardFormsDocumentResource extends Resource
                     FileUpload::make('vehicle_registration')
                         ->disk('s3')
                         ->directory('dev')
-                        ->downloadable()
-                        ->openable()
+                        ->downloadable(true)
+                        ->openable(true)
                         ->label('Vehicle Registration')
                         ->columnSpan([
                             'sm' => 1,
