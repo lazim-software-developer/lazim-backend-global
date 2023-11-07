@@ -26,6 +26,7 @@ class Vendor extends Model
         'status',
         'remarks',
         'owner_association_id',
+        'phone',
     ];
 
     protected $searchableFields = ['*'];

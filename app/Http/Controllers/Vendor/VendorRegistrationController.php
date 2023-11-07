@@ -38,6 +38,12 @@ class VendorRegistrationController extends Controller
 
         // Send email after 5 seconds
         SendVerificationOtp::dispatch($user)->delay(now()->addSeconds(5));
-        return "success";
+        
+        return response()->jason([
+            'title' => 'Registration successful!',
+            'message' => "We've sent verification code to your email Id and phone. Please verify to continue using the application",
+            'errorCode' => 201,
+            'status' => 'success'
+        ])->setStatusCode(201);
     }
 }
