@@ -138,12 +138,12 @@ class HelpdeskcomplaintResource extends Resource
             ->actions([
                 //Tables\Actions\EditAction::make(),
                 Action::make('Update Status')
-                    ->visible(fn ($record) => $record->status === 'pending')
+                    ->visible(fn ($record) => $record->status === 'open')
                     ->button()
                     ->form([
                         Select::make('status')
                             ->options([
-                                'pending'   => 'Pending',
+                                'open'   => 'Open',
                                 'resolved' => 'Resolved',
                             ])
                             ->searchable()

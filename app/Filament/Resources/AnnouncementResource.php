@@ -12,6 +12,7 @@ use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -41,12 +42,9 @@ class AnnouncementResource extends Resource
                 'md' => 1,
                 'lg' => 2,
                 ])->schema([
-                    Textarea::make('content')
-                        ->autosize()
+                    RichEditor::make('content')
                         ->minLength(10)
-                        ->maxLength(255)
                         ->required()
-                        ->helperText('Maximum 255 characters')
                         ->columnSpan([
                             'sm' => 1,
                             'md' => 1,
