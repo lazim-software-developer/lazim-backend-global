@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\MollakController;
 use App\Http\Controllers\TestController;
+use App\Http\Controllers\Vendor\VendorRegistrationController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\Auth\AuthController;
@@ -254,3 +255,6 @@ Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active']
 
 // Test API for Mollak
 Route::get('/test-api', [MollakController::class, 'test']);
+
+// Vendor API's
+Route::post('/vendor-registration',[VendorRegistrationController::class, 'registration']);
