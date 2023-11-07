@@ -18,9 +18,9 @@ class FlatOwnerResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'email' => $this->email,
-            'mobile' => $this->mobile,
-            'passport' => $this->passport,
-            'emirates_id' => $this->emirates_id,
+            'phoneNo' => $this->mobile,
+            'passportNo' => $this->passport,
+            'eidNo' => $this->emirates_id,
         ];
     }
 }
