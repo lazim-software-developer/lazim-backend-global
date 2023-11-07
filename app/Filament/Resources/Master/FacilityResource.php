@@ -35,27 +35,29 @@ class FacilityResource extends Resource
                 Grid::make([
                     'sm' => 1,
                     'md' => 1,
-                    'lg' => 2,])
+                    'lg' => 2,
+                ])
                     ->schema([
-                    TextInput::make('name')
-                        ->rules(['max:50', 'string'])
-                        ->required()
-                        ->placeholder('Name'),
-                    Select::make('building_id')
-                        ->rules(['exists:buildings,id'])
-                        ->relationship('buildings', 'name')
-                        ->preload()
-                        ->multiple()
-                        ->searchable()
-                        ->placeholder('Building'),
+                        TextInput::make('name')
+                            ->rules(['max:50', 'string'])
+                            ->required()
+                            ->placeholder('Name'),
+                        Select::make('building_id')
+                            ->rules(['exists:buildings,id'])
+                            ->relationship('buildings', 'name')
+                            ->preload()
+                            ->multiple()
+                            ->searchable()
+                            ->placeholder('Building'),
 
-                    FileUpload::make('icon')
-                        ->disk('s3')
-                        ->directory('dev')
-                        ->image()
-                        ->maxSize(2048),
+                        FileUpload::make('icon')
+                            ->disk('s3')
+                            ->directory('dev')
+                            ->image()
+                            ->required()
+                            ->maxSize(2048),
 
-                ]),
+                    ]),
             ]);
     }
 

@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Builder;
 class ListNocForms extends ListRecords
 {
     protected static string $resource = NocFormResource::class;
+    protected static ?string $title = 'Sale NOC';
     protected function getTableQuery(): Builder
     {
         return parent::getTableQuery()->where('owner_association_id',auth()->user()->owner_association_id);

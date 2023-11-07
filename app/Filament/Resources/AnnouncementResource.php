@@ -12,6 +12,7 @@ use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -41,17 +42,15 @@ class AnnouncementResource extends Resource
                 'md' => 1,
                 'lg' => 2,
                 ])->schema([
-                    Textarea::make('content')
-                        ->autosize()
+                    RichEditor::make('content')
                         ->minLength(10)
-                        ->maxLength(255)
                         ->required()
                         ->columnSpan([
                             'sm' => 1,
                             'md' => 1,
                             'lg' => 2,
                         ]),
-                
+
                     Select::make('status')
                         ->searchable()
                         ->options([
@@ -62,7 +61,7 @@ class AnnouncementResource extends Resource
                         ->live()
                         ->required()
                         ->default('draft'),
-                
+
                     DateTimePicker::make('scheduled_at')
                         ->rules(['date'])
                         ->displayFormat('d-M-Y h:i A')
@@ -83,17 +82,17 @@ class AnnouncementResource extends Resource
                         ->searchable()
                         ->multiple()
                         ->preload()
-                        ->required(), 
-                    
+                        ->required(),
+
                     Hidden::make('user_id')
                         ->default(auth()->user()->id),
 
                     Hidden::make('owner_association_id')
-                        ->default(auth()->user()->owner_association_id), 
+                        ->default(auth()->user()->owner_association_id),
 
                     Hidden::make('is_announcement')
                         ->default(true),
-                        
+
                 ])
             ]);
     }
@@ -145,14 +144,14 @@ class AnnouncementResource extends Resource
                 Tables\Actions\CreateAction::make(),
             ]);
     }
-    
+
     public static function getRelations(): array
     {
         return [
             //
         ];
     }
-    
+
     public static function getPages(): array
     {
         return [
@@ -160,5 +159,5 @@ class AnnouncementResource extends Resource
             'create' => Pages\CreateAnnouncement::route('/create'),
             'edit' => Pages\EditAnnouncement::route('/{record}/edit'),
         ];
-    }    
+    }
 }
