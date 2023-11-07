@@ -66,70 +66,70 @@ class MoveOutFormsDocumentResource extends Resource
                 FileUpload::make('handover_acceptance')
                     ->disk('s3')
                     ->directory('dev')
-                    ->downloadable()
-                    ->openable()
+                    ->downloadable(true)
+                    ->openable(true)
                     ->label('Handover Acceptance'),
                 FileUpload::make('receipt_charges')
                     ->disk('s3')
                     ->directory('dev')
-                    ->downloadable()
-                    ->openable()
+                    ->downloadable(true)
+                    ->openable(true)
                     ->label('Receipt Charges'),
                 FileUpload::make('contract')
                     ->disk('s3')
                     ->directory('dev')
-                    ->downloadable()
-                    ->openable()
+                    ->downloadable(true)
+                    ->openable(true)
                     ->label('Contract'),
                 FileUpload::make('title_deed')
                     ->disk('s3')
                     ->directory('dev')
-                    ->downloadable()
-                    ->openable()
+                    ->downloadable(true)
+                    ->openable(true)
                     ->label('Title Deed'),
                 FileUpload::make('passport')
                     ->disk('s3')
                     ->directory('dev')
-                    ->downloadable()
-                    ->openable()
+                    ->downloadable(true)
+                    ->openable(true)
                     ->label('Passport'),
                 FileUpload::make('dewa')
                     ->disk('s3')
                     ->directory('dev')
-                    ->downloadable()
-                    ->openable()
+                    ->downloadable(true)
+                    ->openable(true)
                     ->label('Dewa'),
                 FileUpload::make('cooling_registration')
                     ->disk('s3')
                     ->directory('dev')
-                    ->downloadable()
-                    ->openable()
+                    ->downloadable(true)
+                    ->openable(true)
                     ->label('Cooling Registration'),
                 FileUpload::make('gas_registration')
                     ->disk('s3')
                     ->directory('dev')
-                    ->downloadable()
-                    ->openable()
+                    ->downloadable(true)
+                    ->openable(true)
                     ->label('Gas Registration'),
                 FileUpload::make('vehicle_registration')
                     ->disk('s3')
                     ->directory('dev')
-                    ->downloadable()
-                    ->openable()
+                    ->downloadable(true)
+                    ->openable(true)
                     ->label('Vehicle Registration'),
                 FileUpload::make('movers_license')
                     ->disk('s3')
                     ->directory('dev')
-                    ->downloadable()
-                    ->openable()
+                    ->downloadable(true)
+                    ->openable(true)
                     ->label('Movers License'),
                 FileUpload::make('movers_liability')
                     ->disk('s3')
                     ->directory('dev')
-                    ->downloadable()
-                    ->openable()
+                    ->downloadable(true)
+                    ->openable(true)
                     ->label('Movers Liability'),
-                    
+
                 ]),
 
             ]);
@@ -169,34 +169,34 @@ class MoveOutFormsDocumentResource extends Resource
                     ->disk('s3')
                     ->circular(),
                 ImageColumn::make('receipt_charges')
-                    ->square()
+                    ->circular()
                     ->disk('s3'),
                 ImageColumn::make('contract')
-                    ->square()
+                    ->circular()
                     ->disk('s3'),
                 ImageColumn::make('title_deed')
                     ->circular()
                     ->disk('s3'),
                 ImageColumn::make('passport')
-                    ->square()
+                    ->circular()
                     ->disk('s3'),
                 ImageColumn::make('dewa')
                     ->circular()
                     ->disk('s3'),
                 ImageColumn::make('cooling_registration')
-                    ->square()
+                    ->circular()
                     ->disk('s3'),
                 ImageColumn::make('gas_registration')
-                    ->square()
+                    ->circular()
                     ->disk('s3'),
                 ImageColumn::make('vehicle_registration')
-                    ->square()
+                    ->circular()
                     ->disk('s3'),
                 ImageColumn::make('movers_license')
-                    ->square()
+                    ->circular()
                     ->disk('s3'),
                 ImageColumn::make('movers_liability')
-                    ->square()
+                    ->circular()
                     ->disk('s3'),
 
             ])
@@ -240,14 +240,6 @@ class MoveOutFormsDocumentResource extends Resource
                         }
                     })
                     ->slideOver()
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    //Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ])
-            ->emptyStateActions([
-                //Tables\Actions\CreateAction::make(),
             ]);
     }
 
@@ -262,8 +254,6 @@ class MoveOutFormsDocumentResource extends Resource
     {
         return [
             'index' => Pages\ListMoveOutFormsDocuments::route('/'),
-            //'create' => Pages\CreateMoveOutFormsDocument::route('/create'),
-            //'edit' => Pages\EditMoveOutFormsDocument::route('/{record}/edit'),
             'view' => Pages\ViewMoveOutFormsDocument::route('/{record}'),
         ];
     }

@@ -75,70 +75,70 @@ class MoveInFormsDocumentResource extends Resource
                 FileUpload::make('handover_acceptance')
                     ->disk('s3')
                     ->directory('dev')
-                    ->downloadable()
-                    ->openable()
+                    ->downloadable(true)
+                    ->openable(true)
                     ->label('Handover Acceptance'),
                 FileUpload::make('receipt_charges')
                     ->disk('s3')
                     ->directory('dev')
-                    ->downloadable()
-                    ->openable()
+                    ->downloadable(true)
+                    ->openable(true)
                     ->label('Receipt Charges'),
                 FileUpload::make('contract')
                     ->disk('s3')
                     ->directory('dev')
-                    ->downloadable()
-                    ->openable()
+                    ->downloadable(true)
+                    ->openable(true)
                     ->label('Contract'),
                 FileUpload::make('title_deed')
                     ->disk('s3')
                     ->directory('dev')
-                    ->downloadable()
-                    ->openable()
+                    ->downloadable(true)
+                    ->openable(true)
                     ->label('Title Deed'),
                 FileUpload::make('passport')
                     ->disk('s3')
                     ->directory('dev')
-                    ->downloadable()
-                    ->openable()
+                    ->downloadable(true)
+                    ->openable(true)
                     ->label('Passport'),
                 FileUpload::make('dewa')
                     ->disk('s3')
                     ->directory('dev')
-                    ->downloadable()
-                    ->openable()
+                    ->downloadable(true)
+                    ->openable(true)
                     ->label('Dewa'),
                 FileUpload::make('cooling_registration')
                     ->disk('s3')
                     ->directory('dev')
-                    ->downloadable()
-                    ->openable()
+                    ->downloadable(true)
+                    ->openable(true)
                     ->label('Cooling Registration'),
                 FileUpload::make('gas_registration')
                     ->disk('s3')
                     ->directory('dev')
-                    ->downloadable()
-                    ->openable()
+                    ->downloadable(true)
+                    ->openable(true)
                     ->label('Gas Registration'),
                 FileUpload::make('vehicle_registration')
                     ->disk('s3')
                     ->directory('dev')
-                    ->downloadable()
-                    ->openable()
+                    ->downloadable(true)
+                    ->openable(true)
                     ->label('Vehicle Registration'),
                 FileUpload::make('movers_license')
                     ->disk('s3')
                     ->directory('dev')
-                    ->downloadable()
-                    ->openable()
+                    ->downloadable(true)
+                    ->openable(true)
                     ->label('Movers License'),
                 FileUpload::make('movers_liability')
                     ->disk('s3')
                     ->directory('dev')
-                    ->downloadable()
-                    ->openable()
+                    ->downloadable(true)
+                    ->openable(true)
                     ->label('Movers Liability'),
-                    
+
                 ]),
 
             ]);
@@ -158,10 +158,6 @@ class MoveInFormsDocumentResource extends Resource
                     ->searchable()
                     ->default('NA')
                     ->limit(50),
-                TextColumn::make('user.first_name')
-                    ->searchable()
-                    ->default('NA')
-                    ->limit(50),
                 TextColumn::make('flat.property_number')
                     ->searchable()
                     ->default('NA')
@@ -178,34 +174,34 @@ class MoveInFormsDocumentResource extends Resource
                     ->disk('s3')
                     ->circular(),
                 ImageColumn::make('receipt_charges')
-                    ->square()
+                    ->circular()
                     ->disk('s3'),
                 ImageColumn::make('contract')
-                    ->square()
+                    ->circular()
                     ->disk('s3'),
                 ImageColumn::make('title_deed')
                     ->circular()
                     ->disk('s3'),
                 ImageColumn::make('passport')
-                    ->square()
+                    ->circular()
                     ->disk('s3'),
                 ImageColumn::make('dewa')
                     ->circular()
                     ->disk('s3'),
                 ImageColumn::make('cooling_registration')
-                    ->square()
+                    ->circular()
                     ->disk('s3'),
                 ImageColumn::make('gas_registration')
-                    ->square()
+                    ->circular()
                     ->disk('s3'),
                 ImageColumn::make('vehicle_registration')
-                    ->square()
+                    ->circular()
                     ->disk('s3'),
                 ImageColumn::make('movers_license')
-                    ->square()
+                    ->circular()
                     ->disk('s3'),
                 ImageColumn::make('movers_liability')
-                    ->square()
+                    ->circular()
                     ->disk('s3'),
 
             ])
@@ -249,11 +245,6 @@ class MoveInFormsDocumentResource extends Resource
                         }
                     })
                     ->slideOver()
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    //Tables\Actions\DeleteBulkAction::make(),
-                ]),
             ]);
     }
 
@@ -268,8 +259,6 @@ class MoveInFormsDocumentResource extends Resource
     {
         return [
             'index' => Pages\ListMoveInFormsDocuments::route('/'),
-            //'create' => Pages\CreateMoveInFormsDocument::route('/create'),
-            //'edit' => Pages\EditMoveInFormsDocument::route('/{record}/edit'),
             'view' => Pages\ViewMoveInFormsDocument::route('/{record}'),
         ];
     }
