@@ -50,17 +50,17 @@ class FetchFlatsAndOwnersForBuilding implements ShouldQueue
                 foreach ($property['owners'] as $ownerData) {
                     $owner = ApartmentOwner::firstOrCreate([
                         'owner_number' => $ownerData['ownerNumber'],
-                    ], [
                         'email' => $ownerData['email'],
-                        'name' => $ownerData['name']['englishName'],
                         'mobile' => $ownerData['mobile'],
+                    ], [
+                        'name' => $ownerData['name']['englishName'],
                         'passport' => $ownerData['passport'],
                         'emirates_id' => $ownerData['emiratesId'],
                         'trade_license' => $ownerData['tradeLicence'],
                     ]);
 
                     // Attach the owner to the flat
-                    $flat->owners()->attach($owner->id);
+                    $flat->owners()->sync($owner->id);
                 }
             }
         }
