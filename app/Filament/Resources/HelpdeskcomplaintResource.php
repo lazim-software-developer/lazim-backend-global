@@ -132,6 +132,7 @@ class HelpdeskcomplaintResource extends Resource
 
 
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 SelectFilter::make('building_id')
                     ->relationship('building', 'name')
@@ -141,11 +142,11 @@ class HelpdeskcomplaintResource extends Resource
             ])
             ->actions([
                 Tables\Actions\ViewAction::make()
-                ->button()
-                ->fillForm(fn (Complaint $record): array => [
-                    'photo' => env('AWS_URL') . '/' . $record->staphototus,
+                    ->button()
+                    ->fillForm(fn (Complaint $record): array => [
+                        'photo' => env('AWS_URL') . '/' . $record->staphototus,
 
-                ]),
+                    ]),
                 Action::make('Update Status')
                     ->visible(fn ($record) => $record->status === 'open')
                     ->button()

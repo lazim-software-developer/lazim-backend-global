@@ -46,12 +46,12 @@ class AccessCardFormsDocumentResource extends Resource
                         ->required()
                         ->placeholder('Parking Details'),
                     Select::make('building_id')
-                        ->relationship('building','name')
+                        ->relationship('building', 'name')
                         ->preload()
                         ->searchable()
                         ->label('Building Name'),
                     Select::make('flat_id')
-                        ->relationship('flat','property_number')
+                        ->relationship('flat', 'property_number')
                         ->preload()
                         ->searchable()
                         ->label('Property No'),
@@ -79,9 +79,9 @@ class AccessCardFormsDocumentResource extends Resource
                         ->openable()
                         ->label('Tenancy')
                         ->columnSpan([
-                            'sm'=> 1,
-                            'md'=> 1,
-                            'lg'=> 2,
+                            'sm' => 1,
+                            'md' => 1,
+                            'lg' => 2,
                         ]),
                     FileUpload::make('vehicle_registration')
                         ->disk('s3')
@@ -90,9 +90,9 @@ class AccessCardFormsDocumentResource extends Resource
                         ->openable()
                         ->label('Vehicle Registration')
                         ->columnSpan([
-                            'sm'=> 1,
-                            'md'=> 1,
-                            'lg'=> 2,
+                            'sm' => 1,
+                            'md' => 1,
+                            'lg' => 2,
                         ]),
 
                 ]),
@@ -108,9 +108,9 @@ class AccessCardFormsDocumentResource extends Resource
                     ->default('NA')
                     ->limit(50),
                 TextColumn::make('user.first_name')
-                        ->searchable()
-                        ->default('NA')
-                        ->limit(50),
+                    ->searchable()
+                    ->default('NA')
+                    ->limit(50),
                 TextColumn::make('building.name')
                     ->searchable()
                     ->default('NA')
@@ -139,6 +139,7 @@ class AccessCardFormsDocumentResource extends Resource
                     ->limit(50),
 
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])
