@@ -24,9 +24,9 @@ class CreateAccessCardFormsRequest extends FormRequest
         return [
             'building_id' => 'required|integer',
             'flat_id' => 'required|integer',
-            'card_type'=>'required|string',
-            'reason'=>'nullable|string',
-            'parking_details'=>'nullable|json',
+            'card_type' => 'required|string',
+            'reason' => 'nullable|string',
+            'parking_details' => 'nullable|json',
             'occupied_by' => 'required'
         ];
     }
