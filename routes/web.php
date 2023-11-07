@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\Master\PDFController;
 use App\Models\Vendor\Vendor;
 use App\Livewire\VendorRegistration;
 
@@ -30,3 +31,9 @@ Route::prefix('/')
     ->middleware(['auth:sanctum', 'verified']);
 Route::get('/vendors/create', VendorRegistration::class);
 
+
+// ROutes for PDF links
+Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active'])->group(function () {
+    // Service chanrge 
+    Route::get('service-charge/{flat}/generate-pdf/', [PDFController::class, 'serviceChargePDF']);
+});
