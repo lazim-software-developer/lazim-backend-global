@@ -163,8 +163,6 @@ class FitOutFormsDocumentResource extends Resource
     {
         return [
             'index' => Pages\ListFitOutFormsDocuments::route('/'),
-            //'create' => Pages\CreateFitOutFormsDocument::route('/create'),
-            //'edit' => Pages\EditFitOutFormsDocument::route('/{record}/edit'),
             'view' => Pages\ViewFitOutFormsDocument::route('/{record}'),
 
         ];
