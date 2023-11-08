@@ -4,9 +4,12 @@ namespace App\Http\Controllers\Forms;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Forms\SaleNocRequest;
+use App\Http\Resources\CustomResponseResource;
 use App\Models\Building\Building;
 use App\Models\Forms\NocContacts;
+use App\Models\Forms\NocFormSignedDocument;
 use App\Models\Forms\SaleNOC;
+use Illuminate\Http\Request;
 
 class SaleNocController extends Controller
 {
@@ -26,6 +29,7 @@ class SaleNocController extends Controller
 
         $validated['user_id'] = auth()->user()->id;
         $validated['owner_association_id'] = $ownerAssociationId;
+        $validated['submit_status'] = 'download_file';
 
         // Create the SaleNoc entry
         $saleNoc = SaleNoc::create($validated);
@@ -62,5 +66,64 @@ class SaleNocController extends Controller
         return response()->json([
             'message' => 'SaleNoc created successfully!',
         ], 201);
+    }
+
+    // Fetch NOC for status using id
+    public function fetchNocFormStatus(SaleNOC $saleNoc)
+    {
+        $status = $saleNoc->submit_status;
+
+        if ($status == 'download_file') {
+            return response()->json([
+                'message' => 'download_file',
+                'link' => env('APP_URL') . 'service-charge/' . $saleNoc->id . '/generate-pdf'
+            ], 200);
+        } else if ('seller_copy_uploaded') {
+            return response()->json([
+                'message' => 'upload_buyer_copy',
+                'link' => ""
+            ], 200);
+        } else if ('buyer_copy_uploaded') {
+            return response()->json([
+                'message' => '',
+                'link' => ""
+            ], 200);
+        }
+    }
+
+    // Upload Signed document from buyer or seller
+    public function uploadDocument(Request $request, SaleNOC $saleNoc)
+    {
+        $filePath = optimizeDocumentAndUpload($request->file, 'dev');
+
+        // Check the existing value of submit_status column
+        $status = $saleNoc->submit_status;
+
+        if ($status == 'download_file') {
+            $saleNoc->update(['submit_status' => 'seller_uploaded']);
+
+            // Upload document to NocFormSignedDocument
+            NocFormSignedDocument::create([
+                'noc_form_id' => $saleNoc->id,
+                'document' => $filePath,
+                'uploaded_by' => auth()->user()->id
+            ]);
+        } else if ($status == 'seller_uploaded') {
+            $saleNoc->update(['submit_status' => 'buyer_uploaded']);
+
+            // Upload document to NocFormSignedDocument
+            NocFormSignedDocument::create([
+                'noc_form_id' => $saleNoc->id,
+                'document' => $filePath,
+                'uploaded_by' => auth()->user()->id
+            ]);
+        }
+
+        return (new CustomResponseResource([
+            'title' => 'Success',
+            'message' => 'document uploaded successfully',
+            'errorCode' => 200,
+            'status' => 'success'
+        ]))->response()->setStatusCode(200);
     }
 }
