@@ -127,7 +127,7 @@ class FacilityBookingRelationManager extends RelationManager
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('bookable.name')->limit(50),
+                Tables\Columns\TextColumn::make('bookable.name')->limit(50)->label('Facility'),
                 Tables\Columns\TextColumn::make('user.first_name')->limit(50)->default('NA'),
                 Tables\Columns\TextColumn::make('date')->date()->default('NA'),
                 Tables\Columns\TextColumn::make('start_time')->default('NA'),
@@ -140,7 +140,7 @@ class FacilityBookingRelationManager extends RelationManager
                     ->boolean(),
                 Tables\Columns\TextColumn::make(
                     'userFacilityBookingApprove.first_name'
-                )->limit(50),
+                )->limit(50)->label('Approved By')->default('NA'),
             ])
             ->filters([
                 //
