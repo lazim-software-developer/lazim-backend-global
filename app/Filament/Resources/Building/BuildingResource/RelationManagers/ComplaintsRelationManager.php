@@ -70,7 +70,7 @@ class ComplaintsRelationManager extends RelationManager
                             ->placeholder('Category'),
                         FileUpload::make('photo')
                             ->disk('s3')
-                            // ->directory('dev')
+                            ->directory('dev')
                             ->maxSize(2048)
                             ->image()
                             ->nullable(),

@@ -86,7 +86,6 @@ class ComplaintssuggessionResource extends Resource
                             ->disk('s3')
                             ->directory('dev')
                             ->maxSize(2048)
-                            ->image()
                             ->nullable(),
                         TextInput::make('complaint')
                             ->placeholder('Suggestion'),
@@ -126,6 +125,7 @@ class ComplaintssuggessionResource extends Resource
                     ->limit(50),
 
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 SelectFilter::make('building_id')
                     ->relationship('building', 'name')
@@ -170,15 +170,6 @@ class ComplaintssuggessionResource extends Resource
                         }
                     })
                     ->slideOver()
-            ])
-            ->defaultSort('created_at', 'desc')
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ])
-            ->emptyStateActions([
-                Tables\Actions\CreateAction::make(),
             ]);
     }
 

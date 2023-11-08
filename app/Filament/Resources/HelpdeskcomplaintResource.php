@@ -39,6 +39,7 @@ class HelpdeskcomplaintResource extends Resource
 
     public static function form(Form $form): Form
     {
+        // dd($form);
         return $form
             ->schema([
                 Grid::make([
@@ -89,9 +90,8 @@ class HelpdeskcomplaintResource extends Resource
                             ->placeholder('Category'),
                         FileUpload::make('photo')
                             ->disk('s3')
-                            // ->directory('dev')
+                            ->directory('dev')
                             ->maxSize(2048)
-                            ->image()
                             ->nullable(),
                         TextInput::make('complaint')
                             ->placeholder('Complaint'),
@@ -141,12 +141,6 @@ class HelpdeskcomplaintResource extends Resource
                     ->preload()
             ])
             ->actions([
-                Tables\Actions\ViewAction::make()
-                    ->button()
-                    ->fillForm(fn (Complaint $record): array => [
-                        'photo' => env('AWS_URL') . '/' . $record->staphototus,
-
-                    ]),
                 Action::make('Update Status')
                     ->visible(fn ($record) => $record->status === 'open')
                     ->button()
