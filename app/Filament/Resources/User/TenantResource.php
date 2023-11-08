@@ -126,7 +126,6 @@ class TenantResource extends Resource
             'index' => Pages\ListTenants::route('/'),
             'create' => Pages\CreateTenant::route('/create'),
             'view' => Pages\ViewTenant::route('/{record}'),
-            // 'edit' => Pages\EditTenant::route('/{record}/edit'),
         ];
     }
 }
