@@ -78,12 +78,12 @@ class SaleNocController extends Controller
                 'message' => 'download_file',
                 'link' => env('APP_URL') . 'service-charge/' . $saleNoc->id . '/generate-pdf'
             ], 200);
-        } else if ('seller_uploaded') {
+        } else if ($status == 'seller_uploaded') {
             return response()->json([
                 'message' => 'buyer_uploaded',
                 'link' => ""
             ], 200);
-        } else if ('buyer_uploaded') {
+        } else if ($status == 'buyer_uploaded') {
             return response()->json([
                 'message' => '',
                 'link' => ""
