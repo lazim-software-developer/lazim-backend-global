@@ -34,24 +34,24 @@ class MediaResource extends Resource
                         'md' => 1,
                         'lg' => 1,
                     ])->schema([
-                            TextInput::make('name')
-                                ->rules(['max:30','regex:/^[a-zA-Z\s]*$/'])
-                                ->required()
-                                ->placeholder('Name'),
+                        TextInput::make('name')
+                            ->rules(['max:30', 'regex:/^[a-zA-Z\s]*$/'])
+                            ->required()
+                            ->placeholder('Name'),
 
-                            FileUpload::make('url')
-                                ->disk('s3')
-                                ->directory('dev')
-                                ->image()
-                                ->helperText('The uploaded image must be less than 2MB.')
-                                ->required(),
+                        FileUpload::make('url')
+                            ->disk('s3')
+                            ->directory('dev')
+                            ->image()
+                            ->helperText('The uploaded image must be less than 2MB.')
+                            ->required(),
 
-                            MorphToSelect::make('mediaable')
-                                ->types([
-                                    Type::make(Post::class)->titleAttribute('content'),
-                                ])
-                                ->label('Mediaable')
-                                ->required(),
+                        MorphToSelect::make('mediaable')
+                            ->types([
+                                Type::make(Post::class)->titleAttribute('content'),
+                            ])
+                            ->label('Mediaable')
+                            ->required(),
                     ])
                 ])
             ]);
@@ -86,6 +86,7 @@ class MediaResource extends Resource
                     ->toggleable(),
 
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])

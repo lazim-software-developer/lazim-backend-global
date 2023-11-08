@@ -50,32 +50,14 @@ class FacilityBookingResource extends Resource
                             ->rules(['exists:buildings,id'])
                             ->relationship('building', 'name')
                             ->reactive()
+                            ->required()
                             ->preload()
                             ->searchable()
                             ->placeholder('Building'),
 
-                        // Select::make('facility_id')
-                        //     ->rules(['exists:facilities,id'])
-                        //     ->relationship('facility', 'name')
-                        //     ->searchable()
-                        //     ->options(function (callable $get) {
-                        //         $facilityid = DB::table('building_facility')
-                        //                 ->where('building_facility.building_id', '=', $get('building_id'))
-                        //                 ->select('building_facility.facility_id')
-                        //                 ->pluck('building_facility.facility_id');
-
-                        //         return DB::table('facilities')
-                        //                 ->whereIn('facilities.id',$facilityid)
-                        //                 ->select('facilities.id','facilities.name')
-                        //                 ->pluck('facilities.name','facilities.id')
-                        //                 ->toArray();
-                        //     })
-                        //     ->required()
-                        //     ->preload()
-                        //     ->placeholder('Facilities'),
-
                         Select::make('bookable_id')
                             ->label('Facility ')
+                            ->required()
                             ->options(
                                 DB::table('facilities')
                                     ->pluck('name', 'id')

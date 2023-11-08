@@ -38,7 +38,7 @@ class OwnerAssociationResource extends Resource
                         ->required()
                         ->disabled(function (callable $get) {
                             return DB::table('owner_associations')
-                                ->where('email',$get('email'))
+                                ->where('email', $get('email'))
                                 ->where('verified', 1)
                                 ->exists();
                         })
@@ -63,7 +63,7 @@ class OwnerAssociationResource extends Resource
                         ->live()
                         ->disabled(function (callable $get) {
                             return DB::table('owner_associations')
-                                ->where('email',$get('email'))
+                                ->where('email', $get('email'))
                                 ->where('verified', 1)
                                 ->exists();
                         })
@@ -72,15 +72,15 @@ class OwnerAssociationResource extends Resource
                         ->required()
                         ->disabled(function (callable $get) {
                             return DB::table('owner_associations')
-                                ->where('email',$get('email'))
+                                ->where('email', $get('email'))
                                 ->where('verified', 1)
                                 ->exists();
                         })
                         ->placeholder('Address'),
                     TextInput::make('email')
-                        ->rules(['min:6', 'max:30', 'regex:/^[a-z0-9.]+@[a-z]+\.[a-z]{2,}$/',function () {
+                        ->rules(['min:6', 'max:30', 'regex:/^[a-z0-9.]+@[a-z]+\.[a-z]{2,}$/', function () {
                             return function (string $attribute, $value, Closure $fail) {
-                                if (DB::table('owner_associations')->where('email', $value)->where('verified',1)->exists()) {
+                                if (DB::table('owner_associations')->where('email', $value)->where('verified', 1)->exists()) {
                                     $fail('The email is already taken.');
                                 }
                             };
@@ -89,19 +89,18 @@ class OwnerAssociationResource extends Resource
                         ->live()
                         ->disabled(function (callable $get) {
                             return DB::table('owner_associations')
-                                ->where('phone',$get('phone'))
+                                ->where('phone', $get('phone'))
                                 ->where('verified', 1)
                                 ->exists();
                         })
                         ->unique(
                             'users',
                             'email',
-                            modifyRuleUsing: function (Unique $rule,callable $get,?Model $record) {
-                                if(DB::table('users')->where('owner_association_id',$record->id)->exists())
-                                {
-                                    return $rule->whereNot('email',$get('email'));
+                            modifyRuleUsing: function (Unique $rule, callable $get, ?Model $record) {
+                                if (DB::table('users')->where('owner_association_id', $record->id)->exists()) {
+                                    return $rule->whereNot('email', $get('email'));
                                 }
-                                return $rule->where('email',$get('email'));
+                                return $rule->where('email', $get('email'));
                             }
                         )
                         ->placeholder('Email'),
@@ -109,7 +108,7 @@ class OwnerAssociationResource extends Resource
                         ->rules(['boolean'])
                         ->disabled(function (callable $get) {
                             return DB::table('owner_associations')
-                                ->where('phone',$get('phone'))
+                                ->where('phone', $get('phone'))
                                 ->where('verified', 1)
                                 ->exists();
                         }),
@@ -150,6 +149,7 @@ class OwnerAssociationResource extends Resource
                     ->default('NA')
                     ->searchable(),
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])
