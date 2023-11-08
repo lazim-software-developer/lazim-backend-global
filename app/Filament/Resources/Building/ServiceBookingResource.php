@@ -131,6 +131,7 @@ class ServiceBookingResource extends Resource
             Tables\Columns\IconColumn::make('approved')
                 ->boolean(),
         ])
+        ->defaultSort('created_at', 'desc')
             ->filters([
                 SelectFilter::make('building_id')
                     ->relationship('building', 'name')

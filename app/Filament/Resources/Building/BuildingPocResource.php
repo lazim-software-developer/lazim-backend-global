@@ -101,6 +101,7 @@ class BuildingPocResource extends Resource
                     ->toggleable()
                     ->boolean(),
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])
