@@ -240,6 +240,7 @@ Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active']
     // View form status
     Route::get('/status/{building}', [AccessCardController::class, 'fetchFormStatus']);
     Route::get('/sale-noc/{saleNoc}/status', [SaleNocController::class, 'fetchNocFormStatus']);
+    Route::post('/sale-noc/{saleNoc}/upload-document', [SaleNocController::class, 'uploadDocument']);
 });
 
 // API  to fetch Security for a building
