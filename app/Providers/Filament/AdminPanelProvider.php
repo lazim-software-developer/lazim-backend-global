@@ -52,6 +52,8 @@ class AdminPanelProvider extends PanelProvider
                 Widgets\AccountWidget::class,
                 //Widgets\FilamentInfoWidget::class,
             ])
+            ->databaseNotifications()
+            ->databaseNotificationsPolling('30s')
             ->navigation(function (NavigationBuilder $builder): NavigationBuilder
             {
             $builder->groups([
