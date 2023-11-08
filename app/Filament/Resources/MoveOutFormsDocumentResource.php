@@ -68,11 +68,14 @@ class MoveOutFormsDocumentResource extends Resource
                         ->directory('dev')
                         ->downloadable(true)
                         ->openable(true)
+
+                        ->previewable(true)
                         ->label('Handover Acceptance'),
                     FileUpload::make('receipt_charges')
                         ->disk('s3')
                         ->directory('dev')
                         ->downloadable(true)
+                        ->previewable(true)
                         ->openable(true)
                         ->label('Receipt Charges'),
                     FileUpload::make('contract')
@@ -165,40 +168,6 @@ class MoveOutFormsDocumentResource extends Resource
                     ->searchable()
                     ->default('NA')
                     ->limit(50),
-                ImageColumn::make('handover_acceptance')
-                    ->disk('s3')
-                    ->circular(),
-                ImageColumn::make('receipt_charges')
-                    ->circular()
-                    ->disk('s3'),
-                ImageColumn::make('contract')
-                    ->circular()
-                    ->disk('s3'),
-                ImageColumn::make('title_deed')
-                    ->circular()
-                    ->disk('s3'),
-                ImageColumn::make('passport')
-                    ->circular()
-                    ->disk('s3'),
-                ImageColumn::make('dewa')
-                    ->circular()
-                    ->disk('s3'),
-                ImageColumn::make('cooling_registration')
-                    ->circular()
-                    ->disk('s3'),
-                ImageColumn::make('gas_registration')
-                    ->circular()
-                    ->disk('s3'),
-                ImageColumn::make('vehicle_registration')
-                    ->circular()
-                    ->disk('s3'),
-                ImageColumn::make('movers_license')
-                    ->circular()
-                    ->disk('s3'),
-                ImageColumn::make('movers_liability')
-                    ->circular()
-                    ->disk('s3'),
-
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([

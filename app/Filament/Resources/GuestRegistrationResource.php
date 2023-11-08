@@ -3,20 +3,14 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\GuestRegistrationResource\Pages;
-use App\Filament\Resources\GuestRegistrationResource\RelationManagers;
 use App\Models\Forms\Guest;
-use App\Models\GuestRegistration;
-use App\Models\Visitor\FlatVisitor;
-use Filament\Forms;
 use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
-use Filament\Forms\Components\ViewField;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -24,14 +18,9 @@ use Filament\Tables\Actions\Action;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ViewColumn;
-use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-use Illuminate\Database\Query\JoinClause;
-use function Laravel\Prompts\select;
 
 class GuestRegistrationResource extends Resource
 {
@@ -56,8 +45,8 @@ class GuestRegistrationResource extends Resource
                     FileUpload::make('dtmc_license_url')
                         ->disk('s3')
                         ->directory('dev')
-                        ->downloadable()
-                        ->openable()
+                        ->downloadable(true)
+                        ->openable(true)
                         ->label('Dtmc License')
                         ->required()
                         ->columnSpan([
@@ -243,9 +232,7 @@ class GuestRegistrationResource extends Resource
     {
         return [
             'index' => Pages\ListGuestRegistrations::route('/'),
-            //'create' => Pages\CreateGuestRegistration::route('/create'),
-            //'edit' => Pages\EditGuestRegistration::route('/{record}/edit'),
-            'view' => Pages\ViewGuestRegistration::route('/{record}'),
+            'view' => Pages\ViewGuestRegistrations::route('/{record}'),
         ];
     }
 }

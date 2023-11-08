@@ -69,7 +69,7 @@ class TenantDocumentResource extends Resource
                         ->disk('s3')
                         ->directory('dev')
                         ->required()
-                        ->downloadable()
+                        ->downloadable(true)
                         ->preserveFilenames(),
                     Select::make('status')
                         ->options([
