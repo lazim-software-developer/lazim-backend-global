@@ -12,6 +12,7 @@
         "barryvdh/laravel-dompdf": "^2.0",
         "eightynine/filament-excel-import": "^3.0",
         "filament/filament": "3.0-stable",
+        "filament/notifications": "3.0-stable",
         "guzzlehttp/guzzle": "^7.2",
         "intervention/image": "^2.7",
         "laravel/framework": "^10.10",

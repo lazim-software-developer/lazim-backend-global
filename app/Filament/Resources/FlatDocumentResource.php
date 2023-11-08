@@ -42,27 +42,28 @@ class FlatDocumentResource extends Resource
     public static function form(Form $form): Form
     {
         return $form
-        ->schema([
-            Grid::make([
-                'sm' => 1,
-                'md' => 1,
-                'lg' => 2,
-            ])->schema([
+            ->schema([
+                Grid::make([
+                    'sm' => 1,
+                    'md' => 1,
+                    'lg' => 2,
+                ])->schema([
 
-                Select::make('document_library_id')
-                    ->rules(['exists:document_libraries,id'])
-                    ->required()
-                    ->preload()
-                    ->relationship('documentLibrary', 'name')
-                    ->searchable()
-                    ->placeholder('Document Library')
-                    ->getSearchResultsUsing(fn(string $search) => DB::table('document_libraries')
-                            ->join('building_documentlibraries', function (JoinClause $join) {
-                                $join->on('document_libraries.id', '=', 'building_documentlibraries.documentlibrary_id')
-                                    ->where([
-                                        ['building_id', '=', Filament::getTenant()->id],
+                    Select::make('document_library_id')
+                        ->rules(['exists:document_libraries,id'])
+                        ->required()
+                        ->preload()
+                        ->relationship('documentLibrary', 'name')
+                        ->searchable()
+                        ->placeholder('Document Library')
+                        ->getSearchResultsUsing(
+                            fn (string $search) => DB::table('document_libraries')
+                                ->join('building_documentlibraries', function (JoinClause $join) {
+                                    $join->on('document_libraries.id', '=', 'building_documentlibraries.documentlibrary_id')
+                                        ->where([
+                                            ['building_id', '=', Filament::getTenant()->id],
 
-                                    ]);
+                                        ]);
                                 })
                                 ->pluck('document_libraries.name', 'document_libraries.id')
                         ),
@@ -72,7 +73,7 @@ class FlatDocumentResource extends Resource
                         ->label('Document')
                         ->required(),
                     Select::make('flat_id')
-                        ->relationship('flat','property_number')
+                        ->relationship('flat', 'property_number')
                         ->searchable()
                         ->preload(),
                     Select::make('status')
@@ -92,24 +93,24 @@ class FlatDocumentResource extends Resource
                         ->required()
                         ->placeholder('Expiry Date'),
 
-                Hidden::make('owner_association_id')
-                    ->default(auth()->user()->owner_association_id),
+                    Hidden::make('owner_association_id')
+                        ->default(auth()->user()->owner_association_id),
 
-                Hidden::make('documentable_type')
-                    ->default('App\Models\Building\Flat'),
+                    Hidden::make('documentable_type')
+                        ->default('App\Models\Building\Flat'),
 
-                Select::make('documentable_id')
-                    ->options(
-                        DB::table('flats')->pluck('property_number','id')->toArray()
-                    )
-                    ->searchable()
-                    ->preload()
-                    ->required()
-                    ->label('Flat Number')
-                    ->placeholder('Documentable Id'),
-            ]),
+                    Select::make('documentable_id')
+                        ->options(
+                            DB::table('flats')->pluck('property_number', 'id')->toArray()
+                        )
+                        ->searchable()
+                        ->preload()
+                        ->required()
+                        ->label('Flat Number')
+                        ->placeholder('Documentable Id'),
+                ]),
 
-        ]);
+            ]);
     }
     public static function table(Table $table): Table
     {
@@ -136,6 +137,7 @@ class FlatDocumentResource extends Resource
                     ->label('Flat Number')
                     ->default('NA'),
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])

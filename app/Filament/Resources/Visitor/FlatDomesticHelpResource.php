@@ -33,7 +33,8 @@ class FlatDomesticHelpResource extends Resource
                 Grid::make([
                     'sm' => 1,
                     'md' => 1,
-                    'lg' => 2])
+                    'lg' => 2
+                ])
                     ->schema([
                         Select::make('flat_id')
                             ->rules(['exists:flats,id'])
@@ -55,7 +56,7 @@ class FlatDomesticHelpResource extends Resource
                             ->unique(
                                 'flat_domestic_helps',
                                 'phone',
-                                fn(?Model $record) => $record
+                                fn (?Model $record) => $record
                             )
                             ->placeholder('Phone'),
                         FileUpload::make('profile_photo')
@@ -115,6 +116,7 @@ class FlatDomesticHelpResource extends Resource
                     ->searchable(true, null, true)
                     ->limit(50),
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])
