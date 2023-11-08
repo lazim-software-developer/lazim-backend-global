@@ -39,7 +39,8 @@ class ComplaintscomplaintResource extends Resource
                 Grid::make([
                     'sm' => 1,
                     'md' => 1,
-                    'lg' => 2])
+                    'lg' => 2
+                ])
                     ->schema([
                         Hidden::make('complaintable_type')
                             ->default('App\Models\Building\FlatTenant'),
@@ -55,14 +56,14 @@ class ComplaintscomplaintResource extends Resource
                             ->searchable()
                             ->placeholder('Building'),
                         Select::make('user_id')
-                            ->relationship('user','id')
-                            ->options(function(){
+                            ->relationship('user', 'id')
+                            ->options(function () {
                                 $tenants = DB::table('flat_tenants')->pluck('tenant_id');
                                 // dd($tenants);
                                 return DB::table('users')
-                                    ->whereIn('users.id',$tenants)
-                                    ->select('users.id','users.first_name')
-                                    ->pluck('users.first_name','users.id')
+                                    ->whereIn('users.id', $tenants)
+                                    ->select('users.id', 'users.first_name')
+                                    ->pluck('users.first_name', 'users.id')
                                     ->toArray();
                             })
                             ->searchable()
@@ -92,7 +93,7 @@ class ComplaintscomplaintResource extends Resource
                         TextInput::make('complaint_details')
                             ->placeholder('Complaint Details'),
                         Hidden::make('status')
-                            ->default('pending'),
+                            ->default('open'),
                         Hidden::make('complaint_type')
                             ->default('tenant_complaint'),
                     ])
@@ -102,32 +103,33 @@ class ComplaintscomplaintResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-        ->columns([
-            TextColumn::make('building.name')
+            ->columns([
+                TextColumn::make('building.name')
                     ->default('NA')
                     ->searchable()
                     ->limit(50),
-            TextColumn::make('user.first_name')
-                ->toggleable()
-                ->default('NA')
-                ->searchable()
-                ->limit(50),
-            TextColumn::make('complaint')
-                ->toggleable()
-                ->default('NA')
-                ->searchable()
-                ->label('Complaint'),
-            TextColumn::make('complaint_details')
-                ->toggleable()
-                ->default('NA')
-                ->searchable()
-                ->label('Complaint Details'),
-            TextColumn::make('status')
-                ->toggleable()
-                ->searchable()
-                ->limit(50),
+                TextColumn::make('user.first_name')
+                    ->toggleable()
+                    ->default('NA')
+                    ->searchable()
+                    ->limit(50),
+                TextColumn::make('complaint')
+                    ->toggleable()
+                    ->default('NA')
+                    ->searchable()
+                    ->label('Complaint'),
+                TextColumn::make('complaint_details')
+                    ->toggleable()
+                    ->default('NA')
+                    ->searchable()
+                    ->label('Complaint Details'),
+                TextColumn::make('status')
+                    ->toggleable()
+                    ->searchable()
+                    ->limit(50),
 
-        ])
+            ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 SelectFilter::make('building_id')
                     ->relationship('building', 'name')
@@ -185,6 +187,7 @@ class ComplaintscomplaintResource extends Resource
     {
         return [
             'index' => Pages\ListComplaintscomplaints::route('/'),
+            'view' => Pages\ViewComplaintscomplaints::route('/{record}'),
         ];
     }
 }

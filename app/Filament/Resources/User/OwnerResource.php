@@ -33,7 +33,8 @@ class OwnerResource extends Resource
             Grid::make([
                 'sm' => 1,
                 'md' => 1,
-                'lg' => 2])
+                'lg' => 2
+            ])
                 ->schema([
                     TextInput::make('first_name')
                         ->rules(['max:50', 'string'])
@@ -52,7 +53,7 @@ class OwnerResource extends Resource
                         ->unique(
                             'users',
                             'email',
-                            fn(?Model $record) => $record
+                            fn (?Model $record) => $record
                         )
                         ->email()
                         ->placeholder('Email'),
@@ -63,7 +64,7 @@ class OwnerResource extends Resource
                         ->unique(
                             'users',
                             'phone',
-                            fn(?Model $record) => $record
+                            fn (?Model $record) => $record
                         )
                         ->placeholder('Phone'),
 
@@ -100,17 +101,7 @@ class OwnerResource extends Resource
                     ->searchable()
                     ->limit(50),
             ])
-            ->filters([
-                //
-            ])
-            ->actions([
-                // Tables\Actions\EditAction::make(),
-            ])
-            ->bulkActions([
-                // Tables\Actions\BulkActionGroup::make([
-                //     Tables\Actions\DeleteBulkAction::make(),
-                // ]),
-            ])
+            ->defaultSort('created_at', 'desc')
             ->emptyStateActions([
                 Tables\Actions\CreateAction::make(),
             ]);
