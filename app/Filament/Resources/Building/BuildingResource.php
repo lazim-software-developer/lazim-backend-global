@@ -29,9 +29,10 @@ class BuildingResource extends Resource
         return $form
             ->schema([
                 Grid::make([
-                     'sm' => 1,
+                    'sm' => 1,
                     'md' => 1,
-                    'lg' => 1,])->schema([
+                    'lg' => 1,
+                ])->schema([
                     TextInput::make('name')
                         ->rules(['max:50', 'string'])
                         ->required()
@@ -44,7 +45,7 @@ class BuildingResource extends Resource
                         ->unique(
                             'buildings',
                             'property_group_id',
-                            fn(?Model $record) => $record
+                            fn (?Model $record) => $record
                         ),
 
                     TextInput::make('address_line1')
@@ -97,58 +98,59 @@ class BuildingResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-        ->poll('60s')
-        ->columns([
-            Tables\Columns\TextColumn::make('name')
-                ->toggleable()
-                ->searchable()
-                ->default('NA')
-                ->limit(50),
-            Tables\Columns\TextColumn::make('property_group_id')
-                ->toggleable()
-                ->searchable()
-                ->default('NA')
-                ->limit(50),
-            Tables\Columns\TextColumn::make('address_line1')
-                ->toggleable()
-                ->searchable()
-                ->default('NA')
-                ->limit(50),
-            Tables\Columns\TextColumn::make('address_line2')
-                ->toggleable()
-                ->searchable()
-                ->default('NA')
-                ->limit(50),
-            Tables\Columns\TextColumn::make('area')
-                ->toggleable()
-                ->searchable()
-                ->default('NA')
-                ->limit(50),
-            Tables\Columns\TextColumn::make('cities.name')
-                ->toggleable()
-                ->searchable()
-                ->default('NA')
-                ->limit(50),
-            Tables\Columns\TextColumn::make('lat')
-                ->toggleable()
-                ->searchable()
-                ->default('NA')
-                ->limit(50),
-            Tables\Columns\TextColumn::make('lng')
-                ->toggleable()
-                ->searchable()
-                ->default('NA')
-                ->limit(50),
-            Tables\Columns\TextColumn::make('description')
-                ->toggleable()
-                ->searchable()
-                ->default('NA')
-                ->limit(50),
-            Tables\Columns\TextColumn::make('floors')
-                ->toggleable()
-                ->default('NA')
-                ->searchable(),
-        ])
+            ->poll('60s')
+            ->columns([
+                Tables\Columns\TextColumn::make('name')
+                    ->toggleable()
+                    ->searchable()
+                    ->default('NA')
+                    ->limit(50),
+                Tables\Columns\TextColumn::make('property_group_id')
+                    ->toggleable()
+                    ->searchable()
+                    ->default('NA')
+                    ->limit(50),
+                Tables\Columns\TextColumn::make('address_line1')
+                    ->toggleable()
+                    ->searchable()
+                    ->default('NA')
+                    ->limit(50),
+                Tables\Columns\TextColumn::make('address_line2')
+                    ->toggleable()
+                    ->searchable()
+                    ->default('NA')
+                    ->limit(50),
+                Tables\Columns\TextColumn::make('area')
+                    ->toggleable()
+                    ->searchable()
+                    ->default('NA')
+                    ->limit(50),
+                Tables\Columns\TextColumn::make('cities.name')
+                    ->toggleable()
+                    ->searchable()
+                    ->default('NA')
+                    ->limit(50),
+                Tables\Columns\TextColumn::make('lat')
+                    ->toggleable()
+                    ->searchable()
+                    ->default('NA')
+                    ->limit(50),
+                Tables\Columns\TextColumn::make('lng')
+                    ->toggleable()
+                    ->searchable()
+                    ->default('NA')
+                    ->limit(50),
+                Tables\Columns\TextColumn::make('description')
+                    ->toggleable()
+                    ->searchable()
+                    ->default('NA')
+                    ->limit(50),
+                Tables\Columns\TextColumn::make('floors')
+                    ->toggleable()
+                    ->default('NA')
+                    ->searchable(),
+            ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])
@@ -177,7 +179,6 @@ class BuildingResource extends Resource
             BuildingResource\RelationManagers\FlatsRelationManager::class,
             BuildingResource\RelationManagers\VendorRelationManager::class,
         ];
-
     }
 
     public static function getPages(): array

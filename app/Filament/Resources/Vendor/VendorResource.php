@@ -196,6 +196,7 @@ class VendorResource extends Resource
                     ->date(),
 
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])

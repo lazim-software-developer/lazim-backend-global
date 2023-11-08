@@ -125,6 +125,7 @@ class ComplaintssuggessionResource extends Resource
                     ->limit(50),
 
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 SelectFilter::make('building_id')
                     ->relationship('building', 'name')
@@ -169,8 +170,7 @@ class ComplaintssuggessionResource extends Resource
                         }
                     })
                     ->slideOver()
-            ])
-            ->defaultSort('created_at', 'desc');
+            ]);
     }
 
     public static function getRelations(): array
