@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\MollakController;
 use App\Http\Controllers\TestController;
+use App\Http\Controllers\Vendor\DocumentsUploadController;
 use App\Http\Controllers\Vendor\SelectServicesController;
 use App\Http\Controllers\Vendor\VendorRegistrationController;
 use Illuminate\Http\Request;
@@ -265,3 +266,4 @@ Route::post('/vendor-manager',[VendorRegistrationController::class,'managerDetai
 Route::get('/list-services',[SelectServicesController::class, 'listServices']);
 Route::post('/add-service',[SelectServicesController::class, 'addService']);
 Route::post('/tag-services',[SelectServicesController::class, 'tagServices']);
+Route::post('/documents-upload',[DocumentsUploadController::class, 'documentsUpload']);
