@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\MollakController;
 use App\Http\Controllers\TestController;
+use App\Http\Controllers\Vendor\SelectServicesController;
 use App\Http\Controllers\Vendor\VendorRegistrationController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -259,3 +260,6 @@ Route::get('/test-api', [MollakController::class, 'test']);
 Route::post('/vendor-registration',[VendorRegistrationController::class, 'registration']);
 Route::post('/company-details',[VendorRegistrationController::class, 'companyDetails']);
 Route::post('/vendor-manager',[VendorRegistrationController::class,'managerDetails']);
+Route::get('/list-services',[SelectServicesController::class, 'listServices']);
+Route::post('/add-service',[SelectServicesController::class, 'addService']);
+Route::post('/tag-services',[SelectServicesController::class, 'tagServices']);
