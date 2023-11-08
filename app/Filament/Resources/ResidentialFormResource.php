@@ -83,8 +83,8 @@ class ResidentialFormResource extends Resource
                         ->disk('s3')
                         ->directory('dev')
                         ->label('Title Deed Url')
-                        ->downloadable()
-                        ->openable()
+                        ->downloadable(true)
+                        ->openable(true)
                         ->columnSpan([
                             'sl' => 1,
                             'md' => 1,
@@ -94,8 +94,8 @@ class ResidentialFormResource extends Resource
                         ->disk('s3')
                         ->directory('dev')
                         ->label('Emirates Url')
-                        ->downloadable()
-                        ->openable()
+                        ->downloadable(true)
+                        ->openable(true)
                         ->columnSpan([
                             'sl' => 1,
                             'md' => 1,
@@ -105,8 +105,8 @@ class ResidentialFormResource extends Resource
                         ->disk('s3')
                         ->directory('dev')
                         ->label('Passport Url')
-                        ->downloadable()
-                        ->openable()
+                        ->downloadable(true)
+                        ->openable(true)
                         ->columnSpan([
                             'sl' => 1,
                             'md' => 1,

@@ -65,8 +65,8 @@ class NocFormResource extends Resource
                     ->disk('s3')
                     ->directory('dev')
                     ->label('Cooling Receipt')
-                    ->downloadable()
-                    ->openable()
+                    ->downloadable(true)
+                    ->openable(true)
                     ->columnSpan([
                         'sm' => '1',
                         'md' => '1',
@@ -76,8 +76,8 @@ class NocFormResource extends Resource
                     ->disk('s3')
                     ->directory('dev')
                     ->label('Cooling Soa')
-                    ->downloadable()
-                    ->openable()
+                    ->downloadable(true)
+                    ->openable(true)
                     ->columnSpan([
                         'sm' => '1',
                         'md' => '1',
@@ -87,8 +87,8 @@ class NocFormResource extends Resource
                     ->disk('s3')
                     ->directory('dev')
                     ->label('Cooling Clearance')
-                    ->downloadable()
-                    ->openable()
+                    ->downloadable(true)
+                    ->openable(true)
                     ->columnSpan([
                         'sm' => '1',
                         'md' => '1',
@@ -98,8 +98,8 @@ class NocFormResource extends Resource
                     ->disk('s3')
                     ->directory('dev')
                     ->label('Payment Receipt')
-                    ->downloadable()
-                    ->openable()
+                    ->downloadable(true)
+                    ->openable(true)
                     ->columnSpan([
                         'sm' => '1',
                         'md' => '1',
