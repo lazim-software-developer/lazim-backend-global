@@ -41,15 +41,20 @@ class AnnouncementResource extends Resource
                 'sm' => 1,
                 'md' => 1,
                 'lg' => 2,
-            ])->schema([
-                RichEditor::make('content')
-                    ->minLength(10)
-                    ->required()
-                    ->columnSpan([
-                        'sm' => 1,
-                        'md' => 1,
-                        'lg' => 2,
-                    ]),
+                ])->schema([
+                    RichEditor::make('content')
+                        ->disableToolbarButtons([
+                            'blockquote',
+                            'strike',
+                        ])
+                        ->fileAttachmentsDisk('s3')
+                        ->fileAttachmentsDirectory('dev')
+                        ->live()
+                        ->columnSpan([
+                            'sm' => 1,
+                            'md' => 1,
+                            'lg' => 2,
+                        ]),
 
                 Select::make('status')
                     ->searchable()
@@ -62,19 +67,20 @@ class AnnouncementResource extends Resource
                     ->required()
                     ->default('draft'),
 
-                DateTimePicker::make('scheduled_at')
-                    ->rules(['date'])
-                    ->displayFormat('d-M-Y h:i A')
-                    ->hidden(function (Get $get) {
-                        if ($get('status') == 'published') {
-                            return true;
-                        }
-                        return false;
-                    })
-                    ->live()
-                    ->minDate(now())
-                    ->required()
-                    ->placeholder('Scheduled At'),
+                    DateTimePicker::make('scheduled_at')
+                        ->rules(['date'])
+                        ->displayFormat('d-M-Y h:i A')
+                        ->hidden(function(Get $get){
+                            if($get('status') == 'published' && (post::where('content',$get('content'))->where('scheduled_at',null)->exists() || post::where('content',$get('content'))->exists() == false))
+                            {
+                                return true;
+                            }
+                            return false;
+                        })
+                        ->live()
+                        ->minDate(now())
+                        ->required()
+                        ->placeholder('Scheduled At'),
 
                 Select::make('building_id')
                     ->relationship('building', 'name')
@@ -89,8 +95,29 @@ class AnnouncementResource extends Resource
                 Hidden::make('owner_association_id')
                     ->default(auth()->user()->owner_association_id),
 
-                Hidden::make('is_announcement')
-                    ->default(true),
+                    Hidden::make('is_announcement')
+                        ->default(true),
+                        
+                    Repeater::make('media')
+                        ->relationship('media')
+                        ->schema([
+                            TextInput::make('name')
+                                ->rules(['max:30','regex:/^[a-zA-Z\s]*$/'])
+                                ->required()
+                                ->placeholder('Name'),
+                            FileUpload::make('url')
+                                ->disk('s3')
+                                ->directory('dev')
+                                ->image()
+                                ->maxSize(2048)
+                                ->required()
+                                
+                        ])
+                        ->columnSpan([
+                            'sm' => 1,
+                            'md' => 1,
+                            'lg' => 2,
+                        ])
 
             ])
         ]);
