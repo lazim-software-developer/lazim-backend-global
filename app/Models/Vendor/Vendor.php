@@ -27,6 +27,11 @@ class Vendor extends Model
         'remarks',
         'owner_association_id',
         'phone',
+        'address_line_1',
+        'address_line_2',
+        'landline_number',
+        'website',
+        'fax',
     ];
 
     protected $searchableFields = ['*'];
@@ -81,5 +86,10 @@ class Vendor extends Model
     public function oaUserRegistration()
     {
         return $this->belongsTo(OaUserRegistration::class);
+    }
+
+    public function managers()
+    {
+        return $this->belongsTo(VendorManager::class);
     }
 }

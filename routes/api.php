@@ -257,3 +257,5 @@ Route::get('/test-api', [MollakController::class, 'test']);
 
 // Vendor API's
 Route::post('/vendor-registration',[VendorRegistrationController::class, 'registration']);
+Route::post('/company-details',[VendorRegistrationController::class, 'companyDetails']);
+Route::post('/vendor-manager',[VendorRegistrationController::class,'managerDetails']);

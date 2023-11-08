@@ -3,11 +3,15 @@
 namespace App\Http\Controllers\Vendor;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Vendor\CompanyDetailsRequest;
+use App\Http\Requests\Vendor\ManagerDetailsRequest;
 use App\Http\Requests\Vendor\VendorRegisterRequest;
 use App\Http\Resources\CustomResponseResource;
 use App\Jobs\SendVerificationOtp;
 use App\Models\Master\Role;
 use App\Models\User\User;
+use App\Models\Vendor\Vendor;
+use App\Models\Vendor\VendorManager;
 use Illuminate\Http\Request;
 
 class VendorRegistrationController extends Controller
@@ -44,7 +48,36 @@ class VendorRegistrationController extends Controller
             'title' => 'Registration successful!',
             'message' => "We've sent verification code to your email Id and phone. Please verify to continue using the application",
             'errorCode' => 201,
-            'status' => 'success'
+            'status' => 'success',
+            'data' => $user
+        ]))->response()->setStatusCode(201);
+    }
+
+    public function companyDetails(CompanyDetailsRequest $request)
+    {
+        $request->merge(['status' => 'pending']);
+
+        $vendor = Vendor::create($request->all());
+
+        return (new CustomResponseResource([
+            'title' => 'Company Details entered successful!',
+            'message' => "",
+            'errorCode' => 201,
+            'status' => 'success',
+            'data' => $vendor
+        ]))->response()->setStatusCode(201);
+    }
+
+    public function managerDetails(ManagerDetailsRequest $request)
+    {
+        $manager = VendorManager::create($request->all());
+
+        return (new CustomResponseResource([
+            'title' => 'Vendor Manager Details entered successful!',
+            'message' => "",
+            'errorCode' => 201,
+            'status' => 'success',
+            'data' => $manager
         ]))->response()->setStatusCode(201);
     }
 }
