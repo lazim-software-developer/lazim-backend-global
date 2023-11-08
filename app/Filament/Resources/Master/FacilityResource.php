@@ -42,13 +42,13 @@ class FacilityResource extends Resource
                             ->rules(['max:50', 'string'])
                             ->required()
                             ->placeholder('Name'),
-                        Select::make('building_id')
-                            ->rules(['exists:buildings,id'])
-                            ->relationship('buildings', 'name')
-                            ->preload()
-                            ->multiple()
-                            ->searchable()
-                            ->placeholder('Building'),
+                        // Select::make('building_id')
+                        //     ->rules(['exists:buildings,id'])
+                        //     ->relationship('buildings', 'name')
+                        //     ->preload()
+                        //     ->multiple()
+                        //     ->searchable()
+                        //     ->placeholder('Building'),
 
                         FileUpload::make('icon')
                             ->disk('s3')
@@ -56,6 +56,10 @@ class FacilityResource extends Resource
                             ->image()
                             ->required()
                             ->maxSize(2048),
+                        Toggle::make('active')
+                            ->label('Active')
+                            ->default(1)
+                            ->rules(['boolean']),
 
                     ]),
             ]);
@@ -72,16 +76,6 @@ class FacilityResource extends Resource
                 TextColumn::make('name')
                     ->toggleable()
                     ->searchable(true, null, true)
-                    ->limit(50),
-                // TextColumn::make('buildings.name')
-                //     ->label('Building Name')
-                //     ->toggleable()
-                //     ->searchable(true, null, true)
-                //     ->limit(50),
-                ImageColumn::make('icon')
-                    ->disk('s3')
-                    ->toggleable()
-                    ->searchable()
                     ->limit(50),
                 IconColumn::make('active')
                     ->toggleable()
