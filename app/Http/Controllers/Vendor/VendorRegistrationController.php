@@ -20,7 +20,10 @@ class VendorRegistrationController extends Controller
     {
         // Check if the user is already registered and verified
         if(User::where(['email' => $request->email, 'phone' => $request->mobile])
-            ->where('email_verified', 0)->orWhere('phone_verified', 0)->exists()) {
+            ->where(function ($query) {
+                $query->where('email_verified', 0);
+                $query->orWhere('phone_verified', 0);
+            })->exists()) {
             return (new CustomResponseResource([
                 'title' => 'account_present',
                 'message' => "Your account is not verified. You'll be redirected account verification page",
