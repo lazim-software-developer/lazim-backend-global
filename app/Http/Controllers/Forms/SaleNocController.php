@@ -26,6 +26,7 @@ class SaleNocController extends Controller
 
         $validated['user_id'] = auth()->user()->id;
         $validated['owner_association_id'] = $ownerAssociationId;
+        $validated['submit_status'] = 'download_file';
 
         // Create the SaleNoc entry
         $saleNoc = SaleNoc::create($validated);
@@ -62,5 +63,28 @@ class SaleNocController extends Controller
         return response()->json([
             'message' => 'SaleNoc created successfully!',
         ], 201);
+    }
+
+    // Fetch NOC for status using id
+    public function fetchNocFormStatus(SaleNOC $saleNoc)
+    {
+        $status = $saleNoc->submit_status;
+
+        if ($status == 'download_file') {
+            return response()->json([
+                'message' => 'download_file',
+                'link' => env('APP_URL') . 'service-charge/' . $saleNoc->id . '/generate-pdf'
+            ], 200);
+        } else if ('seller_copy_uploaded') {
+            return response()->json([
+                'message' => 'upload_buyer_copy',
+                'link' => ""
+            ], 200);
+        } else if ('buyer_copy_uploaded') {
+            return response()->json([
+                'message' => '',
+                'link' => ""
+            ], 200);
+        }
     }
 }
