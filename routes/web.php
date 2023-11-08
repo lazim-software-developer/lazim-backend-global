@@ -35,5 +35,5 @@ Route::get('/vendors/create', VendorRegistration::class);
 // ROutes for PDF links
 Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active'])->group(function () {
     // Service chanrge 
-    Route::get('service-charge/{flat}/generate-pdf/', [PDFController::class, 'serviceChargePDF']);
+    Route::get('service-charge/{saleNOC}/generate-pdf/', [PDFController::class, 'serviceChargePDF']);
 });
