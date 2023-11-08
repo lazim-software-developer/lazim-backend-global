@@ -70,32 +70,20 @@ class MollakTenantResource extends Resource
             ->filters([
                 //
             ])
-            // ->actions([
-            //     Tables\Actions\EditAction::make(),
-            // ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    //Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ]);
-            // ->emptyStateActions([
-            //     Tables\Actions\CreateAction::make(),
-            // ]);
+            ->defaultSort('created_at', 'desc');
     }
-    
+
     public static function getRelations(): array
     {
         return [
             //
         ];
     }
-    
+
     public static function getPages(): array
     {
         return [
             'index' => Pages\ListMollakTenants::route('/'),
-            //'create' => Pages\CreateMollakTenant::route('/create'),
-            //'edit' => Pages\EditMollakTenant::route('/{record}/edit'),
         ];
-    }    
+    }
 }
