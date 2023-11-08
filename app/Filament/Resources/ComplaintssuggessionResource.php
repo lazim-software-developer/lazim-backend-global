@@ -86,7 +86,6 @@ class ComplaintssuggessionResource extends Resource
                             ->disk('s3')
                             ->directory('dev')
                             ->maxSize(2048)
-                            ->image()
                             ->nullable(),
                         TextInput::make('complaint')
                             ->placeholder('Suggestion'),
@@ -171,15 +170,7 @@ class ComplaintssuggessionResource extends Resource
                     })
                     ->slideOver()
             ])
-            ->defaultSort('created_at', 'desc')
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ])
-            ->emptyStateActions([
-                Tables\Actions\CreateAction::make(),
-            ]);
+            ->defaultSort('created_at', 'desc');
     }
 
     public static function getRelations(): array

@@ -86,7 +86,6 @@ class ComplaintsenquiryResource extends Resource
                             ->disk('s3')
                             ->directory('dev')
                             ->maxSize(2048)
-                            ->image()
                             ->nullable(),
                         TextInput::make('complaint')
                             ->placeholder('Enquiry'),

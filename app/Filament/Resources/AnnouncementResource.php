@@ -97,7 +97,7 @@ class AnnouncementResource extends Resource
 
                     Hidden::make('is_announcement')
                         ->default(true),
-                        
+
                     Repeater::make('media')
                         ->relationship('media')
                         ->schema([
@@ -108,10 +108,9 @@ class AnnouncementResource extends Resource
                             FileUpload::make('url')
                                 ->disk('s3')
                                 ->directory('dev')
-                                ->image()
                                 ->maxSize(2048)
                                 ->required()
-                                
+
                         ])
                         ->columnSpan([
                             'sm' => 1,
