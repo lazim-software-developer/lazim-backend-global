@@ -22,9 +22,13 @@ class SelectServicesController extends Controller
     {
         $request->validate([
             'name' => 'required|string',
-            'owner_association_id' => 'required|integer|exists:owner_associations,id',
+            'vendor_id' => 'required|integer|exists:vendors,id',
         ]);
-        $request->merge([ 'custom' => 1, 'active' => true ]);
+        $request->merge([ 
+            'custom' => 1,
+            'active' => 1,
+            'owner_association_id' => Vendor::find($request->vendor_id)->owner_association_id 
+        ]);
 
         $service = Service::create($request->all());       
 
@@ -42,7 +46,7 @@ class SelectServicesController extends Controller
         $serviceIds= $request->service_ids;
         $vendor = Vendor::find($request->vendor_id);
         foreach ($serviceIds as $serviceId){
-            if(!(DB::table('service_vendor')->where([['service_id'=>$serviceId],['vendor_id'=>$vendor->id]]))){
+            if(!(DB::table('service_vendor')->where('vendor_id',$request->vendor_id)->where('service_id',$serviceId))->first()){
                 $vendor->services()->attach($serviceId);
             }
         };
