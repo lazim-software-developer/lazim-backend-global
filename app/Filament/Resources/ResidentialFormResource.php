@@ -133,15 +133,6 @@ class ResidentialFormResource extends Resource
                     ->searchable()
                     ->label('Flat Number')
                     ->default('NA'),
-                ImageColumn::make('passport_url')
-                    ->square()
-                    ->disk('s3'),
-                ImageColumn::make('emirates_url')
-                    ->square()
-                    ->disk('s3'),
-                ImageColumn::make('title_deed_url')
-                    ->square()
-                    ->disk('s3'),
                 TextColumn::make('status')
                     ->searchable()
                     ->default('NA')

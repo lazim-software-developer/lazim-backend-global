@@ -139,22 +139,6 @@ class NocFormResource extends Resource
                 TextColumn::make('flat.property_number')
                     ->searchable()
                     ->default('NA'),
-                ImageColumn::make('cooling_receipt')
-                    ->square()
-                    ->alignCenter()
-                    ->disk('s3'),
-                ImageColumn::make('cooling_soa')
-                    ->square()
-                    ->alignCenter()
-                    ->disk('s3'),
-                ImageColumn::make('cooling_clearance')
-                    ->square()
-                    ->alignCenter()
-                    ->disk('s3'),
-                ImageColumn::make('payment_receipt')
-                    ->square()
-                    ->alignCenter()
-                    ->disk('s3'),
                 TextColumn::make('status')
                     ->searchable()
                     ->default('NA'),
