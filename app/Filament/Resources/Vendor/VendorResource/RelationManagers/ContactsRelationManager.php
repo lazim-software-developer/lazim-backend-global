@@ -30,20 +30,20 @@ class ContactsRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     TextInput::make('phone')
                         ->rules(['max:10', 'string'])
-                        ->unique('contacts', 'phone', fn(?Model $record) => $record)
+                        ->unique('contacts', 'phone', fn (?Model $record) => $record)
                         ->placeholder('Phone')
                         ->columnSpan([
                             'default' => 12,
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     TextInput::make('email')
                         ->rules(['email'])
-                        ->unique('contacts', 'email', fn(?Model $record) => $record)
+                        ->unique('contacts', 'email', fn (?Model $record) => $record)
                         ->email()
                         ->placeholder('Email')
                         ->columnSpan([
@@ -51,7 +51,7 @@ class ContactsRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     TextInput::make('designation')
                         ->rules(['max:50', 'string'])
                         ->placeholder('Designation')
@@ -60,7 +60,7 @@ class ContactsRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     TextInput::make('contactable_type')
                         ->rules(['max:50', 'string'])
                         ->placeholder('Contactable Type')
@@ -69,7 +69,7 @@ class ContactsRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     TextInput::make('contactable_id')
                         ->rules(['max:255'])
                         ->placeholder('Contactable Id')

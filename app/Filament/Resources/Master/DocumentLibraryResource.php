@@ -57,7 +57,7 @@ class DocumentLibraryResource extends Resource
                     FileUpload::make('url')->label('Document')
                         ->required()
                         ->disk('s3')
-                        ->downloadable()
+                        ->downloadable(true)
                         ->preserveFilenames(),
                     ]),
             ]);

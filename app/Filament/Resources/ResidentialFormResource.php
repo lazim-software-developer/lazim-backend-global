@@ -47,12 +47,12 @@ class ResidentialFormResource extends Resource
                     TextInput::make('number_of_adults')
                         ->label('Number Of Adults'),
                     Select::make('building_id')
-                        ->relationship('building','name')
+                        ->relationship('building', 'name')
                         ->preload()
                         ->searchable()
                         ->label('Building Name'),
                     Select::make('flat_id')
-                        ->relationship('flat','property_number')
+                        ->relationship('flat', 'property_number')
                         ->preload()
                         ->searchable()
                         ->label('Property No'),
@@ -83,34 +83,34 @@ class ResidentialFormResource extends Resource
                         ->disk('s3')
                         ->directory('dev')
                         ->label('Title Deed Url')
-                        ->downloadable()
-                        ->openable()
+                        ->downloadable(true)
+                        ->openable(true)
                         ->columnSpan([
-                            'sl'=>1,
-                            'md'=>1,
-                            'lg'=>2,
+                            'sl' => 1,
+                            'md' => 1,
+                            'lg' => 2,
                         ]),
                     FileUpload::make('emirates_url')
                         ->disk('s3')
                         ->directory('dev')
                         ->label('Emirates Url')
-                        ->downloadable()
-                        ->openable()
+                        ->downloadable(true)
+                        ->openable(true)
                         ->columnSpan([
-                            'sl'=>1,
-                            'md'=>1,
-                            'lg'=>2,
+                            'sl' => 1,
+                            'md' => 1,
+                            'lg' => 2,
                         ]),
                     FileUpload::make('passport_url')
                         ->disk('s3')
                         ->directory('dev')
                         ->label('Passport Url')
-                        ->downloadable()
-                        ->openable()
+                        ->downloadable(true)
+                        ->openable(true)
                         ->columnSpan([
-                            'sl'=>1,
-                            'md'=>1,
-                            'lg'=>2,
+                            'sl' => 1,
+                            'md' => 1,
+                            'lg' => 2,
                         ]),
 
                 ]),
@@ -168,8 +168,8 @@ class ResidentialFormResource extends Resource
                     ->preload()
                     ->label('Flat Number'),
             ])
+            ->defaultSort('created_at', 'desc')
             ->actions([
-                //Tables\Actions\EditAction::make(),
                 Action::make('Update Status')
                     ->visible(fn ($record) => $record->status === null)
                     ->button()
@@ -183,9 +183,8 @@ class ResidentialFormResource extends Resource
                             ->live(),
                         TextInput::make('remarks')
                             ->rules(['max:255'])
-                            ->visible(function(callable $get){
-                                if($get('status')=='rejected')
-                                {
+                            ->visible(function (callable $get) {
+                                if ($get('status') == 'rejected') {
                                     return true;
                                 }
                                 return false;
@@ -195,45 +194,32 @@ class ResidentialFormResource extends Resource
                         'status' => $record->status,
                         'remarks' => $record->remarks,
                     ])
-                    ->action(function (ResidentialForm $record,array $data): void {
-                        if($data['status'] == 'rejected')
-                        {
+                    ->action(function (ResidentialForm $record, array $data): void {
+                        if ($data['status'] == 'rejected') {
                             $record->status = $data['status'];
                             $record->remarks = $data['remarks'];
                             $record->save();
-                        }
-                        else
-                        {
+                        } else {
                             $record->status = $data['status'];
                             $record->save();
                         }
                     })
                     ->slideOver()
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    //Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ])
-            ->emptyStateActions([
-                //Tables\Actions\CreateAction::make(),
             ]);
     }
-    
+
     public static function getRelations(): array
     {
         return [
             //
         ];
     }
-    
+
     public static function getPages(): array
     {
         return [
             'index' => Pages\ListResidentialForms::route('/'),
-            //'create' => Pages\CreateResidentialForm::route('/create'),
-            //'edit' => Pages\EditResidentialForm::route('/{record}/edit'),
             'view' => Pages\ViewResidentialForm::route('/{record}'),
         ];
-    }    
+    }
 }
