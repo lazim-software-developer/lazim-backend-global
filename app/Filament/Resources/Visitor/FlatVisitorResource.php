@@ -35,80 +35,81 @@ class FlatVisitorResource extends Resource
                 Grid::make([
                     'sm' => 1,
                     'md' => 1,
-                    'lg' => 2,])
+                    'lg' => 2,
+                ])
                     ->schema([
-                    Select::make('flat_id')
-                        ->rules(['exists:flats,id'])
-                        ->required()
-                        ->relationship('flat', 'number')
-                        ->searchable()
-                        ->placeholder('Flat'),
-                    TextInput::make('name')
-                        ->rules(['max:50', 'string'])
-                        ->required()
-                        ->placeholder('Name'),
-                    TextInput::make('phone')
-                        ->rules(['max:10', 'string'])
-                        ->required()
-                        ->unique(
-                            'flat_visitors',
-                            'phone',
-                            fn(?Model $record) => $record
-                        )
-                        ->placeholder('Phone'),
+                        Select::make('flat_id')
+                            ->rules(['exists:flats,id'])
+                            ->required()
+                            ->relationship('flat', 'number')
+                            ->searchable()
+                            ->placeholder('Flat'),
+                        TextInput::make('name')
+                            ->rules(['max:50', 'string'])
+                            ->required()
+                            ->placeholder('Name'),
+                        TextInput::make('phone')
+                            ->rules(['max:10', 'string'])
+                            ->required()
+                            ->unique(
+                                'flat_visitors',
+                                'phone',
+                                fn (?Model $record) => $record
+                            )
+                            ->placeholder('Phone'),
 
-                    Select::make('type')
-                        ->required()
-                        ->options([
-                            'Visitor'=>'Visitor',
-                            'Guest'=>'Guest',
-                            'DomesticHelp'=>'Domestic Help',
-                            'GoodsDelivery'=>'GoodsDelivery'
-                        ]),
-                    DateTimePicker::make('start_time')
-                        ->rules(['date'])
-                        ->required()
-                        ->placeholder('Start Time'),
+                        Select::make('type')
+                            ->required()
+                            ->options([
+                                'Visitor' => 'Visitor',
+                                'Guest' => 'Guest',
+                                'DomesticHelp' => 'Domestic Help',
+                                'GoodsDelivery' => 'GoodsDelivery'
+                            ]),
+                        DateTimePicker::make('start_time')
+                            ->rules(['date'])
+                            ->required()
+                            ->placeholder('Start Time'),
 
-                    DateTimePicker::make('end_time')
-                        ->rules(['date'])
-                        ->required()
-                        ->placeholder('End Time'),
+                        DateTimePicker::make('end_time')
+                            ->rules(['date'])
+                            ->required()
+                            ->placeholder('End Time'),
 
-                    TextInput::make('verification_code')
-                        ->rules(['numeric'])
-                        ->required()
-                        ->unique(
-                            'flat_visitors',
-                            'verification_code',
-                            fn(?Model $record) => $record
-                        )
-                        ->numeric()
-                        ->placeholder('Verification Code'),
+                        TextInput::make('verification_code')
+                            ->rules(['numeric'])
+                            ->required()
+                            ->unique(
+                                'flat_visitors',
+                                'verification_code',
+                                fn (?Model $record) => $record
+                            )
+                            ->numeric()
+                            ->placeholder('Verification Code'),
 
-                    Select::make('initiated_by')
-                        ->rules(['exists:users,id'])
-                        ->required()
-                        ->relationship('userInitiatedBy', 'first_name')
-                        ->searchable()
-                        ->placeholder('User Initiated By'),
+                        Select::make('initiated_by')
+                            ->rules(['exists:users,id'])
+                            ->required()
+                            ->relationship('userInitiatedBy', 'first_name')
+                            ->searchable()
+                            ->placeholder('User Initiated By'),
 
-                    Select::make('approved_by')
-                        ->rules(['exists:users,id'])
-                        ->required()
-                        ->relationship('userApprovedBy', 'first_name')
-                        ->searchable()
-                        ->placeholder('User Approved By'),
+                        Select::make('approved_by')
+                            ->rules(['exists:users,id'])
+                            ->required()
+                            ->relationship('userApprovedBy', 'first_name')
+                            ->searchable()
+                            ->placeholder('User Approved By'),
 
-                    TextInput::make('remarks')
-                        ->required(),
+                        TextInput::make('remarks')
+                            ->required(),
 
-                    TextInput::make('number_of_visitors')
-                        ->rules(['numeric'])
-                        ->required()
-                        ->numeric()
-                        ->placeholder('Number Of Visitors')
-                ]),
+                        TextInput::make('number_of_visitors')
+                            ->rules(['numeric'])
+                            ->required()
+                            ->numeric()
+                            ->placeholder('Number Of Visitors')
+                    ]),
             ]);
     }
 
@@ -151,6 +152,7 @@ class FlatVisitorResource extends Resource
                     ->toggleable()
                     ->searchable(true, null, true),
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])

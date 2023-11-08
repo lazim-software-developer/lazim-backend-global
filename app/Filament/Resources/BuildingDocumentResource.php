@@ -42,20 +42,20 @@ class BuildingDocumentResource extends Resource
     public static function form(Form $form): Form
     {
         return $form
-        ->schema([
-            Grid::make([
-                'sm' => 1,
-                'md' => 1,
-                'lg' => 2,
-            ])->schema([
+            ->schema([
+                Grid::make([
+                    'sm' => 1,
+                    'md' => 1,
+                    'lg' => 2,
+                ])->schema([
 
-                Select::make('document_library_id')
-                    ->rules(['exists:document_libraries,id'])
-                    ->required()
-                    ->preload()
-                    ->relationship('documentLibrary', 'name')
-                    ->searchable()
-                    ->placeholder('Document Library'),
+                    Select::make('document_library_id')
+                        ->rules(['exists:document_libraries,id'])
+                        ->required()
+                        ->preload()
+                        ->relationship('documentLibrary', 'name')
+                        ->searchable()
+                        ->placeholder('Document Library'),
 
                     FileUpload::make('url')
                         ->disk('s3')
@@ -79,31 +79,31 @@ class BuildingDocumentResource extends Resource
                         ->required()
                         ->placeholder('Expiry Date'),
 
-                Hidden::make('owner_association_id')
-                    ->default(auth()->user()->owner_association_id),
+                    Hidden::make('owner_association_id')
+                        ->default(auth()->user()->owner_association_id),
 
-                Hidden::make('documentable_type')
-                    ->default('App\Models\Building\Building'),
+                    Hidden::make('documentable_type')
+                        ->default('App\Models\Building\Building'),
 
-                Select::make('documentable_id')
-                    ->options(
-                        DB::table('buildings')->pluck('name','id')->toArray()
-                    )
-                    ->searchable()
-                    ->preload()
-                    ->required()
-                    ->label('Building')
-                    ->placeholder('Documentable Id'),
-            ]),
+                    Select::make('documentable_id')
+                        ->options(
+                            DB::table('buildings')->pluck('name', 'id')->toArray()
+                        )
+                        ->searchable()
+                        ->preload()
+                        ->required()
+                        ->label('Building')
+                        ->placeholder('Documentable Id'),
+                ]),
 
-        ]);
+            ]);
     }
 
     public static function table(Table $table): Table
     {
         return $table
             ->poll('60s')
-            ->modifyQueryUsing(fn(Builder $query) => $query->where('documentable_type', 'App\Models\Building\Building')->withoutGlobalScopes())
+            ->modifyQueryUsing(fn (Builder $query) => $query->where('documentable_type', 'App\Models\Building\Building')->withoutGlobalScopes())
             ->columns([
                 TextColumn::make('documentLibrary.name')
                     ->searchable()
@@ -122,6 +122,7 @@ class BuildingDocumentResource extends Resource
                     ->default('NA')
                     ->toggleable(),
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])
