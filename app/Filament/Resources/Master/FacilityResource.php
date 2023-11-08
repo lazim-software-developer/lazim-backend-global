@@ -53,7 +53,6 @@ class FacilityResource extends Resource
                         FileUpload::make('icon')
                             ->disk('s3')
                             ->directory('dev')
-                            ->image()
                             ->required()
                             ->maxSize(2048),
                         Toggle::make('active')

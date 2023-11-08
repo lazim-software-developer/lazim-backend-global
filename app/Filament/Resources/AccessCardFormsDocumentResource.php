@@ -68,10 +68,10 @@ class AccessCardFormsDocumentResource extends Resource
                     TextInput::make('remarks')
                         ->required()
                         ->label('Remarks'),
-                    // FileUpload::make('passport')
-                    //     ->disk('s3')
-                    //     ->directory('dev')
-                    //     ->label('Passport'),
+                    FileUpload::make('passport')
+                        ->disk('s3')
+                        ->directory('dev')
+                        ->label('Passport'),
                     FileUpload::make('tenancy')
                         ->disk('s3')
                         ->directory('dev')
