@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Vendor;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Vendor\DocumentsUploadRequest;
+use App\Http\Resources\CustomResponseResource;
 use App\Models\Building\Document;
 use App\Models\Master\DocumentLibrary;
 use App\Models\Vendor\Vendor;
@@ -26,6 +27,11 @@ class DocumentsUploadController extends Controller
             $document = Document::create($request->all());
 
         }
-        return $document;
+        return (new CustomResponseResource([
+            'title' => 'Document upload successfull!',
+            'message' => "",
+            'errorCode' => 201,
+            'status' => 'success'
+        ]))->response()->setStatusCode(201);
     }
 }
