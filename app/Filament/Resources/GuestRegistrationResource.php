@@ -144,13 +144,6 @@ class GuestRegistrationResource extends Resource
                     ->label('Stay duration(days)'),
                 ViewColumn::make('Flat')->view('tables.columns.flat'),
                 ViewColumn::make('Building')->view('tables.columns.building'),
-
-                ImageColumn::make('dtmc_license_url')
-                    ->disk('s3')
-                    ->square()
-                    ->alignCenter()
-                    ->label('DTMC License URL'),
-
                 TextColumn::make('remarks')
                     ->searchable()
                     ->default('NA'),
