@@ -4,9 +4,12 @@ namespace App\Http\Controllers\Forms;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Forms\SaleNocRequest;
+use App\Http\Resources\CustomResponseResource;
 use App\Models\Building\Building;
 use App\Models\Forms\NocContacts;
+use App\Models\Forms\NocFormSignedDocument;
 use App\Models\Forms\SaleNOC;
+use Illuminate\Http\Request;
 
 class SaleNocController extends Controller
 {
@@ -86,5 +89,41 @@ class SaleNocController extends Controller
                 'link' => ""
             ], 200);
         }
+    }
+
+    // Upload Signed document from buyer or seller
+    public function uploadDocument(Request $request, SaleNOC $saleNoc)
+    {
+        $filePath = optimizeDocumentAndUpload($request->file, 'dev');
+
+        // Check the existing value of submit_status column
+        $status = $saleNoc->submit_status;
+
+        if ($status == 'download_file') {
+            $saleNoc->update(['submit_status' => 'seller_uploaded']);
+
+            // Upload document to NocFormSignedDocument
+            NocFormSignedDocument::create([
+                'noc_form_id' => $saleNoc->id,
+                'document' => $filePath,
+                'uploaded_by' => auth()->user()->id
+            ]);
+        } else if ($status == 'seller_uploaded') {
+            $saleNoc->update(['submit_status' => 'buyer_uploaded']);
+
+            // Upload document to NocFormSignedDocument
+            NocFormSignedDocument::create([
+                'noc_form_id' => $saleNoc->id,
+                'document' => $filePath,
+                'uploaded_by' => auth()->user()->id
+            ]);
+        }
+
+        return (new CustomResponseResource([
+            'title' => 'Success',
+            'message' => 'document uploaded successfully',
+            'errorCode' => 200,
+            'status' => 'success'
+        ]))->response()->setStatusCode(200);
     }
 }
