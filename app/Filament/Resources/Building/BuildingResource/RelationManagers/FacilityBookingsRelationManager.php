@@ -116,6 +116,7 @@ class FacilityBookingsRelationManager extends RelationManager
                 Tables\Actions\CreateAction::make(),
             ])
             ->actions([
+                Tables\Actions\ViewAction::make(),
                 Action::make('Approval')
                     ->visible(fn ($record) => $record->approved === false)
                     ->button()
