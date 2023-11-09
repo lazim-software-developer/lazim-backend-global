@@ -91,7 +91,6 @@ class RegisterationController extends Controller
             'phone' => $request->mobile,
             'role_id' => $role,
             'active' => 1,
-            'building_id' => $request->building_id
         ]);
     
         // Store details to Flat tenants table
