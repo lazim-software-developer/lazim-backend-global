@@ -75,9 +75,9 @@ class AccessCardController extends Controller
 
         $nocMessage = null;
 
-        if($saleNocForm->submit_status === 'seller_uploaded') {
-            $nocMessage = "Upload buyer's signed copy" ;
-        } else if($saleNocForm->submit_status === 'download_file') {
+        if ($saleNocFormStatus !== "Not submitted" && $saleNocForm->submit_status === 'seller_uploaded') {
+            $nocMessage = "Upload buyer's signed copy";
+        } else if ($saleNocFormStatus !== "Not submitted" && $saleNocForm->submit_status === 'download_file') {
             $nocMessage = 'Download the file and upload signed copy';
         }
 
