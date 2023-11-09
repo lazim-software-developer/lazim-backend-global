@@ -51,7 +51,7 @@ class FetchFlatsAndOwnersForBuilding implements ShouldQueue
                     $owner = ApartmentOwner::firstOrCreate([
                         'owner_number' => $ownerData['ownerNumber'],
                         'email' => $ownerData['email'],
-                        'mobile' => $ownerData['mobile'],
+                        'mobile' => preg_replace('/00/','+', $ownerData['mobile'],1),
                     ], [
                         'name' => $ownerData['name']['englishName'],
                         'passport' => $ownerData['passport'],
