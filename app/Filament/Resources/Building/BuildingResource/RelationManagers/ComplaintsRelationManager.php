@@ -2,18 +2,19 @@
 
 namespace App\Filament\Resources\Building\BuildingResource\RelationManagers;
 
-use Filament\Forms;
+use App\Models\Building\Complaint;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
-use Filament\Tables;
+use Filament\Tables\Actions\Action;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class ComplaintsRelationManager extends RelationManager
 {
-    protected static string $relationship = 'complaints';
+    protected static string $relationship = 'complaint';
 
     public function form(Form $form): Form
     {
@@ -53,6 +54,43 @@ class ComplaintsRelationManager extends RelationManager
         ])
             ->filters([
                 //
+            ])
+            ->actions([
+                Action::make('Update Status')
+                    ->visible(fn ($record) => $record->status === 'open')
+                    ->button()
+                    ->form([
+                        Select::make('status')
+                            ->options([
+                                'open'   => 'Open',
+                                'resolved' => 'Resolved',
+                            ])
+                            ->searchable()
+                            ->live(),
+                        TextInput::make('remarks')
+                            ->rules(['max:255'])
+                            ->visible(function (callable $get) {
+                                if ($get('status') == 'resolved') {
+                                    return true;
+                                }
+                                return false;
+                            }),
+                    ])
+                    ->fillForm(fn (Complaint $record): array => [
+                        'status' => $record->status,
+                        'remarks' => $record->remarks,
+                    ])
+                    ->action(function (Complaint $record, array $data): void {
+                        if ($data['status'] == 'resolved') {
+                            $record->status = $data['status'];
+                            $record->remarks = $data['remarks'];
+                            $record->save();
+                        } else {
+                            $record->status = $data['status'];
+                            $record->save();
+                        }
+                    })
+                    ->slideOver()
             ]);
     }
 }
