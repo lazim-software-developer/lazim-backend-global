@@ -181,8 +181,8 @@ class NocFormResource extends Resource
                             }),
                     ])
                     ->fillForm(fn (NocForms $record): array => [
-                        'status' => $record->status,
-                        'remarks' => $record->remarks,
+                        'status' => $record->status ?? "NA",
+                        'remarks' => $record->remarks ?? "NA",
                     ])
                     ->action(function (NocForms $record, array $data): void {
                         if ($data['status'] == 'rejected') {

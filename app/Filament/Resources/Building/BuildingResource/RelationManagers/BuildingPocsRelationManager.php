@@ -33,7 +33,7 @@ class BuildingPocsRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     TextInput::make('role_name')
                         ->rules(['max:50', 'string'])
                         ->placeholder('Role Name')
@@ -42,7 +42,7 @@ class BuildingPocsRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     TextInput::make('escalation_level')
                         ->rules(['max:50', 'string'])
                         ->placeholder('Escalation Level')
@@ -51,7 +51,7 @@ class BuildingPocsRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     Toggle::make('active')
                         ->rules(['boolean'])
                         ->columnSpan([
@@ -59,7 +59,7 @@ class BuildingPocsRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     Toggle::make('emergency_contact')
                         ->rules(['boolean'])
                         ->columnSpan([
@@ -75,12 +75,12 @@ class BuildingPocsRelationManager extends RelationManager
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('building.name')->limit(50),
-                Tables\Columns\TextColumn::make('user.first_name')->limit(50),
-                Tables\Columns\TextColumn::make('role_name')->limit(50),
-                Tables\Columns\TextColumn::make('escalation_level')->limit(50),
-                Tables\Columns\IconColumn::make('active'),
-                Tables\Columns\IconColumn::make('emergency_contact'),
+                Tables\Columns\TextColumn::make('building.name')->default('NA')->limit(50),
+                Tables\Columns\TextColumn::make('user.first_name')->default('NA')->limit(50),
+                Tables\Columns\TextColumn::make('role_name')->default('NA')->limit(50),
+                Tables\Columns\TextColumn::make('escalation_level')->default('NA')->limit(50),
+                Tables\Columns\IconColumn::make('active')->default('NA'),
+                Tables\Columns\IconColumn::make('emergency_contact')->default('NA'),
             ])
             ->filters([
                 //
