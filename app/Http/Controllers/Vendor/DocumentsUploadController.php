@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Vendor;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Vendor\DocumentsUploadRequest;
 use App\Http\Resources\CustomResponseResource;
+use App\Http\Resources\Vendor\VendorDocumentResource;
 use App\Models\Building\Document;
 use App\Models\Master\DocumentLibrary;
 use App\Models\Vendor\Vendor;
@@ -33,5 +34,13 @@ class DocumentsUploadController extends Controller
             'errorCode' => 201,
             'status' => 'success'
         ]))->response()->setStatusCode(201);
+    }
+
+    public function showDocuments(Request $request)
+    {
+        $vendor_id =Vendor::where('owner_id', auth()->user()->id)->first()->id;
+        $documents = Document::where('documentable_id', 41)->get();
+
+        return VendorDocumentResource::collection($documents);
     }
 }
