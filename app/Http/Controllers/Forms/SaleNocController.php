@@ -131,6 +131,8 @@ class SaleNocController extends Controller
     public function uploadNOCDocument(Request $request) {
         $path = optimizeDocumentAndUpload($request->file, 'dev');
 
-        return $path;
+        return response()->json([
+            'path' => $path,
+        ], 200);
     }
 }

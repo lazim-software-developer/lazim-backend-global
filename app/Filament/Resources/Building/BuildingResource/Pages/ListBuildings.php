@@ -3,6 +3,8 @@
 namespace App\Filament\Resources\Building\BuildingResource\Pages;
 
 use App\Filament\Resources\Building\BuildingResource;
+use App\Imports\MyBudgetImport;
+use EightyNine\ExcelImport\ExcelImportAction;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
 use Illuminate\Database\Eloquent\Builder;
@@ -22,6 +24,10 @@ class ListBuildings extends ListRecords
     {
         return [
             Actions\CreateAction::make(),
+            ExcelImportAction::make()
+            ->slideOver()
+            ->color("primary")
+            ->use(MyBudgetImport::class),
         ];
     }
 }
