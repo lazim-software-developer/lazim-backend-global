@@ -54,7 +54,17 @@ class OwnerAssociationResource extends Resource
 
                         ->placeholder('TRN Number'),
                     TextInput::make('phone')
-                        ->rules(['regex:/^(\+971)(50|51|52|55|56|58|02|03|04|06|07|09)\d{7}$/'])
+                        ->rules(['regex:/^(\+971)(50|51|52|55|56|58|02|03|04|06|07|09)\d{7}$/',function () {
+                            return function (string $attribute, $value, Closure $fail) {
+                                if (DB::table('owner_associations')->where('phone', $value)->where('verified', 1)->exists()) {
+                                    $fail('The phone is already taken.');
+                                }
+                                if (DB::table('users')->where('phone', $value)->exists()) {
+                                    $fail('The phone is already taken.');
+                                }
+                            };
+                        },
+                        ])
                         ->required()
                         ->unique(
                             'users',
@@ -81,6 +91,9 @@ class OwnerAssociationResource extends Resource
                         ->rules(['min:6', 'max:30', 'regex:/^[a-z0-9.]+@[a-z]+\.[a-z]{2,}$/', function () {
                             return function (string $attribute, $value, Closure $fail) {
                                 if (DB::table('owner_associations')->where('email', $value)->where('verified', 1)->exists()) {
+                                    $fail('The email is already taken.');
+                                }
+                                if (DB::table('users')->where('email', $value)->exists()) {
                                     $fail('The email is already taken.');
                                 }
                             };
