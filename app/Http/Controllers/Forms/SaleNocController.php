@@ -60,9 +60,6 @@ class SaleNocController extends Controller
             $contact['last_name'] = auth()->user()->last_name;
             $contact['email'] = auth()->user()->email;
             $contact['mobile'] = auth()->user()->phone;
-            $contact['emirates_document_url'] = $request->get("contacts.$index.emirates_document_url");
-            $contact['visa_document_url'] = $request->get("contacts.$index.visa_document_url");;
-            $contact['passport_document_url'] = $request->get("contacts.$index.passport_document_url");
             
             NocContacts::create($contact);
         }
