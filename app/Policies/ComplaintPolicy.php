@@ -15,13 +15,11 @@ class ComplaintPolicy
      */
     public function viewAny(User $user): bool
     {
-        $role = $user->role->name == 'Admin';
+        $allowedRoles = ['OA','Admin'];
 
-        if($role)
-        {
-            return false;
-        }
+        if (in_array($user->role->name, $allowedRoles)) {
         return true;
+        }
     }
 
     /**
@@ -29,13 +27,11 @@ class ComplaintPolicy
      */
     public function view(User $user, Complaint $model): bool
     {
-        $role = $user->role->name == 'Admin';
+        $allowedRoles = ['OA','Admin'];
 
-        if($role)
-        {
-            return false;
-        }
+        if (in_array($user->role->name, $allowedRoles)) {
         return true;
+        }
     }
 
     /**
