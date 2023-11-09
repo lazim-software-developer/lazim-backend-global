@@ -122,7 +122,6 @@ class ComplaintssuggessionResource extends Resource
                     ->preload()
             ])
             ->actions([
-                //Tables\Actions\EditAction::make(),
                 Action::make('Update Status')
                     ->visible(fn ($record) => $record->status === 'open')
                     ->button()
