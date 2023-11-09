@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::table('complaints', function (Blueprint $table) {
             $table->unsignedBigInteger('closed_by')->nullable()->after('status');
-            $table->foreign('closed_by')->references('id')->on('users')->onDelete('set null');
+            $table->foreign('closed_by')->references('id')->on('users');
         });
     }
 
