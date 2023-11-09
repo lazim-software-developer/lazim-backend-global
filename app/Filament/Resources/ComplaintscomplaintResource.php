@@ -70,18 +70,6 @@ class ComplaintscomplaintResource extends Resource
                             ->preload()
                             ->required()
                             ->label('User'),
-                        Select::make('category')
-                            ->options([
-                                'civil'    => 'Civil',
-                                'MIP'      => 'MIP',
-                                'security' => 'Security',
-                                'cleaning' => 'Cleaning',
-                                'others'   => 'Others',
-                            ])
-                            ->rules(['max:50', 'string'])
-                            ->required()
-                            ->searchable()
-                            ->placeholder('Category'),
                         FileUpload::make('photo')
                             ->disk('s3')
                             ->directory('dev')
