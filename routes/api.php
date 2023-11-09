@@ -244,6 +244,9 @@ Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active']
     Route::get('/status/{building}', [AccessCardController::class, 'fetchFormStatus']);
     Route::get('/sale-noc/{saleNoc}/status', [SaleNocController::class, 'fetchNocFormStatus']);
     Route::post('/sale-noc/{saleNoc}/upload-document', [SaleNocController::class, 'uploadDocument']);
+
+    // Upload document to S3 - For NOC Page
+    Route::post('/upload-document', [SaleNocController::class, 'uploadNOCDocument']);
 });
 
 // API  to fetch Security for a building
