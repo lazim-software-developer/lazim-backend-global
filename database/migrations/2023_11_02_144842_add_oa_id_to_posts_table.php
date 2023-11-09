@@ -13,13 +13,10 @@ return new class extends Migration
     {
         Schema::table('posts', function (Blueprint $table) {
             $table->unsignedBigInteger('owner_association_id')->nullable();
-            $table->foreign('owner_association_id')->references('id')->on('owner_associations')->onUpdate('CASCADE')->onDelete('CASCADE');
+            $table->foreign('owner_association_id')->references('id')->on('owner_associations');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::table('posts', function (Blueprint $table) {
