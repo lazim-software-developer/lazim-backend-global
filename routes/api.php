@@ -275,3 +275,4 @@ Route::get('show-services',[SelectServicesController::class, 'showServices']);
 Route::post('/documents-upload',[DocumentsUploadController::class, 'documentsUpload']);
 Route::get('/show-documents',[DocumentsUploadController::class,'showDocuments'])->middleware('auth:sanctum');
 Route::post('/escalation-matrix',[EscalationMatrixController::class, 'store']);
+Route::get('/escalation-matrix',[EscalationMatrixController::class, 'show'])->middleware('auth:sanctum');

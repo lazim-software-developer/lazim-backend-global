@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Vendor;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Vendor\EscalationMatrixRequest;
 use App\Http\Resources\CustomResponseResource;
+use App\Http\Resources\Vendor\VendorEscalationMatrixResource;
+use App\Models\Vendor\Vendor;
 use App\Models\Vendor\VendorEscalationMatrix;
 use Illuminate\Http\Request;
 
@@ -27,5 +29,13 @@ class EscalationMatrixController extends Controller
             'errorCode' => 400,
             'status' => 'error',
         ]))->response()->setStatusCode(400);
+    }
+
+    public function show()
+    {
+        $vendor_id =Vendor::where('owner_id', auth()->user()->id)->first()->id;
+        $escalation=VendorEscalationMatrix::where('vendor_id', $vendor_id)->get();
+        return VendorEscalationMatrixResource::collection($escalation);
+        
     }
 }
