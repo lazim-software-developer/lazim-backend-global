@@ -62,7 +62,8 @@ class SelectServicesController extends Controller
 
     public function showServices(Request $request)
     {
-        $services=DB::table('service_vendor')->where('vendor_id',$request->vendor_id)->get();
+        $vendor_id =Vendor::where('owner_id', auth()->user()->id)->first()->id;
+        $services=DB::table('service_vendor')->where('vendor_id',$vendor_id)->get();
 
         return SelectServicesResource::collection($services);
     }
