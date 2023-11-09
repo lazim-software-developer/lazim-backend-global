@@ -42,6 +42,8 @@ class UserDocumentsRelationManager extends RelationManager
                         ->directory('dev')
                         ->label('Document')
                         ->required()
+                        ->downloadable(true)
+                        ->openable(true)
                         ->columnSpan([
                             'sl'=>1,
                             'md'=>1,

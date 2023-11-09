@@ -47,8 +47,7 @@ class PostResource extends Resource
                 'md' => 1,
                 'lg' => 2,
             ])->schema([
-                Textarea::make('content')
-                    ->autosize()
+                RichEditor::make('content')
                     ->minLength(10)
                     ->maxLength(255)
                     ->required()
@@ -98,11 +97,11 @@ class PostResource extends Resource
                 Repeater::make('media')
                     ->relationship('media')
                     ->schema([
-                        TextInput::make('name')
+                TextInput::make('name')
                             ->rules(['max:30', 'regex:/^[a-zA-Z\s]*$/'])
                             ->required()
                             ->placeholder('Name'),
-                        FileUpload::make('url')
+                FileUpload::make('url')
                             ->disk('s3')
                             ->directory('dev')
                             ->image()
