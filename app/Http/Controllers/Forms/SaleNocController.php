@@ -126,4 +126,11 @@ class SaleNocController extends Controller
             'status' => 'success'
         ]))->response()->setStatusCode(200);
     }
+
+    // Upload individual documents for NOC form
+    public function uploadNOCDocument(Request $request) {
+        $path = optimizeDocumentAndUpload($request->file, 'dev');
+
+        return $path;
+    }
 }
