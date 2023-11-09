@@ -53,5 +53,9 @@ class Service extends Model
         }
         return null;
     }
-
+    
+    public function buildings()
+    {
+        return $this->belongsToMany(Building::class, 'building_service');
+    }
 }
