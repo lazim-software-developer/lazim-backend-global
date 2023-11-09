@@ -270,5 +270,6 @@ Route::post('/vendor-manager',[VendorRegistrationController::class,'managerDetai
 Route::get('/list-services',[SelectServicesController::class, 'listServices']);
 Route::post('/add-service',[SelectServicesController::class, 'addService']);
 Route::post('/tag-services',[SelectServicesController::class, 'tagServices']);
+Route::get('show-services',[SelectServicesController::class, 'showServices']);
 Route::post('/documents-upload',[DocumentsUploadController::class, 'documentsUpload']);
 Route::post('/escalation-matrix',[EscalationMatrixController::class, 'store']);

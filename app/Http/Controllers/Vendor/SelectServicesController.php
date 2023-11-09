@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Vendor;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Vendor\SelectServicesRequest;
 use App\Http\Resources\CustomResponseResource;
+use App\Http\Resources\Vendor\SelectServicesResource;
 use App\Models\Master\Service;
 use App\Models\Vendor\Vendor;
 use Illuminate\Http\Request;
@@ -57,5 +58,12 @@ class SelectServicesController extends Controller
             'status' => 'success',
         ]))->response()->setStatusCode(201);
 
+    }
+
+    public function showServices(Request $request)
+    {
+        $services=DB::table('service_vendor')->where('vendor_id',$request->vendor_id)->get();
+
+        return SelectServicesResource::collection($services);
     }
 }
