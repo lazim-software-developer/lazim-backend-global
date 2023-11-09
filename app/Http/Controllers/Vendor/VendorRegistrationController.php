@@ -83,4 +83,17 @@ class VendorRegistrationController extends Controller
             'data' => $manager
         ]))->response()->setStatusCode(201);
     }
+
+    public function showManagerDetails()
+    {
+        $vendor_id =Vendor::where('owner_id', auth()->user()->id)->first()->id;
+        $manager = VendorManager::where('vendor_id',$vendor_id)->first();
+        return (new CustomResponseResource([
+            'title' => 'Vendor Manager Details fetched',
+            'message' => "",
+            'errorCode' => 200,
+            'status' => 'success',
+            'data' => $manager
+        ]))->response()->setStatusCode(200);
+    }
 }

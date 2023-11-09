@@ -39,7 +39,7 @@ class DocumentsUploadController extends Controller
     public function showDocuments(Request $request)
     {
         $vendor_id =Vendor::where('owner_id', auth()->user()->id)->first()->id;
-        $documents = Document::where('documentable_id', 41)->get();
+        $documents = Document::where('documentable_id', $vendor_id)->get();
 
         return VendorDocumentResource::collection($documents);
     }
