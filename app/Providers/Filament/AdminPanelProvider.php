@@ -165,16 +165,21 @@ class AdminPanelProvider extends PanelProvider
                                 ->icon('heroicon-m-clipboard-document-check')
                                 ->activeIcon('heroicon-m-clipboard-document-check')
                                 ->sort(2),
+                            NavigationItem::make('Budget')
+                                ->url('/admin/budgets')
+                                ->icon('heroicon-m-clipboard-document-check')
+                                ->activeIcon('heroicon-m-clipboard-document-check')
+                                ->sort(3),
                             NavigationItem::make('Facility Bookings')
                                 ->url('/admin/building/facility-bookings')
                                 ->icon('heroicon-s-speaker-wave')
                                 ->activeIcon('heroicon-s-speaker-wave')
-                                ->sort(3),
+                                ->sort(4),
                             NavigationItem::make('Service Bookings')
                                 ->url('/admin/building/service-bookings')
                                 ->icon('heroicon-s-user-group')
                                 ->activeIcon('heroicon-s-user-group')
-                                ->sort(4),
+                                ->sort(5),
                             ]),
             ]);
             $builder->groups([
