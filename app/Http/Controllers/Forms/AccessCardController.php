@@ -46,8 +46,8 @@ class AccessCardController extends Controller
         ]))->response()->setStatusCode(201);
     }
 
-    public function fetchFormStatus(Building $building) {
-
+    public function fetchFormStatus(Building $building) 
+    {
         // Fetch status of all forms
         $accessCard = auth()->user()->accessCard()->where('building_id', $building->id)->latest()->first();
 
@@ -61,11 +61,11 @@ class AccessCardController extends Controller
 
         $fitOutFormStatus = $fitOutForm ?? "Not submitted";
         
-        $moveInForm = auth()->user()->moveinData()->where('type', 'movein')->where('building_id', $building->id)->latest()->first();
+        $moveInForm = auth()->user()->moveinData()->where('type', 'move-in')->where('building_id', $building->id)->latest()->first();
 
         $moveInFormStatus = $moveInForm ?? "Not submitted";
         
-        $moveOutForm = auth()->user()->moveinData()->where('type', 'moveout')->where('building_id', $building->id)->latest()->first();
+        $moveOutForm = auth()->user()->moveinData()->where('type', 'move-out')->where('building_id', $building->id)->latest()->first();
 
         $moveOutFormStatus = $moveOutForm ?? "Not submitted";
         
@@ -85,7 +85,7 @@ class AccessCardController extends Controller
             [
                 'id' => $accessCard ? $accessCard->id : null,
                 'name' => 'Access Card',
-                'status' => $accessCard ? $accessCard->status : 'not_submitted',
+                'status' => $accessCardStatus === 'Not submitted' ? 'not_submitted' : $accessCard->status,
                 'created_at' => $accessCard ? Carbon::parse($accessCard->created_at)->diffForHumans() : null,
                 'rejected_reason' => $accessCard ? $accessCard->remarks : null,
                 'message' => null
@@ -109,7 +109,7 @@ class AccessCardController extends Controller
             [
                 'id' => $moveInForm ? $moveInForm->id : null,
                 'name' => 'Move In Form',
-                'status' => $moveInForm ? $moveInForm->status : 'not_submitted',
+                'status' => $moveInFormStatus != 'Not Submitted' ? $moveInForm->status : 'not_submitted',
                 'created_at' => $moveInForm ? Carbon::parse($moveInForm->created_at)->diffForHumans() : null,
                 'rejected_reason' => $moveInForm ? $moveInForm->remarks : null,
                 'message' => null
@@ -117,7 +117,7 @@ class AccessCardController extends Controller
             [
                 'id' => $moveOutForm ? $moveOutForm->id : null,
                 'name' => 'Move Out Form',
-                'status' => $moveOutForm ? $moveOutForm->status : 'not_submitted',
+                'status' => $moveOutFormStatus != 'Not Submitted' ? $moveOutForm->status : 'not_submitted',
                 'created_at' => $moveOutForm ? Carbon::parse($moveOutForm->created_at)->diffForHumans() : null,
                 'rejected_reason' => $moveOutForm ? $moveOutForm->remarks : null,
                 'message' => null
