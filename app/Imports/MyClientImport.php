@@ -50,7 +50,7 @@ class MyClientImport implements ToCollection
                 'name' => $collection[$int][5],
                 'emirates_id' => $collection[$int][6],
                 'license_number' => $collection[$int][7],
-                'mobile' => $collection[$int][8],
+                'mobile' => preg_replace('/0/','+971', $collection[$int][8],1),
                 'email' => $collection[$int][9],
                 'start_date' => $collection[$int][10],
                 'end_date' => $collection[$int][11],
