@@ -9,6 +9,7 @@ use App\Models\Vendor\Contact;
 use App\Models\Building\Building;
 use App\Models\Building\Document;
 use App\Models\Scopes\Searchable;
+use App\Models\Vendor\VendorEscalationMatrix;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -91,5 +92,10 @@ class Vendor extends Model
     public function managers()
     {
         return $this->belongsTo(VendorManager::class);
+    }
+
+    public function escalationMatrix()
+    {
+        return $this->hasMany(VendorEscalationMatrix::class);
     }
 }
