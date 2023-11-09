@@ -28,27 +28,28 @@ class FacilitiesRelationManager extends RelationManager
     public function form(Form $form): Form
     {
         return $form
-            ->schema([
-
-            ]);
+            ->schema([]);
     }
 
     public function table(Table $table): Table
     {
         return $table
-        ->columns([
-            Tables\Columns\TextColumn::make('name')->limit(50),
-            Tables\Columns\TextColumn::make('icon')->limit(50),
-            Tables\Columns\IconColumn::make('active')
-            ->boolean()
-            ->trueIcon('heroicon-o-check-badge')
-            ->falseIcon('heroicon-o-x-mark'),
-        ])
+            ->columns([
+                Tables\Columns\TextColumn::make('name')->limit(50),
+                Tables\Columns\ImageColumn::make('icon')
+                    ->square()
+                    ->alignCenter()
+                    ->disk('s3'),
+                Tables\Columns\IconColumn::make('active')
+                    ->boolean()
+                    ->trueIcon('heroicon-o-check-badge')
+                    ->falseIcon('heroicon-o-x-mark'),
+            ])
             ->filters([
                 //
             ])
             ->actions([
-                Tables\Actions\DetachAction::make() ->label('Remove'),
+                Tables\Actions\DetachAction::make()->label('Remove'),
             ])
             ->headerActions([
 
