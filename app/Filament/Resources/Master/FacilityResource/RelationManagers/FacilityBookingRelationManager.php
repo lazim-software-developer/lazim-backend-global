@@ -68,6 +68,7 @@ class FacilityBookingRelationManager extends RelationManager
                     TextInput::make('order_id')
                         ->rules(['max:50', 'string'])
                         ->placeholder('Order Id')
+                        ->default('NA')
                         ->columnSpan([
                             'default' => 12,
                             'md' => 12,
@@ -77,6 +78,7 @@ class FacilityBookingRelationManager extends RelationManager
                     TextInput::make('payment_status')
                         ->rules(['max:50', 'string'])
                         ->placeholder('Payment Status')
+                        ->default('NA')
                         ->columnSpan([
                             'default' => 12,
                             'md' => 12,
@@ -110,9 +112,11 @@ class FacilityBookingRelationManager extends RelationManager
                         ]),
 
                     Select::make('approved_by')
+                        ->label('Approved by')
                         ->rules(['exists:users,id'])
                         ->relationship('userFacilityBookingApprove', 'first_name')
                         ->searchable()
+                        ->default('NA')
                         ->placeholder('User Facility Booking Approve')
                         ->columnSpan([
                             'default' => 12,
