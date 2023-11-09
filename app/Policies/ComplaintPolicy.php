@@ -39,14 +39,11 @@ class ComplaintPolicy
      */
     public function create(User $user): bool
     {
-        $role = $user->role->name == 'Admin';
+        $allowedRoles = ['OA','Admin'];
 
-        if($role)
-        {
-            return false;
-        }
+        if (in_array($user->role->name, $allowedRoles)) {
         return true;
-
+        }
     }
 
     /**
