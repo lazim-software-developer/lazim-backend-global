@@ -32,7 +32,7 @@ class AuthController extends Controller
 
         $user = User::where('email', $request->email)->firstOrFail();
 
-        $allowedRoles = ['OA'];
+        $allowedRoles = ['OA','Vendor'];
 
         if ($user) {
             if (in_array($user->role->name, $allowedRoles)) {
