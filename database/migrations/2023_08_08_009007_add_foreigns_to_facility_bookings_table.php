@@ -15,30 +15,22 @@ return new class extends Migration
             $table
                 ->foreign('facility_id')
                 ->references('id')
-                ->on('facilities')
-                ->onUpdate('CASCADE')
-                ->onDelete('CASCADE');
+                ->on('facilities');
 
             $table
                 ->foreign('user_id')
                 ->references('id')
-                ->on('users')
-                ->onUpdate('CASCADE')
-                ->onDelete('CASCADE');
+                ->on('users');
 
             $table
                 ->foreign('approved_by')
                 ->references('id')
-                ->on('users')
-                ->onUpdate('CASCADE')
-                ->onDelete('CASCADE');
+                ->on('users');
 
             $table
                 ->foreign('building_id')
                 ->references('id')
-                ->on('buildings')
-                ->onUpdate('CASCADE')
-                ->onDelete('CASCADE');
+                ->on('buildings');
         });
     }
 
