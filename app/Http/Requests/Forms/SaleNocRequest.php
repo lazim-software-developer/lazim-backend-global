@@ -43,6 +43,9 @@ class SaleNocRequest extends FormRequest
             'contacts.*.emirates_document_url' => 'required',
             'contacts.*.visa_document_url' => 'required',
             'contacts.*.passport_document_url' => 'required',
+            'signing_authority_email' => 'required',
+            'signing_authority_phone' => 'required',
+            'signing_authority_name' => 'required',
         ];
     }
 }
