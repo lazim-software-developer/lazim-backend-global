@@ -84,7 +84,7 @@ class FacilityController extends Controller
         } elseif ($type === 'services') {
             $query->where('bookable_type', 'App\Models\Master\Service');
         } 
-        $bookings = $query->latest()->get();
+        $bookings = $query->latest()->paginate(10);
 
         return FacilityBookingResource::collection($bookings);
     }
