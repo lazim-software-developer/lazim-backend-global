@@ -85,7 +85,7 @@ class AccessCardController extends Controller
             [
                 'id' => $accessCard ? $accessCard->id : null,
                 'name' => 'Access Card',
-                'status' => $accessCardStatus === 'Not submitted' ? 'not_submitted' : $accessCard->status,
+                'status' => $accessCard ? $accessCard->status : 'not_submitted',
                 'created_at' => $accessCard ? Carbon::parse($accessCard->created_at)->diffForHumans() : null,
                 'rejected_reason' => $accessCard ? $accessCard->remarks : null,
                 'message' => null
@@ -109,7 +109,7 @@ class AccessCardController extends Controller
             [
                 'id' => $moveInForm ? $moveInForm->id : null,
                 'name' => 'Move In Form',
-                'status' => $moveInFormStatus != 'Not Submitted' ? $moveInForm->status : 'not_submitted',
+                'status' => $moveInForm ? $moveInForm->status : 'not_submitted',
                 'created_at' => $moveInForm ? Carbon::parse($moveInForm->created_at)->diffForHumans() : null,
                 'rejected_reason' => $moveInForm ? $moveInForm->remarks : null,
                 'message' => null
@@ -117,7 +117,7 @@ class AccessCardController extends Controller
             [
                 'id' => $moveOutForm ? $moveOutForm->id : null,
                 'name' => 'Move Out Form',
-                'status' => $moveOutFormStatus != 'Not Submitted' ? $moveOutForm->status : 'not_submitted',
+                'status' => $moveOutForm ? $moveOutForm->status : 'not_submitted',
                 'created_at' => $moveOutForm ? Carbon::parse($moveOutForm->created_at)->diffForHumans() : null,
                 'rejected_reason' => $moveOutForm ? $moveOutForm->remarks : null,
                 'message' => null
