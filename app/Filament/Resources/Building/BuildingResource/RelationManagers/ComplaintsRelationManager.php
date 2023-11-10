@@ -3,14 +3,17 @@
 namespace App\Filament\Resources\Building\BuildingResource\RelationManagers;
 
 use App\Models\Building\Complaint;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
-use Filament\Tables\Actions\Action;
+use Filament\Tables\Actions\Action as ActionsAction;
+use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\DB;
 
 class ComplaintsRelationManager extends RelationManager
 {
@@ -19,8 +22,45 @@ class ComplaintsRelationManager extends RelationManager
     public function form(Form $form): Form
     {
         return $form
+        ->schema([
+            Grid::make([
+                'sm' => 1,
+                'md' => 1,
+                'lg' => 2
+            ])
             ->schema([
-                //
+                Select::make('building_id')
+                            ->rules(['exists:buildings,id'])
+                            ->relationship('building', 'name')
+                            ->reactive()
+                            ->preload()
+                            ->searchable()
+                            ->placeholder('Building'),
+                        Select::make('user_id')
+                            ->relationship('user', 'id')
+                            ->options(function () {
+                                $tenants = DB::table('flat_tenants')->pluck('tenant_id');
+                                // dd($tenants);
+                                return DB::table('users')
+                                    ->whereIn('users.id', $tenants)
+                                    ->select('users.id', 'users.first_name')
+                                    ->pluck('users.first_name', 'users.id')
+                                    ->toArray();
+                            })
+                            ->searchable()
+                            ->preload()
+                            ->required()
+                            ->label('User'),
+                        FileUpload::make('photo')
+                            ->disk('s3')
+                            ->directory('dev')
+                            ->maxSize(2048)
+                            ->nullable(),
+                        TextInput::make('complaint')
+                            ->placeholder('Complaint'),
+                        TextInput::make('complaint_details')
+                            ->placeholder('Complaint Details'),
+            ])
             ]);
     }
 
@@ -57,7 +97,8 @@ class ComplaintsRelationManager extends RelationManager
             ])
             ->defaultSort('created_at', 'desc')
             ->actions([
-                Action::make('Update Status')
+                ViewAction::make(),
+                ActionsAction::make('Update Status')
                     ->visible(fn ($record) => $record->status === 'open')
                     ->button()
                     ->form([
@@ -75,7 +116,8 @@ class ComplaintsRelationManager extends RelationManager
                                     return true;
                                 }
                                 return false;
-                            }),
+                            })
+                            ->required(),
                     ])
                     ->fillForm(fn (Complaint $record): array => [
                         'status' => $record->status,
@@ -91,7 +133,6 @@ class ComplaintsRelationManager extends RelationManager
                             $record->save();
                         }
                     })
-                    ->slideOver()
             ]);
     }
 }

@@ -179,7 +179,8 @@ class ResidentialFormResource extends Resource
                                     return true;
                                 }
                                 return false;
-                            }),
+                            })
+                            ->required(),
                     ])
                     ->fillForm(fn (ResidentialForm $record): array => [
                         'status' => $record->status,

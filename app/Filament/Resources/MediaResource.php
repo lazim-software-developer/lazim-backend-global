@@ -65,15 +65,6 @@ class MediaResource extends Resource
                     ->default('NA')
                     ->searchable(),
 
-                TextColumn::make('mediaable.content')
-                    ->searchable()
-                    ->default('NA')
-                    ->toggleable(),
-
-                TextColumn::make('mediaable_type')
-                    ->default('NA')
-                    ->toggleable(),
-
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
