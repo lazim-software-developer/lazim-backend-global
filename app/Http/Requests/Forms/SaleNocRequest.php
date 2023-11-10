@@ -32,17 +32,20 @@ class SaleNocRequest extends FormRequest
             'service_charge_paid' => 'required|boolean',
             'noc_fee_paid' => 'required|boolean',
             'service_charge_paid_till' => 'required|date',
-            'cooling_receipt' => 'required|file|mimes:pdf,jpeg,png,doc,docx|max:2048', // 2MB max
-            'cooling_soa' => 'required|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
-            'cooling_clearance' => 'required|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
-            'payment_receipt' => 'required|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
+            'cooling_receipt' => 'required',
+            'cooling_soa' => 'required',
+            'cooling_clearance' => 'required',
+            'payment_receipt' => 'required',
             'contacts.*.type' => 'required|in:buyer,seller',
             'contacts.*.emirates_id' => 'nullable|string|max:20',
             'contacts.*.passport_number' => 'nullable|string|max:20',
             'contacts.*.visa_number' => 'nullable|string|max:20',
-            'contacts.*.emirates_document_url' => 'required|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
-            'contacts.*.visa_document_url' => 'required|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
-            'contacts.*.passport_document_url' => 'required|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
+            'contacts.*.emirates_document_url' => 'required',
+            'contacts.*.visa_document_url' => 'required',
+            'contacts.*.passport_document_url' => 'required',
+            'signing_authority_email' => 'required',
+            'signing_authority_phone' => 'required',
+            'signing_authority_name' => 'required',
         ];
     }
 }

@@ -21,10 +21,10 @@ class SaleNocController extends Controller
         $ownerAssociationId = Building::find($request->building_id)->owner_association_id;
 
         // Handle the file uploads using the optimizeDocumentAndUpload function
-        $validated['cooling_receipt'] = optimizeDocumentAndUpload($request->file('cooling_receipt'));
-        $validated['cooling_soa'] = optimizeDocumentAndUpload($request->file('cooling_soa'));
-        $validated['cooling_clearance'] = optimizeDocumentAndUpload($request->file('cooling_clearance'));
-        $validated['payment_receipt'] = optimizeDocumentAndUpload($request->file('payment_receipt'));
+        // $validated['cooling_receipt'] = optimizeDocumentAndUpload($request->file('cooling_receipt'));
+        // $validated['cooling_soa'] = optimizeDocumentAndUpload($request->file('cooling_soa'));
+        // $validated['cooling_clearance'] = optimizeDocumentAndUpload($request->file('cooling_clearance'));
+        // $validated['payment_receipt'] = optimizeDocumentAndUpload($request->file('payment_receipt'));
 
 
         $validated['user_id'] = auth()->user()->id;
@@ -38,28 +38,29 @@ class SaleNocController extends Controller
 
         foreach ($contacts as $index => $contact) {
             // Handle file uploads for emirates_document_url
-            if ($request->hasFile("contacts.$index.emirates_document_url")) {
-                $file = optimizeDocumentAndUpload($request->file("contacts.$index.emirates_document_url"));
-                $contact['emirates_document_url'] = $file;
-            }
+            // if ($request->hasFile("contacts.$index.emirates_document_url")) {
+            //     $file = optimizeDocumentAndUpload($request->file("contacts.$index.emirates_document_url"));
+            //     $contact['emirates_document_url'] = $file;
+            // }
 
-            // Handle file uploads for visa_document_url
-            if ($request->hasFile("contacts.$index.visa_document_url")) {
-                $file = optimizeDocumentAndUpload($request->file("contacts.$index.visa_document_url"));
-                $contact['visa_document_url'] = $file;
-            }
+            // // Handle file uploads for visa_document_url
+            // if ($request->hasFile("contacts.$index.visa_document_url")) {
+            //     $file = optimizeDocumentAndUpload($request->file("contacts.$index.visa_document_url"));
+            //     $contact['visa_document_url'] = $file;
+            // }
 
-            // Handle file uploads for passport_document_url
-            if ($request->hasFile("contacts.$index.passport_document_url")) {
-                $file = optimizeDocumentAndUpload($request->file("contacts.$index.passport_document_url"));
-                $contact['passport_document_url'] = $file;
-            }
+            // // Handle file uploads for passport_document_url
+            // if ($request->hasFile("contacts.$index.passport_document_url")) {
+            //     $file = optimizeDocumentAndUpload($request->file("contacts.$index.passport_document_url"));
+            //     $contact['passport_document_url'] = $file;
+            // }
 
             $contact['noc_form_id'] = $saleNoc->id;
             $contact['first_name'] = auth()->user()->first_name;
             $contact['last_name'] = auth()->user()->last_name;
             $contact['email'] = auth()->user()->email;
             $contact['mobile'] = auth()->user()->phone;
+            
             NocContacts::create($contact);
         }
 
