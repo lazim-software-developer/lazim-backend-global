@@ -122,10 +122,6 @@ class PostResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('content')
-                    ->searchable()
-                    ->default('NA')
-                    ->limit(50),
                 TextColumn::make('status')
                     ->searchable()
                     ->default('NA')

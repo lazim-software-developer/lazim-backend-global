@@ -7,6 +7,7 @@ use App\Http\Requests\Document\DocumentRequest;
 use App\Http\Resources\CustomResponseResource;
 use App\Http\Resources\Documents\DocumentLibraryResource;
 use App\Http\Resources\Documents\DocumentResource;
+use App\Models\Building\Building;
 use App\Models\Building\Document;
 use App\Models\Master\DocumentLibrary;
 use App\Models\Media;
@@ -23,6 +24,9 @@ class DocumentsController extends Controller
     public function create(DocumentRequest $request)
     {
         $currentDate = date('Y-m-d');
+
+        $building = Building::where('id', $request->building_id)->first();
+
         $document = Document::create([
             'document_library_id' => $request->document_library_id,
             'building_id' => $request->building_id,
@@ -31,7 +35,8 @@ class DocumentsController extends Controller
             'expiry_date' => date('Y-m-d', strtotime('+1 year', strtotime($currentDate))), //to do need to make changes for expiry date
             'documentable_type' => User::class,
             'name' => $request->name,
-            'flat_id' => $request->flat ?? null
+            'flat_id' => $request->flat ?? null,
+            'owner_association_id' => $building->owner_association_id
         ]);
 
         // Handle multiple images
@@ -58,10 +63,11 @@ class DocumentsController extends Controller
     }
 
     // Fetch other documents for the user
-    function fetchOtherDocuments() {
+    function fetchOtherDocuments()
+    {
         $documents = auth()->user()->userDocuments()->where('documentable_type', 'App\Models\User\User')
-        ->where('document_library_id', 5)->get();
-        
+            ->where('document_library_id', 5)->get();
+
         return DocumentResource::collection($documents);
     }
 }
