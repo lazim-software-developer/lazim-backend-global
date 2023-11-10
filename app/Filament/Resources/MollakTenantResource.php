@@ -67,6 +67,7 @@ class MollakTenantResource extends Resource
                     ->searchable()
                     ->default('NA'),
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])

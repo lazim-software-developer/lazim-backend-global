@@ -110,6 +110,7 @@ class ComplaintResource extends Resource
                     ->searchable()
                     ->limit(50),
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
 
             ])
