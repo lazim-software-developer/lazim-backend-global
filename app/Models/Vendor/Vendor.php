@@ -81,4 +81,10 @@ class Vendor extends Model
     {
         return $this->belongsTo(OaUserRegistration::class);
     }
+
+    // Vendor has many tenders through TenderVendor
+    public function tenders()
+    {
+        return $this->belongsToMany(Tender::class, 'tender_vendors');
+    }
 }

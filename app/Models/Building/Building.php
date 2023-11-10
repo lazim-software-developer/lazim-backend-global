@@ -83,10 +83,6 @@ class Building extends Model
     {
         return $this->hasMany(FlatTenant::class);
     }
-    public function services()
-    {
-        return $this->belongsToMany(Service::class, 'building_services', 'building_id', 'service_id');
-    }
 
     public function roles()
     {
@@ -167,5 +163,10 @@ class Building extends Model
     public function budgets()
     {
         return $this->hasMany(Budget::class);
+    }
+
+    public function services()
+    {
+        return $this->belongsToMany(Service::class, 'building_service');
     }
 }
