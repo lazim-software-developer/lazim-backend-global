@@ -109,6 +109,7 @@ class FacilityBookingsRelationManager extends RelationManager
                     ->default('NA')
                     ->label('End Time'),
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])

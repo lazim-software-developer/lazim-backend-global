@@ -93,6 +93,7 @@ class ContactsRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('contactable_type')->limit(50),
                 Tables\Columns\TextColumn::make('contactable_id')->limit(50),
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])

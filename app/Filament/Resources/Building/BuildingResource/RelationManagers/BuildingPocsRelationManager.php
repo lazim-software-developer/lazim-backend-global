@@ -82,6 +82,7 @@ class BuildingPocsRelationManager extends RelationManager
                 Tables\Columns\IconColumn::make('active')->default('NA'),
                 Tables\Columns\IconColumn::make('emergency_contact')->default('NA'),
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])

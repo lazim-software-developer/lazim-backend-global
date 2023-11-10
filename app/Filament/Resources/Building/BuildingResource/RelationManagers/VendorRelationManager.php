@@ -78,6 +78,7 @@ class VendorRelationManager extends RelationManager
             Tables\Columns\TextColumn::make('name')->limit(50),
             Tables\Columns\TextColumn::make('user.first_name')->label('owner')->limit(50),
         ])
+        ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])

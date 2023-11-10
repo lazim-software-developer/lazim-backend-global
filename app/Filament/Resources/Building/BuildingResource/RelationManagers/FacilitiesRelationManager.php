@@ -51,6 +51,7 @@ class FacilitiesRelationManager extends RelationManager
                     ->trueIcon('heroicon-o-check-badge')
                     ->falseIcon('heroicon-o-x-mark'),
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])
