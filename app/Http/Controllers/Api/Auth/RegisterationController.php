@@ -210,15 +210,11 @@ class RegisterationController extends Controller
             'role' => $type
         ]);
     
-        // Send email after 5 seconds (if email is provided)
-        if ($request->email) {
-            SendVerificationOtp::dispatch($user)->delay(now()->addSeconds(5));
-        }
+        // Send email after 5 seconds
+        SendVerificationOtp::dispatch($user)->delay(now()->addSeconds(5));
     
         // Find all the flats that this user is owner of and attach them to flat_tenant table using the job
-        if ($request->email) {
-            AssignFlatsToTenant::dispatch($request->email)->delay(now()->addSeconds(5));
-        }
+        AssignFlatsToTenant::dispatch($request->email)->delay(now()->addSeconds(5));
 
         return (new CustomResponseResource([
             'title' => 'Registration successful!',
