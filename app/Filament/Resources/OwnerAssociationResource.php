@@ -56,11 +56,11 @@ class OwnerAssociationResource extends Resource
                     TextInput::make('phone')
                         ->rules(['regex:/^(\+971)(50|51|52|55|56|58|02|03|04|06|07|09)\d{7}$/',function () {
                             return function (string $attribute, $value, Closure $fail) {
-                                if (DB::table('owner_associations')->where('phone', $value)->where('verified', 1)->exists()) {
-                                    $fail('The phone is already taken.');
+                                if (DB::table('owner_associations')->where('phone', $value)->exists()) {
+                                    $fail('The phone is already taken as OA.');
                                 }
                                 if (DB::table('users')->where('phone', $value)->exists()) {
-                                    $fail('The phone is already taken.');
+                                    $fail('The phone is already taken as user.');
                                 }
                             };
                         },
