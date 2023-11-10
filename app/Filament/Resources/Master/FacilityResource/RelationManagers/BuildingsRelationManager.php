@@ -140,6 +140,7 @@ class BuildingsRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('description')->limit(50),
                 Tables\Columns\TextColumn::make('floors'),
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])

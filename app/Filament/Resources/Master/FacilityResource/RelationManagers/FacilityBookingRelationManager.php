@@ -146,6 +146,7 @@ class FacilityBookingRelationManager extends RelationManager
                     'userFacilityBookingApprove.first_name'
                 )->limit(50)->label('Approved By')->default('NA'),
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])
