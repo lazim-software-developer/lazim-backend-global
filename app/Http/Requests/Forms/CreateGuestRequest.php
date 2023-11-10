@@ -35,6 +35,7 @@ class CreateGuestRequest extends FormRequest
             'number_of_visitors' => 'required|integer',
             'type' => 'required',
             'end_date' => 'required|date|after:start_date',
+            'image' => 'required|file|max:2048'
         ];
     }
 }
