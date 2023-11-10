@@ -58,4 +58,10 @@ class Service extends Model
     {
         return $this->belongsToMany(Building::class, 'building_service');
     }
+
+    // Service is included in many tenders through TenderService
+    public function tenders()
+    {
+        return $this->belongsToMany(Tender::class, 'tender_services');
+    }
 }
