@@ -19,6 +19,11 @@ class Budget extends Model
         'vat_amount',
         'total',
         'rate',
+        'building_id',
+        'owner_association_id',
+        'budget_period',
+        'budget_from',
+        'budget_to',
     ];
 
     /**
