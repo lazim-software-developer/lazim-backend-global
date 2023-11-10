@@ -30,9 +30,17 @@ class FacilitiesRelationManager extends RelationManager
                     'lg' => 2,
                 ])
                     ->schema([
-              TextInput::make('name'),
-              Toggle::make('active'),
-              FileUpload::make('icon'),
+                        TextInput::make('name'),
+                        FileUpload::make('icon')
+                        ->disk('s3')
+                        ->directory('dev')
+                        ->downloadable(true)
+                        ->openable(true)
+                        ->columnSpan([
+                            'sm' => 1,
+                            'md' => 1,
+                            'lg' => 2,
+                        ]),
                     ])
             ]);
     }
@@ -60,7 +68,6 @@ class FacilitiesRelationManager extends RelationManager
                 Tables\Actions\DetachAction::make()->label('Remove'),
             ])
             ->headerActions([
-
                 Tables\Actions\AttachAction::make()
                     ->label('Add')
                     ->recordSelect(function (RelationManager $livewire) {

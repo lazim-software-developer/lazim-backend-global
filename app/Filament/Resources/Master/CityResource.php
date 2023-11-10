@@ -32,7 +32,7 @@ class CityResource extends Resource
                     'lg' => 2,
                 ])->schema([
                     TextInput::make('name')
-                        ->rules(['max:50', 'string'])
+                        ->rules(['max:50', 'alpha'])
                         ->required()
                         ->placeholder('Name'),
                 ])

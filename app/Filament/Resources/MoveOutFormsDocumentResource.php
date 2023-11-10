@@ -193,7 +193,8 @@ class MoveOutFormsDocumentResource extends Resource
                                     return true;
                                 }
                                 return false;
-                            }),
+                            })
+                            ->required(),
                     ])
                     ->fillForm(fn (MoveInOut $record): array => [
                         'status' => $record->status,

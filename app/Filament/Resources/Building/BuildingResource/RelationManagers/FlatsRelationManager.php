@@ -2,7 +2,7 @@
 
 namespace App\Filament\Resources\Building\BuildingResource\RelationManagers;
 
-use Filament\Forms;
+use App\Models\Building\Flat;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
@@ -10,9 +10,8 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class FlatsRelationManager extends RelationManager
 {
@@ -32,7 +31,14 @@ class FlatsRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-
+                    TextInput::make('description')
+                        ->placeholder('Description')
+                        ->default('NA')
+                        ->columnSpan([
+                            'default' => 12,
+                            'md' => 12,
+                            'lg' => 12,
+                        ]),
                     Hidden::make('building_id')
                         ->default(function(RelationManager $livewire){
                             return $livewire->ownerRecord->id;
@@ -53,7 +59,37 @@ class FlatsRelationManager extends RelationManager
                 //
             ])
             ->actions([
-                //
+                Tables\Actions\ViewAction::make()
+                ->form([
+                    TextInput::make('property_number')
+                        ->rules(['numeric'])
+                        ->numeric()
+                        ->placeholder('Property Number')
+                        ->columnSpan([
+                            'default' => 12,
+                            'md' => 12,
+                            'lg' => 12,
+                        ]),
+                    TextInput::make('description')
+                        ->placeholder('Description')
+                        ->default('NA')
+                        ->columnSpan([
+                            'default' => 12,
+                            'md' => 12,
+                            'lg' => 12,
+                        ]),
+                        Select::make('building_id')
+                            ->rules(['exists:buildings,id'])
+                            ->relationship('building', 'name')
+                            ->reactive()
+                            ->default('NA')
+                            ->preload()
+                            ->searchable()
+                            ->placeholder('Building'),
+                ])
+                ->fillForm(fn (Flat $record): array => [
+                    'property_number' => $record->property_number,
+                ]),
             ]);
     }
 }

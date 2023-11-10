@@ -132,7 +132,8 @@ class FitOutFormsDocumentResource extends Resource
                                     return true;
                                 }
                                 return false;
-                            }),
+                            })
+                            ->required(),
                     ])
                     ->fillForm(fn (FitOutForm $record): array => [
                         'status' => $record->status,
