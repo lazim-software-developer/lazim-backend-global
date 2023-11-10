@@ -60,7 +60,6 @@ class FacilitiesRelationManager extends RelationManager
                 Tables\Actions\DetachAction::make()->label('Remove'),
             ])
             ->headerActions([
-
                 Tables\Actions\AttachAction::make()
                     ->label('Add')
                     ->recordSelect(function (RelationManager $livewire) {

@@ -178,7 +178,8 @@ class NocFormResource extends Resource
                                     return true;
                                 }
                                 return false;
-                            }),
+                            })
+                            ->required(),
                     ])
                     ->fillForm(fn (NocForms $record): array => [
                         'status' => $record->status ?? "NA",
