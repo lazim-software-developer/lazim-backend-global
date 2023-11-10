@@ -78,6 +78,7 @@ class VendorRelationManager extends RelationManager
             Tables\Columns\TextColumn::make('name')->limit(50),
             Tables\Columns\TextColumn::make('user.first_name')->label('owner')->limit(50),
         ])
+        ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])
@@ -87,19 +88,18 @@ class VendorRelationManager extends RelationManager
             ->headerActions([
                 Tables\Actions\AttachAction::make()
                     ->label('Add')
-                    ->recordSelect(function () {
+                    ->recordSelect(function (RelationManager $livewire) {
+                        $buildingId = $livewire->ownerRecord->id;
+
                         // Get all the Vendors
-                        $allVendors = Vendor::all()->pluck('name', 'id')->toArray();
-
-                        // Get the IDs of the selected Vendors
-                        $selectedVendorIds = DB::table('building_vendor')->pluck('vendor_id')->toArray();
-
-                        // Filter out the selected Vendors from the list of all Vendors
-                        $availableVendors = array_diff_key($allVendors, array_flip($selectedVendorIds));
-
+                        $allVendors = Vendor::all()->pluck('id')->toArray();
+                        $existingVendors =  DB::table('building_vendor')
+                            ->where('building_id', $buildingId)
+                            ->whereIn('vendor_id', $allVendors)->pluck('vendor_id')->toArray();
+                        $notSelectedVendors = Vendor::all()->whereNotIn('id', $existingVendors)->pluck('name', 'id')->toArray();
                         return Select::make('recordId')
-                            ->label('Facility')
-                            ->options($availableVendors)
+                            ->label('Vendors')
+                            ->options($notSelectedVendors)
                             ->searchable()
                             ->required()
                             ->preload();

@@ -52,6 +52,7 @@ class ServicesRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('name')->limit(50),
                 Tables\Columns\IconColumn::make('active')->boolean(),
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])
@@ -61,19 +62,18 @@ class ServicesRelationManager extends RelationManager
             ->headerActions([
                 Tables\Actions\AttachAction::make()
                     ->label('Add')
-                    ->recordSelect(function () {
-                        // Get all the Services
-                        $allServices = Service::all()->pluck('name', 'id')->toArray();
+                    ->recordSelect(function (RelationManager $livewire) {
+                        $vendorId = $livewire->ownerRecord->id;
 
-                        // Get the IDs of the selected Services
-                        $selectedServiceIds = DB::table('service_vendor')->pluck('service_id')->toArray();
-
-                        // Filter out the selected Services from the list of all Services
-                        $availableServices = array_diff_key($allServices, array_flip($selectedServiceIds));
-
+                        // Get all the Servicess
+                        $allServices = Service::all()->pluck('id')->toArray();
+                        $existingServices =  DB::table('service_vendor')
+                            ->where('vendor_id', $vendorId)
+                            ->whereIn('service_id', $allServices)->pluck('service_id')->toArray();
+                        $notSelected = Service::all()->whereNotIn('id', $existingServices)->pluck('name', 'id')->toArray();
                         return Select::make('recordId')
                             ->label('Services')
-                            ->options($availableServices)
+                            ->options($notSelected)
                             ->searchable()
                             ->required()
                             ->preload();

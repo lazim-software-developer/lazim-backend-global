@@ -82,7 +82,7 @@ class AttendanceResource extends Resource
         return $table
         ->poll('60s')
         ->columns([
-           
+
             Tables\Columns\TextColumn::make('userAttendance.first_name')
                 ->toggleable()
                 ->limit(50),
@@ -107,6 +107,7 @@ class AttendanceResource extends Resource
                 ->toggleable()
                 ->dateTime(),
         ])
+        ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])
