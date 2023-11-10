@@ -31,7 +31,7 @@ class UsersRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     TextInput::make('last_name')
                         ->rules(['max:50', 'string'])
                         ->placeholder('Last Name')
@@ -40,7 +40,7 @@ class UsersRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     TextInput::make('email')
                         ->rules(['email'])
                         ->unique('users', 'email', fn(?Model $record) => $record)
@@ -51,7 +51,7 @@ class UsersRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     TextInput::make('phone')
                         ->rules(['max:10', 'string'])
                         ->unique('users', 'phone', fn(?Model $record) => $record)
@@ -61,7 +61,7 @@ class UsersRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     // TextInput::make('password')
                     //     ->password()
                     //     ->dehydrateStateUsing(fn($state) => \Hash::make($state))
@@ -75,7 +75,7 @@ class UsersRelationManager extends RelationManager
                     //         'md' => 12,
                     //         'lg' => 12,
                     //     ]),
-    
+
                     Toggle::make('phone_verified')
                         ->rules(['boolean'])
                         ->columnSpan([
@@ -83,7 +83,7 @@ class UsersRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     Toggle::make('active')
                         ->rules(['boolean'])
                         ->columnSpan([
@@ -91,7 +91,7 @@ class UsersRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     TextInput::make('lazim_id')
                         ->rules(['max:50', 'string'])
                         ->unique('users', 'lazim_id', fn(?Model $record) => $record)
@@ -118,6 +118,7 @@ class UsersRelationManager extends RelationManager
             Tables\Columns\TextColumn::make('lazim_id')->limit(50),
             Tables\Columns\TextColumn::make('role.name')->limit(50),
         ])
+        ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])
