@@ -117,7 +117,7 @@ class FacilityBookingRelationManager extends RelationManager
                         ->relationship('userFacilityBookingApprove', 'first_name')
                         ->searchable()
                         ->default('NA')
-                        ->placeholder('User Facility Booking Approve')
+                        ->placeholder('Approved by')
                         ->columnSpan([
                             'default' => 12,
                             'md' => 12,
