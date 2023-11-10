@@ -91,6 +91,7 @@ class UserDocumentsRelationManager extends RelationManager
                     ->label('Owner Name')
                     ->default('NA')
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])

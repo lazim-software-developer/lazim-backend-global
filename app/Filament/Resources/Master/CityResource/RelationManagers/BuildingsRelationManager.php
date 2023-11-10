@@ -31,7 +31,7 @@ class BuildingsRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     TextInput::make('unit_number')
                         ->rules(['max:50', 'string'])
                         ->unique(
@@ -45,7 +45,7 @@ class BuildingsRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     RichEditor::make('address_line1')
                         ->rules(['max:255', 'string'])
                         ->placeholder('Address Line1')
@@ -54,7 +54,7 @@ class BuildingsRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     RichEditor::make('address_line2')
                         ->rules(['max:255', 'string'])
                         ->placeholder('Address Line2')
@@ -63,7 +63,7 @@ class BuildingsRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     TextInput::make('area')
                         ->rules(['max:50', 'string'])
                         ->placeholder('Area')
@@ -72,7 +72,7 @@ class BuildingsRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     TextInput::make('lat')
                         ->rules(['max:50', 'string'])
                         ->placeholder('Lat')
@@ -81,7 +81,7 @@ class BuildingsRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     TextInput::make('lng')
                         ->rules(['max:50', 'string'])
                         ->placeholder('Lng')
@@ -90,7 +90,7 @@ class BuildingsRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     RichEditor::make('description')
                         ->rules(['max:255', 'string'])
                         ->placeholder('Description')
@@ -99,7 +99,7 @@ class BuildingsRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     TextInput::make('floors')
                         ->rules(['numeric'])
                         ->numeric()
@@ -128,7 +128,7 @@ class BuildingsRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('description')->limit(50),
                 Tables\Columns\TextColumn::make('floors'),
             ])
-
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])
