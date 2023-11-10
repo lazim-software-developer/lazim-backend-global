@@ -27,6 +27,7 @@ class BuildingsRelationManager extends RelationManager
                     TextInput::make('name')
                         ->rules(['max:50', 'string'])
                         ->placeholder('Name')
+                        ->required()
                         ->columnSpan([
                             'default' => 12,
                             'md' => 12,
@@ -35,6 +36,7 @@ class BuildingsRelationManager extends RelationManager
 
                     TextInput::make('unit_number')
                         ->rules(['max:50', 'string'])
+                        ->required()
                         ->unique(
                             'buildings',
                             'unit_number',
@@ -50,6 +52,7 @@ class BuildingsRelationManager extends RelationManager
                     RichEditor::make('address_line1')
                         ->rules(['max:255', 'string'])
                         ->placeholder('Address Line1')
+                        ->required()
                         ->columnSpan([
                             'default' => 12,
                             'md' => 12,
@@ -58,6 +61,7 @@ class BuildingsRelationManager extends RelationManager
 
                     RichEditor::make('address_line2')
                         ->rules(['max:255', 'string'])
+                        ->required()
                         ->placeholder('Address Line2')
                         ->columnSpan([
                             'default' => 12,
@@ -68,6 +72,7 @@ class BuildingsRelationManager extends RelationManager
                     TextInput::make('area')
                         ->rules(['max:50', 'string'])
                         ->placeholder('Area')
+                        ->required()
                         ->columnSpan([
                             'default' => 12,
                             'md' => 12,
@@ -78,6 +83,7 @@ class BuildingsRelationManager extends RelationManager
                         ->rules(['exists:cities,id'])
                         ->relationship('cities', 'id')
                         ->searchable()
+                        ->required()
                         ->placeholder('City')
                         ->columnSpan([
                             'default' => 12,
@@ -88,6 +94,7 @@ class BuildingsRelationManager extends RelationManager
                     TextInput::make('lat')
                         ->rules(['max:50', 'string'])
                         ->placeholder('Lat')
+                        ->required()
                         ->columnSpan([
                             'default' => 12,
                             'md' => 12,
@@ -97,6 +104,7 @@ class BuildingsRelationManager extends RelationManager
                     TextInput::make('lng')
                         ->rules(['max:50', 'string'])
                         ->placeholder('Lng')
+                        ->required()
                         ->columnSpan([
                             'default' => 12,
                             'md' => 12,
@@ -106,6 +114,7 @@ class BuildingsRelationManager extends RelationManager
                     RichEditor::make('description')
                         ->rules(['max:255', 'string'])
                         ->placeholder('Description')
+                        ->required()
                         ->columnSpan([
                             'default' => 12,
                             'md' => 12,
@@ -115,6 +124,7 @@ class BuildingsRelationManager extends RelationManager
                     TextInput::make('floors')
                         ->rules(['numeric'])
                         ->numeric()
+                        ->required()
                         ->placeholder('Floors')
                         ->columnSpan([
                             'default' => 12,
