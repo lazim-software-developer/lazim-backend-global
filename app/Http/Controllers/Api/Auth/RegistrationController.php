@@ -10,6 +10,7 @@ use App\Http\Resources\CustomResponseResource;
 use App\Jobs\Auth\ResendOtpEmail;
 use App\Jobs\Building\AssignFlatsToTenant;
 use App\Jobs\SendVerificationOtp;
+use App\Models\Building\Building;
 use App\Models\Building\Flat;
 use App\Models\Building\FlatTenant;
 use App\Models\Master\Role;
@@ -17,11 +18,13 @@ use App\Models\MollakTenant;
 use App\Models\User\User;
 use Illuminate\Support\Facades\DB;
 
-class RegisterationController extends Controller
+class RegistrationController extends Controller
 {
     public function registerWithEmailPhone(RegisterRequest $request) {
-        if(User::where(['email' => $request->email, 'phone' => $request->mobile])
-            ->where('email_verified', 0)->orWhere('phone_verified', 0)->exists()) {
+        
+        $userData = User::where(['email' => $request->get('email'), 'phone' => $request->get('mobile')]);
+        
+        if($userData->exists() && ($userData->first()->email_verified == 0 || $userData->first()->phone_verified == 0)) {
             return (new CustomResponseResource([
                 'title' => 'account_present',
                 'message' => "Your account is not verified. You'll be redirected account verification page",
@@ -85,12 +88,15 @@ class RegisterationController extends Controller
         $role = Role::where('name', $type)->value('id');
     
         // If the check passes, store the user details in the users table
+        // Fetch building 
+        $building = Building::where('id', $request->building_id)->first();
         $user = User::create([
             'email' => $request->email,
             'first_name' => $firstName,
             'phone' => $request->mobile,
             'role_id' => $role,
             'active' => 1,
+            'owner_association_id' => $building->owner_association_id
         ]);
     
         // Store details to Flat tenants table
@@ -190,12 +196,15 @@ class RegisterationController extends Controller
         $role = Role::where('name', $type)->value('id');
     
         // If the check passes, store the user details in the users table
+        $building = Building::where('id', $request->building_id)->first();
+        
         $user = User::create([
             'email' => $request->email, // Assuming email is still provided for communication
             'first_name' => $firstName,
             'phone' => $request->mobile, // Assuming phone is still provided for communication
             'role_id' => $role,
-            'active' => 1
+            'active' => 1,
+            'owner_association_id' => $building->owner_association_id
         ]);
 
         // Store details to Flat tenants table
@@ -210,15 +219,11 @@ class RegisterationController extends Controller
             'role' => $type
         ]);
     
-        // Send email after 5 seconds (if email is provided)
-        if ($request->email) {
-            SendVerificationOtp::dispatch($user)->delay(now()->addSeconds(5));
-        }
+        // Send email after 5 seconds
+        SendVerificationOtp::dispatch($user)->delay(now()->addSeconds(5));
     
         // Find all the flats that this user is owner of and attach them to flat_tenant table using the job
-        if ($request->email) {
-            AssignFlatsToTenant::dispatch($request->email)->delay(now()->addSeconds(5));
-        }
+        AssignFlatsToTenant::dispatch($request->email)->delay(now()->addSeconds(5));
 
         return (new CustomResponseResource([
             'title' => 'Registration successful!',
