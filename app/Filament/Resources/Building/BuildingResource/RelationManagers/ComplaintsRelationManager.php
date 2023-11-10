@@ -55,6 +55,7 @@ class ComplaintsRelationManager extends RelationManager
             ->filters([
                 //
             ])
+            ->defaultSort('created_at', 'desc')
             ->actions([
                 Action::make('Update Status')
                     ->visible(fn ($record) => $record->status === 'open')

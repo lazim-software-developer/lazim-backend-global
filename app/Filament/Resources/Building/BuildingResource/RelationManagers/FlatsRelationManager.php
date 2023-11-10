@@ -48,6 +48,7 @@ class FlatsRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('property_number'),
                 Tables\Columns\TextColumn::make('building.name')->limit(50),
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])
