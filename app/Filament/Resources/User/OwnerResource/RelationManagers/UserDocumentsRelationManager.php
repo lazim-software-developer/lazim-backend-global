@@ -67,7 +67,8 @@ class UserDocumentsRelationManager extends RelationManager
                             return true;
                         }
                             return false;
-                    }),
+                    })
+                    ->required(),
 
             ]);
     }

@@ -140,7 +140,8 @@ class ComplaintssuggessionResource extends Resource
                                     return true;
                                 }
                                 return false;
-                            }),
+                            })
+                            ->required(),
                     ])
                     ->fillForm(fn (Complaint $record): array => [
                         'status' => $record->status,

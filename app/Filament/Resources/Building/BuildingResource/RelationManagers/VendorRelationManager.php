@@ -32,16 +32,15 @@ class VendorRelationManager extends RelationManager
                 ]])->schema([
                     TextInput::make('name')
                         ->rules(['max:50', 'string'])
-                        ->placeholder('Name')
-                        ->preload(),
+                        ->placeholder('Name'),
                     Select::make('owner_id')->label('Manager Name')
                         ->rules(['exists:users,id'])
                         ->required()
                         ->relationship('user', 'first_name')
                         ->searchable()
                         ->preload()
-                        ->getSearchResultsUsing(fn(string $search): array=> User::where('role_id', 1, "%{$search}%")->limit(50)->pluck('first_name', 'id')->toArray())
-                        ->getOptionLabelUsing(fn($value): ?string => User::find($value)?->first_name)
+                        ->getSearchResultsUsing(fn (string $search): array => User::where('role_id', 1, "%{$search}%")->limit(50)->pluck('first_name', 'id')->toArray())
+                        ->getOptionLabelUsing(fn ($value): ?string => User::find($value)?->first_name)
                         ->placeholder('Manager Name'),
                     TextInput::make('tl_number')->label('Trade Lisence Number')
                         ->rules(['max:50', 'string'])
@@ -49,7 +48,7 @@ class VendorRelationManager extends RelationManager
                         ->unique(
                             'vendors',
                             'tl_number',
-                            fn(?Model $record) => $record
+                            fn (?Model $record) => $record
                         )
                         ->placeholder('Trade Lisence Number'),
                     DatePicker::make('tl_expiry')
@@ -60,30 +59,32 @@ class VendorRelationManager extends RelationManager
                         ->required()
                         ->searchable()
                         ->options([
-                            'all'=>'All',
-                            'pending'=>'Pending',
-                            'resolved'=>'Resolved',
+                            'all' => 'All',
+                            'pending' => 'Pending',
+                            'resolved' => 'Resolved',
                         ])
                         ->placeholder('status'),
                     Toggle::make('active')
                         ->rules(['boolean']),
                     TextInput::make('remarks')
+                        ->default('NA'),
                 ]),
             ]);
     }
     public function table(Table $table): Table
     {
         return $table
-        ->columns([
-            Tables\Columns\TextColumn::make('name')->limit(50),
-            Tables\Columns\TextColumn::make('user.first_name')->label('owner')->limit(50),
-        ])
-        ->defaultSort('created_at', 'desc')
+            ->columns([
+                Tables\Columns\TextColumn::make('name')->limit(50),
+                Tables\Columns\TextColumn::make('user.first_name')->label('owner')->limit(50),
+            ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])
             ->actions([
-                Tables\Actions\DetachAction::make() ->label('Remove'),
+                Tables\Actions\ViewAction::make(),
+                Tables\Actions\DetachAction::make()->label('Remove'),
             ])
             ->headerActions([
                 Tables\Actions\AttachAction::make()
