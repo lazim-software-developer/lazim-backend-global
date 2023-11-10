@@ -5,6 +5,7 @@ use App\Http\Controllers\TestController;
 use App\Http\Controllers\Vendor\DocumentsUploadController;
 use App\Http\Controllers\Vendor\EscalationMatrixController;
 use App\Http\Controllers\Vendor\SelectServicesController;
+use App\Http\Controllers\Vendor\VendorComplaintController;
 use App\Http\Controllers\Vendor\VendorRegistrationController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -276,3 +277,5 @@ Route::post('/documents-upload',[DocumentsUploadController::class, 'documentsUpl
 Route::get('/show-documents',[DocumentsUploadController::class,'showDocuments'])->middleware('auth:sanctum');
 Route::post('/escalation-matrix',[EscalationMatrixController::class, 'store']);
 Route::get('/escalation-matrix',[EscalationMatrixController::class, 'show'])->middleware('auth:sanctum');
+Route::get('/vendor-tickets',[VendorComplaintController::class, 'listComplaints'])->middleware('auth:sanctum');
+Route::post('/vendor-comment/{complaint}',[VendorComplaintController::class, 'addComment'])->middleware('auth:sanctum');
