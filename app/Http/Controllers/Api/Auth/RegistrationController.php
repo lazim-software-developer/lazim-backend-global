@@ -126,9 +126,9 @@ class RegistrationController extends Controller
     }
     
     public function registerWithEmiratesOrPassport(RegisterWithEmiratesOrPassportRequest $request) {
+        $userData = User::where(['email' => $request->get('email'), 'phone' => $request->get('mobile')]);
 
-        if(User::where(['email' => $request->email, 'phone' => $request->mobile])
-            ->where('email_verified', 0)->orWhere('phone_verified', 0)->exists()) {
+        if($userData->exists() && ($userData->first()->email_verified == 0 || $userData->first()->phone_verified == 0)) {
             return (new CustomResponseResource([
                 'title' => 'account_present',
                 'message' => "Your account is not verified. You'll be redirected account verification page",
@@ -136,12 +136,12 @@ class RegistrationController extends Controller
             ]))->response()->setStatusCode(403);
         }
 
-        // Check if user with same email already present
-        if(User::where(['email' => $request->email, 'phone' => $request->mobile])->exists()) {
+        // Check if user exists in our DB
+        if (User::where(['email' => $request->email, 'phone' => $request->mobile, 'email_verified' => 1, 'phone_verified' => 1])->exists()) {
             return (new CustomResponseResource([
                 'title' => 'account_present',
                 'message' => 'Your email is already registered in our application. Please try login instead!',
-                'errorCode' => 400, 
+                'errorCode' => 400,
             ]))->response()->setStatusCode(400);
         }
 
