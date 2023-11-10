@@ -162,7 +162,8 @@ class AccessCardFormsDocumentResource extends Resource
                                     return true;
                                 }
                                 return false;
-                            }),
+                            })
+                            ->required(),
                     ])
                     ->fillForm(fn (AccessCard $record): array => [
                         'status' => $record->status,
@@ -193,8 +194,6 @@ class AccessCardFormsDocumentResource extends Resource
     {
         return [
             'index' => Pages\ListAccessCardFormsDocuments::route('/'),
-            //'create' => Pages\CreateAccessCardFormsDocument::route('/create'),
-            //'edit' => Pages\EditAccessCardFormsDocument::route('/{record}/edit'),
             'view' => Pages\ViewAccessCardFormsDocument::route('/{record}'),
         ];
     }
