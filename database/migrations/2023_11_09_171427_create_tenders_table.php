@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('tendors', function (Blueprint $table) {
+        Schema::create('tenders', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('created_by');
             $table->date('date');
