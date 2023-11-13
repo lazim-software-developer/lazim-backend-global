@@ -2,6 +2,10 @@
 
 use App\Http\Controllers\MollakController;
 use App\Http\Controllers\TestController;
+use App\Http\Controllers\Vendor\DocumentsUploadController;
+use App\Http\Controllers\Vendor\EscalationMatrixController;
+use App\Http\Controllers\Vendor\SelectServicesController;
+use App\Http\Controllers\Vendor\VendorRegistrationController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\Auth\AuthController;
@@ -258,3 +262,17 @@ Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active']
 
 // Test API for Mollak
 Route::get('/test-api', [MollakController::class, 'test']);
+
+// Vendor API's
+Route::post('/vendor-registration',[VendorRegistrationController::class, 'registration']);
+Route::post('/company-details',[VendorRegistrationController::class, 'companyDetails']);
+Route::post('/vendor-manager',[VendorRegistrationController::class,'managerDetails']);
+Route::get('/view-manager',[VendorRegistrationController::class, 'showManagerDetails'])->middleware('auth:sanctum');
+Route::get('/list-services',[SelectServicesController::class, 'listServices']);
+Route::post('/add-service',[SelectServicesController::class, 'addService']);
+Route::post('/tag-services',[SelectServicesController::class, 'tagServices']);
+Route::get('show-services',[SelectServicesController::class, 'showServices'])->middleware('auth:sanctum');
+Route::post('/documents-upload',[DocumentsUploadController::class, 'documentsUpload']);
+Route::get('/show-documents',[DocumentsUploadController::class,'showDocuments'])->middleware('auth:sanctum');
+Route::post('/escalation-matrix',[EscalationMatrixController::class, 'store']);
+Route::get('/escalation-matrix',[EscalationMatrixController::class, 'show'])->middleware('auth:sanctum');
