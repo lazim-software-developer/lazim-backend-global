@@ -11,9 +11,9 @@ use App\Models\Vendor\VendorEscalationMatrix;
 
 class EscalationMatrixController extends Controller
 {
-    public function store(EscalationMatrixRequest $request)
+    public function store(EscalationMatrixRequest $request, Vendor $vendor)
     {
-        if (VendorEscalationMatrix::where('vendor_id', $request->vendor_id)->where('escalation_level', $request->escalation_level)->exists()) {
+        if (VendorEscalationMatrix::where('vendor_id', $vendor->id)->where('escalation_level', $request->escalation_level)->exists()) {
             return (new CustomResponseResource([
                 'title' => 'Escalation Level exists!',
                 'message' => " Escalation Level already exists, please enter a different level",
@@ -21,6 +21,8 @@ class EscalationMatrixController extends Controller
                 'status' => 'error',
             ]))->response()->setStatusCode(400);
         }
+
+        $request->merge(['vendor_id' => $vendor->id]);
 
         // If donesnot exists, create new
         VendorEscalationMatrix::create($request->all());

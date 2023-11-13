@@ -13,7 +13,7 @@ use Illuminate\Http\Request;
 
 class DocumentsUploadController extends Controller
 {
-    public function documentsUpload(DocumentsUploadRequest $request)
+    public function documentsUpload(DocumentsUploadRequest $request, Vendor $vendor)
     {
         foreach($request->docs as $key => $value){
             $path = optimizeDocumentAndUpload($value);
@@ -22,7 +22,7 @@ class DocumentsUploadController extends Controller
                 'documentable_type'   => Vendor::class,
                 'document_library_id' => DocumentLibrary::where('name', $key)->first()->id,
                 'url' => $path,
-                'owner_association_id' => Vendor::find($request->documentable_id)->owner_association_id,
+                'owner_association_id' => $vendor->owner_association_id,
             ]);
             $document = Document::create($request->all());
         }
@@ -35,10 +35,9 @@ class DocumentsUploadController extends Controller
         ]))->response()->setStatusCode(201);
     }
 
-    public function showDocuments(Request $request)
+    public function showDocuments(Vendor $vendor)
     {
-        $vendor_id =Vendor::where('owner_id', auth()->user()->id)->first()->id;
-        $documents = Document::where('documentable_id', $vendor_id)->get();
+        $documents = Document::where('documentable_id', $vendor->id)->get();
 
         return VendorDocumentResource::collection($documents);
     }
