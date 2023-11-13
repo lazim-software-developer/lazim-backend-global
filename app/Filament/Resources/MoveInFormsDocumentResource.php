@@ -3,35 +3,18 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\MoveInFormsDocumentResource\Pages;
-use App\Filament\Resources\MoveInFormsDocumentResource\RelationManagers;
-use App\Models\Building\Document;
+use App\Filament\Resources\MoveInFormsDocumentResource\Pages\CreateMoveInFormsDocument;
 use App\Models\Forms\MoveInOut;
-use App\Models\MoveInFormsDocument;
-use Filament\Facades\Filament;
-use Filament\Forms;
-use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
-use Filament\Tables;
 use Filament\Tables\Actions\Action;
-use Filament\Tables\Columns\IconColumn;
-use Filament\Tables\Columns\ImageColumn;
-use Filament\Tables\Columns\SelectColumn;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Columns\TextInputColumn;
-use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Illuminate\Database\Query\JoinClause;
-use Illuminate\Support\Facades\DB;
-
 class MoveInFormsDocumentResource extends Resource
 {
     protected static ?string $model = MoveInOut::class;
@@ -226,6 +209,7 @@ class MoveInFormsDocumentResource extends Resource
     {
         return [
             'index' => Pages\ListMoveInFormsDocuments::route('/'),
+            'create' => CreateMoveInFormsDocument::route('/create'),
             'view' => Pages\ViewMoveInFormsDocument::route('/{record}'),
         ];
     }
