@@ -3,15 +3,10 @@
 namespace App\Filament\Resources\Building;
 
 use App\Filament\Resources\Building\FacilityBookingResource\Pages;
-use App\Filament\Resources\Building\FacilityBookingResource\RelationManagers;
 use App\Models\Building\FacilityBooking;
-use App\Models\Master\Facility;
-use Filament\Forms;
 use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\KeyValue;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\TimePicker;
@@ -22,9 +17,6 @@ use Filament\Tables;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Illuminate\Database\Query\JoinClause;
 use Illuminate\Support\Facades\DB;
 
 class FacilityBookingResource extends Resource
@@ -146,6 +138,7 @@ class FacilityBookingResource extends Resource
                     ->preload()
             ])
             ->actions([
+
                 Action::make('Update Status')
                     ->button()
                     ->form([
@@ -186,7 +179,6 @@ class FacilityBookingResource extends Resource
             'index' => Pages\ListFacilityBookings::route('/'),
             'create' => Pages\CreateFacilityBooking::route('/create'),
             'view' => Pages\ViewFacilityBooking::route('/{record}'),
-            // 'edit' => Pages\EditFacilityBooking::route('/{record}/edit'),
         ];
     }
 }

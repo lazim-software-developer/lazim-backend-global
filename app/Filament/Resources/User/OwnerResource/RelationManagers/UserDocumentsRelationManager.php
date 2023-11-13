@@ -67,7 +67,8 @@ class UserDocumentsRelationManager extends RelationManager
                             return true;
                         }
                             return false;
-                    }),
+                    })
+                    ->required(),
 
             ]);
     }
@@ -91,6 +92,7 @@ class UserDocumentsRelationManager extends RelationManager
                     ->label('Owner Name')
                     ->default('NA')
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])

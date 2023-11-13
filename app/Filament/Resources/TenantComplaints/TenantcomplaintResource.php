@@ -107,6 +107,7 @@ class TenantcomplaintResource extends Resource
                     ->searchable(true, null, true)
                     ->limit(50),
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])

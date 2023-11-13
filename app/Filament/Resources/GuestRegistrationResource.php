@@ -186,7 +186,8 @@ class GuestRegistrationResource extends Resource
                                     return true;
                                 }
                                 return false;
-                            }),
+                            })
+                            ->required(),
                     ])
                     ->fillForm(fn (Guest $record): array => [
                         'status' => $record->status,

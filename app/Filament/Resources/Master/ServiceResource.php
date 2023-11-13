@@ -34,13 +34,15 @@ class ServiceResource extends Resource
                 Grid::make([
                     'sm' => 1,
                     'md' => 1,
-                    'lg' => 2])
+                    'lg' => 2
+                ])
                     ->schema([
                         TextInput::make('name')
                             ->rules(['max:50', 'string'])
                             ->required()
                             ->placeholder('Name'),
                         FileUpload::make('icon')
+                            ->acceptedFileTypes(['image/jpeg', 'image/png'])
                             ->disk('s3')
                             ->directory('dev')
                             ->required()
@@ -56,7 +58,7 @@ class ServiceResource extends Resource
 
     public static function table(Table $table): Table
     {
-        $query = Service::where('custom',[0,NULL]);
+        $query = Service::where('custom', [0, NULL]);
 
         return $table
             ->query($query)
@@ -68,8 +70,11 @@ class ServiceResource extends Resource
                     ->limit(50),
                 IconColumn::make('active')
                     ->toggleable()
-                    ->boolean(),
+                    ->boolean()
+                    ->trueIcon('heroicon-o-check-badge')
+                    ->falseIcon('heroicon-o-x-mark'),
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])

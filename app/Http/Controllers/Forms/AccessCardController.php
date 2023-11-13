@@ -46,8 +46,8 @@ class AccessCardController extends Controller
         ]))->response()->setStatusCode(201);
     }
 
-    public function fetchFormStatus(Building $building) {
-
+    public function fetchFormStatus(Building $building) 
+    {
         // Fetch status of all forms
         $accessCard = auth()->user()->accessCard()->where('building_id', $building->id)->latest()->first();
 
@@ -61,11 +61,11 @@ class AccessCardController extends Controller
 
         $fitOutFormStatus = $fitOutForm ?? "Not submitted";
         
-        $moveInForm = auth()->user()->moveinData()->where('type', 'movein')->where('building_id', $building->id)->latest()->first();
+        $moveInForm = auth()->user()->moveinData()->where('type', 'move-in')->where('building_id', $building->id)->latest()->first();
 
         $moveInFormStatus = $moveInForm ?? "Not submitted";
         
-        $moveOutForm = auth()->user()->moveinData()->where('type', 'moveout')->where('building_id', $building->id)->latest()->first();
+        $moveOutForm = auth()->user()->moveinData()->where('type', 'move-out')->where('building_id', $building->id)->latest()->first();
 
         $moveOutFormStatus = $moveOutForm ?? "Not submitted";
         

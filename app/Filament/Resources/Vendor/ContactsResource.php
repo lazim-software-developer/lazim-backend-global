@@ -106,6 +106,7 @@ class ContactsResource extends Resource
                 ViewColumn::make('name')->view('tables.columns.contact')
                     ->toggleable(),
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])

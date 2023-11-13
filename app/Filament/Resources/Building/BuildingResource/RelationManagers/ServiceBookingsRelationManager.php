@@ -8,7 +8,6 @@ use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\TimePicker;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
@@ -18,10 +17,11 @@ use Filament\Tables\Actions\Action;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\DB;
 
-class FacilityBookingsRelationManager extends RelationManager
+class ServiceBookingsRelationManager extends RelationManager
 {
     protected static string $relationship = 'facilityBookings';
 
@@ -86,13 +86,12 @@ class FacilityBookingsRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn (Builder $query) => $query->where('bookable_type', 'App\Models\Master\Facility')->withoutGlobalScopes())
-            ->recordTitleAttribute('building_id')
+            ->modifyQueryUsing(fn (Builder $query) => $query->where('bookable_type', 'App\Models\Master\Service')->withoutGlobalScopes())
             ->columns([
                 TextColumn::make('bookable.name')
                     ->searchable()
                     ->default('NA')
-                    ->label('Facility'),
+                    ->label('Services'),
                 TextColumn::make('user.first_name')
                     ->searchable()
                     ->default('NA')
@@ -110,12 +109,15 @@ class FacilityBookingsRelationManager extends RelationManager
                     ->default('NA')
                     ->label('End Time'),
             ])
+            ->filters([
+                //
+            ])
             ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make(),
+                Tables\Actions\CreateAction::make()->label('Create Service Booking'),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
@@ -135,5 +137,10 @@ class FacilityBookingsRelationManager extends RelationManager
                         $record->save();
                     })
             ]);
+    }
+
+    public static function getTitle(Model $ownerRecord, string $pageClass): string
+    {
+        return 'Service Bookings';
     }
 }

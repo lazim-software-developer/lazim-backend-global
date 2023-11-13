@@ -41,4 +41,13 @@ class ResidentialFormRequest extends FormRequest
             'title_deed_url' => 'required|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
         ];
     }
+
+    public function messages()
+    {
+        return [
+            'passport_url' => 'The uploaded image must be less than 2MB.',
+            'emirates_url' => 'The uploaded image must be less than 2MB.',
+            'title_deed_url' => 'The uploaded image must be less than 2MB.',
+        ];
+    }
 }
