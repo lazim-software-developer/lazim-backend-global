@@ -25,7 +25,6 @@ class ManagerDetailsRequest extends FormRequest
             'name'          =>  'required|string|max:50',
             'email'         =>  'required|unique:vendor_managers,email|regex:/^[a-zA-Z0-9_.-]+@[a-zA-Z]+\.[a-zA-Z]+$/',
             'phone'         =>  'required|string|unique:vendor_managers,phone',
-            'vendor_id'     =>  'required|integer|exists:vendors,id'
         ];
     }
 }

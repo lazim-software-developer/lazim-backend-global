@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\DB;
 
 class SelectServicesController extends Controller
 {
-    public function listServices(Request $request)
+    public function listServices()
     {
         $services = Service::all();
         return $services;
@@ -41,18 +41,12 @@ class SelectServicesController extends Controller
         ]))->response()->setStatusCode(201);
     }
 
-    public function tagServices(SelectServicesRequest $request)
+    public function tagServices(SelectServicesRequest $request, Vendor $vendor)
     {
-        $serviceIds= $request->service_ids;
+        $serviceIds = $request->service_ids;
 
-        $vendor = Vendor::find($request->vendor_id);
+        $vendor->services()->sync($serviceIds);
 
-        foreach ($serviceIds as $serviceId) {
-            if (!(DB::table('service_vendor')->where('vendor_id', $request->vendor_id)->where('service_id', $serviceId))->first()) {
-                $vendor->services()->attach($serviceId);
-            }
-        };
-        
         return (new CustomResponseResource([
             'title' => 'Services taged!',
             'message' => "",
@@ -62,10 +56,9 @@ class SelectServicesController extends Controller
 
     }
 
-    public function showServices(Request $request)
+    public function showServices(Vendor $vendor)
     {
-        $vendor_id =Vendor::where('owner_id', auth()->user()->id)->first()->id;
-        $services=DB::table('service_vendor')->where('vendor_id',$vendor_id)->get();
+        $services = $vendor->services;
 
         return SelectServicesResource::collection($services);
     }

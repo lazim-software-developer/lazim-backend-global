@@ -19,34 +19,33 @@ class VendorRegistrationController extends Controller
     public function registration(VendorRegisterRequest $request)
     {
         // Check if the user is already registered and verified
-        if(User::where(['email' => $request->email, 'phone' => $request->mobile])
-            ->where(function ($query) {
-                $query->where('email_verified', 0);
-                $query->orWhere('phone_verified', 0);
-            })->exists()) {
+        $userData = User::where(['email' => $request->get('email'), 'phone' => $request->get('phone')]);
+
+        if ($userData->exists() && ($userData->first()->email_verified == 0 || $userData->first()->phone_verified == 0)) {
             return (new CustomResponseResource([
                 'title' => 'account_present',
                 'message' => "Your account is not verified. You'll be redirected account verification page",
-                'code' => 403, 
+                'code' => 403,
             ]))->response()->setStatusCode(403);
         }
 
-        if (User::where(['email' => $request->email, 'phone' => $request->mobile, 'email_verified' => 1, 'phone_verified' => 1])->exists()) {
+        // Check if user exists in our DB
+        if (User::where(['email' => $request->email, 'phone' => $request->phone, 'email_verified' => 1, 'phone_verified' => 1])->exists()) {
             return (new CustomResponseResource([
                 'title' => 'account_present',
                 'message' => 'Your email is already registered in our application. Please try login instead!',
                 'code' => 400,
             ]))->response()->setStatusCode(400);
         }
-        
+
         $role = Role::where('name', 'Vendor')->value('id');
-        $request->merge(['first_name' => $request->name,'active' => 1,'role_id' => $role]);
+        $request->merge(['first_name' => $request->name, 'active' => 1, 'role_id' => $role]);
 
         $user = User::create($request->all());
 
         // Send email after 5 seconds
         SendVerificationOtp::dispatch($user)->delay(now()->addSeconds(5));
-        
+
         return (new CustomResponseResource([
             'title' => 'Registration successful!',
             'message' => "We've sent verification code to your email Id and phone. Please verify to continue using the application",
@@ -71,8 +70,10 @@ class VendorRegistrationController extends Controller
         ]))->response()->setStatusCode(201);
     }
 
-    public function managerDetails(ManagerDetailsRequest $request)
+    public function managerDetails(ManagerDetailsRequest $request, Vendor $vendor)
     {
+        $request->merge(['vendor_id' => $vendor->id]);
+
         $manager = VendorManager::create($request->all());
 
         return (new CustomResponseResource([
@@ -86,8 +87,8 @@ class VendorRegistrationController extends Controller
 
     public function showManagerDetails()
     {
-        $vendor_id =Vendor::where('owner_id', auth()->user()->id)->first()->id;
-        $manager = VendorManager::where('vendor_id',$vendor_id)->first();
+        $vendor_id = Vendor::where('owner_id', auth()->user()->id)->first()->id;
+        $manager = VendorManager::where('vendor_id', $vendor_id)->first();
         return (new CustomResponseResource([
             'title' => 'Vendor Manager Details fetched',
             'message' => "",

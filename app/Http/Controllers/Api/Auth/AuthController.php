@@ -34,6 +34,30 @@ class AuthController extends Controller
 
         $allowedRoles = ['OA','Vendor'];
 
+        if (!$user || !Hash::check($request->password, $user->password)) {
+            throw ValidationException::withMessages([
+                'email' => ['The provided credentials are incorrect.'],
+            ]);
+        }
+
+        // Check if the user's email and phone number is verified
+
+        if (!$user->email_verified) {
+            return (new CustomResponseResource([
+                'title' => 'Email Verification Required',
+                'message' => 'Email is not verified.',
+                'code' => 403,
+            ]))->response()->setStatusCode(403);
+        }
+
+        if (!$user->phone_verified) {
+            return (new CustomResponseResource([
+                'title' => 'Phone Verification Required',
+                'message' => 'Phone number is not verified.',
+                'code' => 403,
+            ]))->response()->setStatusCode(403);
+        }
+
         if ($user) {
             if (in_array($user->role->name, $allowedRoles)) {
                 if ($user->active == 1) {
@@ -77,7 +101,7 @@ class AuthController extends Controller
         $user = User::where('email', $request->email)->first();
 
         // if (!$user || !Hash::check($request->password, $user->password) || $user->role->name !== $request->role) {
-            if (!$user || !Hash::check($request->password, $user->password)) {
+        if (!$user || !Hash::check($request->password, $user->password)) {
             throw ValidationException::withMessages([
                 'email' => ['The provided credentials are incorrect.'],
             ]);

@@ -15,10 +15,9 @@ class SelectServicesResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $service = Service::find($this->service_id);
         return [
-            'service_id' => $this->service_id,
-            'service_name' => $service->name,
+            'service_id' => $this->id,
+            'service_name' => $this->name,
         ];
     }
 }
