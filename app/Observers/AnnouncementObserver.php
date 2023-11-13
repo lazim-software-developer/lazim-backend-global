@@ -19,18 +19,18 @@ class AnnouncementObserver
             Notification::make()
                 ->success()
                 ->title("Announcement created")
-                ->icon('heroicon-o-document-text') 
-                ->iconColor('warning') 
-                ->body('New Announcement has been created')
+                ->icon('heroicon-o-document-text')
+                ->iconColor('warning')
+                ->body('New Announcement has been created.')
                 ->sendToDatabase($notifyTo);
         }
         else{
             Notification::make()
                 ->success()
                 ->title("Post created")
-                ->icon('heroicon-o-document-text') 
-                ->iconColor('warning') 
-                ->body('New Post has been created')
+                ->icon('heroicon-o-document-text')
+                ->iconColor('warning')
+                ->body('New Post has been created.')
                 ->sendToDatabase($notifyTo);
         }
     }

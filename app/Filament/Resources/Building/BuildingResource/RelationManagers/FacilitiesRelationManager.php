@@ -2,13 +2,11 @@
 
 namespace App\Filament\Resources\Building\BuildingResource\RelationManagers;
 
-use App\Models\Building\Building;
 use App\Models\Master\Facility;
 use Filament\Forms;
+use Closure;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -16,9 +14,6 @@ use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Filament\Tables\Actions\AttachAction;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\DB;
 
 class FacilitiesRelationManager extends RelationManager
@@ -28,7 +23,26 @@ class FacilitiesRelationManager extends RelationManager
     public function form(Form $form): Form
     {
         return $form
-            ->schema([]);
+            ->schema([
+                Grid::make([
+                    'sm' => 1,
+                    'md' => 1,
+                    'lg' => 2,
+                ])
+                    ->schema([
+                        TextInput::make('name'),
+                        FileUpload::make('icon')
+                        ->disk('s3')
+                        ->directory('dev')
+                        ->downloadable(true)
+                        ->openable(true)
+                        ->columnSpan([
+                            'sm' => 1,
+                            'md' => 1,
+                            'lg' => 2,
+                        ]),
+                    ])
+            ]);
     }
 
     public function table(Table $table): Table
@@ -45,33 +59,34 @@ class FacilitiesRelationManager extends RelationManager
                     ->trueIcon('heroicon-o-check-badge')
                     ->falseIcon('heroicon-o-x-mark'),
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])
             ->actions([
+                Tables\Actions\ViewAction::make(),
                 Tables\Actions\DetachAction::make()->label('Remove'),
             ])
             ->headerActions([
-
                 Tables\Actions\AttachAction::make()
                     ->label('Add')
-                    ->recordSelect(function () {
+                    ->recordSelect(function (RelationManager $livewire) {
+                        $buildingId = $livewire->ownerRecord->id;
+
                         // Get all the facilities
-                        $allFacilities = Facility::all()->pluck('name', 'id')->toArray();
-
-                        // Get the IDs of the selected facilities
-                        $selectedFacilityIds = DB::table('building_facility')->pluck('facility_id')->toArray();
-
-                        // Filter out the selected facilities from the list of all facilities
-                        $availableFacilities = array_diff_key($allFacilities, array_flip($selectedFacilityIds));
-
+                        $allFacilities = Facility::all()->pluck('id')->toArray();
+                        $existingFacility =  DB::table('building_facility')
+                            ->where('building_id', $buildingId)
+                            ->whereIn('facility_id', $allFacilities)->pluck('facility_id')->toArray();
+                        $allFacilities = Facility::all()->whereNotIn('id', $existingFacility)->pluck('name', 'id')->toArray();
                         return Select::make('recordId')
                             ->label('Facility')
-                            ->options($availableFacilities)
+                            ->options($allFacilities)
                             ->searchable()
                             ->required()
                             ->preload();
                     })
+
             ]);
     }
 }

@@ -17,9 +17,9 @@ class ResidentialFormObserver
         Notification::make()
         ->success()
         ->title("ResidentialForm created")
-        ->icon('heroicon-o-document-text') 
-        ->iconColor('warning') 
-        ->body('New ResidentialForm has been created')
+        ->icon('heroicon-o-document-text')
+        ->iconColor('warning')
+        ->body('New Residential has been registered')
         ->sendToDatabase($notifyTo);
     }
 
