@@ -98,25 +98,25 @@ class AnnouncementResource extends Resource
                     Hidden::make('is_announcement')
                         ->default(true),
 
-                    Repeater::make('media')
-                        ->relationship('media')
-                        ->schema([
-                            TextInput::make('name')
-                                ->rules(['max:30','regex:/^[a-zA-Z\s]*$/'])
-                                ->required()
-                                ->placeholder('Name'),
-                            FileUpload::make('url')
-                                ->disk('s3')
-                                ->directory('dev')
-                                ->maxSize(2048)
-                                ->required()
+                    // Repeater::make('media')
+                    //     ->relationship('media')
+                    //     ->schema([
+                    //         TextInput::make('name')
+                    //             ->rules(['max:30','regex:/^[a-zA-Z\s]*$/'])
+                    //             ->required()
+                    //             ->placeholder('Name'),
+                    //         FileUpload::make('url')
+                    //             ->disk('s3')
+                    //             ->directory('dev')
+                    //             ->maxSize(2048)
+                    //             ->required()
 
-                        ])
-                        ->columnSpan([
-                            'sm' => 1,
-                            'md' => 1,
-                            'lg' => 2,
-                        ])
+                    //     ])
+                    //     ->columnSpan([
+                    //         'sm' => 1,
+                    //         'md' => 1,
+                    //         'lg' => 2,
+                    //     ])
 
             ])
         ]);
