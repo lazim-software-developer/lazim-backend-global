@@ -28,7 +28,7 @@ class CreateFormRequest extends FormRequest
             'moving_date'=> 'required',
             'moving_time'=> 'required',
             'time_preference'=> 'required',
-            'handover_acceptance' => 'required|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
+            'handover_acceptance' => 'The uploaded image must be less than 2MB.',
             'receipt_charges' => 'required|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
             'contract' => 'required|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
             'title_deed' => 'required|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
@@ -46,7 +46,19 @@ class CreateFormRequest extends FormRequest
         return [
             'building_id' => "Please select a building",
             'flat_id' => "Please select a flat",
-            'type.required' =>'Type is required.'
+            'type.required' =>'Type is required.',
+            'handover_acceptance' => 'The uploaded image must be less than 2MB.' ,
+            'receipt_charges' => 'The uploaded image must be less than 2MB.',
+            'contract' => 'The uploaded image must be less than 2MB.',
+            'title_deed' => 'The uploaded image must be less than 2MB.',
+            'passport' => 'The uploaded image must be less than 2MB.',
+            'dewa' => 'The uploaded image must be less than 2MB.',
+            'cooling_registration' => 'The uploaded image must be less than 2MB.',
+            'gas_registration' => 'The uploaded image must be less than 2MB.',
+            'vehicle_registration' => 'The uploaded image must be less than 2MB.',
+            'movers_license' => 'The uploaded image must be less than 2MB.',
+            'movers_liability' => 'The uploaded image must be less than 2MB.',
+
         ];
     }
 }
