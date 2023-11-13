@@ -47,7 +47,7 @@ class ServiceController extends Controller
             return (new CustomResponseResource([
                 'title' => 'Booking Error',
                 'message' => 'The service is already booked by you for the specified date and time.',
-                'errorCode' => 400,
+                'code' => 400,
             ]))->response()->setStatusCode(400);
         }
 
@@ -65,7 +65,7 @@ class ServiceController extends Controller
         return new CustomResponseResource([
             'title' => 'Booking Successful',
             'message' => 'Service booking has been successfully created.',
-            'errorCode' => 200,
+            'code' => 200,
         ]);
     }
 }

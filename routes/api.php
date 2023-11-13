@@ -260,19 +260,22 @@ Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active']
     Route::post('/feedback', [AppFeedbackController::class, 'store']);
 });
 
-// Test API for Mollak
-Route::get('/test-api', [MollakController::class, 'test']);
+// Vendor APIs
+Route::middleware(['api.token'])->prefix('vendor')->group(function () {
+    Route::post('/registration', [VendorRegistrationController::class, 'registration']);
+    Route::post('/company-details', [VendorRegistrationController::class, 'companyDetails']);
+    Route::post('/managers', [VendorRegistrationController::class, 'managerDetails']);
+    Route::post('/add-service', [SelectServicesController::class, 'addService']);
+});
 
-// Vendor API's
-Route::post('/vendor-registration',[VendorRegistrationController::class, 'registration']);
-Route::post('/company-details',[VendorRegistrationController::class, 'companyDetails']);
-Route::post('/vendor-manager',[VendorRegistrationController::class,'managerDetails']);
-Route::get('/view-manager',[VendorRegistrationController::class, 'showManagerDetails'])->middleware('auth:sanctum');
-Route::get('/list-services',[SelectServicesController::class, 'listServices']);
-Route::post('/add-service',[SelectServicesController::class, 'addService']);
-Route::post('/tag-services',[SelectServicesController::class, 'tagServices']);
-Route::get('show-services',[SelectServicesController::class, 'showServices'])->middleware('auth:sanctum');
-Route::post('/documents-upload',[DocumentsUploadController::class, 'documentsUpload']);
-Route::get('/show-documents',[DocumentsUploadController::class,'showDocuments'])->middleware('auth:sanctum');
-Route::post('/escalation-matrix',[EscalationMatrixController::class, 'store']);
-Route::get('/escalation-matrix',[EscalationMatrixController::class, 'show'])->middleware('auth:sanctum');
+// Vendor APIs after logging in
+Route::middleware(['auth:sanctum', 'active'])->prefix('vendor')->group(function () {
+    Route::get('/view-managers', [VendorRegistrationController::class, 'showManagerDetails']);
+    Route::get('/services', [SelectServicesController::class, 'listServices']);
+    Route::post('/tag-services', [SelectServicesController::class, 'tagServices']);
+    Route::get('/show-services', [SelectServicesController::class, 'showServices']);
+    Route::post('/documents-upload', [DocumentsUploadController::class, 'documentsUpload']);
+    Route::get('/show-documents', [DocumentsUploadController::class, 'showDocuments']);
+    Route::post('/escalation-matrix', [EscalationMatrixController::class, 'store']);
+    Route::get('/escalation-matrix/{vendor}', [EscalationMatrixController::class, 'show']);
+});

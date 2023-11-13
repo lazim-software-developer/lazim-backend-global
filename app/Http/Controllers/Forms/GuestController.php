@@ -63,7 +63,7 @@ class GuestController extends Controller
         return (new CustomResponseResource([
                 'title' => 'Success',
                 'message' => ' created successfully!',
-                'errorCode' => 201,
+                'code' => 201,
             ]))->response()->setStatusCode(201);
     }
 }

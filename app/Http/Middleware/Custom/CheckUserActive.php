@@ -41,7 +41,7 @@ class CheckUserActive
             return (new CustomResponseResource([
                 'title' => 'Account Status',
                 'message' => 'Your account is inactive. Please contact support team for more details!',
-                'errorCode' => 403, 
+                'code' => 403, 
             ]))->response()->setStatusCode(403);
         }
 

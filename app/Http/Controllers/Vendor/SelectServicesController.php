@@ -31,30 +31,32 @@ class SelectServicesController extends Controller
             'owner_association_id' => Vendor::find($request->vendor_id)->owner_association_id 
         ]);
 
-        $service = Service::create($request->all());       
+        Service::create($request->all());       
 
         return (new CustomResponseResource([
             'title' => 'Service added!',
             'message' => "",
-            'errorCode' => 201,
+            'code' => 201,
             'status' => 'success',
         ]))->response()->setStatusCode(201);
     }
 
     public function tagServices(SelectServicesRequest $request)
     {
-
         $serviceIds= $request->service_ids;
+
         $vendor = Vendor::find($request->vendor_id);
-        foreach ($serviceIds as $serviceId){
-            if(!(DB::table('service_vendor')->where('vendor_id',$request->vendor_id)->where('service_id',$serviceId))->first()){
+
+        foreach ($serviceIds as $serviceId) {
+            if (!(DB::table('service_vendor')->where('vendor_id', $request->vendor_id)->where('service_id', $serviceId))->first()) {
                 $vendor->services()->attach($serviceId);
             }
         };
+        
         return (new CustomResponseResource([
             'title' => 'Services taged!',
             'message' => "",
-            'errorCode' => 201,
+            'code' => 201,
             'status' => 'success',
         ]))->response()->setStatusCode(201);
 

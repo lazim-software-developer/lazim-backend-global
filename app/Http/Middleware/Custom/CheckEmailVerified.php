@@ -20,7 +20,7 @@ class CheckEmailVerified
             return (new CustomResponseResource([
                 'title' => 'Email Verification Required',
                 'message' => 'Email is not verified.',
-                'errorCode' => 403,
+                'code' => 403,
             ]))->response()->setStatusCode(403); // Forbidden
         }
 
