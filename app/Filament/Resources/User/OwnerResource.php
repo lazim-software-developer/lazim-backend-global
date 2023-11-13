@@ -5,6 +5,7 @@ namespace App\Filament\Resources\User;
 use App\Filament\Resources\User\OwnerResource\Pages;
 use App\Filament\Resources\User\OwnerResource\RelationManagers;
 use App\Filament\Resources\User\OwnerResource\RelationManagers\UserDocumentsRelationManager;
+use App\Models\ApartmentOwner;
 use App\Models\User\Owner;
 use App\Models\User\User;
 use Filament\Forms;
@@ -22,7 +23,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class OwnerResource extends Resource
 {
-    protected static ?string $model = User::class;
+    protected static ?string $model = ApartmentOwner::class;
     protected static ?string $modelLabel      = 'Owner';
     protected static ?string $navigationGroup      = 'User Management';
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
@@ -110,7 +111,7 @@ class OwnerResource extends Resource
     public static function getRelations(): array
     {
         return [
-            UserDocumentsRelationManager::class,
+            //UserDocumentsRelationManager::class,
         ];
     }
 
