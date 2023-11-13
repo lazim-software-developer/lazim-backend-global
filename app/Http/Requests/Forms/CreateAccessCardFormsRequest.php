@@ -27,7 +27,18 @@ class CreateAccessCardFormsRequest extends FormRequest
             'card_type' => 'required|string',
             'reason' => 'nullable|string',
             'parking_details' => 'nullable|json',
-            'occupied_by' => 'required'
+            'occupied_by' => 'required',
+            'tenancy' => 'required|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
+            'vehicle_registration' => 'required|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
+
+        ];
+    }
+
+    public function messages()
+    {
+        return [
+            'tenancy' => 'The uploaded image must be less than 2MB.',
+            'vehicle_registration' => 'The uploaded image must be less than 2MB.',
         ];
     }
 }

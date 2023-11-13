@@ -38,4 +38,11 @@ class CreateGuestRequest extends FormRequest
             'image' => 'required|file|max:2048'
         ];
     }
+
+    public function messages()
+    {
+        return [
+            'image' => 'The uploaded image must be less than 2MB.',
+        ];
+    }
 }
