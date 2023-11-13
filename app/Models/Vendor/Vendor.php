@@ -9,6 +9,7 @@ use App\Models\Vendor\Contact;
 use App\Models\Building\Building;
 use App\Models\Building\Document;
 use App\Models\Scopes\Searchable;
+use App\Models\Vendor\VendorEscalationMatrix;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -26,6 +27,12 @@ class Vendor extends Model
         'status',
         'remarks',
         'owner_association_id',
+        'phone',
+        'address_line_1',
+        'address_line_2',
+        'landline_number',
+        'website',
+        'fax',
     ];
 
     protected $searchableFields = ['*'];
@@ -80,5 +87,15 @@ class Vendor extends Model
     public function oaUserRegistration()
     {
         return $this->belongsTo(OaUserRegistration::class);
+    }
+
+    public function managers()
+    {
+        return $this->belongsTo(VendorManager::class);
+    }
+
+    public function escalationMatrix()
+    {
+        return $this->hasMany(VendorEscalationMatrix::class);
     }
 }
