@@ -51,6 +51,7 @@ class FacilityResource extends Resource
                         //     ->placeholder('Building'),
 
                         FileUpload::make('icon')
+                            ->acceptedFileTypes(['image/jpeg', 'image/png'])
                             ->disk('s3')
                             ->directory('dev')
                             ->required()
@@ -78,7 +79,9 @@ class FacilityResource extends Resource
                     ->limit(50),
                 IconColumn::make('active')
                     ->toggleable()
-                    ->boolean(),
+                    ->boolean()
+                    ->trueIcon('heroicon-o-check-badge')
+                    ->falseIcon('heroicon-o-x-mark'),
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
