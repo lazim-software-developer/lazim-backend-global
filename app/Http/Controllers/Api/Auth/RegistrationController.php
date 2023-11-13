@@ -28,7 +28,7 @@ class RegistrationController extends Controller
             return (new CustomResponseResource([
                 'title' => 'account_present',
                 'message' => "Your account is not verified. You'll be redirected account verification page",
-                'errorCode' => 403, 
+                'code' => 403, 
             ]))->response()->setStatusCode(403);
         }
 
@@ -37,7 +37,7 @@ class RegistrationController extends Controller
             return (new CustomResponseResource([
                 'title' => 'account_present',
                 'message' => 'Your email is already registered in our application. Please try login instead!',
-                'errorCode' => 400,
+                'code' => 400,
             ]))->response()->setStatusCode(400);
         }
 
@@ -49,7 +49,7 @@ class RegistrationController extends Controller
             return (new CustomResponseResource([
                 'title' => 'Error',
                 'message' => 'Flat selected by you doesnot exists',
-                'errorCode' => 400, 
+                'code' => 400, 
             ]))->response()->setStatusCode(400);
         }
     
@@ -60,7 +60,7 @@ class RegistrationController extends Controller
             return (new CustomResponseResource([
                 'title' => 'Error',
                 'message' => 'Looks like this flat is already allocated to someone!',
-                'errorCode' => 400, 
+                'code' => 400, 
             ]))->response()->setStatusCode(400);
         }
     
@@ -77,7 +77,7 @@ class RegistrationController extends Controller
             return (new CustomResponseResource([
                 'title' => 'Error',
                 'message' => "Your details are not matching with Mollak data. Please use your emirates ID or Passport instead",
-                'errorCode' => 400,
+                'code' => 400,
             ]))->response()->setStatusCode(400);
         }
     
@@ -120,7 +120,7 @@ class RegistrationController extends Controller
         return (new CustomResponseResource([
             'title' => 'Registration successful!',
             'message' => "We've sent verification code to your email Id and phone. Please verify to continue using the application",
-            'errorCode' => 201,
+            'code' => 201,
             'status' => 'success'
         ]))->response()->setStatusCode(201);
     }
@@ -132,7 +132,7 @@ class RegistrationController extends Controller
             return (new CustomResponseResource([
                 'title' => 'account_present',
                 'message' => "Your account is not verified. You'll be redirected account verification page",
-                'errorCode' => 403, 
+                'code' => 403, 
             ]))->response()->setStatusCode(403);
         }
 
@@ -141,7 +141,7 @@ class RegistrationController extends Controller
             return (new CustomResponseResource([
                 'title' => 'account_present',
                 'message' => 'Your email is already registered in our application. Please try login instead!',
-                'errorCode' => 400,
+                'code' => 400,
             ]))->response()->setStatusCode(400);
         }
 
@@ -153,7 +153,7 @@ class RegistrationController extends Controller
             return (new CustomResponseResource([
                 'title' => 'Error',
                 'message' => 'Flat selected by you doesnot exists',
-                'errorCode' => 400, 
+                'code' => 400, 
             ]))->response()->setStatusCode(400);
         }
     
@@ -164,7 +164,7 @@ class RegistrationController extends Controller
             return (new CustomResponseResource([
                 'title' => 'Error',
                 'message' => 'Looks like this flat is already allocated to someone!',
-                'errorCode' => 400, 
+                'code' => 400, 
             ]))->response()->setStatusCode(400);
         }
     
@@ -185,7 +185,7 @@ class RegistrationController extends Controller
             return (new CustomResponseResource([
                 'title' => 'Error',
                 'message' => "Your details are not matching with Mollak data. Please enter valid details.",
-                'errorCode' => 400,
+                'code' => 400,
             ]))->response()->setStatusCode(400);
         }
     
@@ -228,7 +228,7 @@ class RegistrationController extends Controller
         return (new CustomResponseResource([
             'title' => 'Registration successful!',
             'message' => "Registration was successful. We've sent a verification code to it your email. Please verify to continue using the application.",
-            'errorCode' => 201,
+            'code' => 201,
             'status' => 'success'
         ]))->response()->setStatusCode(201);
     }    
@@ -256,7 +256,7 @@ class RegistrationController extends Controller
                 return (new CustomResponseResource([
                     'title' => 'Error',
                     'message' => 'The provided '.$type.' is already verified.',
-                    'errorCode' => 404,
+                    'code' => 404,
                 ]))->response()->setStatusCode(404);
             }
 
@@ -275,14 +275,14 @@ class RegistrationController extends Controller
             return (new CustomResponseResource([
                 'title' => 'Success',
                 'message' => 'OTP sent successfully!',
-                'errorCode' => 200,
+                'code' => 200,
             ]))->response()->setStatusCode(200);
         }
         
         return (new CustomResponseResource([
             'title' => 'Error',
             'message' => 'The provided '.$type.' is not registered in our system.',
-            'errorCode' => 404,
+            'code' => 404,
         ]))->response()->setStatusCode(404);
     }
 

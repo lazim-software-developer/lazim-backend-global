@@ -20,7 +20,7 @@ class PostLikeController extends Controller
             return (new CustomResponseResource([
                 'title' => 'Error',
                 'message' => 'You have already liked this post.',
-                'errorCode' => 400,
+                'code' => 400,
             ]))->response()->setStatusCode(400);
         }
 
@@ -32,7 +32,7 @@ class PostLikeController extends Controller
         return (new CustomResponseResource([
             'title' => 'Success',
             'message' => 'Post liked successfully.',
-            'errorCode' => 200,
+            'code' => 200,
         ]))->response()->setStatusCode(200);
     }
 
@@ -46,7 +46,7 @@ class PostLikeController extends Controller
             return (new CustomResponseResource([
                 'title' => 'Error',
                 'message' => 'You have not liked this post.',
-                'errorCode' => 400,
+                'code' => 400,
             ]))->response()->setStatusCode(400);
         }
 
@@ -55,7 +55,7 @@ class PostLikeController extends Controller
         return (new CustomResponseResource([
             'title' => 'Success',
             'message' => 'Post unliked successfully.',
-            'errorCode' => 200,
+            'code' => 200,
         ]))->response()->setStatusCode(200);
     }
 

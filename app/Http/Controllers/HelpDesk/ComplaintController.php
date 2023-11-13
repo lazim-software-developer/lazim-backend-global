@@ -72,7 +72,7 @@ class ComplaintController extends Controller
             return (new CustomResponseResource([
                 'title' => 'Error',
                 'message' => 'You are not allowed to post a complaint.',
-                'errorCode' => 403,
+                'code' => 403,
             ]))->response()->setStatusCode(403);
         }
 
@@ -112,7 +112,7 @@ class ComplaintController extends Controller
         return (new CustomResponseResource([
             'title' => 'Success',
             'message' => "We'll get back to you at the earliest!",
-            'errorCode' => 201,
+            'code' => 201,
         ]))->response()->setStatusCode(201);
     }
 

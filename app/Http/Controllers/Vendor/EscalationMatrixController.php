@@ -8,34 +8,34 @@ use App\Http\Resources\CustomResponseResource;
 use App\Http\Resources\Vendor\VendorEscalationMatrixResource;
 use App\Models\Vendor\Vendor;
 use App\Models\Vendor\VendorEscalationMatrix;
-use Illuminate\Http\Request;
 
 class EscalationMatrixController extends Controller
 {
     public function store(EscalationMatrixRequest $request)
-    {   
-        if(!(VendorEscalationMatrix::where('vendor_id', $request->vendor_id)->where('escalation_level', $request->escalation_level))->first()){
-        $escalation = VendorEscalationMatrix::create($request->all());
+    {
+        if (VendorEscalationMatrix::where('vendor_id', $request->vendor_id)->where('escalation_level', $request->escalation_level)->exists()) {
             return (new CustomResponseResource([
-                'title' => 'Escalation Matrix added!',
-                'message' => "",
-                'errorCode' => 201,
-                'status' => 'success',
-            ]))->response()->setStatusCode(201);
+                'title' => 'Escalation Level exists!',
+                'message' => " Escalation Level already exists, please enter a different level",
+                'code' => 400,
+                'status' => 'error',
+            ]))->response()->setStatusCode(400);
         }
+
+        // If donesnot exists, create new
+        VendorEscalationMatrix::create($request->all());
+
         return (new CustomResponseResource([
-            'title' => 'Escalation Level exists!',
-            'message' => " Escalation Level already exists, please enter a different level",
-            'errorCode' => 400,
-            'status' => 'error',
-        ]))->response()->setStatusCode(400);
+            'title' => 'Escalation Matrix added!',
+            'message' => "",
+            'code' => 201,
+            'status' => 'success',
+        ]))->response()->setStatusCode(201);
     }
 
-    public function show()
+    public function show(Vendor $vendor)
     {
-        $vendor_id =Vendor::where('owner_id', auth()->user()->id)->first()->id;
-        $escalation=VendorEscalationMatrix::where('vendor_id', $vendor_id)->get();
+        $escalation = VendorEscalationMatrix::where('vendor_id', $vendor->id)->get();
         return VendorEscalationMatrixResource::collection($escalation);
-        
     }
 }

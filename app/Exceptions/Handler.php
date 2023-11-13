@@ -27,7 +27,7 @@ class Handler extends ExceptionHandler
             return (new CustomResponseResource([
                 'title' => 'Unauthenticated',
                 'message' => 'You are not authenticated. Please log in.',
-                'errorCode' => 401,
+                'code' => 401,
             ]))->response()->setStatusCode(401);
         }
 
@@ -59,7 +59,7 @@ class Handler extends ExceptionHandler
             return (new CustomResponseResource([
                 'title' => 'Unauthorized',
                 'message' => 'This action is unauthorized.',
-                'errorCode' => 403,
+                'code' => 403,
             ]))->response()->setStatusCode(403);
         }
 

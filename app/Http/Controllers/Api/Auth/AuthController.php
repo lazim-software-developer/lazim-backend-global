@@ -89,7 +89,7 @@ class AuthController extends Controller
             return (new CustomResponseResource([
                 'title' => 'Email Verification Required',
                 'message' => 'Email is not verified.',
-                'errorCode' => 403,
+                'code' => 403,
                 'data' => $user
             ]))->response()->setStatusCode(403);
         }
@@ -98,7 +98,7 @@ class AuthController extends Controller
             return (new CustomResponseResource([
                 'title' => 'Phone Verification Required',
                 'message' => 'Phone number is not verified.',
-                'errorCode' => 403,
+                'code' => 403,
                 'data' => $user
             ]))->response()->setStatusCode(403);
         }
@@ -157,7 +157,7 @@ class AuthController extends Controller
         return (new CustomResponseResource([
             'title' => 'Success',
             'message' => 'Password set successfully!',
-            'errorCode' => 200,
+            'code' => 200,
             'status' => 'success'
         ]))->response()->setStatusCode(200);
     }

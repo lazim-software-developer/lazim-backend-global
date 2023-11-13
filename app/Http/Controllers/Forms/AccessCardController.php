@@ -42,7 +42,7 @@ class AccessCardController extends Controller
         return (new CustomResponseResource([
             'title' => 'Success',
             'message' => 'Access card submitted successfully!',
-            'errorCode' => 201,
+            'code' => 201,
         ]))->response()->setStatusCode(201);
     }
 

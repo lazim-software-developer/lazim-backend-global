@@ -27,7 +27,7 @@ class VendorRegistrationController extends Controller
             return (new CustomResponseResource([
                 'title' => 'account_present',
                 'message' => "Your account is not verified. You'll be redirected account verification page",
-                'errorCode' => 403, 
+                'code' => 403, 
             ]))->response()->setStatusCode(403);
         }
 
@@ -35,7 +35,7 @@ class VendorRegistrationController extends Controller
             return (new CustomResponseResource([
                 'title' => 'account_present',
                 'message' => 'Your email is already registered in our application. Please try login instead!',
-                'errorCode' => 400,
+                'code' => 400,
             ]))->response()->setStatusCode(400);
         }
         
@@ -50,7 +50,7 @@ class VendorRegistrationController extends Controller
         return (new CustomResponseResource([
             'title' => 'Registration successful!',
             'message' => "We've sent verification code to your email Id and phone. Please verify to continue using the application",
-            'errorCode' => 201,
+            'code' => 201,
             'status' => 'success',
             'data' => $user
         ]))->response()->setStatusCode(201);
@@ -65,7 +65,7 @@ class VendorRegistrationController extends Controller
         return (new CustomResponseResource([
             'title' => 'Company Details entered successful!',
             'message' => "",
-            'errorCode' => 201,
+            'code' => 201,
             'status' => 'success',
             'data' => $vendor
         ]))->response()->setStatusCode(201);
@@ -78,7 +78,7 @@ class VendorRegistrationController extends Controller
         return (new CustomResponseResource([
             'title' => 'Vendor Manager Details entered successful!',
             'message' => "",
-            'errorCode' => 201,
+            'code' => 201,
             'status' => 'success',
             'data' => $manager
         ]))->response()->setStatusCode(201);
@@ -91,7 +91,7 @@ class VendorRegistrationController extends Controller
         return (new CustomResponseResource([
             'title' => 'Vendor Manager Details fetched',
             'message' => "",
-            'errorCode' => 200,
+            'code' => 200,
             'status' => 'success',
             'data' => $manager
         ]))->response()->setStatusCode(200);

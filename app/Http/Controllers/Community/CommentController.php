@@ -33,7 +33,7 @@ class CommentController extends Controller
         return (new CustomResponseResource([
             'title' => 'Success',
             'message' => "Comment added successfully",
-            'errorCode' => 201,
+            'code' => 201,
             'status' => 'success',
             'data' => new CommentResource($comment)
         ]))->response()->setStatusCode(201);
@@ -52,7 +52,7 @@ class CommentController extends Controller
         return (new CustomResponseResource([
             'title' => 'Success',
             'message' => "Comment added successfully",
-            'errorCode' => 201,
+            'code' => 201,
             'status' => 'success',
             'data' => new CommentResource($comment)
         ]))->response()->setStatusCode(201);
