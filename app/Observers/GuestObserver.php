@@ -17,9 +17,9 @@ class GuestObserver
         Notification::make()
         ->success()
         ->title("Guest created")
-        ->icon('heroicon-o-document-text') 
-        ->iconColor('warning') 
-        ->body('New Guest has been created')
+        ->icon('heroicon-o-document-text')
+        ->iconColor('warning')
+        ->body('New Guest has been registered.')
         ->sendToDatabase($notifyTo);
     }
 
