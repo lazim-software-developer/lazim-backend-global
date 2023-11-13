@@ -5,6 +5,7 @@ use App\Http\Controllers\TestController;
 use App\Http\Controllers\Vendor\DocumentsUploadController;
 use App\Http\Controllers\Vendor\EscalationMatrixController;
 use App\Http\Controllers\Vendor\SelectServicesController;
+use App\Http\Controllers\Vendor\VendorComplaintController;
 use App\Http\Controllers\Vendor\VendorRegistrationController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -266,16 +267,18 @@ Route::middleware(['api.token'])->prefix('vendor')->group(function () {
     Route::post('/company-detail', [VendorRegistrationController::class, 'companyDetails']);
     Route::post('/managers/{vendor}', [VendorRegistrationController::class, 'managerDetails']);
     Route::post('/add-service/{vendor}', [SelectServicesController::class, 'addService']);
+    Route::get('/services', [SelectServicesController::class, 'listServices']);
+    Route::post('/{vendor}/documents-upload', [DocumentsUploadController::class, 'documentsUpload']);
 });
 
 // Vendor APIs after logging in
 Route::middleware(['auth:sanctum', 'active'])->prefix('vendor')->group(function () {
     Route::get('/view-managers', [VendorRegistrationController::class, 'showManagerDetails']);
-    Route::get('/services', [SelectServicesController::class, 'listServices']);
     Route::post('/{vendor}/tag-services', [SelectServicesController::class, 'tagServices']);
     Route::get('/{vendor}/services', [SelectServicesController::class, 'showServices']);
-    Route::post('/{vendor}/documents-upload', [DocumentsUploadController::class, 'documentsUpload']);
     Route::get('/{vendor}/show-documents', [DocumentsUploadController::class, 'showDocuments']);
     Route::post('/{vendor}/escalation-matrix', [EscalationMatrixController::class, 'store']);
     Route::get('/{vendor}/escalation-matrix', [EscalationMatrixController::class, 'show']);
+    Route::get('/vendor-tickets',[VendorComplaintController::class, 'listComplaints']);
+    Route::post('/vendor-comment/{complaint}',[VendorComplaintController::class, 'addComment']);
 });
