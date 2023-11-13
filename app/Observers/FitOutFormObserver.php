@@ -17,9 +17,9 @@ class FitOutFormObserver
         Notification::make()
         ->success()
         ->title("FitOutForm created")
-        ->icon('heroicon-o-document-text') 
-        ->iconColor('warning') 
-        ->body('New FitOutForm has been created')
+        ->icon('heroicon-o-document-text')
+        ->iconColor('warning')
+        ->body('New Fit-Out has been created.')
         ->sendToDatabase($notifyTo);
     }
 

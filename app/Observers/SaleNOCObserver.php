@@ -17,9 +17,9 @@ class SaleNOCObserver
         Notification::make()
         ->success()
         ->title("SaleNoc created")
-        ->icon('heroicon-o-document-text') 
-        ->iconColor('warning') 
-        ->body('New SaleNoc has been created')
+        ->icon('heroicon-o-document-text')
+        ->iconColor('warning')
+        ->body('New SaleNoc has been registered')
         ->sendToDatabase($notifyTo);
     }
 

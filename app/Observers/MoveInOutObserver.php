@@ -18,18 +18,18 @@ class MoveInOutObserver
             Notification::make()
             ->success()
             ->title("MoveIn created")
-            ->icon('heroicon-o-document-text') 
-            ->iconColor('warning') 
-            ->body('New MoveIn has been created')
+            ->icon('heroicon-o-document-text')
+            ->iconColor('warning')
+            ->body('New MoveIn has been  registered')
             ->sendToDatabase($notifyTo);
         }
         else{
             Notification::make()
             ->success()
             ->title("MoveOut created")
-            ->icon('heroicon-o-document-text') 
-            ->iconColor('warning') 
-            ->body('New MoveOut has been created')
+            ->icon('heroicon-o-document-text')
+            ->iconColor('warning')
+            ->body('New MoveOut has been registered')
             ->sendToDatabase($notifyTo);
         }
     }
