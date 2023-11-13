@@ -34,7 +34,8 @@ class TenantResource extends Resource
             Grid::make([
                 'sm' => 1,
                 'md' => 1,
-                'lg' => 2])
+                'lg' => 2
+            ])
                 ->schema([
                     TextInput::make('first_name')
                         ->rules(['max:50', 'string'])
@@ -53,7 +54,7 @@ class TenantResource extends Resource
                         ->unique(
                             'users',
                             'email',
-                            fn(?Model $record) => $record
+                            fn (?Model $record) => $record
                         )
                         ->email()
                         ->placeholder('Email'),
@@ -64,7 +65,7 @@ class TenantResource extends Resource
                         ->unique(
                             'users',
                             'phone',
-                            fn(?Model $record) => $record
+                            fn (?Model $record) => $record
                         )
                         ->placeholder('Phone'),
 
@@ -101,12 +102,7 @@ class TenantResource extends Resource
                     ->searchable()
                     ->limit(50),
             ])
-            ->filters([
-                //
-            ])
-            ->actions([
-                // Tables\Actions\EditAction::make(),
-            ])
+            ->defaultSort('created_at', 'desc')
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
@@ -130,7 +126,6 @@ class TenantResource extends Resource
             'index' => Pages\ListTenants::route('/'),
             'create' => Pages\CreateTenant::route('/create'),
             'view' => Pages\ViewTenant::route('/{record}'),
-            // 'edit' => Pages\EditTenant::route('/{record}/edit'),
         ];
     }
 }

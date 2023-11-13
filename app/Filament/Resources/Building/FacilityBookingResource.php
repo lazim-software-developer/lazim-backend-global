@@ -3,15 +3,10 @@
 namespace App\Filament\Resources\Building;
 
 use App\Filament\Resources\Building\FacilityBookingResource\Pages;
-use App\Filament\Resources\Building\FacilityBookingResource\RelationManagers;
 use App\Models\Building\FacilityBooking;
-use App\Models\Master\Facility;
-use Filament\Forms;
 use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\KeyValue;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\TimePicker;
@@ -22,9 +17,6 @@ use Filament\Tables;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Illuminate\Database\Query\JoinClause;
 use Illuminate\Support\Facades\DB;
 
 class FacilityBookingResource extends Resource
@@ -50,32 +42,14 @@ class FacilityBookingResource extends Resource
                             ->rules(['exists:buildings,id'])
                             ->relationship('building', 'name')
                             ->reactive()
+                            ->required()
                             ->preload()
                             ->searchable()
                             ->placeholder('Building'),
 
-                        // Select::make('facility_id')
-                        //     ->rules(['exists:facilities,id'])
-                        //     ->relationship('facility', 'name')
-                        //     ->searchable()
-                        //     ->options(function (callable $get) {
-                        //         $facilityid = DB::table('building_facility')
-                        //                 ->where('building_facility.building_id', '=', $get('building_id'))
-                        //                 ->select('building_facility.facility_id')
-                        //                 ->pluck('building_facility.facility_id');
-
-                        //         return DB::table('facilities')
-                        //                 ->whereIn('facilities.id',$facilityid)
-                        //                 ->select('facilities.id','facilities.name')
-                        //                 ->pluck('facilities.name','facilities.id')
-                        //                 ->toArray();
-                        //     })
-                        //     ->required()
-                        //     ->preload()
-                        //     ->placeholder('Facilities'),
-
                         Select::make('bookable_id')
                             ->label('Facility ')
+                            ->required()
                             ->options(
                                 DB::table('facilities')
                                     ->pluck('name', 'id')
@@ -156,6 +130,7 @@ class FacilityBookingResource extends Resource
                 Tables\Columns\IconColumn::make('approved')
                     ->boolean(),
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 SelectFilter::make('building_id')
                     ->relationship('building', 'name')
@@ -163,6 +138,7 @@ class FacilityBookingResource extends Resource
                     ->preload()
             ])
             ->actions([
+
                 Action::make('Update Status')
                     ->button()
                     ->form([
@@ -203,7 +179,6 @@ class FacilityBookingResource extends Resource
             'index' => Pages\ListFacilityBookings::route('/'),
             'create' => Pages\CreateFacilityBooking::route('/create'),
             'view' => Pages\ViewFacilityBooking::route('/{record}'),
-            // 'edit' => Pages\EditFacilityBooking::route('/{record}/edit'),
         ];
     }
 }

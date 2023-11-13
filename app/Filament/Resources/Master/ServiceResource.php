@@ -6,14 +6,17 @@ use App\Filament\Resources\Master\ServiceResource\Pages\CreateService;
 use App\Filament\Resources\Master\ServiceResource\Pages\EditService;
 use App\Filament\Resources\Master\ServiceResource\Pages\ListServices;
 use App\Models\Master\Service;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables\Actions\BulkActionGroup;
 use Filament\Tables\Actions\CreateAction;
 use Filament\Tables\Actions\DeleteBulkAction;
 use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
@@ -31,12 +34,23 @@ class ServiceResource extends Resource
                 Grid::make([
                     'sm' => 1,
                     'md' => 1,
-                    'lg' => 2])
+                    'lg' => 2
+                ])
                     ->schema([
                         TextInput::make('name')
                             ->rules(['max:50', 'string'])
                             ->required()
                             ->placeholder('Name'),
+                        FileUpload::make('icon')
+                            ->acceptedFileTypes(['image/jpeg', 'image/png'])
+                            ->disk('s3')
+                            ->directory('dev')
+                            ->required()
+                            ->maxSize(2048),
+                        Toggle::make('active')
+                            ->label('Active')
+                            ->default(1)
+                            ->rules(['boolean']),
 
                     ]),
             ]);
@@ -44,7 +58,7 @@ class ServiceResource extends Resource
 
     public static function table(Table $table): Table
     {
-        $query = Service::where('custom',[0,NULL]);
+        $query = Service::where('custom', [0, NULL]);
 
         return $table
             ->query($query)
@@ -54,8 +68,13 @@ class ServiceResource extends Resource
                     ->toggleable()
                     ->searchable(true, null, true)
                     ->limit(50),
-
+                IconColumn::make('active')
+                    ->toggleable()
+                    ->boolean()
+                    ->trueIcon('heroicon-o-check-badge')
+                    ->falseIcon('heroicon-o-x-mark'),
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])

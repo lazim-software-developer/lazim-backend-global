@@ -42,6 +42,8 @@ class UserDocumentsRelationManager extends RelationManager
                         ->directory('dev')
                         ->label('Document')
                         ->required()
+                        ->downloadable(true)
+                        ->openable(true)
                         ->columnSpan([
                             'sl'=>1,
                             'md'=>1,
@@ -65,7 +67,8 @@ class UserDocumentsRelationManager extends RelationManager
                             return true;
                         }
                             return false;
-                    }),
+                    })
+                    ->required(),
 
             ]);
     }
@@ -89,23 +92,12 @@ class UserDocumentsRelationManager extends RelationManager
                     ->label('Owner Name')
                     ->default('NA')
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])
-            ->headerActions([
-                //Tables\Actions\CreateAction::make(),
-            ])
             ->actions([
-                // Tables\Actions\EditAction::make(),
-                //Tables\Actions\DeleteAction::make(),
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ])
-            ->emptyStateActions([
-                //Tables\Actions\CreateAction::make(),
+                Tables\Actions\ViewAction::make(),
             ]);
     }
 }

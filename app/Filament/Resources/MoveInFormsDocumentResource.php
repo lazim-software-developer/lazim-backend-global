@@ -48,97 +48,97 @@ class MoveInFormsDocumentResource extends Resource
                     'lg' => 2,
                 ])->schema([
                     TextInput::make('name'),
-            Select::make('building_id')
-                ->relationship('building','name')
-                ->preload()
-                ->searchable()
-                ->label('Building Name'),
-            Select::make('flat_id')
-                ->relationship('flat','property_number')
-                ->preload()
-                ->searchable()
-                ->label('Property No'),
-            Select::make('user_id')
-                ->rules(['exists:users,id'])
-                ->relationship('user', 'first_name')
-                ->required()
-                ->preload()
-                ->searchable()
-                ->label('User'),
-            TextInput::make('status')
-                ->required()
-                ->label('Status'),
-            TextInput::make('remarks')
-                ->required()
-                ->label('Remarks'),
+                    Select::make('building_id')
+                        ->relationship('building', 'name')
+                        ->preload()
+                        ->searchable()
+                        ->label('Building Name'),
+                    Select::make('flat_id')
+                        ->relationship('flat', 'property_number')
+                        ->preload()
+                        ->searchable()
+                        ->label('Property No'),
+                    Select::make('user_id')
+                        ->rules(['exists:users,id'])
+                        ->relationship('user', 'first_name')
+                        ->required()
+                        ->preload()
+                        ->searchable()
+                        ->label('User'),
+                    TextInput::make('status')
+                        ->required()
+                        ->label('Status'),
+                    TextInput::make('remarks')
+                        ->required()
+                        ->label('Remarks'),
 
-                FileUpload::make('handover_acceptance')
-                    ->disk('s3')
-                    ->directory('dev')
-                    ->downloadable()
-                    ->openable()
-                    ->label('Handover Acceptance'),
-                FileUpload::make('receipt_charges')
-                    ->disk('s3')
-                    ->directory('dev')
-                    ->downloadable()
-                    ->openable()
-                    ->label('Receipt Charges'),
-                FileUpload::make('contract')
-                    ->disk('s3')
-                    ->directory('dev')
-                    ->downloadable()
-                    ->openable()
-                    ->label('Contract'),
-                FileUpload::make('title_deed')
-                    ->disk('s3')
-                    ->directory('dev')
-                    ->downloadable()
-                    ->openable()
-                    ->label('Title Deed'),
-                FileUpload::make('passport')
-                    ->disk('s3')
-                    ->directory('dev')
-                    ->downloadable()
-                    ->openable()
-                    ->label('Passport'),
-                FileUpload::make('dewa')
-                    ->disk('s3')
-                    ->directory('dev')
-                    ->downloadable()
-                    ->openable()
-                    ->label('Dewa'),
-                FileUpload::make('cooling_registration')
-                    ->disk('s3')
-                    ->directory('dev')
-                    ->downloadable()
-                    ->openable()
-                    ->label('Cooling Registration'),
-                FileUpload::make('gas_registration')
-                    ->disk('s3')
-                    ->directory('dev')
-                    ->downloadable()
-                    ->openable()
-                    ->label('Gas Registration'),
-                FileUpload::make('vehicle_registration')
-                    ->disk('s3')
-                    ->directory('dev')
-                    ->downloadable()
-                    ->openable()
-                    ->label('Vehicle Registration'),
-                FileUpload::make('movers_license')
-                    ->disk('s3')
-                    ->directory('dev')
-                    ->downloadable()
-                    ->openable()
-                    ->label('Movers License'),
-                FileUpload::make('movers_liability')
-                    ->disk('s3')
-                    ->directory('dev')
-                    ->downloadable()
-                    ->openable()
-                    ->label('Movers Liability'),
-                    
+                    FileUpload::make('handover_acceptance')
+                        ->disk('s3')
+                        ->directory('dev')
+                        ->downloadable(true)
+                        ->openable(true)
+                        ->label('Handover Acceptance'),
+                    FileUpload::make('receipt_charges')
+                        ->disk('s3')
+                        ->directory('dev')
+                        ->downloadable(true)
+                        ->openable(true)
+                        ->label('Receipt Charges'),
+                    FileUpload::make('contract')
+                        ->disk('s3')
+                        ->directory('dev')
+                        ->downloadable(true)
+                        ->openable(true)
+                        ->label('Contract'),
+                    FileUpload::make('title_deed')
+                        ->disk('s3')
+                        ->directory('dev')
+                        ->downloadable(true)
+                        ->openable(true)
+                        ->label('Title Deed'),
+                    FileUpload::make('passport')
+                        ->disk('s3')
+                        ->directory('dev')
+                        ->downloadable(true)
+                        ->openable(true)
+                        ->label('Passport'),
+                    FileUpload::make('dewa')
+                        ->disk('s3')
+                        ->directory('dev')
+                        ->downloadable(true)
+                        ->openable(true)
+                        ->label('Dewa'),
+                    FileUpload::make('cooling_registration')
+                        ->disk('s3')
+                        ->directory('dev')
+                        ->downloadable(true)
+                        ->openable(true)
+                        ->label('Cooling Registration'),
+                    FileUpload::make('gas_registration')
+                        ->disk('s3')
+                        ->directory('dev')
+                        ->downloadable(true)
+                        ->openable(true)
+                        ->label('Gas Registration'),
+                    FileUpload::make('vehicle_registration')
+                        ->disk('s3')
+                        ->directory('dev')
+                        ->downloadable(true)
+                        ->openable(true)
+                        ->label('Vehicle Registration'),
+                    FileUpload::make('movers_license')
+                        ->disk('s3')
+                        ->directory('dev')
+                        ->downloadable(true)
+                        ->openable(true)
+                        ->label('Movers License'),
+                    FileUpload::make('movers_liability')
+                        ->disk('s3')
+                        ->directory('dev')
+                        ->downloadable(true)
+                        ->openable(true)
+                        ->label('Movers Liability'),
+
                 ]),
 
             ]);
@@ -158,10 +158,6 @@ class MoveInFormsDocumentResource extends Resource
                     ->searchable()
                     ->default('NA')
                     ->limit(50),
-                TextColumn::make('user.first_name')
-                    ->searchable()
-                    ->default('NA')
-                    ->limit(50),
                 TextColumn::make('flat.property_number')
                     ->searchable()
                     ->default('NA')
@@ -174,41 +170,8 @@ class MoveInFormsDocumentResource extends Resource
                     ->searchable()
                     ->default('NA')
                     ->limit(50),
-                ImageColumn::make('handover_acceptance')
-                    ->disk('s3')
-                    ->circular(),
-                ImageColumn::make('receipt_charges')
-                    ->square()
-                    ->disk('s3'),
-                ImageColumn::make('contract')
-                    ->square()
-                    ->disk('s3'),
-                ImageColumn::make('title_deed')
-                    ->circular()
-                    ->disk('s3'),
-                ImageColumn::make('passport')
-                    ->square()
-                    ->disk('s3'),
-                ImageColumn::make('dewa')
-                    ->circular()
-                    ->disk('s3'),
-                ImageColumn::make('cooling_registration')
-                    ->square()
-                    ->disk('s3'),
-                ImageColumn::make('gas_registration')
-                    ->square()
-                    ->disk('s3'),
-                ImageColumn::make('vehicle_registration')
-                    ->square()
-                    ->disk('s3'),
-                ImageColumn::make('movers_license')
-                    ->square()
-                    ->disk('s3'),
-                ImageColumn::make('movers_liability')
-                    ->square()
-                    ->disk('s3'),
-
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])
@@ -232,7 +195,8 @@ class MoveInFormsDocumentResource extends Resource
                                     return true;
                                 }
                                 return false;
-                            }),
+                            })
+                            ->required(),
                     ])
                     ->fillForm(fn (MoveInOut $record): array => [
                         'status' => $record->status,
@@ -249,11 +213,6 @@ class MoveInFormsDocumentResource extends Resource
                         }
                     })
                     ->slideOver()
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    //Tables\Actions\DeleteBulkAction::make(),
-                ]),
             ]);
     }
 
@@ -268,8 +227,6 @@ class MoveInFormsDocumentResource extends Resource
     {
         return [
             'index' => Pages\ListMoveInFormsDocuments::route('/'),
-            //'create' => Pages\CreateMoveInFormsDocument::route('/create'),
-            //'edit' => Pages\EditMoveInFormsDocument::route('/{record}/edit'),
             'view' => Pages\ViewMoveInFormsDocument::route('/{record}'),
         ];
     }

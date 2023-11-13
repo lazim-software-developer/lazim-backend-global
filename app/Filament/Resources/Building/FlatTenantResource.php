@@ -90,6 +90,7 @@ class FlatTenantResource extends Resource
                 TextColumn::make('end_date')
                     ->date(),
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 SelectFilter::make('building_id')
                     ->relationship('building', 'name')

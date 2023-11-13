@@ -8,6 +8,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Snowfire\Beautymail\Beautymail;
 
 class SendVerificationOtp implements ShouldQueue
@@ -24,6 +25,7 @@ class SendVerificationOtp implements ShouldQueue
     public function handle()
     {
         // Generate OTPs
+        Log::info("Executed", []);
         $emailOtp = rand(1000, 9999);
         $phoneOtp = rand(1000, 9999);
 

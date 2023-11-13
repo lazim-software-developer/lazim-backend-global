@@ -2,10 +2,9 @@
 
 namespace App\Filament\Resources\Master\FacilityResource\RelationManagers;
 
-use Filament\Forms;
+use App\Models\Building\FacilityBooking;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\KeyValue;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\TimePicker;
@@ -13,10 +12,8 @@ use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
+use Filament\Tables\Actions\Action;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Spatie\FlareClient\Time\Time;
 
 class FacilityBookingRelationManager extends RelationManager
 {
@@ -68,6 +65,7 @@ class FacilityBookingRelationManager extends RelationManager
                     TextInput::make('order_id')
                         ->rules(['max:50', 'string'])
                         ->placeholder('Order Id')
+                        ->default('NA')
                         ->columnSpan([
                             'default' => 12,
                             'md' => 12,
@@ -77,6 +75,7 @@ class FacilityBookingRelationManager extends RelationManager
                     TextInput::make('payment_status')
                         ->rules(['max:50', 'string'])
                         ->placeholder('Payment Status')
+                        ->default('NA')
                         ->columnSpan([
                             'default' => 12,
                             'md' => 12,
@@ -101,19 +100,21 @@ class FacilityBookingRelationManager extends RelationManager
                             'lg' => 12,
                         ]),
 
-                    Toggle::make('approved')
-                        ->rules(['boolean'])
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+                    // Toggle::make('approved')
+                    //     ->rules(['boolean'])
+                    //     ->columnSpan([
+                    //         'default' => 12,
+                    //         'md' => 12,
+                    //         'lg' => 12,
+                    //     ]),
 
                     Select::make('approved_by')
+                        ->label('Approved by')
                         ->rules(['exists:users,id'])
                         ->relationship('userFacilityBookingApprove', 'first_name')
                         ->searchable()
-                        ->placeholder('User Facility Booking Approve')
+                        ->default('NA')
+                        ->placeholder('Approved by')
                         ->columnSpan([
                             'default' => 12,
                             'md' => 12,
@@ -127,21 +128,22 @@ class FacilityBookingRelationManager extends RelationManager
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('bookable.name')->limit(50),
+                Tables\Columns\TextColumn::make('bookable.name')->limit(50)->label('Facility'),
                 Tables\Columns\TextColumn::make('user.first_name')->limit(50)->default('NA'),
                 Tables\Columns\TextColumn::make('date')->date()->default('NA'),
                 Tables\Columns\TextColumn::make('start_time')->default('NA'),
                 Tables\Columns\TextColumn::make('end_time')->default('NA'),
-                Tables\Columns\TextColumn::make('order_id')->limit(50)->default('NA'),
-                Tables\Columns\TextColumn::make('payment_status')->limit(50)->default('NA'),
-                Tables\Columns\TextColumn::make('reference_number')->limit(50)->default('NA'),
+                // Tables\Columns\TextColumn::make('order_id')->limit(50)->default('NA'),
+                // Tables\Columns\TextColumn::make('payment_status')->limit(50)->default('NA'),
+                // Tables\Columns\TextColumn::make('reference_number')->limit(50)->default('NA'),
                 Tables\Columns\IconColumn::make('approved')
                     ->toggleable()
                     ->boolean(),
-                Tables\Columns\TextColumn::make(
-                    'userFacilityBookingApprove.first_name'
-                )->limit(50),
+                // Tables\Columns\TextColumn::make(
+                //     'userFacilityBookingApprove.first_name'
+                // )->limit(50)->label('Approved By')->default('NA'),
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])
@@ -149,16 +151,23 @@ class FacilityBookingRelationManager extends RelationManager
                 Tables\Actions\CreateAction::make(),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ])
-            ->emptyStateActions([
-                Tables\Actions\CreateAction::make(),
+                Action::make('Update Status')
+                    ->visible(fn ($record) => $record->approved === false)
+                    ->button()
+                    ->form([
+                        Toggle::make('approved')
+                            ->rules(['boolean'])
+                            ->required()
+                            ->live(),
+                    ])
+                    ->fillForm(fn (FacilityBooking $record): array => [
+                        'approved' => $record->status,
+                    ])
+                    ->action(function (FacilityBooking $record, array $data): void {
+                        $record->approved = $data['approved'];
+                        $record->save();
+                    }),
+                Tables\Actions\ViewAction::make(),
             ]);
     }
 }

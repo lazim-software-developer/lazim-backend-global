@@ -125,7 +125,7 @@ class VendorResource extends Resource
                     FileUpload::make('tl_document')->label('TL Document')
                         ->required()
                         ->preserveFilenames()
-                        ->downloadable()
+                        ->downloadable(true)
                         ->previewable()
                         ->disk('s3'),
 
@@ -133,7 +133,7 @@ class VendorResource extends Resource
                         ->label('TRN Certificate')
                         // ->required()
                         ->preserveFilenames()
-                        ->downloadable()
+                        ->downloadable(true)
                         ->previewable()
                         ->disk('s3'),
 
@@ -141,7 +141,7 @@ class VendorResource extends Resource
                         ->label('Third Party Liability Certificate')
                         // ->required()
                         ->preserveFilenames()
-                        ->downloadable()
+                        ->downloadable(true)
                         ->previewable()
                         ->disk('s3'),
 
@@ -149,14 +149,14 @@ class VendorResource extends Resource
                         ->label('Risk Assessment')
                         // ->required()
                         ->preserveFilenames()
-                        ->downloadable()
+                        ->downloadable(true)
                         ->previewable()
                         ->disk('s3'),
 
                     FileUpload::make('safety_policy')
                         ->label('Safety Policy')
                         ->preserveFilenames()
-                        ->downloadable()
+                        ->downloadable(true)
                         ->previewable()
                         ->disk('s3'),
 
@@ -196,6 +196,7 @@ class VendorResource extends Resource
                     ->date(),
 
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])

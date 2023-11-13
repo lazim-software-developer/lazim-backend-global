@@ -6,9 +6,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Api\Auth\ResetPasswordController;
-use App\Http\Controllers\Api\Auth\RegisterationController;
+use App\Http\Controllers\Api\Auth\RegistrationController;
 use App\Http\Controllers\Api\Auth\VerificationController;
-use App\Http\Controllers\Api\TenantimportController;
 use App\Http\Controllers\AppFeedbackController;
 use App\Http\Controllers\Building\BuildingController;
 use App\Http\Controllers\Building\FlatController;
@@ -44,9 +43,9 @@ use App\Http\Controllers\User\UserController;
 Route::post('/login', [AuthController::class, 'login'])->name('api.login');
 
 // Resident registeration with email and phone
-Route::post('/register', [RegisterationController::class, 'registerWithEmailPhone']);
+Route::post('/register', [RegistrationController::class, 'registerWithEmailPhone']);
 // Resident registeration with Passport/Emirates id
-Route::post('/register-with-passport', [RegisterationController::class, 'registerWithEmiratesOrPassport']);
+Route::post('/register-with-passport', [RegistrationController::class, 'registerWithEmiratesOrPassport']);
 
 // Verify email
 Route::post('/verify-otp', [VerificationController::class, 'verify']);
@@ -108,7 +107,7 @@ Route::group(['middleware' => ["auth:sanctum", "verified"]], function () {
  */
 Route::middleware(['api.token'])->group(function () {
     // Get resident of a unit by mollak
-    Route::get('/resident/{unitNumber}', [RegisterationController::class, 'fetchResidentDetails']);
+    Route::get('/resident/{unitNumber}', [RegistrationController::class, 'fetchResidentDetails']);
 
     // Building API resource: Use only index method(To be changed a notmal route if we don't use other routes)
     Route::apiResource('buildings', BuildingController::class)->only(['index']);
@@ -117,7 +116,7 @@ Route::middleware(['api.token'])->group(function () {
     Route::get('/flats/{building}', [FlatController::class, 'fetchFlats']);
 
     // Resend otp
-    Route::post('/resend-otp', [RegisterationController::class, 'resendOtp']);
+    Route::post('/resend-otp', [RegistrationController::class, 'resendOtp']);
 
     // List all tags
     Route::get('/tags', [TagController::class, 'index']);
@@ -202,9 +201,6 @@ Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active']
     // Change password
     Route::post('/profile/change-password', [ProfileController::class, 'changePassword']);
 
-    // Fetch all matching flats for the logged in user
-    Route::get('/tenant/flats', [UserController::class, 'getUserFlats']);
-
     // List all family members of logged in user
     Route::get('/family-members/{building}', [UserController::class, 'getFamilyMembers']);
 });
@@ -225,6 +221,9 @@ Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active']
     Route::get('/documents', [DocumentsController::class, 'index']);
     Route::post('/document-upload', [DocumentsController::class, 'create']);
     Route::get('/fetch-other-documents', [DocumentsController::class, 'fetchOtherDocuments']);
+
+    // List all Owners for a given flat
+    Route::get('/flat/{flat}/owners', [FlatController::class, 'fetchFlatOwners']);
 });
 
 /**
@@ -240,6 +239,11 @@ Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active']
 
     // View form status
     Route::get('/status/{building}', [AccessCardController::class, 'fetchFormStatus']);
+    Route::get('/sale-noc/{saleNoc}/status', [SaleNocController::class, 'fetchNocFormStatus']);
+    Route::post('/sale-noc/{saleNoc}/upload-document', [SaleNocController::class, 'uploadDocument']);
+
+    // Upload document to S3 - For NOC Page
+    Route::post('/upload-document', [SaleNocController::class, 'uploadNOCDocument']);
 });
 
 // API  to fetch Security for a building

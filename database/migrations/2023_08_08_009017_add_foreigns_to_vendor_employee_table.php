@@ -14,16 +14,12 @@ return new class extends Migration {
             $table
                 ->foreign('user_id')
                 ->references('id')
-                ->on('users')
-                ->onUpdate('CASCADE')
-                ->onDelete('CASCADE');
+                ->on('users');
 
             $table
                 ->foreign('vendor_id')
                 ->references('id')
-                ->on('vendors')
-                ->onUpdate('CASCADE')
-                ->onDelete('CASCADE');
+                ->on('vendors');
         });
     }
 

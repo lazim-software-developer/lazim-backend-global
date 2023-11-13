@@ -28,7 +28,8 @@ class UserResource extends Resource
             Grid::make([
                 'sm' => 1,
                 'md' => 1,
-                'lg' => 2])
+                'lg' => 2
+            ])
                 ->schema([
                     TextInput::make('first_name')
                         ->rules(['max:50', 'string'])
@@ -46,7 +47,7 @@ class UserResource extends Resource
                         ->unique(
                             'users',
                             'email',
-                            fn(?Model $record) => $record
+                            fn (?Model $record) => $record
                         )
                         ->email()
                         ->placeholder('Email'),
@@ -57,7 +58,7 @@ class UserResource extends Resource
                         ->unique(
                             'users',
                             'phone',
-                            fn(?Model $record) => $record
+                            fn (?Model $record) => $record
                         )
                         ->placeholder('Phone'),
 
@@ -67,7 +68,7 @@ class UserResource extends Resource
                         ->unique(
                             'users',
                             'lazim_id',
-                            fn(?Model $record) => $record
+                            fn (?Model $record) => $record
                         )
                         ->placeholder('Lazim Id'),
 
@@ -85,7 +86,6 @@ class UserResource extends Resource
                 ]),
 
         ]);
-
     }
 
     public static function table(Table $table): Table
@@ -120,6 +120,7 @@ class UserResource extends Resource
                     ->toggleable()
                     ->limit(50),
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])

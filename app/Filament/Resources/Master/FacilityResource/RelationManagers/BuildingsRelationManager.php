@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Master\FacilityResource\RelationManagers;
 
 use Filament\Forms;
 use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -26,101 +27,62 @@ class BuildingsRelationManager extends RelationManager
                 Grid::make(['default' => 0])->schema([
                     TextInput::make('name')
                         ->rules(['max:50', 'string'])
-                        ->placeholder('Name')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+                        ->required()
+                        ->placeholder('Name'),
 
-                    TextInput::make('unit_number')
+                    TextInput::make('property_group_id')
                         ->rules(['max:50', 'string'])
+                        ->required()
+                        ->placeholder('Property Group Id')
                         ->unique(
                             'buildings',
-                            'unit_number',
+                            'property_group_id',
                             fn (?Model $record) => $record
-                        )
-                        ->placeholder('Unit Number')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+                        ),
 
-                    RichEditor::make('address_line1')
+                    TextInput::make('address_line1')
                         ->rules(['max:255', 'string'])
-                        ->placeholder('Address Line1')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+                        ->required()
+                        ->placeholder('Address Line1'),
 
-                    RichEditor::make('address_line2')
+                    TextInput::make('address_line2')
                         ->rules(['max:255', 'string'])
-                        ->placeholder('Address Line2')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+                        ->nullable()
+                        ->placeholder('Address Line2'),
+                    Hidden::make('owner_association_id')
+                        ->default(auth()->user()->owner_association_id),
 
                     TextInput::make('area')
                         ->rules(['max:50', 'string'])
-                        ->placeholder('Area')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+                        ->required()
+                        ->placeholder('Area'),
 
                     Select::make('city_id')
                         ->rules(['exists:cities,id'])
-                        ->relationship('cities', 'id')
+                        ->required()
+                        ->preload()
+                        ->relationship('cities', 'name')
                         ->searchable()
-                        ->placeholder('City')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+                        ->placeholder('City'),
 
                     TextInput::make('lat')
-                        ->rules(['max:50', 'string'])
-                        ->placeholder('Lat')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+                        ->rules(['numeric'])
+                        ->placeholder('Lat'),
 
                     TextInput::make('lng')
-                        ->rules(['max:50', 'string'])
-                        ->placeholder('Lng')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+                        ->rules(['numeric'])
+                        ->placeholder('Lng'),
 
-                    RichEditor::make('description')
+                    TextInput::make('description')
                         ->rules(['max:255', 'string'])
-                        ->placeholder('Description')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+                        ->placeholder('Description'),
 
                     TextInput::make('floors')
                         ->rules(['numeric'])
+                        ->required()
                         ->numeric()
                         ->placeholder('Floors')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+
                 ]),
             ]);
     }
@@ -129,34 +91,62 @@ class BuildingsRelationManager extends RelationManager
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('name')->limit(50),
-                Tables\Columns\TextColumn::make('unit_number')->limit(50),
-                Tables\Columns\TextColumn::make('address_line1')->limit(50),
-                Tables\Columns\TextColumn::make('address_line2')->limit(50),
-                Tables\Columns\TextColumn::make('area')->limit(50),
-                Tables\Columns\TextColumn::make('city.id')->limit(50),
-                Tables\Columns\TextColumn::make('lat')->limit(50),
-                Tables\Columns\TextColumn::make('lng')->limit(50),
-                Tables\Columns\TextColumn::make('description')->limit(50),
-                Tables\Columns\TextColumn::make('floors'),
+                Tables\Columns\TextColumn::make('name')
+                    ->toggleable()
+                    ->searchable()
+                    ->default('NA')
+                    ->limit(50),
+                Tables\Columns\TextColumn::make('property_group_id')
+                    ->toggleable()
+                    ->searchable()
+                    ->default('NA')
+                    ->limit(50),
+                Tables\Columns\TextColumn::make('address_line1')
+                    ->toggleable()
+                    ->searchable()
+                    ->default('NA')
+                    ->limit(50),
+                Tables\Columns\TextColumn::make('address_line2')
+                    ->toggleable()
+                    ->searchable()
+                    ->default('NA')
+                    ->limit(50),
+                Tables\Columns\TextColumn::make('area')
+                    ->toggleable()
+                    ->searchable()
+                    ->default('NA')
+                    ->limit(50),
+                Tables\Columns\TextColumn::make('cities.name')
+                    ->toggleable()
+                    ->searchable()
+                    ->default('NA')
+                    ->limit(50),
+                Tables\Columns\TextColumn::make('lat')
+                    ->toggleable()
+                    ->searchable()
+                    ->default('NA')
+                    ->limit(50),
+                Tables\Columns\TextColumn::make('lng')
+                    ->toggleable()
+                    ->searchable()
+                    ->default('NA')
+                    ->limit(50),
+                Tables\Columns\TextColumn::make('description')
+                    ->toggleable()
+                    ->searchable()
+                    ->default('NA')
+                    ->limit(50),
+                Tables\Columns\TextColumn::make('floors')
+                    ->toggleable()
+                    ->default('NA')
+                    ->searchable(),
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])
-            ->headerActions([
-                Tables\Actions\CreateAction::make(),
-            ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ])
-            ->emptyStateActions([
-                Tables\Actions\CreateAction::make(),
+                Tables\Actions\ViewAction::make(),
             ]);
     }
 }
