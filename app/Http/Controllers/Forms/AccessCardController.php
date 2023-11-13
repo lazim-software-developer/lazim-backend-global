@@ -46,8 +46,8 @@ class AccessCardController extends Controller
         ]))->response()->setStatusCode(201);
     }
 
-    public function fetchFormStatus(Building $building) {
-
+    public function fetchFormStatus(Building $building) 
+    {
         // Fetch status of all forms
         $accessCard = auth()->user()->accessCard()->where('building_id', $building->id)->latest()->first();
 
@@ -61,11 +61,11 @@ class AccessCardController extends Controller
 
         $fitOutFormStatus = $fitOutForm ?? "Not submitted";
         
-        $moveInForm = auth()->user()->moveinData()->where('type', 'movein')->where('building_id', $building->id)->latest()->first();
+        $moveInForm = auth()->user()->moveinData()->where('type', 'move-in')->where('building_id', $building->id)->latest()->first();
 
         $moveInFormStatus = $moveInForm ?? "Not submitted";
         
-        $moveOutForm = auth()->user()->moveinData()->where('type', 'moveout')->where('building_id', $building->id)->latest()->first();
+        $moveOutForm = auth()->user()->moveinData()->where('type', 'move-out')->where('building_id', $building->id)->latest()->first();
 
         $moveOutFormStatus = $moveOutForm ?? "Not submitted";
         
@@ -73,42 +73,62 @@ class AccessCardController extends Controller
 
         $saleNocFormStatus = $saleNocForm ?? "Not submitted";
 
+        $nocMessage = null;
+
+        if ($saleNocFormStatus !== "Not submitted" && $saleNocForm->submit_status === 'seller_uploaded') {
+            $nocMessage = "Upload buyer's signed copy";
+        } else if ($saleNocFormStatus !== "Not submitted" && $saleNocForm->submit_status === 'download_file') {
+            $nocMessage = 'Download the file and upload signed copy';
+        }
+
        return $forms = [
             [
+                'id' => $accessCard ? $accessCard->id : null,
                 'name' => 'Access Card',
                 'status' => $accessCard ? $accessCard->status : 'not_submitted',
                 'created_at' => $accessCard ? Carbon::parse($accessCard->created_at)->diffForHumans() : null,
-                'rejected_reason' => $accessCard ? $accessCard->remarks : null
+                'rejected_reason' => $accessCard ? $accessCard->remarks : null,
+                'message' => null
             ],
             [
+                'id' => $residentialForm ? $residentialForm->id : null,
                 'name' => 'Residential Form',
                 'status' => $residentialForm ? $residentialForm->status : 'not_submitted',
                 'created_at' => $residentialForm ? Carbon::parse($residentialForm->created_at)->diffForHumans() : null,
-                'rejected_reason' => $residentialForm ? $residentialForm->remarks : null
+                'rejected_reason' => $residentialForm ? $residentialForm->remarks : null,
+                'message' => null
             ],
             [
+                'id' => $fitOutForm ? $fitOutForm->id : null,
                 'name' => 'Fit Out Form',
                 'status' => $fitOutForm ? $fitOutForm->status : 'not_submitted',
                 'created_at' => $fitOutForm ? Carbon::parse($fitOutForm->created_at)->diffForHumans() : null,
-                'rejected_reason' => $fitOutForm ? $fitOutForm->remarks : null
+                'rejected_reason' => $fitOutForm ? $fitOutForm->remarks : null,
+                'message' => null
             ],
             [
+                'id' => $moveInForm ? $moveInForm->id : null,
                 'name' => 'Move In Form',
                 'status' => $moveInForm ? $moveInForm->status : 'not_submitted',
                 'created_at' => $moveInForm ? Carbon::parse($moveInForm->created_at)->diffForHumans() : null,
-                'rejected_reason' => $moveInForm ? $moveInForm->remarks : null
+                'rejected_reason' => $moveInForm ? $moveInForm->remarks : null,
+                'message' => null
             ],
             [
+                'id' => $moveOutForm ? $moveOutForm->id : null,
                 'name' => 'Move Out Form',
                 'status' => $moveOutForm ? $moveOutForm->status : 'not_submitted',
                 'created_at' => $moveOutForm ? Carbon::parse($moveOutForm->created_at)->diffForHumans() : null,
-                'rejected_reason' => $moveOutForm ? $moveOutForm->remarks : null
+                'rejected_reason' => $moveOutForm ? $moveOutForm->remarks : null,
+                'message' => null
             ],
             [
+                'id' => $saleNocForm ? $saleNocForm->id : null,
                 'name' => 'Sale NOC Form',
                 'status' => $saleNocForm ? $saleNocForm->status : 'not_submitted',
                 'created_at' => $saleNocForm ? Carbon::parse($saleNocForm->created_at)->diffForHumans() : null,
-                'rejected_reason' => $saleNocForm ? $saleNocForm->remarks : null
+                'rejected_reason' => $saleNocForm ? $saleNocForm->remarks : null,
+                'message' => $nocMessage
             ]
         ];
     }

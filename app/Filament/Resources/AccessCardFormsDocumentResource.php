@@ -46,12 +46,12 @@ class AccessCardFormsDocumentResource extends Resource
                         ->required()
                         ->placeholder('Parking Details'),
                     Select::make('building_id')
-                        ->relationship('building','name')
+                        ->relationship('building', 'name')
                         ->preload()
                         ->searchable()
                         ->label('Building Name'),
                     Select::make('flat_id')
-                        ->relationship('flat','property_number')
+                        ->relationship('flat', 'property_number')
                         ->preload()
                         ->searchable()
                         ->label('Property No'),
@@ -68,31 +68,31 @@ class AccessCardFormsDocumentResource extends Resource
                     TextInput::make('remarks')
                         ->required()
                         ->label('Remarks'),
-                    // FileUpload::make('passport')
-                    //     ->disk('s3')
-                    //     ->directory('dev')
-                    //     ->label('Passport'),
+                    FileUpload::make('passport')
+                        ->disk('s3')
+                        ->directory('dev')
+                        ->label('Passport'),
                     FileUpload::make('tenancy')
                         ->disk('s3')
                         ->directory('dev')
-                        ->downloadable()
-                        ->openable()
+                        ->downloadable(true)
+                        ->openable(true)
                         ->label('Tenancy')
                         ->columnSpan([
-                            'sm'=> 1,
-                            'md'=> 1,
-                            'lg'=> 2,
+                            'sm' => 1,
+                            'md' => 1,
+                            'lg' => 2,
                         ]),
                     FileUpload::make('vehicle_registration')
                         ->disk('s3')
                         ->directory('dev')
-                        ->downloadable()
-                        ->openable()
+                        ->downloadable(true)
+                        ->openable(true)
                         ->label('Vehicle Registration')
                         ->columnSpan([
-                            'sm'=> 1,
-                            'md'=> 1,
-                            'lg'=> 2,
+                            'sm' => 1,
+                            'md' => 1,
+                            'lg' => 2,
                         ]),
 
                 ]),
@@ -108,9 +108,9 @@ class AccessCardFormsDocumentResource extends Resource
                     ->default('NA')
                     ->limit(50),
                 TextColumn::make('user.first_name')
-                        ->searchable()
-                        ->default('NA')
-                        ->limit(50),
+                    ->searchable()
+                    ->default('NA')
+                    ->limit(50),
                 TextColumn::make('building.name')
                     ->searchable()
                     ->default('NA')
@@ -139,11 +139,11 @@ class AccessCardFormsDocumentResource extends Resource
                     ->limit(50),
 
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])
             ->actions([
-                //Tables\Actions\EditAction::make(),
                 Action::make('Update Status')
                     ->visible(fn ($record) => $record->status === null)
                     ->button()
@@ -162,7 +162,8 @@ class AccessCardFormsDocumentResource extends Resource
                                     return true;
                                 }
                                 return false;
-                            }),
+                            })
+                            ->required(),
                     ])
                     ->fillForm(fn (AccessCard $record): array => [
                         'status' => $record->status,
@@ -193,8 +194,6 @@ class AccessCardFormsDocumentResource extends Resource
     {
         return [
             'index' => Pages\ListAccessCardFormsDocuments::route('/'),
-            //'create' => Pages\CreateAccessCardFormsDocument::route('/create'),
-            //'edit' => Pages\EditAccessCardFormsDocument::route('/{record}/edit'),
             'view' => Pages\ViewAccessCardFormsDocument::route('/{record}'),
         ];
     }

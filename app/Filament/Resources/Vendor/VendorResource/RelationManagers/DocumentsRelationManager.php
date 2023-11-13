@@ -35,7 +35,7 @@ class DocumentsRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     RichEditor::make('url')
                         ->rules(['max:255', 'string'])
                         ->placeholder('Url')
@@ -44,7 +44,7 @@ class DocumentsRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     TextInput::make('status')
                         ->rules(['max:50', 'string'])
                         ->placeholder('Status')
@@ -53,7 +53,7 @@ class DocumentsRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     KeyValue::make('comments')
                         ->required()
                         ->columnSpan([
@@ -61,7 +61,7 @@ class DocumentsRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     DatePicker::make('expiry_date')
                         ->rules(['date'])
                         ->placeholder('Expiry Date')
@@ -70,7 +70,7 @@ class DocumentsRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     Select::make('accepted_by')
                         ->rules(['exists:users,id'])
                         ->relationship('user', 'first_name')
@@ -81,7 +81,7 @@ class DocumentsRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     TextInput::make('documentable_id')
                         ->rules(['max:255'])
                         ->placeholder('Documentable Id')
@@ -90,7 +90,7 @@ class DocumentsRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     TextInput::make('documentable_type')
                         ->rules(['max:255', 'string'])
                         ->placeholder('Documentable Type')
@@ -117,6 +117,7 @@ class DocumentsRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('documentable_id')->limit(50),
                 Tables\Columns\TextColumn::make('documentable_type')->limit(50),
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])

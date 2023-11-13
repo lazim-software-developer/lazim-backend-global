@@ -98,6 +98,7 @@ class VendorsRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('tl_expiry')->date(),
                 Tables\Columns\TextColumn::make('status')->limit(50),
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ]);

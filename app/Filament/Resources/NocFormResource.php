@@ -43,86 +43,86 @@ class NocFormResource extends Resource
                 TextInput::make('status'),
                 TextInput::make('remarks'),
                 Select::make('user_id')
-                        ->rules(['exists:users,id'])
-                        ->relationship('user', 'first_name')
-                        ->required()
-                        ->preload()
-                        ->searchable()
-                        ->label('User'),
+                    ->rules(['exists:users,id'])
+                    ->relationship('user', 'first_name')
+                    ->required()
+                    ->preload()
+                    ->searchable()
+                    ->label('User'),
                 Select::make('building_id')
-                        ->relationship('building','name')
-                        ->preload()
-                        ->searchable()
-                        ->label('Building Name'),
+                    ->relationship('building', 'name')
+                    ->preload()
+                    ->searchable()
+                    ->label('Building Name'),
                 Select::make('flat_id')
-                        ->relationship('flat','property_number')
-                        ->preload()
-                        ->searchable()
-                        ->label('Property No'),
+                    ->relationship('flat', 'property_number')
+                    ->preload()
+                    ->searchable()
+                    ->label('Property No'),
                 DatePicker::make('service_charge_paid_till')
-                        ->date(),
+                    ->date(),
                 FileUpload::make('cooling_receipt')
-                        ->disk('s3')
-                        ->directory('dev')
-                        ->label('Cooling Receipt')
-                        ->downloadable()
-                        ->openable()
-                        ->columnSpan([
-                            'sm'=> '1',
-                            'md'=> '1',
-                            'lg'=> '2',
-                        ]),
+                    ->disk('s3')
+                    ->directory('dev')
+                    ->label('Cooling Receipt')
+                    ->downloadable(true)
+                    ->openable(true)
+                    ->columnSpan([
+                        'sm' => '1',
+                        'md' => '1',
+                        'lg' => '2',
+                    ]),
                 FileUpload::make('cooling_soa')
-                        ->disk('s3')
-                        ->directory('dev')
-                        ->label('Cooling Soa')
-                        ->downloadable()
-                        ->openable()
-                        ->columnSpan([
-                            'sm'=> '1',
-                            'md'=> '1',
-                            'lg'=> '2',
-                        ]),
+                    ->disk('s3')
+                    ->directory('dev')
+                    ->label('Cooling Soa')
+                    ->downloadable(true)
+                    ->openable(true)
+                    ->columnSpan([
+                        'sm' => '1',
+                        'md' => '1',
+                        'lg' => '2',
+                    ]),
                 FileUpload::make('cooling_clearance')
-                        ->disk('s3')
-                        ->directory('dev')
-                        ->label('Cooling Clearance')
-                        ->downloadable()
-                        ->openable()
-                        ->columnSpan([
-                            'sm'=> '1',
-                            'md'=> '1',
-                            'lg'=> '2',
-                        ]),
+                    ->disk('s3')
+                    ->directory('dev')
+                    ->label('Cooling Clearance')
+                    ->downloadable(true)
+                    ->openable(true)
+                    ->columnSpan([
+                        'sm' => '1',
+                        'md' => '1',
+                        'lg' => '2',
+                    ]),
                 FileUpload::make('payment_receipt')
-                        ->disk('s3')
-                        ->directory('dev')
-                        ->label('Payment Receipt')
-                        ->downloadable()
-                        ->openable()
-                        ->columnSpan([
-                            'sm'=> '1',
-                            'md'=> '1',
-                            'lg'=> '2',
-                        ]),
+                    ->disk('s3')
+                    ->directory('dev')
+                    ->label('Payment Receipt')
+                    ->downloadable(true)
+                    ->openable(true)
+                    ->columnSpan([
+                        'sm' => '1',
+                        'md' => '1',
+                        'lg' => '2',
+                    ]),
                 Toggle::make('cooling_bill_paid')
-                ->columnSpan([
-                    'sm'=> '1',
-                    'md'=> '1',
-                    'lg'=> '2',
-                ]),
+                    ->columnSpan([
+                        'sm' => '1',
+                        'md' => '1',
+                        'lg' => '2',
+                    ]),
                 Toggle::make('service_charge_paid')
-                ->columnSpan([
-                    'sm'=> '1',
-                    'md'=> '1',
-                    'lg'=> '2',
-                ]),
+                    ->columnSpan([
+                        'sm' => '1',
+                        'md' => '1',
+                        'lg' => '2',
+                    ]),
                 Toggle::make('noc_fee_paid')
-                ->columnSpan([
-                    'sm'=> '1',
-                    'md'=> '1',
-                    'lg'=> '2',
-                ]),
+                    ->columnSpan([
+                        'sm' => '1',
+                        'md' => '1',
+                        'lg' => '2',
+                    ]),
             ]);
     }
 
@@ -139,22 +139,6 @@ class NocFormResource extends Resource
                 TextColumn::make('flat.property_number')
                     ->searchable()
                     ->default('NA'),
-                ImageColumn::make('cooling_receipt')
-                    ->square()
-                    ->alignCenter()
-                    ->disk('s3'),
-                ImageColumn::make('cooling_soa')
-                    ->square()
-                    ->alignCenter()
-                    ->disk('s3'),
-                ImageColumn::make('cooling_clearance')
-                    ->square()
-                    ->alignCenter()
-                    ->disk('s3'),
-                ImageColumn::make('payment_receipt')
-                    ->square()
-                    ->alignCenter()
-                    ->disk('s3'),
                 TextColumn::make('status')
                     ->searchable()
                     ->default('NA'),
@@ -162,6 +146,7 @@ class NocFormResource extends Resource
                     ->searchable()
                     ->default('NA'),
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 SelectFilter::make('building_id')
                     ->relationship('building', 'name')
@@ -175,7 +160,6 @@ class NocFormResource extends Resource
                     ->label('Flat Number'),
             ])
             ->actions([
-                //Tables\Actions\EditAction::make(),
                 Action::make('Update Status')
                     ->visible(fn ($record) => $record->status === null)
                     ->button()
@@ -189,57 +173,44 @@ class NocFormResource extends Resource
                             ->live(),
                         TextInput::make('remarks')
                             ->rules(['max:255'])
-                            ->visible(function(callable $get){
-                                if($get('status')=='rejected')
-                                {
+                            ->visible(function (callable $get) {
+                                if ($get('status') == 'rejected') {
                                     return true;
                                 }
                                 return false;
-                            }),
+                            })
+                            ->required(),
                     ])
                     ->fillForm(fn (NocForms $record): array => [
-                        'status' => $record->status,
-                        'remarks' => $record->remarks,
+                        'status' => $record->status ?? "NA",
+                        'remarks' => $record->remarks ?? "NA",
                     ])
-                    ->action(function (NocForms $record,array $data): void {
-                        if($data['status'] == 'rejected')
-                        {
+                    ->action(function (NocForms $record, array $data): void {
+                        if ($data['status'] == 'rejected') {
                             $record->status = $data['status'];
                             $record->remarks = $data['remarks'];
                             $record->save();
-                        }
-                        else
-                        {
+                        } else {
                             $record->status = $data['status'];
                             $record->save();
                         }
                     })
                     ->slideOver()
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    //Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ])
-            ->emptyStateActions([
-                //Tables\Actions\CreateAction::make(),
             ]);
     }
-    
+
     public static function getRelations(): array
     {
         return [
             //
         ];
     }
-    
+
     public static function getPages(): array
     {
         return [
             'index' => Pages\ListNocForms::route('/'),
             'view' => Pages\ViewNocForm::route('/{record}'),
-            //'create' => Pages\CreateNocForm::route('/create'),
-            //'edit' => Pages\EditNocForm::route('/{record}/edit'),
         ];
-    }    
+    }
 }

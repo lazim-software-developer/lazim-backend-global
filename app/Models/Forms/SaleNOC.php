@@ -36,6 +36,10 @@ class SaleNOC extends Model
         'flat_id',
         'user_id',
         'owner_association_id',
+        'signing_authority_email',
+        'signing_authority_phone',
+        'signing_authority_name',
+        'submit_status',
     ];
 
     public function contacts() {

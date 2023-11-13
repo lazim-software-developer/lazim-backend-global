@@ -39,12 +39,14 @@ class HelpdeskcomplaintResource extends Resource
 
     public static function form(Form $form): Form
     {
+        // dd($form);
         return $form
             ->schema([
                 Grid::make([
                     'sm' => 1,
                     'md' => 1,
-                    'lg' => 2])
+                    'lg' => 2
+                ])
                     ->schema([
                         Hidden::make('complaintable_type')
                             ->default('App\Models\Building\FlatTenant'),
@@ -60,14 +62,14 @@ class HelpdeskcomplaintResource extends Resource
                             ->searchable()
                             ->placeholder('Building'),
                         Select::make('user_id')
-                            ->relationship('user','id')
-                            ->options(function(){
+                            ->relationship('user', 'id')
+                            ->options(function () {
                                 $tenants = DB::table('flat_tenants')->pluck('tenant_id');
                                 // dd($tenants);
                                 return DB::table('users')
-                                    ->whereIn('users.id',$tenants)
-                                    ->select('users.id','users.first_name')
-                                    ->pluck('users.first_name','users.id')
+                                    ->whereIn('users.id', $tenants)
+                                    ->select('users.id', 'users.first_name')
+                                    ->pluck('users.first_name', 'users.id')
                                     ->toArray();
                             })
                             ->searchable()
@@ -90,7 +92,6 @@ class HelpdeskcomplaintResource extends Resource
                             ->disk('s3')
                             ->directory('dev')
                             ->maxSize(2048)
-                            ->image()
                             ->nullable(),
                         TextInput::make('complaint')
                             ->placeholder('Complaint'),
@@ -101,7 +102,6 @@ class HelpdeskcomplaintResource extends Resource
                     ])
             ]);
     }
-
     public static function table(Table $table): Table
     {
         return $table
@@ -118,6 +118,10 @@ class HelpdeskcomplaintResource extends Resource
                     ->toggleable()
                     ->searchable()
                     ->limit(50),
+                TextColumn::make('category')
+                    ->toggleable()
+                    ->searchable()
+                    ->limit(50),
                 TextColumn::make('complaint')
                     ->toggleable()
                     ->searchable(),
@@ -128,6 +132,7 @@ class HelpdeskcomplaintResource extends Resource
 
 
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 SelectFilter::make('building_id')
                     ->relationship('building', 'name')
@@ -136,7 +141,6 @@ class HelpdeskcomplaintResource extends Resource
                     ->preload()
             ])
             ->actions([
-                //Tables\Actions\EditAction::make(),
                 Action::make('Update Status')
                     ->visible(fn ($record) => $record->status === 'open')
                     ->button()
@@ -155,7 +159,8 @@ class HelpdeskcomplaintResource extends Resource
                                     return true;
                                 }
                                 return false;
-                            }),
+                            })
+                            ->required(),
                     ])
                     ->fillForm(fn (Complaint $record): array => [
                         'status' => $record->status,
@@ -186,6 +191,7 @@ class HelpdeskcomplaintResource extends Resource
     {
         return [
             'index' => Pages\ListHelpdeskcomplaints::route('/'),
+            'view' => Pages\ViewHelpdeskcomplaint::route('/{record}'),
         ];
     }
 }

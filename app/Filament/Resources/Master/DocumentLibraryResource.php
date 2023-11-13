@@ -57,7 +57,7 @@ class DocumentLibraryResource extends Resource
                     FileUpload::make('url')->label('Document')
                         ->required()
                         ->disk('s3')
-                        ->downloadable()
+                        ->downloadable(true)
                         ->preserveFilenames(),
                     ]),
             ]);
@@ -84,6 +84,7 @@ class DocumentLibraryResource extends Resource
                 ->searchable(true, null, true)
                 ->limit(50),
         ])
+        ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])

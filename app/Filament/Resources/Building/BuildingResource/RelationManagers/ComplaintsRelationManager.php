@@ -2,151 +2,137 @@
 
 namespace App\Filament\Resources\Building\BuildingResource\RelationManagers;
 
-use Filament\Forms;
-use Filament\Forms\Components\DateTimePicker;
+use App\Models\Building\Complaint;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\KeyValue;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
-use Filament\Tables;
+use Filament\Tables\Actions\Action as ActionsAction;
+use Filament\Tables\Actions\ViewAction;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\DB;
 
 class ComplaintsRelationManager extends RelationManager
 {
-    protected static string $relationship = 'complaints';
+    protected static string $relationship = 'complaint';
 
     public function form(Form $form): Form
     {
         return $form
+        ->schema([
+            Grid::make([
+                'sm' => 1,
+                'md' => 1,
+                'lg' => 2
+            ])
             ->schema([
-                Grid::make(['default' => 0])->schema([
-                    TextInput::make('complaintable_type')
-                        ->rules(['max:255', 'string'])
-                        ->placeholder('Complaintable Type')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
-    
-                    TextInput::make('complaintable_id')
-                        ->rules(['max:255'])
-                        ->placeholder('Complaintable Id')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
-    
-                    Select::make('user_id')
-                        ->rules(['exists:users,id'])
-                        ->relationship('user', 'first_name')
-                        ->searchable()
-                        ->placeholder('User')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
-    
-                    TextInput::make('complaint_type')
-                        ->rules(['max:50', 'string'])
-                        ->placeholder('Complaint Type')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
-    
-                    TextInput::make('category')
-                        ->rules(['max:50', 'string'])
-                        ->placeholder('Category')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
-    
-                    DateTimePicker::make('open_time')
-                        ->rules(['date'])
-                        ->placeholder('Open Time')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
-    
-                    DateTimePicker::make('close_time')
-                        ->rules(['date'])
-                        ->placeholder('Close Time')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
-    
-                    KeyValue::make('photo')->columnSpan([
-                        'default' => 12,
-                        'md' => 12,
-                        'lg' => 12,
-                    ]),
-    
-                    KeyValue::make('remarks')
-                        ->required()
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
-    
-                    TextInput::make('status')
-                        ->rules(['max:50', 'string'])
-                        ->placeholder('Status')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
-                ]),
+                Select::make('building_id')
+                            ->rules(['exists:buildings,id'])
+                            ->relationship('building', 'name')
+                            ->reactive()
+                            ->preload()
+                            ->searchable()
+                            ->placeholder('Building'),
+                        Select::make('user_id')
+                            ->relationship('user', 'id')
+                            ->options(function () {
+                                $tenants = DB::table('flat_tenants')->pluck('tenant_id');
+                                // dd($tenants);
+                                return DB::table('users')
+                                    ->whereIn('users.id', $tenants)
+                                    ->select('users.id', 'users.first_name')
+                                    ->pluck('users.first_name', 'users.id')
+                                    ->toArray();
+                            })
+                            ->searchable()
+                            ->preload()
+                            ->required()
+                            ->label('User'),
+                        FileUpload::make('photo')
+                            ->disk('s3')
+                            ->directory('dev')
+                            ->maxSize(2048)
+                            ->nullable(),
+                        TextInput::make('complaint')
+                            ->placeholder('Complaint'),
+                        TextInput::make('complaint_details')
+                            ->placeholder('Complaint Details'),
+            ])
             ]);
     }
 
     public function table(Table $table): Table
     {
         return $table
-            ->columns([
-                Tables\Columns\TextColumn::make('complaintable_type')->limit(
-                    50
-                ),
-                Tables\Columns\TextColumn::make('complaintable_id')->limit(50),
-                Tables\Columns\TextColumn::make('user.first_name')->limit(50),
-                Tables\Columns\TextColumn::make('complaint_type')->limit(50),
-                Tables\Columns\TextColumn::make('category')->limit(50),
-                Tables\Columns\TextColumn::make('open_time')->dateTime(),
-                Tables\Columns\TextColumn::make('close_time')->dateTime(),
-                Tables\Columns\TextColumn::make('status')->limit(50),
-            ])
+        ->columns([
+            TextColumn::make('building.name')
+                ->default('NA')
+                ->searchable()
+                ->limit(50),
+            TextColumn::make('user.first_name')
+                ->toggleable()
+                ->default('NA')
+                ->searchable()
+                ->limit(50),
+            TextColumn::make('category')
+                ->toggleable()
+                ->default('NA')
+                ->searchable()
+                ->limit(50),
+            TextColumn::make('complaint')
+                ->toggleable()
+                ->default('NA')
+                ->searchable(),
+            TextColumn::make('status')
+                ->toggleable()
+                ->default('NA')
+                ->searchable()
+                ->limit(50),
+        ])
             ->filters([
                 //
             ])
-            ->headerActions([
-                Tables\Actions\CreateAction::make(),
-            ])
+            ->defaultSort('created_at', 'desc')
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ])
-            ->emptyStateActions([
-                Tables\Actions\CreateAction::make(),
+                ViewAction::make(),
+                ActionsAction::make('Update Status')
+                    ->visible(fn ($record) => $record->status === 'open')
+                    ->button()
+                    ->form([
+                        Select::make('status')
+                            ->options([
+                                'open'   => 'Open',
+                                'resolved' => 'Resolved',
+                            ])
+                            ->searchable()
+                            ->live(),
+                        TextInput::make('remarks')
+                            ->rules(['max:255'])
+                            ->visible(function (callable $get) {
+                                if ($get('status') == 'resolved') {
+                                    return true;
+                                }
+                                return false;
+                            })
+                            ->required(),
+                    ])
+                    ->fillForm(fn (Complaint $record): array => [
+                        'status' => $record->status,
+                        'remarks' => $record->remarks,
+                    ])
+                    ->action(function (Complaint $record, array $data): void {
+                        if ($data['status'] == 'resolved') {
+                            $record->status = $data['status'];
+                            $record->remarks = $data['remarks'];
+                            $record->save();
+                        } else {
+                            $record->status = $data['status'];
+                            $record->save();
+                        }
+                    })
             ]);
     }
 }

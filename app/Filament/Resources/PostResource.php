@@ -46,87 +46,82 @@ class PostResource extends Resource
                 'sm' => 1,
                 'md' => 1,
                 'lg' => 2,
-                ])->schema([
-                    Textarea::make('content')
-                        ->autosize()
-                        ->minLength(10)
-                        ->maxLength(255)
-                        ->required()
-                        ->columnSpan([
-                            'sm' => 1,
-                            'md' => 1,
-                            'lg' => 2,
-                        ]),
-                
-                    Select::make('status')
-                        ->searchable()
-                        ->options([
-                            'published' => 'Published',
-                            'draft' => 'Draft',
-                            'archived' => 'Archived',
-                        ])
-                        ->required()
-                        ->default('draft'),
-                
-                    DateTimePicker::make('scheduled_at')
-                        ->rules(['date'])
-                        ->displayFormat('d-M-Y h:i A')
-                        ->minDate(now())
-                        ->required()
-                        ->placeholder('Scheduled At'),
+            ])->schema([
+                RichEditor::make('content')
+                    ->minLength(10)
+                    ->maxLength(255)
+                    ->required()
+                    ->columnSpan([
+                        'sm' => 1,
+                        'md' => 1,
+                        'lg' => 2,
+                    ]),
 
-                    Select::make('building')
-                        ->relationship('building', 'name')
-                        ->searchable()
-                        ->preload()
-                        ->required()
-                        ->label('Building')
-                        ->columnSpan([
-                            'sm' => 1,
-                            'md' => 1,
-                            'lg' => 2,
-                        ]), 
-                    
-                    Hidden::make('user_id')
-                        ->default(auth()->user()->id), 
+                Select::make('status')
+                    ->searchable()
+                    ->options([
+                        'published' => 'Published',
+                        'draft' => 'Draft',
+                        'archived' => 'Archived',
+                    ])
+                    ->required()
+                    ->default('draft'),
 
-                    Hidden::make('owner_association_id')
-                        ->default(auth()->user()->owner_association_id), 
+                DateTimePicker::make('scheduled_at')
+                    ->rules(['date'])
+                    ->displayFormat('d-M-Y h:i A')
+                    ->minDate(now())
+                    ->required()
+                    ->placeholder('Scheduled At'),
 
-                    Hidden::make('is_announcement')
-                        ->default(false),
-                    Repeater::make('media')
-                        ->relationship('media')
-                        ->schema([
-                            TextInput::make('name')
-                                ->rules(['max:30','regex:/^[a-zA-Z\s]*$/'])
-                                ->required()
-                                ->placeholder('Name'),
-                            FileUpload::make('url')
-                                ->disk('s3')
-                                ->directory('dev')
-                                ->image()
-                                ->maxSize(2048)
-                                ->required()
-                                
-                        ])
-                        ->columnSpan([
-                            'sm' => 1,
-                            'md' => 1,
-                            'lg' => 2,
-                        ])
-                ])
-            ]);
+                Select::make('building')
+                    ->relationship('building', 'name')
+                    ->searchable()
+                    ->preload()
+                    ->required()
+                    ->label('Building')
+                    ->columnSpan([
+                        'sm' => 1,
+                        'md' => 1,
+                        'lg' => 2,
+                    ]),
+
+                Hidden::make('user_id')
+                    ->default(auth()->user()->id),
+
+                Hidden::make('owner_association_id')
+                    ->default(auth()->user()->owner_association_id),
+
+                Hidden::make('is_announcement')
+                    ->default(false),
+                Repeater::make('media')
+                    ->relationship('media')
+                    ->schema([
+                TextInput::make('name')
+                            ->rules(['max:30', 'regex:/^[a-zA-Z\s]*$/'])
+                            ->required()
+                            ->placeholder('Name'),
+                FileUpload::make('url')
+                            ->disk('s3')
+                            ->directory('dev')
+                            ->image()
+                            ->maxSize(2048)
+                            ->required()
+
+                    ])
+                    ->columnSpan([
+                        'sm' => 1,
+                        'md' => 1,
+                        'lg' => 2,
+                    ])
+            ])
+        ]);
     }
 
     public static function table(Table $table): Table
     {
         return $table
             ->columns([
-                TextColumn::make('content')
-                    ->searchable()
-                    ->default('NA')
-                    ->limit(50),
                 TextColumn::make('status')
                     ->searchable()
                     ->default('NA')
@@ -142,6 +137,7 @@ class PostResource extends Resource
                     ->default('NA')
                     ->limit(50),
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 SelectFilter::make('user_id')
                     ->relationship('user', 'first_name')
@@ -166,14 +162,14 @@ class PostResource extends Resource
                 Tables\Actions\CreateAction::make(),
             ]);
     }
-    
+
     public static function getRelations(): array
     {
         return [
             //
         ];
     }
-    
+
     public static function getPages(): array
     {
         return [
@@ -181,5 +177,5 @@ class PostResource extends Resource
             'create' => Pages\CreatePost::route('/create'),
             'edit' => Pages\EditPost::route('/{record}/edit'),
         ];
-    }    
+    }
 }
