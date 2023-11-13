@@ -14,6 +14,7 @@ class Kernel extends ConsoleKernel
     {
         $schedule->command('sync:owner-associations')->hourly();
         $schedule->command('telescope:prune')->daily();
+        $schedule->command('app:deactivate-vendor')->daily();
     }
 
     /**
