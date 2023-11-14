@@ -33,6 +33,7 @@ use App\Http\Controllers\Services\ServiceController;
 use App\Http\Controllers\TagController;
 use App\Http\Controllers\User\ProfileController;
 use App\Http\Controllers\User\UserController;
+use App\Http\Controllers\Vendor\TechnicianController;
 
 /*
 |--------------------------------------------------------------------------
@@ -290,4 +291,11 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('vendor')->group(function 
     Route::post('/escalation-matrix/{escalationmatrix}/delete', [EscalationMatrixController::class, 'delete']);
     Route::get('/{vendor}/tickets',[VendorComplaintController::class, 'listComplaints']);
     Route::post('/vendor-comment/{complaint}',[VendorComplaintController::class, 'addComment']);
+});
+
+// Technician Related APIs
+Route::middleware(['auth:sanctum', 'active'])->prefix('technician')->group(function () {
+    // Registration
+    Route::post('/registration', [TechnicianController::class, 'registration']);
+
 });
