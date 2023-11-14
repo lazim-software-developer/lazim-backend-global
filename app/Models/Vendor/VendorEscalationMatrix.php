@@ -19,6 +19,7 @@ class VendorEscalationMatrix extends Model
         'position',
         'escalation_level',
         'vendor_id',
+        'active'
     ];
 
     protected $searchableFields = ['*'];

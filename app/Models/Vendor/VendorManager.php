@@ -23,6 +23,6 @@ class VendorManager extends Model
 
     public function vendors()
     {
-        return $this->hasMany(Vendor::class);
+        return $this->belongsTo(Vendor::class);
     }
 }

@@ -22,14 +22,12 @@ class DocumentsUploadRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|string',
-            'documentable_id' =>'required|integer|exists:vendors,id',
             'docs' => 'required|array',
             'docs.tl_document' => 'required|file|max:2048',
-            'docs.tnr_certificate' => 'required|file|max:2048',
+            'docs.trn_certificate' => 'required|file|max:2048',
             'docs.safety_policy'=> 'required|file|max:2048',
             'docs.bank_details' => 'required|file|max:2048',
-            'docs.third_party_liability' => 'required|file|max:2048',
+            'docs.risk_policy' => 'required|file|max:2048',
             'docs.authority_approval' => 'nullable|file|max:2048',
             'docs.risk_assessment' => 'nullable|file|max:2048',
         ];

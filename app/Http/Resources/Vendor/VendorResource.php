@@ -2,10 +2,11 @@
 
 namespace App\Http\Resources\Vendor;
 
+use App\Http\Resources\User\UserResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class VendorEscalationMatrixResource extends JsonResource
+class VendorResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -16,11 +17,9 @@ class VendorEscalationMatrixResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'name' =>$this->name,
-            'email' => $this->email,
-            'phone' => $this->phone,
-            'escalation_level' => $this->escalation_level,
-            'position' => $this->position,
+            'owner_assoication' => $this->owner_association_id,
+            'status' => $this->status,
+            'owner' => new UserResource($this->user)
         ];
     }
 }

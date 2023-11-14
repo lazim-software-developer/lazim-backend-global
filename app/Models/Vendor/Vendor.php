@@ -91,7 +91,7 @@ class Vendor extends Model
 
     public function managers()
     {
-        return $this->belongsTo(VendorManager::class);
+        return $this->hasMany(VendorManager::class);
     }
 
     public function escalationMatrix()
