@@ -16,15 +16,11 @@ use Illuminate\Support\Facades\DB;
 
 class VendorComplaintController extends Controller
 {
-    public function listComplaints(Request $request)
+    public function listComplaints(Vendor $vendor)
     {
-        $vendorId =Vendor::where('owner_id', auth()->user()->id)->first()->id;
+        $complaints = Complaint::where('vendor_id', $vendor->id)->latest()->paginate();
 
-        $buildingIds= BuildingVendor::where('vendor_id', $vendorId)->where('active',true)->pluck('building_id');
-
-        $complaints = Complaint::whereIn('building_id', $buildingIds)->where('complaintable_type','App\Models\Vendor\Vendor');
-
-        return VendorComplaintsResource::collection($complaints->paginate($request->paginate ?? $complaints->count()));
+        return VendorComplaintsResource::collection($complaints);
     }
 
     public function addComment(StoreCommentRequest $request, Complaint $complaint)

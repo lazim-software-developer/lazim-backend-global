@@ -9,8 +9,10 @@ use App\Http\Resources\HelpDesk\Complaintresource;
 use App\Models\Building\Building;
 use App\Models\Building\Complaint;
 use App\Models\Building\FlatTenant;
+use App\Models\Master\Service;
 use App\Models\Media;
 use App\Models\Tag;
+use App\Models\Vendor\ServiceVendor;
 use Illuminate\Http\Request;
 
 class ComplaintController extends Controller
@@ -76,22 +78,39 @@ class ComplaintController extends Controller
             ]))->response()->setStatusCode(403);
         }
 
-        $category = $request->category ? Tag::where('id', $request->category)->value('name') : '';
+        $categoryName = $request->category ? Service::where('id', $request->category)->value('name') : '';
 
-        // Create the complaint
-        $complaint = Complaint::create([
-            'complaint' => $request->complaint,
-            'complaint_type' => $request->complaint_type,
+        $service_id = $request->category ?? null;
+
+        // Fetch vendor id who is having an active contract for the given service in the building
+        $vendor = ServiceVendor::where([
+            'building_id' => $building->id, 'service_id' => $request->category, 'active' => 1
+        ])->first();
+
+        $request->merge([
             'complaintable_type' => FlatTenant::class,
             'complaintable_id' => $flatTenant->id,
             'user_id' => auth()->user()->id,
-            'category' => $category,
+            'category' => $categoryName,
             'open_time' => now(),
             'status' => 'open',
             'building_id' => $building->id,
             'owner_association_id' => $building->owner_association_id,
-            'complaint_details' => $request->complaint_details ?? null
         ]);
+
+        // assign a vendor if the complaint type is tenant_complaint or help_desk
+        if($request->complaint_type == 'tenanat_complaint' || $request->complaint_type == 'help_desk') {
+            $request->merge([
+                'priority' => 3,
+                'due_date' => now()->addDays(3),
+                'service_id' => $service_id,
+                'vendor_id' => $vendor ? $vendor->id : null
+            ]);
+        }
+
+        // Create the complaint and assign it the vendor
+        // TODO: Assign ticket automatically to technician
+        $complaint = Complaint::create($request->all());
 
         // Save images in media table with name "before". Once resolved, we'll store media with "after" name
         if ($request->hasFile('images')) {
@@ -113,6 +132,7 @@ class ComplaintController extends Controller
             'title' => 'Success',
             'message' => "We'll get back to you at the earliest!",
             'code' => 201,
+            'status' => 'success',
         ]))->response()->setStatusCode(201);
     }
 

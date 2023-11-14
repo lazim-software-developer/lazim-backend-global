@@ -288,6 +288,6 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('vendor')->group(function 
     Route::post('/{vendor}/escalation-matrix', [EscalationMatrixController::class, 'store']);
     Route::get('/{vendor}/escalation-matrix', [EscalationMatrixController::class, 'show']);
     Route::post('/escalation-matrix/{escalationmatrix}/delete', [EscalationMatrixController::class, 'delete']);
-    Route::get('/vendor-tickets',[VendorComplaintController::class, 'listComplaints']);
+    Route::get('/{vendor}/tickets',[VendorComplaintController::class, 'listComplaints']);
     Route::post('/vendor-comment/{complaint}',[VendorComplaintController::class, 'addComment']);
 });

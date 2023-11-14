@@ -20,7 +20,7 @@ return new class extends Migration
             $table->integer('escalation_level');
             $table->unsignedBigInteger('vendor_id');
 
-            $table->foreign('vendor_id')->references('id')->on('vendors')->onUpdate('CASCADE')->onDelete('CASCADE');
+            $table->foreign('vendor_id')->references('id')->on('vendors');
 
             $table->unique(['email', 'vendor_id'], 'unique_email_vendor_id');
             $table->unique(['phone', 'vendor_id'], 'unique_phone_vendor_id');
