@@ -22,7 +22,7 @@ class ComplaintStoreRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'category' => 'required|string|max:255',
+            'category' => 'required',
             'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'complaint_type' => 'required|in:help_desk,tenant_complaint,suggestions,enquiries',
             'complaint_details' => [
