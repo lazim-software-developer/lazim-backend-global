@@ -14,13 +14,16 @@ return new class extends Migration
         Schema::create('vendor_escalation_matrix', function (Blueprint $table) {
             $table->id();
             $table->string('name',50);
-            $table->string('email', 50)->unique();
-            $table->string('phone', 20)->unique();
+            $table->string('email', 50);
+            $table->string('phone', 20);
             $table->string('position',50);
             $table->integer('escalation_level');
             $table->unsignedBigInteger('vendor_id');
 
             $table->foreign('vendor_id')->references('id')->on('vendors')->onUpdate('CASCADE')->onDelete('CASCADE');
+
+            $table->unique(['email', 'vendor_id'], 'unique_email_vendor_id');
+            $table->unique(['phone', 'vendor_id'], 'unique_phone_vendor_id');
             $table->timestamps();
         });
     }

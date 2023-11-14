@@ -7,12 +7,13 @@ use App\Http\Requests\Vendor\CompanyDetailsRequest;
 use App\Http\Requests\Vendor\ManagerDetailsRequest;
 use App\Http\Requests\Vendor\VendorRegisterRequest;
 use App\Http\Resources\CustomResponseResource;
+use App\Http\Resources\Vendor\VendorManagerResource;
+use App\Http\Resources\Vendor\VendorResource;
 use App\Jobs\SendVerificationOtp;
 use App\Models\Master\Role;
 use App\Models\User\User;
 use App\Models\Vendor\Vendor;
 use App\Models\Vendor\VendorManager;
-use Illuminate\Http\Request;
 
 class VendorRegistrationController extends Controller
 {
@@ -21,10 +22,31 @@ class VendorRegistrationController extends Controller
         // Check if the user is already registered and verified
         $userData = User::where(['email' => $request->get('email'), 'phone' => $request->get('phone')]);
 
+        // If not verified, redirect to verification page
         if ($userData->exists() && ($userData->first()->email_verified == 0 || $userData->first()->phone_verified == 0)) {
             return (new CustomResponseResource([
-                'title' => 'account_present',
+                'title' => 'redirect_verification',
                 'message' => "Your account is not verified. You'll be redirected account verification page",
+                'code' => 403,
+            ]))->response()->setStatusCode(403);
+        }
+
+        // Check if company details are already added. If not redirect to company details page
+        if (!$userData->first()->vendors()->exists()) {
+            return (new CustomResponseResource([
+                'title' => 'redirect_company_details',
+                'message' => "You have not updated company details. You'll be redirected company details page",
+                'code' => 403,
+            ]))->response()->setStatusCode(403);
+        }
+
+        // Check if manager details are added, if not redirect to manager details page
+        $vendor = $userData->first()->vendors()->first();
+
+        if (!$vendor->managers()->exists()) {
+            return (new CustomResponseResource([
+                'title' => 'redirect_managers',
+                'message' => "You have not updated manager details. You'll be redirected manger details page",
                 'code' => 403,
             ]))->response()->setStatusCode(403);
         }
@@ -85,16 +107,15 @@ class VendorRegistrationController extends Controller
         ]))->response()->setStatusCode(201);
     }
 
-    public function showManagerDetails()
+    public function showManagerDetails(Vendor $vendor)
     {
-        $vendor_id = Vendor::where('owner_id', auth()->user()->id)->first()->id;
-        $manager = VendorManager::where('vendor_id', $vendor_id)->first();
-        return (new CustomResponseResource([
-            'title' => 'Vendor Manager Details fetched',
-            'message' => "",
-            'code' => 200,
-            'status' => 'success',
-            'data' => $manager
-        ]))->response()->setStatusCode(200);
+        $manager = VendorManager::where('vendor_id', $vendor->id)->first();
+       
+        return new VendorManagerResource($manager);
+    }
+
+    // Show vendor details of logged in user 
+    public function showVendorDetails() {
+        return new VendorResource(auth()->user()->vendors()->first());
     }
 }

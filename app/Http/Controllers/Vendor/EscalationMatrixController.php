@@ -37,7 +37,28 @@ class EscalationMatrixController extends Controller
 
     public function show(Vendor $vendor)
     {
-        $escalation = VendorEscalationMatrix::where('vendor_id', $vendor->id)->get();
+        $escalation = VendorEscalationMatrix::where(['vendor_id' => $vendor->id, 'active' => 1])->get();
         return VendorEscalationMatrixResource::collection($escalation);
+    }
+
+    // Delete escalation matrix
+    public function delete(VendorEscalationMatrix $escalationmatrix) {
+        if($escalationmatrix->active == 0) {
+            return (new CustomResponseResource([
+                'title' => 'Escalation Matrix already deelted',
+                'message' => "",
+                'code' => 200,
+                'status' => 'success',
+            ]))->response()->setStatusCode(200);
+        }
+
+        $escalationmatrix->update(['active' => 0]);
+
+        return (new CustomResponseResource([
+            'title' => 'Escalation Matrix deleted!',
+            'message' => "",
+            'code' => 200,
+            'status' => 'success',
+        ]))->response()->setStatusCode(201);
     }
 }

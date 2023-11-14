@@ -9,26 +9,28 @@ use App\Http\Resources\Vendor\VendorDocumentResource;
 use App\Models\Building\Document;
 use App\Models\Master\DocumentLibrary;
 use App\Models\Vendor\Vendor;
-use Illuminate\Http\Request;
 
 class DocumentsUploadController extends Controller
 {
     public function documentsUpload(DocumentsUploadRequest $request, Vendor $vendor)
     {
-        foreach($request->docs as $key => $value){
+        foreach($request->docs as $key => $value) {
             $path = optimizeDocumentAndUpload($value);
             $request->merge([
+                'name' => $key,
+                'documentable_id' => $vendor->id,
                 'status'    => 'pending',
                 'documentable_type'   => Vendor::class,
-                'document_library_id' => DocumentLibrary::where('name', $key)->first()->id,
+                'document_library_id' => DocumentLibrary::where('label', $key)->value('id'),
                 'url' => $path,
                 'owner_association_id' => $vendor->owner_association_id,
             ]);
-            $document = Document::create($request->all());
+
+            Document::create($request->all());
         }
 
         return (new CustomResponseResource([
-            'title' => 'Document upload successfull!',
+            'title' => 'Documents upload successfull!',
             'message' => "",
             'code' => 201,
             'status' => 'success'

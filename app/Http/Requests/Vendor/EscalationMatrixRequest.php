@@ -22,12 +22,11 @@ class EscalationMatrixRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name'              =>  'required|string|max:50',
+            'name'              =>  'required|string|max:100',
             'email'             =>  'required|unique:vendor_escalation_matrix,email|regex:/^[a-zA-Z0-9_.-]+@[a-zA-Z]+\.[a-zA-Z]+$/',
             'phone'             =>  'required|string|unique:vendor_escalation_matrix,phone',
-            'position'          =>  'required|string|max:50',
+            'position'          =>  'required|string|max:100',
             'escalation_level'  =>  'required|integer',
-            'vendor_id'         =>  'required|integer|exists:vendors,id'
         ];
     }
 }

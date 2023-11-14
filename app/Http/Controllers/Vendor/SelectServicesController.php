@@ -5,33 +5,41 @@ namespace App\Http\Controllers\Vendor;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Vendor\SelectServicesRequest;
 use App\Http\Resources\CustomResponseResource;
+use App\Http\Resources\Services\ServiceResource;
 use App\Http\Resources\Vendor\SelectServicesResource;
 use App\Models\Master\Service;
 use App\Models\Vendor\Vendor;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class SelectServicesController extends Controller
 {
     public function listServices()
     {
-        $services = Service::all();
-        return $services;
+        $services = Service::where('active', 1)->get();
+        return ServiceResource::collection($services);
     }
 
-    public function addService(Request $request)
+    // Add a new custom service;
+    public function addService(Request $request, Vendor $vendor)
     {
         $request->validate([
             'name' => 'required|string',
-            'vendor_id' => 'required|integer|exists:vendors,id',
-        ]);
-        $request->merge([ 
-            'custom' => 1,
-            'active' => 1,
-            'owner_association_id' => Vendor::find($request->vendor_id)->owner_association_id 
         ]);
 
-        Service::create($request->all());       
+        $request->merge([
+            'custom' => 1,
+            'active' => 1,
+            'owner_association_id' => $vendor->owner_association_id
+        ]);
+
+        $service = Service::firstOrCreate(
+            [
+                'name' => $request->name
+            ],
+            $request->all()
+        );
+
+        $vendor->services()->syncWithoutDetaching([$service->id]);
 
         return (new CustomResponseResource([
             'title' => 'Service added!',
@@ -43,9 +51,7 @@ class SelectServicesController extends Controller
 
     public function tagServices(SelectServicesRequest $request, Vendor $vendor)
     {
-        $serviceIds = $request->service_ids;
-
-        $vendor->services()->sync($serviceIds);
+        $vendor->services()->syncWithoutDetaching([$request->service]);
 
         return (new CustomResponseResource([
             'title' => 'Services taged!',
@@ -53,7 +59,6 @@ class SelectServicesController extends Controller
             'code' => 201,
             'status' => 'success',
         ]))->response()->setStatusCode(201);
-
     }
 
     public function showServices(Vendor $vendor)
