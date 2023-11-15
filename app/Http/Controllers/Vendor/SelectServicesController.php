@@ -15,12 +15,9 @@ use Illuminate\Http\Request;
 
 class SelectServicesController extends Controller
 {
-    public function listServices(Request $request)
+public function listServices(SubCategory $subcategory)
     {
-        $request->validate([
-            'sub_category_id' => 'required',
-        ]);
-        $services = Service::where('active', 1)->where('subcategory_id',$request->sub_category_id)->get();
+        $services = Service::where('active', 1)->where('subcategory_id',$subcategory->id)->get();
         return SelectServicesResource::collection($services);
     }
 
