@@ -4,7 +4,6 @@ namespace App\Models\Vendor;
 
 use App\Models\OaUserRegistration;
 use App\Models\TechnicianVendor;
-use App\Models\TechnicianVendor;
 use App\Models\User\User;
 use App\Models\Master\Service;
 use App\Models\Vendor\Contact;
