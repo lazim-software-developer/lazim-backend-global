@@ -52,7 +52,7 @@ class MoveInOutController extends Controller
         return (new CustomResponseResource([
             'title' => 'Success',
             'message' => 'Form submitted successfully!',
-            'errorCode' => 201,
+            'code' => 201,
             'status' => 'success',
         ]))->response()->setStatusCode(201);
     }

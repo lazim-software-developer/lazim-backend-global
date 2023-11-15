@@ -32,7 +32,31 @@ class AuthController extends Controller
 
         $user = User::where('email', $request->email)->firstOrFail();
 
-        $allowedRoles = ['OA'];
+        $allowedRoles = ['OA','Vendor'];
+
+        if (!$user || !Hash::check($request->password, $user->password)) {
+            throw ValidationException::withMessages([
+                'email' => ['The provided credentials are incorrect.'],
+            ]);
+        }
+
+        // Check if the user's email and phone number is verified
+
+        if (!$user->email_verified) {
+            return (new CustomResponseResource([
+                'title' => 'Email Verification Required',
+                'message' => 'Email is not verified.',
+                'code' => 403,
+            ]))->response()->setStatusCode(403);
+        }
+
+        if (!$user->phone_verified) {
+            return (new CustomResponseResource([
+                'title' => 'Phone Verification Required',
+                'message' => 'Phone number is not verified.',
+                'code' => 403,
+            ]))->response()->setStatusCode(403);
+        }
 
         if ($user) {
             if (in_array($user->role->name, $allowedRoles)) {
@@ -77,7 +101,7 @@ class AuthController extends Controller
         $user = User::where('email', $request->email)->first();
 
         // if (!$user || !Hash::check($request->password, $user->password) || $user->role->name !== $request->role) {
-            if (!$user || !Hash::check($request->password, $user->password)) {
+        if (!$user || !Hash::check($request->password, $user->password)) {
             throw ValidationException::withMessages([
                 'email' => ['The provided credentials are incorrect.'],
             ]);
@@ -89,7 +113,7 @@ class AuthController extends Controller
             return (new CustomResponseResource([
                 'title' => 'Email Verification Required',
                 'message' => 'Email is not verified.',
-                'errorCode' => 403,
+                'code' => 403,
                 'data' => $user
             ]))->response()->setStatusCode(403);
         }
@@ -98,7 +122,7 @@ class AuthController extends Controller
             return (new CustomResponseResource([
                 'title' => 'Phone Verification Required',
                 'message' => 'Phone number is not verified.',
-                'errorCode' => 403,
+                'code' => 403,
                 'data' => $user
             ]))->response()->setStatusCode(403);
         }
@@ -157,7 +181,7 @@ class AuthController extends Controller
         return (new CustomResponseResource([
             'title' => 'Success',
             'message' => 'Password set successfully!',
-            'errorCode' => 200,
+            'code' => 200,
             'status' => 'success'
         ]))->response()->setStatusCode(200);
     }
