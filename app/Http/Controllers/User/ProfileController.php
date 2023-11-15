@@ -61,7 +61,7 @@ class ProfileController extends Controller
             return new CustomResponseResource([
                 'title' => 'Password Update Failed',
                 'message' => 'The provided current password does not match our records.',
-                'errorCode' => 422,
+                'code' => 422,
             ]);
         }
 

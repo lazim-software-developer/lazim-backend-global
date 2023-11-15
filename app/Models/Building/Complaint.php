@@ -4,6 +4,7 @@ namespace App\Models\Building;
 
 use App\Models\Building\Building;
 use App\Models\Community\Comment;
+use App\Models\Master\Service;
 use App\Models\Media;
 use App\Models\OaUserRegistration;
 use App\Models\Scopes\Searchable;
@@ -32,7 +33,12 @@ class Complaint extends Model
         'building_id',
         'closed_by',
         'complaint_type',
-        'complaint_details'
+        'complaint_details',
+        'service_id',
+        'due_date',
+        'priority',
+        'vendor_id',
+        'technician_id'
     ];
 
     protected $searchableFields = ['*'];
@@ -77,4 +83,10 @@ class Complaint extends Model
     {
         return Carbon::parse($this->attributes['open_time'])->diffForHumans();
     }
+
+    public function service()
+    {
+        return $this->belongsTo(Service::class);
+    }
+
 }

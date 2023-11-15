@@ -20,7 +20,7 @@ class CheckPhoneVerified
             return (new CustomResponseResource([
                 'title' => 'Phone Verification Required',
                 'message' => 'Phone number is not verified.',
-                'errorCode' => 403,
+                'code' => 403,
             ]))->response()->setStatusCode(403); // Forbidden
         }
 
