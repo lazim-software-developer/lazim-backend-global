@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Vendor\Vendor;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -10,4 +11,9 @@ class TechnicianVendor extends Model
     use HasFactory;
 
     protected $fillable =['technician_id', 'vendor_id', 'active', 'position'];
+
+    public function vendor()
+    {
+        return $this->belongsTo(Vendor::class, 'vendor_id');
+    }
 }
