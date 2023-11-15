@@ -22,42 +22,45 @@ class VendorRegistrationController extends Controller
         // Check if the user is already registered and verified
         $userData = User::where(['email' => $request->get('email'), 'phone' => $request->get('phone')]);
 
-        // If not verified, redirect to verification page
-        if ($userData->exists() && ($userData->first()->email_verified == 0 || $userData->first()->phone_verified == 0)) {
-            return (new CustomResponseResource([
-                'title' => 'redirect_verification',
-                'message' => "Your account is not verified. You'll be redirected account verification page",
-                'code' => 403,
-            ]))->response()->setStatusCode(403);
-        }
+        // if user exists
+        if($userData->exists()){
+            // If not verified, redirect to verification page
+            if ($userData->exists() && ($userData->first()->email_verified == 0 || $userData->first()->phone_verified == 0)) {
+                return (new CustomResponseResource([
+                    'title' => 'redirect_verification',
+                    'message' => "Your account is not verified. You'll be redirected account verification page",
+                    'code' => 403,
+                ]))->response()->setStatusCode(403);
+            }
 
-        // Check if company details are already added. If not redirect to company details page
-        if (!$userData->first()->vendors()->exists()) {
-            return (new CustomResponseResource([
-                'title' => 'redirect_company_details',
-                'message' => "You have not updated company details. You'll be redirected company details page",
-                'code' => 403,
-            ]))->response()->setStatusCode(403);
-        }
+            // Check if company details are already added. If not redirect to company details page
+            if (!$userData->first()->vendors()->exists()) {
+                return (new CustomResponseResource([
+                    'title' => 'redirect_company_details',
+                    'message' => "You have not updated company details. You'll be redirected company details page",
+                    'code' => 403,
+                ]))->response()->setStatusCode(403);
+            }
 
-        // Check if manager details are added, if not redirect to manager details page
-        $vendor = $userData->first()->vendors()->first();
+            // Check if manager details are added, if not redirect to manager details page
+            $vendor = $userData->first()->vendors()->first();
 
-        if (!$vendor->managers()->exists()) {
-            return (new CustomResponseResource([
-                'title' => 'redirect_managers',
-                'message' => "You have not updated manager details. You'll be redirected manger details page",
-                'code' => 403,
-            ]))->response()->setStatusCode(403);
-        }
+            if (!$vendor->managers()->exists()) {
+                return (new CustomResponseResource([
+                    'title' => 'redirect_managers',
+                    'message' => "You have not updated manager details. You'll be redirected manger details page",
+                    'code' => 403,
+                ]))->response()->setStatusCode(403);
+            }
 
-        // Check if user exists in our DB
-        if (User::where(['email' => $request->email, 'phone' => $request->phone, 'email_verified' => 1, 'phone_verified' => 1])->exists()) {
-            return (new CustomResponseResource([
-                'title' => 'account_present',
-                'message' => 'Your email is already registered in our application. Please try login instead!',
-                'code' => 400,
-            ]))->response()->setStatusCode(400);
+            // Check if user exists in our DB
+            if (User::where(['email' => $request->email, 'phone' => $request->phone, 'email_verified' => 1, 'phone_verified' => 1])->exists()) {
+                return (new CustomResponseResource([
+                    'title' => 'account_present',
+                    'message' => 'Your email is already registered in our application. Please try login instead!',
+                    'code' => 400,
+                ]))->response()->setStatusCode(400);
+            }
         }
 
         $role = Role::where('name', 'Vendor')->value('id');
