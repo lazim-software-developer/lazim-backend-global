@@ -20,6 +20,7 @@ use App\Models\OaUserRegistration;
 use App\Models\OwnerAssociation;
 use App\Models\ResidentialForm;
 use App\Models\Scopes\Searchable;
+use App\Models\TechnicianVendor;
 use App\Models\Vendor\Attendance;
 use App\Models\Vendor\Vendor;
 use App\Models\Visitor\FlatVisitor;
@@ -171,8 +172,7 @@ class User extends Authenticatable implements FilamentUser, HasName
     }
     public function canAccessPanel(Panel $panel): bool
     {
-        if($this->role_id == 10 || $this->role_id == 9)
-        {
+        if ($this->role_id == 10 || $this->role_id == 9) {
             return true;
         }
         return false;
@@ -237,5 +237,10 @@ class User extends Authenticatable implements FilamentUser, HasName
     public function saleNoc()
     {
         return $this->hasMany(SaleNOC::class);
+    }
+
+    public function technicianVendors()
+    {
+        return $this->hasMany(TechnicianVendor::class, 'technician_id')->where('active', true);
     }
 }
