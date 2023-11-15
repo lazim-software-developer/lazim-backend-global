@@ -265,7 +265,7 @@ Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active']
 
 // API for master list
 Route::middleware(['api.token'])->group(function () {
-    Route::get('/services', [SelectServicesController::class, 'listServices']);
+    Route::get('/sub-categories/{subcategory}/services', [SelectServicesController::class, 'listServices']);
     Route::get('/sub-categories',[SelectServicesController::class, 'listSubCategories']);
 });
 
@@ -304,4 +304,3 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('technician')->group(funct
     Route::get('/buildings', [TechnicianBuildingController::class, 'index']);
     Route::get('/tasks', [TasksController::class, 'index']);
 });
-
