@@ -3,6 +3,8 @@
 namespace App\Filament\Resources\Vendor;
 
 use App\Filament\Resources\Vendor\VendorResource\Pages;
+use App\Jobs\AccountCreationJob;
+use App\Jobs\VendorRejectionJob;
 use App\Models\User\User;
 use App\Models\Vendor\Vendor;
 use Filament\Forms\Components\DatePicker;
@@ -15,8 +17,11 @@ use Filament\Forms\Form;
 use Filament\Forms\Get;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Actions\Action;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class VendorResource extends Resource
 {
@@ -201,7 +206,51 @@ class VendorResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                Action::make('Update Status')
+                ->visible(fn ($record) => $record->status === 'pending')
+                ->button()
+                ->form([
+                    Select::make('status')
+                        ->options([
+                            'approved' => 'Approved',
+                            'rejected' => 'Rejected',
+                        ])
+                        ->searchable()
+                        ->live(),
+                    TextInput::make('remarks')
+                        ->rules(['max:255'])
+                        ->visible(function (callable $get) {
+                            if ($get('status') == 'rejected') {
+                                return true;
+                            }
+                            return false;
+                        }),
+                ])
+                ->fillForm(fn (Vendor $record): array => [
+                    'status' => $record->status,
+                    'remarks' => $record->remarks,
+                ])
+                ->action(function (Vendor $record, array $data): void {
+                    if ($data['status'] == 'rejected') {
+                        $vendor=Vendor::where('id',$record->id)->first();
+                        $user = User::find($vendor->owner_id);
+                        $remarks= $data['remarks'];
+                        VendorRejectionJob::dispatch($user,$remarks);
+                        $record->status = $data['status'];
+                        $record->remarks = $data['remarks'];
+                        $record->save();
+                    } else {
+                        $vendor=Vendor::where('id',$record->id)->first();
+                        $user = User::find($vendor->owner_id);
+                        $password = Str::random(12);
+                        $user->password = Hash::make($password);
+                        $user->save();
+                        AccountCreationJob::dispatch($user, $password);
+                        $record->status = $data['status'];
+                        $record->save();
+                    }
+                })
+                ->slideOver()
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

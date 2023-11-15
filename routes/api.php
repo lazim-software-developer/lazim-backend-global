@@ -2,6 +2,11 @@
 
 use App\Http\Controllers\MollakController;
 use App\Http\Controllers\TestController;
+use App\Http\Controllers\Vendor\DocumentsUploadController;
+use App\Http\Controllers\Vendor\EscalationMatrixController;
+use App\Http\Controllers\Vendor\SelectServicesController;
+use App\Http\Controllers\Vendor\VendorComplaintController;
+use App\Http\Controllers\Vendor\VendorRegistrationController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\Auth\AuthController;
@@ -28,6 +33,7 @@ use App\Http\Controllers\Services\ServiceController;
 use App\Http\Controllers\TagController;
 use App\Http\Controllers\User\ProfileController;
 use App\Http\Controllers\User\UserController;
+use App\Http\Controllers\Vendor\TechnicianController;
 
 /*
 |--------------------------------------------------------------------------
@@ -256,5 +262,40 @@ Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active']
     Route::post('/feedback', [AppFeedbackController::class, 'store']);
 });
 
-// Test API for Mollak
-Route::get('/test-api', [MollakController::class, 'test']);
+// API for master list
+Route::middleware(['api.token'])->group(function () {
+    Route::get('/services', [SelectServicesController::class, 'listServices']);
+});
+
+// Vendor APIs
+Route::middleware(['api.token'])->prefix('vendor')->group(function () {
+    Route::post('/registration', [VendorRegistrationController::class, 'registration']);
+    Route::post('/company-detail', [VendorRegistrationController::class, 'companyDetails']);
+    Route::post('/managers/{vendor}', [VendorRegistrationController::class, 'managerDetails']);
+    // Add a new custom service and attch to vendor
+    Route::post('/add-service/{vendor}', [SelectServicesController::class, 'addService']);
+    // Attcah existing service to vendor
+    Route::post('/{vendor}/tag-services', [SelectServicesController::class, 'tagServices']);
+    Route::post('/{vendor}/documents-upload', [DocumentsUploadController::class, 'documentsUpload']);
+});
+
+// Vendor APIs after logging in
+Route::middleware(['auth:sanctum', 'active'])->prefix('vendor')->group(function () {
+    // List vendor details of logged in user
+    Route::get('/details', [VendorRegistrationController::class, 'showVendorDetails']);
+    Route::get('/{vendor}/view-manager', [VendorRegistrationController::class, 'showManagerDetails']);
+    Route::get('/{vendor}/services', [SelectServicesController::class, 'showServices']);
+    Route::get('/{vendor}/show-documents', [DocumentsUploadController::class, 'showDocuments']);
+    Route::post('/{vendor}/escalation-matrix', [EscalationMatrixController::class, 'store']);
+    Route::get('/{vendor}/escalation-matrix', [EscalationMatrixController::class, 'show']);
+    Route::post('/escalation-matrix/{escalationmatrix}/delete', [EscalationMatrixController::class, 'delete']);
+    Route::get('/{vendor}/tickets',[VendorComplaintController::class, 'listComplaints']);
+    Route::post('/vendor-comment/{complaint}',[VendorComplaintController::class, 'addComment']);
+});
+
+// Technician Related APIs
+Route::middleware(['auth:sanctum', 'active'])->prefix('technician')->group(function () {
+    // Registration
+    Route::post('/registration', [TechnicianController::class, 'registration']);
+
+});

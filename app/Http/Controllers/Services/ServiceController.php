@@ -10,21 +10,25 @@ use App\Http\Resources\Services\ServiceResource;
 use App\Models\Building\Building;
 use App\Models\Building\FacilityBooking;
 use App\Models\Master\Service;
+use App\Models\Vendor\ServiceVendor;
 
 class ServiceController extends Controller
 {
     public function listServicesForBuilding(Building $building)
     {
         // Fetch vendor IDs associated with the building
-        $vendorIds = $building->vendors()->pluck('vendors.id');
+        // $vendorIds = $building->vendors()->pluck('vendors.id');
 
-        // Fetch services provided by those vendors along with their prices
-        $services = Service::with(['vendors' => function ($query) use ($vendorIds) {
-            $query->whereIn('vendors.id', $vendorIds)->select('service_vendor.price');
-        }])
-        ->whereHas('vendors', function ($query) use ($vendorIds) {
-            $query->whereIn('vendors.id', $vendorIds);
-        })->get();
+        // // Fetch services provided by those vendors along with their prices
+        // $services = Service::with(['vendors' => function ($query) use ($vendorIds) {
+        //     $query->whereIn('vendors.id', $vendorIds)->select('service_vendor.price');
+        // }])
+        // ->whereHas('vendors', function ($query) use ($vendorIds) {
+        //     $query->whereIn('vendors.id', $vendorIds);
+        // })->get();
+
+        // New code
+        $services = ServiceVendor::where(['building_id' => $building->id, 'active' => 1 ])->get();
 
         return ServiceResource::collection($services);
     }
@@ -47,7 +51,7 @@ class ServiceController extends Controller
             return (new CustomResponseResource([
                 'title' => 'Booking Error',
                 'message' => 'The service is already booked by you for the specified date and time.',
-                'errorCode' => 400,
+                'code' => 400,
             ]))->response()->setStatusCode(400);
         }
 
@@ -65,7 +69,7 @@ class ServiceController extends Controller
         return new CustomResponseResource([
             'title' => 'Booking Successful',
             'message' => 'Service booking has been successfully created.',
-            'errorCode' => 200,
+            'code' => 200,
         ]);
     }
 }

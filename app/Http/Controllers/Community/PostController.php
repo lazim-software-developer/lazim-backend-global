@@ -80,7 +80,7 @@ class PostController extends Controller
         return (new CustomResponseResource([
             'title' => 'Success',
             'message' => 'Post created successfully!',
-            'errorCode' => 201,
+            'code' => 201,
         ]))->response()->setStatusCode(201);
     }
 
