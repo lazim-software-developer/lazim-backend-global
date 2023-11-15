@@ -31,6 +31,8 @@ use App\Http\Controllers\HelpDesk\ComplaintController;
 use App\Http\Controllers\Security\SecurityController;
 use App\Http\Controllers\Services\ServiceController;
 use App\Http\Controllers\TagController;
+use App\Http\Controllers\Technician\BuildingController as TechnicianBuildingController;
+use App\Http\Controllers\Technician\TasksController;
 use App\Http\Controllers\User\ProfileController;
 use App\Http\Controllers\User\UserController;
 use App\Http\Controllers\Vendor\TechnicianController;
@@ -298,4 +300,7 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('technician')->group(funct
     // Registration
     Route::post('/registration', [TechnicianController::class, 'registration']);
 
+    // List all buildings for logged in technician
+    Route::get('/buildings', [TechnicianBuildingController::class, 'index']);
+    Route::get('/tasks', [TasksController::class, 'index']);
 });

@@ -21,7 +21,6 @@ class CompanyDetailsRequest extends FormRequest {
 
     public function rules(): array {
         return [
-            'name'            =>    'required|string|max:150',
             'owner_id'        =>    'required|integer|exists:users,id',
             'address_line_1'  =>    'required|string',
             'address_line_2'  =>    'nullable|string',
