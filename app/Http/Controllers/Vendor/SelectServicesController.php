@@ -8,6 +8,7 @@ use App\Http\Resources\CustomResponseResource;
 use App\Http\Resources\Services\ServiceResource;
 use App\Http\Resources\Vendor\SelectServicesResource;
 use App\Models\Master\Service;
+use App\Models\SubCategory;
 use App\Models\Vendor\Vendor;
 use Illuminate\Http\Request;
 
@@ -66,5 +67,10 @@ class SelectServicesController extends Controller
         $services = $vendor->services;
 
         return SelectServicesResource::collection($services);
+    }
+
+    public function listSubCategories()
+    {
+        return $categories = SubCategory::all();
     }
 }
