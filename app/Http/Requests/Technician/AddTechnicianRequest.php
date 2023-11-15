@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests\Vendor;
+namespace App\Http\Requests\Technician;
 
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -24,7 +24,7 @@ class AddTechnicianRequest extends FormRequest
         return [
             'name' => 'required|string|max:100',
             'email' => 'required|string|max:100',
-            'phone' => 'required',
+            'phone' => 'required|',
             'position' => 'required|string|max:100',
         ];
     }

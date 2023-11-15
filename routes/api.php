@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\MollakController;
+use App\Http\Controllers\Technician\TechnicianController;
 use App\Http\Controllers\TestController;
 use App\Http\Controllers\Vendor\DocumentsUploadController;
 use App\Http\Controllers\Vendor\EscalationMatrixController;
@@ -35,7 +36,6 @@ use App\Http\Controllers\Technician\BuildingController as TechnicianBuildingCont
 use App\Http\Controllers\Technician\TasksController;
 use App\Http\Controllers\User\ProfileController;
 use App\Http\Controllers\User\UserController;
-use App\Http\Controllers\Vendor\TechnicianController;
 
 /*
 |--------------------------------------------------------------------------
@@ -165,7 +165,6 @@ Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active']
     // Book a facility
     Route::post('buildings/{building}/book/facility', [FacilityController::class, 'bookFacility'])->name('facility.book');
 
-
     // My bookings API - List all bookings for logged in user
     Route::get('building/{building}/user-bookings', [FacilityController::class, 'userBookings']);
 });
@@ -267,6 +266,7 @@ Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active']
 // API for master list
 Route::middleware(['api.token'])->group(function () {
     Route::get('/services', [SelectServicesController::class, 'listServices']);
+    Route::get('/sub-categories',[SelectServicesController::class, 'listSubCategories']);
 });
 
 // Vendor APIs
@@ -304,3 +304,4 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('technician')->group(funct
     Route::get('/buildings', [TechnicianBuildingController::class, 'index']);
     Route::get('/tasks', [TasksController::class, 'index']);
 });
+
