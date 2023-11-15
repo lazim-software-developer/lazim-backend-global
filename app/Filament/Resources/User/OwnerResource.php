@@ -2,20 +2,25 @@
 
 namespace App\Filament\Resources\User;
 
+use App\Filament\Filters\buildingFilter;
 use App\Filament\Resources\User\OwnerResource\Pages;
 use App\Filament\Resources\User\OwnerResource\RelationManagers;
 use App\Filament\Resources\User\OwnerResource\RelationManagers\UserDocumentsRelationManager;
 use App\Models\ApartmentOwner;
 use App\Models\User\Owner;
 use App\Models\User\User;
+use Filament\Actions\EditAction;
 use Filament\Forms;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -37,45 +42,45 @@ class OwnerResource extends Resource
                 'lg' => 2
             ])
                 ->schema([
-                    TextInput::make('first_name')
+
+                    TextInput::make('owner_number')
+                        ->numeric()
+                        ->required()
+                        ->placeholder('Owner Number'),
+                    TextInput::make('name')
                         ->rules(['max:50', 'string'])
                         ->required()
-                        ->placeholder('First Name'),
-                    Hidden::make('owner_association_id')
-                        ->default(auth()->user()->owner_association_id),
-                    TextInput::make('last_name')
-                        ->rules(['max:50', 'string'])
+                        ->placeholder('Name'),
+                    TextInput::make('mobile')
+                        ->rules(['regex:/^(\+971)(50|51|52|55|56|58|02|03|04|06|07|09)\d{7}$/'])
                         ->nullable()
-                        ->placeholder('Last Name'),
-
+                        ->placeholder('Mobile'),
                     TextInput::make('email')
                         ->rules(['min:6', 'max:30', 'regex:/^[a-z0-9.]+@[a-z]+\.[a-z]{2,}$/'])
                         ->required()
-                        ->unique(
-                            'users',
-                            'email',
-                            fn (?Model $record) => $record
-                        )
-                        ->email()
                         ->placeholder('Email'),
-
-                    TextInput::make('phone')
-                        ->rules(['regex:/^(\+971)(50|51|52|55|56|58|02|03|04|06|07|09)\d{7}$/'])
+                    TextInput::make('passport')
+                        ->rules(['max:50', 'string'])
                         ->required()
-                        ->unique(
-                            'users',
-                            'phone',
-                            fn (?Model $record) => $record
-                        )
-                        ->placeholder('Phone'),
-
-                    Hidden::make('role_id')
-                        ->default(1),
-                    Toggle::make('phone_verified')
-                        ->rules(['boolean'])
-                        ->hidden()
-                        ->nullable(),
-
+                        ->placeholder('Passport'),
+                    TextInput::make('emirates_id')
+                        ->numeric()
+                        ->required()
+                        ->placeholder('Emirates Id'),
+                    Repeater::make('flatOwners')
+                        ->relationship()
+                        ->schema([
+                            Select::make('flat_id')
+                                ->relationship('flat', 'property_number')
+                                ->preload()
+                                ->searchable()
+                                ->label('Property No'),
+                        ])
+                        ->columnSpan([
+                            'sm' => 1,
+                            'md' => 1,
+                            'lg' => 2,
+                        ])
                 ]),
 
         ]);
@@ -85,22 +90,23 @@ class OwnerResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('first_name')
-                    ->toggleable()
+                Tables\Columns\TextColumn::make('name')
                     ->searchable()
+                    ->default('NA')
+                    ->label('Name')
                     ->limit(50),
-                Tables\Columns\TextColumn::make('last_name')
-                    ->toggleable()
+                Tables\Columns\TextColumn::make('mobile')
                     ->searchable()
+                    ->default('NA')
+                    ->label('Mobile')
                     ->limit(50),
                 Tables\Columns\TextColumn::make('email')
-                    ->toggleable()
                     ->searchable()
+                    ->default('NA')
+                    ->label('Email')
                     ->limit(50),
-                Tables\Columns\TextColumn::make('phone')
-                    ->toggleable()
-                    ->searchable()
-                    ->limit(50),
+                ViewColumn::make('Flat')->view('tables.columns.apartment-ownerflat'),
+                ViewColumn::make('Building')->view('tables.columns.apartment-ownerbuilding')
             ])
             ->defaultSort('created_at', 'desc')
             ->emptyStateActions([
