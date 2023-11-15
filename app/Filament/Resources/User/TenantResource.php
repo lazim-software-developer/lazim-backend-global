@@ -20,6 +20,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -46,11 +47,11 @@ class TenantResource extends Resource
                         ->required()
                         ->placeholder('Name'),
                     TextInput::make('contract_number')
-                        ->rules(['max:16', 'numeric'])
+                        ->numeric()
                         ->required()
                         ->placeholder('Contract Number'),
                     TextInput::make('emirates_id')
-                        ->rules(['max:15', 'numeric'])
+                        ->numeric()
                         ->required()
                         ->placeholder('Emirates Id'),
                     TextInput::make('mobile')
@@ -129,6 +130,13 @@ class TenantResource extends Resource
                     ->limit(50),
             ])
             ->defaultSort('created_at', 'desc')
+            ->filters([
+                SelectFilter::make('building_id')
+                    ->relationship('building', 'name')
+                    ->searchable()
+                    ->preload()
+                    ->label('Building'),
+            ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
