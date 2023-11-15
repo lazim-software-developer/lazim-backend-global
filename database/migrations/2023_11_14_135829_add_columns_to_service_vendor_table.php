@@ -16,7 +16,8 @@ return new class extends Migration
             $table->date('start_date')->nullable();
             $table->date('end_date')->nullable();
             $table->boolean('active')->default(true);
-            $table->unsignedBigInteger('building_id');
+
+            $table->unsignedBigInteger('building_id')->nullable();
             $table->foreign('building_id')->references('id')->on('buildings');
         });
     }
