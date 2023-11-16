@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\MollakController;
+use App\Http\Controllers\Technician\TechnicianController;
 use App\Http\Controllers\TestController;
 use App\Http\Controllers\Vendor\DocumentsUploadController;
 use App\Http\Controllers\Vendor\EscalationMatrixController;
@@ -35,7 +36,6 @@ use App\Http\Controllers\Technician\BuildingController as TechnicianBuildingCont
 use App\Http\Controllers\Technician\TasksController;
 use App\Http\Controllers\User\ProfileController;
 use App\Http\Controllers\User\UserController;
-use App\Http\Controllers\Vendor\TechnicianController;
 
 /*
 |--------------------------------------------------------------------------
@@ -265,7 +265,8 @@ Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active']
 
 // API for master list
 Route::middleware(['api.token'])->group(function () {
-    Route::get('/services', [SelectServicesController::class, 'listServices']);
+    Route::get('/sub-categories/{subcategory}/services', [SelectServicesController::class, 'listServices']);
+    Route::get('/sub-categories',[SelectServicesController::class, 'listSubCategories']);
 });
 
 // Vendor APIs

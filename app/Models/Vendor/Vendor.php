@@ -99,6 +99,7 @@ class Vendor extends Model
     {
         return $this->hasMany(VendorEscalationMatrix::class);
     }
+
     public function technicianVendors()
     {
         return $this->hasMany(TechnicianVendor::class,'vendor_id')->where('active', true);
