@@ -188,11 +188,14 @@ class VendorResource extends Resource
     {
         return [
             VendorResource\RelationManagers\ServicesRelationManager::class,
-            VendorResource\RelationManagers\UsersRelationManager::class,
-            VendorResource\RelationManagers\ContactsRelationManager::class,
+            // VendorResource\RelationManagers\UsersRelationManager::class,
+            // VendorResource\RelationManagers\ContactsRelationManager::class,
             VendorResource\RelationManagers\DocumentsRelationManager::class,
             VendorResource\RelationManagers\BuildingsRelationManager::class,
             VendorResource\RelationManagers\TechnicianVendorsRelationManager::class,
+            VendorResource\RelationManagers\ManagersRelationManager::class,
+            VendorResource\RelationManagers\EscalationMatrixRelationManager::class,
+            VendorResource\RelationManagers\ContractsRelationManager::class,
         ];
     }
 
