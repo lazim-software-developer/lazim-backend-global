@@ -42,7 +42,7 @@ class CreateGuestRequest extends FormRequest
     public function messages()
     {
         return [
-            'image' => 'The uploaded image must be less than 2MB.',
+            'image.max' => 'The uploaded image must be less than 2MB.',
         ];
     }
 }
