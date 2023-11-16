@@ -3,6 +3,7 @@
 use App\Http\Controllers\MollakController;
 use App\Http\Controllers\Technician\TechnicianController;
 use App\Http\Controllers\TestController;
+use App\Http\Controllers\Vendor\ContractController;
 use App\Http\Controllers\Vendor\DocumentsUploadController;
 use App\Http\Controllers\Vendor\EscalationMatrixController;
 use App\Http\Controllers\Vendor\SelectServicesController;
@@ -309,4 +310,5 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('technician')->group(funct
     Route::get('/{service}/technicians',[TechnicianController::class, 'index']);
     Route::patch('/active-deactive/{technician}',[TechnicianController::class, 'activeDeactive']);
     Route::post('/attach-technician/{technician}',[TechnicianController::class, 'attachTechnician']);
+    Route::post('/assign-technician/{complaint}',[TechnicianController::class, 'assignTechnician']);
 });
