@@ -2,11 +2,13 @@
 
 namespace App\Models\Vendor;
 
-use App\Models\Building\Building;
-use App\Models\Master\Service;
+use App\Models\Accounting\WDA;
 use App\Models\Vendor\Vendor;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\Master\Service;
+use App\Models\Building\Building;
+use App\Models\Accounting\Invoice;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Contract extends Model
 {
@@ -31,5 +33,13 @@ class Contract extends Model
     public function building()
     {
         return $this->belongsTo(Building::class);
+    }
+    public function invoices()
+    {
+        return $this->hasMany(Invoice::class);
+    }
+    public function wdas()
+    {
+        return $this->hasMany(WDA::class);
     }
 }
