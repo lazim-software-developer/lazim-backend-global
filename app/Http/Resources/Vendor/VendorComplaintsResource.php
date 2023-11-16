@@ -21,8 +21,8 @@ class VendorComplaintsResource extends JsonResource
             'assignee' => $this->technician_id,
             'priority' => $this->priority,
             'due_date' => $this->due_date,
-            'service_id' => $this->service->id,
-            'service_name' => $this->service->name,
+            'service_id' => $this->service?->id,
+            'service_name' => $this->service?->name,
             'building_id' => $this->building->id,
             'building_name' => $this->building->name
         ];

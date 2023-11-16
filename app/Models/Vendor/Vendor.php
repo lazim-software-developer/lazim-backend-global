@@ -2,6 +2,8 @@
 
 namespace App\Models\Vendor;
 
+use App\Models\Accounting\Invoice;
+use App\Models\Accounting\WDA;
 use App\Models\OaUserRegistration;
 use App\Models\TechnicianVendor;
 use App\Models\User\User;
@@ -84,7 +86,8 @@ class Vendor extends Model
     }
     public function buildings()
     {
-        return $this->belongsToMany(Building::class, 'building_vendor', 'building_id', 'vendor_id')->where('active', true);
+        return $this->belongsToMany(Building::class, 'building_vendor', 'vendor_id','building_id')->where('active', true)
+                ->withPivot(['contract_id', 'active','start_date','end_date']);
     }
     public function oaUserRegistration()
     {
@@ -108,6 +111,14 @@ class Vendor extends Model
     public function contracts()
     {
         return $this->hasMany(Contract::class,'vendor_id');
+    }
+    public function wdas()
+    {
+        return $this->hasMany(WDA::class,'vendor_id');
+    }
+    public function invoices()
+    {
+        return $this->hasMany(Invoice::class,'vendor_id');
     }
 
 }
