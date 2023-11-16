@@ -101,6 +101,6 @@ class Vendor extends Model
     }
     public function technicianVendors()
     {
-        return $this->hasMany(TechnicianVendor::class,'technician_id');
+        return $this->hasMany(TechnicianVendor::class,'vendor_id')->where('active', true);
     }
 }
