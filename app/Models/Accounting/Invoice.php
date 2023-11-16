@@ -12,7 +12,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Invoice extends Model
 {
     use HasFactory;
+
     protected $table = 'invoices';
+
     protected $fillable = [
         'building_id',
         'contract_id',
@@ -27,6 +29,7 @@ class Invoice extends Model
         'vendor_id',
         'invoice_amount',
     ];
+
     public function vendor()
     {
         return $this->belongsTo(Vendor::class);
@@ -41,10 +44,10 @@ class Invoice extends Model
     }
     public function user()
     {
-        return $this->belongsTo(User::class,'status_updated_by');
+        return $this->belongsTo(User::class, 'status_updated_by');
     }
     public function wda()
     {
-        return $this->belongsTo(WDA::class,'wda_id');
+        return $this->belongsTo(WDA::class, 'wda_id');
     }
 }
