@@ -50,6 +50,7 @@ class VendorResource extends Resource
                         ->label('Vendor Name')
                         ->rules(['exists:users,id'])
                         ->required()
+                        ->disabled()
                         ->preload()
                         ->relationship('user', 'first_name')
                         ->searchable()
@@ -58,6 +59,7 @@ class VendorResource extends Resource
                         ->placeholder('Vendor Name'),
                     TextInput::make('tl_number')->label('Trade Lisence Number')
                         ->rules(['max:50', 'string'])
+                        ->disabled()
                         ->required()
                         ->unique(
                             'vendors',
@@ -69,30 +71,35 @@ class VendorResource extends Resource
                     DatePicker::make('tl_expiry')
                         ->label('Trade Licence Expiry')
                         ->rules(['date'])
+                        ->disabled()
                         ->required()
                         ->placeholder('Trade Lisence Expiry'),
                     TextInput::make('status')
-                        ->label('Status'),
+                        ->label('Status')
+                        ->disabled(),
                     TextInput::make('remarks')
                         ->placeholder('NA')
+                        ->disabled()
                         ->label('Remarks'),
                     TextInput::make('address_line_1')
                         ->placeholder('NA')
+                        ->disabled()
                         ->label('Address Line 1'),
                     TextInput::make('address_line_2')
                         ->placeholder('NA')
+                        ->disabled()
                         ->label('Address Line 2'),
                     TextInput::make('landline_number')
                         ->placeholder('NA')
-                        ->label('Landline Number'),
-                    TextInput::make('landline_number')
-                        ->placeholder('NA')
+                        ->disabled()
                         ->label('Landline Number'),
                     TextInput::make('website')
                         ->placeholder('NA')
+                        ->disabled()
                         ->label('Website'),
                     TextInput::make('fax')
                         ->placeholder('NA')
+                        ->disabled()
                         ->label('Fax'),
 
                 ]),
@@ -196,6 +203,8 @@ class VendorResource extends Resource
             VendorResource\RelationManagers\ManagersRelationManager::class,
             VendorResource\RelationManagers\EscalationMatrixRelationManager::class,
             VendorResource\RelationManagers\ContractsRelationManager::class,
+            VendorResource\RelationManagers\WdasRelationManager::class,
+            VendorResource\RelationManagers\InvoicesRelationManager::class,
         ];
     }
 

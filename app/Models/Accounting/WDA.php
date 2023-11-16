@@ -2,8 +2,12 @@
 
 namespace App\Models\Accounting;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\User\User;
+use App\Models\Vendor\Vendor;
+use App\Models\Vendor\Contract;
+use App\Models\Building\Building;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class WDA extends Model
 {
@@ -11,7 +15,35 @@ class WDA extends Model
 
     protected $table = 'wda';
 
-    protected $fillable =  ['job_description', 'date', 'document', 'created_by', 'status', 'remarks', 'building_id', 'contract_id', 'status_updated_by', 'vendor_id'];
+    protected $fillable = [
+        'date',
+        'job_description',
+        'document',
+        'created_by',
+        'status',
+        'remarks',
+        'building_id',
+        'contract_id',
+        'status_updated_by',
+        'vendor_id',
+    ];
+    
+    public function vendor()
+    {
+        return $this->belongsTo(Vendor::class);
+    }
+    public function building()
+    {
+        return $this->belongsTo(Building::class);
+    }
+    public function contract()
+    {
+        return $this->belongsTo(Contract::class);
+    }
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'status_updated_by');
+    }
 
     public function invoices()
     {
