@@ -30,15 +30,14 @@ class CreateAccessCardFormsRequest extends FormRequest
             'occupied_by' => 'required',
             'tenancy' => 'required|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
             'vehicle_registration' => 'required|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
-
         ];
     }
 
     public function messages()
     {
         return [
-            'tenancy' => 'The uploaded image must be less than 2MB.',
-            'vehicle_registration' => 'The uploaded image must be less than 2MB.',
+            'tenancy.max' => 'The uploaded file for tenancy must be less than 2MB.',
+            'vehicle_registration.max' => 'The uploaded file for vehicle registration must be less than 2MB.',
         ];
     }
 }
