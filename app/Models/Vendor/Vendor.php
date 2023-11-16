@@ -10,6 +10,7 @@ use App\Models\Vendor\Contact;
 use App\Models\Building\Building;
 use App\Models\Building\Document;
 use App\Models\Scopes\Searchable;
+use App\Models\Vendor\Contract;
 use App\Models\Vendor\VendorEscalationMatrix;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -102,6 +103,11 @@ class Vendor extends Model
 
     public function technicianVendors()
     {
-        return $this->hasMany(TechnicianVendor::class, 'technician_id')->where('active', true);
+        return $this->hasMany(TechnicianVendor::class,'vendor_id')->where('active', true);
     }
+    public function contracts()
+    {
+        return $this->hasMany(Contract::class,'vendor_id');
+    }
+
 }
