@@ -24,12 +24,12 @@ class CreateAccessCardFormsRequest extends FormRequest
         return [
             'building_id' => 'required|integer',
             'flat_id' => 'required|integer',
-            'card_type' => 'required|string|in:parking,lobby',
+            'card_type' => 'required|string|in:Parking,Lobby/Access Doors',
             'reason' => 'nullable|string',
             'parking_details' => 'nullable|json',
             'occupied_by' => 'required',
             'tenancy' => 'required|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
-            'vehicle_registration' => 'required_if:card_type,parking|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
+            'vehicle_registration' => 'required_if:card_type,Parking|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
         ];
     }
 
