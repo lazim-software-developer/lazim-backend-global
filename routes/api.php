@@ -37,6 +37,7 @@ use App\Http\Controllers\Technician\BuildingController as TechnicianBuildingCont
 use App\Http\Controllers\Technician\TasksController;
 use App\Http\Controllers\User\ProfileController;
 use App\Http\Controllers\User\UserController;
+use App\Http\Controllers\Vendor\VendorBuildingController;
 
 /*
 |--------------------------------------------------------------------------
@@ -294,6 +295,7 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('vendor')->group(function 
     Route::post('/escalation-matrix/{escalationmatrix}/delete', [EscalationMatrixController::class, 'delete']);
     Route::get('/{vendor}/tickets',[VendorComplaintController::class, 'listComplaints']);
     Route::post('/vendor-comment/{complaint}',[VendorComplaintController::class, 'addComment']);
+    Route::get('/list-buildings/{vendor}',[VendorBuildingController::class,'listBuildings']);
 
     // WDA create API
     
