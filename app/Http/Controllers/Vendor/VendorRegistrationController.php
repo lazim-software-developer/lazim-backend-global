@@ -52,7 +52,7 @@ class VendorRegistrationController extends Controller
                     'title' => 'redirect_managers',
                     'message' => "You have not updated manager details. You'll be redirected manger details page",
                     'code' => 403,
-                    'data' => $userData->first(),
+                    'data' => $vendor,
                 ]))->response()->setStatusCode(403);
             }
 
