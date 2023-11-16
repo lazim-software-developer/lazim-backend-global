@@ -31,16 +31,16 @@ public function listServices(SubCategory $subcategory)
         $request->merge([
             'custom' => 1,
             'active' => 1,
-            'owner_association_id' => $vendor->owner_association_id
+            'owner_association_id' => $vendor->owner_association_id,
+            'subcategory_id' => SubCategory::where('name','CUSTOM')->first()->id,
         ]);
-
+        
         $service = Service::firstOrCreate(
             [
                 'name' => $request->name
             ],
             $request->all()
         );
-
         $vendor->services()->syncWithoutDetaching([$service->id]);
 
         return (new CustomResponseResource([
