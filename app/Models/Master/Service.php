@@ -5,6 +5,7 @@ namespace App\Models\Master;
 
 use App\Models\OaUserRegistration;
 use App\Models\TechnicianVendor;
+use App\Models\Vendor\Contract;
 use App\Models\Vendor\Vendor;
 use App\Models\Building\Building;
 use App\Models\Scopes\Searchable;
@@ -69,5 +70,9 @@ class Service extends Model
     public function technicianVendors()
     {
         return $this->belongsToMany(TechnicianVendor::class, 'service_technician_vendor','service_id')->where('active', true);
+    }
+    public function contracts()
+    {
+        return $this->hasMany(Contract::class,'contracts');
     }
 }
