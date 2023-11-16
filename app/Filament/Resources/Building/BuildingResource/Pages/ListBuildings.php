@@ -24,10 +24,6 @@ class ListBuildings extends ListRecords
     {
         return [
             Actions\CreateAction::make(),
-            ExcelImportAction::make()
-            ->slideOver()
-            ->color("primary")
-            ->use(MyBudgetImport::class),
         ];
     }
 }
