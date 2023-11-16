@@ -41,6 +41,7 @@ class TechnicianVendorsRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('user.phone')->limit(50)->label('Phone'),
                 Tables\Columns\IconColumn::make('active')->boolean(),
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])

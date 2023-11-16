@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Vendor\VendorResource\RelationManagers;
 
+use App\Models\Building\Document;
 use Filament\Forms;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
@@ -13,6 +14,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
+use Filament\Tables\Actions\Action;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -38,7 +40,7 @@ class DocumentsRelationManager extends RelationManager
                     FileUpload::make('url')
                         ->disk('s3')
                         ->directory('dev')
-                        ->previewable(true)
+                        ->openable(true)
                         ->downloadable(true)
                         ->label('Document'),
 
@@ -69,28 +71,64 @@ class DocumentsRelationManager extends RelationManager
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('documentLibrary.name')->limit(50),
-                Tables\Columns\ImageColumn::make('url')->square(),
-                Tables\Columns\TextColumn::make('status')->limit(50),
-                Tables\Columns\TextColumn::make('remarks'),
+                Tables\Columns\ImageColumn::make('url')->square()->disk('s3')->label('Document'),
+                Tables\Columns\TextColumn::make('status')->limit(50)->label('Status'),
+                Tables\Columns\TextColumn::make('remarks')->label('Remarks'),
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make(),
+                //Tables\Actions\CreateAction::make(),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\ViewAction::make(),
+                //Tables\Actions\DeleteAction::make(),
+                Action::make('Update Status')
+                    ->visible(fn ($record) => $record->status == 'pending')
+                    ->button()
+                    ->form([
+                        Select::make('status')
+                            ->options([
+                                'approved' => 'Approved',
+                                'rejected' => 'Rejected',
+                            ])
+                            ->searchable()
+                            ->live(),
+                        TextInput::make('remarks')
+                            ->rules(['max:255'])
+                            ->visible(function (callable $get) {
+                                if ($get('status') == 'rejected') {
+                                    return true;
+                                }
+                                return false;
+                            })
+                            ->required(),
+                    ])
+                    ->fillForm(fn (Document $record): array => [
+                        'status' => $record->status,
+                        'remarks' => $record->remarks,
+                    ])
+                    ->action(function (Document $record, array $data): void {
+                        if ($data['status'] == 'rejected') {
+                            $record->status = $data['status'];
+                            $record->remarks = $data['remarks'];
+                            $record->save();
+                        } else {
+                            $record->status = $data['status'];
+                            $record->save();
+                        }
+                    })
+                    ->slideOver()
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    //Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ])
             ->emptyStateActions([
-                Tables\Actions\CreateAction::make(),
+                //Tables\Actions\CreateAction::make(),
             ]);
     }
 }
