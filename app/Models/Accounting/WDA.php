@@ -14,6 +14,7 @@ class WDA extends Model
     use HasFactory;
 
     protected $table = 'wda';
+
     protected $fillable = [
         'date',
         'job_description',
@@ -26,6 +27,7 @@ class WDA extends Model
         'status_updated_by',
         'vendor_id',
     ];
+    
     public function vendor()
     {
         return $this->belongsTo(Vendor::class);
@@ -40,6 +42,11 @@ class WDA extends Model
     }
     public function user()
     {
-        return $this->belongsTo(User::class,'status_updated_by');
+        return $this->belongsTo(User::class, 'status_updated_by');
+    }
+
+    public function invoices()
+    {
+        return $this->hasMany(Invoice::class, 'wda_id');
     }
 }
