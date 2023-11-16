@@ -10,6 +10,7 @@ use App\Http\Resources\CustomResponseResource;
 use App\Http\Resources\Vendor\VendorManagerResource;
 use App\Http\Resources\Vendor\VendorResource;
 use App\Jobs\SendVerificationOtp;
+use App\Models\Building\Document;
 use App\Models\Master\Role;
 use App\Models\User\User;
 use App\Models\Vendor\Vendor;
@@ -66,8 +67,16 @@ class VendorRegistrationController extends Controller
                 ]))->response()->setStatusCode(403);
             }
 
+            $documents= Document::where('documentable_id', $vendor->id);
             //check if vendor has uploaded documnets
-            
+            if(!$documents->exists()) {
+                return (new CustomResponseResource([
+                    'title' => 'redirect_documents',
+                    'message' => "You have not uploaded all documents. You'll be redirected to documents page",
+                    'code' => 403,
+                    'data' => $vendor,
+                ]))->response()->setStatusCode(403);
+            }
             // Check if user exists in our DB
             if (User::where(['email' => $request->email, 'phone' => $request->phone, 'email_verified' => 1, 'phone_verified' => 1])->exists()) {
                 return (new CustomResponseResource([
