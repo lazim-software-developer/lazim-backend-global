@@ -2,7 +2,8 @@
 
 namespace App\Models\User;
 
-
+use App\Models\Accounting\Invoice;
+use App\Models\Accounting\WDA;
 use App\Models\Building\BuildingPoc;
 use App\Models\Building\Complaint;
 use App\Models\Building\Document;
@@ -33,6 +34,7 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Jetstream\HasProfilePhoto;
 use Laravel\Sanctum\HasApiTokens;
+use App\Models\Community\PostLike;
 
 class User extends Authenticatable implements FilamentUser, HasName
 {
@@ -242,5 +244,13 @@ class User extends Authenticatable implements FilamentUser, HasName
     public function technicianVendors()
     {
         return $this->hasMany(TechnicianVendor::class, 'technician_id')->where('active', true);
+    }
+    public function wdas()
+    {
+        return $this->hasMany(WDA::class);
+    }
+    public function invoices()
+    {
+        return $this->hasMany(Invoice::class);
     }
 }
