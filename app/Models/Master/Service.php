@@ -4,6 +4,7 @@ namespace App\Models\Master;
 
 
 use App\Models\OaUserRegistration;
+use App\Models\Vendor\Contract;
 use App\Models\Vendor\Vendor;
 use App\Models\Building\Building;
 use App\Models\Scopes\Searchable;
@@ -63,5 +64,9 @@ class Service extends Model
     public function tenders()
     {
         return $this->belongsToMany(Tender::class, 'tender_services');
+    }
+    public function contracts()
+    {
+        return $this->hasMany(Contract::class,'contracts');
     }
 }
