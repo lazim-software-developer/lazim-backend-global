@@ -22,6 +22,7 @@ use App\Models\Building\BuildingPoc;
 use App\Models\Forms\FitOutForm;
 use App\Models\Forms\MoveInOut;
 use App\Models\Vendor\Contact;
+use App\Models\Vendor\Contract;
 use App\Models\Vendor\Vendor;
 use App\Models\Visitor\FlatDomesticHelp;
 use App\Models\Visitor\FlatVisitor;
@@ -168,5 +169,9 @@ class Building extends Model
     public function services()
     {
         return $this->belongsToMany(Service::class, 'building_service');
+    }
+    public function contracts()
+    {
+        return $this->hasMany(Contract::class,'contracts');
     }
 }

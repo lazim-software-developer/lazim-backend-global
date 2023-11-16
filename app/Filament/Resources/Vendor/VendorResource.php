@@ -11,6 +11,7 @@ use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
@@ -21,6 +22,7 @@ use Filament\Tables\Actions\Action;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
@@ -186,10 +188,14 @@ class VendorResource extends Resource
     {
         return [
             VendorResource\RelationManagers\ServicesRelationManager::class,
-            VendorResource\RelationManagers\UsersRelationManager::class,
-            VendorResource\RelationManagers\ContactsRelationManager::class,
+            // VendorResource\RelationManagers\UsersRelationManager::class,
+            // VendorResource\RelationManagers\ContactsRelationManager::class,
             VendorResource\RelationManagers\DocumentsRelationManager::class,
             VendorResource\RelationManagers\BuildingsRelationManager::class,
+            VendorResource\RelationManagers\TechnicianVendorsRelationManager::class,
+            VendorResource\RelationManagers\ManagersRelationManager::class,
+            VendorResource\RelationManagers\EscalationMatrixRelationManager::class,
+            VendorResource\RelationManagers\ContractsRelationManager::class,
         ];
     }
 
