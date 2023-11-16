@@ -2,8 +2,10 @@
 
 namespace App\Filament\Resources\Vendor\VendorResource\RelationManagers;
 
+use App\Models\Building\Document;
 use Filament\Forms;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\KeyValue;
 use Filament\Forms\Components\RichEditor;
@@ -12,6 +14,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
+use Filament\Tables\Actions\Action;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -24,81 +27,41 @@ class DocumentsRelationManager extends RelationManager
     {
         return $form
             ->schema([
-                Grid::make(['default' => 0])->schema([
+                Grid::make([
+                    'sm' => 1,
+                    'md' => 1,
+                    'lg' => 2,])->schema([
                     Select::make('document_library_id')
                         ->rules(['exists:document_libraries,id'])
                         ->relationship('documentLibrary', 'name')
                         ->searchable()
-                        ->placeholder('Document Library')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+                        ->placeholder('Document Library'),
 
-                    RichEditor::make('url')
-                        ->rules(['max:255', 'string'])
-                        ->placeholder('Url')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+                    FileUpload::make('url')
+                        ->disk('s3')
+                        ->directory('dev')
+                        ->openable(true)
+                        ->downloadable(true)
+                        ->label('Document'),
 
-                    TextInput::make('status')
-                        ->rules(['max:50', 'string'])
-                        ->placeholder('Status')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+                    Select::make('status')
+                        ->options([
+                            'approved' => 'Approved',
+                            'rejected' => 'Rejected',
+                        ])
+                        ->placeholder('Status'),
 
-                    KeyValue::make('comments')
-                        ->required()
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
-
-                    DatePicker::make('expiry_date')
-                        ->rules(['date'])
-                        ->placeholder('Expiry Date')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
-
-                    Select::make('accepted_by')
-                        ->rules(['exists:users,id'])
-                        ->relationship('user', 'first_name')
-                        ->searchable()
-                        ->placeholder('User')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+                    TextInput::make('remarks')
+                        ->rules(['max:255'])
+                        ->placeholder('Remarks'),
 
                     TextInput::make('documentable_id')
                         ->rules(['max:255'])
-                        ->placeholder('Documentable Id')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+                        ->placeholder('Documentable Id'),
 
                     TextInput::make('documentable_type')
                         ->rules(['max:255', 'string'])
-                        ->placeholder('Documentable Type')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
+                        ->placeholder('Documentable Type'),
                 ]),
             ]);
     }
@@ -107,34 +70,65 @@ class DocumentsRelationManager extends RelationManager
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('documentLibrary.name')->limit(
-                    50
-                ),
-                Tables\Columns\TextColumn::make('url')->limit(50),
-                Tables\Columns\TextColumn::make('status')->limit(50),
-                Tables\Columns\TextColumn::make('expiry_date')->date(),
-                Tables\Columns\TextColumn::make('user.first_name')->limit(50),
-                Tables\Columns\TextColumn::make('documentable_id')->limit(50),
-                Tables\Columns\TextColumn::make('documentable_type')->limit(50),
+                Tables\Columns\TextColumn::make('documentLibrary.name')->limit(50),
+                Tables\Columns\ImageColumn::make('url')->square()->disk('s3')->label('Document'),
+                Tables\Columns\TextColumn::make('status')->limit(50)->label('Status'),
+                Tables\Columns\TextColumn::make('remarks')->label('Remarks'),
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make(),
+                //Tables\Actions\CreateAction::make(),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\ViewAction::make(),
+                //Tables\Actions\DeleteAction::make(),
+                Action::make('Update Status')
+                    ->visible(fn ($record) => $record->status == 'pending')
+                    ->button()
+                    ->form([
+                        Select::make('status')
+                            ->options([
+                                'approved' => 'Approved',
+                                'rejected' => 'Rejected',
+                            ])
+                            ->searchable()
+                            ->live(),
+                        TextInput::make('remarks')
+                            ->rules(['max:255'])
+                            ->visible(function (callable $get) {
+                                if ($get('status') == 'rejected') {
+                                    return true;
+                                }
+                                return false;
+                            })
+                            ->required(),
+                    ])
+                    ->fillForm(fn (Document $record): array => [
+                        'status' => $record->status,
+                        'remarks' => $record->remarks,
+                    ])
+                    ->action(function (Document $record, array $data): void {
+                        if ($data['status'] == 'rejected') {
+                            $record->status = $data['status'];
+                            $record->remarks = $data['remarks'];
+                            $record->save();
+                        } else {
+                            $record->status = $data['status'];
+                            $record->save();
+                        }
+                    })
+                    ->slideOver()
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    //Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ])
             ->emptyStateActions([
-                Tables\Actions\CreateAction::make(),
+                //Tables\Actions\CreateAction::make(),
             ]);
     }
 }

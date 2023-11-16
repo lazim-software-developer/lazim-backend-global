@@ -7,16 +7,18 @@ use App\Http\Requests\Vendor\SelectServicesRequest;
 use App\Http\Resources\CustomResponseResource;
 use App\Http\Resources\Services\ServiceResource;
 use App\Http\Resources\Vendor\SelectServicesResource;
+use App\Http\Resources\Vendor\SubCategoryResource;
+use App\Models\Accounting\SubCategory;
 use App\Models\Master\Service;
 use App\Models\Vendor\Vendor;
 use Illuminate\Http\Request;
 
 class SelectServicesController extends Controller
 {
-    public function listServices()
+public function listServices(SubCategory $subcategory)
     {
-        $services = Service::where('active', 1)->get();
-        return ServiceResource::collection($services);
+        $services = Service::where('active', 1)->where('subcategory_id',$subcategory->id)->get();
+        return SelectServicesResource::collection($services);
     }
 
     // Add a new custom service;
@@ -46,6 +48,7 @@ class SelectServicesController extends Controller
             'message' => "",
             'code' => 201,
             'status' => 'success',
+            'data'  => $service
         ]))->response()->setStatusCode(201);
     }
 
@@ -66,5 +69,11 @@ class SelectServicesController extends Controller
         $services = $vendor->services;
 
         return SelectServicesResource::collection($services);
+    }
+
+    public function listSubCategories()
+    {
+        $categories = SubCategory::all();
+        return SubCategoryResource::collection($categories);
     }
 }

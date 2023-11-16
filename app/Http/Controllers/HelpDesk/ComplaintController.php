@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Helpdesk\ComplaintStoreRequest;
 use App\Http\Resources\CustomResponseResource;
 use App\Http\Resources\HelpDesk\Complaintresource;
+use App\Jobs\AssignTechnicianToComplaint;
 use App\Models\Building\Building;
 use App\Models\Building\Complaint;
 use App\Models\Building\FlatTenant;
@@ -13,6 +14,7 @@ use App\Models\Master\Service;
 use App\Models\Media;
 use App\Models\Tag;
 use App\Models\Vendor\ServiceVendor;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class ComplaintController extends Controller
@@ -127,6 +129,9 @@ class ComplaintController extends Controller
                 $complaint->media()->save($media);
             }
         }
+
+        // Assign complaint to a technician
+        AssignTechnicianToComplaint::dispatch($complaint)->delay(Carbon::now()->addSeconds(5));
 
         return (new CustomResponseResource([
             'title' => 'Success',

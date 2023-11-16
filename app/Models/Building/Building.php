@@ -2,6 +2,7 @@
 
 namespace App\Models\Building;
 
+use App\Models\Accounting\Budget;
 use App\Models\Community\Post;
 use App\Models\Forms\AccessCard;
 use App\Models\Forms\Guest;
@@ -21,6 +22,7 @@ use App\Models\Building\BuildingPoc;
 use App\Models\Forms\FitOutForm;
 use App\Models\Forms\MoveInOut;
 use App\Models\Vendor\Contact;
+use App\Models\Vendor\Contract;
 use App\Models\Vendor\Vendor;
 use App\Models\Visitor\FlatDomesticHelp;
 use App\Models\Visitor\FlatVisitor;
@@ -81,10 +83,6 @@ class Building extends Model
     public function flatTenants()
     {
         return $this->hasMany(FlatTenant::class);
-    }
-    public function services()
-    {
-        return $this->belongsToMany(Service::class, 'building_services', 'building_id', 'service_id');
     }
 
     public function roles()
@@ -159,5 +157,21 @@ class Building extends Model
     public function accesscards()
     {
         return $this->hasMany(AccessCard::class);
+    }
+
+    // OAM accounting 
+    // Define a one-to-many relationship with Budget
+    public function budgets()
+    {
+        return $this->hasMany(Budget::class);
+    }
+
+    public function services()
+    {
+        return $this->belongsToMany(Service::class, 'building_service');
+    }
+    public function contracts()
+    {
+        return $this->hasMany(Contract::class,'contracts');
     }
 }
