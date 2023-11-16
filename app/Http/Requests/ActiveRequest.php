@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\Technician;
+namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class AddTechnicianRequest extends FormRequest
+class ActiveRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,11 +22,7 @@ class AddTechnicianRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name'          =>  'required|string|max:100',
-            'email'         =>  'required|email|unique:users,email',
-            'phone'         =>  'required|string|unique:users,phone',
-            'position'      =>  'required|string|max:100',
-            'service_id'    =>  'required|integer|exists:services,id',
+            "active" => "required",
         ];
     }
 }
