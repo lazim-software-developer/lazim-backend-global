@@ -299,8 +299,11 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('vendor')->group(function 
 Route::middleware(['auth:sanctum', 'active'])->prefix('technician')->group(function () {
     // Registration
     Route::post('/registration', [TechnicianController::class, 'registration']);
-
     // List all buildings for logged in technician
     Route::get('/buildings', [TechnicianBuildingController::class, 'index']);
     Route::get('/tasks', [TasksController::class, 'index']);
+    //List all technicians for a service
+    Route::get('/{service}/technicians',[TechnicianController::class, 'index']);
+    Route::patch('/active-deactive/{technician}',[TechnicianController::class, 'activeDeactive']);
+    Route::post('/attach-technician/{technician}',[TechnicianController::class, 'attachTechnician']);
 });
