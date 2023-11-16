@@ -3,6 +3,8 @@
 namespace App\Models\Building;
 
 use App\Models\Accounting\Budget;
+use App\Models\Accounting\Invoice;
+use App\Models\Accounting\WDA;
 use App\Models\Community\Post;
 use App\Models\Forms\AccessCard;
 use App\Models\Forms\Guest;
@@ -173,5 +175,13 @@ class Building extends Model
     public function contracts()
     {
         return $this->hasMany(Contract::class,'contracts');
+    }
+    public function invoices()
+    {
+        return $this->hasMany(Invoice::class);
+    }
+    public function wdas()
+    {
+        return $this->hasMany(WDA::class);
     }
 }
