@@ -30,6 +30,7 @@ class VendorRegistrationController extends Controller
                     'title' => 'redirect_verification',
                     'message' => "Your account is not verified. You'll be redirected account verification page",
                     'code' => 403,
+                    'data' => $userData->first(),
                 ]))->response()->setStatusCode(403);
             }
 
@@ -39,6 +40,7 @@ class VendorRegistrationController extends Controller
                     'title' => 'redirect_company_details',
                     'message' => "You have not updated company details. You'll be redirected company details page",
                     'code' => 403,
+                    'data' => $userData->first(),
                 ]))->response()->setStatusCode(403);
             }
 
@@ -50,6 +52,7 @@ class VendorRegistrationController extends Controller
                     'title' => 'redirect_managers',
                     'message' => "You have not updated manager details. You'll be redirected manger details page",
                     'code' => 403,
+                    'data' => $userData->first(),
                 ]))->response()->setStatusCode(403);
             }
 

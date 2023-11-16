@@ -7,6 +7,7 @@ use App\Http\Requests\Community\StoreCommentRequest;
 use App\Http\Resources\Community\CommentResource;
 use App\Http\Resources\CustomResponseResource;
 use App\Http\Resources\Vendor\VendorComplaintsResource;
+use App\Models\Building\Building;
 use App\Models\Building\Complaint;
 use App\Models\BuildingVendor;
 use App\Models\Community\Comment;
@@ -16,9 +17,23 @@ use Illuminate\Support\Facades\DB;
 
 class VendorComplaintController extends Controller
 {
-    public function listComplaints(Vendor $vendor)
+    public function listComplaints(Request $request,Vendor $vendor)
     {
-        $complaints = Complaint::where('vendor_id', $vendor->id)->latest()->paginate();
+        $end_date = now();
+        $start_date = now()->subDays(7);
+        if ($request->duration == 'lastMonth'){
+            $start_date = now()->subDays(30);
+        };
+        if ($request->duration == 'custom'){
+            $end_date = $request->end_date;
+            $start_date = $request->start_date;
+        }
+        $complaints = Complaint::where('vendor_id', $vendor->id)
+        ->when($request->filled('building_id'), function ($query) use ($request) {
+            $query->where('building_id', $request->building_id);
+        })
+        ->whereBetween('updated_at', [$start_date, $end_date])
+        ->latest()->paginate();
 
         return VendorComplaintsResource::collection($complaints);
     }

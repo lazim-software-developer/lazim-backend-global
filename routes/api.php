@@ -3,6 +3,7 @@
 use App\Http\Controllers\MollakController;
 use App\Http\Controllers\Technician\TechnicianController;
 use App\Http\Controllers\TestController;
+use App\Http\Controllers\Vendor\ContractController;
 use App\Http\Controllers\Vendor\DocumentsUploadController;
 use App\Http\Controllers\Vendor\EscalationMatrixController;
 use App\Http\Controllers\Vendor\SelectServicesController;
@@ -36,6 +37,7 @@ use App\Http\Controllers\Technician\BuildingController as TechnicianBuildingCont
 use App\Http\Controllers\Technician\TasksController;
 use App\Http\Controllers\User\ProfileController;
 use App\Http\Controllers\User\UserController;
+use App\Http\Controllers\Vendor\VendorBuildingController;
 
 /*
 |--------------------------------------------------------------------------
@@ -293,6 +295,7 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('vendor')->group(function 
     Route::post('/escalation-matrix/{escalationmatrix}/delete', [EscalationMatrixController::class, 'delete']);
     Route::get('/{vendor}/tickets',[VendorComplaintController::class, 'listComplaints']);
     Route::post('/vendor-comment/{complaint}',[VendorComplaintController::class, 'addComment']);
+    Route::get('/list-buildings/{vendor}',[VendorBuildingController::class,'listBuildings']);
 
     // WDA create API
     
@@ -302,8 +305,12 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('vendor')->group(function 
 Route::middleware(['auth:sanctum', 'active'])->prefix('technician')->group(function () {
     // Registration
     Route::post('/registration', [TechnicianController::class, 'registration']);
-
     // List all buildings for logged in technician
     Route::get('/buildings', [TechnicianBuildingController::class, 'index']);
     Route::get('/tasks', [TasksController::class, 'index']);
+    //List all technicians for a service
+    Route::get('/{service}/technicians',[TechnicianController::class, 'index']);
+    Route::patch('/active-deactive/{technician}',[TechnicianController::class, 'activeDeactive']);
+    Route::post('/attach-technician/{technician}',[TechnicianController::class, 'attachTechnician']);
+    Route::post('/assign-technician/{complaint}',[TechnicianController::class, 'assignTechnician']);
 });
