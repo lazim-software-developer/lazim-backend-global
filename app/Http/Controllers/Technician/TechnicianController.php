@@ -5,9 +5,12 @@ namespace App\Http\Controllers\Technician;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ActiveRequest;
 use App\Http\Requests\Technician\AddTechnicianRequest;
+use App\Http\Requests\Technician\ServiceIdRequest;
+use App\Http\Requests\Technician\TechnicianIdRequest;
 use App\Http\Resources\CustomResponseResource;
 use App\Http\Resources\Technician\ServiceTechnicianResource;
 use App\Jobs\AccountCreationJob;
+use App\Models\Building\Complaint;
 use App\Models\Master\Role;
 use App\Models\Master\Service;
 use App\Models\TechnicianVendor;
@@ -74,11 +77,7 @@ class TechnicianController extends Controller
         ]))->response()->setStatusCode(200);
     }
 
-    public function attachTechnician(Request $request,TechnicianVendor $technician){
-
-        $request->validate([
-            "service_id" => 'required|exists:services,id'
-        ]);
+    public function attachTechnician(ServiceIdRequest $request,TechnicianVendor $technician){
 
         if ($technician->active == false){
             return (new CustomResponseResource([
@@ -94,6 +93,19 @@ class TechnicianController extends Controller
             'message' => "Technician assigned to task successfully!",
             'code' => 200,
             'status' => 'success',
+        ]))->response()->setStatusCode(200);
+    }
+
+    public function assignTechnician(TechnicianIdRequest $request,Complaint $complaint){
+
+        $complaint->technician_id = $request->technician_id;
+        $complaint->save();
+        return (new CustomResponseResource([
+            'title' => 'Technician assigned',
+            'message' => "Technician assigned to complaint successfully!",
+            'code' => 200,
+            'status' => 'success',
+            'data' => $complaint
         ]))->response()->setStatusCode(200);
     }
 }
