@@ -37,6 +37,8 @@ use App\Http\Controllers\Technician\BuildingController as TechnicianBuildingCont
 use App\Http\Controllers\Technician\TasksController;
 use App\Http\Controllers\User\ProfileController;
 use App\Http\Controllers\User\UserController;
+use App\Http\Controllers\Vendor\InvoiceController;
+use App\Http\Controllers\Vendor\WDAController;
 use App\Http\Controllers\Vendor\VendorBuildingController;
 
 /*
@@ -298,7 +300,13 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('vendor')->group(function 
     Route::get('/list-buildings/{vendor}',[VendorBuildingController::class,'listBuildings']);
 
     // WDA create API
-    
+    Route::post('/wda', [WDAController::class, 'store']);
+
+    // List all WDAs
+    Route::get('/{vendor}/wda', [WDAController::class, 'index']);
+
+    // List all invoices 
+    Route::get('/{vendor}/invocies', [InvoiceController::class, 'index']);
 });
 
 // Technician Related APIs
