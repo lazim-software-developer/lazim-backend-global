@@ -3,12 +3,14 @@
 namespace App\Models\Vendor;
 
 use App\Models\OaUserRegistration;
+use App\Models\TechnicianVendor;
 use App\Models\User\User;
 use App\Models\Master\Service;
 use App\Models\Vendor\Contact;
 use App\Models\Building\Building;
 use App\Models\Building\Document;
 use App\Models\Scopes\Searchable;
+use App\Models\Vendor\Contract;
 use App\Models\Vendor\VendorEscalationMatrix;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -82,7 +84,7 @@ class Vendor extends Model
     }
     public function buildings()
     {
-        return $this->belongsToMany(Building::class, 'building_vendor', 'vendor_id','building_id')
+        return $this->belongsToMany(Building::class, 'building_vendor', 'vendor_id','building_id')->where('active', true)
                 ->withPivot(['contract_id', 'active','start_date','end_date']);
     }
     public function oaUserRegistration()
@@ -99,4 +101,14 @@ class Vendor extends Model
     {
         return $this->hasMany(VendorEscalationMatrix::class);
     }
+
+    public function technicianVendors()
+    {
+        return $this->hasMany(TechnicianVendor::class,'vendor_id')->where('active', true);
+    }
+    public function contracts()
+    {
+        return $this->hasMany(Contract::class,'vendor_id');
+    }
+
 }
