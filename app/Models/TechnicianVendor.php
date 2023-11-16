@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Master\Service;
 use App\Models\User\User;
 use App\Models\Vendor\Vendor;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -21,5 +22,10 @@ class TechnicianVendor extends Model
     public function user()
     {
         return $this->belongsTo(User::class, 'technician_id');
+    }
+
+    public function services()
+    {
+        return $this->belongsToMany(Service::class, 'service_technician_vendor', 'technician_vendor_id');
     }
 }

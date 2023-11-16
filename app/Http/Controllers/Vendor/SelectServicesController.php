@@ -48,6 +48,7 @@ public function listServices(SubCategory $subcategory)
             'message' => "",
             'code' => 201,
             'status' => 'success',
+            'data'  => $service
         ]))->response()->setStatusCode(201);
     }
 
