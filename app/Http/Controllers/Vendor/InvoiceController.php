@@ -3,6 +3,9 @@
 namespace App\Http\Controllers\Vendor;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Vendor\CreateInvoiceRequest;
+use App\Http\Resources\CustomResponseResource;
+use App\Models\Accounting\Invoice;
 use App\Models\Accounting\WDA;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -40,5 +43,33 @@ class InvoiceController extends Controller
         });
 
         return response()->json($approvedWDAs);
+    }
+
+    public function store(CreateInvoiceRequest $request){
+
+        $document = optimizeDocumentAndUpload($request->document);
+
+        $wda=WDA::find($request->wda_id);
+        $name = auth()->user()->technicianVendors()->first()->vendor->OA->name;
+        $invoice_id = strtoupper(substr($name, 0, 4)).date('YmdHis');
+        $request->merge([
+            'building_id' => $wda->building_id,
+            'contract_id' => $wda->contract_id,
+            'invoice_number' =>$invoice_id,
+            'document' => $document,
+            'created_by' => auth()->user()->id,
+            'status' => 'pending',
+            'vendor_id' => auth()->user()->technicianVendors()->first()->vendor_id
+        ]);
+        
+        $invoice =Invoice::create($request->all());
+
+        return (new CustomResponseResource([
+            'title' => 'Success',
+            'message' => 'Invoice created successfully!',
+            'code' => 201,
+            'status' => 'success',
+            'data' => $invoice,
+        ]))->response()->setStatusCode(201);
     }
 }
