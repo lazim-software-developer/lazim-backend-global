@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Http\Resources\HelpDesk;
+namespace App\Http\Resources\Technician;
 
+use App\Filament\Resources\MediaResource;
 use App\Http\Resources\Community\CommentResource;
-use App\Http\Resources\MediaResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class Complaintresource extends JsonResource
+class ComplaintResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -16,18 +16,17 @@ class Complaintresource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        
         return [
             'id' => $this->id,
             'complaint' => $this->complaint,
-            'building' => $this->building->name,
-            'service' => $this->service?->name,
-            'category' => $this->category,
+            'categoty' => $this->category,
             'opened_on' => $this->open_time_diff,
             'resolved' => $this->status == 'open' ? false : true,
             'media' => MediaResource::collection($this->media),
             'complaint_type' => $this->complaint_type,
             'complaint_details' => $this->complaint_details,
-            'comments' => CommentResource::collection($this->whenLoaded('comments')),
+            // 'priority' : 
         ];
     }
 }
