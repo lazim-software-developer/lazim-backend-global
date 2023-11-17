@@ -4,6 +4,7 @@ namespace App\Http\Controllers\HelpDesk;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Helpdesk\ComplaintStoreRequest;
+use App\Http\Requests\Helpdesk\ComplaintUpdateRequest;
 use App\Http\Resources\CustomResponseResource;
 use App\Http\Resources\HelpDesk\Complaintresource;
 use App\Jobs\AssignTechnicianToComplaint;
@@ -170,5 +171,17 @@ class ComplaintController extends Controller
             'title' => 'Complaint Resolved',
             'message' => 'The complaint has been marked as resolved.',
         ]);
+    }
+
+    public function update(ComplaintUpdateRequest $request, Complaint $complaint)
+    {
+        $complaint->update($request->all());
+        return (new CustomResponseResource([
+            'title' => 'Complaint Updated Successfully',
+            'message' => 'The complaint has been updated.',
+            'code' => 200,
+            'status' => 'success',
+            'data'  => $complaint,
+        ]))->response()->setStatusCode(200);
     }
 }
