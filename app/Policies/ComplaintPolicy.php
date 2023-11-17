@@ -15,10 +15,10 @@ class ComplaintPolicy
      */
     public function viewAny(User $user): bool
     {
-        $allowedRoles = ['OA','Admin'];
+        $allowedRoles = ['OA', 'Admin'];
 
         if (in_array($user->role->name, $allowedRoles)) {
-        return true;
+            return true;
         }
     }
 
@@ -27,11 +27,13 @@ class ComplaintPolicy
      */
     public function view(User $user, Complaint $model): bool
     {
-        $allowedRoles = ['OA','Admin'];
+        $allowedRoles = ['OA', 'Admin'];
 
         if (in_array($user->role->name, $allowedRoles)) {
-        return true;
+            return true;
         }
+
+        return true;
     }
 
     /**
@@ -39,10 +41,10 @@ class ComplaintPolicy
      */
     public function create(User $user): bool
     {
-        $allowedRoles = ['OA','Admin'];
+        $allowedRoles = ['OA', 'Admin'];
 
         if (in_array($user->role->name, $allowedRoles)) {
-        return true;
+            return true;
         }
     }
 
@@ -67,7 +69,7 @@ class ComplaintPolicy
      */
     public function deleteAny(User $user): bool
     {
-      return false;
+        return false;
     }
 
     /**
