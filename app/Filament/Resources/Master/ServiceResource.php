@@ -8,6 +8,7 @@ use App\Filament\Resources\Master\ServiceResource\Pages\ListServices;
 use App\Models\Master\Service;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
@@ -41,12 +42,13 @@ class ServiceResource extends Resource
                             ->rules(['max:50', 'string'])
                             ->required()
                             ->placeholder('Name'),
-                        FileUpload::make('icon')
-                            ->acceptedFileTypes(['image/jpeg', 'image/png'])
-                            ->disk('s3')
-                            ->directory('dev')
-                            ->required()
-                            ->maxSize(2048),
+                        Select::make('type')
+                            ->options([
+                                'inhouse'=> 'InHouse',
+                                'vendor service'=>'Vendor Service',
+                            ])
+                            ->searchable()
+                            ->placeholder('Service Type'),
                         Toggle::make('active')
                             ->label('Active')
                             ->default(1)
@@ -65,11 +67,12 @@ class ServiceResource extends Resource
             ->poll('60s')
             ->columns([
                 TextColumn::make('name')
-                    ->toggleable()
-                    ->searchable(true, null, true)
+                    ->searchable()
                     ->limit(50),
+                TextColumn::make('type')
+                    ->searchable()
+                    ->label('Service Type'),
                 IconColumn::make('active')
-                    ->toggleable()
                     ->boolean()
                     ->trueIcon('heroicon-o-check-badge')
                     ->falseIcon('heroicon-o-x-mark'),
@@ -94,7 +97,7 @@ class ServiceResource extends Resource
     public static function getRelations(): array
     {
         return [
-            ServiceResource\RelationManagers\VendorsRelationManager::class,
+            //ServiceResource\RelationManagers\VendorsRelationManager::class,
         ];
     }
 
