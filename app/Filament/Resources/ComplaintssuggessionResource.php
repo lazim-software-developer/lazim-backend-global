@@ -2,27 +2,28 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\ComplaintssuggessionResource\Pages;
-use App\Filament\Resources\ComplaintssuggessionResource\RelationManagers;
-use App\Models\Building\Complaint;
-use App\Models\Complaintssuggession;
 use Filament\Forms;
-use Filament\Forms\Components\FileUpload;
+use Filament\Tables;
+use Filament\Forms\Get;
+use Filament\Forms\Form;
+use Filament\Tables\Table;
+use Filament\Resources\Resource;
+use App\Models\Building\Complaint;
+use Illuminate\Support\Facades\DB;
 use Filament\Forms\Components\Grid;
+use Filament\Tables\Actions\Action;
+use App\Models\Complaintssuggession;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Form;
-use Filament\Forms\Get;
-use Filament\Resources\Resource;
-use Filament\Tables;
-use Filament\Tables\Actions\Action;
+use Filament\Forms\Components\Repeater;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\FileUpload;
 use Filament\Tables\Filters\SelectFilter;
-use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Illuminate\Support\Facades\DB;
+use App\Filament\Resources\ComplaintssuggessionResource\Pages;
+use App\Filament\Resources\ComplaintssuggessionResource\RelationManagers;
 
 class ComplaintssuggessionResource extends Resource
 {
@@ -70,11 +71,6 @@ class ComplaintssuggessionResource extends Resource
                             ->preload()
                             ->required()
                             ->label('User'),
-                        FileUpload::make('photo')
-                            ->disk('s3')
-                            ->directory('dev')
-                            ->maxSize(2048)
-                            ->nullable(),
                         TextInput::make('complaint')
                             ->placeholder('Suggestion'),
                         TextInput::make('complaint_details')
@@ -83,6 +79,17 @@ class ComplaintssuggessionResource extends Resource
                             ->default('open'),
                         Hidden::make('complaint_type')
                             ->default('suggestions'),
+                        Repeater::make('media')
+                            ->relationship()
+                            ->schema([
+                                FileUpload::make('url')
+                                    ->disk('s3')
+                                    ->directory('dev')
+                                    ->maxSize(2048)
+                                    ->openable(true)
+                                    ->downloadable(true)
+                                    ->label('Media'),
+                            ])
                     ])
             ]);
     }
