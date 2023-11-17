@@ -25,6 +25,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Filament\Tables\Columns\ViewColumn;
 
 class VendorResource extends Resource
 {
@@ -114,7 +115,7 @@ class VendorResource extends Resource
                 Tables\Columns\TextColumn::make('user.first_name')
                     ->searchable()
                     ->default('NA')
-                    ->label('Name'),
+                    ->label('Vendor Name'),
                 Tables\Columns\TextColumn::make('tl_number')
                     ->searchable()
                     ->default('NA')
@@ -127,6 +128,9 @@ class VendorResource extends Resource
                     ->searchable()
                     ->default('NA')
                     ->label('Remarks'),
+                ViewColumn::make('Services')->view('tables.columns.vendor-service'),
+                ViewColumn::make('Documents')->view('tables.columns.vendordocument'),
+                ViewColumn::make('Managers')->view('tables.columns.vendormanager'),
 
             ])
             ->defaultSort('created_at', 'desc')
@@ -136,7 +140,7 @@ class VendorResource extends Resource
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Action::make('Update Status')
-                ->visible(fn ($record) => $record->status === 'pending')
+                ->visible(fn ($record) => $record->status === 'pending' && $record->documents()->count() > 0 && $record->services()->count() > 0 && $record->managers()->count() > 0)
                 ->button()
                 ->form([
                     Select::make('status')

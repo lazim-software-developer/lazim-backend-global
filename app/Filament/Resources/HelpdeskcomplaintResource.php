@@ -148,14 +148,14 @@ class HelpdeskcomplaintResource extends Resource
                         Select::make('status')
                             ->options([
                                 'open'   => 'Open',
-                                'resolved' => 'Resolved',
+                                'closed' => 'Closed',
                             ])
                             ->searchable()
                             ->live(),
                         TextInput::make('remarks')
                             ->rules(['max:255'])
                             ->visible(function (callable $get) {
-                                if ($get('status') == 'resolved') {
+                                if ($get('status') == 'closed') {
                                     return true;
                                 }
                                 return false;
@@ -167,7 +167,7 @@ class HelpdeskcomplaintResource extends Resource
                         'remarks' => $record->remarks,
                     ])
                     ->action(function (Complaint $record, array $data): void {
-                        if ($data['status'] == 'resolved') {
+                        if ($data['status'] == 'closed') {
                             $record->status = $data['status'];
                             $record->remarks = $data['remarks'];
                             $record->save();
