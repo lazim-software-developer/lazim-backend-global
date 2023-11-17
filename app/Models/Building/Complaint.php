@@ -89,4 +89,9 @@ class Complaint extends Model
         return $this->belongsTo(Service::class);
     }
 
+    public function technician()
+    {
+        return $this->hasOne(User::class,'id','technician_id');
+    }
+
 }
