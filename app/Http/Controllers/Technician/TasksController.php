@@ -13,10 +13,11 @@ class TasksController extends Controller
         $complaints = Complaint::where('technician_id', auth()->user()->id)
             ->where(function ($query) {
                 $query->where('complaint_type', 'tenant_complaint')
-                      ->orWhere('complaint_type', 'help_desk');
+                ->orWhere('complaint_type', 'help_desk')
+                ->orWhere('complaint_type', 'snags');
             })
             ->latest()
-            ->get();
+            ->paginate(10);
 
         return Complaintresource::collection($complaints);
     }
