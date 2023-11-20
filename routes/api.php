@@ -318,6 +318,9 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('vendor')->group(function 
 
     // List all invoices 
     Route::get('/{vendor}/invocies', [InvoiceController::class, 'index']);
+
+    // invoice dashboard
+    Route::get('/dashboard-invoice-stats/{vendor}',[InvoiceController::class,'stats']);
 });
 
 // Technician Related APIs
