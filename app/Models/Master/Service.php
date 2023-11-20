@@ -3,12 +3,13 @@
 namespace App\Models\Master;
 
 
-use App\Models\OaUserRegistration;
-use App\Models\TechnicianVendor;
-use App\Models\Vendor\Contract;
+use App\Models\Asset;
 use App\Models\Vendor\Vendor;
+use App\Models\Vendor\Contract;
+use App\Models\TechnicianVendor;
 use App\Models\Building\Building;
 use App\Models\Scopes\Searchable;
+use App\Models\OaUserRegistration;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -74,5 +75,9 @@ class Service extends Model
     public function contracts()
     {
         return $this->hasMany(Contract::class,'contracts');
+    }
+    public function assets()
+    {
+        return $this->hasMany(Asset::class);
     }
 }

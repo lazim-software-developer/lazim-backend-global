@@ -5,6 +5,7 @@ namespace App\Models\Building;
 use App\Models\Accounting\Budget;
 use App\Models\Accounting\Invoice;
 use App\Models\Accounting\WDA;
+use App\Models\Asset;
 use App\Models\Community\Post;
 use App\Models\Forms\AccessCard;
 use App\Models\Forms\Guest;
@@ -183,5 +184,9 @@ class Building extends Model
     public function wdas()
     {
         return $this->hasMany(WDA::class);
+    }
+    public function assets()
+    {
+        return $this->hasMany(Asset::class);
     }
 }
