@@ -325,6 +325,9 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('vendor')->group(function 
 
     // Show WDA
     Route::get('/wda/{wda}',[WDAController::class, 'show']);
+
+    //edit WDA 
+    Route::post('/wda/{wda}',[WDAController::class, 'edit']);
 });
 
 // Technician Related APIs

@@ -50,4 +50,9 @@ class WDA extends Model
     {
         return $this->hasMany(Invoice::class, 'wda_id');
     }
+
+    public function audits()
+    {
+        return $this->hasMany(WdaAudit::class, 'wda_id');
+    }
 }
