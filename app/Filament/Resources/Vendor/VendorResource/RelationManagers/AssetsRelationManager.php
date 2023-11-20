@@ -54,7 +54,7 @@ class AssetsRelationManager extends RelationManager
                     $existingAssets =  DB::table('asset_vendor')
                         ->where('vendor_id', $vendorId)
                         ->whereIn('asset_id', $allAssets)->pluck('asset_id')->toArray();
-                    $notSelected = Service::all()->whereNotIn('id', $existingAssets)->pluck('name', 'id')->toArray();
+                    $notSelected = Asset::all()->whereNotIn('id', $existingAssets)->pluck('name', 'id')->toArray();
                     return Select::make('recordId')
                         ->label('Assets')
                         ->options($notSelected)
