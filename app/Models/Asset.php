@@ -35,7 +35,7 @@ class Asset extends Model
     }
     public function users()
     {
-        return $this->belongsToMany(User::class);
+        return $this->belongsToMany(User::class,'technician_assets','technician_id');
     }
 }
 

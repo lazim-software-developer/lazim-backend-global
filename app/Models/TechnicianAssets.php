@@ -26,8 +26,13 @@ class TechnicianAssets extends Model
     public function asset() {
         return $this->belongsTo(Asset::class);
     }
-
+    public function user() {
+        return $this->belongsTo(User::class,'technician_id');
+    }
     public function building() {
         return $this->belongsTo(Building::class);
+    }
+    public function vendor() {
+        return $this->belongsTo(Vendor::class);
     }
 }
