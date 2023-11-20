@@ -12,6 +12,7 @@ use App\Models\User\User;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\Building\Flat;
 
 class Complaint extends Model
 {
@@ -38,7 +39,8 @@ class Complaint extends Model
         'due_date',
         'priority',
         'vendor_id',
-        'technician_id'
+        'technician_id',
+        'flat_id'
     ];
 
     protected $searchableFields = ['*'];
@@ -54,6 +56,12 @@ class Complaint extends Model
     {
         return $this->belongsTo(Building::class);
     }
+    
+    public function flat()
+    {
+        return $this->belongsTo(Flat::class);
+    }
+
     public function user()
     {
         return $this->belongsTo(User::class);
@@ -89,6 +97,10 @@ class Complaint extends Model
         return $this->belongsTo(Service::class);
     }
 
+    public function getDueDateDiffAttribute()
+    {
+        return Carbon::parse($this->attributes['due_date'])->diffForHumans();
+    }
     public function technician()
     {
         return $this->hasOne(User::class,'id','technician_id');
