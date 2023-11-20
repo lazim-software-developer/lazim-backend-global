@@ -290,6 +290,12 @@ class AdminPanelProvider extends PanelProvider
                                     ->icon('heroicon-m-user-circle')
                                     ->activeIcon('heroicon-m-user-circle')
                                     ->sort(1),
+                                NavigationItem::make('Technicians')
+                                    ->url('/admin/technicians')
+                                    ->hidden(DB::table('roles')->where('id',auth()->user()->role_id)->pluck('name')[0]=='Admin' ? true : false)
+                                    ->icon('heroicon-m-user-circle')
+                                    ->activeIcon('heroicon-m-user-circle')
+                                    ->sort(2),
                                 ]),
                 ]);
             }

@@ -2,8 +2,11 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\Asset;
+use App\Models\User\User;
+use App\Models\Vendor\Vendor;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class TechnicianAssets extends Model
 {
@@ -15,5 +18,17 @@ class TechnicianAssets extends Model
         'asset_id',
         'active',
     ];
+    public function technician()
+    {
+        return $this->belongsTo(User::class);
+    }
+    public function vendor()
+    {
+        return $this->belongsTo(Vendor::class);
+    }
+    public function asset()
+    {
+        return $this->belongsTo(Asset::class);
+    }
 
 }
