@@ -24,6 +24,8 @@ class StoreAssetMaintenanceRequest extends FormRequest
         return [
             'technician_asset_id' => 'required|exists:technician_assets,id',
             'building_id' => 'required|exists:buildings,id',
+            'comment' => 'required',
+            'media' => 'required',
         ];
     }
 }
