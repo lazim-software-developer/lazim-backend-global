@@ -105,5 +105,4 @@ class Complaint extends Model
     {
         return $this->hasOne(User::class,'id','technician_id');
     }
-
 }
