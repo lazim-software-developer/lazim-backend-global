@@ -67,7 +67,7 @@ class ComplaintController extends Controller
     {
         // Fetch the flat_tenant ID using the building_id, logged-in user's ID, and active status
         $flatTenant = FlatTenant::where([
-            'building_id' => $building->id,
+            'flat_id' => $request->flat_id,
             'tenant_id' => auth()->user()->id,
             'active' => 1
         ])->first();

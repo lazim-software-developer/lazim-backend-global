@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Master\Service;
 use App\Models\Building\Building;
+use App\Models\User\User;
 use App\Models\Vendor\Vendor;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -31,6 +32,10 @@ class Asset extends Model
     public function vendors()
     {
         return $this->belongsToMany(Vendor::class);
+    }
+    public function users()
+    {
+        return $this->belongsToMany(User::class);
     }
 }
 
