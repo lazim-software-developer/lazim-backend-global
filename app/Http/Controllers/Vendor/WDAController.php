@@ -4,9 +4,11 @@ namespace App\Http\Controllers\Vendor;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Vendor\CreateWDARequest;
+use App\Http\Requests\Vendor\WdaUpdateRequest;
 use App\Http\Resources\CustomResponseResource;
 use App\Http\Resources\Vendor\WDAResource;
 use App\Models\Accounting\WDA;
+use App\Models\Accounting\WdaAudit;
 use App\Models\Vendor\Vendor;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -61,5 +63,37 @@ class WDAController extends Controller
     public function show(WDA $wda)
     {
         return new WDAResource($wda);
+    }
+    public function edit(WdaUpdateRequest $request, WDA $wda)
+    {
+        $document = optimizeDocumentAndUpload($request->document);
+
+        $audit = WdaAudit::create([
+                "wda_id"=> $wda->id,
+                "wda_number"=> $wda->wda_number,
+                "date"=> $wda->date,
+                "job_description"=> $wda->job_description,
+                "document"=> $wda->document,
+                "created_by"=> $wda->created_by,
+                "status"=> $wda->status,
+                "remarks"=> $wda->remarks,
+                "building_id"=> $wda->building_id,
+                "contract_id"=> $wda->contract_id,
+                "status_updated_by"=> $wda->status_updated_by,
+                "vendor_id"=> $wda->vendor_id,
+                ]);
+        
+        $request->merge([
+                    'document' => $document,
+                    'status' => 'pending',
+                ]);
+
+        $wda->update($request->all());
+        
+        return (new CustomResponseResource([
+            'title' => 'Success',
+            'message' => 'WDA resubmited successfully!',
+            'code' => 200,
+        ]))->response()->setStatusCode(200);
     }
 }
