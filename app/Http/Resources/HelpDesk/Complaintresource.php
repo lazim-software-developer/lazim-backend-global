@@ -16,6 +16,14 @@ class Complaintresource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $priority = 'Low';
+
+        if($this->priority === 1) {
+            $priority = 'High';
+        } else if($this->priority == 2) {
+            $priority = 'Medium';
+        }
+
         return [
             'id' => $this->id,
             'complaint' => $this->complaint,
@@ -29,6 +37,11 @@ class Complaintresource extends JsonResource
             'complaint_type' => $this->complaint_type,
             'complaint_details' => $this->complaint_details,
             'comments' => CommentResource::collection($this->whenLoaded('comments')),
+            'assignee_id' => $this->technician->id,
+            'assignee_name' => $this->technician?->first_name,
+            'priority' => $this->priority,
+            'priority_name' => $priority,
+            'due_date' => $this->due_date
         ];
     }
 }
