@@ -41,84 +41,83 @@ class AnnouncementResource extends Resource
                 'sm' => 1,
                 'md' => 1,
                 'lg' => 2,
-                ])->schema([
-                    RichEditor::make('content')
-                        ->disableToolbarButtons([
-                            'blockquote',
-                            'strike',
-                        ])
-                        ->fileAttachmentsDisk('s3')
-                        ->fileAttachmentsDirectory('dev')
-                        ->live()
-                        ->columnSpan([
-                            'sm' => 1,
-                            'md' => 1,
-                            'lg' => 2,
-                        ]),
+            ])->schema([
+                        RichEditor::make('content')
+                            ->disableToolbarButtons([
+                                'blockquote',
+                                'strike',
+                            ])
+                            ->fileAttachmentsDisk('s3')
+                            ->fileAttachmentsDirectory('dev')
+                            ->live()
+                            ->columnSpan([
+                                'sm' => 1,
+                                'md' => 1,
+                                'lg' => 2,
+                            ]),
 
-                Select::make('status')
-                    ->searchable()
-                    ->options([
-                        'published' => 'Published',
-                        'draft' => 'Draft',
-                        'archived' => 'Archived',
+                        Select::make('status')
+                            ->searchable()
+                            ->options([
+                                'published' => 'Published',
+                                'draft' => 'Draft',
+                                'archived' => 'Archived',
+                            ])
+                            ->live()
+                            ->required()
+                            ->default('draft'),
+
+                        DateTimePicker::make('scheduled_at')
+                            ->rules(['date'])
+                            ->displayFormat('d-M-Y h:i A')
+                            ->hidden(function (Get $get) {
+                                if ($get('status') == 'published' && (post::where('content', $get('content'))->where('scheduled_at', null)->exists() || post::where('content', $get('content'))->exists() == false)) {
+                                    return true;
+                                }
+                                return false;
+                            })
+                            ->live()
+                            ->minDate(now())
+                            ->required()
+                            ->placeholder('Scheduled At'),
+
+                        Select::make('building_id')
+                            ->relationship('building', 'name')
+                            ->searchable()
+                            ->multiple()
+                            ->preload()
+                            ->required(),
+
+                        Hidden::make('user_id')
+                            ->default(auth()->user()->id),
+
+                        Hidden::make('owner_association_id')
+                            ->default(auth()->user()->owner_association_id),
+
+                        Hidden::make('is_announcement')
+                            ->default(true),
+
+                        // Repeater::make('media')
+                        //     ->relationship('media')
+                        //     ->schema([
+                        //         TextInput::make('name')
+                        //             ->rules(['max:30','regex:/^[a-zA-Z\s]*$/'])
+                        //             ->required()
+                        //             ->placeholder('Name'),
+                        //         FileUpload::make('url')
+                        //             ->disk('s3')
+                        //             ->directory('dev')
+                        //             ->maxSize(2048)
+                        //             ->required()
+
+                        //     ])
+                        //     ->columnSpan([
+                        //         'sm' => 1,
+                        //         'md' => 1,
+                        //         'lg' => 2,
+                        //     ])
+
                     ])
-                    ->live()
-                    ->required()
-                    ->default('draft'),
-
-                    DateTimePicker::make('scheduled_at')
-                        ->rules(['date'])
-                        ->displayFormat('d-M-Y h:i A')
-                        ->hidden(function(Get $get){
-                            if($get('status') == 'published' && (post::where('content',$get('content'))->where('scheduled_at',null)->exists() || post::where('content',$get('content'))->exists() == false))
-                            {
-                                return true;
-                            }
-                            return false;
-                        })
-                        ->live()
-                        ->minDate(now())
-                        ->required()
-                        ->placeholder('Scheduled At'),
-
-                Select::make('building_id')
-                    ->relationship('building', 'name')
-                    ->searchable()
-                    ->multiple()
-                    ->preload()
-                    ->required(),
-
-                Hidden::make('user_id')
-                    ->default(auth()->user()->id),
-
-                Hidden::make('owner_association_id')
-                    ->default(auth()->user()->owner_association_id),
-
-                    Hidden::make('is_announcement')
-                        ->default(true),
-
-                    // Repeater::make('media')
-                    //     ->relationship('media')
-                    //     ->schema([
-                    //         TextInput::make('name')
-                    //             ->rules(['max:30','regex:/^[a-zA-Z\s]*$/'])
-                    //             ->required()
-                    //             ->placeholder('Name'),
-                    //         FileUpload::make('url')
-                    //             ->disk('s3')
-                    //             ->directory('dev')
-                    //             ->maxSize(2048)
-                    //             ->required()
-
-                    //     ])
-                    //     ->columnSpan([
-                    //         'sm' => 1,
-                    //         'md' => 1,
-                    //         'lg' => 2,
-                    //     ])
-
-            ])
         ]);
     }
 
@@ -126,45 +125,45 @@ class AnnouncementResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('status')
-                    ->searchable()
-                    ->default('NA')
-                    ->limit(50),
-                TextColumn::make('scheduled_at')
-                    ->dateTime(),
-                TextColumn::make('building.name')
-                    ->searchable()
-                    ->default('NA')
-                    ->limit(50),
-                TextColumn::make('user.first_name')
-                    ->searchable()
-                    ->default('NA')
-                    ->limit(50),
-            ])
+                    TextColumn::make('status')
+                        ->searchable()
+                        ->default('NA')
+                        ->limit(50),
+                    TextColumn::make('scheduled_at')
+                        ->dateTime(),
+                    TextColumn::make('building.name')
+                        ->searchable()
+                        ->default('NA')
+                        ->limit(50),
+                    TextColumn::make('user.first_name')
+                        ->searchable()
+                        ->default('NA')
+                        ->limit(50),
+                ])
             ->defaultSort('created_at', 'desc')
             ->filters([
-                SelectFilter::make('user_id')
-                    ->relationship('user', 'first_name')
-                    ->searchable()
-                    ->preload()
-                    ->label('User'),
-                SelectFilter::make('building_id')
-                    ->relationship('building', 'name')
-                    ->searchable()
-                    ->preload()
-                    ->label('Building'),
-            ])
+                    SelectFilter::make('user_id')
+                        ->relationship('user', 'first_name')
+                        ->searchable()
+                        ->preload()
+                        ->label('User'),
+                    SelectFilter::make('building_id')
+                        ->relationship('building', 'name')
+                        ->searchable()
+                        ->preload()
+                        ->label('Building'),
+                ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-            ])
+                    Tables\Actions\EditAction::make(),
+                ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ])
+                    Tables\Actions\BulkActionGroup::make([
+                        Tables\Actions\DeleteBulkAction::make(),
+                    ]),
+                ])
             ->emptyStateActions([
-                Tables\Actions\CreateAction::make(),
-            ]);
+                    Tables\Actions\CreateAction::make(),
+                ]);
     }
 
     public static function getRelations(): array
