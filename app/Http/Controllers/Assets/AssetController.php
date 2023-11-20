@@ -10,15 +10,49 @@ use App\Http\Resources\Assets\TechnicianAssetResource;
 use App\Http\Resources\CustomResponseResource;
 use App\Models\Assets\Assetmaintenance;
 use App\Models\TechnicianAssets;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class AssetController extends Controller
 {
     public function index()
     {
-        $assets = TechnicianAssets::where(['technician_id' => auth()->user()->id, 'active' => 1])->get();
+        // $assets = TechnicianAssets::where(['technician_id' => auth()->user()->id, 'active' => 1])->get();
 
-        return TechnicianAssetResource::collection($assets);
+        // return TechnicianAssetResource::collection($assets);
+
+        $technicianId = auth()->user()->id;
+        $currentQuarterStart = Carbon::now()->firstOfQuarter();
+        $currentQuarterEnd = Carbon::now()->lastOfQuarter();
+
+        $assignedAssets = TechnicianAssets::with(['asset', 'assetMaintenances' => function ($query) use ($currentQuarterStart, $currentQuarterEnd) {
+            $query->whereBetween('maintenance_date', [$currentQuarterStart, $currentQuarterEnd]);
+        }])
+            ->where('technician_id', $technicianId)
+            ->get()
+            ->map(function ($technicianAsset) {
+                $latestMaintenance = $technicianAsset->assetMaintenances->last();
+                $status = 'Not Started';
+                $id = null;
+
+                if ($latestMaintenance) {
+                    $status = $latestMaintenance->status;
+                    $id = $latestMaintenance->id;
+                }
+
+                return [
+                    'id' => $id,
+                    'asset_id' => $technicianAsset->asset_id,
+                    'asset_name' => $technicianAsset->asset->name,
+                    'maintenance_status' => $status,
+                    'building_name' => $technicianAsset->building->name,
+                    'location' => $technicianAsset->asset->location,
+                    'description' => $technicianAsset->asset->description,
+                    'last_service_on' => now()
+                ];
+            });
+
+        return response()->json($assignedAssets);
     }
 
     public function store(StoreAssetMaintenanceRequest $request)
@@ -59,7 +93,7 @@ class AssetController extends Controller
             'comment' => json_encode($jsonData['comment']),
             'media' => json_encode($jsonData['media'])
         ]);
-        
+
         return (new CustomResponseResource([
             'title' => 'Success',
             'message' => 'Record updated successfully!',
