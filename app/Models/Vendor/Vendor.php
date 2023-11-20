@@ -4,6 +4,7 @@ namespace App\Models\Vendor;
 
 use App\Models\Accounting\Invoice;
 use App\Models\Accounting\WDA;
+use App\Models\Asset;
 use App\Models\OaUserRegistration;
 use App\Models\TechnicianVendor;
 use App\Models\User\User;
@@ -119,6 +120,10 @@ class Vendor extends Model
     public function invoices()
     {
         return $this->hasMany(Invoice::class,'vendor_id');
+    }
+    public function assets()
+    {
+        return $this->belongsToMany(Asset::class);
     }
 
 }

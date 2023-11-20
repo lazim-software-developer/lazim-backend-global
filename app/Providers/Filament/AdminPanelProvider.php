@@ -181,6 +181,11 @@ class AdminPanelProvider extends PanelProvider
                                 ->icon('heroicon-m-wrench')
                                 ->activeIcon('heroicon-m-wrench')
                                 ->sort(5),
+                            NavigationItem::make('Assets')
+                                ->url('/admin/assets')
+                                ->icon('heroicon-m-wrench')
+                                ->activeIcon('heroicon-m-wrench')
+                                ->sort(6),
                             ]),
             ]);
             $builder->groups([
