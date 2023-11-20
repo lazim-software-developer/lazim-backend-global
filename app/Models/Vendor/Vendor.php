@@ -6,6 +6,7 @@ use App\Models\Accounting\Invoice;
 use App\Models\Accounting\WDA;
 use App\Models\Asset;
 use App\Models\OaUserRegistration;
+use App\Models\OwnerAssociation;
 use App\Models\TechnicianVendor;
 use App\Models\User\User;
 use App\Models\Master\Service;
@@ -126,4 +127,8 @@ class Vendor extends Model
         return $this->belongsToMany(Asset::class);
     }
 
+    public function OA()
+    {
+        return $this->belongsTo(OwnerAssociation::class,'owner_association_id');
+    }
 }
