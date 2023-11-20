@@ -28,13 +28,14 @@ class ComplaintResource extends JsonResource
             'building' => $this->building->name,
             'flat' => $this->flat?->property_number,
             'complaint' => $this->complaint,
-            'categoty' => $this->category,
+            'category' => $this->category,
             'opened_on' => $this->open_time_diff,
             'resolved' => $this->status == 'open' ? false : true,
             'media' => MediaResource::collection($this->media),
             'complaint_type' => $this->complaint_type,
             'complaint_details' => $this->complaint_details,
-            'priority' => $priority,
+            'priority' => $this->priority,
+            'priority_name' => $priority,
             'due_date' => $this->due_date
         ];
     }
