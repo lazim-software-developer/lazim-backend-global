@@ -175,10 +175,12 @@ class BuildingResource extends Resource
             BuildingResource\RelationManagers\BudgetRelationManager::class,
             BuildingResource\RelationManagers\BuildingPocsRelationManager::class,
             BuildingResource\RelationManagers\ComplaintsRelationManager::class,
+            BuildingResource\RelationManagers\ServicesRelationManager::class,
             // BuildingResource\RelationManagers\DocumentsRelationManager::class,
             BuildingResource\RelationManagers\FacilitiesRelationManager::class,
             BuildingResource\RelationManagers\FlatsRelationManager::class,
             BuildingResource\RelationManagers\VendorRelationManager::class,
+            BuildingResource\RelationManagers\AssetsRelationManager::class,
         ];
     }
 

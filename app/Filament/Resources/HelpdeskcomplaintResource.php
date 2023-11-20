@@ -2,31 +2,32 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\HelpdeskcomplaintResource\Pages;
-use App\Filament\Resources\HelpdeskcomplaintResource\RelationManagers;
+use Filament\Tables;
+use Filament\Forms\Get;
+use Filament\Forms\Form;
+use Filament\Tables\Table;
+use Filament\Resources\Resource;
 use App\Models\Building\Building;
 use App\Models\Building\Complaint;
+use Illuminate\Support\Facades\DB;
 use App\Models\Building\FlatTenant;
-use Filament\Forms\Components\CheckboxList;
-use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\MorphToSelect;
-use Filament\Forms\Components\MorphToSelect\Type;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Form;
-use Filament\Forms\Get;
-use Filament\Resources\Resource;
-use Filament\Tables;
 use Filament\Tables\Actions\Action;
+use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Repeater;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ViewColumn;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\FileUpload;
 use Filament\Tables\Filters\SelectFilter;
-use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Forms\Components\CheckboxList;
+use Filament\Forms\Components\MorphToSelect;
+use Filament\Forms\Components\MorphToSelect\Type;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Illuminate\Support\Facades\DB;
+use App\Filament\Resources\HelpdeskcomplaintResource\Pages;
+use App\Filament\Resources\HelpdeskcomplaintResource\RelationManagers;
 
 class HelpdeskcomplaintResource extends Resource
 {
@@ -78,27 +79,33 @@ class HelpdeskcomplaintResource extends Resource
                             ->label('User'),
                         Select::make('category')
                             ->options([
-                                'civil'    => 'Civil',
-                                'MIP'      => 'MIP',
+                                'civil' => 'Civil',
+                                'MIP' => 'MIP',
                                 'security' => 'Security',
                                 'cleaning' => 'Cleaning',
-                                'others'   => 'Others',
+                                'others' => 'Others',
                             ])
                             ->rules(['max:50', 'string'])
                             ->required()
                             ->searchable()
                             ->placeholder('Category'),
-                        FileUpload::make('photo')
-                            ->disk('s3')
-                            ->directory('dev')
-                            ->maxSize(2048)
-                            ->nullable(),
                         TextInput::make('complaint')
                             ->placeholder('Complaint'),
                         Hidden::make('status')
                             ->default('pending'),
                         Hidden::make('complaint_type')
                             ->default('help_desk'),
+                        Repeater::make('media')
+                            ->relationship()
+                            ->schema([
+                                FileUpload::make('url')
+                                    ->disk('s3')
+                                    ->directory('dev')
+                                    ->maxSize(2048)
+                                    ->openable(true)
+                                    ->downloadable(true)
+                                    ->label('Media'),
+                            ])
                     ])
             ]);
     }
@@ -142,12 +149,12 @@ class HelpdeskcomplaintResource extends Resource
             ])
             ->actions([
                 Action::make('Update Status')
-                    ->visible(fn ($record) => $record->status === 'open')
+                    ->visible(fn($record) => $record->status === 'open')
                     ->button()
                     ->form([
                         Select::make('status')
                             ->options([
-                                'open'   => 'Open',
+                                'open' => 'Open',
                                 'closed' => 'Closed',
                             ])
                             ->searchable()
@@ -162,7 +169,7 @@ class HelpdeskcomplaintResource extends Resource
                             })
                             ->required(),
                     ])
-                    ->fillForm(fn (Complaint $record): array => [
+                    ->fillForm(fn(Complaint $record): array => [
                         'status' => $record->status,
                         'remarks' => $record->remarks,
                     ])
