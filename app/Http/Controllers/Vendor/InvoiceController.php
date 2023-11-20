@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Vendor;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Vendor\CreateInvoiceRequest;
 use App\Http\Resources\CustomResponseResource;
+use App\Http\Resources\Vendor\InvoiceStatsResource;
 use App\Models\Accounting\Invoice;
 use App\Models\Accounting\WDA;
+use App\Models\Vendor\Vendor;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -71,5 +73,24 @@ class InvoiceController extends Controller
             'status' => 'success',
             'data' => $invoice,
         ]))->response()->setStatusCode(201);
+    }
+
+    public function stats(Request $request,Vendor $vendor){
+
+        // Get the date filter or use the current month and year
+        $dateFilter = $request->input('date', Carbon::now()->format('F Y'));
+
+        // Parse the date filter to get the start and end of the month
+        $startDate = Carbon::createFromFormat('F Y', $dateFilter)->startOfMonth();
+        $endDate = Carbon::createFromFormat('F Y', $dateFilter)->endOfMonth();
+
+        $invoiceQuery = Invoice::where('vendor_id', $vendor->id)
+                    ->whereBetween('date', [$startDate, $endDate])->get();
+
+        if ($request->has('building_id') && !empty($request->building_id)) {
+            $invoiceQuery = $invoiceQuery->where('building_id', $request->building_id);
+        }
+
+        return new InvoiceStatsResource($invoiceQuery);
     }
 }
