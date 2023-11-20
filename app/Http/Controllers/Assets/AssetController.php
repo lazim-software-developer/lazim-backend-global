@@ -32,7 +32,7 @@ class AssetController extends Controller
             ->get()
             ->map(function ($technicianAsset) {
                 $latestMaintenance = $technicianAsset->assetMaintenances->last();
-                $status = 'Not Started';
+                $status = 'not-started';
                 $id = null;
 
                 if ($latestMaintenance) {
