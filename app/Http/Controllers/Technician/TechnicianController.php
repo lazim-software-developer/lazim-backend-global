@@ -29,7 +29,9 @@ class TechnicianController extends Controller
             'first_name' => $request->name,
             'role_id' => Role::where('name', 'Technician')->first()->id,
         ]);
+
         $user = User::create($request->all());
+
         $vendorId = Vendor::where('owner_id', auth()->user()->id)->first()->id;
         $password = Str::random(12);
         $user->password = Hash::make($password);
@@ -77,15 +79,16 @@ class TechnicianController extends Controller
         ]))->response()->setStatusCode(200);
     }
 
-    public function attachTechnician(ServiceIdRequest $request,TechnicianVendor $technician){
+    public function attachTechnician(ServiceIdRequest $request, TechnicianVendor $technician){
 
-        if ($technician->active == false){
+        if ($technician->active == false) {
             return (new CustomResponseResource([
                 'title' => 'Technician is not active',
                 'message' => "Please active Technician to assign services",
                 'code' => 403,
             ]))->response()->setStatusCode(403);
         }
+
         $technician->services()->syncWithoutDetaching([$request->service_id]);
 
         return (new CustomResponseResource([
@@ -100,6 +103,7 @@ class TechnicianController extends Controller
 
         $complaint->technician_id = $request->technician_id;
         $complaint->save();
+        
         return (new CustomResponseResource([
             'title' => 'Technician assigned',
             'message' => "Technician assigned to complaint successfully!",
