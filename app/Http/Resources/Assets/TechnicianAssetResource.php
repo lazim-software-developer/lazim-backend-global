@@ -19,8 +19,8 @@ class TechnicianAssetResource extends JsonResource
             'asset_id' => $this->asset->id,
             'asset_name' => $this->asset->name,
             'building_name' => $this->building?->name,
-            'location' => 'sdasdas',
-            'description' => 'sdsd',
+            'location' => $this->asset->location,
+            'description' => $this->asset->description,
             'last_service_on' => 'sdsd',
         ];
     }

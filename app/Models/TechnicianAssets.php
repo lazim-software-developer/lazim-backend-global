@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Assets\Assetmaintenance;
 use App\Models\Asset;
 use App\Models\User\User;
 use App\Models\Vendor\Vendor;
@@ -31,6 +32,10 @@ class TechnicianAssets extends Model
     }
     public function building() {
         return $this->belongsTo(Building::class);
+    }
+
+    public function assetMaintenances() {
+        return $this->hasMany(Assetmaintenance::class, 'technician_asset_id');
     }
     public function vendor() {
         return $this->belongsTo(Vendor::class);
