@@ -209,6 +209,7 @@ class VendorResource extends Resource
             VendorResource\RelationManagers\ContractsRelationManager::class,
             VendorResource\RelationManagers\WdasRelationManager::class,
             VendorResource\RelationManagers\InvoicesRelationManager::class,
+            VendorResource\RelationManagers\AssetsRelationManager::class,
         ];
     }
 
