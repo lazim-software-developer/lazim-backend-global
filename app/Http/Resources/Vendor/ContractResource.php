@@ -17,12 +17,18 @@ class ContractResource extends JsonResource
     {
         $startDate = Carbon::parse($this->start_date);
         $endDate = Carbon::parse($this->end_date);
+        $today = Carbon::now();
+
+        $daysRemaining = $today->diffInDays($endDate);
+        $status = $endDate->isPast() ? 'expired' : 'active';
+        $daysRemaining = $status === 'expired' ? 0 : $daysRemaining;
         return [
             'id'  => $this->id,
             'contract'=> $this->contract_type,
             'start_date' => $startDate->format('Y-m-d'), 
             'end_date' => $endDate->format('Y-m-d'), 
-            'days_remaining' => Carbon::now()->diffInDays($endDate),
+            'days_remaining' => $daysRemaining,
+            'status' => $status,
             'url'   => env('AWS_URL').'/'.$this->document_url,
 
         ];
