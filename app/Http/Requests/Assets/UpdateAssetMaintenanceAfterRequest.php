@@ -23,7 +23,7 @@ class UpdateAssetMaintenanceAfterRequest extends FormRequest
     {
         return [
             'comment' => 'required',
-            'media' => 'required',
+            'media' => 'required|file|max:2048',
         ];
     }
 }
