@@ -47,6 +47,7 @@ class AssetController extends Controller
 
             return [
                 'id' => $id,
+                'technician_asset_id' => $technicianAsset->id,
                 'asset_id' => $technicianAsset->asset_id,
                 'asset_name' => $technicianAsset->asset->name,
                 'maintenance_status' => $status,
