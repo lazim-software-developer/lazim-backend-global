@@ -16,6 +16,7 @@ class ServiceTechnicianResource extends JsonResource
     {
         return [
             "id" => $this->id,
+            "technician_number" => $this->technician_number,
             "service_id" => $this->pivot->service_id,
             "vendor_id" => $this->vendor->id,
             "technician_id" => $this->technician_id,
