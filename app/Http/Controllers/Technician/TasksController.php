@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Technician;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\HelpDesk\Complaintresource;
+use App\Http\Resources\Technician\ComplaintResource;
 use App\Models\Building\Complaint;
 use Illuminate\Http\Request;
 
@@ -23,6 +23,6 @@ class TasksController extends Controller
             ->latest()
             ->paginate(10);
 
-        return Complaintresource::collection($complaints);
+        return ComplaintResource::collection($complaints);
     }
 }
