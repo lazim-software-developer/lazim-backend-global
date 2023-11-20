@@ -47,74 +47,76 @@ class PostResource extends Resource
                 'md' => 1,
                 'lg' => 2,
             ])->schema([
-                RichEditor::make('content')
-                    ->minLength(10)
-                    ->maxLength(255)
-                    ->required()
-                    ->columnSpan([
-                        'sm' => 1,
-                        'md' => 1,
-                        'lg' => 2,
-                    ]),
-
-                Select::make('status')
-                    ->searchable()
-                    ->options([
-                        'published' => 'Published',
-                        'draft' => 'Draft',
-                        'archived' => 'Archived',
-                    ])
-                    ->required()
-                    ->default('draft'),
-
-                DateTimePicker::make('scheduled_at')
-                    ->rules(['date'])
-                    ->displayFormat('d-M-Y h:i A')
-                    ->minDate(now())
-                    ->required()
-                    ->placeholder('Scheduled At'),
-
-                Select::make('building')
-                    ->relationship('building', 'name')
-                    ->searchable()
-                    ->preload()
-                    ->required()
-                    ->label('Building')
-                    ->columnSpan([
-                        'sm' => 1,
-                        'md' => 1,
-                        'lg' => 2,
-                    ]),
-
-                Hidden::make('user_id')
-                    ->default(auth()->user()->id),
-
-                Hidden::make('owner_association_id')
-                    ->default(auth()->user()->owner_association_id),
-
-                Hidden::make('is_announcement')
-                    ->default(false),
-                Repeater::make('media')
-                    ->relationship('media')
-                    ->schema([
-                TextInput::make('name')
-                            ->rules(['max:30', 'regex:/^[a-zA-Z\s]*$/'])
+                        RichEditor::make('content')
+                            ->minLength(10)
+                            ->maxLength(255)
                             ->required()
-                            ->placeholder('Name'),
-                FileUpload::make('url')
-                            ->disk('s3')
-                            ->directory('dev')
-                            ->image()
-                            ->maxSize(2048)
-                            ->required()
+                            ->columnSpan([
+                                'sm' => 1,
+                                'md' => 1,
+                                'lg' => 2,
+                            ]),
 
+                        Select::make('status')
+                            ->searchable()
+                            ->options([
+                                'published' => 'Published',
+                                'draft' => 'Draft',
+                                'archived' => 'Archived',
+                            ])
+                            ->required()
+                            ->default('draft'),
+
+                        DateTimePicker::make('scheduled_at')
+                            ->rules(['date'])
+                            ->displayFormat('d-M-Y h:i A')
+                            ->minDate(now())
+                            ->required()
+                            ->placeholder('Scheduled At'),
+
+                        Select::make('building')
+                            ->relationship('building', 'name')
+                            ->searchable()
+                            ->preload()
+                            ->required()
+                            ->label('Building')
+                            ->columnSpan([
+                                'sm' => 1,
+                                'md' => 1,
+                                'lg' => 2,
+                            ]),
+
+                        Hidden::make('user_id')
+                            ->default(auth()->user()->id),
+
+                        Hidden::make('owner_association_id')
+                            ->default(auth()->user()->owner_association_id),
+
+                        Hidden::make('is_announcement')
+                            ->default(false),
+                        Repeater::make('media')
+                            ->relationship('media')
+                            ->schema([
+                                TextInput::make('name')
+                                    ->rules(['max:30', 'regex:/^[a-zA-Z\s]*$/'])
+                                    ->required()
+                                    ->placeholder('Name'),
+                                FileUpload::make('url')
+                                    ->disk('s3')
+                                    ->directory('dev')
+                                    ->openable(true)
+                                    ->downloadable(true)
+                                    ->image()
+                                    ->maxSize(2048)
+                                    ->required()
+
+                            ])
+                            ->columnSpan([
+                                'sm' => 1,
+                                'md' => 1,
+                                'lg' => 2,
+                            ])
                     ])
-                    ->columnSpan([
-                        'sm' => 1,
-                        'md' => 1,
-                        'lg' => 2,
-                    ])
-            ])
         ]);
     }
 
