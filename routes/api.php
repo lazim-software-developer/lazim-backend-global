@@ -17,6 +17,7 @@ use App\Http\Controllers\Api\Auth\ResetPasswordController;
 use App\Http\Controllers\Api\Auth\RegistrationController;
 use App\Http\Controllers\Api\Auth\VerificationController;
 use App\Http\Controllers\AppFeedbackController;
+use App\Http\Controllers\Assets\AssetController;
 use App\Http\Controllers\Building\BuildingController;
 use App\Http\Controllers\Building\FlatController;
 use App\Http\Controllers\Community\CommentController;
@@ -335,4 +336,10 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('technician')->group(funct
     Route::patch('/active-deactive/{technician}',[TechnicianController::class, 'activeDeactive']);
     Route::post('/attach-technician/{technician}',[TechnicianController::class, 'attachTechnician']);
     Route::post('/assign-technician/{complaint}',[TechnicianController::class, 'assignTechnician']);
+});
+
+// Assets related APIs
+Route::middleware(['auth:sanctum', 'active'])->prefix('assets')->group(function () {
+    // List all assets for the technicians
+    Route::get('/technican/assets',[AssetController::class, 'index']);
 });
