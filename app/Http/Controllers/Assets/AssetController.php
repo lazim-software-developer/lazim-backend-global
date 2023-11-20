@@ -22,37 +22,43 @@ class AssetController extends Controller
         // return TechnicianAssetResource::collection($assets);
 
         $technicianId = auth()->user()->id;
-        $currentQuarterStart = Carbon::now()->firstOfQuarter();
-        $currentQuarterEnd = Carbon::now()->lastOfQuarter();
+    $currentQuarterStart = Carbon::now()->firstOfQuarter();
+    $currentQuarterEnd = Carbon::now()->lastOfQuarter();
 
-        $assignedAssets = TechnicianAssets::with(['asset', 'assetMaintenances' => function ($query) use ($currentQuarterStart, $currentQuarterEnd) {
-            $query->whereBetween('maintenance_date', [$currentQuarterStart, $currentQuarterEnd]);
-        }])
-            ->where('technician_id', $technicianId)
-            ->get()
-            ->map(function ($technicianAsset) {
-                $latestMaintenance = $technicianAsset->assetMaintenances->last();
-                $status = 'not-started';
-                $id = null;
+    // Paginate the query results before mapping
+    $assignedAssets = TechnicianAssets::with(['asset', 'assetMaintenances' => function ($query) use ($currentQuarterStart, $currentQuarterEnd) {
+        $query->whereBetween('maintenance_date', [$currentQuarterStart, $currentQuarterEnd]);
+    }])
+    ->where('technician_id', $technicianId)
+    ->paginate(10); // Set the number of items per page
 
-                if ($latestMaintenance) {
-                    $status = $latestMaintenance->status;
-                    $id = $latestMaintenance->id;
-                }
+    // Transform the paginated results
+    $transformedAssets = $assignedAssets->getCollection()->map(function ($technicianAsset) {
+        $latestMaintenance = $technicianAsset->assetMaintenances->last();
+        $status = 'not-started';
+        $id = null;
 
-                return [
-                    'id' => $id,
-                    'asset_id' => $technicianAsset->asset_id,
-                    'asset_name' => $technicianAsset->asset->name,
-                    'maintenance_status' => $status,
-                    'building_name' => $technicianAsset->building->name,
-                    'location' => $technicianAsset->asset->location,
-                    'description' => $technicianAsset->asset->description,
-                    'last_service_on' => now()
-                ];
-            });
+        if ($latestMaintenance) {
+            $status = $latestMaintenance->status;
+            $id = $latestMaintenance->id;
+        }
 
-        return response()->json($assignedAssets);
+        return [
+            'id' => $id,
+            'asset_id' => $technicianAsset->asset_id,
+            'asset_name' => $technicianAsset->asset->name,
+            'maintenance_status' => $status,
+            'building_name' => $technicianAsset->building->name,
+            'location' => $technicianAsset->asset->location,
+            'description' => $technicianAsset->asset->description,
+            'last_service_on' => now() // Assuming this is the correct logic for 'last_service_on'
+        ];
+    });
+
+    // Update the original paginated object's collection
+    $assignedAssets->setCollection($transformedAssets);
+
+    return response()->json($assignedAssets);
     }
 
     public function store(StoreAssetMaintenanceRequest $request)
