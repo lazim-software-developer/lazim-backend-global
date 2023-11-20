@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Assets\Assetmaintenance;
 use App\Models\Building\Building;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -26,5 +27,9 @@ class TechnicianAssets extends Model
 
     public function building() {
         return $this->belongsTo(Building::class);
+    }
+
+    public function assetMaintenances() {
+        return $this->hasMany(Assetmaintenance::class, 'technician_asset_id');
     }
 }
