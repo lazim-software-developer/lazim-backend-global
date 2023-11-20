@@ -7,6 +7,7 @@ use App\Http\Controllers\Vendor\ContractController;
 use App\Http\Controllers\Vendor\DocumentsUploadController;
 use App\Http\Controllers\Vendor\EscalationMatrixController;
 use App\Http\Controllers\Vendor\SelectServicesController;
+use App\Http\Controllers\Vendor\SnagDashboardController;
 use App\Http\Controllers\Vendor\VendorComplaintController;
 use App\Http\Controllers\Vendor\VendorRegistrationController;
 use Illuminate\Http\Request;
@@ -298,6 +299,13 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('vendor')->group(function 
     Route::get('/{vendor}/tickets',[VendorComplaintController::class, 'listComplaints']);
     Route::post('/vendor-comment/{complaint}',[VendorComplaintController::class, 'addComment']);
     Route::get('/list-buildings/{vendor}',[VendorBuildingController::class,'listBuildings']);
+    Route::get('/{vendor}/contracts',[ContractController::class,'index']);
+
+    //Dashboard Snags
+    Route::get('/dashboard-snag-stats/{vendor}',[SnagDashboardController::class,'tasks']);
+
+    // Invoice create API
+    Route::post('/invoice',[InvoiceController::class, 'store']);
 
     // WDA create API
     Route::post('/wda', [WDAController::class, 'store']);

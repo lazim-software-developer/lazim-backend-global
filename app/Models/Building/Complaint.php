@@ -101,4 +101,9 @@ class Complaint extends Model
     {
         return Carbon::parse($this->attributes['due_date'])->diffForHumans();
     }
+    public function technician()
+    {
+        return $this->hasOne(User::class,'id','technician_id');
+    }
+
 }

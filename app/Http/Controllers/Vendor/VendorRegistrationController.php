@@ -10,6 +10,7 @@ use App\Http\Resources\CustomResponseResource;
 use App\Http\Resources\Vendor\VendorManagerResource;
 use App\Http\Resources\Vendor\VendorResource;
 use App\Jobs\SendVerificationOtp;
+use App\Models\Building\Document;
 use App\Models\Master\Role;
 use App\Models\User\User;
 use App\Models\Vendor\Vendor;
@@ -28,7 +29,7 @@ class VendorRegistrationController extends Controller
             if ($userData->exists() && ($userData->first()->email_verified == 0 || $userData->first()->phone_verified == 0)) {
                 return (new CustomResponseResource([
                     'title' => 'redirect_verification',
-                    'message' => "Your account is not verified. You'll be redirected account verification page",
+                    'message' => "Your account is not verified. You'll be redirected to account verification page",
                     'code' => 403,
                     'data' => $userData->first(),
                 ]))->response()->setStatusCode(403);
@@ -38,7 +39,7 @@ class VendorRegistrationController extends Controller
             if (!$userData->first()->vendors()->exists()) {
                 return (new CustomResponseResource([
                     'title' => 'redirect_company_details',
-                    'message' => "You have not updated company details. You'll be redirected company details page",
+                    'message' => "You have not updated company details. You'll be redirected to company details page",
                     'code' => 403,
                     'data' => $userData->first(),
                 ]))->response()->setStatusCode(403);
@@ -50,12 +51,32 @@ class VendorRegistrationController extends Controller
             if (!$vendor->managers()->exists()) {
                 return (new CustomResponseResource([
                     'title' => 'redirect_managers',
-                    'message' => "You have not updated manager details. You'll be redirected manger details page",
+                    'message' => "You have not updated manager details. You'll be redirected to manger details page",
                     'code' => 403,
                     'data' => $vendor,
                 ]))->response()->setStatusCode(403);
             }
 
+            // check if vendor has selected any service
+            if (!$vendor->services()->exists()) {
+                return (new CustomResponseResource([
+                    'title' => 'redirect_services',
+                    'message' => "You have not selected services. You'll be redirected to services page",
+                    'code' => 403,
+                    'data' => $vendor,
+                ]))->response()->setStatusCode(403);
+            }
+
+            $documents= Document::where('documentable_id', $vendor->id);
+            //check if vendor has uploaded documnets
+            if(!$documents->exists()) {
+                return (new CustomResponseResource([
+                    'title' => 'redirect_documents',
+                    'message' => "You have not uploaded all documents. You'll be redirected to documents page",
+                    'code' => 403,
+                    'data' => $vendor,
+                ]))->response()->setStatusCode(403);
+            }
             // Check if user exists in our DB
             if (User::where(['email' => $request->email, 'phone' => $request->phone, 'email_verified' => 1, 'phone_verified' => 1])->exists()) {
                 return (new CustomResponseResource([
