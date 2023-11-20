@@ -322,6 +322,9 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('vendor')->group(function 
 
     // invoice dashboard
     Route::get('/dashboard-invoice-stats/{vendor}',[InvoiceController::class,'stats']);
+
+    // Show WDA
+    Route::get('/wda/{wda}',[WDAController::class, 'show']);
 });
 
 // Technician Related APIs

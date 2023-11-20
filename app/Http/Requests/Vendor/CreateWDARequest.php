@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests\Vednor;
+namespace App\Http\Requests\Vendor;
 
 use Illuminate\Foundation\Http\FormRequest;
 
