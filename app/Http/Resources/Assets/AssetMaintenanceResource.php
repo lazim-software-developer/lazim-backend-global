@@ -20,7 +20,8 @@ class AssetMaintenanceResource extends JsonResource
             'comment' => json_decode($this->comment, true),
             'media' => json_decode($this->media, true),
             'status' => $this->status,
-            'building' => $this->building->name
+            'building' => $this->building->name,
+            'imageBaseURL' => env('AWS_URL', '')
         ];
     }
 }
