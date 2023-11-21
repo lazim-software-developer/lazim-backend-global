@@ -1,16 +1,16 @@
 <?php
 
-namespace App\Filament\Resources\AssetResource\Pages;
+namespace App\Filament\Resources\TechnicianAssetsResource\Pages;
 
 use Filament\Actions;
-use App\Filament\Resources\AssetResource;
 use App\Models\Building\Building;
 use Filament\Resources\Pages\ListRecords;
 use Illuminate\Database\Eloquent\Builder;
+use App\Filament\Resources\TechnicianAssetsResource;
 
-class ListAssets extends ListRecords
+class ListTechnicianAssets extends ListRecords
 {
-    protected static string $resource = AssetResource::class;
+    protected static string $resource = TechnicianAssetsResource::class;
     protected function getTableQuery(): Builder
     {
         $buildingsoflogedin = Building::all()->where('owner_association_id',auth()->user()->owner_association_id)->pluck('id')->toArray();
