@@ -4,7 +4,7 @@ namespace App\Http\Requests\Vendor;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class CreateInvoiceRequest extends FormRequest
+class InvoiceUpdateRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,11 +22,8 @@ class CreateInvoiceRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'date' => 'required|date',
             'file' => 'required|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
-            'wda_id' => 'required|exists:wda,id',
-            'invoice_amount' => 'required|integer',
-            'remarks' => 'nullable|string|max:255',
+            'invoice_amount' => 'integer',
         ];
     }
 }
