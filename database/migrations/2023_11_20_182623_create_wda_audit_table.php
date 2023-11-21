@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('wda_audit', function (Blueprint $table) {
             $table->id();
-            $table->string('wda_number')->nullable()->unique();
+            $table->string('wda_number')->nullable();
             $table->date('date');
             $table->string('job_description');
             $table->string('document', 100);
