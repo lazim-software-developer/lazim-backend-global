@@ -67,11 +67,11 @@ class ServicesRelationManager extends RelationManager
                         $vendorId = $livewire->ownerRecord->id;
 
                         // Get all the Servicess
-                        $allServices = Service::all()->pluck('id')->toArray();
+                        $allServices = Service::where('type', '!=', 'inhouse')->orWhereNull('type')->get()->pluck('id')->toArray();
                         $existingServices =  DB::table('service_vendor')
                             ->where('vendor_id', $vendorId)
                             ->whereIn('service_id', $allServices)->pluck('service_id')->toArray();
-                        $notSelected = Service::all()->whereNotIn('id', $existingServices)->pluck('name', 'id')->toArray();
+                        $notSelected = Service::whereNotIn('id', $existingServices)->where('type', '!=', 'inhouse')->orWhereNull('type')->get()->pluck('name', 'id')->toArray();
                         return Select::make('recordId')
                             ->label('Services')
                             ->options($notSelected)
