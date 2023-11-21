@@ -14,9 +14,12 @@ use App\Models\Building\FlatTenant;
 use App\Models\Master\Service;
 use App\Models\Media;
 use App\Models\Tag;
+use App\Models\TechnicianVendor;
 use App\Models\Vendor\ServiceVendor;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class ComplaintController extends Controller
 {
@@ -130,16 +133,40 @@ class ComplaintController extends Controller
                 $complaint->media()->save($media);
             }
         }
-
+        // return $complaint;
         // Assign complaint to a technician
-        AssignTechnicianToComplaint::dispatch($complaint)->delay(Carbon::now()->addSeconds(5));
+        // AssignTechnicianToComplaint::dispatch($complaint);
+        $serviceId = $complaint->service_id;
 
-        return (new CustomResponseResource([
-            'title' => 'Success',
-            'message' => "We'll get back to you at the earliest!",
-            'code' => 201,
-            'status' => 'success',
-        ]))->response()->setStatusCode(201);
+        // Fetch technician_vendor_ids for the given service
+        $technicianVendorIds = DB::table('service_technician_vendor')
+                                 ->where('service_id', $serviceId)
+                                 ->pluck('technician_vendor_id');
+
+        // Fetch technicians who are active and match the service
+        $technicians = TechnicianVendor::whereIn('id', $technicianVendorIds)
+                                       ->where('active', true)
+                                       ->withCount(['complaint' => function ($query) {
+                                           $query->where('status', 'open');
+                                       }])
+                                       ->orderBy('id', 'asc')
+                                       ->get();
+
+        $selectedTechnician = $technicians->first();
+
+        if ($selectedTechnician) {
+            $complaint->technician_id = $selectedTechnician->technician_id;
+            $complaint->save();
+        } else {
+            Log::info("No technicians to add", []);
+        }
+
+            return (new CustomResponseResource([
+                'title' => 'Success',
+                'message' => "We'll get back to you at the earliest!",
+                'code' => 201,
+                'status' => 'success',
+            ]))->response()->setStatusCode(201);
     }
 
     public function resolve(Request $request, Complaint $complaint)
