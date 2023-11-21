@@ -2,6 +2,10 @@
 
 namespace App\Models\Assets;
 
+use App\Models\Building\Building;
+use App\Models\TechnicianAssets;
+use App\Models\User\User;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -26,7 +30,7 @@ class Assetmaintenance extends Model
      */
     public function asset()
     {
-        return $this->belongsTo(AssetMaintenance::class, 'technician_asset_id');
+        return $this->belongsTo(TechnicianAssets::class, 'technician_asset_id');
     }
 
     /**
@@ -43,5 +47,10 @@ class Assetmaintenance extends Model
     public function building()
     {
         return $this->belongsTo(Building::class, 'building_id');
+    }
+
+    public function getMaintenanceDateDiffAttribute()
+    {
+        return Carbon::parse($this->attributes['maintenance_date'])->diffForHumans();
     }
 }
