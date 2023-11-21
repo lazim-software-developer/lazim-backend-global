@@ -29,6 +29,7 @@ class ComplaintStoreRequest extends FormRequest
                 'required_if:complaint_type,tenant_complaint,suggestions,enquiries',
                 'string',
             ],
+            'flat_id' => 'required'
         ];
     }
 
