@@ -8,6 +8,7 @@ use App\Http\Requests\Vendor\InvoiceUpdateRequest;
 use App\Http\Resources\CustomResponseResource;
 use App\Http\Resources\Vendor\InvoiceResource;
 use App\Http\Resources\Vendor\InvoiceStatsResource;
+use App\Http\Resources\Vendor\WdaInvoiceResource;
 use App\Models\Accounting\Invoice;
 use App\Models\Accounting\InvoiceAudit;
 use App\Models\Accounting\WDA;
@@ -42,12 +43,12 @@ class InvoiceController extends Controller
             $invoiceSubmitted = $wda->invoices->isNotEmpty();
             return [
                 'wda_id' => $wda->id,
-                'date' => $wda->date->format('Y-m-d'),
+                'date' => Carbon::parse($wda->date)->format('Y-m-d'),
                 'status' => $invoiceSubmitted ? 'Invoice Submitted' : 'Submit Invoice',
             ];
         });
+        return WdaInvoiceResource::collection($approvedWDAs);
 
-        return response()->json($approvedWDAs);
     }
 
     public function store(CreateInvoiceRequest $request){
