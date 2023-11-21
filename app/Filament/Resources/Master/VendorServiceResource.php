@@ -2,32 +2,31 @@
 
 namespace App\Filament\Resources\Master;
 
+use Filament\Forms;
+use Filament\Tables;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
-use App\Models\Master\Service;
 use Filament\Resources\Resource;
 use Filament\Forms\Components\Grid;
+use App\Models\Master\VendorService;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
-use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\FileUpload;
-use Filament\Tables\Actions\CreateAction;
-use Filament\Tables\Actions\BulkActionGroup;
-use Filament\Tables\Actions\DeleteBulkAction;
-use App\Filament\Resources\Master\ServiceResource\Pages\EditService;
-use App\Filament\Resources\Master\ServiceResource\Pages\ListServices;
-use App\Filament\Resources\Master\ServiceResource\Pages\CreateService;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Filament\Resources\Master\VendorServiceResource\Pages;
+use App\Filament\Resources\Master\VendorServiceResource\RelationManagers;
+use App\Models\Master\Service;
 
-class ServiceResource extends Resource
+class VendorServiceResource extends Resource
 {
     protected static ?string $model = Service::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-    protected static ?string $modelLabel = 'Inhouse Service';
+    protected static ?string $modelLabel = 'Vendor Service';
     protected static ?string $navigationGroup = 'Master';
 
     public static function form(Form $form): Form
@@ -45,7 +44,7 @@ class ServiceResource extends Resource
                             ->required()
                             ->placeholder('Name'),
                         Hidden::make('type')
-                            ->default('inhouse'),
+                            ->default('vendor'),
                         Toggle::make('active')
                             ->label('Active')
                             ->default(1)
@@ -57,8 +56,6 @@ class ServiceResource extends Resource
 
     public static function table(Table $table): Table
     {
-        $query = Service::where('custom', [0, NULL]);
-
         return $table
             ->columns([
                 TextColumn::make('name')
@@ -77,31 +74,31 @@ class ServiceResource extends Resource
                 //
             ])
             ->actions([
-                EditAction::make(),
+                Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
-                BulkActionGroup::make([
-                    DeleteBulkAction::make(),
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ])
             ->emptyStateActions([
-                CreateAction::make(),
+                Tables\Actions\CreateAction::make(),
             ]);
     }
 
     public static function getRelations(): array
     {
         return [
-            //ServiceResource\RelationManagers\VendorsRelationManager::class,
+            //
         ];
     }
 
     public static function getPages(): array
     {
         return [
-            'index' => ListServices::route('/'),
-            'create' => CreateService::route('/create'),
-            'edit' => EditService::route('/{record}/edit'),
+            'index' => Pages\ListVendorServices::route('/'),
+            'create' => Pages\CreateVendorService::route('/create'),
+            'edit' => Pages\EditVendorService::route('/{record}/edit'),
         ];
     }
 }

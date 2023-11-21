@@ -53,6 +53,7 @@ class ServiceBookingResource extends Resource
                     Select::make('bookable_id')
                         ->options(
                             DB::table('services')
+                                ->where('type','inhouse')
                                 ->pluck('name', 'id')
                                 ->toArray()
                         )
