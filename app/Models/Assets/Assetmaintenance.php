@@ -12,7 +12,6 @@ class Assetmaintenance extends Model
     protected $table = 'asset_maintenance';
 
     protected $fillable = [
-        'asset_id',
         'maintenance_date',
         'comment',
         'media',

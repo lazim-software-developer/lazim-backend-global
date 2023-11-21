@@ -17,10 +17,6 @@ class AssetController extends Controller
 {
     public function index()
     {
-        // $assets = TechnicianAssets::where(['technician_id' => auth()->user()->id, 'active' => 1])->get();
-
-        // return TechnicianAssetResource::collection($assets);
-
         $technicianId = auth()->user()->id;
         $currentQuarterStart = Carbon::now()->firstOfQuarter();
         $currentQuarterEnd = Carbon::now()->lastOfQuarter();
@@ -81,15 +77,15 @@ class AssetController extends Controller
             ]
         ];
 
-        $request->merge([
+        $data = AssetMaintenance::create([
+            'maintenance_date' => now(),
             'comment' => json_encode($jsonData['comment']),
             'media' => json_encode($jsonData['media']),
+            'maintained_by' => auth()->user()->id,
+            'building_id' => $request->building_id,
             'status' => 'in-progress',
-            'maintenance_date' => now(),
-            'maintained_by' => auth()->user()->id
+            'technician_asset_id' => $request->technician_asset_id,
         ]);
-
-        $data = AssetMaintenance::create($request->all());
 
         return (new CustomResponseResource([
             'title' => 'Success',
@@ -105,20 +101,17 @@ class AssetController extends Controller
         $imagePath = optimizeAndUpload($request->media, 'dev');
 
         // Create JSON data
-        $jsonData = [
-            'comment' => [
-                'before' => $request->input('comment', ''),
-                'after' => ''
-            ],
-            'media' => [
-                'before' => $imagePath ?? null,
-                'after' => ''
-            ]
-        ];
+        $commentData = json_decode($assetMaintenance->comment, true);
+        $mediaData = json_decode($assetMaintenance->media, true);
+
+        // Update the 'after' part for comment
+        $commentData['after'] = $request->input('comment');
+        $mediaData['after'] = $imagePath;
 
         $assetMaintenance->update([
-            'comment' => json_encode($jsonData['comment']),
-            'media' => json_encode($jsonData['media'])
+            'comment' => json_encode($commentData),
+            'media' => json_encode($mediaData),
+            'status' => 'completed'
         ]);
 
         return (new CustomResponseResource([
