@@ -13,6 +13,7 @@ use App\Http\Resources\CustomResponseResource;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Str;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Storage;
 
 class AuthController extends Controller
 {
@@ -69,6 +70,7 @@ class AuthController extends Controller
                                 ->where(['tokenable_type' => 'user', 'tokenable_id' => $user->id])->delete();
                         }
                         $token = $user->createToken($user->role->name)->plainTextToken;
+                        $user->profile_photo = $user->profile_photo ? Storage::disk('s3')->url($user->profile_photo) : null;
                         return response(['token' => $token, 'user' => $user], 200);
                     }
                 } else {
