@@ -5,7 +5,7 @@ namespace App\Http\Resources\Vendor;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class WDAResource extends JsonResource
+class InvoiceResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -15,14 +15,14 @@ class WDAResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id'    => $this->id,
-            'wda_number' => $this->wda_number,
+            'id' => $this->id,
+            'building_id'=>$this->building_id,
             'contract_id' => $this->contract_id,
-            'contract_name' => $this->contract->contract_type,
+            'invoice_number' => $this->invoice_number,
+            'wda_id' => $this->wda_id,
             'date' => $this->date,
-            'status' => $this->status,
             'document' => env('AWS_URL').$this->document,
-            'description' => $this->job_description,
+            'status' => $this->status,
             'remarks' => $this->remarks,
         ];
     }

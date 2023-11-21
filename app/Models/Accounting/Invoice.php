@@ -50,4 +50,8 @@ class Invoice extends Model
     {
         return $this->belongsTo(WDA::class, 'wda_id');
     }
+    public function audits()
+    {
+        return $this->hasMany(InvoiceAudit::class, 'wda_id');
+    }
 }

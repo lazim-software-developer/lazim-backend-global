@@ -4,9 +4,13 @@ namespace App\Http\Controllers\Vendor;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Vendor\CreateInvoiceRequest;
+use App\Http\Requests\Vendor\InvoiceUpdateRequest;
 use App\Http\Resources\CustomResponseResource;
+use App\Http\Resources\Vendor\InvoiceResource;
 use App\Http\Resources\Vendor\InvoiceStatsResource;
+use App\Http\Resources\Vendor\WdaInvoiceResource;
 use App\Models\Accounting\Invoice;
+use App\Models\Accounting\InvoiceAudit;
 use App\Models\Accounting\WDA;
 use App\Models\Vendor\Vendor;
 use Carbon\Carbon;
@@ -39,17 +43,17 @@ class InvoiceController extends Controller
             $invoiceSubmitted = $wda->invoices->isNotEmpty();
             return [
                 'wda_id' => $wda->id,
-                'date' => $wda->date->format('Y-m-d'),
+                'date' => Carbon::parse($wda->date)->format('Y-m-d'),
                 'status' => $invoiceSubmitted ? 'Invoice Submitted' : 'Submit Invoice',
             ];
         });
+        return WdaInvoiceResource::collection($approvedWDAs);
 
-        return response()->json($approvedWDAs);
     }
 
     public function store(CreateInvoiceRequest $request){
 
-        $document = optimizeDocumentAndUpload($request->document);
+        $document = optimizeDocumentAndUpload($request->file);
 
         $wda=WDA::find($request->wda_id);
         $name = auth()->user()->technicianVendors()->first()->vendor->OA->name;
@@ -93,4 +97,68 @@ class InvoiceController extends Controller
 
         return new InvoiceStatsResource($invoiceQuery);
     }
+
+    public function edit(InvoiceUpdateRequest $request,Invoice $invoice)
+    {
+        $documentUrl = optimizeDocumentAndUpload($request->file);
+
+        $audit = InvoiceAudit::create([
+                'invoice_id' => $invoice->id,
+                'building_id' => $invoice->building_id,
+                'contract_id' => $invoice->contract_id,
+                'invoice_number' => $invoice->invoice_number,
+                'wda_id' => $invoice->wda_id,
+                'date' => $invoice->date,
+                'document' => $invoice->document,
+                'created_by' => $invoice->created_by,
+                'status' => $invoice->status,
+                'remarks' => $invoice->remarks,
+                'status_updated_by' => $invoice->status_updated_by,
+                'vendor_id' => $invoice->vendor_id,
+                'invoice_amount' => $invoice->invoice_amount,
+
+        ]);
+
+        $request->merge([
+            'document' => $documentUrl,
+            'status' => 'pending',
+        ]);
+
+        $invoice->update($request->all());
+
+        return (new CustomResponseResource([
+            'title' => 'Success',
+            'message' => 'Invoice resubmited successfully!',
+            'code' => 200,
+        ]))->response()->setStatusCode(200);
+    }
+
+    public function listInvoice(Request $request, Vendor $vendor)
+    {
+
+        // Get the date filter or use the current month and year
+        $dateFilter = $request->input('date', Carbon::now()->format('F Y'));
+
+        // Parse the date filter to get the start and end of the month
+        $startDate = Carbon::createFromFormat('F Y', $dateFilter)->startOfMonth();
+        $endDate = Carbon::createFromFormat('F Y', $dateFilter)->endOfMonth();
+
+        $invoicesQuery = Invoice::where('vendor_id', $vendor->id)
+        ->whereBetween('date', [$startDate, $endDate]);
+
+        if ($request->has('building_id') && !empty($request->building_id)) {
+            $invoicesQuery = $invoicesQuery->where('building_id', $request->building_id);
+        }
+        if($request->has('status') && !empty($request->status)) {
+            $invoicesQuery = $invoicesQuery->where('status', $request->status);
+        }
+
+        return InvoiceResource::collection($invoicesQuery->latest()->paginate(10));
+    }
+
+    public function show(Invoice $invoice)
+    {
+        return new InvoiceResource($invoice);
+    }
+
 }
