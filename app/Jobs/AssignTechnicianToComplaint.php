@@ -46,10 +46,10 @@ class AssignTechnicianToComplaint implements ShouldQueue
         // Fetch technicians who are active and match the service
         $technicians = TechnicianVendor::whereIn('id', $technicianVendorIds)
                                        ->where('active', true)
-                                       ->withCount(['complaints' => function ($query) {
+                                       ->withCount(['complaint' => function ($query) {
                                            $query->where('status', 'open');
                                        }])
-                                       ->orderBy('complaints_count', 'asc')
+                                       ->orderBy('id', 'asc')
                                        ->get();
 
         $selectedTechnician = $technicians->first();
