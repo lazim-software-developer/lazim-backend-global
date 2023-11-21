@@ -16,9 +16,9 @@ class InvoiceStatsResource extends JsonResource
     {
         return [
             'total' => $this->count(),
-            'rejected' => $this->where('status', 'completed')->count(),
+            'rejected' => $this->where('status', 'rejected')->count(),
             'pending' => $this->where('status', 'pending')->count(),
-            'completed' => $this->where('status', 'completed')->count(),
+            'approved' => $this->where('status', 'approved')->count(),
         ];
     }
 }
