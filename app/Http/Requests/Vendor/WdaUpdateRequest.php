@@ -22,7 +22,7 @@ class WdaUpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'document' => 'required|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
+            'file' => 'required|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
             'contract_id' => 'integer|exists:contracts,id',
             'job_description' => 'string|max:255',
         ];

@@ -38,13 +38,13 @@ class WDAController extends Controller
 
     public function store(CreateWDARequest $request)
     {   
-        $document = optimizeDocumentAndUpload($request->document);
+        $documentUrl = optimizeDocumentAndUpload($request->file);
 
         $name = auth()->user()->technicianVendors()->first()->vendor->name;
         $wda_number = strtoupper(substr($name, 0, 2)).date('YmdHis');
     
         $request->merge([
-            'document' => $document,
+            'document' => $documentUrl,
             'created_by' => auth()->user()->id,
             'status' => 'pending',
             'vendor_id' => auth()->user()->technicianVendors()->first()->vendor_id,
@@ -66,7 +66,7 @@ class WDAController extends Controller
     }
     public function edit(WdaUpdateRequest $request, WDA $wda)
     {
-        $document = optimizeDocumentAndUpload($request->document);
+        $documentUrl = optimizeDocumentAndUpload($request->file);
 
         $audit = WdaAudit::create([
                 "wda_id"=> $wda->id,
@@ -84,7 +84,7 @@ class WDAController extends Controller
                 ]);
         
         $request->merge([
-                    'document' => $document,
+                    'document' => $documentUrl,
                     'status' => 'pending',
                 ]);
 
