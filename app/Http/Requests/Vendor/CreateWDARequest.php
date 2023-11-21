@@ -26,7 +26,7 @@ class CreateWDARequest extends FormRequest
             'contract_id' => 'required|exists:contracts,id',
             'date' => 'required|date',
             'job_description' => 'required|string|max:255',
-            'document' => 'required|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
+            'file' => 'required|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
         ];
     }
 }
