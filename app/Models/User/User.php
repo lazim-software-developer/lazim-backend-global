@@ -53,6 +53,7 @@ class User extends Authenticatable implements FilamentUser, HasName
         'email',
         'phone',
         'password',
+        'email_verified',
         'phone_verified',
         'active',
         'lazim_id',

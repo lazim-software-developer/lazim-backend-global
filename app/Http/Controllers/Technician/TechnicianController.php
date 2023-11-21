@@ -28,6 +28,9 @@ class TechnicianController extends Controller
         $request->merge([
             'first_name' => $request->name,
             'role_id' => Role::where('name', 'Technician')->first()->id,
+            'active'   => true,
+            'email_verified' => true,
+            'phone_verified' => true,
         ]);
 
         $user = User::create($request->all());
