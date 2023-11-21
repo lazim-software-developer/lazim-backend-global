@@ -19,7 +19,7 @@ class WDAResource extends JsonResource
             'wda_number' => $this->wda_number,
             'date' => $this->date,
             'status' => $this->status,
-            'document' => $this->document,
+            'document' => env('AWS_URL').'/'.$this->document,
             'description' => $this->job_description,
         ];
     }
