@@ -140,7 +140,7 @@ class VendorResource extends Resource
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Action::make('Update Status')
-                ->visible(fn ($record) => $record->status === 'pending' && $record->documents()->count() > 0 && $record->services()->count() > 0 && $record->managers()->count() > 0)
+                ->visible(fn ($record) => $record->status === null && $record->documents()->count() > 0 && $record->services()->count() > 0 && $record->managers()->count() > 0)
                 ->button()
                 ->form([
                     Select::make('status')
@@ -152,6 +152,7 @@ class VendorResource extends Resource
                         ->live(),
                     TextInput::make('remarks')
                         ->rules(['max:255'])
+                        ->required()
                         ->visible(function (callable $get) {
                             if ($get('status') == 'rejected') {
                                 return true;
