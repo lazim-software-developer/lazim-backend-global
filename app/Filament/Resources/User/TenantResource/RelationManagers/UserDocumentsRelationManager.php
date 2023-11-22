@@ -114,7 +114,8 @@ class UserDocumentsRelationManager extends RelationManager
                                 return true;
                             }
                             return false;
-                        }),
+                        })
+                        ->required(),
                 ])
                 ->fillForm(fn (Document $record): array => [
                     'status' => $record->status,

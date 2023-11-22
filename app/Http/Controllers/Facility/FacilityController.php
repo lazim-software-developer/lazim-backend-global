@@ -15,7 +15,7 @@ class FacilityController extends Controller
 {
     public function index(Building $building)
     {
-        $facilities = $building->facilities;
+        $facilities = $building->facilities->where('active',true);
         return FacilityResource::collection($facilities);
     }
 
