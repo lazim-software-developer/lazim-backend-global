@@ -3,13 +3,19 @@
 namespace App\Http\Controllers\Assets;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Assets\AssetAttachRequest;
 use App\Http\Requests\Assets\StoreAssetMaintenanceRequest;
 use App\Http\Requests\Assets\UpdateAssetMaintenanceBeforeRequest;
 use App\Http\Resources\Assets\AssetMaintenanceResource;
+use App\Http\Resources\Assets\AssetTechniciansResource;
 use App\Http\Resources\CustomResponseResource;
+use App\Http\Resources\Vendor\AssetListResource;
+use App\Models\Asset;
 use App\Models\Assets\Assetmaintenance;
 use App\Models\TechnicianAssets;
+use App\Models\Vendor\Vendor;
 use Carbon\Carbon;
+use Illuminate\Http\Client\Request;
 
 class AssetController extends Controller
 {
@@ -126,5 +132,33 @@ class AssetController extends Controller
         )->latest()->paginate();
 
         return AssetMaintenanceResource::collection($assets);
+    }
+
+    //Listing assets for vendor
+    public function listAssets(Vendor $vendor){
+        $assets = $vendor->assets;
+        return AssetListResource::collection($assets);
+    }
+
+    public function attachAsset(AssetAttachRequest $request,Asset $asset){
+        $assets = TechnicianAssets::firstOrCreate([
+            'asset_id' => $asset->id,
+            'technician_id' => $request->technician_id,
+            'vendor_id' => $request->vendor_id,
+            'building_id' => $request->building_id,
+            'active' => true,
+        ]);
+        return (new CustomResponseResource([
+            'title' => 'Success',
+            'message' => 'Asset attach successfully!',
+            'code' => 201,
+            'status' => 'success',
+            'data' => $assets,
+        ]))->response()->setStatusCode(201);
+    }
+
+    public function listTechnicians(Asset $asset){
+            $technicians = $asset->users;
+            return AssetTechniciansResource::collection($technicians);
     }
 }

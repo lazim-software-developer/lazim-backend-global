@@ -105,12 +105,12 @@ class ComplaintController extends Controller
         ]);
 
         // assign a vendor if the complaint type is tenant_complaint or help_desk
-        if($request->complaint_type == 'tenanat_complaint' || $request->complaint_type == 'help_desk') {
+        if($request->complaint_type == 'tenant_complaint' || $request->complaint_type == 'help_desk') {
             $request->merge([
                 'priority' => 3,
                 'due_date' => now()->addDays(3),
                 'service_id' => $service_id,
-                'vendor_id' => $vendor ? $vendor->id : null
+                'vendor_id' => $vendor ? $vendor->vendor_id : null
             ]);
         }
 
