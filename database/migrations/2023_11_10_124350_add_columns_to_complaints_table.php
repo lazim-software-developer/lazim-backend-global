@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('complaints', function (Blueprint $table) {
-            $table->integer('priority')->after('owner_association_id');
+            $table->integer('priority')->after('owner_association_id')->nullable();
             $table->date('due_date')->after('priority')->nullable();
             $table->unsignedBigInteger('service_id')->after('due_date')->nullable();
             $table->foreign('service_id')->references('id')->on('services');
