@@ -110,7 +110,7 @@ class ComplaintController extends Controller
                 'priority' => 3,
                 'due_date' => now()->addDays(3),
                 'service_id' => $service_id,
-                'vendor_id' => $vendor ? $vendor->id : null
+                'vendor_id' => $vendor ? $vendor->vendor_id : null
             ]);
         }
 
