@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Building\Complaint;
 use App\Models\Master\Service;
 use App\Models\User\User;
 use App\Models\Vendor\Vendor;
@@ -27,4 +28,8 @@ class TechnicianVendor extends Model
     {
         return $this->belongsToMany(Service::class, 'service_technician_vendor', 'technician_vendor_id');
     }
+     public function complaint()
+     {
+        return $this->hasMany(Complaint::class,'technician_id');
+     }
 }
