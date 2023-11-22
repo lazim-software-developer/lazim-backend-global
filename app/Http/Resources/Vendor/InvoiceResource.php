@@ -21,7 +21,7 @@ class InvoiceResource extends JsonResource
             'invoice_number' => $this->invoice_number,
             'wda_id' => $this->wda_id,
             'date' => $this->date,
-            'document' => env('AWS_URL').$this->document,
+            'document' => env('AWS_URL').'/'.$this->document,
             'status' => $this->status,
             'remarks' => $this->remarks,
         ];
