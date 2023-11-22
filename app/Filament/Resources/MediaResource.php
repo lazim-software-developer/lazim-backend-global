@@ -36,6 +36,7 @@ class MediaResource extends Resource
                     ])->schema([
                         TextInput::make('name')
                             ->rules(['max:30', 'regex:/^[a-zA-Z\s]*$/'])
+                            ->disabled()
                             ->required()
                             ->placeholder('Name'),
 
@@ -43,12 +44,14 @@ class MediaResource extends Resource
                             ->disk('s3')
                             ->directory('dev')
                             ->helperText('The uploaded image must be less than 2MB.')
+                            ->disabled()
                             ->required(),
 
                         MorphToSelect::make('mediaable')
                             ->types([
                                 Type::make(Post::class)->titleAttribute('content'),
                             ])
+                            ->disabled()
                             ->label('Mediaable')
                             ->required(),
                     ])
