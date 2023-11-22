@@ -172,7 +172,9 @@ class VendorResource extends Resource
                         $record->status = $data['status'];
                         $record->remarks = $data['remarks'];
                         $record->save();
-                    } else {
+                    }
+                    if ($data['status'] == 'approved') 
+                    {
                         $vendor=Vendor::where('id',$record->id)->first();
                         $user = User::find($vendor->owner_id);
                         $password = Str::random(12);

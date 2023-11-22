@@ -36,8 +36,8 @@ class ContractsRelationManager extends RelationManager
                     ->schema([
                         Select::make('contract_type')
                             ->options([
-                                'Annual Maintenance Contract' => 'Annual Maintenance Contract',
-                                'OneTime' => 'OneTime',
+                                'annual maintenance contract' => 'Annual Maintenance Contract',
+                                'onetime' => 'OneTime',
                             ])
                             ->searchable()
                             ->required()
