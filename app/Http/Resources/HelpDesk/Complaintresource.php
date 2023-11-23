@@ -37,7 +37,7 @@ class Complaintresource extends JsonResource
             'complaint_type' => $this->complaint_type,
             'complaint_details' => $this->complaint_details,
             'comments' => CommentResource::collection($this->whenLoaded('comments')),
-            'assignee_id' => $this->technician->id,
+            'assignee_id' => $this->technician?->id,
             'assignee_name' => $this->technician?->first_name,
             'priority' => $this->priority,
             'priority_name' => $priority,
