@@ -24,10 +24,11 @@ class ComplaintStoreRequest extends FormRequest
         return [
             'category' => 'required',
             'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'complaint' => 'required|min:20|max:1000',
             'complaint_type' => 'required|in:help_desk,tenant_complaint,suggestions,enquiries',
             'complaint_details' => [
                 'required_if:complaint_type,tenant_complaint,suggestions,enquiries',
-                'string',
+                'string','max:1000','min:20'
             ],
             'flat_id' => 'required'
         ];
