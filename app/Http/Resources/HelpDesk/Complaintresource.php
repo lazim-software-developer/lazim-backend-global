@@ -31,6 +31,7 @@ class Complaintresource extends JsonResource
             'flat' => $this->flat?->property_number,
             'service' => $this->service?->name,
             'category' => $this->category,
+            'remarks' => $this->remarks,
             'opened_on' => $this->open_time_diff,
             'resolved' => $this->status == 'open' ? false : true,
             'media' => MediaResource::collection($this->media),

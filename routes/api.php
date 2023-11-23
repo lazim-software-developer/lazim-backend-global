@@ -310,10 +310,10 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('vendor')->group(function 
     Route::get('/dashboard-snag-stats/{vendor}',[SnagDashboardController::class,'tasks']);
 
     // Invoice create API
-    Route::post('/invoice',[InvoiceController::class, 'store']);
+    Route::post('/{vendor}/create-invoice',[InvoiceController::class, 'store']);
 
     // WDA create API
-    Route::post('/wda', [WDAController::class, 'store']);
+    Route::post('/{vendor}/create-wda', [WDAController::class, 'store']);
 
     // List all WDAs
     Route::get('/{vendor}/wda', [WDAController::class, 'index']);
@@ -351,7 +351,7 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('technician')->group(funct
     Route::get('/buildings', [TechnicianBuildingController::class, 'index']);
     Route::get('/tasks', [TasksController::class, 'index']);
     //List all technicians for a service
-    Route::get('/{service}/technicians',[TechnicianController::class, 'index']);
+    Route::get('/{service}/technicians/{vendor}',[TechnicianController::class, 'index']);
     Route::patch('/active-deactive/{technician}',[TechnicianController::class, 'activeDeactive']);
     Route::post('/attach-technician/{technician}',[TechnicianController::class, 'attachTechnician']);
     Route::post('/assign-technician/{complaint}',[TechnicianController::class, 'assignTechnician']);
