@@ -168,11 +168,6 @@ class AdminPanelProvider extends PanelProvider
                                 ->icon('heroicon-m-clipboard-document-check')
                                 ->activeIcon('heroicon-m-clipboard-document-check')
                                 ->sort(2),
-                            NavigationItem::make('Budget')
-                                ->url('/admin/budgets')
-                                ->icon('heroicon-m-clipboard-document-check')
-                                ->activeIcon('heroicon-m-clipboard-document-check')
-                                ->sort(3),
                             NavigationItem::make('Facility Bookings')
                                 ->url('/admin/building/facility-bookings')
                                 ->icon('heroicon-o-cube-transparent')
@@ -185,6 +180,18 @@ class AdminPanelProvider extends PanelProvider
                                 ->sort(5),
                         ]),
                 ]);
+                if (DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] != 'Admin') {
+                    $builder->groups([
+                        NavigationGroup::make('OAM')
+                            ->items([
+                                NavigationItem::make('Budget')
+                                ->url('/admin/budgets')
+                                ->icon('heroicon-m-clipboard-document-check')
+                                ->activeIcon('heroicon-m-clipboard-document-check')
+                                ->sort(1),
+                            ]),
+                    ]);
+                }
                 $builder->groups([
                     NavigationGroup::make('Flat Management')
                         ->items([

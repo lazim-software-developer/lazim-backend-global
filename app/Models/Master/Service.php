@@ -2,6 +2,7 @@
 
 namespace App\Models\Master;
 
+use App\Models\Accounting\Budgetitem;
 use App\Models\Accounting\SubCategory;
 use App\Models\Asset;
 use App\Models\Vendor\Vendor;
@@ -84,5 +85,10 @@ class Service extends Model
     public function subcategory()
     {
         return $this->belongsTo(SubCategory::class);
+    }
+
+    public function budgetitems()
+    {
+        return $this->hasMany(Budgetitem::class);
     }
 }
