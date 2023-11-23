@@ -51,12 +51,12 @@ class InvoiceController extends Controller
 
     }
 
-    public function store(CreateInvoiceRequest $request){
+    public function store(CreateInvoiceRequest $request, Vendor $vendor){
 
         $document = optimizeDocumentAndUpload($request->file);
 
         $wda=WDA::find($request->wda_id);
-        $name = auth()->user()->technicianVendors()->first()->vendor->OA->name;
+        $name = $vendor->OA->name;
         $invoice_id = strtoupper(substr($name, 0, 4)).date('YmdHis');
         $request->merge([
             'building_id' => $wda->building_id,
@@ -65,7 +65,7 @@ class InvoiceController extends Controller
             'document' => $document,
             'created_by' => auth()->user()->id,
             'status' => 'pending',
-            'vendor_id' => auth()->user()->technicianVendors()->first()->vendor_id
+            'vendor_id' => $vendor->id
         ]);
         
         $invoice =Invoice::create($request->all());
