@@ -107,7 +107,6 @@ class VendorRegistrationController extends Controller
     public function companyDetails(CompanyDetailsRequest $request)
     {
         $request->merge([
-            'status' => 'pending',
             'name'   => User::find($request->owner_id)->first_name,
         ]);
 
