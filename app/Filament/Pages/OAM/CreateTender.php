@@ -64,7 +64,6 @@ class CreateTender extends Page
 
     public function store(Request $request, Budget $budget) {
         $building = Building::where('id', $budget->building_id)->first();
-
         // Upload document to S3
         $documentUrl = optimizeDocumentAndUpload($request->document, 'dev');
 
