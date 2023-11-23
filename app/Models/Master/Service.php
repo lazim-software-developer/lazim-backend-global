@@ -2,7 +2,7 @@
 
 namespace App\Models\Master;
 
-
+use App\Models\Accounting\SubCategory;
 use App\Models\Asset;
 use App\Models\Vendor\Vendor;
 use App\Models\Vendor\Contract;
@@ -79,5 +79,10 @@ class Service extends Model
     public function assets()
     {
         return $this->hasMany(Asset::class);
+    }
+    
+    public function subcategory()
+    {
+        return $this->belongsTo(SubCategory::class);
     }
 }
