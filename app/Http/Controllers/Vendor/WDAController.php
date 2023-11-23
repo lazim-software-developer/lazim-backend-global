@@ -30,7 +30,7 @@ class WDAController extends Controller
         if ($request->has('building_id') && !empty($request->building_id)) {
             $wdaQuery->where('building_id', $request->building_id);
         }
-        if($request->has('status') && !empty($request->status)) {
+        if($request->has('status') && !empty($request->status) && $request->status != 'all') {
             $wdaQuery->where('status', $request->status);
         }
         return WDAResource::collection($wdaQuery->latest()->paginate(10));
