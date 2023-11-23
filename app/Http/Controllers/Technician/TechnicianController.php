@@ -63,10 +63,10 @@ class TechnicianController extends Controller
         ]))->response()->setStatusCode(201);
     }
 
-    public function index(Service $service)
+    public function index(Service $service, Vendor $vendor)
     {
 
-        $technicians = $service->technicianVendors;
+        $technicians = $service->technicianVendors->where('vendor_id', $vendor->id);
 
         return ServiceTechnicianResource::collection($technicians);
     }
