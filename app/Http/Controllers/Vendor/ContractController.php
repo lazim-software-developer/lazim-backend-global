@@ -21,6 +21,9 @@ class ContractController extends Controller
             $query->whereYear('start_date', $year)
                 ->orWhereYear('end_date', $year);
         })->get();
+        if ($request->has('building_id') && !empty($request->building_id)) {
+            $Contracts = $Contracts->where('building_id', $request->building_id);
+        }
 
         return ContractResource::collection($Contracts);
     }
