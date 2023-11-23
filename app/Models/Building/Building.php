@@ -26,6 +26,7 @@ use App\Models\Forms\FitOutForm;
 use App\Models\Forms\MoveInOut;
 use App\Models\Vendor\Contact;
 use App\Models\Vendor\Contract;
+use App\Models\Vendor\PPM;
 use App\Models\Vendor\Vendor;
 use App\Models\Visitor\FlatDomesticHelp;
 use App\Models\Visitor\FlatVisitor;
@@ -188,5 +189,10 @@ class Building extends Model
     public function assets()
     {
         return $this->hasMany(Asset::class);
+    }
+
+    public function ppms()
+    {
+        return $this->hasMany(PPM::class);
     }
 }

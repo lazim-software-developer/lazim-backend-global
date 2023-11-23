@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Assets\PPMController;
 use App\Http\Controllers\MollakController;
 use App\Http\Controllers\Technician\TechnicianController;
 use App\Http\Controllers\TestController;
@@ -363,6 +364,10 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('assets')->group(function 
 
     //Vendor assets
     Route::get('/vendor/{vendor}',[AssetController::class, 'listAssets']);
-    Route::post('/{asset}', [AssetController::class, 'attachAsset']);
+    Route::post('/attach-asset/{asset}', [AssetController::class, 'attachAsset']);
     Route::get('/{asset}/technicians',[AssetController::class, 'listTechnicians']);
+
+    //PPM APIs
+    Route::post('/create/ppm',[PPMController::class, 'store']);
+    Route::get('/{vendor}/ppm/',[PPMController::class, 'index']);
 });
