@@ -2,12 +2,19 @@
 
 namespace App\Models\Accounting;
 
+use App\Models\Building\Building;
+use App\Models\Master\Service;
+use App\Models\OwnerAssociation;
+use App\Models\User\User;
+use App\Models\Vendor\Vendor;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Tender extends Model
 {
     use HasFactory;
+
+    protected $fillable = ['date', 'created_by', 'building_id', 'budget_id', 'owner_association_id', 'end_date', 'document'];
 
     // Tender has many services through TenderService
     public function services()

@@ -6,6 +6,7 @@ use App\Http\Controllers\Master\PDFController;
 use App\Models\Vendor\Vendor;
 use App\Livewire\VendorRegistration;
 use App\Filament\Pages\BudgetListing;
+use App\Filament\Pages\OAM\CreateTender;
 use App\Http\Controllers\Vendor\MasterController;
 
 /*
@@ -45,3 +46,5 @@ Route::post('/get-vendors-based-on-services', [MasterController::class, 'getVend
 // Filament resources
 Route::get('/filament/budget-listing/{building}', [BudgetListing::class, 'mount'])
     ->name('filament.pages.budget-listing');
+
+Route::post('admin/{budget}/tender/create', [CreateTender::class, 'store']);
