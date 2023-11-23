@@ -310,7 +310,7 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('vendor')->group(function 
     Route::get('/dashboard-snag-stats/{vendor}',[SnagDashboardController::class,'tasks']);
 
     // Invoice create API
-    Route::post('/invoice',[InvoiceController::class, 'store']);
+    Route::post('/{vendor}/create-invoice',[InvoiceController::class, 'store']);
 
     // WDA create API
     Route::post('/{vendor}/create-wda', [WDAController::class, 'store']);
