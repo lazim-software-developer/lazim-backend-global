@@ -313,7 +313,7 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('vendor')->group(function 
     Route::post('/invoice',[InvoiceController::class, 'store']);
 
     // WDA create API
-    Route::post('/wda', [WDAController::class, 'store']);
+    Route::post('/{vendor}/create-wda', [WDAController::class, 'store']);
 
     // List all WDAs
     Route::get('/{vendor}/wda', [WDAController::class, 'index']);
