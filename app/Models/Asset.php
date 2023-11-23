@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Master\Service;
 use App\Models\Building\Building;
 use App\Models\User\User;
+use App\Models\Vendor\PPM;
 use App\Models\Vendor\Vendor;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -36,6 +37,11 @@ class Asset extends Model
     public function users()
     {
         return $this->belongsToMany(User::class,'technician_assets','asset_id','technician_id');
+    }
+
+    public function ppms()
+    {
+        return $this->hasMany(PPM::class);
     }
 }
 

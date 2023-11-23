@@ -61,4 +61,11 @@ class EscalationMatrixController extends Controller
             'status' => 'success',
         ]))->response()->setStatusCode(201);
     }
+    public function exists(Vendor $vendor)
+    {
+        $escalation = VendorEscalationMatrix::where(['vendor_id' => $vendor->id, 'active' => 1])->exists();
+        return [
+            'escalation_exist' => $escalation ? true : false,
+        ];
+    }
 }

@@ -146,8 +146,8 @@ class AssetController extends Controller
             'technician_id' => $request->technician_id,
             'vendor_id' => $request->vendor_id,
             'building_id' => $request->building_id,
-            'active' => true,
-        ]);
+        ],
+        ['active' => true]);
         return (new CustomResponseResource([
             'title' => 'Success',
             'message' => 'Asset attach successfully!',

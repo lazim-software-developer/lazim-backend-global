@@ -2,6 +2,7 @@
 
 namespace App\Models\User;
 
+use App\Models\Vendor\PPM;
 use Filament\Panel;
 use App\Models\Asset;
 use App\Models\Forms\Guest;
@@ -259,5 +260,9 @@ class User extends Authenticatable implements FilamentUser, HasName
     public function assets()
     {
         return $this->belongsToMany(Asset::class,'technician_assets','technician_id');
+    }
+    public function ppms()
+    {
+        return $this->hasMany(PPM::class);
     }
 }
