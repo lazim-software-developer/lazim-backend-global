@@ -2,9 +2,11 @@
 
 namespace App\Filament\Resources\BudgetResource\Pages;
 
-use App\Filament\Resources\BudgetResource;
+use App\Imports\MyBudgetImport;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
+use App\Filament\Resources\BudgetResource;
+use EightyNine\ExcelImport\ExcelImportAction;
 
 class ListBudgets extends ListRecords
 {
@@ -14,6 +16,10 @@ class ListBudgets extends ListRecords
     {
         return [
             //Actions\CreateAction::make(),
+            ExcelImportAction::make()
+                ->slideOver()
+                ->color("primary")
+                ->use(MyBudgetImport::class),
         ];
     }
 }

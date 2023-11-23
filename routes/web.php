@@ -47,4 +47,4 @@ Route::post('/get-vendors-based-on-services', [MasterController::class, 'getVend
 Route::get('/filament/budget-listing/{building}', [BudgetListing::class, 'mount'])
     ->name('filament.pages.budget-listing');
 
-Route::post('admin/{budget}/tender/create', [CreateTender::class, 'store']);
+Route::post('admin/{budget}/tender/create', [CreateTender::class, 'store'])->name('tender.create');
