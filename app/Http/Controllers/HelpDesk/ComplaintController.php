@@ -15,6 +15,7 @@ use App\Models\Master\Service;
 use App\Models\Media;
 use App\Models\Tag;
 use App\Models\TechnicianVendor;
+use App\Models\User\User;
 use App\Models\Vendor\ServiceVendor;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -144,18 +145,19 @@ class ComplaintController extends Controller
                                  ->pluck('technician_vendor_id');
 
         // Fetch technicians who are active and match the service
-        $technicians = TechnicianVendor::whereIn('id', $technicianVendorIds)
-                                       ->where('active', true)
-                                       ->withCount(['complaint' => function ($query) {
-                                           $query->where('status', 'open');
-                                       }])
-                                       ->orderBy('id', 'asc')
-                                       ->get();
-
-        $selectedTechnician = $technicians->first();
+        $technicianIds = TechnicianVendor::whereIn('id', $technicianVendorIds)
+                                       ->where('active', true)->pluck('technician_id');
+        
+        $assignees = User::whereIn('id',$technicianIds)
+                            ->withCount(['assignees' => function ($query) {
+                                    $query->where('status', 'open');
+                                }])
+                                ->orderBy('assignees_count', 'asc')
+                                ->get();                           
+        $selectedTechnician = $assignees->first();
 
         if ($selectedTechnician) {
-            $complaint->technician_id = $selectedTechnician->technician_id;
+            $complaint->technician_id = $selectedTechnician->id;
             $complaint->save();
         } else {
             Log::info("No technicians to add", []);

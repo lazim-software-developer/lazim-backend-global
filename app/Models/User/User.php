@@ -265,4 +265,9 @@ class User extends Authenticatable implements FilamentUser, HasName
     {
         return $this->hasMany(PPM::class);
     }
+
+    public function assignees()
+    {
+        return $this->hasMany(Complaint::class,'technician_id');
+    }
 }
