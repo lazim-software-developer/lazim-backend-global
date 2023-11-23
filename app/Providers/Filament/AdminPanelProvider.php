@@ -33,15 +33,14 @@ class AdminPanelProvider extends PanelProvider
             ->path('admin')
             ->login()
             ->profile(EditProfile::class)
-            ->viteTheme('resources/css/filament/admin/theme.css')
-            // ->colors([
-            //     'danger' => Color::Rose,
-            //     'gray' => Color::Gray,
-            //     'info' => Color::Blue,
-            //     'primary' => Color::Indigo,
-            //     'success' => Color::Emerald,
-            //     'warning' => Color::Orange,
-            // ])
+            ->colors([
+                'danger' => Color::Rose,
+                'gray' => Color::Gray,
+                'info' => Color::Blue,
+                'primary' => Color::Indigo,
+                'success' => Color::Emerald,
+                'warning' => Color::Orange,
+            ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->pages([
@@ -108,12 +107,18 @@ class AdminPanelProvider extends PanelProvider
                                     ->icon('heroicon-s-user-group')
                                     ->activeIcon('heroicon-s-user-group')
                                     ->sort(7),
-                                NavigationItem::make('Services')
+                                NavigationItem::make('Inhouse Services')
                                     ->hidden(DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] == 'Admin' ? false : true)
                                     ->url('/admin/master/services')
                                     ->icon('heroicon-m-wrench')
                                     ->activeIcon('heroicon-m-wrench')
                                     ->sort(8),
+                                NavigationItem::make('Vendor Services')
+                                    ->hidden(DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] == 'Admin' ? false : true)
+                                    ->url('/admin/master/vendor-services')
+                                    ->icon('heroicon-m-wrench')
+                                    ->activeIcon('heroicon-m-wrench')
+                                    ->sort(9),
                             ]),
                     ]);
                 }
@@ -177,11 +182,6 @@ class AdminPanelProvider extends PanelProvider
                                 ->icon('heroicon-m-wrench')
                                 ->activeIcon('heroicon-m-wrench')
                                 ->sort(5),
-                            NavigationItem::make('Assets')
-                                ->url('/admin/assets')
-                                ->icon('heroicon-m-wrench')
-                                ->activeIcon('heroicon-m-wrench')
-                                ->sort(6),
                         ]),
                 ]);
                 $builder->groups([
@@ -283,6 +283,17 @@ class AdminPanelProvider extends PanelProvider
                                     ->icon('heroicon-m-user-circle')
                                     ->activeIcon('heroicon-m-user-circle')
                                     ->sort(1),
+                                NavigationItem::make('TechnicianAssets')
+                                    ->url('/admin/technician-assets')
+                                    ->hidden(DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] == 'Admin' ? true : false)
+                                    ->icon('heroicon-o-users')
+                                    ->activeIcon('heroicon-o-users')
+                                    ->sort(2),
+                                NavigationItem::make('Assets')
+                                    ->url('/admin/assets')
+                                    ->icon('heroicon-o-rectangle-stack')
+                                    ->activeIcon('heroicon-o-rectangle-stack')
+                                    ->sort(3),
                             ]),
                     ]);
                 }

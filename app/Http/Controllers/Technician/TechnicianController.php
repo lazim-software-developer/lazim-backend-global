@@ -28,18 +28,24 @@ class TechnicianController extends Controller
         $request->merge([
             'first_name' => $request->name,
             'role_id' => Role::where('name', 'Technician')->first()->id,
+            'active'   => true,
+            'email_verified' => true,
+            'phone_verified' => true,
         ]);
 
         $user = User::create($request->all());
 
-        $vendorId = Vendor::where('owner_id', auth()->user()->id)->first()->id;
+        $vendor= Vendor::where('owner_id', auth()->user()->id)->first();
+        $name = $vendor->name;
+        $technician_number = strtoupper(substr($name, 0, 2)).date('YmdHis');
         $password = Str::random(12);
         $user->password = Hash::make($password);
         $user->save();
 
         $technician = TechnicianVendor::create([
+            'technician_number' => $technician_number,
             'technician_id'  => $user->id,
-            'vendor_id'      => $vendorId,
+            'vendor_id'      => $vendor->id,
             'active'         => true,
             'position'       => $request->position
         ]);

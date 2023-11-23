@@ -12,7 +12,7 @@ class TechnicianVendor extends Model
 {
     use HasFactory;
     protected $table = "technician_vendors";
-    protected $fillable =['technician_id', 'vendor_id', 'active', 'position'];
+    protected $fillable =['technician_id', 'vendor_id', 'active', 'position','technician_number'];
 
     public function vendor()
     {

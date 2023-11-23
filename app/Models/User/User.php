@@ -31,6 +31,7 @@ use App\Models\Building\BuildingPoc;
 use Filament\Models\Contracts\HasName;
 use Laravel\Jetstream\HasProfilePhoto;
 use App\Models\Building\FacilityBooking;
+use App\Models\TechnicianAssets;
 use Illuminate\Notifications\Notifiable;
 use Filament\Models\Contracts\FilamentUser;
 use Laravel\Fortify\TwoFactorAuthenticatable;
@@ -52,6 +53,7 @@ class User extends Authenticatable implements FilamentUser, HasName
         'email',
         'phone',
         'password',
+        'email_verified',
         'phone_verified',
         'active',
         'lazim_id',
@@ -256,6 +258,6 @@ class User extends Authenticatable implements FilamentUser, HasName
     }
     public function assets()
     {
-        return $this->belongsToMany(Asset::class);
+        return $this->belongsToMany(Asset::class,'technician_assets','technician_id');
     }
 }

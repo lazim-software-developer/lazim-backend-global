@@ -50,11 +50,11 @@ class ServicesRelationManager extends RelationManager
                         $buildingId = $livewire->ownerRecord->id;
 
                         // Get all the facilities
-                        $allServices = Service::all()->pluck('id')->toArray();
+                        $allServices = Service::all()->where('type','inhouse')->pluck('id')->toArray();
                         $existingServices =  DB::table('building_service')
                             ->where('building_id', $buildingId)
                             ->whereIn('service_id', $allServices)->pluck('service_id')->toArray();
-                        $allFacilities = Service::all()->whereNotIn('id', $existingServices)->pluck('name', 'id')->toArray();
+                        $allFacilities = Service::all()->whereNotIn('id', $existingServices)->where('type','inhouse')->pluck('name', 'id')->toArray();
                         return Select::make('recordId')
                             ->label('Service')
                             ->options($allFacilities)

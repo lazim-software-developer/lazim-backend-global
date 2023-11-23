@@ -3,9 +3,12 @@
 namespace App\Http\Controllers\Vendor;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Vednor\CreateWDARequest;
+use App\Http\Requests\Vendor\CreateWDARequest;
+use App\Http\Requests\Vendor\WdaUpdateRequest;
 use App\Http\Resources\CustomResponseResource;
+use App\Http\Resources\Vendor\WDAResource;
 use App\Models\Accounting\WDA;
+use App\Models\Accounting\WdaAudit;
 use App\Models\Vendor\Vendor;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -27,21 +30,25 @@ class WDAController extends Controller
         if ($request->has('building_id') && !empty($request->building_id)) {
             $wdaQuery->where('building_id', $request->building_id);
         }
-
-        $wdas = $wdaQuery->latest()->paginate(10);
-
-        return response()->json($wdas);
+        if($request->has('status') && !empty($request->status)) {
+            $wdaQuery->where('status', $request->status);
+        }
+        return WDAResource::collection($wdaQuery->latest()->paginate(10));
     }
 
     public function store(CreateWDARequest $request)
-    {
-        $document = optimizeDocumentAndUpload($request->document);
+    {   
+        $documentUrl = optimizeDocumentAndUpload($request->file);
 
+        $name = auth()->user()->technicianVendors()->first()->vendor->name;
+        $wda_number = strtoupper(substr($name, 0, 2)).date('YmdHis');
+    
         $request->merge([
-            'document' => $document,
+            'document' => $documentUrl,
             'created_by' => auth()->user()->id,
             'status' => 'pending',
-            'vendor_id' => auth()->user()->technicianVendors()->first()->vendor_id
+            'vendor_id' => auth()->user()->technicianVendors()->first()->vendor_id,
+            'wda_number' => $wda_number
         ]);
 
         WDA::create($request->all());
@@ -51,5 +58,42 @@ class WDAController extends Controller
             'message' => 'WDA created successfully!',
             'code' => 201,
         ]))->response()->setStatusCode(201);
+    }
+
+    public function show(WDA $wda)
+    {
+        return new WDAResource($wda);
+    }
+    public function edit(WdaUpdateRequest $request, WDA $wda)
+    {
+        $documentUrl = optimizeDocumentAndUpload($request->file);
+
+        $audit = WdaAudit::create([
+                "wda_id"=> $wda->id,
+                "wda_number"=> $wda->wda_number,
+                "date"=> $wda->date,
+                "job_description"=> $wda->job_description,
+                "document"=> $wda->document,
+                "created_by"=> $wda->created_by,
+                "status"=> $wda->status,
+                "remarks"=> $wda->remarks,
+                "building_id"=> $wda->building_id,
+                "contract_id"=> $wda->contract_id,
+                "status_updated_by"=> $wda->status_updated_by,
+                "vendor_id"=> $wda->vendor_id,
+                ]);
+        
+        $request->merge([
+                    'document' => $documentUrl,
+                    'status' => 'pending',
+                ]);
+
+        $wda->update($request->all());
+        
+        return (new CustomResponseResource([
+            'title' => 'Success',
+            'message' => 'WDA resubmited successfully!',
+            'code' => 200,
+        ]))->response()->setStatusCode(200);
     }
 }
