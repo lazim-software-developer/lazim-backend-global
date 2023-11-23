@@ -317,8 +317,26 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('vendor')->group(function 
     // List all WDAs
     Route::get('/{vendor}/wda', [WDAController::class, 'index']);
 
-    // List all invoices 
+    // List invoices status
     Route::get('/{vendor}/invocies', [InvoiceController::class, 'index']);
+
+    //List invoices
+    Route::get('/invoices/{vendor}', [InvoiceController::class, 'listInvoice']);
+
+    //Show Invoice
+    Route::get('/invoice/{invoice}',[InvoiceController::class,'show']);
+
+    // Edit Invoice
+    Route::post('/invoice/{invoice}',[InvoiceController::class,'edit']);
+
+    // Invoice dashboard
+    Route::get('/dashboard-invoice-stats/{vendor}',[InvoiceController::class,'stats']);
+
+    // Show WDA
+    Route::get('/wda/{wda}',[WDAController::class, 'show']);
+
+    //Edit WDA 
+    Route::post('/wda/{wda}',[WDAController::class, 'edit']);
 });
 
 // Technician Related APIs
@@ -341,5 +359,5 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('assets')->group(function 
     Route::get('/technican/assets',[AssetController::class, 'index']);
     Route::post('/maintenance',[AssetController::class, 'store']);
     Route::post('/maintenance/{assetMaintenance}/update-before',[AssetController::class, 'updateBefore']);
-    Route::get('/maintenance-list/{technicianasset}',[AssetController::class, 'fetchAssetMaintenances']);
+    Route::post('/maintenance/{assetMaintenance}/update-after',[AssetController::class, 'updateAfter']);
 });

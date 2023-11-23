@@ -26,6 +26,7 @@ class WDA extends Model
         'contract_id',
         'status_updated_by',
         'vendor_id',
+        'wda_number',
     ];
     
     public function vendor()
@@ -48,5 +49,10 @@ class WDA extends Model
     public function invoices()
     {
         return $this->hasMany(Invoice::class, 'wda_id');
+    }
+
+    public function audits()
+    {
+        return $this->hasMany(WdaAudit::class, 'wda_id');
     }
 }
