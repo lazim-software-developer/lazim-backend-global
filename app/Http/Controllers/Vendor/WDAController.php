@@ -36,18 +36,18 @@ class WDAController extends Controller
         return WDAResource::collection($wdaQuery->latest()->paginate(10));
     }
 
-    public function store(CreateWDARequest $request)
+    public function store(CreateWDARequest $request,Vendor $vendor)
     {   
         $documentUrl = optimizeDocumentAndUpload($request->file);
 
-        $name = auth()->user()->technicianVendors()->first()->vendor->name;
+        $name = $vendor->name;
         $wda_number = strtoupper(substr($name, 0, 2)).date('YmdHis');
     
         $request->merge([
             'document' => $documentUrl,
             'created_by' => auth()->user()->id,
             'status' => 'pending',
-            'vendor_id' => auth()->user()->technicianVendors()->first()->vendor_id,
+            'vendor_id' => $vendor->id,
             'wda_number' => $wda_number
         ]);
 
