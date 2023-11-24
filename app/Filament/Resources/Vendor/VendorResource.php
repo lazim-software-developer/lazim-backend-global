@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Vendor;
 
 use App\Filament\Resources\Vendor\VendorResource\Pages;
 use App\Jobs\AccountCreationJob;
+use App\Jobs\VendorAccountCreationJob;
 use App\Jobs\VendorRejectionJob;
 use App\Models\User\User;
 use App\Models\Vendor\Vendor;
@@ -181,7 +182,7 @@ class VendorResource extends Resource
                         $password = Str::random(12);
                         $user->password = Hash::make($password);
                         $user->save();
-                        AccountCreationJob::dispatch($user, $password);
+                        VendorAccountCreationJob::dispatch($user, $password);
                         $record->status = $data['status'];
                         $record->save();
                     }

@@ -149,7 +149,7 @@ class InvoiceController extends Controller
         if ($request->has('building_id') && !empty($request->building_id)) {
             $invoicesQuery = $invoicesQuery->where('building_id', $request->building_id);
         }
-        if($request->has('status') && !empty($request->status)) {
+        if($request->has('status') && !empty($request->status) && $request->status != 'all') {
             $invoicesQuery = $invoicesQuery->where('status', $request->status);
         }
 
