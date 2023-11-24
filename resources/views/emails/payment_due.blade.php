@@ -5,7 +5,7 @@
 	@include('beautymail::templates.minty.contentStart')
 		<tr>
 			<td class="paragraph">
-                Dear {{$user->first_name}},
+                Dear {{$owner->name}} owner,
             </td>
 		</tr>
 		<tr>
@@ -31,7 +31,7 @@
 
         <tr>
             <td class="paragraph">
-                <strong>Email: </strong> {{$user->email}}
+                <strong>Email: </strong> {{$owner->email}}
 			</td>
 		</tr>
 
