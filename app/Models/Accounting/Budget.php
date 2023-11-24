@@ -2,23 +2,18 @@
 
 namespace App\Models\Accounting;
 
-use App\Models\Building\Building;
 use App\Models\OwnerAssociation;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\Building\Building;
+use App\Models\Accounting\Budgetitem;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Budget extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'budgetable_type',
-        'budgetable_id',
-        'budget_excl_vat',
-        'vat_rate',
-        'vat_amount',
-        'total',
-        'rate',
+        
         'building_id',
         'owner_association_id',
         'budget_period',
@@ -26,13 +21,6 @@ class Budget extends Model
         'budget_to',
     ];
 
-    /**
-     * Get the parent budgetable model (category, subcategory, or service).
-     */
-    public function budgetable()
-    {
-        return $this->morphTo();
-    }
 
     // Define an inverse one-to-many relationship with OwnerAssociation
     public function ownerAssociation()
@@ -44,5 +32,10 @@ class Budget extends Model
     public function building()
     {
         return $this->belongsTo(Building::class);
+    }
+
+    public function budgetitems()
+    {
+        return $this->hasMany(Budgetitem::class);
     }
 }

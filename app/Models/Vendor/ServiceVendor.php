@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 class ServiceVendor extends Model
 {
     use HasFactory;
-
+    public $timestamps = false;
     protected $table = 'service_vendor';
 
     protected $fillable = ['service_id', 'vendor_id', 'price', 'start_date', 'end_date', 'active', 'building_id'];

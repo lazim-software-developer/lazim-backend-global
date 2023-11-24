@@ -168,11 +168,6 @@ class AdminPanelProvider extends PanelProvider
                                 ->icon('heroicon-m-clipboard-document-check')
                                 ->activeIcon('heroicon-m-clipboard-document-check')
                                 ->sort(2),
-                            NavigationItem::make('Budget')
-                                ->url('/admin/budgets')
-                                ->icon('heroicon-m-clipboard-document-check')
-                                ->activeIcon('heroicon-m-clipboard-document-check')
-                                ->sort(3),
                             NavigationItem::make('Facility Bookings')
                                 ->url('/admin/building/facility-bookings')
                                 ->icon('heroicon-o-cube-transparent')
@@ -185,6 +180,33 @@ class AdminPanelProvider extends PanelProvider
                                 ->sort(5),
                         ]),
                 ]);
+                if (DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] != 'Admin') {
+                    $builder->groups([
+                        NavigationGroup::make('OAM')
+                            ->items([
+                                NavigationItem::make('Budgets')
+                                    ->url('/admin/budgets')
+                                    ->icon('heroicon-o-currency-dollar')
+                                    ->activeIcon('heroicon-o-currency-dollar')
+                                    ->sort(1),
+                                NavigationItem::make('Tenders')
+                                    ->url('/admin/tenders')
+                                    ->icon('heroicon-s-document-text')
+                                    ->activeIcon('heroicon-s-document-text')
+                                    ->sort(2),
+                                NavigationItem::make('Proposals')
+                                    ->url('/admin/proposals')
+                                    ->icon('heroicon-s-gift-top')
+                                    ->activeIcon('heroicon-s-gift-top')
+                                    ->sort(3),
+                                NavigationItem::make('OAM Invoices')
+                                    ->url('/admin/o-a-m-invoices')
+                                    ->icon('heroicon-s-bars-arrow-down')
+                                    ->activeIcon('heroicon-s-bars-arrow-down')
+                                    ->sort(4),
+                            ]),
+                    ]);
+                }
                 $builder->groups([
                     NavigationGroup::make('Flat Management')
                         ->items([
