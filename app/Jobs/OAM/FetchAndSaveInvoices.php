@@ -44,7 +44,7 @@ class FetchAndSaveInvoices implements ShouldQueue
                 foreach ($invoicesData as $data) {
                     foreach ($data['properties'] as $property) {
                         $flat = Flat::where('mollak_property_id',  $property['mollakPropertyId'])->first();
-                        
+
                     OAMInvoice::create([
                         'building_id' => $buildingId,
                         'flat_id' => $flat->id,
@@ -61,6 +61,11 @@ class FetchAndSaveInvoices implements ShouldQueue
                         'invoice_pdf_link' => $property['invoiceDetailUrl'] ?? null,
                         'invoice_detail_link' => $property['invoicePDF'] ?? null,
                         'updated_by' => 1,
+                        'type' => 'service_charge',
+                        'invoice_quarter' => $data['invoiceQuarter'],
+                        'invoice_period' => $data['invoicePeriod'],
+                        'budget_period' => $data['budgetPeriod'],
+                        'service_charge_group_id' => $data['serviceChargeGroupId']
                     ]);
                 }
             }
