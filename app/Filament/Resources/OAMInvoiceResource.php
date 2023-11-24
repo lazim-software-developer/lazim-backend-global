@@ -5,26 +5,31 @@ namespace App\Filament\Resources;
 use Filament\Forms;
 use Filament\Tables;
 use Filament\Forms\Form;
+use App\Models\FlatOwners;
 use Filament\Tables\Table;
+use App\Models\ApartmentOwner;
 use Filament\Resources\Resource;
+use App\Jobs\OAM\InvoiceDueMailJob;
 use App\Models\Accounting\OAMInvoice;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Tables\Actions\BulkAction;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\FileUpload;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\OAMInvoiceResource\Pages;
 use App\Filament\Resources\OAMInvoiceResource\RelationManagers;
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\TextInput;
-use Filament\Tables\Actions\BulkAction;
 
 class OAMInvoiceResource extends Resource
 {
     protected static ?string $model = OAMInvoice::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-    protected static ?string $modelLabel = 'OAM Invoice';
+    protected static ?string $modelLabel = 'Delinquent Owners';
     protected static ?string $navigationGroup = 'oam';
 
     public static function form(Form $form): Form
@@ -45,7 +50,7 @@ class OAMInvoiceResource extends Resource
                     ->label('Property No'),
                 TextInput::make('invoice_number')->disabled()->label('Invoice Number'),
                 DatePicker::make('invoice_date')->disabled()->label('Invoice Date'),
-                Select::make('invoice_status')->options(['Paid'=>'Paid','Defered'=>'Defered'])->searchable()->label('Invoice Status'),
+                Select::make('invoice_status')->options(['Paid' => 'Paid', 'Defered' => 'Defered'])->searchable()->label('Invoice Status'),
                 TextInput::make('due_amount')->label('Due Amount'),
                 TextInput::make('general_fund_amount')->disabled()->label('General Fund Amount'),
                 TextInput::make('reserve_fund_amount')->disabled()->label('Reserve Fund Amount'),
@@ -53,10 +58,6 @@ class OAMInvoiceResource extends Resource
                 TextInput::make('previous_balance')->disabled()->label('Previous Balance'),
                 TextInput::make('Adjust_amount')->disabled()->label('Adjust Amount'),
                 TextInput::make('invoice_due_date')->disabled()->label('Invoice Due Date'),
-                TextInput::make('invoice_pdf_link')
-                    ->label('Invoice Pdf Link'),
-                TextInput::make('invoice_detail_link')
-                    ->label('Invoice Detail Link'),
 
             ]);
     }
@@ -87,7 +88,8 @@ class OAMInvoiceResource extends Resource
                     ->searchable()
                     ->default("NA")
                     ->label('Due Amount'),
-                TextColumn::make('')
+                TextColumn::make('invoice_due_date')
+                    ->date(),
             ])
             ->filters([
                 //
@@ -100,36 +102,31 @@ class OAMInvoiceResource extends Resource
                     //Tables\Actions\DeleteBulkAction::make(),
                     BulkAction::make('Remind')
                         ->form([
-                            Select::make('status')
-                            ->options([
-                                'approved' => 'Approved',
-                                'rejected' => 'Rejected',
-                            ])
-                            ->searchable()
-                            ->live(),
-                        TextInput::make('remarks')
-                            ->rules(['max:255'])
-                            ->required()
-                            ->visible(function (callable $get) {
-                                if ($get('status') == 'rejected') {
-                                    return true;
-                                }
-                                return false;
-                            }),
+                            Textarea::make('content')
+                                ->maxLength(1024)
+                                ->rows(10)
+                                ->label('Content'),
                         ])
-                        ->fillForm(fn (OAMInvoice $record): array => [
-                            'status' => $record->status,
-                            'remarks' => $record->remarks,
+                        ->fillForm(fn(OAMInvoice $record): array => [
+                            'content' => 'Your payment is Due, please make the payment ASAP.'
                         ])
-                        ->action(function (OAMInvoice $record, array $data): void {
-                            
+                        ->action(function (Collection $records, array $data): void {
+                            foreach ($records as $record) {
+                                // Access the flat_id of each selected record
+                                $flatId = $record->flat_id;
+
+                                $ownerID = FlatOwners::where('flat_id', $flatId)->where('active', true)->first()->owner_id;
+                                $owner = ApartmentOwner::find($ownerID);
+                                $content = $data['content'];
+                                InvoiceDueMailJob::dispatch($owner, $content);
+                            }
                         })
                         ->slideOver()
                 ]),
             ])
             ->emptyStateActions([
-                //Tables\Actions\CreateAction::make(),
-            ]);
+                    //Tables\Actions\CreateAction::make(),
+                ]);
     }
 
     public static function getRelations(): array

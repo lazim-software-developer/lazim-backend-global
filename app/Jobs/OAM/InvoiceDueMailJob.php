@@ -17,13 +17,13 @@ class InvoiceDueMailJob implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public $user;
+    public $owner;
 
     public $content;
 
-    public function __construct($user, $content)
+    public function __construct($owner, $content)
     {
-        $this->user = $user;
+        $this->owner = $owner;
         $this->content = $content;
     }
 
@@ -33,9 +33,9 @@ class InvoiceDueMailJob implements ShouldQueue
     public function handle(): void
     {
         $beautymail = app()->make(Beautymail::class);
-        $beautymail->send('emails.payment_due', ['user' => $this->user, 'content' => $this->content], function($message) {
+        $beautymail->send('emails.payment_due', ['owner' => $this->owner, 'content' => $this->content], function($message) {
             $message
-                ->to($this->user->email, $this->user->first_name)
+                ->to($this->owner->email, $this->owner->name)
                 ->subject('Welcome to Lazim!');
         });
     }
