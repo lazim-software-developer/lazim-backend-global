@@ -21,7 +21,7 @@ class WDAResource extends JsonResource
             'contract_name' => $this->contract->contract_type,
             'date' => $this->date,
             'status' => $this->status,
-            'document' => env('AWS_URL').$this->document,
+            'document' => env('AWS_URL').'/'.$this->document,
             'description' => $this->job_description,
             'remarks' => $this->remarks,
         ];
