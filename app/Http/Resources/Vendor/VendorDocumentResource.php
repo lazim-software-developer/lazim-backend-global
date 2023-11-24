@@ -18,7 +18,7 @@ class VendorDocumentResource extends JsonResource
         return[
             'id' => $this->id,
             'name' => $this->documentLibrary->name,
-            'url' => env('AWS_URL').$this->url,
+            'url' => env('AWS_URL').'/'.$this->url,
         ];
     }
 }
