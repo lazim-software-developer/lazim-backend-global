@@ -58,7 +58,8 @@ class CreateTender extends Page
 
         return [
             'subcategoryServices' => $subcategoryServices,
-            'building' => $building
+            'building' => $building,
+            'budgetId' => $this->budget->id
         ];
     }
 

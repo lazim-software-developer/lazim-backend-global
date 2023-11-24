@@ -31,6 +31,11 @@ class OAMInvoice extends Model
         'invoice_pdf_link',
         'invoice_detail_link',
         'updated_by',
+        'type',
+        'invoice_quarter',
+        'invoice_period',
+        'budget_period',
+        'service_charge_group_id'
     ];
 
     // Save data to invoice audit table before updating the entry
