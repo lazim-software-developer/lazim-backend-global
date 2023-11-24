@@ -10,6 +10,7 @@ use App\Http\Requests\Technician\TechnicianIdRequest;
 use App\Http\Resources\CustomResponseResource;
 use App\Http\Resources\Technician\ServiceTechnicianResource;
 use App\Jobs\AccountCreationJob;
+use App\Jobs\TechnicianAccountCreationJob;
 use App\Models\Building\Complaint;
 use App\Models\Master\Role;
 use App\Models\Master\Service;
@@ -52,7 +53,8 @@ class TechnicianController extends Controller
 
         $technician->services()->syncWithoutDetaching([$request->service_id]);
 
-        AccountCreationJob::dispatch($user, $password);
+        // AccountCreationJob::dispatch($user, $password);
+        TechnicianAccountCreationJob::dispatch($user, $password);
 
         return (new CustomResponseResource([
             'title' => 'Technician Added Successfully!',
