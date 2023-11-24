@@ -1,6 +1,7 @@
 <x-filament-panels::page>
+    {{request()->route('id')}}
     <div class="space-y-10 divide-y divide-gray-900/10">
-        <form class="bg-white shadow-sm ring-2 ring-offset-slate-700 sm:rounded-xl" method="post" enctype="multipart/form-data" action="/admin/1/tender/create">
+        <form class="bg-white shadow-sm ring-2 ring-offset-slate-700 sm:rounded-xl" method="post" enctype="multipart/form-data" action="/admin/{{request()->route('id')}}/tender/create">
             @csrf
             <div class="px-4 py-6 sm:p-8">
                 <div class="grid grid-cols-1 gap-x-6 gap-y-8 md:grid-cols-4">
@@ -14,7 +15,7 @@
 
 
                     <div class="md:col-span-1 max-w-md my-5">
-                        <label for="end-date" class="block text-sm font-medium leading-6 text-gray-900">End date</label>
+                        <label for="end-date" class="block text-sm font-medium leading-6 text-gray-900">Contract document</label>
                         <div class="mt-2">
                             <input id="file-upload" name="document" type="file" class="mt-2 block w-full text-sm text-gray-900 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100">
                         </div>
