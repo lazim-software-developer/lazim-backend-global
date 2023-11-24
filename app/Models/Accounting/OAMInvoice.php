@@ -2,9 +2,12 @@
 
 namespace App\Models\Accounting;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
+use App\Models\Building\Building;
+use App\Models\Building\Flat;
 use Illuminate\Support\Facades\DB;
+use Filament\Forms\Components\Select;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class OAMInvoice extends Model
 {
@@ -47,5 +50,13 @@ class OAMInvoice extends Model
                 ]);
             });
         });
+    }
+    public function building()
+    {
+        return $this->belongsTo(Building::class);
+    }
+    public function flat()
+    {
+        return $this->belongsTo(Flat::class);
     }
 }

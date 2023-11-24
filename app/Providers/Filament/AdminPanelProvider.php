@@ -184,11 +184,26 @@ class AdminPanelProvider extends PanelProvider
                     $builder->groups([
                         NavigationGroup::make('OAM')
                             ->items([
-                                NavigationItem::make('Budget')
-                                ->url('/admin/budgets')
-                                ->icon('heroicon-m-clipboard-document-check')
-                                ->activeIcon('heroicon-m-clipboard-document-check')
-                                ->sort(1),
+                                NavigationItem::make('Budgets')
+                                    ->url('/admin/budgets')
+                                    ->icon('heroicon-o-currency-dollar')
+                                    ->activeIcon('heroicon-o-currency-dollar')
+                                    ->sort(1),
+                                NavigationItem::make('Tenders')
+                                    ->url('/admin/tenders')
+                                    ->icon('heroicon-s-document-text')
+                                    ->activeIcon('heroicon-s-document-text')
+                                    ->sort(2),
+                                NavigationItem::make('Proposals')
+                                    ->url('/admin/proposals')
+                                    ->icon('heroicon-s-gift-top')
+                                    ->activeIcon('heroicon-s-gift-top')
+                                    ->sort(3),
+                                NavigationItem::make('OAM Invoices')
+                                    ->url('/admin/o-a-m-invoices')
+                                    ->icon('heroicon-s-bars-arrow-down')
+                                    ->activeIcon('heroicon-s-bars-arrow-down')
+                                    ->sort(4),
                             ]),
                     ]);
                 }

@@ -2,13 +2,14 @@
 
 namespace App\Models\Accounting;
 
-use App\Models\Building\Building;
-use App\Models\Master\Service;
-use App\Models\OwnerAssociation;
 use App\Models\User\User;
 use App\Models\Vendor\Vendor;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\Master\Service;
+use App\Models\OwnerAssociation;
+use App\Models\Building\Building;
+use App\Models\Accounting\Proposal;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Tender extends Model
 {
@@ -50,5 +51,9 @@ class Tender extends Model
     public function createdBy()
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+    public function proposals()
+    {
+        return $this->hasMany(Proposal::class);
     }
 }

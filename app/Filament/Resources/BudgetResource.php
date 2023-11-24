@@ -68,9 +68,6 @@ class BudgetResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
-                Action::make('create tender')
-                    ->label('Create Tender')
-                    ->url(route('tender.create', ['budget' => 10]))
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
