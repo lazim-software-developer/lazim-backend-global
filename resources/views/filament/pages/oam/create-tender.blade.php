@@ -1,7 +1,6 @@
 <x-filament-panels::page>
-    {{request()->route('id')}}
     <div class="space-y-10 divide-y divide-gray-900/10">
-        <form class="bg-white shadow-sm ring-2 ring-offset-slate-700 sm:rounded-xl" method="post" enctype="multipart/form-data" action="/admin/{{request()->route('id')}}/tender/create">
+        <form class="bg-white shadow-sm ring-2 ring-offset-slate-700 sm:rounded-xl" method="post" enctype="multipart/form-data" action="/admin/{{$budgetId}}/tender/create">
             @csrf
             <div class="px-4 py-6 sm:p-8">
                 <div class="grid grid-cols-1 gap-x-6 gap-y-8 md:grid-cols-4">
