@@ -4,6 +4,7 @@ namespace App\Models\Building;
 
 use App\Models\Accounting\Budget;
 use App\Models\Accounting\Invoice;
+use App\Models\Accounting\OAMInvoice;
 use App\Models\Accounting\WDA;
 use App\Models\Asset;
 use App\Models\Community\Post;
@@ -191,5 +192,9 @@ class Building extends Model
     public function ppms()
     {
         return $this->hasMany(PPM::class);
+    }
+    public function oaminvoices()
+    {
+        return $this->hasMany(OAMInvoice::class);
     }
 }
