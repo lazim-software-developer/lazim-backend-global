@@ -52,6 +52,10 @@ class Building extends Model
         'owner_association_id'
     ];
 
+    protected $casts = [
+        'allow_postupload' => 'boolean'
+    ];
+
     protected $searchableFields = ['*'];
     
     public function cities()
