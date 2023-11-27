@@ -60,6 +60,8 @@ class FetchAndSaveInvoices implements ShouldQueue
                         'invoice_due_date' => $property['invoiceDueDate'],
                         'invoice_pdf_link' => $property['invoiceDetailUrl'] ?? null,
                         'invoice_detail_link' => $property['invoicePDF'] ?? null,
+                        'invoice_amount' => $property['invoiceAmount'],
+                        'amount_paid' => 0,
                         'updated_by' => 1,
                         'type' => 'service_charge',
                         'invoice_quarter' => $data['invoiceQuarter'],

@@ -35,7 +35,9 @@ class OAMInvoice extends Model
         'invoice_quarter',
         'invoice_period',
         'budget_period',
-        'service_charge_group_id'
+        'service_charge_group_id',
+        'invoice_amount',
+        'amount_paid',
     ];
 
     // Save data to invoice audit table before updating the entry
