@@ -9,7 +9,9 @@ use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
-use Maatwebsite\Excel\Validators\ValidationException;
+use Illuminate\Validation\ValidationException as LaravelValidationException;
+use Maatwebsite\Excel\Validators\Failure;
+use Illuminate\Support\Facades\Validator;
 
 class BudgetImport implements ToCollection, WithHeadingRow
 {
@@ -37,12 +39,13 @@ class BudgetImport implements ToCollection, WithHeadingRow
             ->where('budget_to', $endDate->toDateString())
             ->first();
 
-        if ($existingBudget) {
-            // Throw an error message
-            throw ValidationException::withMessages([
-                'budget' => 'A budget for the specified period and building already exists.'
-            ]);
-        }
+            if ($existingBudget) {
+                // Create a Laravel ValidationException
+                $validator = Validator::make([], []); // Empty data and rules
+                $validator->errors()->add('budget', 'A budget for the specified period and building already exists.');
+    
+                throw new LaravelValidationException($validator);
+            }
 
         $budget = Budget::create([
             'building_id' => $this->buildingId,
