@@ -20,6 +20,7 @@ use Illuminate\Database\Eloquent\Model;
 use Filament\Tables\Actions\Action;
 use EightyNine\ExcelImport\ExcelImportAction;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Session;
 use Maatwebsite\Excel\Facades\Excel;
 
 class BuildingResource extends Resource
@@ -174,7 +175,7 @@ class BuildingResource extends Resource
                                 'Jan 2021 - Dec 2021' => '2021',
                                 'Jan 2020 - Dec 2020' => '2020',
                                 'Jan 2019 - Dec 2019' => '2019',
-                                'Jan 2018 - Dec 2018' => '2018' ,
+                                'Jan 2018 - Dec 2018' => '2018',
                             ])
                             ->required(),
                         Forms\Components\FileUpload::make('excel_file')
@@ -187,23 +188,27 @@ class BuildingResource extends Resource
                             ->disk('local') // or your preferred disk
                             ->directory('budget_imports'), // or your preferred directory
                     ])
-                    ->
-                action(function ($record, array $data) {
-                    $budgetPeriod = $data['budget_period'];
-                    $filePath = $data['excel_file']; // This is likely just a file path or name
-                    // Assuming the file is stored in the local disk in a 'budget_imports' directory
-                    $fullPath = storage_path('app/' . $filePath);
-                    Log::info("Full path: ", [$fullPath]);
+                    ->action(function ($record, array $data, $livewire) {
+                        try {
+                            $budgetPeriod = $data['budget_period'];
+                            $filePath = $data['excel_file'];
+                            $fullPath = storage_path('app/' . $filePath);
+                            Log::info("Full path: ", [$fullPath]);
 
-                    if (!file_exists($fullPath)) {
-                        Log::error("File not found at path: ", [$fullPath]);
-                        // Handle the error appropriately
-                    }
+                            if (!file_exists($fullPath)) {
+                                Log::error("File not found at path: ", [$fullPath]);
+                            }
 
-                    // Now import using the file path
-                    Excel::import(new BudgetImport($budgetPeriod, $record->id), $fullPath);
+                            // Now import using the file path
+                            Excel::import(new BudgetImport($budgetPeriod, $record->id), $fullPath); // Notify user of success
+                            Session::flash('notify', ['type' => 'success', 'message' => 'Budget file imported successfully.']);
+                        } catch (\Exception $e) {
+                            Log::error('Error during file import: ' . $e->getMessage());
 
-                }),
+                            // Notify user of failure
+                            Session::flash('notify', ['type' => 'danger', 'message' => 'Failed to import budget file.']);
+                        }
+                    }),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
