@@ -7,10 +7,13 @@ use App\Http\Requests\Service\ServiceBookingRequest;
 use App\Http\Resources\CustomResponseResource;
 use App\Http\Resources\Facility\FacilityResource;
 use App\Http\Resources\Services\ServiceResource;
+use App\Imports\ServicesImport;
 use App\Models\Building\Building;
 use App\Models\Building\FacilityBooking;
 use App\Models\Master\Service;
 use App\Models\Vendor\ServiceVendor;
+use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ServiceController extends Controller
 {
@@ -71,5 +74,20 @@ class ServiceController extends Controller
             'message' => 'Service booking has been successfully created.',
             'code' => 200,
         ]);
+    }
+
+    // Import Services
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:xlsx',
+        ]);
+
+        
+        $servicesImport = new ServicesImport;
+
+        Excel::import($servicesImport, $request->file('file'));
+
+        return response()->json(['message' => 'Services imported successfully']);
     }
 }
