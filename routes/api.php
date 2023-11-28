@@ -345,6 +345,7 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('vendor')->group(function 
 
     // List all tenders
     Route::get('/tenders', [TenderController::class, 'index']);
+    Route::post('/tenders/{tender}', [TenderController::class, 'store']);
 });
 
 // Technician Related APIs
