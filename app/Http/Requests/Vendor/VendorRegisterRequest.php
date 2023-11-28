@@ -23,8 +23,8 @@ class VendorRegisterRequest extends FormRequest
     {
         return [
             'name'      => 'required',
-            'email'     => 'required|regex:/^[a-zA-Z0-9_.-]+@[a-zA-Z]+\.[a-zA-Z]+$/|unique:users',
-            'phone'    => 'required|string|unique:users',
+            'email'     => 'required|regex:/^[a-zA-Z0-9_.-]+@[a-zA-Z]+\.[a-zA-Z]+$/',
+            'phone'    => 'required|string',
             'owner_association_id' => 'required|integer'
         ];
     }
