@@ -204,12 +204,6 @@ class AdminPanelProvider extends PanelProvider
                                     ->icon('heroicon-s-bars-arrow-down')
                                     ->activeIcon('heroicon-s-bars-arrow-down')
                                     ->sort(4),
-                                NavigationItem::make('Cooling Accounts')
-                                    ->url('/admin/cooling-accounts')
-                                    ->icon('heroicon-o-rectangle-stack')
-                                    ->activeIcon('heroicon-o-rectangle-stack')
-                                    ->sort(4),
-                                    
                             ]),NavigationGroup::make('Ledgers')
                                 ->items([
                                     NavigationItem::make('Service Charge Ledgers')
@@ -219,7 +213,12 @@ class AdminPanelProvider extends PanelProvider
                                     NavigationItem::make('Service Provider Ledgers')
                                     ->url('/admin/vendor-ledgers')
                                     ->icon('heroicon-o-rectangle-stack')
-                                    ->activeIcon('heroicon-o-rectangle-stack')
+                                    ->activeIcon('heroicon-o-rectangle-stack'),
+                                    NavigationItem::make('Cooling Account')
+                                    ->url('/admin/cooling-accounts')
+                                    ->icon('heroicon-o-cube-transparent')
+                                    ->activeIcon('heroicon-o-cube-transparent')
+                                    ->sort(4),
                                 ]),
                         
                     ]);
