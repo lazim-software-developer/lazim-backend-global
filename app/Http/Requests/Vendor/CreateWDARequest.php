@@ -27,6 +27,7 @@ class CreateWDARequest extends FormRequest
             'date' => 'required|date',
             'job_description' => 'required|string|max:255',
             'file' => 'required|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
+            'service_id' => 'required'
         ];
     }
 }

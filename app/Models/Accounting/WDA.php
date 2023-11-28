@@ -27,6 +27,7 @@ class WDA extends Model
         'status_updated_by',
         'vendor_id',
         'wda_number',
+        'service_id'
     ];
     
     public function vendor()
