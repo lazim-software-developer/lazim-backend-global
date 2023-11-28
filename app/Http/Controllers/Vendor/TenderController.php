@@ -34,12 +34,9 @@ class TenderController extends Controller
     {
         $vendor = Vendor::where('owner_id', auth()->user()->id)->first();
 
-        $tenderExists = DB::table('tender_vendors')->where([
-            'tender_id' => $tender->id,
-            'vendor_id' => $vendor->id
-        ])->exists();
+        $proposalExists = Proposal::where(['tender_id' => $tender->id, 'vendor_id' => $vendor->id])->exists();
 
-        if ($tenderExists) {
+        if ($proposalExists) {
             return (new CustomResponseResource([
                 'title' => 'Error',
                 'message' => 'Ypu have already submitted proposal for this tender',
@@ -54,7 +51,8 @@ class TenderController extends Controller
             'amount' => $request->amount,
             'submitted_by' => auth()->user()->id,
             'submitted_on' => now(),
-            'document' => $filePath
+            'document' => $filePath,
+            'vendor_id' => $vendor->id
         ]);
 
         DB::table('tender_vendors')->where([
