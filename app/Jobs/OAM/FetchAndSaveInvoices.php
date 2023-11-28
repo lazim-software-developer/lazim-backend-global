@@ -37,7 +37,7 @@ class FetchAndSaveInvoices implements ShouldQueue
             $response = Http::withoutVerifying()->withHeaders([
                 'content-type' => 'application/json',
                 'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
-            ])->get(env("MOLLAK_API_URL") . '/sync/invoices/'. $propertyGroupId .'/all/Q4-JAN2019-DEC2019');
+            ])->get(env("MOLLAK_API_URL") . '/sync/invoices/'. $propertyGroupId .'/all/Q2-JAN2023-DEC2023');
 
                 $invoicesData = $response->json()['response']['serviceChargeGroups'];
                 
