@@ -11,9 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('tender_vendors', function (Blueprint $table) {
-            $table->string('status')->nullable();
-            $table->string('remarks')->nullable()->after('status');
+        Schema::table('wda', function (Blueprint $table) {
+            $table->unsignedBigInteger('service_id')->nullable()->after('vendor_id');
+
+            $table->foreign('service_id')->references('id')->on('services');
         });
     }
 
@@ -22,9 +23,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('tender_vendors', function (Blueprint $table) {
-            $table->dropColumn('status');
-            $table->dropColumn('remarks');
+        Schema::table('wda', function (Blueprint $table) {
+            $table->dropForeign(['service_id']);
+            $table->dropColumn('service_id');
         });
     }
 };
