@@ -21,6 +21,7 @@ class Proposal extends Model
         'remarks',
         'status_updated_by',
         'status_updated_on',
+        'vendor_id'
     ];
     public function tender()
     {
