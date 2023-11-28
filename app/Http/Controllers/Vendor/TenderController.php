@@ -49,7 +49,7 @@ class TenderController extends Controller
         Proposal::create([
             'tender_id' => $tender->id,
             'amount' => $request->amount,
-            'submitted_by' => auth()->user()->id,
+            'submitted_by' => $vendor->id,
             'submitted_on' => now(),
             'document' => $filePath,
             'vendor_id' => $vendor->id
