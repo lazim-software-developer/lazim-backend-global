@@ -191,14 +191,12 @@ class BuildingResource extends Resource
                     ->action(function ($record, array $data, $livewire) {
                         try {
                             $budgetPeriod = $data['budget_period'];
-                            $filePath = $data['excel_file']; // This is likely just a file path or name
-                            // Assuming the file is stored in the local disk in a 'budget_imports' directory
+                            $filePath = $data['excel_file'];
                             $fullPath = storage_path('app/' . $filePath);
                             Log::info("Full path: ", [$fullPath]);
 
                             if (!file_exists($fullPath)) {
                                 Log::error("File not found at path: ", [$fullPath]);
-                                // Handle the error appropriately
                             }
 
                             // Now import using the file path
