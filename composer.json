@@ -23,6 +23,7 @@
         "league/flysystem-aws-s3-v3": "3.0",
         "livewire/livewire": "^3.0",
         "maatwebsite/excel": "^3.1",
+        "malzariey/filament-daterangepicker-filter": "^2.3",
         "nyholm/psr7": "^1.8",
         "pxlrbt/filament-excel": "^2.1",
         "railsware/mailtrap-php": "^1.7",
