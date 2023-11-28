@@ -41,6 +41,7 @@ use App\Http\Controllers\Technician\TasksController;
 use App\Http\Controllers\User\ProfileController;
 use App\Http\Controllers\User\UserController;
 use App\Http\Controllers\Vendor\InvoiceController;
+use App\Http\Controllers\Vendor\TenderController;
 use App\Http\Controllers\Vendor\WDAController;
 use App\Http\Controllers\Vendor\VendorBuildingController;
 
@@ -341,6 +342,9 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('vendor')->group(function 
 
     //Escalation Matrix exists
     Route::get('/{vendor}/check-escalation-matrix', [EscalationMatrixController::class, 'exists']);
+
+    // List all tenders
+    Route::get('/tenders', [TenderController::class, 'index']);
 });
 
 // Technician Related APIs
