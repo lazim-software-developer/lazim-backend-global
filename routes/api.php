@@ -374,3 +374,5 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('assets')->group(function 
     Route::post('/create/ppm',[PPMController::class, 'store']);
     Route::get('/{vendor}/ppm/',[PPMController::class, 'index']);
 });
+// API to import services
+Route::post('/import-services', [ServiceController::class, 'import']);
