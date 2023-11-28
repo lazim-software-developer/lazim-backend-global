@@ -15,25 +15,39 @@ use Illuminate\Support\Facades\DB;
 
 class TenderController extends Controller
 {
-    public function index() {
+    public function index()
+    {
         $vendor = Vendor::where('owner_id', auth()->user()->id)->first();
 
         $tendersIds = DB::table('tender_vendors')
-        ->where('vendor_id', $vendor->id)
-        ->latest()
-        ->pluck('tender_id');
-        
+            ->where('vendor_id', $vendor->id)
+            ->latest()
+            ->pluck('tender_id');
+
         $tenders = Tender::whereIn('id', $tendersIds)->paginate(10);
-        
+
         return TenderResource::collection($tenders);
     }
 
     // Create proposal
-    public function store(Tender $tender, Request $request) {
+    public function store(Tender $tender, Request $request)
+    {
+        $vendor = Vendor::where('owner_id', auth()->user()->id)->first();
 
+        $tenderExists = DB::table('tender_vendors')->where([
+            'tender_id' => $tender->id,
+            'vendor_id' => $vendor->id
+        ])->exists();
+
+        if ($tenderExists) {
+            return (new CustomResponseResource([
+                'title' => 'Error',
+                'message' => 'Ypu have already submitted proposal for this tender',
+                'code' => 400,
+            ]))->response()->setStatusCode(400);
+        }
         $filePath = optimizeDocumentAndUpload($request->file('file'), 'dev');
 
-        $vendor = Vendor::where('owner_id', auth()->user()->id)->first();
 
         Proposal::create([
             'tender_id' => $tender->id,
@@ -47,7 +61,7 @@ class TenderController extends Controller
             'tender_id' => $tender->id,
             'vendor_id' => $vendor->id
         ])->update([
-            'status' => 'approved'
+            'status' => 'applied'
         ]);
 
         return (new CustomResponseResource([
