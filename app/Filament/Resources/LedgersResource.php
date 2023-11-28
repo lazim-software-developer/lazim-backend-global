@@ -2,11 +2,15 @@
 
 namespace App\Filament\Resources;
 
+use App\Models\Accounting\Invoice;
 use Filament\Forms;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Infolist;
 use Filament\Tables;
 use Filament\Forms\Form;
+use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
 use App\Models\Accounting\OAMInvoice;
@@ -15,16 +19,19 @@ use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\LedgersResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\LedgersResource\RelationManagers;
+use Filament\Forms\Components\Section;
+use Filament\Infolists\Components\Section as ComponentsSection;
 use Filament\Tables\Actions\SelectAction;
 use Filament\Tables\Filters\Filter;
+use Malzariey\FilamentDaterangepickerFilter\Fields\DateRangePicker;
 
 class LedgersResource extends Resource
 {
     protected static ?string $model = OAMInvoice::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-    protected static ?string $modelLabel = 'Ledgers';
-    protected static ?string $navigationGroup = 'oam';
+    protected static ?string $modelLabel = 'Service Charge Ledgers';
+    protected static ?string $navigationGroup = 'Ledgers';
 
     public static function form(Form $form): Form
     {
@@ -39,6 +46,7 @@ class LedgersResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('invoice_date')
+                    ->label('Date')
                     ->date(),
                 TextColumn::make('building.name')
                     ->searchable()
@@ -50,6 +58,7 @@ class LedgersResource extends Resource
                     ->limit(50),
                 TextColumn::make('invoice_number')
                     ->searchable()
+                    ->url(fn (OAMInvoice $record): string =>  route('admin.ledgers.receipts', ['record' => $record]))
                     ->default("NA")
                     ->label('Invoice Number'),
                 TextColumn::make('type')
@@ -74,42 +83,54 @@ class LedgersResource extends Resource
                     ])
                     ->filters([
                         Filter::make('invoice_date')
-                                ->form([
-                                    DatePicker::make('from'),
-                                    DatePicker::make('until'),
-                                ])
-                                ->query(function (Builder $query, array $data): Builder {
-                                    return $query
-                                        ->when(
-                                            $data['from'],
-                                            fn (Builder $query, $date): Builder => $query->whereDate('invoice_date', '>=', $date),
-                                        )
-                                        ->when(
-                                            $data['until'],
-                                            fn (Builder $query, $date): Builder => $query->whereDate('invoice_date', '<=', $date),
-                                        );
-                                    }),
-                        Filter::make('type')
-                                    ->form([
-                                        Select::make('invoice_type')
-                                        ->options([
-                                            "service_charge" => "Service Charges Ledger",
-                                            "cooling_accounts" => "Cooling Accounts",
-                                            "other_income" => "Other Income",
-                                            "general_fund_amount" => "General Fund Amount",
-                                            "reserve_fund_amount" => "Reserve Fund Amount",
-                                        ])
-                                    ])
-                                    ->query(function (Builder $query, array $data): Builder {
+                            ->form([
+                                DateRangePicker::make('Date')
+                            ])
+                            ->query(function (Builder $query, array $data): Builder {
+                                if (isset($data['Date'])) {
+                                    $dateRange = explode(' - ', $data['Date']);
+                            
+                                    if (count($dateRange) === 2) {
+                                        $from = \Carbon\Carbon::createFromFormat('d/m/Y', $dateRange[0])->format('Y-m-d');
+                                        $until = \Carbon\Carbon::createFromFormat('d/m/Y', $dateRange[1])->format('Y-m-d');
+                            
                                         return $query
                                             ->when(
-                                                $data['invoice_type'],
-                                                fn (Builder $query, $type): Builder => $query->where('type', $type),
+                                                $from,
+                                                fn (Builder $query, $date) => $query->whereDate('invoice_date', '>=', $date)
+                                            )
+                                            ->when(
+                                                $until,
+                                                fn (Builder $query, $date) => $query->whereDate('invoice_date', '<=', $date)
                                             );
-                                        })
-            ])
+                                    }
+                                }
+                                
+                                    return $query;
+                                }),
+                        // Filter::make('type')
+                        //     ->form([
+                        //         Select::make('invoice_type')
+                        //         ->searchable()
+                        //         ->options([
+                        //             "service_charge" => "Service Charges Ledger",
+                        //             "cooling_accounts" => "Cooling Accounts",
+                        //             "other_income" => "Other Income",
+                        //             "general_fund_amount" => "General Fund Amount",
+                        //             "reserve_fund_amount" => "Reserve Fund Amount",
+                        //         ])
+                        //     ])
+                        //     ->query(function (Builder $query, array $data): Builder {
+                        //         return $query
+                        //             ->when(
+                        //                 $data['invoice_type'],
+                        //                 fn (Builder $query, $type): Builder => $query->where('type', $type),
+                        //             );
+                        //         }),
+                            ],layout: FiltersLayout::AboveContent)->filtersFormColumns(3)
             ->actions([
                 //Tables\Actions\EditAction::make(),
+                Tables\Actions\ViewAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -120,6 +141,18 @@ class LedgersResource extends Resource
                 //Tables\Actions\CreateAction::make(),
             ]);
     }
+
+    public static function infolist(Infolist $infolist): Infolist
+{
+    return $infolist
+        ->schema([
+            ComponentsSection::make('Receipts')
+            ->schema([
+                TextEntry::make('building.name')
+
+            ])
+        ]);
+}
 
     public static function getRelations(): array
     {
@@ -132,8 +165,10 @@ class LedgersResource extends Resource
     {
         return [
             'index' => Pages\ListLedgers::route('/'),
+            'list' => Pages\ListReceipts::route('/{record}'),
             // 'create' => Pages\CreateLedgers::route('/create'),
             // 'edit' => Pages\EditLedgers::route('/{record}/edit'),
+            // 'view' => Pages\ViewLedgers::route('/{record}'),
         ];
     }
 }
