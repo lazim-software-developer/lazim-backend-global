@@ -30,7 +30,7 @@ class DocumentsUploadController extends Controller
         }
 
         return (new CustomResponseResource([
-            'title' => 'Documents upload successfull!',
+            'title' => 'Documents upload successful!',
             'message' => "",
             'code' => 201,
             'status' => 'success'
