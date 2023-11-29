@@ -2,6 +2,7 @@
 
 namespace App\Models\Building;
 
+use App\Models\CoolingAccount;
 use App\Models\User\User;
 use App\Models\Forms\Guest;
 use App\Models\MollakTenant;
@@ -91,5 +92,10 @@ class Flat extends Model
     public function oaminvoices()
     {
         return $this->hasMany(OAMInvoice::class);
+    }
+
+    public function coolingAccounts()
+    {
+        return $this->hasMany(CoolingAccount::class);
     }
 }

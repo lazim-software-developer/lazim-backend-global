@@ -8,6 +8,7 @@ use App\Models\Accounting\OAMInvoice;
 use App\Models\Accounting\WDA;
 use App\Models\Asset;
 use App\Models\Community\Post;
+use App\Models\CoolingAccount;
 use App\Models\Forms\AccessCard;
 use App\Models\Forms\Guest;
 use App\Models\Forms\SaleNOC;
@@ -200,5 +201,10 @@ class Building extends Model
     public function oaminvoices()
     {
         return $this->hasMany(OAMInvoice::class);
+    }
+
+    public function coolingAccounts()
+    {
+        return $this->hasMany(CoolingAccount::class);
     }
 }
