@@ -55,6 +55,7 @@ class FetchAndSaveReceipts implements ShouldQueue
                         'to_date' => '2023-04-02',   // Adjust as needed
                         'building_id' => $this->building->id,
                         'flat_id' => $flatId,
+                        'receipts' => '01-Jan-2023 To 31-Apr-2023'
                     ]);
                 }
             }
