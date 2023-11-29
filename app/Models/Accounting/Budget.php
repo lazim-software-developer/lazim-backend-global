@@ -38,8 +38,8 @@ class Budget extends Model
     {
         return $this->hasMany(Budgetitem::class);
     }
-    public function tenders()
-    {
+
+    public function tenders() {
         return $this->hasMany(Tender::class);
     }
 }
