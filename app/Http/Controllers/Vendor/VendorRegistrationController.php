@@ -23,19 +23,20 @@ class VendorRegistrationController extends Controller
         // Check if the user is already registered and verified
         $userData = User::where(['email' => $request->get('email'), 'phone' => $request->get('phone')]);
 
+        // Check if user exists in our DB
+        if (User::where(['email' => $request->email, 'phone' => $request->phone, 'email_verified' => true, 'phone_verified' => true])->exists()) {
+            return (new CustomResponseResource([
+                'title' => 'account_present',
+                'message' => 'Your email is already registered in our application. Please try login instead!',
+                'code' => 400,
+            ]))->response()->setStatusCode(400);
+        }
+        
         // if user exists
         if($userData->exists()){
-            // If user is exist and verified
-            if ($userData->exists() && ($userData->first()->email_verified == 1 || $userData->first()->phone_verified == 1)) {
-                return (new CustomResponseResource([
-                    // 'title' => 'redirect_verification',
-                    'message' => "This details are already registered",
-                    'code' => 403,
-                    'data' => $userData->first(),
-                ]))->response()->setStatusCode(403);
-            }
+
             // If not verified, redirect to verification page
-            if ($userData->exists() && ($userData->first()->email_verified == 0 || $userData->first()->phone_verified == 0)) {
+            if ($userData->exists() && ($userData->first()->email_verified == false || $userData->first()->phone_verified == false)) {
                 return (new CustomResponseResource([
                     'title' => 'redirect_verification',
                     'message' => "Your account is not verified. You'll be redirected to account verification page",
@@ -86,14 +87,7 @@ class VendorRegistrationController extends Controller
                     'data' => $vendor,
                 ]))->response()->setStatusCode(403);
             }
-            // Check if user exists in our DB
-            if (User::where(['email' => $request->email, 'phone' => $request->phone, 'email_verified' => 1, 'phone_verified' => 1])->exists()) {
-                return (new CustomResponseResource([
-                    'title' => 'account_present',
-                    'message' => 'Your email is already registered in our application. Please try login instead!',
-                    'code' => 400,
-                ]))->response()->setStatusCode(400);
-            }
+
         }
 
         $role = Role::where('name', 'Vendor')->value('id');
