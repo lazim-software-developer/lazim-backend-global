@@ -10,6 +10,7 @@ use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Infolist;
 use Filament\Tables;
 use Filament\Forms\Form;
+use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
@@ -72,8 +73,7 @@ class LedgersResource extends Resource
                     ->label('Invoice Pdf Link'),
                 TextColumn::make('invoice_amount')
                     ->label('Bill'),
-                TextColumn::make('amount_paid')
-                    ->label('Paid Amount'),
+                ViewColumn::make('Paid Amount')->view('tables.columns.invoice-amount-paid'),
                 TextColumn::make('due_amount')
                     ->searchable()
                     ->default("NA")
