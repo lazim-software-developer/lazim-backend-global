@@ -2,17 +2,15 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\VendorLedgersResource\Pages;
-use App\Filament\Resources\VendorLedgersResource\RelationManagers;
-use App\Models\Accounting\Invoice;
+use App\Filament\Resources\CoolingAccountResource\Pages;
+use App\Filament\Resources\CoolingAccountResource\RelationManagers;
 use App\Models\Building\Building;
-use App\Models\VendorLedgers;
+use App\Models\CoolingAccount;
 use Filament\Forms;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
-use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\Filter;
@@ -21,15 +19,11 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Malzariey\FilamentDaterangepickerFilter\Fields\DateRangePicker;
 
-class VendorLedgersResource extends Resource
+class CoolingAccountResource extends Resource
 {
-    protected static ?string $model = Invoice::class;
+    protected static ?string $model = CoolingAccount::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-
-    protected static ?string $modelLabel = 'Service Provider Ledgers';
-
-    protected static ?string $navigationGroup = 'Ledgers';
 
     public static function form(Form $form): Form
     {
@@ -43,25 +37,17 @@ class VendorLedgersResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('date')
-                    ->date(),
-                TextColumn::make('building.name')
-                    ->searchable()
-                    ->default('NA')
-                    ->limit(50),
-                TextColumn::make('invoice_number')
-                    ->searchable()
-                    ->default("NA")
-                    ->label('Invoice Number'),
-                ImageColumn::make('document')
-                    ->square(),
-                TextColumn::make('invoice_amount')
-                    ->label('Invoice Amount'),
-                TextColumn::make('vendor.name')
-                    ->searchable()
-                    ->label('Vendor Name'),
-                TextColumn::make('status')
-                    ->searchable(),
+                TextColumn::make('building.name'),
+                TextColumn::make('flat.property_number'),
+                TextColumn::make('date')->date(),
+                TextColumn::make('opening_balance'),
+                TextColumn::make('consumption'),
+                TextColumn::make('demand_charge'),
+                TextColumn::make('security_deposit'),
+                TextColumn::make('billing_charges'),
+                TextColumn::make('other_charges'),
+                TextColumn::make('receipts'),
+                TextColumn::make('closing_balance'),
             ])
             ->filters([
                 Filter::make('date')
@@ -109,6 +95,7 @@ class VendorLedgersResource extends Resource
                                 }),
                             ],layout: FiltersLayout::AboveContent)->filtersFormColumns(3)
             ->actions([
+                // Tables\Actions\ViewAction::make(),
                 // Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
@@ -131,9 +118,10 @@ class VendorLedgersResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListVendorLedgers::route('/'),
-            // 'create' => Pages\CreateVendorLedgers::route('/create'),
-            // 'edit' => Pages\EditVendorLedgers::route('/{record}/edit'),
+            'index' => Pages\ListCoolingAccounts::route('/'),
+            // 'create' => Pages\CreateCoolingAccount::route('/create'),
+            // 'view' => Pages\ViewCoolingAccount::route('/{record}'),
+            // 'edit' => Pages\EditCoolingAccount::route('/{record}/edit'),
         ];
     }    
 }
