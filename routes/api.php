@@ -281,7 +281,7 @@ Route::middleware(['api.token'])->group(function () {
 });
 
 // Vendor APIs
-Route::middleware([])->prefix('vendor')->group(function () {
+Route::middleware(['api.token'])->prefix('vendor')->group(function () {
     Route::post('/registration', [VendorRegistrationController::class, 'registration']);
     Route::post('/company-detail', [VendorRegistrationController::class, 'companyDetails']);
     Route::post('/managers/{vendor}', [VendorRegistrationController::class, 'managerDetails']);
