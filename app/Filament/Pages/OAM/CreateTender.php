@@ -32,10 +32,10 @@ class CreateTender extends Page
         $buildingId = $this->budget->building_id;
 
         $serviceIds = $this->budget->tenders()
-            ->with('services') // Eager load the services relationship
+            ->with('services')
             ->get()
-            ->pluck('services.*.id') // Collect all service IDs
-            ->flatten() // Flatten the collection to a single level
+            ->pluck('services.*.id')
+            ->flatten()
             ->unique();
 
         $building = Building::with(['services.subcategory'])
