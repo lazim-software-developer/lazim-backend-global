@@ -18,4 +18,8 @@ class ApartmentOwner extends Model
     public function flatOwners() {
         return $this->hasMany(FlatOwners::class, 'owner_id');
     }
+    
+    public function flats() {
+        return $this->hasMany(FlatOwners::class, 'flat_id');
+    }
 }
