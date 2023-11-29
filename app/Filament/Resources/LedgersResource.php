@@ -19,6 +19,7 @@ use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\LedgersResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\LedgersResource\RelationManagers;
+use App\Models\Building\Building;
 use Filament\Forms\Components\Section;
 use Filament\Infolists\Components\Section as ComponentsSection;
 use Filament\Tables\Actions\SelectAction;
@@ -61,8 +62,6 @@ class LedgersResource extends Resource
                     ->url(fn (OAMInvoice $record): string =>  route('admin.ledgers.receipts', ['record' => $record]))
                     ->default("NA")
                     ->label('Invoice Number'),
-                TextColumn::make('type')
-                    ->searchable(),
                 TextColumn::make('invoice_quarter')
                     ->searchable()
                     ->label('Description'),
@@ -72,9 +71,9 @@ class LedgersResource extends Resource
                     ->limit(20)
                     ->label('Invoice Pdf Link'),
                 TextColumn::make('invoice_amount')
-                    ->label('Debit'),
+                    ->label('Bill'),
                 TextColumn::make('amount_paid')
-                    ->label('Credit'),
+                    ->label('Paid Amount'),
                 TextColumn::make('due_amount')
                     ->searchable()
                     ->default("NA")
@@ -108,25 +107,23 @@ class LedgersResource extends Resource
                                 
                                     return $query;
                                 }),
-                        // Filter::make('type')
-                        //     ->form([
-                        //         Select::make('invoice_type')
-                        //         ->searchable()
-                        //         ->options([
-                        //             "service_charge" => "Service Charges Ledger",
-                        //             "cooling_accounts" => "Cooling Accounts",
-                        //             "other_income" => "Other Income",
-                        //             "general_fund_amount" => "General Fund Amount",
-                        //             "reserve_fund_amount" => "Reserve Fund Amount",
-                        //         ])
-                        //     ])
-                        //     ->query(function (Builder $query, array $data): Builder {
-                        //         return $query
-                        //             ->when(
-                        //                 $data['invoice_type'],
-                        //                 fn (Builder $query, $type): Builder => $query->where('type', $type),
-                        //             );
-                        //         }),
+                        Filter::make('Building')
+                            ->form([
+                                Select::make('building')
+                                ->searchable()
+                                ->options(function () {
+                                    $oaId = auth()->user()->owner_association_id;
+                                    return Building::where('owner_association_id', $oaId)
+                                        ->pluck('name', 'id');
+                                })
+                            ])
+                            ->query(function (Builder $query, array $data): Builder {
+                                return $query
+                                    ->when(
+                                        $data['building'],
+                                        fn (Builder $query, $building_id): Builder => $query->where('building_id', $building_id),
+                                    );
+                                }),
                             ],layout: FiltersLayout::AboveContent)->filtersFormColumns(3)
             ->actions([
                 //Tables\Actions\EditAction::make(),
