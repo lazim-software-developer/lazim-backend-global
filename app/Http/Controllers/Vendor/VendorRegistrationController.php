@@ -25,7 +25,7 @@ class VendorRegistrationController extends Controller
 
         // if user exists
         if($userData->exists()){
-            // If verified, redirect to verification page
+            // If user is exist and verified
             if ($userData->exists() && ($userData->first()->email_verified == 1 || $userData->first()->phone_verified == 1)) {
                 return (new CustomResponseResource([
                     // 'title' => 'redirect_verification',
