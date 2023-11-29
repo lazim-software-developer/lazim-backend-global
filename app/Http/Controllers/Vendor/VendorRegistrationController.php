@@ -25,6 +25,15 @@ class VendorRegistrationController extends Controller
 
         // if user exists
         if($userData->exists()){
+            // If verified, redirect to verification page
+            if ($userData->exists() && ($userData->first()->email_verified == 1 || $userData->first()->phone_verified == 1)) {
+                return (new CustomResponseResource([
+                    // 'title' => 'redirect_verification',
+                    'message' => "This details are already registered",
+                    'code' => 403,
+                    'data' => $userData->first(),
+                ]))->response()->setStatusCode(403);
+            }
             // If not verified, redirect to verification page
             if ($userData->exists() && ($userData->first()->email_verified == 0 || $userData->first()->phone_verified == 0)) {
                 return (new CustomResponseResource([
@@ -139,11 +148,11 @@ class VendorRegistrationController extends Controller
     public function showManagerDetails(Vendor $vendor)
     {
         $manager = VendorManager::where('vendor_id', $vendor->id)->first();
-       
+
         return new VendorManagerResource($manager);
     }
 
-    // Show vendor details of logged in user 
+    // Show vendor details of logged in user
     public function showVendorDetails() {
         return new VendorResource(auth()->user()->vendors()->first());
     }
