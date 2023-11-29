@@ -8,11 +8,14 @@ use Filament\Forms\Form;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
 use App\Models\Accounting\Budget;
+use Filament\Forms\Components\Grid;
 use Filament\Tables\Actions\Action;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Repeater;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\FileUpload;
 use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\BudgetResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -28,6 +31,12 @@ class BudgetResource extends Resource
     public static function form(Form $form): Form
     {
         return $form
+        ->schema([
+            Grid::make([
+                'sm' => 1,
+                'md' => 1,
+                'lg' => 2,
+            ])  
             ->schema([
                 Select::make('building_id')
                     ->relationship('building', 'name')
@@ -43,8 +52,37 @@ class BudgetResource extends Resource
                     ->rules(['date'])
                     ->required()
                     ->placeholder('Budget To'),
+                Repeater::make('tenders')
+                    ->relationship()
+                    ->schema([
+                        Select::make('building_id')
+                            ->relationship('building', 'name')
+                            ->preload()
+                            ->searchable()
+                            ->label('Building Name'),
+                        FileUpload::make('document')
+                            ->disk('s3')
+                            ->directory('dev')
+                            ->openable(true)
+                            ->downloadable(true)
+                            ->label('Document'),
+                        DatePicker::make('date')
+                            ->rules(['date'])
+                            ->required()
+                            ->placeholder('Date'),
+                        DatePicker::make('end_date')
+                            ->rules(['date'])
+                            ->required()
+                            ->placeholder('End Date'),
+                    ])
+                    ->columnSpan([
+                        'sm' => 1,
+                        'md' => 1,
+                        'lg' => 2,
+                    ])
 
-            ]);
+            ])
+                    ]);
     }
 
     public static function table(Table $table): Table
@@ -67,7 +105,7 @@ class BudgetResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                //Tables\Actions\EditAction::make(),
                 Action::make('create tender')
                     ->label('Create Tender')
                     ->url(function (Budget $records) {
@@ -76,7 +114,7 @@ class BudgetResource extends Resource
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    //Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ])
             ->emptyStateActions([
@@ -96,7 +134,8 @@ class BudgetResource extends Resource
         return [
             'index' => Pages\ListBudgets::route('/'),
             //'create' => Pages\CreateBudget::route('/create'),
-            'edit' => Pages\EditBudget::route('/{record}/edit'),
+            'view' => Pages\ViewBudget::route('/{record}'),
+            //'edit' => Pages\EditBudget::route('/{record}/edit'),
         ];
     }
 }
