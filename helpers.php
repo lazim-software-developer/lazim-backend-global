@@ -57,7 +57,6 @@ function optimizeDocumentAndUpload($file, $path = 'dev', $width = 474, $height =
         }
     } else {
         // No file uploaded
-        return $file = null;
-        // return response()->json(['error' => 'No file uploaded.'], 422);
+        return response()->json(['error' => 'No file uploaded.'], 422);
     }
 }
