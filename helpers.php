@@ -33,7 +33,7 @@ function optimizeDocumentAndUpload($file, $path = 'dev', $width = 474, $height =
                 $constraint->upsize();
             })
             ->encode('jpg', 80); // 80 is the quality. You can adjust this value.
-            
+
             $filename = time() . '.' . $extension;
             $fullPath = $path . '/' . $filename;
 
@@ -43,13 +43,13 @@ function optimizeDocumentAndUpload($file, $path = 'dev', $width = 474, $height =
         } elseif ($extension == 'pdf') {
             $filename = time() . '.' . $extension;
             $fullPath = $path . '/' . $filename;
-        
+
             // Read the file's content
             $pdfContent = file_get_contents($file);
-            
+
             // Store the file on S3
             Storage::disk('s3')->put($fullPath, $pdfContent, 'public');
-        
+
             return $fullPath;
         } else {
             // Unsupported file type

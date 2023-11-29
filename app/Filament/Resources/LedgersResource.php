@@ -10,6 +10,7 @@ use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Infolist;
 use Filament\Tables;
 use Filament\Forms\Form;
+use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
@@ -25,6 +26,7 @@ use Filament\Infolists\Components\Section as ComponentsSection;
 use Filament\Tables\Actions\SelectAction;
 use Filament\Tables\Filters\Filter;
 use Malzariey\FilamentDaterangepickerFilter\Fields\DateRangePicker;
+use Filament\Tables\Actions\Action;
 
 class LedgersResource extends Resource
 {
@@ -59,7 +61,6 @@ class LedgersResource extends Resource
                     ->limit(50),
                 TextColumn::make('invoice_number')
                     ->searchable()
-                    ->url(fn (OAMInvoice $record): string =>  route('admin.ledgers.receipts', ['record' => $record]))
                     ->default("NA")
                     ->label('Invoice Number'),
                 TextColumn::make('invoice_quarter')
@@ -72,8 +73,7 @@ class LedgersResource extends Resource
                     ->label('Invoice Pdf Link'),
                 TextColumn::make('invoice_amount')
                     ->label('Bill'),
-                TextColumn::make('amount_paid')
-                    ->label('Paid Amount'),
+                ViewColumn::make('Paid Amount')->view('tables.columns.invoice-amount-paid'),
                 TextColumn::make('due_amount')
                     ->searchable()
                     ->default("NA")
@@ -126,8 +126,12 @@ class LedgersResource extends Resource
                                 }),
                             ],layout: FiltersLayout::AboveContent)->filtersFormColumns(3)
             ->actions([
-                //Tables\Actions\EditAction::make(),
-                Tables\Actions\ViewAction::make(),
+                // Tables\Actions\ViewAction::make(),
+                Action::make('View Receipts')
+                    ->label('View Receipts')
+                    ->url(function (OAMInvoice $record) {
+                        return url('/admin/' . $record->id . '/receipts');
+                    })
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -139,17 +143,6 @@ class LedgersResource extends Resource
             ]);
     }
 
-    public static function infolist(Infolist $infolist): Infolist
-{
-    return $infolist
-        ->schema([
-            ComponentsSection::make('Receipts')
-            ->schema([
-                TextEntry::make('building.name')
-
-            ])
-        ]);
-}
 
     public static function getRelations(): array
     {
@@ -162,7 +155,6 @@ class LedgersResource extends Resource
     {
         return [
             'index' => Pages\ListLedgers::route('/'),
-            'list' => Pages\ListReceipts::route('/{record}'),
             // 'create' => Pages\CreateLedgers::route('/create'),
             // 'edit' => Pages\EditLedgers::route('/{record}/edit'),
             // 'view' => Pages\ViewLedgers::route('/{record}'),

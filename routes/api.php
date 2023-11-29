@@ -337,7 +337,7 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('vendor')->group(function 
     // Show WDA
     Route::get('/wda/{wda}',[WDAController::class, 'show']);
 
-    //Edit WDA 
+    //Edit WDA
     Route::post('/wda/{wda}',[WDAController::class, 'edit']);
 
     //Escalation Matrix exists
