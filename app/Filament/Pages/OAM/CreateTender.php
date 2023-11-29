@@ -9,6 +9,8 @@ use App\Models\Building\Building;
 use App\Models\Vendor\Vendor;
 use Filament\Pages\Page;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class CreateTender extends Page
 {
@@ -27,17 +29,28 @@ class CreateTender extends Page
 
     protected function getViewData(): array
     {
-        $buildingId = $this->budget->building_id; // Your building ID
+        $buildingId = $this->budget->building_id;
+
+        $serviceIds = $this->budget->tenders()
+            ->with('services')
+            ->get()
+            ->pluck('services.*.id')
+            ->flatten()
+            ->unique();
 
         $building = Building::with(['services.subcategory'])
             ->where('id', $buildingId)
             ->firstOrFail();
-
+        
+        $services = $building->services()
+            ->whereNotIn('services.id', $serviceIds)
+            ->get();
+        
         if ($building) {
             // Group services by subcategory
-            $groupedServices = $building->services
+            $groupedServices = $services
                 ->groupBy(function ($service) {
-                    return $service->subcategory->name; // Group by subcategory name
+                    return $service->subcategory->name;
                 });
         } else {
             $groupedServices = collect();
@@ -59,11 +72,13 @@ class CreateTender extends Page
         return [
             'subcategoryServices' => $subcategoryServices,
             'building' => $building,
-            'budgetId' => $this->budget->id
+            'budgetId' => $this->budget->id,
+            'serviceIds' => $serviceIds
         ];
     }
 
-    public function store(Request $request, Budget $budget) {
+    public function store(Request $request, Budget $budget)
+    {
         $building = Building::where('id', $budget->building_id)->first();
         // Upload document to S3
         $documentUrl = optimizeDocumentAndUpload($request->document, 'dev');

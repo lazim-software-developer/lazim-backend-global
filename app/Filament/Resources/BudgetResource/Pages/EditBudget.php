@@ -15,9 +15,6 @@ class EditBudget extends EditRecord
     {
         return [
             Actions\DeleteAction::make(),
-            // Action::make('create tender')
-            //         ->label('Create Tender')
-            //         ->url(route('tender.create', ['budget' => $this->data['id']]))
         ];
     }
 }
