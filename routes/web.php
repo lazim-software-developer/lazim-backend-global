@@ -51,6 +51,6 @@ Route::get('/filament/budget-listing/{building}', [BudgetListing::class, 'mount'
 
 Route::post('admin/{budget}/tender/create', [CreateTender::class, 'store'])->name('tender.create');
 
-Route::get('/{record}', function () {
-    return redirect()->to('/admin/ledgers/receipts');
-})->name('admin.ledgers.receipts');
+// Route::get('/admin/ledgers/{invoice}/receipts', function () {
+//     return redirect()->to('/admin/ledgers/{invoice}/receipts');
+// })->name('admin.ledgers.receipts');
