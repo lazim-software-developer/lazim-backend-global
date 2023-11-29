@@ -281,7 +281,7 @@ Route::middleware(['api.token'])->group(function () {
 });
 
 // Vendor APIs
-Route::middleware(['api.token'])->prefix('vendor')->group(function () {
+Route::middleware([])->prefix('vendor')->group(function () {
     Route::post('/registration', [VendorRegistrationController::class, 'registration']);
     Route::post('/company-detail', [VendorRegistrationController::class, 'companyDetails']);
     Route::post('/managers/{vendor}', [VendorRegistrationController::class, 'managerDetails']);
@@ -337,7 +337,7 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('vendor')->group(function 
     // Show WDA
     Route::get('/wda/{wda}',[WDAController::class, 'show']);
 
-    //Edit WDA 
+    //Edit WDA
     Route::post('/wda/{wda}',[WDAController::class, 'edit']);
 
     //Escalation Matrix exists
