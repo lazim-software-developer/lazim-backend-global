@@ -19,6 +19,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Tables\Actions\Action;
 use EightyNine\ExcelImport\ExcelImportAction;
+use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 use Maatwebsite\Excel\Facades\Excel;
@@ -201,7 +202,10 @@ class BuildingResource extends Resource
 
                             // Now import using the file path
                             Excel::import(new BudgetImport($budgetPeriod, $record->id), $fullPath); // Notify user of success
-                            Session::flash('notify', ['type' => 'success', 'message' => 'Budget file imported successfully.']);
+                            Notification::make()
+                            ->title("Budget file imported successfully.")
+                            ->success()
+                            ->send();
                         } catch (\Exception $e) {
                             Log::error('Error during file import: ' . $e->getMessage());
 
