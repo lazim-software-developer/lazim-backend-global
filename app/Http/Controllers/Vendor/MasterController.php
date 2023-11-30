@@ -11,12 +11,12 @@ class MasterController extends Controller
     public function getVendorsBasedOnServices(Request $request)
     {
         // Get the selected service IDs from the request
-        $selectedServiceIds = $request->input('selectedServices', []);
+        $serviceId = $request->input('service_id');
 
-        // Query the vendors who offer all the selected services
-        $vendors = Vendor::whereHas('services', function ($query) use ($selectedServiceIds) {
-            $query->whereIn('service_id', $selectedServiceIds);
-        }, '=', count($selectedServiceIds))->get();
+        // Retrieve vendors related to the service ID
+        $vendors = Vendor::whereHas('services', function ($query) use ($serviceId) {
+            $query->where('services.id', $serviceId); // Specify the table name here
+        })->get();
 
         // Return the view with the vendors
         return view('partials.vendors-list', compact('vendors'));
