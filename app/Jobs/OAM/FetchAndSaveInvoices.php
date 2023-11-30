@@ -37,7 +37,7 @@ class FetchAndSaveInvoices implements ShouldQueue
             $response = Http::withoutVerifying()->withHeaders([
                 'content-type' => 'application/json',
                 'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
-            ])->get(env("MOLLAK_API_URL") . '/sync/invoices/'. $propertyGroupId .'/all/Q2-JAN2023-DEC2023');
+            ])->get(env("MOLLAK_API_URL") . '/sync/invoices/'. $propertyGroupId .'/all/Q4-JAN2023-DEC2023');
 
                 $invoicesData = $response->json()['response']['serviceChargeGroups'];
                 
@@ -45,18 +45,45 @@ class FetchAndSaveInvoices implements ShouldQueue
                     foreach ($data['properties'] as $property) {
                         $flat = Flat::where('mollak_property_id',  $property['mollakPropertyId'])->first();
 
+                    // Save amount data
+                    $generalFundAmount = 0;
+                    $reservedFundAmount = 0;
+                    $additionalCharges = 0;
+                    $previousBalances = 0;
+                    $adjustmentAmount = 0;
+
+                    // Loop through invoice items to set the correct amounts
+                    foreach ($property['invoiceItems'] as $item) {
+                        switch ($item['itemName']['englishName']) {
+                            case 'General Fund':
+                                $generalFundAmount = $item['amount'];
+                                break;
+                            case 'Reserved Fund':
+                                $reservedFundAmount = $item['amount'];
+                                break;
+                            case 'Additional Charges':
+                                $additionalCharges = $item['amount'];
+                                break;
+                            case 'Previous Balances':
+                                $previousBalances = $item['amount'];
+                                break;
+                            case 'Adjustment':
+                                $adjustmentAmount = $item['amount'];
+                                break;
+                        }
+                    }
+
                     OAMInvoice::create([
                         'building_id' => $buildingId,
-                        'flat_id' => $flat->id,
-                        'invoice_number' => $property['invoiceNumber'],
+                        'flat_id' => $flat->id,'invoice_number' => $property['invoiceNumber'],
                         'invoice_date' => $property['invoiceDate'],
                         'invoice_status' => $property['invoiceStatus']['englishName'],
                         'due_amount' => $property['dueAmount'],
-                        'general_fund_amount' => $property['invoiceItems'][0]['amount'],
-                        'reserve_fund_amount' => $property['invoiceItems'][1]['amount'],
-                        'additional_charges' => $property['invoiceItems'][1]['amount'],
-                        'previous_balance' => $property['invoiceItems'][1]['amount'],
-                        'adjust_amount' => $property['invoiceItems'][1]['amount'],
+                        'general_fund_amount' => $generalFundAmount,
+                        'reserve_fund_amount' => $reservedFundAmount,
+                        'additional_charges' => $additionalCharges,
+                        'previous_balance' => $previousBalances,
+                        'adjust_amount' => $adjustmentAmount,
                         'invoice_due_date' => $property['invoiceDueDate'],
                         'invoice_pdf_link' => $property['invoiceDetailUrl'] ?? null,
                         'invoice_detail_link' => $property['invoicePDF'] ?? null,
@@ -67,7 +94,7 @@ class FetchAndSaveInvoices implements ShouldQueue
                         'invoice_quarter' => $data['invoiceQuarter'],
                         'invoice_period' => $data['invoicePeriod'],
                         'budget_period' => $data['budgetPeriod'],
-                        'service_charge_group_id' => $data['serviceChargeGroupId']
+                        'service_charge_group_id' => $data['serviceChargeGroupId'],
                     ]);
                 }
             }

@@ -67,10 +67,10 @@ class BuildingResource extends Resource
                     Hidden::make('owner_association_id')
                         ->default(auth()->user()->owner_association_id),
 
-                    TextInput::make('area')
-                        ->rules(['max:50', 'string'])
-                        ->required()
-                        ->placeholder('Area'),
+                    // TextInput::make('area')
+                    //     ->rules(['max:50', 'string'])
+                    //     ->required()
+                    //     ->placeholder('Area'),
 
                     Select::make('city_id')
                         ->rules(['exists:cities,id'])
@@ -80,23 +80,23 @@ class BuildingResource extends Resource
                         ->searchable()
                         ->placeholder('City'),
 
-                    TextInput::make('lat')
-                        ->rules(['numeric'])
-                        ->placeholder('Lat'),
+                    // TextInput::make('lat')
+                    //     ->rules(['numeric'])
+                    //     ->placeholder('Lat'),
 
-                    TextInput::make('lng')
-                        ->rules(['numeric'])
-                        ->placeholder('Lng'),
+                    // TextInput::make('lng')
+                    //     ->rules(['numeric'])
+                    //     ->placeholder('Lng'),
 
-                    TextInput::make('description')
-                        ->rules(['max:255', 'string'])
-                        ->placeholder('Description'),
+                    // TextInput::make('description')
+                    //     ->rules(['max:255', 'string'])
+                    //     ->placeholder('Description'),
 
-                    TextInput::make('floors')
-                        ->rules(['numeric'])
-                        ->required()
-                        ->numeric()
-                        ->placeholder('Floors')
+                    // TextInput::make('floors')
+                    //     ->rules(['numeric'])
+                    //     ->required()
+                    //     ->numeric()
+                    //     ->placeholder('Floors')
 
                 ]),
             ]);
@@ -229,10 +229,11 @@ class BuildingResource extends Resource
         return [
             BuildingResource\RelationManagers\FacilityBookingsRelationManager::class,
             BuildingResource\RelationManagers\ServiceBookingsRelationManager::class,
-            BuildingResource\RelationManagers\BudgetRelationManager::class,
+            // BuildingResource\RelationManagers\BudgetRelationManager::class,
             BuildingResource\RelationManagers\BuildingPocsRelationManager::class,
             BuildingResource\RelationManagers\ComplaintsRelationManager::class,
             BuildingResource\RelationManagers\ServicesRelationManager::class,
+            BuildingResource\RelationManagers\ServiceRelationManager::class,
             // BuildingResource\RelationManagers\DocumentsRelationManager::class,
             BuildingResource\RelationManagers\FacilitiesRelationManager::class,
             BuildingResource\RelationManagers\FlatsRelationManager::class,

@@ -77,15 +77,15 @@ class ServiceResource extends Resource
                 //
             ])
             ->actions([
-                EditAction::make(),
+                //EditAction::make(),
             ])
             ->bulkActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
+                    //DeleteBulkAction::make(),
                 ]),
             ])
             ->emptyStateActions([
-                CreateAction::make(),
+                //CreateAction::make(),
             ]);
     }
 
@@ -100,8 +100,8 @@ class ServiceResource extends Resource
     {
         return [
             'index' => ListServices::route('/'),
-            'create' => CreateService::route('/create'),
-            'edit' => EditService::route('/{record}/edit'),
+            //'create' => CreateService::route('/create'),
+            //'edit' => EditService::route('/{record}/edit'),
         ];
     }
 }

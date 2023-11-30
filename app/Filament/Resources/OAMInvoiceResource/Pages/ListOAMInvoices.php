@@ -15,7 +15,7 @@ class ListOAMInvoices extends ListRecords
     protected function getTableQuery(): Builder
     {
         $buildingsoflogedin = Building::all()->where('owner_association_id',auth()->user()->owner_association_id)->pluck('id')->toArray();
-        return parent::getTableQuery()->whereIn('building_id',$buildingsoflogedin)->where('invoice_status','Defered')->where('invoice_due_date','<',Carbon::now()->toDateString());
+        return parent::getTableQuery()->whereIn('building_id',$buildingsoflogedin)->where('invoice_due_date','<',Carbon::now()->toDateString())->latest();
     }
     protected function getHeaderActions(): array
     {

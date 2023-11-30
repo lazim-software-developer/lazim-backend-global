@@ -12,6 +12,10 @@ class FlatOwners extends Pivot
 {
     use HasFactory;
 
+    protected $table = 'flat_owner';
+
+    protected $fillable = ['flat_id', 'owner_id', 'active'];
+
     public function apartmentowner(): BelongsTo
     {
         return $this->belongsTo(ApartmentOwner::class);
