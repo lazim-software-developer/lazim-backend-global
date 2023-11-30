@@ -19,11 +19,13 @@ use Filament\Tables\Columns\ViewColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Enums\FiltersLayout;
+use Filament\Forms\Components\DatePicker;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Tables\Columns\TextInputColumn;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\VendorLedgersResource\Pages;
 use App\Filament\Resources\VendorLedgersResource\RelationManagers;
+use Filament\Forms\Components\FileUpload;
 use Malzariey\FilamentDaterangepickerFilter\Fields\DateRangePicker;
 
 class VendorLedgersResource extends Resource
@@ -40,7 +42,43 @@ class VendorLedgersResource extends Resource
     {
         return $form
             ->schema([
-                //
+                DatePicker::make('date')->disabled(),
+                Select::make('building_id')
+                    ->relationship('building', 'name')
+                    ->preload()
+                    ->disabled()
+                    ->searchable()
+                    ->label('Building Name'),
+                Select::make('vendor_id')
+                    ->relationship('vendor', 'name')
+                    ->preload()
+                    ->disabled()
+                    ->searchable()
+                    ->label('vendor Name'),
+                Select::make('status')
+                    ->options([
+                        'approved' => 'Approved',
+                        'pending' => 'Pending',
+                    ])
+                    ->disabled()
+                    ->searchable()
+                    ->reactive()
+                    ->live(),
+                TextInput::make('invoice_number')->disabled(),
+                TextInput::make('opening_balance')->disabled(),
+                TextInput::make('invoice_amount')->disabled()->reactive(),
+                TextInput::make('payment')->disabled(function (callable $get) {
+                    return $get('status') == 'pending';
+                })->reactive(),
+                TextInput::make('balance')->disabled()->reactive(),
+                FileUpload::make('document')
+                    ->disk('s3')
+                    ->directory('dev')
+                    ->openable(true)
+                    ->downloadable(true),
+
+
+
             ]);
     }
 
@@ -54,22 +92,15 @@ class VendorLedgersResource extends Resource
                     ->searchable()
                     ->default('NA')
                     ->limit(50),
-                TextColumn::make('invoice_number')
-                    ->searchable()
-                    ->default("NA")
-                    ->label('Invoice Number'),
                 ViewColumn::make('Code')->view('tables.columns.vendorledgerscode'),
                 TextColumn::make('vendor.name')
                     ->searchable()
                     ->label('Vendor Name'),
-                TextInputColumn::make('opening_balance')->label('Opening Balance'),
-                ImageColumn::make('document')
-                    ->square()
-                    ->label('Invoice PDF'),
+                TextColumn::make('opening_balance')->label('Opening Balance'),
                 TextColumn::make('invoice_amount')
                     ->label('Bill Amount'),
-                TextInputColumn::make('payment')->label('Payment'),
-                TextInputColumn::make('balance')->label('Balance'),
+                TextColumn::make('payment')->label('Payment'),
+                TextColumn::make('balance')->label('Balance'),
                 TextColumn::make('status')
                     ->searchable(),
             ])
@@ -119,7 +150,7 @@ class VendorLedgersResource extends Resource
                     }),
             ], layout: FiltersLayout::AboveContent)->filtersFormColumns(3)
             ->actions([
-                // Tables\Actions\EditAction::make(),
+                Tables\Actions\EditAction::make(),
                 Action::make('Update Status')
                     ->visible(fn($record) => $record->status == null)
                     ->button()
@@ -140,18 +171,18 @@ class VendorLedgersResource extends Resource
                         'comment' => $record->remarks,
                     ])
                     ->action(function (Invoice $record, array $data): void {
-                        
-                            $record->status = $data['status'];
-                            $record->remarks = $data['comment'];
-                            $record->save();
-                            DB::table('invoice_status')->insert([
-                                'invoice_id' => $record->id,
-                                'status' => $data['status'],
-                                'updated_by' => auth()->user()->id,
-                                'comment' => $data['comment'],
-                                'created_at' => now(),
-                                'updated_at' => now(),
-                            ]);
+
+                        $record->status = $data['status'];
+                        $record->remarks = $data['comment'];
+                        $record->save();
+                        DB::table('invoice_status')->insert([
+                            'invoice_id' => $record->id,
+                            'status' => $data['status'],
+                            'updated_by' => auth()->user()->id,
+                            'comment' => $data['comment'],
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ]);
                     })
                     ->slideOver()
             ])
@@ -177,7 +208,8 @@ class VendorLedgersResource extends Resource
         return [
             'index' => Pages\ListVendorLedgers::route('/'),
             // 'create' => Pages\CreateVendorLedgers::route('/create'),
-            // 'edit' => Pages\EditVendorLedgers::route('/{record}/edit'),
+            //'view' => Pages\ViewVendorLedgers::route('/{record}'),
+            'edit' => Pages\EditVendorLedgers::route('/{record}/edit'),
         ];
     }
 }
