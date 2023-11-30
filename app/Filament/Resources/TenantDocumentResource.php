@@ -3,31 +3,22 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\TenantDocumentResource\Pages;
-use App\Filament\Resources\TenantDocumentResource\RelationManagers;
 use App\Models\Building\Document;
-use App\Models\TenantDocument;
-use App\Models\User\User;
 use Filament\Facades\Filament;
-use Filament\Forms;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\MorphToSelect;
-use Filament\Forms\Components\MorphToSelect\Type;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
-use Filament\Tables;
+use Filament\Tables\Actions\Action;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Database\Query\JoinClause;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class TenantDocumentResource extends Resource
@@ -142,12 +133,41 @@ class TenantDocumentResource extends Resource
                     ->label('Building'),
             ])
             ->actions([
-                Tables\Actions\EditAction::make()->button(),
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                Action::make('Update Status')
+                    ->visible(fn ($record) => $record->status === null)
+                    ->button()
+                    ->form([
+                        Select::make('status')
+                            ->options([
+                                'approved' => 'Approved',
+                                'rejected' => 'Rejected',
+                            ])
+                            ->searchable()
+                            ->live(),
+                        TextInput::make('remarks')
+                            ->rules(['max:255'])
+                            ->visible(function (callable $get) {
+                                if ($get('status') == 'rejected') {
+                                    return true;
+                                }
+                                return false;
+                            })
+                            ->required(),
+                    ])
+                    ->fillForm(fn (Document $record): array => [
+                        'status' => $record->status,
+                        'remarks' => $record->remarks,
+                    ])
+                    ->action(function (Document $record, array $data): void {
+                        if ($data['status'] == 'rejected') {
+                            $record->status = $data['status'];
+                            $record->remarks = $data['remarks'];
+                            $record->save();
+                        } else {
+                            $record->status = $data['status'];
+                            $record->save();
+                        }
+                    }),
             ]);
     }
 
