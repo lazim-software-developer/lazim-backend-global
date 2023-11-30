@@ -7,6 +7,7 @@ use App\Models\Accounting\Budgetitem;
 use App\Models\Building\Building;
 use App\Models\Master\Service;
 use Carbon\Carbon;
+use Filament\Notifications\Notification;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
@@ -46,7 +47,10 @@ class BudgetImport implements ToCollection, WithHeadingRow
                 // Create a Laravel ValidationException
                 $validator = Validator::make([], []); // Empty data and rules
                 $validator->errors()->add('budget', 'A budget for the specified period and building already exists.');
-    
+                Notification::make()
+                        ->title("A budget for the specified period and building already exists. ")
+                        ->danger()
+                        ->send();
                 throw new LaravelValidationException($validator);
             }
 
