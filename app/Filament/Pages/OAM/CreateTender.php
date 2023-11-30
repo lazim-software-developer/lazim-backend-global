@@ -32,20 +32,17 @@ class CreateTender extends Page
         $buildingId = $this->budget->building_id;
 
         $serviceIds = $this->budget->tenders()
-            ->with('services')
-            ->get()
-            ->pluck('services.*.id')
-            ->flatten()
+            ->pluck('service_id')
             ->unique();
 
         $building = Building::with(['services.subcategory'])
             ->where('id', $buildingId)
-            ->firstOrFail();
-        
+            ->first();
+
         $services = $building->services()
             ->whereNotIn('services.id', $serviceIds)
             ->get();
-        
+
         if ($building) {
             // Group services by subcategory
             $groupedServices = $services
@@ -55,6 +52,7 @@ class CreateTender extends Page
         } else {
             $groupedServices = collect();
         }
+
         $subcategoryServices = [];
 
         foreach ($groupedServices as $subcategoryName => $services) {
@@ -90,14 +88,12 @@ class CreateTender extends Page
             'budget_id' => $budget->id,
             'owner_association_id' => $building->owner_association_id,
             'end_date' => $request->get('end_date'),
-            'document' => $documentUrl
+            'document' => $documentUrl,
+            'service_id', $request->get('services')
         ]);
 
         // Attach tender vendors
         $tender->vendors()->syncWithoutDetaching($request->get('vendors'));
-
-        // Attach tender services
-        $tender->services()->syncWithoutDetaching($request->get('services'));
 
         // Send email to vendors
         $vendors = Vendor::whereIn('id', $request->get('vendors'))->get();
