@@ -204,6 +204,11 @@ class AdminPanelProvider extends PanelProvider
                                     ->icon('heroicon-s-bars-arrow-down')
                                     ->activeIcon('heroicon-s-bars-arrow-down')
                                     ->sort(4),
+                                NavigationItem::make('Budget Vs Actual')
+                                    ->url('/admin/budget-vs-actual')
+                                    ->icon('heroicon-s-pencil-square')
+                                    ->activeIcon('heroicon-s-pencil-square')
+                                    ->sort(5),
                             ]),NavigationGroup::make('Ledgers')
                                 ->items([
                                     NavigationItem::make('Service Charge Ledgers')
