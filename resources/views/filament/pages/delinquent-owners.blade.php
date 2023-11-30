@@ -1,33 +1,89 @@
 <x-filament-panels::page>
     <x-filament::card>
-        <div class="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
-            <table class="min-w-full divide-y divide-gray-300">
-                {{var_dump($delinquentOwners)}}
+        <div class="inline-block min-w-full py-2 align-middle">
+            <table style="width: 100%; border-collapse: collapse;">
                 <thead>
-                    <tr>
-                        <th scope="col" class="py-3 pl-4 pr-3 text-left text-xs font-medium uppercase tracking-wide text-gray-500 sm:pl-0">Name</th>
-                        <th scope="col" class="px-3 py-3 text-left text-xs font-medium uppercase tracking-wide text-gray-500">Title</th>
-                        <th scope="col" class="px-3 py-3 text-left text-xs font-medium uppercase tracking-wide text-gray-500">Email</th>
-                        <th scope="col" class="px-3 py-3 text-left text-xs font-medium uppercase tracking-wide text-gray-500">Role</th>
-                        <th scope="col" class="relative py-3 pl-3 pr-4 sm:pr-0">
-                            <span class="sr-only">Edit</span>
-                        </th>
+                    <tr style="background-color: #f3f3f3;">
+                        <th style="border: 1px solid #ddd; padding: 8px;">Unit</th>
+                        <th style="border: 1px solid #ddd; padding: 8px;">Owner</th>
+                        <th colspan="2" style="border: 1px solid #ddd; padding: 8px;">Last Payment</th>
+                        <th style="border: 1px solid #ddd; padding: 8px;">Outstanding Balance</th>
+                        <th colspan="4" style="border: 1px solid #ddd; padding: 8px;">Quarters</th>
+                        <th colspan="4" style="border: 1px solid #ddd; padding: 8px;">Invoice file</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-200 bg-white">
+                <tbody>
+                    @foreach($data as $category)
                     <tr>
-                        <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-0">Lindsay Walton</td>
-                        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">Front-end Developer</td>
-                        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">lindsay.walton@example.com</td>
-                        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">Member</td>
-                        <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
-                            <a href="#" class="text-indigo-600 hover:text-indigo-900">Edit<span class="sr-only">, Lindsay Walton</span></a>
+                        <td style="border: 1px solid #ddd; padding: 8px;">{{$category['flat']['property_number']}}</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">{{$category['owner']['name']}}</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">
+                            @if($category['lastReceipt']['receipt_date'])
+                            {{ \Carbon\Carbon::parse($category['lastReceipt']['receipt_date'])->format('d-m-Y') }}
+                            @else
+                            {{ 'N/A' }}
+                            @endif
                         </td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">AED {{$category['lastReceipt']['receipt_amount']}}</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">AED {{$category['invoice_amount']}}</td>
+                        @if($category['Q1_invoices'])
+                        <td style="border: 1px solid #ddd; padding: 8px;">AED {{$category['Q1_invoices']['invoice_amount']}}</td>
+                        @else
+                        <td style="border: 1px solid #ddd; padding: 8px;">NA</td>
+                        @endif
+                        @if($category['Q2_invoices'])
+                        <td style="border: 1px solid #ddd; padding: 8px;">AED {{$category['Q2_invoices']['invoice_amount']}}</td>
+                        @else
+                        <td style="border: 1px solid #ddd; padding: 8px;">NA</td>
+                        @endif
+                        @if($category['Q3_invoices'])
+                        <td style="border: 1px solid #ddd; padding: 8px;">AED {{$category['Q3_invoices']['invoice_amount']}}</td>
+                        @else
+                        <td style="border: 1px solid #ddd; padding: 8px;">NA</td>
+                        @endif
+                        @if($category['Q4_invoices'])
+                        <td style="border: 1px solid #ddd; padding: 8px;">AED {{$category['Q4_invoices']['invoice_amount']}}</td>
+                        @else
+                        <td style="border: 1px solid #ddd; padding: 8px;">NA</td>
+                        @endif
+                        @if($category['Q1_invoices'])
+                        <td style="border: 1px solid #ddd; padding: 8px;">
+                            <a href="{{$category['Q1_invoices']['invoice_pdf_link']}}">PDF link</a>
+                        </td>
+                        @else
+                        <td style="border: 1px solid #ddd; padding: 8px;">NA</td>
+                        @endif
+                        @if($category['Q2_invoices'])
+                        <td style="border: 1px solid #ddd; padding: 8px;">
+                            <a href="{{$category['Q2_invoices']['invoice_pdf_link']}}">PDF link</a>
+                        </td>
+                        @else
+                        <td style="border: 1px solid #ddd; padding: 8px;">NA</td>
+                        @endif
+                        @if($category['Q3_invoices'])
+                        <td style="border: 1px solid #ddd; padding: 8px;">
+                            <a href="{{$category['Q3_invoices']['invoice_pdf_link']}}">PDF link</a>
+                        </td>
+                        @else
+                        <td style="border: 1px solid #ddd; padding: 8px;">NA</td>
+                        @endif
+                        @if($category['Q4_invoices'])
+                        <td style="border: 1px solid #ddd; padding: 8px;">
+                            <a href="{{$category['Q4_invoices']['invoice_pdf_link']}}">PDF link</a>
+                        </td>
+                        @else
+                        <td style="border: 1px solid #ddd; padding: 8px;">NA</td>
+                        @endif
                     </tr>
-
-                    <!-- More people... -->
+                    @endforeach
+                    <!-- Repeat the above <tr> block for each row of data -->
                 </tbody>
             </table>
+
+            <!-- Pagination Links -->
+            <div class="mt-4">
+                {{ $data->links() }}
+            </div>
         </div>
     </x-filament::card>
 
