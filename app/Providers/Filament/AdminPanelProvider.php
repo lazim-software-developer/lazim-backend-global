@@ -117,8 +117,8 @@ class AdminPanelProvider extends PanelProvider
                                 NavigationItem::make('Vendor Services')
                                     ->hidden(DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] == 'Admin' ? false : true)
                                     ->url('/admin/master/vendor-services')
-                                    ->icon('heroicon-m-wrench')
-                                    ->activeIcon('heroicon-m-wrench')
+                                    ->icon('heroicon-m-wrench-screwdriver')
+                                    ->activeIcon('heroicon-m-wrench-screwdriver')
                                     ->sort(9),
                             ]),
                     ]);
@@ -158,26 +158,21 @@ class AdminPanelProvider extends PanelProvider
                 $builder->groups([
                     NavigationGroup::make('Property Management')
                         ->items([
-                            NavigationItem::make('Security')
-                                ->url('/admin/building/building-pocs')
-                                ->icon('heroicon-m-shield-exclamation')
-                                ->activeIcon('heroicon-m-shield-exclamation')
-                                ->sort(1),
                             NavigationItem::make('Buildings')
                                 ->url('/admin/building/buildings')
                                 ->icon('heroicon-m-clipboard-document-check')
                                 ->activeIcon('heroicon-m-clipboard-document-check')
-                                ->sort(2),
+                                ->sort(1),
                             NavigationItem::make('Facility Bookings')
                                 ->url('/admin/building/facility-bookings')
                                 ->icon('heroicon-o-cube-transparent')
                                 ->activeIcon('heroicon-o-cube-transparent')
-                                ->sort(4),
+                                ->sort(2),
                             NavigationItem::make('Service Bookings')
                                 ->url('/admin/building/service-bookings')
                                 ->icon('heroicon-m-wrench')
                                 ->activeIcon('heroicon-m-wrench')
-                                ->sort(5),
+                                ->sort(3),
                         ]),
                 ]);
                 if (DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] != 'Admin') {

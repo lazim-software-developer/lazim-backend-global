@@ -74,15 +74,15 @@ class VendorServiceResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                //Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    //Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ])
             ->emptyStateActions([
-                Tables\Actions\CreateAction::make(),
+                //Tables\Actions\CreateAction::make(),
             ]);
     }
 
@@ -97,8 +97,8 @@ class VendorServiceResource extends Resource
     {
         return [
             'index' => Pages\ListVendorServices::route('/'),
-            'create' => Pages\CreateVendorService::route('/create'),
-            'edit' => Pages\EditVendorService::route('/{record}/edit'),
+            //'create' => Pages\CreateVendorService::route('/create'),
+            //'edit' => Pages\EditVendorService::route('/{record}/edit'),
         ];
     }
 }
