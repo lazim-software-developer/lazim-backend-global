@@ -56,7 +56,11 @@ class DelinquentOwners extends Page
         $lastQuarterEndFormatted = $lastQuarterEnd->format('d-M-Y');
 
         // Combine the dates into the desired format
-        $lastQuarterPeriod = $lastQuarterStartFormatted . ' To ' . $lastQuarterEndFormatted;
+        // $lastQuarterPeriod = $lastQuarterStartFormatted . ' To ' . $lastQuarterEndFormatted;
+
+        $lastQuarterPeriod = "01-Jan-2023 To 31-Mar-2023";
+
+        Log::info("HERREE", [$lastQuarterPeriod]);
 
         // Fetch invoices for last quarter
         $lastQuarterInvoices = OAMInvoice::query()

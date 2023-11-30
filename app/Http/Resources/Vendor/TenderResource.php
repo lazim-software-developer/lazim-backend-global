@@ -3,6 +3,7 @@
 namespace App\Http\Resources\Vendor;
 
 use App\Http\Resources\Services\ServiceResource;
+use App\Models\Master\Service;
 use App\Models\Vendor\Contract;
 use App\Models\Vendor\Vendor;
 use Illuminate\Http\Request;
@@ -33,7 +34,7 @@ class TenderResource extends JsonResource
             'document' => Storage::disk('s3')->url($this->document),
             'contract_type' => "AMC",
             'status' => $tenderData?->status,
-            'services' =>  ServiceResource::collection($this->services),
+            'services' =>  $this->service_id ? Service::find($this->service_id)->name : 'NA'
         ];
     }
 }

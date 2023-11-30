@@ -24,7 +24,7 @@
         <p>We are inviting you to submit a proposal for our project. Please find the attached document for detailed information.</p>
         <p>We look forward to receiving your proposal and potentially working together on this project.</p>
         <p>Best regards,</p>
-        <p>[Your Company Name]</p>
+        <p>Lazim</p>
     </div>
 </body>
 </html>
