@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\VendorLedgersResource\Pages;
 
 use App\Filament\Resources\VendorLedgersResource;
+use App\Models\Accounting\Invoice;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 
@@ -15,5 +16,21 @@ class EditVendorLedgers extends EditRecord
         return [
             Actions\DeleteAction::make(),
         ];
+    }
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
+    }
+    public function beforeSave()
+    {
+        if ($this->record->status == 'approved') {
+            Invoice::where('id', $this->data['id'])
+                ->update([
+                        'payment' => $this->data['payment'],
+                        'balance' => $this->data['invoice_amount'] - $this->data['payment'],
+                        'opening_balance' => $this->data['invoice_amount'] - $this->data['payment'],
+                    ]);
+
+        }
     }
 }
