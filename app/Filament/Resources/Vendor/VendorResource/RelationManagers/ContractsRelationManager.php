@@ -48,6 +48,7 @@ class ContractsRelationManager extends RelationManager
                                 return Building::whereIn('id', $buildingIds)->pluck('name', 'id')->toArray();
                             })
                             ->reactive()
+                            ->required()
                             ->preload()
                             ->searchable()
                             ->placeholder('Building'),
@@ -57,21 +58,28 @@ class ContractsRelationManager extends RelationManager
                                 return Service::whereIn('id', $serviceIds)->pluck('name', 'id')->toArray();
                             })
                             ->reactive()
+                            ->required()
                             ->preload()
                             ->searchable()
                             ->placeholder('Service'),
                         DatePicker::make('start_date')
+                            ->required()
                             ->rules(['date'])
                             ->placeholder('Start Date'),
                         DatePicker::make('end_date')
+                            ->required()
                             ->rules(['date'])
                             ->placeholder('End Date'),
                         FileUpload::make('document_url')
+                            ->required()
                             ->disk('s3')
                             ->directory('dev')
                             ->openable(true)
                             ->downloadable(true)
                             ->label('Document'),
+                        TextInput::make('amount')
+                            ->numeric(true)
+                            ->required(),
                         Hidden::make('vendor_id')
                             ->default(function (RelationManager $livewire) {
                                 return $livewire->ownerRecord->id;
