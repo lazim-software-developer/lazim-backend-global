@@ -6,6 +6,7 @@ use App\Models\User\User;
 use App\Models\Vendor\Vendor;
 use App\Models\Vendor\Contract;
 use App\Models\Building\Building;
+use App\Models\Master\Service;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -55,5 +56,9 @@ class WDA extends Model
     public function audits()
     {
         return $this->hasMany(WdaAudit::class, 'wda_id');
+    }
+    public function service()
+    {
+        return $this->belongsTo(Service::class, 'service_id');
     }
 }
