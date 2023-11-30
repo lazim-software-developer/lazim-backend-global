@@ -174,6 +174,7 @@ class VendorLedgersResource extends Resource
 
                         $record->status = $data['status'];
                         $record->remarks = $data['comment'];
+                        $record->status_updated_by = auth()->user()->id;
                         $record->save();
                         DB::table('invoice_status')->insert([
                             'invoice_id' => $record->id,

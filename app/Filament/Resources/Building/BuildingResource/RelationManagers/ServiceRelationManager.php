@@ -14,15 +14,14 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Resources\RelationManagers\RelationManager;
 
-class ServicesRelationManager extends RelationManager
+class ServiceRelationManager extends RelationManager
 {
     protected static string $relationship = 'services';
+    protected static ?string $modelLabel = 'Vendor Service';
 
-    protected static ?string $modelLabel = 'Inhouse Service';
-
-    public static function getTitle(Model $ownerRecord,string $pageClass): string 
+    public static function getTitle(Model $ownerRecord, string $pageClass): string
     {
-        return'Inhouse Service';
+        return 'Vendor Service';
     }
 
     public function form(Form $form): Form
@@ -38,6 +37,7 @@ class ServicesRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
+            ->recordTitleAttribute('name')
             ->columns([
                 Tables\Columns\TextColumn::make('name')->limit(50),
                 Tables\Columns\TextColumn::make('type')
@@ -57,18 +57,19 @@ class ServicesRelationManager extends RelationManager
                     ->recordSelect(function (RelationManager $livewire) {
                         $buildingId = $livewire->ownerRecord->id;
 
-                        // Get all the facilities
-                        $allServices = Service::all()->where('type', 'inhouse')->pluck('id')->toArray();
+                        // Get all the services
+                        $allServices = Service::all()->where('type', 'vendor_service')->pluck('id')->toArray();
                         $existingServices = DB::table('building_service')
                             ->where('building_id', $buildingId)
                             ->whereIn('service_id', $allServices)->pluck('service_id')->toArray();
-                        $allFacilities = Service::all()->whereNotIn('id', $existingServices)->where('type', 'inhouse')->pluck('name', 'id')->toArray();
+                        $allFacilities = Service::all()->whereNotIn('id', $existingServices)->where('type', 'vendor_service')->pluck('name', 'id')->toArray();
                         return Select::make('recordId')
                             ->label('Service')
                             ->options($allFacilities)
                             ->searchable()
                             ->required()
-                            ->preload();
+                            ->preload()
+                            ->optionsLimit(200);
                     }),
             ])
             ->actions([
@@ -78,13 +79,11 @@ class ServicesRelationManager extends RelationManager
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    //Tables\Actions\DetachBulkAction::make(),
                     //Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ])
             ->emptyStateActions([
                 //Tables\Actions\CreateAction::make(),
-                //Tables\Actions\AttachAction::make(),
             ]);
     }
 }

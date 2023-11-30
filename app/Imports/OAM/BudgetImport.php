@@ -4,6 +4,7 @@ namespace App\Imports\OAM;
 
 use App\Models\Accounting\Budget;
 use App\Models\Accounting\Budgetitem;
+use App\Models\Building\Building;
 use App\Models\Master\Service;
 use Carbon\Carbon;
 use Filament\Notifications\Notification;
@@ -34,6 +35,8 @@ class BudgetImport implements ToCollection, WithHeadingRow
         $startDate = Carbon::createFromFormat('M Y', $start)->startOfMonth();
         $endDate = Carbon::createFromFormat('M Y', $end)->endOfMonth();
 
+        $building = Building::where('id', $this->buildingId)->first();
+
         // Check if budget exists for the given period
         $existingBudget = Budget::where('building_id', $this->buildingId)
             ->where('budget_from', $startDate->toDateString())
@@ -61,6 +64,10 @@ class BudgetImport implements ToCollection, WithHeadingRow
 
         foreach ($rows as $row) {
             $service = Service::where('code', $row['servicecode'])->first();
+
+            // Check if the building has this service, if not add the service to building
+            $building->services()->syncWithoutDetaching([$service->id]);
+
             if ($service) {
                 Budgetitem::create([
                     'budget_id' => $budget->id,
