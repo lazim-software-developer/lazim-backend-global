@@ -20,23 +20,52 @@ class VendorRegistrationController extends Controller
 {
     public function registration(VendorRegisterRequest $request)
     {
-        // Check if the user is already registered and verified
-        $userData = User::where(['email' => $request->get('email'), 'phone' => $request->get('phone')]);
+
+        $existingEmail = User::where(['email' => $request->email])->first();
+        $existingPhone = User::where(['phone' => $request->phone])->first();
 
         // Check if user exists in our DB
-        if (User::where(['email' => $request->email, 'phone' => $request->phone, 'email_verified' => true, 'phone_verified' => true])->exists()) {
-            return (new CustomResponseResource([
-                'title' => 'account_present',
-                'message' => 'Your email is already registered in our application. Please try login instead!',
-                'code' => 400,
-            ]))->response()->setStatusCode(400);
+        if ($existingEmail) {
+            if ($existingEmail->first()->email_verified == 1) {
+                return (new CustomResponseResource([
+                    'title' => 'account_present',
+                    'message' => 'Your email is already registered in our application. Please try login instead!',
+                    'code' => 400,
+                ]))->response()->setStatusCode(400);
+            } else {
+                return (new CustomResponseResource([
+                    'title' => 'redirect_verification',
+                    'message' => "Your email is not verified. You'll be redirected to account verification page",
+                    'code' => 403,
+                    'data' => $existingEmail,
+                ]))->response()->setStatusCode(403);
+            }
         }
-        
+
+        if ($existingPhone) {
+            if ($existingPhone->first()->phone_verified == 1) {
+                return (new CustomResponseResource([
+                    'title' => 'account_present',
+                    'message' => 'Your phone is already registered in our application. Please try login instead!',
+                    'code' => 400,
+                ]))->response()->setStatusCode(400);
+            } else {
+                return (new CustomResponseResource([
+                    'title' => 'redirect_verification',
+                    'message' => "Your phone is not verified. You'll be redirected to account verification page",
+                    'code' => 403,
+                    'data' => $existingEmail,
+                ]))->response()->setStatusCode(403);
+            }
+        }
+        // Check if user exists in our DB
+        $userData = User::where(['email' => $request->get('email'), 'phone' => $request->get('phone')]);
+
         // if user exists
-        if($userData->exists()){
+        if ($userData->exists()) {
 
             // If not verified, redirect to verification page
-            if ($userData->exists() && ($userData->first()->email_verified == false || $userData->first()->phone_verified == false)) {
+            if ($userData->first()->email_verified == 0 || $userData->first()->phone_verified == 0) {
                 return (new CustomResponseResource([
                     'title' => 'redirect_verification',
                     'message' => "Your account is not verified. You'll be redirected to account verification page",
@@ -77,9 +106,9 @@ class VendorRegistrationController extends Controller
                 ]))->response()->setStatusCode(403);
             }
 
-            $documents= Document::where('documentable_id', $vendor->id);
+            $documents = Document::where('documentable_id', $vendor->id);
             //check if vendor has uploaded documnets
-            if(!$documents->exists()) {
+            if (!$documents->exists()) {
                 return (new CustomResponseResource([
                     'title' => 'redirect_documents',
                     'message' => "You have not uploaded all documents. You'll be redirected to documents page",
@@ -87,11 +116,10 @@ class VendorRegistrationController extends Controller
                     'data' => $vendor,
                 ]))->response()->setStatusCode(403);
             }
-
         }
 
         $role = Role::where('name', 'Vendor')->value('id');
-        $request->merge(['first_name' => $request->name, 'active' => 1, 'role_id' => $role,'owner_association_id',7]);
+        $request->merge(['first_name' => $request->name, 'active' => 1, 'role_id' => $role, 'owner_association_id', 7]);
 
         $user = User::create($request->all());
 
@@ -103,14 +131,14 @@ class VendorRegistrationController extends Controller
             'message' => "We've sent verification code to your email Id and phone. Please verify to continue using the application",
             'code' => 201,
             'status' => 'success',
-            'data' => $user
+            'data' => $user,
         ]))->response()->setStatusCode(201);
     }
 
     public function companyDetails(CompanyDetailsRequest $request)
     {
         $request->merge([
-            'name'   => User::find($request->owner_id)->first_name,
+            'name' => User::find($request->owner_id)->first_name,
         ]);
 
         $vendor = Vendor::create($request->all());
@@ -120,7 +148,7 @@ class VendorRegistrationController extends Controller
             'message' => "",
             'code' => 201,
             'status' => 'success',
-            'data' => $vendor
+            'data' => $vendor,
         ]))->response()->setStatusCode(201);
     }
 
@@ -135,7 +163,7 @@ class VendorRegistrationController extends Controller
             'message' => "",
             'code' => 201,
             'status' => 'success',
-            'data' => $manager
+            'data' => $manager,
         ]))->response()->setStatusCode(201);
     }
 
@@ -147,7 +175,8 @@ class VendorRegistrationController extends Controller
     }
 
     // Show vendor details of logged in user
-    public function showVendorDetails() {
+    public function showVendorDetails()
+    {
         return new VendorResource(auth()->user()->vendors()->first());
     }
 }
