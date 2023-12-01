@@ -34,7 +34,7 @@ class TenderResource extends JsonResource
             'document' => Storage::disk('s3')->url($this->document),
             'contract_type' => "AMC",
             'status' => $tenderData?->status,
-            'services' =>  $this->service_id ? Service::find($this->service_id)->name : 'NA'
+            'services' =>  $this->service_id ? Service::find($this->service_id)->name : [],
         ];
     }
 }
