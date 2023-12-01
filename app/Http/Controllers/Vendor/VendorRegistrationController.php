@@ -156,6 +156,25 @@ class VendorRegistrationController extends Controller
     {
         $request->merge(['vendor_id' => $vendor->id]);
 
+        $existingVendorEmail = VendorManager::where(['email' => $request->email])->first();
+        $existingVendorPhone = VendorManager::where(['phone' => $request->phone])->first();
+        // Check if user exists in our DB
+        if ($existingVendorEmail) {
+            return (new CustomResponseResource([
+                // 'title' => 'account_present',
+                'message' => 'Your email is already registered in our application!',
+                'code' => 400,
+            ]))->response()->setStatusCode(400);
+        }
+
+        if ($existingVendorPhone) {
+            return (new CustomResponseResource([
+                // 'title' => 'account_present',
+                'message' => 'Your phone is already registered in our application!',
+                'code' => 400,
+            ]))->response()->setStatusCode(400);
+        }
+
         $manager = VendorManager::create($request->all());
 
         return (new CustomResponseResource([
