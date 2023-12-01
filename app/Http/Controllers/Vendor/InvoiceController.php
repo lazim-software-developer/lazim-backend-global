@@ -67,8 +67,9 @@ class InvoiceController extends Controller
             'status' => 'pending',
             'vendor_id' => $vendor->id
         ]);
-        
+
         $invoice =Invoice::create($request->all());
+        $wda->update(['invoice_status' => 'submitted']);
 
         return (new CustomResponseResource([
             'title' => 'Success',
