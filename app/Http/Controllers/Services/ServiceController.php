@@ -32,8 +32,7 @@ class ServiceController extends Controller
         // })->get();
 
         // New code
-        return Service::where('active', 1)->where('type', 'inhouse');
-
+        return Service::where(['active' => 1, 'type' => 'inhouse'])->get();
     }
 
     // Book a service
