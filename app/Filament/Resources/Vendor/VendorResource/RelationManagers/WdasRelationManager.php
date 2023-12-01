@@ -23,11 +23,11 @@ use Filament\Resources\RelationManagers\RelationManager;
 class WdasRelationManager extends RelationManager
 {
     protected static string $relationship = 'wdas';
-    protected static ?string $modelLabel = 'Work Document';
+    protected static ?string $modelLabel = 'WDA';
 
     public static function getTitle(Model $ownerRecord, string $pageClass): string    
     {         
-        return 'Work Document';     
+        return 'WDA';     
     }
 
     public function form(Form $form): Form
