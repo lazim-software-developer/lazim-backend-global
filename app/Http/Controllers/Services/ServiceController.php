@@ -32,7 +32,7 @@ class ServiceController extends Controller
         // })->get();
 
         // New code
-        return $building->services->where('active', 1)->where('type', 'inhouse');
+        return Service::where('active', 1)->where('type', 'inhouse');
 
     }
 
