@@ -28,8 +28,8 @@
                             @foreach($category['services'] as $service)
                             <div class="mt-3">
                                 <label for="service-{{ $service['id'] }}" class="flex items-center gap-x-2">
-                                    <input id="service-{{ $service['id'] }}" aria-describedby="candidates-description" name="services[]" value="{{ $service['id']}}" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600" onChange="loadVendors()">
-                                    <span class="text-sm text-gray-600" onChange="loadVendors()">{{ $service['name'] }}</span>
+                                    <input id="service-{{ $service['id'] }}" aria-describedby="candidates-description" name="services" value="{{ $service['id']}}" type="radio" class="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600" onChange="loadVendors()">
+                                    <span class="text-sm text-gray-600">{{ $service['name'] }}</span>
                                 </label>
                             </div>
                             @endforeach
@@ -54,17 +54,31 @@
 
     <script>
         function loadVendors() {
-            console.log("THis executed")
-            const selectedServices = Array.from(document.querySelectorAll('input[name="candidates[]"]:checked')).map(checkbox => checkbox.id);
-            axios.post(`/get-vendors-based-on-services`, {
-                    services: selectedServices
-                })
-                .then(response => {
-                    document.getElementById('vendors-list').innerHTML = response.data;
-                })
-                .catch(error => {
-                    console.error('Error fetching vendors:', error);
-                });
+            const selectedService = document.querySelector('input[name="services"]:checked');
+            // Check if a radio button is selected
+            if (selectedService) {
+                // Get the value of the selected radio button
+                const selectedServiceId = selectedService.value;
+
+                // Log the selected service ID (or do whatever you need with it)
+                console.log("Selected Service ID:", selectedServiceId);
+
+                // Continue with your existing axios call or other logic
+                axios.post(`/get-vendors-based-on-services`, {
+                        service_id: selectedServiceId
+                    })
+                    .then(response => {
+                        document.getElementById('vendors-list').innerHTML = response.data;
+                    })
+                    .catch(error => {
+                        console.error('Error fetching vendors:', error);
+                    });
+            } else {
+                // Handle the case where no service is selected
+                console.log("No service selected");
+                // You might want to clear or reset the vendors list here
+                document.getElementById('vendors-list').innerHTML = '';
+            }
         }
     </script>
 </x-filament-panels::page>

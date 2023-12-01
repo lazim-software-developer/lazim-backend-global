@@ -13,6 +13,7 @@ use App\Models\Building\FacilityBooking;
 use App\Models\Master\Service;
 use App\Models\Vendor\ServiceVendor;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 
 class ServiceController extends Controller
@@ -31,9 +32,7 @@ class ServiceController extends Controller
         // })->get();
 
         // New code
-        $services = ServiceVendor::where(['building_id' => $building->id, 'active' => 1 ])->get();
-
-        return ServiceResource::collection($services);
+        return Service::where(['active' => 1, 'type' => 'inhouse'])->get();
     }
 
     // Book a service
@@ -83,7 +82,7 @@ class ServiceController extends Controller
             'file' => 'required|file|mimes:xlsx',
         ]);
 
-        
+
         $servicesImport = new ServicesImport;
 
         Excel::import($servicesImport, $request->file('file'));

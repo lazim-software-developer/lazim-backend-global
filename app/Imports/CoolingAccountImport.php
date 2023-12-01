@@ -3,9 +3,12 @@
 namespace App\Imports;
 
 use App\Models\CoolingAccount;
+use Filament\Facades\Filament;
+use Filament\Notifications\Notification;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Session;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 
@@ -28,6 +31,16 @@ class CoolingAccountImport implements ToCollection, WithHeadingRow
     {
         $date = Carbon::parse($this->month)->format('Y-m-d');
         foreach ($rows as $row) {
+            $flatId = $row['unit_no'];
+            if(CoolingAccount::where('building_id',$this->buildingId)->where('flat_id',$row['unit_no'])->where('date', $date)->first()->exists()) {
+                // dd(CoolingAccount::where('building_id',$this->buildingId)->where('flat_id',$row['unit_no'])->where('date', $date)->first());
+                // $message = "You have already uploaded details for this flat ";
+                Notification::make()
+                        ->title("You have already uploaded details for this flat $flatId for the month $this->month ")
+                        ->danger()
+                        ->send();
+                return 'error';
+            }
             Log::info($row);
             $data = CoolingAccount::firstOrCreate([
                 'building_id'           => $this->buildingId,
@@ -45,6 +58,10 @@ class CoolingAccountImport implements ToCollection, WithHeadingRow
                 'closing_balance'       => $row['closing_balance'],
             ]);
         }
+        Notification::make()
+                        ->title("Details uploaded successfully")
+                        ->success()
+                        ->send();
         return 'success';
     }
 }
