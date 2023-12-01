@@ -139,11 +139,11 @@ class TenantResource extends Resource
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    //Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ])
             ->emptyStateActions([
-                Tables\Actions\CreateAction::make(),
+                //Tables\Actions\CreateAction::make(),
             ]);
     }
 
@@ -158,7 +158,7 @@ class TenantResource extends Resource
     {
         return [
             'index' => Pages\ListTenants::route('/'),
-            'create' => Pages\CreateTenant::route('/create'),
+            //'create' => Pages\CreateTenant::route('/create'),
             'view' => Pages\ViewTenant::route('/{record}'),
         ];
     }
