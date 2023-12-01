@@ -20,9 +20,9 @@ class ServicesRelationManager extends RelationManager
 
     protected static ?string $modelLabel = 'Inhouse Service';
 
-    public static function getTitle(Model $ownerRecord,string $pageClass): string 
+    public static function getTitle(Model $ownerRecord, string $pageClass): string
     {
-        return'Inhouse Service';
+        return 'Inhouse Service';
     }
 
     public function form(Form $form): Form
@@ -38,6 +38,7 @@ class ServicesRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(fn(Builder $query) => $query->where('type', 'inhouse'))
             ->columns([
                 Tables\Columns\TextColumn::make('name')->limit(50),
                 Tables\Columns\TextColumn::make('type')

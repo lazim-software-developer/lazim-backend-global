@@ -10,6 +10,7 @@ use App\Models\BuildingVendor;
 use Illuminate\Support\Facades\DB;
 use App\Models\Accounting\Proposal;
 use App\Models\Accounting\Tender;
+use App\Models\Vendor\Contract;
 use Filament\Tables\Actions\Action;
 use App\Models\Vendor\ServiceVendor;
 use Filament\Forms\Components\Hidden;
@@ -58,7 +59,7 @@ class ProposalsRelationManager extends RelationManager
                 //
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make(),
+                //Tables\Actions\CreateAction::make(),
             ])
             ->actions([
                 //Tables\Actions\EditAction::make(),
@@ -81,23 +82,33 @@ class ProposalsRelationManager extends RelationManager
                         $venderId = $record->submittedBy;
                         $tenderId = Proposal::where('submitted_by', $venderId->id)->where('status', null)->first()->tender_id;
                         $budgetId = Tender::where('id', $tenderId)->first()->budget_id;
-                        $servicesIdArray = DB::table('budget_items')->where('budget_id', $budgetId)->pluck('service_id')->toArray();
+                        $serviceId = DB::table('budget_items')->where('budget_id', $budgetId)->first()->service_id;
                         $buildingId = DB::table('budgets')->where('id', $budgetId)->pluck('building_id');
                         $budget_from = DB::table('budgets')->where('id', $budgetId)->pluck('budget_from')[0];
                         $budget_to = DB::table('budgets')->where('id', $budgetId)->pluck('budget_to')[0];
-                        foreach ($servicesIdArray as $serviceId) {
-                            ServiceVendor::create([
-                                'service_id' => $serviceId,
-                                'vendor_id' => $venderId->id,
-                                'active' => true,
-                                'building_id' => $buildingId[0],
 
-                            ]);
-                        }
+                        $contract = Contract::create([
+                            'start_date' => $budget_from,
+                            'end_date' => $budget_to,
+                            'service_id' => $serviceId,
+                            'vendor_id' => $venderId->id,
+                            'building_id' => $buildingId[0],
+                        ]);
+
+                        ServiceVendor::create([
+                            'service_id' => $serviceId,
+                            'vendor_id' => $venderId->id,
+                            'active' => true,
+                            'contract_id' => $contract->id,
+                            'building_id' => $buildingId[0],
+
+                        ]);
+
                         BuildingVendor::create([
                             'vendor_id' => $venderId->id,
                             'active' => true,
                             'building_id' => $buildingId[0],
+                            'contract_id' => $contract->id,
                             'start_date' => $budget_from,
                             'end_date' => $budget_to,
                         ]);
@@ -126,11 +137,11 @@ class ProposalsRelationManager extends RelationManager
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    //Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ])
             ->emptyStateActions([
-                Tables\Actions\CreateAction::make(),
+                //Tables\Actions\CreateAction::make(),
             ]);
     }
 }

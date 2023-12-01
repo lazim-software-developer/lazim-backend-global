@@ -110,7 +110,7 @@ class OwnerResource extends Resource
             ])
             ->defaultSort('created_at', 'desc')
             ->emptyStateActions([
-                Tables\Actions\CreateAction::make(),
+                //Tables\Actions\CreateAction::make(),
             ]);
     }
 
@@ -125,7 +125,7 @@ class OwnerResource extends Resource
     {
         return [
             'index' => Pages\ListOwners::route('/'),
-            'create' => Pages\CreateOwner::route('/create'),
+            //'create' => Pages\CreateOwner::route('/create'),
             'view' => Pages\ViewOwner::route('/{record}'),
             // 'edit' => Pages\EditOwner::route('/{record}/edit'),
         ];

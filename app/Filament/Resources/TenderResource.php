@@ -45,12 +45,12 @@ class TenderResource extends Resource
                     ->preload()
                     ->searchable()
                     ->label('Budget Period'),
-                FileUpload::make('document')
-                    ->disk('s3')
-                    ->directory('dev')
-                    ->openable(true)
-                    ->downloadable(true)
-                    ->label('Document'),
+                // FileUpload::make('document')
+                //     ->disk('s3')
+                //     ->directory('dev')
+                //     ->openable(true)
+                //     ->downloadable(true)
+                //     ->label('Document'),
                 DatePicker::make('date')
                     ->rules(['date'])
                     ->required()

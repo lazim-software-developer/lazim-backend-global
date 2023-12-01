@@ -2,14 +2,20 @@
 
 namespace App\Filament\Resources\VendorLedgersResource\Pages;
 
-use App\Filament\Resources\VendorLedgersResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
+use Illuminate\Database\Eloquent\Builder;
+use App\Filament\Resources\VendorLedgersResource;
+use App\Models\Vendor\Vendor;
 
 class ListVendorLedgers extends ListRecords
 {
     protected static string $resource = VendorLedgersResource::class;
-
+    protected function getTableQuery(): Builder
+    {
+        $vendor_id = Vendor::where('owner_association_id',auth()->user()->owner_association_id)->pluck('id')->toArray();
+        return parent::getTableQuery()->where('status','approved')->whereIn('vendor_id', $vendor_id);
+    }
     protected function getHeaderActions(): array
     {
         return [
