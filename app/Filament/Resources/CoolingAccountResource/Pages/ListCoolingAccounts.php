@@ -13,6 +13,7 @@ use Filament\Actions\SelectAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
+use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ListRecords;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
@@ -40,18 +41,40 @@ class ListCoolingAccounts extends ListRecords
                         })
                         ->searchable()
                         ->label('Building Name'),
-                        FileUpload::make('excel_file')->label('Cooling Accounts Excel Data')->required(),
-                        Flatpickr::make('month')
-                        ->monthSelect()
-                        ->monthSelectorType(\Coolsam\FilamentFlatpickr\Enums\FlatpickrMonthSelectorType::DROPDOWN)
-                        ->clickOpens(true)
-                        ->placeholder('month year')
-                        ->animate()
+                        FileUpload::make('excel_file')
+                        ->label('Cooling Accounts Excel Data')
+                        ->acceptedFileTypes([
+                            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // for .xlsx
+                            'application/vnd.ms-excel', // for .xls
+                        ])
                         ->required(),
+                        Select::make('month')
+                        ->searchable()
+                        ->required()
+                        ->placeholder('Select Month')
+                        ->options([
+                            'january' => 'January',
+                            'february' => 'February',
+                            'march' => 'March',
+                            'april' => 'April',
+                            'may' => 'May',
+                            'june' => 'June',
+                            'july' => 'July',
+                            'august' => 'August',
+                            'september' => 'September',
+                            'october' => 'October',
+                            'november' => 'November',
+                            'december' => 'December',
+                        ]),
+                        Select::make('year')
+                        ->required()
+                        ->searchable()
+                        ->placeholder('Select Year')
+                        ->options(array_combine(range(now()->year, 2018), range(now()->year, 2018))),
                     ])
                     ->action(function (array $data) {
                     $buildingId= $data['building_id'];
-                    $month = $data['month'];
+                    $month = $data['month'].$data['year'];
                     $filePath = $data['excel_file']; // This is likely just a file path or name
                     // Assuming the file is stored in the local disk in a 'budget_imports' directory
                     $fullPath = storage_path('app/public/' . $filePath);
@@ -63,7 +86,7 @@ class ListCoolingAccounts extends ListRecords
 
                     // Now import using the file path
                     Excel::import(new CoolingAccountImport( $buildingId, $month ), $fullPath);
-
+                    
                 }),
         ];
     }

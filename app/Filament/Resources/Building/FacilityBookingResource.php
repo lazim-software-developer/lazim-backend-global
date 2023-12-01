@@ -140,6 +140,7 @@ class FacilityBookingResource extends Resource
             ->actions([
 
                 Action::make('Update Status')
+                    ->visible(fn ($record) => $record->approved === 0)
                     ->button()
                     ->form([
                         Toggle::make('approved')
@@ -148,7 +149,7 @@ class FacilityBookingResource extends Resource
                             ->live(),
                     ])
                     ->fillForm(fn (FacilityBooking $record): array => [
-                        'approved' => $record->status,
+                        'approved' => $record->approved,
                     ])
                     ->action(function (FacilityBooking $record, array $data): void {
                         $record->approved = $data['approved'];

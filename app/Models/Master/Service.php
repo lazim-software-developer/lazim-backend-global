@@ -66,7 +66,7 @@ class Service extends Model
     // Service is included in many tenders through TenderService
     public function tenders()
     {
-        return $this->belongsToMany(Tender::class, 'tender_services');
+        return $this->hasMany(Tender::class);
     }
 
     public function technicianVendors()

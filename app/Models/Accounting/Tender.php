@@ -15,12 +15,12 @@ class Tender extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['date', 'created_by', 'building_id', 'budget_id', 'owner_association_id', 'end_date', 'document'];
+    protected $fillable = ['date', 'created_by', 'building_id', 'budget_id', 'owner_association_id', 'end_date', 'document', 'service_id'];
 
     // Tender has many services through TenderService
     public function services()
     {
-        return $this->belongsToMany(Service::class, 'tender_services');
+        return $this->belongsTo(Service::class);
     }
 
     // Tender has many vendors through TenderVendor
