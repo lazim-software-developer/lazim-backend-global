@@ -20,6 +20,7 @@ class SnagStatsResource extends JsonResource
             'medium' => $this->where('priority',2)->count(),
             'high' =>$this->where('priority',1)->count(),
             'completed' => $this->where('status','closed')->count(),
+            'pending' => $this->where('status','open')->count(),
         ];
     }
 }
