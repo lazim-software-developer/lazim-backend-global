@@ -150,40 +150,24 @@ class VendorLedgersResource extends Resource
                     }),
             ], layout: FiltersLayout::AboveContent)->filtersFormColumns(3)
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Action::make('Update Status')
-                    ->visible(fn($record) => $record->status == null)
+                //Tables\Actions\EditAction::make(),
+                Action::make('Update Payment')
                     ->button()
                     ->form([
-                        Select::make('status')
-                            ->options([
-                                'accepted' => 'Accepted',
-                                'rejected' => 'Rejected',
-                            ])
-                            ->searchable()
-                            ->live(),
-                        TextInput::make('comment')
-                            ->rules(['max:255'])
-                            ->required(),
+                        TextInput::make('invoice_amount')
+                            ->disabled()
+                            ->label('Bill Amount'),
+                        TextInput::make('payment'),
                     ])
                     ->fillForm(fn(Invoice $record): array => [
-                        'status' => $record->status,
-                        'comment' => $record->remarks,
+                        'invoice_amount' => $record->invoice_amount,
+                        'payment' => $record->payment,
                     ])
                     ->action(function (Invoice $record, array $data): void {
-
-                        $record->status = $data['status'];
-                        $record->remarks = $data['comment'];
-                        $record->status_updated_by = auth()->user()->id;
+                        $record->payment = $data['payment'];
+                        $record->opening_balance = $record->invoice_amount - $data['payment'];
+                        $record->balance = $record->invoice_amount - $data['payment'];
                         $record->save();
-                        DB::table('invoice_status')->insert([
-                            'invoice_id' => $record->id,
-                            'status' => $data['status'],
-                            'updated_by' => auth()->user()->id,
-                            'comment' => $data['comment'],
-                            'created_at' => now(),
-                            'updated_at' => now(),
-                        ]);
                     })
                     ->slideOver()
             ])
@@ -210,7 +194,7 @@ class VendorLedgersResource extends Resource
             'index' => Pages\ListVendorLedgers::route('/'),
             // 'create' => Pages\CreateVendorLedgers::route('/create'),
             //'view' => Pages\ViewVendorLedgers::route('/{record}'),
-            'edit' => Pages\EditVendorLedgers::route('/{record}/edit'),
+            //'edit' => Pages\EditVendorLedgers::route('/{record}/edit'),
         ];
     }
 }

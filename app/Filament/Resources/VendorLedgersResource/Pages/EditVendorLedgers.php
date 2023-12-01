@@ -21,16 +21,4 @@ class EditVendorLedgers extends EditRecord
     {
         return $this->getResource()::getUrl('index');
     }
-    public function beforeSave()
-    {
-        if ($this->record->status == 'approved') {
-            Invoice::where('id', $this->data['id'])
-                ->update([
-                        'payment' => $this->data['payment'],
-                        'balance' => $this->data['invoice_amount'] - $this->data['payment'],
-                        'opening_balance' => $this->data['invoice_amount'] - $this->data['payment'],
-                    ]);
-
-        }
-    }
 }

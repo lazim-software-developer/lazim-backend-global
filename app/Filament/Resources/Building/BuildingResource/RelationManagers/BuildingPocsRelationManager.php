@@ -44,6 +44,10 @@ class BuildingPocsRelationManager extends RelationManager
                                 ->rules(['exists:users,id'])
                                 ->relationship('user', 'first_name')
                                 ->reactive()
+                                ->unique(
+                                    'building_pocs',
+                                    'user_id',
+                                )
                                 ->options(function () {
                                     return User::where('role_id', 12)
                                         ->select('id', 'first_name')
