@@ -37,7 +37,7 @@ class ServiceRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
-            ->recordTitleAttribute('name')
+            ->modifyQueryUsing(fn(Builder $query) => $query->where('type', 'vendor_service'))
             ->columns([
                 Tables\Columns\TextColumn::make('name')->limit(50),
                 Tables\Columns\TextColumn::make('type')
