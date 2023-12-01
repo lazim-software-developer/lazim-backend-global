@@ -8,7 +8,8 @@ use Illuminate\Support\Facades\Log;
 
 class HappinessCenterChart extends ChartWidget
 {
-    protected static ?string $heading = 'Chart';
+    protected static ?string $heading = 'Happiness Center';
+    protected static ?string $maxHeight = '200px';
 
     protected function getData(): array
     {   
@@ -18,18 +19,18 @@ class HappinessCenterChart extends ChartWidget
         return [
             'datasets' => [
                 [
-                    'label' => ['Total','Suggestions','Enquiries'],
-                    'data' => [$complaints,$suggestions,$enquiries],
-                    'backgroundColor' => ['#0ef065','#1d5ee0','#f2360c'],
+                    'label' => ['Suggestions','Enquiries'],
+                    'data' => [$suggestions,$enquiries],
+                    'backgroundColor' => ['#1d5ee0','#f2360c'],
                     'borderColor' => '#000000',
                 ],
             ],
-            'labels' => ['Total','Suggestions','Enquiries'],
+            'labels' => ['Suggestions','Enquiries'],
         ];
     }
 
     protected function getType(): string
     {
-        return 'doughnut';
+        return 'pie';
     }
 }
