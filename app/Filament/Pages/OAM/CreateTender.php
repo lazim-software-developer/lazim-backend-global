@@ -80,7 +80,7 @@ class CreateTender extends Page
         $building = Building::where('id', $budget->building_id)->first();
         // Upload document to S3
         $documentUrl = optimizeDocumentAndUpload($request->document, 'dev');
-
+        Log::info($request);
         $tender = Tender::create([
             'date' => now(),
             'created_by' => auth()->user()->id,
