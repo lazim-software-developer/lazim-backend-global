@@ -24,13 +24,14 @@ class WDA extends Model
         'status',
         'remarks',
         'building_id',
+        'invoice_status',
         'contract_id',
         'status_updated_by',
         'vendor_id',
         'wda_number',
         'service_id'
     ];
-    
+
     public function vendor()
     {
         return $this->belongsTo(Vendor::class);

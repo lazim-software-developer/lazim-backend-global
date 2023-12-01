@@ -80,7 +80,6 @@ class CreateTender extends Page
         $building = Building::where('id', $budget->building_id)->first();
         // Upload document to S3
         $documentUrl = optimizeDocumentAndUpload($request->document, 'dev');
-
         $tender = Tender::create([
             'date' => now(),
             'created_by' => auth()->user()->id,
@@ -91,7 +90,8 @@ class CreateTender extends Page
             'document' => $documentUrl,
             'service_id', $request->get('services')
         ]);
-
+        $tender->service_id = $request->get('services');
+        $tender->save();
         // Attach tender vendors
         $tender->vendors()->syncWithoutDetaching($request->get('vendors'));
 
