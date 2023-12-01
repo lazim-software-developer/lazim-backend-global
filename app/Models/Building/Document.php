@@ -20,6 +20,7 @@ class Document extends Model
         'owner_association_id',
         'url',
         'status',
+        'remarks',
         'comments',
         'expiry_date',
         'accepted_by',
