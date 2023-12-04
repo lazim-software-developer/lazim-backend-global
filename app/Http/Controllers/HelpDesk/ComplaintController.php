@@ -146,14 +146,17 @@ class ComplaintController extends Controller
 
         // Fetch technicians who are active and match the service
         $technicianIds = TechnicianVendor::whereIn('id', $technicianVendorIds)
-                                       ->where('active', true)->pluck('technician_id');
-        
+                                      ->where('active', true)
+                                      ->join('vendors', 'id', '=', 'vendor_id')
+                                      ->where('vendors.owner_association_id', $building->owner_association_id )
+                                      ->pluck('technician_id');
+
         $assignees = User::whereIn('id',$technicianIds)
                             ->withCount(['assignees' => function ($query) {
                                     $query->where('status', 'open');
                                 }])
                                 ->orderBy('assignees_count', 'asc')
-                                ->get();                           
+                                ->get();
         $selectedTechnician = $assignees->first();
 
         if ($selectedTechnician) {
