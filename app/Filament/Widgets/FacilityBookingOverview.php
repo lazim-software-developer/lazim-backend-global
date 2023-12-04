@@ -11,6 +11,7 @@ use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 
 class FacilityBookingOverview extends BaseWidget
 {
+    protected static ?int $sort = 1;
     protected function getStats(): array
     {
         $buildingIds = Building::all()->where('owner_association_id',auth()->user()->owner_association_id)->pluck('id')->toArray();
