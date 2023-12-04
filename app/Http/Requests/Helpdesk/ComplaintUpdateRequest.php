@@ -22,18 +22,18 @@ class ComplaintUpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            "priority" => "integer|min:1|max:3|required_without_all:due_date,technician_id",
-            "due_date" => "date|required_without_all:priority,technician_id",
-            "technician_id" => "integer|exists:users,id|required_without_all:priority,due_date",
-        ]; 
+            "priority" => "integer|min:1|max:3|required",
+            "due_date" => "date|required",
+            "technician_id" => "integer|exists:users,id|required",
+        ];
     }
 
-    public function messages()
-{
-    return [
-        'priority.required_without_all' => 'At least one of the fields (Priority, Due Date, Technician ID) is required.',
-        'due_date.required_without_all' => 'At least one of the fields (Priority, Due Date, Technician ID) is required.',
-        'technician_id.required_without_all' => 'At least one of the fields (Priority, Due Date, Technician ID) is required.',
-    ];
-}
+//     public function messages()
+// {
+//     return [
+//         'priority.required_without_all' => 'At least one of the fields (Priority, Due Date, Technician ID) is required.',
+//         'due_date.required_without_all' => 'At least one of the fields (Priority, Due Date, Technician ID) is required.',
+//         'technician_id.required_without_all' => 'At least one of the fields (Priority, Due Date, Technician ID) is required.',
+//     ];
+// }
 }
