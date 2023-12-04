@@ -22,7 +22,7 @@ class VendorRegisterRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name'      => 'required',
+            'name'      => 'required|min:3|max:30',
             'email'     => 'required|regex:/^[a-zA-Z0-9_.-]+@[a-zA-Z]+\.[a-zA-Z]+$/',
             'phone'    => 'required|string',
             'owner_association_id' => 'required|integer'
