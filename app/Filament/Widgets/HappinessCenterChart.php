@@ -11,6 +11,8 @@ class HappinessCenterChart extends ChartWidget
     protected static ?string $heading = 'Happiness Center';
     protected static ?string $maxHeight = '200px';
 
+    protected static ?int $sort = 4;
+
     protected function getData(): array
     {   
         $complaints = Complaint::where('owner_association_id', auth()->user()->owner_association_id)->count();
@@ -21,8 +23,8 @@ class HappinessCenterChart extends ChartWidget
                 [
                     'label' => ['Suggestions','Enquiries'],
                     'data' => [$suggestions,$enquiries],
-                    'backgroundColor' => ['#1d5ee0','#f2360c'],
-                    'borderColor' => '#000000',
+                    'backgroundColor' => ['#f5fa5a','#5a82fa'],
+                    'borderColor' => '#ffffff',
                 ],
             ],
             'labels' => ['Suggestions','Enquiries'],
@@ -31,6 +33,6 @@ class HappinessCenterChart extends ChartWidget
 
     protected function getType(): string
     {
-        return 'pie';
+        return 'doughnut';
     }
 }
