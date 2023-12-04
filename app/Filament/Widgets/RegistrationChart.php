@@ -9,6 +9,7 @@ class RegistrationChart extends ChartWidget
 {
     protected static ?string $heading = 'Registration';
     protected static ?string $maxHeight = '200px';
+    protected static ?int $sort = 3;
 
     protected function getData(): array
     {
@@ -19,8 +20,8 @@ class RegistrationChart extends ChartWidget
                 [
                     'label' => ['Vendors', 'Residents'],
                     'data' => [$vendors, $residents],
-                    'backgroundColor' => ['#1d5ee0', '#f2360c'],
-                    'borderColor' => '#000000',
+                    'backgroundColor' => ['#fa5a5a', '#fa9a5a'],
+                    'borderColor' => '#ffffff',
                 ],
             ],
             'labels' => ['Vendors', 'Residents'],
@@ -29,6 +30,6 @@ class RegistrationChart extends ChartWidget
 
     protected function getType(): string
     {
-        return 'pie';
+        return 'doughnut';
     }
 }
