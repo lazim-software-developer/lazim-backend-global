@@ -26,7 +26,7 @@ class CreateFormRequest extends FormRequest
             'flat_id' => 'required|integer',
             'type' =>'required',
             'moving_date'=> 'required|after_or_equal:today',
-            'moving_time'=> 'required|date|after_or_equal:now',
+            'moving_time'=> 'required',
             'time_preference'=> 'required',
             'handover_acceptance' => 'required|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
             'receipt_charges' => 'required|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
