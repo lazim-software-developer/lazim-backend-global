@@ -9,6 +9,7 @@ use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 
 class ProposalOverview extends BaseWidget
 {
+    protected static ?int $sort = 2;
     protected function getStats(): array
     {
         $vendorIds = Vendor::all()->where('owner_association_id', auth()->user()->owner_association_id)->pluck('id')->toArray();
