@@ -22,7 +22,7 @@ class ManagerDetailsRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name'          =>  'required|string|max:50',
+            'name'          =>  'required|string|min:3|max:50',
             'email'         =>  'required|unique:vendor_managers,email|regex:/^[a-zA-Z0-9_.-]+@[a-zA-Z]+\.[a-zA-Z]+$/',
             'phone'         =>  'required|string|unique:vendor_managers,phone',
         ];
