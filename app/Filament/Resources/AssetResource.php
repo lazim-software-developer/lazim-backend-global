@@ -11,6 +11,7 @@ use Filament\Forms\Form;
 use Filament\Tables\Table;
 use App\Forms\Components\QrCode;
 use Filament\Resources\Resource;
+use App\Models\Building\Building;
 use Illuminate\Support\Facades\DB;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Select;
@@ -43,6 +44,11 @@ class AssetResource extends Resource
                     ->schema([
                         Select::make('building_id')
                             ->relationship('building', 'name')
+                            ->options(function () {
+                                $oaId = auth()->user()->owner_association_id;
+                                return Building::where('owner_association_id', $oaId)
+                                    ->pluck('name', 'id');
+                            })
                             ->preload()
                             ->searchable()
                             ->live()
