@@ -11,6 +11,7 @@ use App\Models\User\User;
 use Filament\Tables\Table;
 use App\Models\Building\Building;
 use App\Models\Building\BuildingPoc;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
@@ -20,6 +21,7 @@ use Filament\Forms\Components\TextInput;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Resources\RelationManagers\RelationManager;
+use Illuminate\Support\Facades\Log;
 
 class BuildingPocsRelationManager extends RelationManager
 {
@@ -54,6 +56,33 @@ class BuildingPocsRelationManager extends RelationManager
                                         ->pluck('first_name', 'id')
                                         ->toArray();
                                 })
+                                ->createOptionForm([
+                                    TextInput::make('first_name')
+                                        ->required(),
+                                    TextInput::make('last_name')
+                                        ->label('Last Name'),
+                                    TextInput::make('email')
+                                        ->rules(['min:6', 'max:30', 'regex:/^[a-z0-9.]+@[a-z]+\.[a-z]{2,}$/'])
+                                        ->required()
+                                        ->maxLength(255),
+                                    TextInput::make('phone')
+                                        ->rules(['regex:/^(\+971)(50|51|52|55|56|58|02|03|04|06|07|09)\d{7}$/'])
+                                        ->required()
+                                        ->maxLength(255),
+                                    FileUpload::make('profile_photo')
+                                        ->disk('s3')
+                                        ->directory('dev')
+                                        ->image()
+                                        ->label('Profile Photo'),
+                                    Toggle::make('active')
+                                        ->rules(['boolean'])
+                                        ->default(true),
+                                    Hidden::make('role_id')
+                                        ->default(12),
+                                    Hidden::make('owner_association_id')
+                                        ->default(auth()->user()->owner_association_id),
+
+                                ])
                                 ->required()
                                 ->preload()
                                 ->searchable()
@@ -99,7 +128,10 @@ class BuildingPocsRelationManager extends RelationManager
                 //
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make(),
+                Tables\Actions\CreateAction::make()
+                    ->after(function (array $data,Model $record) {
+                        
+                    }),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
