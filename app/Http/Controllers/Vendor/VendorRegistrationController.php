@@ -26,7 +26,7 @@ class VendorRegistrationController extends Controller
 
         // Check if user exists in our DB
         if ($existingEmail) {
-            if ($existingEmail->first()->email_verified == 1) {
+            if ($existingEmail->email_verified) {
                 return (new CustomResponseResource([
                     'title' => 'account_present',
                     'message' => 'Your email is already registered in our application. Please try login instead!',
@@ -43,7 +43,7 @@ class VendorRegistrationController extends Controller
         }
 
         if ($existingPhone) {
-            if ($existingPhone->first()->phone_verified == 1) {
+            if ($existingPhone->phone_verified) {
                 return (new CustomResponseResource([
                     'title' => 'account_present',
                     'message' => 'Your phone is already registered in our application. Please try login instead!',
