@@ -88,7 +88,7 @@ class ProposalResource extends Resource
                         $venderId = $record->submittedBy;
                         $tenderId = Proposal::where('submitted_by', $venderId->id)->where('status', null)->first()->tender_id;
                         $budgetId = Tender::where('id', $tenderId)->first()->budget_id;
-                        $serviceId = DB::table('budget_items')->where('budget_id', $budgetId)->first()->service_id;
+                        $serviceId = Tender::where('id',$tenderId)->first()->service_id;
                         $buildingId = DB::table('budgets')->where('id', $budgetId)->pluck('building_id');
                         $budget_from = DB::table('budgets')->where('id', $budgetId)->pluck('budget_from')[0];
                         $budget_to = DB::table('budgets')->where('id', $budgetId)->pluck('budget_to')[0];
@@ -96,19 +96,21 @@ class ProposalResource extends Resource
                         $contract = Contract::create([
                             'start_date' => $budget_from,
                             'end_date' => $budget_to,
+                            'contract_type' => 'onetime',
                             'service_id' => $serviceId,
                             'vendor_id' => $venderId->id,
                             'building_id' => $buildingId[0],
                         ]);
 
-                        ServiceVendor::create([
+                        $servicevendor = ServiceVendor::create([
                             'service_id' => $serviceId,
                             'vendor_id' => $venderId->id,
                             'active' => true,
                             'contract_id' => $contract->id,
                             'building_id' => $buildingId[0],
-
                         ]);
+                        $servicevendor->contract_id = $contract->id;
+                        $servicevendor->save();
 
                         BuildingVendor::create([
                             'vendor_id' => $venderId->id,
