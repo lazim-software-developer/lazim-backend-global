@@ -94,7 +94,7 @@ class ComplaintController extends Controller
         // Fetch vendor id who is having an active contract for the given service in the building
         $vendor = ServiceVendor::where([
             'building_id' => $building->id, 'service_id' => $service_id, 'active' => 1
-        ])->whereIn('vendor_id',$vendorIds)->first();
+        ])->first();
 
         $request->merge([
             'complaintable_type' => FlatTenant::class,
