@@ -136,7 +136,7 @@ class BuildingPocsRelationManager extends RelationManager
             ])
             ->headerActions([
                 Action::make('New Security')
-                    ->visible(fn(RelationManager $livewire) => BuildingPoc::where('building_id',$livewire->ownerRecord->id)->count() == 0)
+                    ->visible(fn(RelationManager $livewire) => BuildingPoc::where('building_id', $livewire->ownerRecord->id)->count() == 0)
                     ->button()
                     ->form([
                         TextInput::make('first_name')
@@ -200,6 +200,58 @@ class BuildingPocsRelationManager extends RelationManager
             ])
             ->actions([
                 //Tables\Actions\EditAction::make(),
+                Action::make('Edit')
+                    ->button()
+                    ->form([
+                        TextInput::make('first_name')
+                            ->required(),
+                        TextInput::make('last_name')
+                            ->label('Last Name'),
+                        TextInput::make('email')
+                            ->rules(['min:6', 'max:30', 'regex:/^[a-z0-9.]+@[a-z]+\.[a-z]{2,}$/'])
+                            ->required()
+                            ->maxLength(255),
+                        TextInput::make('phone')
+                            ->rules(['regex:/^(\+971)(50|51|52|55|56|58|02|03|04|06|07|09)\d{7}$/'])
+                            ->required()
+                            ->maxLength(255),
+                        FileUpload::make('profile_photo')
+                            ->disk('s3')
+                            ->directory('dev')
+                            ->image()
+                            ->label('Profile Photo'),
+                        Toggle::make('active')
+                            ->rules(['boolean'])
+                            ->default(true),
+                    ])
+                    ->fillForm(fn(BuildingPoc $userId): array => [
+                        $record = User::where('id',$userId->user_id)->first(),
+                        'first_name' => $record->first_name,
+                        'last_name' => $record->last_name,
+                        'email' => $record->email,
+                        'phone' => $record->phone,
+                        'profile_photo' => $record->profile_photo,
+                        'active' => $record->active,
+                    ])
+                    ->action(function (BuildingPoc $userId,array $data): void {
+                        $record = User::where('id',$userId->user_id)->first();
+                        if($record->email != $data['email'])
+                        {
+                            $password = Str::random(12);
+                            $record->password = Hash::make($password);
+                            $record->save();
+                            BuildingSecurity::dispatch($record, $password);
+                        }
+                        $record->first_name = $data['first_name'];
+                        $record->last_name = $data['last_name'];
+                        $record->email = $data['email'];
+                        $record->phone = $data['phone'];
+                        $record->profile_photo = $data['profile_photo'];
+                        $record->active = $data['active'];
+                        $record->save();
+                    })
+                    ->slideOver()
+
                 //Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
