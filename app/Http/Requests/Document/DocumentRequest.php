@@ -27,4 +27,11 @@ class DocumentRequest extends FormRequest
             'file' => 'required|file|max:2048'
         ];
     }
+
+    public function messages()
+    {
+        return [
+            'file' => 'The uploaded file must be less than 2MB.',
+        ];
+    }
 }
