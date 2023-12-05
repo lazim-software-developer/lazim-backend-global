@@ -8,8 +8,10 @@ use Filament\Forms\Get;
 use Filament\Forms\Form;
 use App\Models\User\User;
 use Filament\Tables\Table;
+use App\Models\Vendor\Vendor;
 use App\Models\TechnicianAssets;
 use Filament\Resources\Resource;
+use App\Models\Building\Building;
 use Illuminate\Support\Facades\DB;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
@@ -19,7 +21,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\TechnicianAssetsResource\Pages;
 use App\Filament\Resources\TechnicianAssetsResource\RelationManagers;
-use App\Models\Vendor\Vendor;
+use App\Models\Asset;
 
 class TechnicianAssetsResource extends Resource
 {
@@ -34,11 +36,20 @@ class TechnicianAssetsResource extends Resource
                 Select::make('building_id')
                     ->relationship('building', 'name')
                     ->preload()
+                    ->options(function () {
+                        $oaId = auth()->user()->owner_association_id;
+                        return Building::where('owner_association_id', $oaId)
+                            ->pluck('name', 'id');
+                    })
                     ->live()
                     ->searchable()
                     ->label('Building Name'),
                 Select::make('asset_id')
                     ->relationship('asset', 'name')
+                    ->options(function () {
+                        $BuildingId = Building::all()->where('owner_association_id', auth()->user()->owner_association_id)->pluck('id')->toArray();
+                        return Asset::whereIn('building_id', $BuildingId)->pluck('name', 'id');
+                    })
                     ->preload()
                     ->searchable()
                     ->label('Asset Name'),

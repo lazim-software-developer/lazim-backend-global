@@ -43,7 +43,7 @@ class EditOwnerAssociation extends EditRecord
                 'address' => $this->record->address,
                 'active'  => $this->record->active,
             ]);
-        User::where('owner_association_id', $this->data['id'])
+        User::where('owner_association_id', $this->data['id'])->where('role_id',Role::where('name','OA')->first()->id)
             ->update([
                 'first_name' => $this->record->name,
                 'phone'      => $this->record->phone,
