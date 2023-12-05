@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Building\BuildingResource\RelationManagers;
 
+use App\Jobs\BuildingSecurity;
 use Closure;
 use Filament\Forms;
 use Filament\Tables;
@@ -9,19 +10,25 @@ use Filament\Forms\Get;
 use Filament\Forms\Form;
 use App\Models\User\User;
 use Filament\Tables\Table;
+use Illuminate\Support\Str;
 use App\Models\Building\Building;
-use App\Models\Building\BuildingPoc;
-use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
+use Filament\Tables\Actions\Action;
+use Illuminate\Support\Facades\Log;
+use App\Models\Building\BuildingPoc;
+use Illuminate\Support\Facades\Hash;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
+use App\Jobs\VendorAccountCreationJob;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\FileUpload;
+use Filament\Tables\Actions\CreateAction;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Widgets\Concerns\InteractsWithPageTable;
 use Filament\Resources\RelationManagers\RelationManager;
-use Illuminate\Support\Facades\Log;
 
 class BuildingPocsRelationManager extends RelationManager
 {
@@ -109,8 +116,8 @@ class BuildingPocsRelationManager extends RelationManager
             ->columns([
                 Tables\Columns\TextColumn::make('building.name')
                     ->limit(50)
-                    ->label('Owner Association'),
-                Tables\Columns\TextColumn::make('user.first_name')
+                    ->label('Building Name'),
+                Tables\Columns\TextColumn::make('user.first_name')->label('Name')
                     ->limit(50),
                 Tables\Columns\TextColumn::make('role_name')
                     ->searchable()
@@ -128,22 +135,80 @@ class BuildingPocsRelationManager extends RelationManager
                 //
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make()
-                    ->after(function (array $data,Model $record) {
-                        
-                    }),
+                Action::make('New Security')
+                    ->visible(fn(RelationManager $livewire) => BuildingPoc::where('building_id',$livewire->ownerRecord->id)->count() == 0)
+                    ->button()
+                    ->form([
+                        TextInput::make('first_name')
+                            ->required(),
+                        TextInput::make('last_name')
+                            ->label('Last Name'),
+                        TextInput::make('email')
+                            ->rules(['min:6', 'max:30', 'regex:/^[a-z0-9.]+@[a-z]+\.[a-z]{2,}$/'])
+                            ->required()
+                            ->maxLength(255),
+                        TextInput::make('phone')
+                            ->rules(['regex:/^(\+971)(50|51|52|55|56|58|02|03|04|06|07|09)\d{7}$/'])
+                            ->required()
+                            ->maxLength(255),
+                        FileUpload::make('profile_photo')
+                            ->disk('s3')
+                            ->directory('dev')
+                            ->image()
+                            ->label('Profile Photo'),
+                        Toggle::make('active')
+                            ->rules(['boolean'])
+                            ->default(true),
+                        //
+                        Hidden::make('building_id')
+                            ->default(function (RelationManager $livewire) {
+                                return $livewire->ownerRecord->id;
+                            }),
+                    ])
+                    ->action(function (array $data): void {
+
+                        $user = User::create([
+                            'first_name' => $data['first_name'],
+                            'last_name' => $data['last_name'],
+                            'email' => $data['email'],
+                            'phone' => $data['phone'],
+                            'profile_photo' => $data['profile_photo'],
+                            'active' => $data['active'],
+                            'role_id' => 12,
+                            'owner_association_id' => auth()->user()->owner_association_id,
+
+                        ]);
+
+                        $security = BuildingPoc::create([
+                            'user_id' => $user->id,
+                            'role_name' => 'security',
+                            'escalation_level' => 1,
+                            'active' => true,
+                            'building_id' => $data['building_id'],
+                            'emergency_contact' => true,
+
+                        ]);
+                        if ($user && $security) {
+                            $password = Str::random(12);
+                            $user->password = Hash::make($password);
+                            $user->save();
+                            BuildingSecurity::dispatch($user, $password);
+                        }
+
+                    })
+                    ->slideOver()
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                //Tables\Actions\EditAction::make(),
+                //Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    //Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ])
             ->emptyStateActions([
-                Tables\Actions\CreateAction::make(),
+                //Tables\Actions\CreateAction::make(),
             ]);
     }
 }

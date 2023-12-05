@@ -39,7 +39,7 @@ class VendorComplaintController extends Controller
             $query->whereIn('complaint_type', ['help_desk', 'tenant_complaint']);
         })
         ->whereBetween('updated_at', [$start_date, $end_date])
-        ->latest()->paginate();
+        ->latest()->paginate(10);
 
         return VendorComplaintsResource::collection($complaints);
     }
