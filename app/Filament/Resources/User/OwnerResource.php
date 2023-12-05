@@ -80,8 +80,8 @@ class OwnerResource extends Resource
                                 ->preload()
                                 ->searchable()
                                 ->label('Flat'),
-                            ViewField::make('Building')
-                                ->view('forms.components.building-name-owner')
+                            // ViewField::make('Building')
+                            //     ->view('forms.components.building-name-owner')
                         ])
                         ->columnSpan([
                             'sm' => 1,
