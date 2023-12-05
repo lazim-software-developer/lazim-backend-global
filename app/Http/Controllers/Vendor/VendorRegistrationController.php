@@ -20,44 +20,6 @@ class VendorRegistrationController extends Controller
 {
     public function registration(VendorRegisterRequest $request)
     {
-
-        $existingEmail = User::where(['email' => $request->email])->first();
-        $existingPhone = User::where(['phone' => $request->phone])->first();
-
-        // Check if user exists in our DB
-        if ($existingEmail) {
-            if ($existingEmail->email_verified) {
-                return (new CustomResponseResource([
-                    'title' => 'account_present',
-                    'message' => 'Your email is already registered in our application. Please try login instead!',
-                    'code' => 400,
-                ]))->response()->setStatusCode(400);
-            } else {
-                return (new CustomResponseResource([
-                    'title' => 'redirect_verification',
-                    'message' => "Your email is not verified. You'll be redirected to account verification page",
-                    'code' => 403,
-                    'data' => $existingEmail,
-                ]))->response()->setStatusCode(403);
-            }
-        }
-
-        if ($existingPhone) {
-            if ($existingPhone->phone_verified) {
-                return (new CustomResponseResource([
-                    'title' => 'account_present',
-                    'message' => 'Your phone is already registered in our application. Please try login instead!',
-                    'code' => 400,
-                ]))->response()->setStatusCode(400);
-            } else {
-                return (new CustomResponseResource([
-                    'title' => 'redirect_verification',
-                    'message' => "Your phone is not verified. You'll be redirected to account verification page",
-                    'code' => 403,
-                    'data' => $existingEmail,
-                ]))->response()->setStatusCode(403);
-            }
-        }
         // Check if user exists in our DB
         $userData = User::where(['email' => $request->get('email'), 'phone' => $request->get('phone')]);
 
@@ -72,6 +34,14 @@ class VendorRegistrationController extends Controller
                     'code' => 403,
                     'data' => $userData->first(),
                 ]))->response()->setStatusCode(403);
+            }
+
+            if ($userData->first()->email_verified && $userData->first()->phone_verified) {
+                return (new CustomResponseResource([
+                    'title' => 'account_present',
+                    'message' => 'Your details is already registered in our application. Please try login instead!',
+                    'code' => 400,
+                ]))->response()->setStatusCode(400);
             }
 
             // Check if company details are already added. If not redirect to company details page
@@ -115,6 +85,44 @@ class VendorRegistrationController extends Controller
                     'code' => 403,
                     'data' => $vendor,
                 ]))->response()->setStatusCode(403);
+            }
+        } else {
+            $existingEmail = User::where(['email' => $request->email])->first();
+            $existingPhone = User::where(['phone' => $request->phone])->first();
+
+            // Check if user exists in our DB
+            if ($existingEmail) {
+                if ($existingEmail->email_verified) {
+                    return (new CustomResponseResource([
+                        'title' => 'account_present',
+                        'message' => 'Your email is already registered in our application. Please try login instead!',
+                        'code' => 400,
+                    ]))->response()->setStatusCode(400);
+                } else {
+                    return (new CustomResponseResource([
+                        'title' => 'redirect_verification',
+                        'message' => "Your email is not verified. You'll be redirected to account verification page",
+                        'code' => 403,
+                        'data' => $existingEmail,
+                    ]))->response()->setStatusCode(403);
+                }
+            }
+
+            if ($existingPhone) {
+                if ($existingPhone->phone_verified) {
+                    return (new CustomResponseResource([
+                        'title' => 'account_present',
+                        'message' => 'Your phone is already registered in our application. Please try login instead!',
+                        'code' => 400,
+                    ]))->response()->setStatusCode(400);
+                } else {
+                    return (new CustomResponseResource([
+                        'title' => 'redirect_verification',
+                        'message' => "Your phone is not verified. You'll be redirected to account verification page",
+                        'code' => 403,
+                        'data' => $existingEmail,
+                    ]))->response()->setStatusCode(403);
+                }
             }
         }
 
