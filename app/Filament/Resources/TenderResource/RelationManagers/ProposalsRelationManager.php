@@ -75,44 +75,49 @@ class ProposalsRelationManager extends RelationManager
                         'remarks' => $record->remarks,
                     ])
                     ->action(function (Proposal $record, array $data): void {
-                        $record->status = 'approved';
-                        $record->remarks = $data['remarks'];
-                        $record->status_updated_by = auth()->user()->id;
-                        $record->status_updated_on = now();
-                        $venderId = $record->submittedBy;
-                        $tenderId = Proposal::where('submitted_by', $venderId->id)->where('status', null)->first()->tender_id;
+
+
+                        $tenderId = Proposal::where('vendor_id', $record->vendor_id)->where('status', null)->first()->tender_id;
                         $budgetId = Tender::where('id', $tenderId)->first()->budget_id;
-                        $serviceId = DB::table('budget_items')->where('budget_id', $budgetId)->first()->service_id;
+                        $serviceId = Tender::find($tenderId)->service_id;
                         $buildingId = DB::table('budgets')->where('id', $budgetId)->pluck('building_id');
                         $budget_from = DB::table('budgets')->where('id', $budgetId)->pluck('budget_from')[0];
                         $budget_to = DB::table('budgets')->where('id', $budgetId)->pluck('budget_to')[0];
 
+
                         $contract = Contract::create([
                             'start_date' => $budget_from,
                             'end_date' => $budget_to,
+                            'contract_type' => 'onetime',
                             'service_id' => $serviceId,
-                            'vendor_id' => $venderId->id,
+                            'vendor_id' => $record->vendor_id,
                             'building_id' => $buildingId[0],
                         ]);
 
-                        ServiceVendor::create([
+                        $servicevendor = ServiceVendor::create([
                             'service_id' => $serviceId,
-                            'vendor_id' => $venderId->id,
+                            'vendor_id' => $record->vendor_id,
                             'active' => true,
                             'contract_id' => $contract->id,
                             'building_id' => $buildingId[0],
-
                         ]);
+                        $servicevendor->contract_id = $contract->id;
+                        $servicevendor->save();
 
                         BuildingVendor::create([
-                            'vendor_id' => $venderId->id,
+                            'vendor_id' => $record->vendor_id,
                             'active' => true,
                             'building_id' => $buildingId[0],
                             'contract_id' => $contract->id,
                             'start_date' => $budget_from,
                             'end_date' => $budget_to,
                         ]);
+                        $record->status = 'approved';
+                        $record->remarks = $data['remarks'];
+                        $record->status_updated_by = auth()->user()->id;
+                        $record->status_updated_on = now();
                         $record->save();
+
                     })
                     ->slideOver(),
                 Action::make('Reject')
