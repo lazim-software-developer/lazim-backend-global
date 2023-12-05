@@ -2,30 +2,31 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\AnnouncementResource\Pages;
-use App\Filament\Resources\AnnouncementResource\RelationManagers;
+use Filament\Forms;
+use Filament\Tables;
+use Filament\Forms\Get;
+use Filament\Forms\Form;
+use Filament\Tables\Table;
 use App\Models\Announcement;
 use App\Models\Community\Post;
-use Filament\Forms;
-use Filament\Forms\Components\DateTimePicker;
-use Filament\Forms\Components\FileUpload;
+use Filament\Resources\Resource;
+use App\Models\Building\Building;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\Repeater;
-use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
-use Filament\Forms\Form;
-use Filament\Forms\Get;
-use Filament\Resources\Resource;
-use Filament\Tables;
+use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Textarea;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\RichEditor;
 use Filament\Tables\Filters\SelectFilter;
-use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Forms\Components\DateTimePicker;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Filament\Resources\AnnouncementResource\Pages;
+use App\Filament\Resources\AnnouncementResource\RelationManagers;
 
 class AnnouncementResource extends Resource
 {
@@ -83,6 +84,9 @@ class AnnouncementResource extends Resource
 
                         Select::make('building_id')
                             ->relationship('building', 'name')
+                            ->options(function(){
+                                return Building::where('owner_association_id',auth()->user()->id)->pluck('name','id');
+                            })
                             ->searchable()
                             ->multiple()
                             ->preload()

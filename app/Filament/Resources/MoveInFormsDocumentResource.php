@@ -210,7 +210,7 @@ class MoveInFormsDocumentResource extends Resource
     {
         return [
             'index' => Pages\ListMoveInFormsDocuments::route('/'),
-            'create' => CreateMoveInFormsDocument::route('/create'),
+            // 'create' => CreateMoveInFormsDocument::route('/create'),
             'view' => Pages\ViewMoveInFormsDocument::route('/{record}'),
         ];
     }
