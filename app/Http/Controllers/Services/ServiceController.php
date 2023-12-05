@@ -18,7 +18,7 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class ServiceController extends Controller
 {
-    public function listServicesForBuilding(Building $building)
+    public function listServicesForBuilding(Service $service)
     {
         // Fetch vendor IDs associated with the building
         // $vendorIds = $building->vendors()->pluck('vendors.id');
@@ -32,7 +32,8 @@ class ServiceController extends Controller
         // })->get();
 
         // New code
-        return Service::where(['active' => 1, 'type' => 'inhouse'])->get();
+        $result = $service->where(['active' => 1, 'type' => 'inhouse'])->get();
+        return ServiceResource::collection($result);
     }
 
     // Book a service
