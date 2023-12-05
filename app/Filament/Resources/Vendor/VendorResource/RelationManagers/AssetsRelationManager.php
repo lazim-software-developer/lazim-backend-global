@@ -8,6 +8,7 @@ use App\Models\Asset;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use App\Models\Master\Service;
+use App\Models\Building\Building;
 use Illuminate\Support\Facades\DB;
 use Filament\Forms\Components\Select;
 use Filament\Tables\Columns\TextColumn;
@@ -45,23 +46,26 @@ class AssetsRelationManager extends RelationManager
             ->headerActions([
                 //Tables\Actions\CreateAction::make(),
                 Tables\Actions\AttachAction::make()
-                ->label('Add')
-                ->recordSelect(function (RelationManager $livewire) {
-                    $vendorId = $livewire->ownerRecord->id;
+                    ->label('Add')
+                    ->recordSelect(function (RelationManager $livewire) {
+                        $vendorId = $livewire->ownerRecord->id;
 
-                    // Get all the Assets
-                    $allAssets = Asset::all()->pluck('id')->toArray();
-                    $existingAssets =  DB::table('asset_vendor')
-                        ->where('vendor_id', $vendorId)
-                        ->whereIn('asset_id', $allAssets)->pluck('asset_id')->toArray();
-                    $notSelected = Asset::all()->whereNotIn('id', $existingAssets)->pluck('name', 'id')->toArray();
-                    return Select::make('recordId')
-                        ->label('Assets')
-                        ->options($notSelected)
-                        ->searchable()
-                        ->required()
-                        ->preload();
-                }),
+                        //Get building_Id
+                        $building_id = Building::all()->where('owner_association_id', auth()->user()->owner_association_id)->pluck('id')->toArray();
+
+                        // Get all the Assets
+                        $allAssets = Asset::all()->whereIn('building_id',$building_id)->pluck('id')->toArray();
+                        $existingAssets = DB::table('asset_vendor')
+                            ->where('vendor_id', $vendorId)
+                            ->whereIn('asset_id', $allAssets)->pluck('asset_id')->toArray();
+                        $notSelected = Asset::all()->whereIn('building_id',$building_id)->whereNotIn('id', $existingAssets)->pluck('name', 'id')->toArray();
+                        return Select::make('recordId')
+                            ->label('Assets')
+                            ->options($notSelected)
+                            ->searchable()
+                            ->required()
+                            ->preload();
+                    }),
             ])
             ->actions([
                 //Tables\Actions\EditAction::make(),
