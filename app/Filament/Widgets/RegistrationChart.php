@@ -13,8 +13,8 @@ class RegistrationChart extends ChartWidget
 
     protected function getData(): array
     {
-        $vendors = User::where('role_id',2)->count();
-        $residents = User::whereIn('role_id',[1,11] )->count();
+        $vendors = User::where('role_id',2)->where('owner_association_id', auth()->user()->owner_association_id)->count();
+        $residents = User::whereIn('role_id',[1,11] )->where('owner_association_id', auth()->user()->owner_association_id)->count();
         return [
             'datasets' => [
                 [
