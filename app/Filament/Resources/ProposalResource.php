@@ -84,9 +84,8 @@ class ProposalResource extends Resource
 
 
                         $tenderId = Proposal::where('vendor_id', $record->vendor_id)->where('status', null)->first()->tender_id;
-                        // dd($tenderId);
                         $budgetId = Tender::where('id', $tenderId)->first()->budget_id;
-                        $serviceId = Tender::find($tenderId)->first()->service_id;
+                        $serviceId = Tender::find($tenderId)->service_id;
                         $buildingId = DB::table('budgets')->where('id', $budgetId)->pluck('building_id');
                         $budget_from = DB::table('budgets')->where('id', $budgetId)->pluck('budget_from')[0];
                         $budget_to = DB::table('budgets')->where('id', $budgetId)->pluck('budget_to')[0];
