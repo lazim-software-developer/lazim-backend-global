@@ -200,7 +200,7 @@ class AdminPanelProvider extends PanelProvider
                                     ->activeIcon('heroicon-s-gift-top')
                                     ->sort(3),
                                 NavigationItem::make('Delinquent Owners')
-                                    ->url('/admin/o-a-m-invoices')
+                                    ->url('/admin/delinquent-owners')
                                     ->icon('heroicon-s-bars-arrow-down')
                                     ->activeIcon('heroicon-s-bars-arrow-down')
                                     ->sort(4),
