@@ -85,7 +85,7 @@ class AnnouncementResource extends Resource
                         Select::make('building_id')
                             ->relationship('building', 'name')
                             ->options(function(){
-                                return Building::where('owner_association_id',auth()->user()->id)->pluck('name','id');
+                                return Building::where('owner_association_id',auth()->user()->owner_association_id)->pluck('name','id');
                             })
                             ->searchable()
                             ->multiple()
