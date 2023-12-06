@@ -2,35 +2,40 @@
 
 namespace App\Filament\Resources\User;
 
+use Filament\Forms;
+use Filament\Tables;
+use Filament\Forms\Form;
+use App\Models\User\User;
+use App\Models\User\Owner;
+use Filament\Tables\Table;
+use App\Models\ApartmentOwner;
+use Filament\Actions\EditAction;
+use Filament\Resources\Resource;
+use Filament\Forms\Components\Grid;
+use Filament\Tables\Filters\Filter;
+use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Toggle;
+use Filament\Forms\Components\Repeater;
+use Filament\Tables\Columns\ViewColumn;
+use Illuminate\Database\Eloquent\Model;
 use App\Filament\Filters\buildingFilter;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\ViewField;
+use Filament\Tables\Filters\SelectFilter;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\User\OwnerResource\Pages;
 use App\Filament\Resources\User\OwnerResource\RelationManagers;
 use App\Filament\Resources\User\OwnerResource\RelationManagers\UserDocumentsRelationManager;
-use App\Models\ApartmentOwner;
-use App\Models\User\Owner;
-use App\Models\User\User;
-use Filament\Actions\EditAction;
-use Filament\Forms;
-use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\Repeater;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Toggle;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
-use Filament\Tables;
-use Filament\Tables\Columns\ViewColumn;
-use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Models\Building\Flat;
+use App\Models\FlatOwners;
 
 class OwnerResource extends Resource
 {
     protected static ?string $model = ApartmentOwner::class;
-    protected static ?string $modelLabel      = 'Owner';
-    protected static ?string $navigationGroup      = 'User Management';
+    protected static ?string $modelLabel = 'Owner';
+    protected static ?string $navigationGroup = 'User Management';
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     public static function form(Form $form): Form
@@ -74,7 +79,9 @@ class OwnerResource extends Resource
                                 ->relationship('flat', 'property_number')
                                 ->preload()
                                 ->searchable()
-                                ->label('Property No'),
+                                ->label('Flat'),
+                            // ViewField::make('Building')
+                            //     ->view('forms.components.building-name-owner')
                         ])
                         ->columnSpan([
                             'sm' => 1,
@@ -109,6 +116,23 @@ class OwnerResource extends Resource
                 ViewColumn::make('Building')->view('tables.columns.apartment-ownerbuilding')
             ])
             ->defaultSort('created_at', 'desc')
+            ->filters([
+                // Filter::make('created_at')
+                //     ->form([
+                //         Select::make('flat')
+                //             ->searchable()
+                //             ->options(function () {
+                //                 return Flat::pluck('property_number', 'id');
+                //             }),
+                //     ])
+                //     ->query(function (Builder $query, array $data): Builder {
+                //         return $query
+                //             ->when(
+                //                 $flatowner = FlatOwners::where('flat_id',$data['flat'])->first()?->owner_id,
+                //                 fn(Builder $query,$flatowner): Builder => $query->where('id', $flatowner),
+                //             );
+                //     })
+            ])
             ->emptyStateActions([
                 //Tables\Actions\CreateAction::make(),
             ]);
