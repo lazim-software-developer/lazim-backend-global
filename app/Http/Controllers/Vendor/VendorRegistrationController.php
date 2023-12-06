@@ -127,8 +127,8 @@ class VendorRegistrationController extends Controller
         }
 
         $role = Role::where('name', 'Vendor')->value('id');
-        $request->merge(['first_name' => $request->name, 'active' => 1, 'role_id' => $role, 'owner_association_id' => 4]);
-
+        $request->merge(['first_name' => $request->name, 'active' => 1, 'role_id' => $role, 'owner_association_id' => 2]);
+        
         $user = User::create($request->all());
 
         // Send email after 5 seconds
