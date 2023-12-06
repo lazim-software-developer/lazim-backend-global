@@ -28,23 +28,27 @@ function optimizeDocumentAndUpload($file, $path = 'dev', $width = 474, $height =
 
         if ($extension == 'jpg' || $extension == 'png' || $extension == 'jpeg') {
             $optimizedImage = Image::make($file)
-                ->resize($width, $height, function ($constraint) {
-                    $constraint->aspectRatio();
-                    $constraint->upsize();
-                })
-                ->encode('jpg', 80); // 80 is the quality. You can adjust this value.
+            ->resize($width, $height, function ($constraint) {
+                $constraint->aspectRatio();
+                $constraint->upsize();
+            })
+            ->encode('jpg', 80); // 80 is the quality. You can adjust this value.
 
-            $filename = time() . '.' . $file->getClientOriginalExtension();
+            $filename = time() . '.' . $extension;
             $fullPath = $path . '/' . $filename;
 
             Storage::disk('s3')->put($fullPath, (string) $optimizedImage, 'public');
 
             return $fullPath;
         } elseif ($extension == 'pdf') {
-            $filename = time() . '.' . $file->getClientOriginalExtension();
+            $filename = time() . '.' . $extension;
             $fullPath = $path . '/' . $filename;
 
-            Storage::disk('s3')->put($fullPath, 'public');
+            // Read the file's content
+            $pdfContent = file_get_contents($file);
+
+            // Store the file on S3
+            Storage::disk('s3')->put($fullPath, $pdfContent, 'public');
 
             return $fullPath;
         } else {

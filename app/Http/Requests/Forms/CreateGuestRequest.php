@@ -26,9 +26,8 @@ class CreateGuestRequest extends FormRequest
             'visa_validity_date' => 'required|date',
             'stay_duration' => 'required',
             'expiry_date' => 'required|date',
-            'access_card_holder' => 'required',
-            'original_passport' => 'required',
-            'guest_registration' => 'required',
+            'original_passport' => 'nullable',
+            'guest_registration' => 'nullable',
             'building_id' => 'required|integer',
             'flat_id' => 'required|integer',
             'start_date' => 'required|date',
@@ -42,7 +41,7 @@ class CreateGuestRequest extends FormRequest
     public function messages()
     {
         return [
-            'image' => 'The uploaded image must be less than 2MB.',
+            'image.max' => 'The uploaded image must be less than 2MB.',
         ];
     }
 }

@@ -2,36 +2,42 @@
 
 namespace App\Models\User;
 
-
-use App\Models\Building\BuildingPoc;
-use App\Models\Building\Complaint;
-use App\Models\Building\Document;
-use App\Models\Building\FacilityBooking;
+use App\Models\Vendor\PPM;
+use Filament\Panel;
+use App\Models\Asset;
+use App\Models\Forms\Guest;
+use App\Models\Master\Role;
 use App\Models\Building\Flat;
-use App\Models\Building\FlatTenant;
+use App\Models\Forms\SaleNOC;
+use App\Models\Vendor\Vendor;
+use App\Models\Accounting\WDA;
 use App\Models\Community\Post;
+use App\Models\Forms\MoveInOut;
+use App\Models\ResidentialForm;
 use App\Models\Forms\AccessCard;
 use App\Models\Forms\FitOutForm;
-use App\Models\Forms\MoveInOut;
-use App\Models\Forms\Guest;
-use App\Models\Forms\SaleNOC;
-use App\Models\Master\Role;
-use App\Models\OaUserRegistration;
 use App\Models\OwnerAssociation;
-use App\Models\ResidentialForm;
+use App\Models\TechnicianVendor;
+use App\Models\Building\Document;
 use App\Models\Scopes\Searchable;
 use App\Models\Vendor\Attendance;
-use App\Models\Vendor\Vendor;
+use Laravel\Sanctum\HasApiTokens;
+use App\Models\Accounting\Invoice;
+use App\Models\Building\Complaint;
+use App\Models\Community\PostLike;
+use App\Models\OaUserRegistration;
+use App\Models\Building\FlatTenant;
 use App\Models\Visitor\FlatVisitor;
-use Filament\Models\Contracts\FilamentUser;
+use App\Models\Building\BuildingPoc;
 use Filament\Models\Contracts\HasName;
-use Filament\Panel;
+use Laravel\Jetstream\HasProfilePhoto;
+use App\Models\Building\FacilityBooking;
+use App\Models\TechnicianAssets;
+use Illuminate\Notifications\Notifiable;
+use Filament\Models\Contracts\FilamentUser;
+use Laravel\Fortify\TwoFactorAuthenticatable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
-use Laravel\Fortify\TwoFactorAuthenticatable;
-use Laravel\Jetstream\HasProfilePhoto;
-use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable implements FilamentUser, HasName
 {
@@ -48,6 +54,7 @@ class User extends Authenticatable implements FilamentUser, HasName
         'email',
         'phone',
         'password',
+        'email_verified',
         'phone_verified',
         'active',
         'lazim_id',
@@ -171,8 +178,7 @@ class User extends Authenticatable implements FilamentUser, HasName
     }
     public function canAccessPanel(Panel $panel): bool
     {
-        if($this->role_id == 10 || $this->role_id == 9)
-        {
+        if ($this->role_id == 10 || $this->role_id == 9) {
             return true;
         }
         return false;
@@ -237,5 +243,31 @@ class User extends Authenticatable implements FilamentUser, HasName
     public function saleNoc()
     {
         return $this->hasMany(SaleNOC::class);
+    }
+
+    public function technicianVendors()
+    {
+        return $this->hasMany(TechnicianVendor::class, 'technician_id')->where('active', true);
+    }
+    public function wdas()
+    {
+        return $this->hasMany(WDA::class);
+    }
+    public function invoices()
+    {
+        return $this->hasMany(Invoice::class);
+    }
+    public function assets()
+    {
+        return $this->belongsToMany(Asset::class,'technician_assets','technician_id');
+    }
+    public function ppms()
+    {
+        return $this->hasMany(PPM::class);
+    }
+
+    public function assignees()
+    {
+        return $this->hasMany(Complaint::class,'technician_id');
     }
 }

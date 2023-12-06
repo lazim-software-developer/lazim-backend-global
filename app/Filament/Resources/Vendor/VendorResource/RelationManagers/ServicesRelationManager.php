@@ -50,6 +50,7 @@ class ServicesRelationManager extends RelationManager
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')->limit(50),
+                Tables\Columns\TextColumn::make('price')->limit(50),
                 Tables\Columns\IconColumn::make('active')->boolean(),
             ])
             ->defaultSort('created_at', 'desc')
@@ -66,11 +67,11 @@ class ServicesRelationManager extends RelationManager
                         $vendorId = $livewire->ownerRecord->id;
 
                         // Get all the Servicess
-                        $allServices = Service::all()->pluck('id')->toArray();
+                        $allServices = Service::where('type', '!=', 'inhouse')->orWhereNull('type')->get()->pluck('id')->toArray();
                         $existingServices =  DB::table('service_vendor')
                             ->where('vendor_id', $vendorId)
                             ->whereIn('service_id', $allServices)->pluck('service_id')->toArray();
-                        $notSelected = Service::all()->whereNotIn('id', $existingServices)->pluck('name', 'id')->toArray();
+                        $notSelected = Service::whereNotIn('id', $existingServices)->where('type', '!=', 'inhouse')->orWhereNull('type')->get()->pluck('name', 'id')->toArray();
                         return Select::make('recordId')
                             ->label('Services')
                             ->options($notSelected)

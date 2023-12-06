@@ -2,27 +2,28 @@
 
 namespace App\Filament\Resources\Building;
 
-use App\Filament\Resources\Building\ServiceBookingResource\Pages;
-use App\Filament\Resources\Building\ServiceBookingResource\RelationManagers;
-use App\Models\Building\FacilityBooking;
-use App\Models\Building\ServiceBooking;
 use Filament\Forms;
-use Filament\Forms\Components\DatePicker;
+use Filament\Tables;
+use Filament\Forms\Form;
+use Filament\Tables\Table;
+use Filament\Resources\Resource;
+use App\Models\Building\Building;
+use Illuminate\Support\Facades\DB;
 use Filament\Forms\Components\Grid;
+use Filament\Tables\Actions\Action;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\TimePicker;
 use Filament\Forms\Components\Toggle;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
-use Filament\Tables;
-use Filament\Tables\Actions\Action;
+use App\Models\Building\ServiceBooking;
+use App\Models\Building\FacilityBooking;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\TimePicker;
 use Filament\Tables\Filters\SelectFilter;
-use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Illuminate\Support\Facades\DB;
+use App\Filament\Resources\Building\ServiceBookingResource\Pages;
+use App\Filament\Resources\Building\ServiceBookingResource\RelationManagers;
 
 class ServiceBookingResource extends Resource
 {
@@ -44,6 +45,10 @@ class ServiceBookingResource extends Resource
                     Select::make('building_id')
                         ->rules(['exists:buildings,id'])
                         ->relationship('building', 'name')
+                        ->options(function () {
+                            return Building::where('owner_association_id', auth()->user()->owner_association_id)
+                                ->pluck('name', 'id');
+                        })
                         ->reactive()
                         ->required()
                         ->preload()
@@ -53,6 +58,7 @@ class ServiceBookingResource extends Resource
                     Select::make('bookable_id')
                         ->options(
                             DB::table('services')
+                                ->where('type','inhouse')
                                 ->pluck('name', 'id')
                                 ->toArray()
                         )
@@ -140,6 +146,7 @@ class ServiceBookingResource extends Resource
             ])
             ->actions([
                 Action::make('Update Status')
+                    ->visible(fn ($record) => $record->approved === 0)
                     ->button()
                     ->form([
                         Toggle::make('approved')
@@ -148,7 +155,7 @@ class ServiceBookingResource extends Resource
                             ->live(),
                     ])
                     ->fillForm(fn (FacilityBooking $record): array => [
-                        'approved' => $record->status,
+                        'approved' => $record->approved,
                     ])
                     ->action(function (FacilityBooking $record, array $data): void {
                         $record->approved = $data['approved'];

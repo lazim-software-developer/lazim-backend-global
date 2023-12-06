@@ -18,37 +18,37 @@ class ComplaintObserver
 
             Notification::make()
                 ->success()
-                ->title("Complaint created")
+                ->title("Happiness Center Complaint created")
                 ->icon('heroicon-o-document-text') 
                 ->iconColor('warning') 
-                ->body('New Complaint has been created')
+                ->body('New Happiness Center Complaint has been created')
                 ->sendToDatabase($notifyTo);
         }
         elseif ($complaint->complaint_type == 'enquiries') {
             Notification::make()
                 ->success()
-                ->title("Enquire created")
+                ->title("Happiness Center Enquire created")
                 ->icon('heroicon-o-document-text') 
                 ->iconColor('warning') 
-                ->body('New Enquire has been created')
+                ->body('New  Happiness Center Enquire has been created')
                 ->sendToDatabase($notifyTo);
         }
         elseif ($complaint->complaint_type == 'suggestions') {
             Notification::make()
                 ->success()
-                ->title("Suggestion created")
+                ->title("Happiness Center Suggestion created")
                 ->icon('heroicon-o-document-text') 
                 ->iconColor('warning') 
-                ->body('New Suggestion has been created')
+                ->body('New Happiness Center Suggestion has been created')
                 ->sendToDatabase($notifyTo);
         }
         else{
             Notification::make()
                 ->success()
-                ->title("Complaint created")
+                ->title("HelpDesk Complaint created")
                 ->icon('heroicon-o-document-text') 
                 ->iconColor('warning') 
-                ->body('New Complaint has been created')
+                ->body('New HelpDesk Complaint has been created')
                 ->sendToDatabase($notifyTo);
         }
     }

@@ -7,26 +7,33 @@ use App\Http\Requests\Service\ServiceBookingRequest;
 use App\Http\Resources\CustomResponseResource;
 use App\Http\Resources\Facility\FacilityResource;
 use App\Http\Resources\Services\ServiceResource;
+use App\Imports\ServicesImport;
 use App\Models\Building\Building;
 use App\Models\Building\FacilityBooking;
 use App\Models\Master\Service;
+use App\Models\Vendor\ServiceVendor;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ServiceController extends Controller
 {
-    public function listServicesForBuilding(Building $building)
+    public function listServicesForBuilding(Service $service)
     {
         // Fetch vendor IDs associated with the building
-        $vendorIds = $building->vendors()->pluck('vendors.id');
+        // $vendorIds = $building->vendors()->pluck('vendors.id');
 
-        // Fetch services provided by those vendors along with their prices
-        $services = Service::with(['vendors' => function ($query) use ($vendorIds) {
-            $query->whereIn('vendors.id', $vendorIds)->select('service_vendor.price');
-        }])
-        ->whereHas('vendors', function ($query) use ($vendorIds) {
-            $query->whereIn('vendors.id', $vendorIds);
-        })->get();
+        // // Fetch services provided by those vendors along with their prices
+        // $services = Service::with(['vendors' => function ($query) use ($vendorIds) {
+        //     $query->whereIn('vendors.id', $vendorIds)->select('service_vendor.price');
+        // }])
+        // ->whereHas('vendors', function ($query) use ($vendorIds) {
+        //     $query->whereIn('vendors.id', $vendorIds);
+        // })->get();
 
-        return ServiceResource::collection($services);
+        // New code
+        $result = $service->where(['active' => 1, 'type' => 'inhouse'])->get();
+        return ServiceResource::collection($result);
     }
 
     // Book a service
@@ -47,7 +54,7 @@ class ServiceController extends Controller
             return (new CustomResponseResource([
                 'title' => 'Booking Error',
                 'message' => 'The service is already booked by you for the specified date and time.',
-                'errorCode' => 400,
+                'code' => 400,
             ]))->response()->setStatusCode(400);
         }
 
@@ -65,7 +72,22 @@ class ServiceController extends Controller
         return new CustomResponseResource([
             'title' => 'Booking Successful',
             'message' => 'Service booking has been successfully created.',
-            'errorCode' => 200,
+            'code' => 200,
         ]);
+    }
+
+    // Import Services
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:xlsx',
+        ]);
+
+
+        $servicesImport = new ServicesImport;
+
+        Excel::import($servicesImport, $request->file('file'));
+
+        return response()->json(['message' => 'Services imported successfully']);
     }
 }

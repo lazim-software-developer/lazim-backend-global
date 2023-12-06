@@ -15,7 +15,7 @@ class FacilityController extends Controller
 {
     public function index(Building $building)
     {
-        $facilities = $building->facilities;
+        $facilities = $building->facilities->where('active',true);
         return FacilityResource::collection($facilities);
     }
 
@@ -49,7 +49,7 @@ class FacilityController extends Controller
             return (new CustomResponseResource([
                 'title' => 'Booking Error',
                 'message' => 'The facility is already booked for the specified time range.',
-                'errorCode' => 400,
+                'code' => 400,
             ]))->response()->setStatusCode(400);
         }
 
@@ -67,7 +67,7 @@ class FacilityController extends Controller
         return new CustomResponseResource([
             'title' => 'Booking Successful',
             'message' => 'Facility booking has been successfully created.',
-            'errorCode' => 200,
+            'code' => 200,
         ]);
     }
 

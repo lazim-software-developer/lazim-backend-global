@@ -1,10 +1,15 @@
 <?php
 
+use App\Filament\Resources\LedgersResource\Pages\ListReceipts;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Master\PDFController;
 use App\Models\Vendor\Vendor;
 use App\Livewire\VendorRegistration;
+use App\Filament\Pages\BudgetListing;
+use App\Filament\Pages\OAM\CreateTender;
+use App\Http\Controllers\Vendor\MasterController;
+use Filament\Pages\Page;
 
 /*
 |--------------------------------------------------------------------------
@@ -37,3 +42,15 @@ Route::get('service-charge/{saleNOC}/generate-pdf/', [PDFController::class, 'ser
 // // ROutes for PDF links
 // Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active'])->group(function () {
 // });
+
+Route::post('/get-vendors-based-on-services', [MasterController::class, 'getVendorsBasedOnServices'])->name('vendors.based.on.services');
+
+// Filament resources
+Route::get('/filament/budget-listing/{building}', [BudgetListing::class, 'mount'])
+    ->name('filament.pages.budget-listing');
+
+Route::post('admin/{budget}/tender/create', [CreateTender::class, 'store'])->name('tender.create');
+
+// Route::get('/admin/ledgers/{invoice}/receipts', function () {
+//     return redirect()->to('/admin/ledgers/{invoice}/receipts');
+// })->name('admin.ledgers.receipts');

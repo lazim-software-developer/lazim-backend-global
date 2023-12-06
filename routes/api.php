@@ -1,7 +1,16 @@
 <?php
 
+use App\Http\Controllers\Assets\PPMController;
 use App\Http\Controllers\MollakController;
+use App\Http\Controllers\Technician\TechnicianController;
 use App\Http\Controllers\TestController;
+use App\Http\Controllers\Vendor\ContractController;
+use App\Http\Controllers\Vendor\DocumentsUploadController;
+use App\Http\Controllers\Vendor\EscalationMatrixController;
+use App\Http\Controllers\Vendor\SelectServicesController;
+use App\Http\Controllers\Vendor\SnagDashboardController;
+use App\Http\Controllers\Vendor\VendorComplaintController;
+use App\Http\Controllers\Vendor\VendorRegistrationController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\Auth\AuthController;
@@ -9,6 +18,7 @@ use App\Http\Controllers\Api\Auth\ResetPasswordController;
 use App\Http\Controllers\Api\Auth\RegistrationController;
 use App\Http\Controllers\Api\Auth\VerificationController;
 use App\Http\Controllers\AppFeedbackController;
+use App\Http\Controllers\Assets\AssetController;
 use App\Http\Controllers\Building\BuildingController;
 use App\Http\Controllers\Building\FlatController;
 use App\Http\Controllers\Community\CommentController;
@@ -26,8 +36,14 @@ use App\Http\Controllers\HelpDesk\ComplaintController;
 use App\Http\Controllers\Security\SecurityController;
 use App\Http\Controllers\Services\ServiceController;
 use App\Http\Controllers\TagController;
+use App\Http\Controllers\Technician\BuildingController as TechnicianBuildingController;
+use App\Http\Controllers\Technician\TasksController;
 use App\Http\Controllers\User\ProfileController;
 use App\Http\Controllers\User\UserController;
+use App\Http\Controllers\Vendor\InvoiceController;
+use App\Http\Controllers\Vendor\TenderController;
+use App\Http\Controllers\Vendor\WDAController;
+use App\Http\Controllers\Vendor\VendorBuildingController;
 
 /*
 |--------------------------------------------------------------------------
@@ -157,7 +173,6 @@ Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active']
     // Book a facility
     Route::post('buildings/{building}/book/facility', [FacilityController::class, 'bookFacility'])->name('facility.book');
 
-
     // My bookings API - List all bookings for logged in user
     Route::get('building/{building}/user-bookings', [FacilityController::class, 'userBookings']);
 });
@@ -174,6 +189,9 @@ Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active']
 
     // Complaint details API
     Route::get('complaints/{complaint}', [ComplaintController::class, 'show']);
+
+    //Complaint Update API
+    Route::patch('complaints/{complaint}/update', [ComplaintController::class,'update']);
 
     // Add a comment for a complaint
     Route::post('complaints/{complaint}/comments', [CommentController::class, 'addComment']);
@@ -256,5 +274,110 @@ Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active']
     Route::post('/feedback', [AppFeedbackController::class, 'store']);
 });
 
-// Test API for Mollak
-Route::get('/test-api', [MollakController::class, 'test']);
+// API for master list
+Route::middleware(['api.token'])->group(function () {
+    Route::get('/sub-categories/{subcategory}/services', [SelectServicesController::class, 'listServices']);
+    Route::get('/sub-categories',[SelectServicesController::class, 'listSubCategories']);
+});
+
+// Vendor APIs
+Route::middleware(['api.token'])->prefix('vendor')->group(function () {
+    Route::post('/registration', [VendorRegistrationController::class, 'registration']);
+    Route::post('/company-detail', [VendorRegistrationController::class, 'companyDetails']);
+    Route::post('/managers/{vendor}', [VendorRegistrationController::class, 'managerDetails']);
+    // Add a new custom service and attch to vendor
+    Route::post('/add-service/{vendor}', [SelectServicesController::class, 'addService']);
+    // Attcah existing service to vendor
+    Route::post('/{vendor}/tag-services', [SelectServicesController::class, 'tagServices']);
+    Route::post('/{vendor}/documents-upload', [DocumentsUploadController::class, 'documentsUpload']);
+});
+
+// Vendor APIs after logging in
+Route::middleware(['auth:sanctum', 'active'])->prefix('vendor')->group(function () {
+    // List vendor details of logged in user
+    Route::get('/details', [VendorRegistrationController::class, 'showVendorDetails']);
+    Route::get('/{vendor}/view-manager', [VendorRegistrationController::class, 'showManagerDetails']);
+    Route::get('/{vendor}/services', [SelectServicesController::class, 'showServices']);
+    Route::get('/{vendor}/show-documents', [DocumentsUploadController::class, 'showDocuments']);
+    Route::post('/{vendor}/escalation-matrix', [EscalationMatrixController::class, 'store']);
+    Route::get('/{vendor}/escalation-matrix', [EscalationMatrixController::class, 'show']);
+    Route::post('/escalation-matrix/{escalationmatrix}/delete', [EscalationMatrixController::class, 'delete']);
+    Route::get('/{vendor}/tickets',[VendorComplaintController::class, 'listComplaints']);
+    Route::post('/vendor-comment/{complaint}',[VendorComplaintController::class, 'addComment']);
+    Route::get('/list-buildings/{vendor}',[VendorBuildingController::class,'listBuildings']);
+    Route::get('/{vendor}/contracts',[ContractController::class,'index']);
+
+    //Dashboard Snags
+    Route::get('/dashboard-snag-stats/{vendor}',[SnagDashboardController::class,'tasks']);
+
+    // Invoice create API
+    Route::post('/{vendor}/create-invoice',[InvoiceController::class, 'store']);
+
+    // WDA create API
+    Route::post('/{vendor}/create-wda', [WDAController::class, 'store']);
+
+    // List all WDAs
+    Route::get('/{vendor}/wda', [WDAController::class, 'index']);
+
+    // List invoices status
+    Route::get('/{vendor}/invocies', [InvoiceController::class, 'index']);
+
+    //List invoices
+    Route::get('/invoices/{vendor}', [InvoiceController::class, 'listInvoice']);
+
+    //Show Invoice
+    Route::get('/invoice/{invoice}',[InvoiceController::class,'show']);
+
+    // Edit Invoice
+    Route::post('/invoice/{invoice}',[InvoiceController::class,'edit']);
+
+    // Invoice dashboard
+    Route::get('/dashboard-invoice-stats/{vendor}',[InvoiceController::class,'stats']);
+
+    // Show WDA
+    Route::get('/wda/{wda}',[WDAController::class, 'show']);
+
+    //Edit WDA
+    Route::post('/wda/{wda}',[WDAController::class, 'edit']);
+
+    //Escalation Matrix exists
+    Route::get('/{vendor}/check-escalation-matrix', [EscalationMatrixController::class, 'exists']);
+
+    // List all tenders
+    Route::get('/tenders', [TenderController::class, 'index']);
+    Route::post('/tenders/{tender}', [TenderController::class, 'store']);
+});
+
+// Technician Related APIs
+Route::middleware(['auth:sanctum', 'active'])->prefix('technician')->group(function () {
+    // Registration
+    Route::post('/registration', [TechnicianController::class, 'registration']);
+    // List all buildings for logged in technician
+    Route::get('/buildings', [TechnicianBuildingController::class, 'index']);
+    Route::get('/tasks', [TasksController::class, 'index']);
+    //List all technicians for a service
+    Route::get('/{service}/technicians/{vendor}',[TechnicianController::class, 'index']);
+    Route::patch('/active-deactive/{technician}',[TechnicianController::class, 'activeDeactive']);
+    Route::post('/attach-technician/{technician}',[TechnicianController::class, 'attachTechnician']);
+    Route::post('/assign-technician/{complaint}',[TechnicianController::class, 'assignTechnician']);
+});
+
+// Assets related APIs
+Route::middleware(['auth:sanctum', 'active'])->prefix('assets')->group(function () {
+    // List all assets for the technicians
+    Route::get('/technican/assets',[AssetController::class, 'index']);
+    Route::post('/maintenance',[AssetController::class, 'store']);
+    Route::post('/maintenance/{assetMaintenance}/update-before',[AssetController::class, 'updateBefore']);
+    Route::post('/maintenance/{assetMaintenance}/update-after',[AssetController::class, 'updateAfter']);
+
+    //Vendor assets
+    Route::get('/vendor/{vendor}',[AssetController::class, 'listAssets']);
+    Route::post('/attach-asset/{asset}', [AssetController::class, 'attachAsset']);
+    Route::get('/{asset}/technicians',[AssetController::class, 'listTechnicians']);
+
+    //PPM APIs
+    Route::post('/create/ppm',[PPMController::class, 'store']);
+    Route::get('/{vendor}/ppm/',[PPMController::class, 'index']);
+});
+// API to import services
+Route::post('/import-services', [ServiceController::class, 'import']);
