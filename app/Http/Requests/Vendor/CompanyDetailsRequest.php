@@ -25,7 +25,7 @@ class CompanyDetailsRequest extends FormRequest
     {
         return [
             'owner_id'        =>    'required|integer|exists:users,id',
-            'address_line_1'  =>    'required|string',
+            'address_line_1'  =>    'required|string|unique:vendors,address_line_1',
             'address_line_2'  =>    'nullable|string',
             'landline_number' =>    'required|string|unique:vendors,landline_number',
             'website'         =>    'nullable|url',
