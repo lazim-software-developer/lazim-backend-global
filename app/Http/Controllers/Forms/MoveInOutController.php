@@ -53,13 +53,23 @@ class MoveInOutController extends Controller
         $expoPushTokens = ExpoPushNotification::where('user_id', $moveInOut->user_id)->pluck('token');
         if ($expoPushTokens->count() > 0) {
             foreach ($expoPushTokens as $expoPushToken) {
-                $message = [
-                    'to' => $expoPushToken,
-                    'sound' => 'default',
-                    'title' => 'Request Accepted',
-                    'body' => 'New MoveIn/MoveOut created by ' . auth()->user()->first_name,
-                    'data' => ['notificationType' => 'app_notification'],
-                ];
+                if ($moveInOut->type == 'move-in') {
+                    $message = [
+                        'to' => $expoPushToken,
+                        'sound' => 'default',
+                        'title' => 'New MoveIn',
+                        'body' => 'New MoveIn created by ' . auth()->user()->first_name,
+                        'data' => ['notificationType' => 'app_notification'],
+                    ];
+                } else {
+                    $message = [
+                        'to' => $expoPushToken,
+                        'sound' => 'default',
+                        'title' => 'New MoveOut',
+                        'body' => 'New MoveOut created by ' . auth()->user()->first_name,
+                        'data' => ['notificationType' => 'app_notification'],
+                    ];
+                }
                 $this->expoNotification($message);
             }
         }
