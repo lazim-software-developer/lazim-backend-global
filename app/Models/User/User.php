@@ -32,6 +32,7 @@ use App\Models\Building\BuildingPoc;
 use Filament\Models\Contracts\HasName;
 use Laravel\Jetstream\HasProfilePhoto;
 use App\Models\Building\FacilityBooking;
+use App\Models\ExpoPushNotification;
 use App\Models\TechnicianAssets;
 use Illuminate\Notifications\Notifiable;
 use Filament\Models\Contracts\FilamentUser;
@@ -269,5 +270,10 @@ class User extends Authenticatable implements FilamentUser, HasName
     public function assignees()
     {
         return $this->hasMany(Complaint::class,'technician_id');
+    }
+
+    public function expoNotification()
+    {
+        return $this->hasOne(ExpoPushNotification::class);
     }
 }

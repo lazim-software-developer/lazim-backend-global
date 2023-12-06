@@ -69,6 +69,9 @@ Route::post('/verify-otp', [VerificationController::class, 'verify']);
 // Set password
 Route::post('/set-password', [AuthController::class, 'setPassword']);
 
+//expo
+Route::post('/expo', [AuthController::class, 'expo'])->middleware('auth:sanctum');
+
 // These APIs work only if the user's account is active
 Route::middleware(['active'])->group(function () {
     // Login routes for mobile app
