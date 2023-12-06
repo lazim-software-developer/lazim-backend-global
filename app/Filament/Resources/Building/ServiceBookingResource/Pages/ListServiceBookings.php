@@ -16,9 +16,9 @@ class ListServiceBookings extends ListRecords
         $buildings = Building::all()->where('owner_association_id',auth()->user()->owner_association_id)->pluck('id')->toArray();
         if(auth()->user()->id != 1) 
         {
-            return parent::getTableQuery()->where('bookable_type','App\Models\Master\Facility')->whereIn('building_id',$buildings);
+            return parent::getTableQuery()->where('bookable_type','App\Models\Master\Service')->whereIn('building_id',$buildings);
         }
-        return parent::getTableQuery()->where('bookable_type','App\Models\Master\Facility');
+        return parent::getTableQuery()->where('bookable_type','App\Models\Master\Service');
     }
     protected function getHeaderActions(): array
     {
