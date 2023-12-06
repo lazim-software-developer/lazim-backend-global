@@ -90,7 +90,7 @@ class ComplaintController extends Controller
 
         $service_id = $request->category ?? null;
         
-        $vendorIds = Vendor::where('owner_association_id',auth()->user()->owner_association_id)->pluck('id');
+
         // Fetch vendor id who is having an active contract for the given service in the building
         $vendor = ServiceVendor::where([
             'building_id' => $building->id, 'service_id' => $service_id, 'active' => 1
@@ -146,15 +146,13 @@ class ComplaintController extends Controller
                                  ->where('service_id', $serviceId)
                                  ->pluck('technician_vendor_id');
 
-        // $vendorIds = Vendor::where('owner_association_id',auth()->user()->owner_association_id)->pluck('id');
+        $vendorIds = Vendor::where('owner_association_id',auth()->user()->owner_association_id)->pluck('id');
 
         // Fetch technicians who are active and match the service
         $technicianIds = TechnicianVendor::whereIn('id', $technicianVendorIds)
                                       ->where('active', true)->whereIn('vendor_id',$vendorIds)
-                                    //   ->join('vendors', 'vendors.id', '=', 'vendor_id')
-                                    //   ->where('vendors.owner_association_id', $building->owner_association_id )
                                       ->pluck('technician_id');
-
+        
         $assignees = User::whereIn('id',$technicianIds)
                             ->withCount(['assignees' => function ($query) {
                                     $query->where('status', 'open');
@@ -162,7 +160,7 @@ class ComplaintController extends Controller
                                 ->orderBy('assignees_count', 'asc')
                                 ->get();
         $selectedTechnician = $assignees->first();
-
+        
         if ($selectedTechnician) {
             $complaint->technician_id = $selectedTechnician->id;
             $complaint->save();
