@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Community;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Community\CreatePostRequest;
 use App\Models\Community\Post;
+use App\Traits\UtilsTrait;
 use App\Http\Resources\Community\PostResource;
 use App\Http\Resources\CustomResponseResource;
 use App\Models\Building\Building;
@@ -14,6 +15,7 @@ use Illuminate\Http\Request;
 
 class PostController extends Controller
 {
+    use UtilsTrait;
     /**
      * Display a listing of the posts for a specific building.
      *
@@ -84,7 +86,7 @@ class PostController extends Controller
                 $message = [
                     'to' => $expoPushToken,
                     'sound' => 'default',
-                    'title' => 'Request Accepted',
+                    'title' => 'New post',
                     'body' => 'New post has been created by ' . auth()->user()->first_name,
                     'data' => ['notificationType' => 'app_notification'],
                 ];
