@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Forms\CreateFormRequest;
 use App\Http\Resources\CustomResponseResource;
 use App\Models\Building\Building;
+use App\Models\ExpoPushNotification;
 use App\Models\Forms\MoveInOut;
 
 class MoveInOutController extends Controller
@@ -46,8 +47,22 @@ class MoveInOutController extends Controller
         $data['email']= auth()->user()->email;
         $data['user_id']= auth()->user()->id;
         $data['owner_association_id']= $ownerAssociationId;
-        
-        MoveInOut::create($data);
+
+        $moveInOut = MoveInOut::create($data);
+
+        $expoPushTokens = ExpoPushNotification::where('user_id', $moveInOut->user_id)->pluck('token');
+        if ($expoPushTokens->count() > 0) {
+            foreach ($expoPushTokens as $expoPushToken) {
+                $message = [
+                    'to' => $expoPushToken,
+                    'sound' => 'default',
+                    'title' => 'Request Accepted',
+                    'body' => 'New MoveIn/MoveOut created by ' . auth()->user()->first_name,
+                    'data' => ['notificationType' => 'app_notification'],
+                ];
+                $this->expoNotification($message);
+            }
+        }
 
         return (new CustomResponseResource([
             'title' => 'Success',
