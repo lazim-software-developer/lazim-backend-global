@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Hash;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\SetPasswordRequest;
 use App\Http\Resources\CustomResponseResource;
+use App\Models\ExpoPushNotification;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Str;
 use Illuminate\Support\Carbon;
@@ -186,5 +187,31 @@ class AuthController extends Controller
             'code' => 200,
             'status' => 'success'
         ]))->response()->setStatusCode(200);
+    }
+
+    public function expo(Request $request)
+    {
+        if ($request->has('status') && $request->status == 'login') {
+            $expo = ExpoPushNotification::where('token', $request->token)->first();
+
+            if (!$expo) {
+                ExpoPushNotification::create([
+                    'user_id' => auth()->user()->id,
+                    'token'   => $request->token,
+                ]);
+
+                return response()->json([
+                    'message' => 'Token saved successfully.',
+                ]);
+            }
+        }
+
+        if ($request->has('status') && $request->status == 'logout') {
+            ExpoPushNotification::where('token', $request->token)->delete();
+
+            return response()->json([
+                'message' => 'Token deleted successfully.',
+            ]);
+        }
     }
 }
