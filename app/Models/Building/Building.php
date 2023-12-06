@@ -2,7 +2,13 @@
 
 namespace App\Models\Building;
 
+use App\Models\Accounting\Budget;
+use App\Models\Accounting\Invoice;
+use App\Models\Accounting\OAMInvoice;
+use App\Models\Accounting\WDA;
+use App\Models\Asset;
 use App\Models\Community\Post;
+use App\Models\CoolingAccount;
 use App\Models\Forms\AccessCard;
 use App\Models\Forms\Guest;
 use App\Models\Forms\SaleNOC;
@@ -21,6 +27,8 @@ use App\Models\Building\BuildingPoc;
 use App\Models\Forms\FitOutForm;
 use App\Models\Forms\MoveInOut;
 use App\Models\Vendor\Contact;
+use App\Models\Vendor\Contract;
+use App\Models\Vendor\PPM;
 use App\Models\Vendor\Vendor;
 use App\Models\Visitor\FlatDomesticHelp;
 use App\Models\Visitor\FlatVisitor;
@@ -42,14 +50,15 @@ class Building extends Model
         'lng',
         'description',
         'floors',
-        'owner_association_id',
-        'allow_postupload'
+        'owner_association_id'
+    ];
+
+    protected $casts = [
+        'allow_postupload' => 'boolean'
     ];
 
     protected $searchableFields = ['*'];
-    protected $casts = [
-        'allow_postupload'         => 'boolean',
-    ];
+    
     public function cities()
     {
         return $this->belongsTo(City::class, 'city_id');
@@ -81,10 +90,6 @@ class Building extends Model
     public function flatTenants()
     {
         return $this->hasMany(FlatTenant::class);
-    }
-    public function services()
-    {
-        return $this->belongsToMany(Service::class, 'building_services', 'building_id', 'service_id');
     }
 
     public function roles()
@@ -159,5 +164,47 @@ class Building extends Model
     public function accesscards()
     {
         return $this->hasMany(AccessCard::class);
+    }
+
+    // OAM accounting 
+    // Define a one-to-many relationship with Budget
+    public function budgets()
+    {
+        return $this->hasMany(Budget::class);
+    }
+
+    public function services()
+    {
+        return $this->belongsToMany(Service::class, 'building_service');
+    }
+    public function contracts()
+    {
+        return $this->hasMany(Contract::class,'contracts');
+    }
+    public function invoices()
+    {
+        return $this->hasMany(Invoice::class);
+    }
+    public function wdas()
+    {
+        return $this->hasMany(WDA::class);
+    }
+    public function assets()
+    {
+        return $this->hasMany(Asset::class);
+    }
+
+    public function ppms()
+    {
+        return $this->hasMany(PPM::class);
+    }
+    public function oaminvoices()
+    {
+        return $this->hasMany(OAMInvoice::class);
+    }
+
+    public function coolingAccounts()
+    {
+        return $this->hasMany(CoolingAccount::class);
     }
 }

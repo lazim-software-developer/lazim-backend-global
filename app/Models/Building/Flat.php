@@ -2,20 +2,22 @@
 
 namespace App\Models\Building;
 
+use App\Models\CoolingAccount;
+use App\Models\User\User;
+use App\Models\Forms\Guest;
+use App\Models\MollakTenant;
+use App\Models\Forms\SaleNOC;
 use App\Models\ApartmentOwner;
-use App\Models\Building\Building;
-use App\Models\Building\FlatTenant;
 use App\Models\Forms\AccessCard;
 use App\Models\Forms\FitOutForm;
-use App\Models\Forms\Guest;
-use App\Models\Forms\SaleNOC;
-use App\Models\MollakTenant;
-use App\Models\OaUserRegistration;
+use App\Models\Building\Building;
 use App\Models\Scopes\Searchable;
-use App\Models\User\User;
-use App\Models\Visitor\FlatDomesticHelp;
+use App\Models\OaUserRegistration;
+use App\Models\Building\FlatTenant;
 use App\Models\Visitor\FlatVisitor;
+use App\Models\Accounting\OAMInvoice;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Visitor\FlatDomesticHelp;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Flat extends Model
@@ -58,7 +60,7 @@ class Flat extends Model
     }
 
     public function owners() {
-        return $this->belongsToMany(ApartmentOwner::class, 'flat_owner', 'flat_id', 'owner_id');
+        return $this->belongsToMany(ApartmentOwner::class, 'flat_owner', 'flat_id', 'owner_id')->where('active', 1);
     }
     public function documents()
     {
@@ -86,5 +88,14 @@ class Flat extends Model
     public function saleNoc()
     {
         return $this->hasMany(SaleNOC::class);
+    }
+    public function oaminvoices()
+    {
+        return $this->hasMany(OAMInvoice::class);
+    }
+
+    public function coolingAccounts()
+    {
+        return $this->hasMany(CoolingAccount::class);
     }
 }

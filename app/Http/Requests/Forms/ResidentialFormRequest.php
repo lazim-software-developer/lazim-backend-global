@@ -45,9 +45,9 @@ class ResidentialFormRequest extends FormRequest
     public function messages()
     {
         return [
-            'passport_url' => 'The uploaded image must be less than 2MB.',
-            'emirates_url' => 'The uploaded image must be less than 2MB.',
-            'title_deed_url' => 'The uploaded image must be less than 2MB.',
+            'passport_url.max' => 'The uploaded image must be less than 2MB.',
+            'emirates_url.max' => 'The uploaded image must be less than 2MB.',
+            'title_deed_url.max' => 'The uploaded image must be less than 2MB.',
         ];
     }
 }

@@ -48,4 +48,16 @@ class SaleNocRequest extends FormRequest
             'signing_authority_name' => 'required',
         ];
     }
+
+    public function messages()
+    {
+        return [
+            'contacts.*.type' => 'Please enter a valid Type.',
+            "email"=> "Please enter a valid email.",
+            "mobile"=> "Please enter a valid phone number.",
+            "contacts.*.emirates_document_url"=> 'Please upload an emirates document',
+            "contacts.*.visa_document_url"=> 'Please upload a visa document',
+            "contacts.*.passport_document_url"=> 'Please upload a passport document'
+        ];
+    }
 }

@@ -10,6 +10,7 @@
     "require": {
         "php": "^8.1",
         "barryvdh/laravel-dompdf": "^2.0",
+        "coolsam/flatpickr": "^3.0",
         "eightynine/filament-excel-import": "^3.0",
         "filament/filament": "3.0-stable",
         "filament/notifications": "3.0-stable",
@@ -23,10 +24,12 @@
         "league/flysystem-aws-s3-v3": "3.0",
         "livewire/livewire": "^3.0",
         "maatwebsite/excel": "^3.1",
+        "malzariey/filament-daterangepicker-filter": "^2.3",
         "nyholm/psr7": "^1.8",
         "pxlrbt/filament-excel": "^2.1",
         "railsware/mailtrap-php": "^1.7",
         "rap2hpoutre/fast-excel": "^5.3",
+        "simplesoftwareio/simple-qrcode": "^4.2",
         "snowfire/beautymail": "^1.1",
         "spatie/laravel-sluggable": "^3.5",
         "symfony/http-client": "^6.3"

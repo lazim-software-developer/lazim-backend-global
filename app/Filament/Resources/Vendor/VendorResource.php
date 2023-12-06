@@ -3,20 +3,30 @@
 namespace App\Filament\Resources\Vendor;
 
 use App\Filament\Resources\Vendor\VendorResource\Pages;
+use App\Jobs\AccountCreationJob;
+use App\Jobs\VendorAccountCreationJob;
+use App\Jobs\VendorRejectionJob;
 use App\Models\User\User;
 use App\Models\Vendor\Vendor;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Actions\Action;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
+use Filament\Tables\Columns\ViewColumn;
 
 class VendorResource extends Resource
 {
@@ -35,32 +45,23 @@ class VendorResource extends Resource
                     'md' => 1,
                     'lg' => 2,
                 ])->schema([
-                    TextInput::make('name')
-                        ->required()
-                        ->placeholder('Name'),
-                    TextInput::make('email')
-                        ->required()
-                        ->placeholder('Email'),
-                    TextInput::make('phone')
-                        ->required()
-                        ->placeholder('Phone'),
+                   
                     Hidden::make('owner_association_id')
                         ->default(auth()->user()->owner_association_id),
-                    Select::make('owner_id')->label('Manager Name')
+                    Select::make('owner_id')
+                        ->label('Vendor Name')
                         ->rules(['exists:users,id'])
                         ->required()
+                        ->disabled()
                         ->preload()
                         ->relationship('user', 'first_name')
                         ->searchable()
-                        ->getSearchResultsUsing(fn (string $search): array => User::where('role_id', 1, "%{$search}%")->limit(50)->pluck('first_name', 'id')->toArray())
+                        ->getSearchResultsUsing(fn (string $search): array => User::where('role_id', 2, "%{$search}%")->limit(50)->pluck('first_name', 'id')->toArray())
                         ->getOptionLabelUsing(fn ($value): ?string => User::find($value)?->first_name)
-                        ->placeholder('Manager Name'),
-                    TextInput::make('manager_email')->label('Manager Email')
-                        ->placeholder('Manager Email'),
-                    TextInput::make('manager_phone')->label('Manager Phone')
-                        ->placeholder('Manager Phone'),
+                        ->placeholder('Vendor Name'),
                     TextInput::make('tl_number')->label('Trade Lisence Number')
                         ->rules(['max:50', 'string'])
+                        ->disabled()
                         ->required()
                         ->unique(
                             'vendors',
@@ -72,101 +73,36 @@ class VendorResource extends Resource
                     DatePicker::make('tl_expiry')
                         ->label('Trade Licence Expiry')
                         ->rules(['date'])
+                        ->disabled()
                         ->required()
                         ->placeholder('Trade Lisence Expiry'),
-                    Select::make('owner_id')
-                        ->label('Manager Name')
-                        ->rules(['exists:users,id'])
-                        ->required()
-                        ->relationship('user', 'first_name')
-                        ->searchable()
-                        ->preload()
-                        // ->getSearchResultsUsing(fn(string $search): array=> User::where('role_id', 1, "%{$search}%")->limit(50)->pluck('first_name', 'id')->toArray())
-                        // ->getOptionLabelUsing(fn($value): ?string => User::find($value)?->first_name)
-                        ->placeholder('Manager Name'),
-
-                    TextInput::make('manager_email')
-                        ->label('Manager Email')
-                        ->placeholder('Manager Email'),
-                    TextInput::make('email')
-                        // ->required()
-                        ->placeholder('Email'),
-                    TextInput::make('phone')
-                        // ->required()
-                        ->placeholder('Phone'),
-                    TextInput::make('manager_phone')
-                        ->label('Manager Phone')
-                        ->placeholder('Manager Phone'),
-
-                    Select::make('service')
-                        ->label('Enter Service Details')
-                        ->options([
-                            'cleaning service'      => 'Cleaning Service',
-                            'mep service'           => 'MEP Service',
-                            'security'              => 'Security',
-                            'life guard'            => 'Life Guard',
-                            'concierge'             => 'concierge',
-                            'technical services'    => 'Technical Services',
-                            'swimming pool service' => 'Swimming Pool Service',
-                            'pest control'          => 'Pest Control',
-                            'gym'                   => 'GYM',
-                            'chiller'               => 'Chiller',
-                            'water tank cleaning'   => 'Water Tank Cleaning',
-                            'fire system'           => 'Fire System',
-                            'other'                 => 'Other',
-                        ])
-                        ->live(),
-                        // ->required(),
-
-                    TextInput::make('other')
-                        ->label('Other service Details')
-                        ->required()
-                        ->hidden(fn (Get $get) => $get('service') != 'other'),
-                    FileUpload::make('tl_document')->label('TL Document')
-                        ->required()
-                        ->preserveFilenames()
-                        ->downloadable(true)
-                        ->previewable()
-                        ->disk('s3'),
-
-                    FileUpload::make('trn_certificate')
-                        ->label('TRN Certificate')
-                        // ->required()
-                        ->preserveFilenames()
-                        ->downloadable(true)
-                        ->previewable()
-                        ->disk('s3'),
-
-                    FileUpload::make('third_party_certificate')
-                        ->label('Third Party Liability Certificate')
-                        // ->required()
-                        ->preserveFilenames()
-                        ->downloadable(true)
-                        ->previewable()
-                        ->disk('s3'),
-
-                    FileUpload::make('risk_assessment')
-                        ->label('Risk Assessment')
-                        // ->required()
-                        ->preserveFilenames()
-                        ->downloadable(true)
-                        ->previewable()
-                        ->disk('s3'),
-
-                    FileUpload::make('safety_policy')
-                        ->label('Safety Policy')
-                        ->preserveFilenames()
-                        ->downloadable(true)
-                        ->previewable()
-                        ->disk('s3'),
-
-                    FileUpload::make('bank_details')
-                        ->label('Bank Details On Company Letter Head With Stamp')
-                        ->disk('s3'),
-
-                    FileUpload::make('authority_approval')
-                        ->label('Authority Approval')
-                        ->disk('s3'),
+                    TextInput::make('status')
+                        ->label('Status')
+                        ->disabled(),
+                    TextInput::make('remarks')
+                        ->placeholder('NA')
+                        ->disabled()
+                        ->label('Remarks'),
+                    TextInput::make('address_line_1')
+                        ->placeholder('NA')
+                        ->disabled()
+                        ->label('Address Line 1'),
+                    TextInput::make('address_line_2')
+                        ->placeholder('NA')
+                        ->disabled()
+                        ->label('Address Line 2'),
+                    TextInput::make('landline_number')
+                        ->placeholder('NA')
+                        ->disabled()
+                        ->label('Landline Number'),
+                    TextInput::make('website')
+                        ->placeholder('NA')
+                        ->disabled()
+                        ->label('Website'),
+                    TextInput::make('fax')
+                        ->placeholder('NA')
+                        ->disabled()
+                        ->label('Fax'),
 
                 ]),
             ]);
@@ -177,23 +113,25 @@ class VendorResource extends Resource
         return $table
             ->poll('60s')
             ->columns([
-                Tables\Columns\TextColumn::make('name')
-                    ->toggleable()
-                    ->searchable()
-                    ->default('NA')
-                    ->limit(50),
                 Tables\Columns\TextColumn::make('user.first_name')
-                    ->toggleable()
-                    ->default('NA')
-                    ->limit(50),
-                Tables\Columns\TextColumn::make('tl_number')
-                    ->toggleable()
                     ->searchable()
                     ->default('NA')
-                    ->limit(50),
-                Tables\Columns\TextColumn::make('tl_expiry')
-                    ->toggleable()
-                    ->date(),
+                    ->label('Vendor Name'),
+                Tables\Columns\TextColumn::make('tl_number')
+                    ->searchable()
+                    ->default('NA')
+                    ->label('TL Number'),
+                Tables\Columns\TextColumn::make('status')
+                    ->searchable()
+                    ->default('NA')
+                    ->label('Status'),
+                TextColumn::make('remarks')
+                    ->searchable()
+                    ->default('NA')
+                    ->label('Remarks'),
+                ViewColumn::make('Services')->view('tables.columns.vendor-service'),
+                ViewColumn::make('Documents')->view('tables.columns.vendordocument'),
+                ViewColumn::make('Managers')->view('tables.columns.vendormanager'),
 
             ])
             ->defaultSort('created_at', 'desc')
@@ -202,6 +140,54 @@ class VendorResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Action::make('Update Status')
+                ->visible(fn ($record) => $record->status === null && $record->documents()->count() > 0 && $record->services()->count() > 0 && $record->managers()->count() > 0)
+                ->button()
+                ->form([
+                    Select::make('status')
+                        ->options([
+                            'approved' => 'Approved',
+                            'rejected' => 'Rejected',
+                        ])
+                        ->searchable()
+                        ->live(),
+                    TextInput::make('remarks')
+                        ->rules(['max:255'])
+                        ->required()
+                        ->visible(function (callable $get) {
+                            if ($get('status') == 'rejected') {
+                                return true;
+                            }
+                            return false;
+                        }),
+                ])
+                ->fillForm(fn (Vendor $record): array => [
+                    'status' => $record->status,
+                    'remarks' => $record->remarks,
+                ])
+                ->action(function (Vendor $record, array $data): void {
+                    if ($data['status'] == 'rejected') {
+                        $vendor=Vendor::where('id',$record->id)->first();
+                        $user = User::find($vendor->owner_id);
+                        $remarks= $data['remarks'];
+                        VendorRejectionJob::dispatch($user,$remarks);
+                        $record->status = $data['status'];
+                        $record->remarks = $data['remarks'];
+                        $record->save();
+                    }
+                    if ($data['status'] == 'approved') 
+                    {
+                        $vendor=Vendor::where('id',$record->id)->first();
+                        $user = User::find($vendor->owner_id);
+                        $password = Str::random(12);
+                        $user->password = Hash::make($password);
+                        $user->save();
+                        VendorAccountCreationJob::dispatch($user, $password);
+                        $record->status = $data['status'];
+                        $record->save();
+                    }
+                })
+                ->slideOver()
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -209,7 +195,7 @@ class VendorResource extends Resource
                 ]),
             ])
             ->emptyStateActions([
-                Tables\Actions\CreateAction::make(),
+                //Tables\Actions\CreateAction::make(),
             ]);
     }
 
@@ -217,9 +203,17 @@ class VendorResource extends Resource
     {
         return [
             VendorResource\RelationManagers\ServicesRelationManager::class,
-            VendorResource\RelationManagers\UsersRelationManager::class,
-            VendorResource\RelationManagers\ContactsRelationManager::class,
+            // VendorResource\RelationManagers\UsersRelationManager::class,
+            // VendorResource\RelationManagers\ContactsRelationManager::class,
             VendorResource\RelationManagers\DocumentsRelationManager::class,
+            VendorResource\RelationManagers\BuildingsRelationManager::class,
+            VendorResource\RelationManagers\TechnicianVendorsRelationManager::class,
+            VendorResource\RelationManagers\ManagersRelationManager::class,
+            VendorResource\RelationManagers\EscalationMatrixRelationManager::class,
+            VendorResource\RelationManagers\ContractsRelationManager::class,
+            VendorResource\RelationManagers\WdasRelationManager::class,
+            VendorResource\RelationManagers\InvoicesRelationManager::class,
+            VendorResource\RelationManagers\AssetsRelationManager::class,
         ];
     }
 
@@ -227,8 +221,9 @@ class VendorResource extends Resource
     {
         return [
             'index'  => Pages\ListVendors::route('/'),
-            'create' => Pages\CreateVendor::route('/create'),
+            //'create' => Pages\CreateVendor::route('/create'),
             'edit'   => Pages\EditVendor::route('/{record}/edit'),
+            'view' => Pages\ViewVendor::route('/{record}'),
         ];
     }
 }

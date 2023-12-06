@@ -42,17 +42,18 @@ class ServiceBookingsRelationManager extends RelationManager
 
                         Select::make('bookable_id')
                             ->options(
-                                DB::table('facilities')
+                                DB::table('services')
+                                    ->where('type','inhouse')
                                     ->pluck('name', 'id')
                                     ->toArray()
                             )
                             ->searchable()
-                            ->label('Facility')
+                            ->label('Service')
                             ->preload()
-                            ->placeholder('Facility'),
+                            ->placeholder('Service'),
 
                         Hidden::make('bookable_type')
-                            ->default('App\Models\Master\Facility'),
+                            ->default('App\Models\Master\Service'),
 
                         Select::make('user_id')
                             ->rules(['exists:users,id'])

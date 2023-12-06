@@ -96,6 +96,42 @@ class UserDocumentsRelationManager extends RelationManager
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
+                Action::make('Update Status')
+                ->visible(fn ($record) => $record->status === 'submitted')
+                ->button()
+                ->form([
+                    Select::make('status')
+                        ->options([
+                            'approved' => 'Approved',
+                            'rejected' => 'Rejected',
+                        ])
+                        ->searchable()
+                        ->live(),
+                    TextInput::make('remarks')
+                        ->rules(['max:255'])
+                        ->visible(function (callable $get) {
+                            if ($get('status') == 'rejected') {
+                                return true;
+                            }
+                            return false;
+                        })
+                        ->required(),
+                ])
+                ->fillForm(fn (Document $record): array => [
+                    'status' => $record->status,
+                    'remarks' => $record->remarks,
+                ])
+                ->action(function (Document $record, array $data): void {
+                    if ($data['status'] == 'rejected') {
+                        $record->status = $data['status'];
+                        $record->remarks = $data['remarks'];
+                        $record->save();
+                    } else {
+                        $record->status = $data['status'];
+                        $record->save();
+                    }
+                })
+                ->slideOver()
             ]);
     }
 }

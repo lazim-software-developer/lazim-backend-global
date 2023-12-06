@@ -13,6 +13,7 @@ use App\Http\Resources\CustomResponseResource;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Str;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Storage;
 
 class AuthController extends Controller
 {
@@ -32,7 +33,31 @@ class AuthController extends Controller
 
         $user = User::where('email', $request->email)->firstOrFail();
 
-        $allowedRoles = ['OA'];
+        $allowedRoles = ['OA','Vendor', 'Technician','Security'];
+
+        if (!$user || !Hash::check($request->password, $user->password)) {
+            throw ValidationException::withMessages([
+                'email' => ['The provided credentials are incorrect.'],
+            ]);
+        }
+
+        // Check if the user's email and phone number is verified
+
+        if (!$user->email_verified) {
+            return (new CustomResponseResource([
+                'title' => 'Email Verification Required',
+                'message' => 'Email is not verified.',
+                'code' => 403,
+            ]))->response()->setStatusCode(403);
+        }
+
+        if (!$user->phone_verified) {
+            return (new CustomResponseResource([
+                'title' => 'Phone Verification Required',
+                'message' => 'Phone number is not verified.',
+                'code' => 403,
+            ]))->response()->setStatusCode(403);
+        }
 
         if ($user) {
             if (in_array($user->role->name, $allowedRoles)) {
@@ -45,6 +70,7 @@ class AuthController extends Controller
                                 ->where(['tokenable_type' => 'user', 'tokenable_id' => $user->id])->delete();
                         }
                         $token = $user->createToken($user->role->name)->plainTextToken;
+                        $user->profile_photo = $user->profile_photo ? Storage::disk('s3')->url($user->profile_photo) : null;
                         return response(['token' => $token, 'user' => $user], 200);
                     }
                 } else {
@@ -77,7 +103,7 @@ class AuthController extends Controller
         $user = User::where('email', $request->email)->first();
 
         // if (!$user || !Hash::check($request->password, $user->password) || $user->role->name !== $request->role) {
-            if (!$user || !Hash::check($request->password, $user->password)) {
+        if (!$user || !Hash::check($request->password, $user->password)) {
             throw ValidationException::withMessages([
                 'email' => ['The provided credentials are incorrect.'],
             ]);
@@ -89,7 +115,7 @@ class AuthController extends Controller
             return (new CustomResponseResource([
                 'title' => 'Email Verification Required',
                 'message' => 'Email is not verified.',
-                'errorCode' => 403,
+                'code' => 403,
                 'data' => $user
             ]))->response()->setStatusCode(403);
         }
@@ -98,7 +124,7 @@ class AuthController extends Controller
             return (new CustomResponseResource([
                 'title' => 'Phone Verification Required',
                 'message' => 'Phone number is not verified.',
-                'errorCode' => 403,
+                'code' => 403,
                 'data' => $user
             ]))->response()->setStatusCode(403);
         }
@@ -157,7 +183,7 @@ class AuthController extends Controller
         return (new CustomResponseResource([
             'title' => 'Success',
             'message' => 'Password set successfully!',
-            'errorCode' => 200,
+            'code' => 200,
             'status' => 'success'
         ]))->response()->setStatusCode(200);
     }
