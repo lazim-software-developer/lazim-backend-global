@@ -81,19 +81,15 @@ class ProposalResource extends Resource
                         'remarks' => $record->remarks,
                     ])
                     ->action(function (Proposal $record, array $data): void {
-                        $record->status = 'approved';
-                        $record->remarks = $data['remarks'];
-                        $record->status_updated_by = auth()->user()->id;
-                        $record->status_updated_on = now();
-                
+
+
                         $tenderId = Proposal::where('vendor_id', $record->vendor_id)->where('status', null)->first()->tender_id;
-                        // dd($tenderId);
                         $budgetId = Tender::where('id', $tenderId)->first()->budget_id;
-                        $serviceId = Tender::find($tenderId)->first()->service_id;
+                        $serviceId = Tender::find($tenderId)->service_id;
                         $buildingId = DB::table('budgets')->where('id', $budgetId)->pluck('building_id');
                         $budget_from = DB::table('budgets')->where('id', $budgetId)->pluck('budget_from')[0];
                         $budget_to = DB::table('budgets')->where('id', $budgetId)->pluck('budget_to')[0];
-                        $record->save();
+
 
                         $contract = Contract::create([
                             'start_date' => $budget_from,
@@ -122,7 +118,12 @@ class ProposalResource extends Resource
                             'start_date' => $budget_from,
                             'end_date' => $budget_to,
                         ]);
-                        
+                        $record->status = 'approved';
+                        $record->remarks = $data['remarks'];
+                        $record->status_updated_by = auth()->user()->id;
+                        $record->status_updated_on = now();
+                        $record->save();
+
                     })
                     ->slideOver(),
                 Action::make('Reject')

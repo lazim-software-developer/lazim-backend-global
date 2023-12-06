@@ -58,7 +58,7 @@ class DelinquentOwners extends Page
         // Combine the dates into the desired format
         // $lastQuarterPeriod = $lastQuarterStartFormatted . ' To ' . $lastQuarterEndFormatted;
 
-        $lastQuarterPeriod = "01-Jan-2023 To 31-Mar-2023";
+        $lastQuarterPeriod = "01-APR-2023 To 30-JUN-2023";
 
         Log::info("HERREE", [$lastQuarterPeriod]);
 
@@ -107,6 +107,8 @@ class DelinquentOwners extends Page
                 $invoice['lastReceipt'] = $lastReceipt;
             }
         }
+
+        Log::info("HER",  [$lastQuarterInvoices]);
 
         return [
             'data' => $lastQuarterInvoices
