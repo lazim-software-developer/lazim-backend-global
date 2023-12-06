@@ -42,7 +42,7 @@
                                 <div class="absolute bottom-0 left-0 h-px w-screen bg-gray-100"></div>
                             </td>
                             <td class="px-3 py-4 text-sm text-gray-500 sm:table-cell">
-                                {{$category['owner']['name']}}
+                            {{ $category['owner']['name'] ?? 'N/A' }}
                             </td>
                             <td class="px-3 py-4 text-sm text-gray-500 sm:table-cell">
                                 @if($category['lastReceipt'])
