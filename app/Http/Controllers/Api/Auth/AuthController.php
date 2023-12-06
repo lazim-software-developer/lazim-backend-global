@@ -33,7 +33,7 @@ class AuthController extends Controller
 
         $user = User::where('email', $request->email)->firstOrFail();
 
-        $allowedRoles = ['OA','Vendor', 'Technician'];
+        $allowedRoles = ['OA','Vendor', 'Technician','Security'];
 
         if (!$user || !Hash::check($request->password, $user->password)) {
             throw ValidationException::withMessages([
