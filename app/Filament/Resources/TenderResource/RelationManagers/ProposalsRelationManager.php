@@ -94,15 +94,24 @@ class ProposalsRelationManager extends RelationManager
                             'building_id' => $buildingId[0],
                         ]);
 
-                        $servicevendor = ServiceVendor::create([
-                            'service_id' => $serviceId,
-                            'vendor_id' => $record->vendor_id,
-                            'active' => true,
-                            'contract_id' => $contract->id,
-                            'building_id' => $buildingId[0],
-                        ]);
-                        $servicevendor->contract_id = $contract->id;
-                        $servicevendor->save();
+                        $servicefind = ServiceVendor::all()->where('service_id',$serviceId)->where('vendor_id',$record->vendor_id)->first();
+                        if($servicefind)
+                        {
+                            $servicefind->contract_id = $contract->id;
+                            $servicefind->building_id = $buildingId[0];
+                            $servicefind->save();
+                        }
+                        else{
+                            $servicevendor = ServiceVendor::create([
+                                'service_id' => $serviceId,
+                                'vendor_id' => $record->vendor_id,
+                                'active' => true,
+                                'contract_id' => $contract->id,
+                                'building_id' => $buildingId[0],
+                            ]);
+                            $servicevendor->contract_id = $contract->id;
+                            $servicevendor->save();
+                        }
 
                         BuildingVendor::create([
                             'vendor_id' => $record->vendor_id,
