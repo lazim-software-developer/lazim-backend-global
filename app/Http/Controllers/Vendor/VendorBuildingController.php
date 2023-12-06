@@ -11,7 +11,7 @@ class VendorBuildingController extends Controller
     public function listBuildings(Vendor $vendor){
 
         
-        $buildings = $vendor->buildings->where('pivot.active', true)->where('pivot.end_date','>',now()->toDateString());
+        $buildings = $vendor->buildings->where('pivot.active', true)->where('pivot.end_date','>',now()->toDateString())->unique();
 
         return BuildingResource::collection($buildings);
     }
