@@ -232,7 +232,7 @@ class BuildingResource extends Resource
             // BuildingResource\RelationManagers\BudgetRelationManager::class,
             BuildingResource\RelationManagers\BuildingPocsRelationManager::class,
             BuildingResource\RelationManagers\ComplaintsRelationManager::class,
-            // BuildingResource\RelationManagers\ServicesRelationManager::class,
+            BuildingResource\RelationManagers\ServicesRelationManager::class,
             BuildingResource\RelationManagers\ServiceRelationManager::class,
             // BuildingResource\RelationManagers\DocumentsRelationManager::class,
             BuildingResource\RelationManagers\FacilitiesRelationManager::class,

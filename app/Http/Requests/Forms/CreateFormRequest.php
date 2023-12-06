@@ -38,7 +38,7 @@ class CreateFormRequest extends FormRequest
             'gas_registration' => 'required|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
             'vehicle_registration' => 'required|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
             'movers_license' => 'required|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
-            'movers_liability' => 'required|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
+            'movers_liability' => 'nullable|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
         ];
     }
     public function messages()
