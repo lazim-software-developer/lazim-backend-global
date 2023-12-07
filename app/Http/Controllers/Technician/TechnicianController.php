@@ -20,6 +20,7 @@ use App\Models\TechnicianVendor;
 use App\Models\User\User;
 use App\Models\Vendor\Vendor;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
@@ -150,9 +151,10 @@ class TechnicianController extends Controller
         ]))->response()->setStatusCode(200);
     }
 
-    public function listTechnicians(Vendor $vendor)
+    public function listTechnicians(ServiceIdRequest $request, Vendor $vendor)
     {
-        $technicians = TechnicianVendor::where('vendor_id', $vendor->id)->where('active', true)->get();
+        $assigned = DB::table('service_technician_vendor')->where('service_id', $request->service_id)->pluck('technician_vendor_id');
+        $technicians = TechnicianVendor::where('vendor_id', $vendor->id)->where('active', true)->whereNotIn('id',$assigned)->get();
         return ListTechnicianResource::collection($technicians);
     }
 }
