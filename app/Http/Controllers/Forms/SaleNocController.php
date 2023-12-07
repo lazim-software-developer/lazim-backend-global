@@ -56,11 +56,7 @@ class SaleNocController extends Controller
             // }
 
             $contact['noc_form_id'] = $saleNoc->id;
-            $contact['first_name'] = auth()->user()->first_name;
-            $contact['last_name'] = auth()->user()->last_name;
-            $contact['email'] = auth()->user()->email;
-            $contact['mobile'] = auth()->user()->phone;
-            
+
             NocContacts::create($contact);
         }
 
