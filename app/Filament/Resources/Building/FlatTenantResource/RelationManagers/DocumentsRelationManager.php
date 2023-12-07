@@ -16,12 +16,10 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-class DocumentsRelationManager extends RelationManager
-{
+class DocumentsRelationManager extends RelationManager {
     protected static string $relationship = 'documents';
 
-    public function form(Form $form): Form
-    {
+    public function form(Form $form): Form {
         return $form
             ->schema([
                 Grid::make(['default' => 0])->schema([
@@ -37,6 +35,14 @@ class DocumentsRelationManager extends RelationManager
                         ]),
 
                     RichEditor::make('url')
+                        ->disableToolbarButtons([
+                            'codeBlock',
+                            'h2',
+                            'h3',
+                            'attachFiles',
+                            'blockquote',
+                            'strike',
+                        ])
                         ->rules(['max:255', 'string'])
                         ->placeholder('Url')
                         ->columnSpan([
@@ -103,8 +109,7 @@ class DocumentsRelationManager extends RelationManager
             ]);
     }
 
-    public function table(Table $table): Table
-    {
+    public function table(Table $table): Table {
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('documentLibrary.name')->limit(
