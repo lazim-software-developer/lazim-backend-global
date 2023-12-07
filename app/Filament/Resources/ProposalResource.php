@@ -94,7 +94,6 @@ class ProposalResource extends Resource
 
                         $tenderId = Proposal::where('vendor_id', $record->vendor_id)->where('status', null)->first()->tender_id;
                         $tenderAmount = Proposal::where('vendor_id', $record->vendor_id)->where('status', null)->first()->amount;
-                        $tenderDocument = Proposal::where('vendor_id', $record->vendor_id)->where('status', null)->first()->document;
                         $budgetId = Tender::where('id', $tenderId)->first()->budget_id;
                         $serviceId = Tender::find($tenderId)->service_id;
                         $buildingId = DB::table('budgets')->where('id', $budgetId)->pluck('building_id');
@@ -105,7 +104,6 @@ class ProposalResource extends Resource
                         $contract = Contract::create([
                             'start_date' => $budget_from,
                             'amount'=>$tenderAmount,
-                            'document_url'=>$tenderDocument,
                             'end_date' => $budget_to,
                             'contract_type' => $data['contract_type'],
                             'service_id' => $serviceId,
@@ -146,8 +144,7 @@ class ProposalResource extends Resource
                         $record->status_updated_on = now();
                         $record->save();
 
-                    })
-                    ->slideOver(),
+                    }),
                 Action::make('Reject')
                     ->visible(fn($record) => $record->status == null)
                     ->button()
