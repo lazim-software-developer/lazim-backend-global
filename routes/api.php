@@ -277,14 +277,14 @@ Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active']
     Route::post('/feedback', [AppFeedbackController::class, 'store']);
 });
 
-// API for master list
-Route::middleware(['api.token'])->group(function () {
+// API for master list 'api.token' middleware
+Route::middleware([])->group(function () {
     Route::get('/sub-categories/{subcategory}/services', [SelectServicesController::class, 'listServices']);
     Route::get('/sub-categories',[SelectServicesController::class, 'listSubCategories']);
 });
 
-// Vendor APIs
-Route::middleware(['api.token'])->prefix('vendor')->group(function () {
+// Vendor APIs 'api.token' middleware
+Route::middleware([])->prefix('vendor')->group(function () {
     Route::post('/registration', [VendorRegistrationController::class, 'registration']);
     Route::post('/company-detail', [VendorRegistrationController::class, 'companyDetails']);
     Route::post('/managers/{vendor}', [VendorRegistrationController::class, 'managerDetails']);
