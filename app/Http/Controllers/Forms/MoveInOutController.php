@@ -27,15 +27,21 @@ class MoveInOutController extends Controller
             }
         }
 
-        if($UserType == 'Tenant' && $request->type =='move-in'){
-            if(!$request->contract){
-                if(!$request->title_deed ){
-                    return (new CustomResponseResource([
-                        'title' => 'Error',
-                        'message' => 'Upload Tenancy Contract / Ejari File.',
-                        'code' => 400,
-                    ]))->response()->setStatusCode(400);
-                }
+        if($UserType == 'Tenant'){
+            if($request->type =='move-in' && !$request->contract){
+                return (new CustomResponseResource([
+                    'title' => 'Error',
+                    'message' => 'Upload Tenancy Contract / Ejari File.',
+                    'code' => 400,
+                ]))->response()->setStatusCode(400);
+            }
+        } else {
+            if(!$request->noc_landlord ){
+                return (new CustomResponseResource([
+                    'title' => 'Error',
+                    'message' => 'Upload NOC from Landlord File.',
+                    'code' => 400,
+                ]))->response()->setStatusCode(400);
             }
         }
 
@@ -54,6 +60,13 @@ class MoveInOutController extends Controller
             'vehicle_registration',
             'movers_license',
             'movers_liability',
+            'etisalat_final',
+            'dewa_final',
+            'gas_clearance',
+            'cooling_clearance',
+            'gas_final',
+            'cooling_final',
+            'noc_landlord',
         ];
 
 

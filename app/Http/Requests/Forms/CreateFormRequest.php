@@ -39,6 +39,13 @@ class CreateFormRequest extends FormRequest
             'vehicle_registration' => 'nullable|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
             'movers_license' => 'nullable|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
             'movers_liability' => 'nullable|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
+            'etisalat_final'=> 'nullable|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
+            'dewa_final'=> 'required|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
+            'gas_clearance'=> 'required|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
+            'cooling_clearance'=> 'required|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
+            'gas_final'=> 'nullable|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
+            'cooling_final'=> 'nullable|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
+            'noc_landlord'=> 'file|mimes:pdf,jpeg,png,doc,docx|max:2048',
         ];
     }
     public function messages()
