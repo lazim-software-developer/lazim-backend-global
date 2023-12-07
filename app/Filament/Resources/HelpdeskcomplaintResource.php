@@ -19,6 +19,7 @@ use Filament\Forms\Components\Repeater;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ViewColumn;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
@@ -29,8 +30,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\HelpdeskcomplaintResource\Pages;
 use App\Filament\Resources\HelpdeskcomplaintResource\RelationManagers;
 
-class HelpdeskcomplaintResource extends Resource
-{
+class HelpdeskcomplaintResource extends Resource {
     protected static ?string $model = Complaint::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
@@ -38,9 +38,7 @@ class HelpdeskcomplaintResource extends Resource
 
     protected static ?string $navigationGroup = 'Help Desk';
 
-    public static function form(Form $form): Form
-    {
-        // dd($form);
+    public static function form(Form $form): Form {
         return $form
             ->schema([
                 Grid::make([
@@ -49,16 +47,11 @@ class HelpdeskcomplaintResource extends Resource
                     'lg' => 2
                 ])
                     ->schema([
-                        Hidden::make('complaintable_type')
-                            ->default('App\Models\Building\FlatTenant'),
-                        Hidden::make('complaintable_id')
-                            ->default(1),
-                        Hidden::make('owner_association_id')
-                            ->default(auth()->user()->owner_association_id),
                         Select::make('building_id')
                             ->rules(['exists:buildings,id'])
                             ->relationship('building', 'name')
                             ->reactive()
+                            ->disabled()
                             ->preload()
                             ->searchable()
                             ->placeholder('Building'),
@@ -73,30 +66,39 @@ class HelpdeskcomplaintResource extends Resource
                                     ->pluck('users.first_name', 'users.id')
                                     ->toArray();
                             })
+                            ->disabled()
                             ->searchable()
                             ->preload()
                             ->required()
                             ->label('User'),
-                        Select::make('category')
-                            ->options([
-                                'civil' => 'Civil',
-                                'MIP' => 'MIP',
-                                'security' => 'Security',
-                                'cleaning' => 'Cleaning',
-                                'others' => 'Others',
-                            ])
-                            ->rules(['max:50', 'string'])
-                            ->required()
+                        Select::make('vendor_id')
+                            ->relationship('vendor', 'name')
+                            ->preload()
+                            ->disabled()
+                            ->disabled()
                             ->searchable()
-                            ->placeholder('Category'),
-                        TextInput::make('complaint')
-                            ->placeholder('Complaint'),
-                        Hidden::make('status')
-                            ->default('pending'),
-                        Hidden::make('complaint_type')
-                            ->default('help_desk'),
+                            ->label('vendor Name'),
+                        Select::make('flat_id')
+                            ->rules(['exists:flats,id'])
+                            ->required()
+                            ->disabled()
+                            ->relationship('flat', 'property_number')
+                            ->searchable()
+                            ->preload()
+                            ->placeholder('Flat'),
+                        Select::make('technician_id')
+                            ->relationship('technician', 'first_name')
+                            ->preload()
+                            ->searchable()
+                            ->label('Technician Name'),
+                        TextInput::make('priority')
+                            ->numeric(),
+                        DatePicker::make('due_date')
+                            ->rules(['date'])
+                            ->placeholder('Due Date'),
                         Repeater::make('media')
                             ->relationship()
+                            ->disabled()
                             ->schema([
                                 FileUpload::make('url')
                                     ->disk('s3')
@@ -106,11 +108,53 @@ class HelpdeskcomplaintResource extends Resource
                                     ->downloadable(true)
                                     ->label('Media'),
                             ])
+                            ->columnSpan([
+                                'sm' => 1,
+                                'md' => 1,
+                                'lg' => 2
+                            ]),
+                        Select::make('service_id')
+                            ->relationship('service', 'name')
+                            ->preload()
+                            ->disabled()
+                            ->searchable()
+                            ->label('Service'),
+                        TextInput::make('category')->disabled(),
+                        TextInput::make('open_time')->disabled(),
+                        TextInput::make('close_time')->disabled()->default('NA'),
+                        TextInput::make('complaint')
+                            ->disabled()
+                            ->placeholder('Complaint'),
+                        TextInput::make('complaint_details')
+                            ->disabled()
+                            ->placeholder('Complaint Details'),
+                        Select::make('status')
+                            ->options([
+                                'open' => 'Open',
+                                'resolved' => 'Resolved',
+                            ])
+                            ->disabled(function (Complaint $record) {
+                                return $record->status != 'open';
+                            })
+                            ->searchable()
+                            ->live(),
+                        TextInput::make('remarks')
+                            ->rules(['max:255'])
+                            ->visible(function (callable $get) {
+                                if($get('status') == 'resolved') {
+                                    return true;
+                                }
+                                return false;
+                            })
+                            ->disabled(function (Complaint $record) {
+                                return $record->status != 'open';
+                            })
+                            ->required(),
+
                     ])
             ]);
     }
-    public static function table(Table $table): Table
-    {
+    public static function table(Table $table): Table {
         return $table
             // ->modifyQueryUsing(fn(Builder $query) => $query->where('complaintable_type', 'App\Models\Building\Building')->withoutGlobalScopes())
             // ->poll('60s')
@@ -148,57 +192,21 @@ class HelpdeskcomplaintResource extends Resource
                     ->preload()
             ])
             ->actions([
-                Action::make('Update Status')
-                    ->visible(fn($record) => $record->status === 'open')
-                    ->button()
-                    ->form([
-                        Select::make('status')
-                            ->options([
-                                'open' => 'Open',
-                                'closed' => 'Closed',
-                            ])
-                            ->searchable()
-                            ->live(),
-                        TextInput::make('remarks')
-                            ->rules(['max:255'])
-                            ->visible(function (callable $get) {
-                                if ($get('status') == 'closed') {
-                                    return true;
-                                }
-                                return false;
-                            })
-                            ->required(),
-                    ])
-                    ->fillForm(fn(Complaint $record): array => [
-                        'status' => $record->status,
-                        'remarks' => $record->remarks,
-                    ])
-                    ->action(function (Complaint $record, array $data): void {
-                        if ($data['status'] == 'closed') {
-                            $record->status = $data['status'];
-                            $record->remarks = $data['remarks'];
-                            $record->save();
-                        } else {
-                            $record->status = $data['status'];
-                            $record->save();
-                        }
-                    })
-                    ->slideOver()
+
             ]);
     }
 
-    public static function getRelations(): array
-    {
+    public static function getRelations(): array {
         return [
             //
         ];
     }
 
-    public static function getPages(): array
-    {
+    public static function getPages(): array {
         return [
             'index' => Pages\ListHelpdeskcomplaints::route('/'),
-            'view' => Pages\ViewHelpdeskcomplaint::route('/{record}'),
+            // 'view' => Pages\ViewHelpdeskcomplaint::route('/{record}'),
+            'edit' => Pages\EditHelpdeskcomplaint::route('/{record}/edit'),
         ];
     }
 }

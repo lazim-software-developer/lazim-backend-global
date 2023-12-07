@@ -1,39 +1,28 @@
 <?php
 
-namespace App\Filament\Resources;
+namespace App\Filament\Resources\Building\BuildingResource\RelationManagers;
 
 use Filament\Forms;
 use Filament\Tables;
-use Filament\Forms\Get;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
-use Filament\Resources\Resource;
 use App\Models\Building\Complaint;
 use Illuminate\Support\Facades\DB;
-use App\Models\Complaintscomplaint;
 use Filament\Forms\Components\Grid;
-use Filament\Tables\Actions\Action;
-use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Repeater;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
-use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use App\Filament\Resources\ComplaintscomplaintResource\Pages;
-use App\Filament\Resources\ComplaintscomplaintResource\RelationManagers;
+use Filament\Resources\RelationManagers\RelationManager;
 
-class ComplaintscomplaintResource extends Resource {
-    protected static ?string $model = Complaint::class;
+class ComplaintRelationManager extends RelationManager {
+    protected static string $relationship = 'complaint';
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-    protected static ?string $modelLabel = 'Complaint';
-
-    protected static ?string $navigationGroup = 'Happiness center';
-    public static function form(Form $form): Form {
+    public function form(Form $form): Form {
         return $form
             ->schema([
                 Grid::make([
@@ -148,60 +137,50 @@ class ComplaintscomplaintResource extends Resource {
 
                     ])
             ]);
+
     }
 
-    public static function table(Table $table): Table {
+    public function table(Table $table): Table {
         return $table
+            ->modifyQueryUsing(fn(Builder $query) => $query->whereIn('complaint_type', ['help_desk', 'tenant_complaint']))
             ->columns([
                 TextColumn::make('building.name')
                     ->default('NA')
                     ->searchable()
                     ->limit(50),
                 TextColumn::make('user.first_name')
-                    ->toggleable()
+                    ->default('NA')
+                    ->searchable()
+                    ->limit(50),
+                TextColumn::make('category')
                     ->default('NA')
                     ->searchable()
                     ->limit(50),
                 TextColumn::make('complaint')
-                    ->toggleable()
                     ->default('NA')
-                    ->searchable()
-                    ->label('Complaint'),
-                TextColumn::make('complaint_details')
-                    ->toggleable()
-                    ->default('NA')
-                    ->searchable()
-                    ->label('Complaint Details'),
+                    ->searchable(),
                 TextColumn::make('status')
-                    ->toggleable()
+                    ->default('NA')
                     ->searchable()
                     ->limit(50),
-
             ])
-            ->defaultSort('created_at', 'desc')
             ->filters([
-                SelectFilter::make('building_id')
-                    ->relationship('building', 'name')
-                    ->searchable()
-                    ->label('Building')
-                    ->preload()
+                //
+            ])
+            ->headerActions([
+                // Tables\Actions\CreateAction::make(),
             ])
             ->actions([
-
+                Tables\Actions\EditAction::make(),
+                // Tables\Actions\DeleteAction::make(),
+            ])
+            ->bulkActions([
+                Tables\Actions\BulkActionGroup::make([
+                    // Tables\Actions\DeleteBulkAction::make(),
+                ]),
+            ])
+            ->emptyStateActions([
+                // Tables\Actions\CreateAction::make(),
             ]);
-    }
-
-    public static function getRelations(): array {
-        return [
-            //
-        ];
-    }
-
-    public static function getPages(): array {
-        return [
-            'index' => Pages\ListComplaintscomplaints::route('/'),
-            // 'view' => Pages\ViewComplaintscomplaints::route('/{record}'),
-            'edit' => Pages\EditComplaintscomplaint::route('/{record}/edit'),
-        ];
     }
 }
