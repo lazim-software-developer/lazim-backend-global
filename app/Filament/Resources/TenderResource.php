@@ -85,7 +85,7 @@ class TenderResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                // Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -108,8 +108,7 @@ class TenderResource extends Resource
     {
         return [
             'index' => Pages\ListTenders::route('/'),
-            'create' => Pages\CreateTender::route('/create'),
-            'edit' => Pages\EditTender::route('/{record}/edit'),
+            'view' => Pages\ViewTender::route('/{record}'),
         ];
     }
 }
