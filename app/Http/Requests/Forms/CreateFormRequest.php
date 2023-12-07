@@ -48,6 +48,27 @@ class CreateFormRequest extends FormRequest
             'noc_landlord'=> 'file|mimes:pdf,jpeg,png,doc,docx|max:2048',
         ];
     }
+
+    public function withValidator($validator)
+{
+    $validator->after(function ($validator) {
+        $UserType = auth()->user()->role->name;
+        if ($UserType == 'Owner' && $this->input('type') == 'move-in') {
+            if (!$this->hasFile('title_deed')) {
+                $validator->errors()->add('title_deed', 'Upload Title Deed File.');
+            }
+        }
+
+        if ($UserType == 'Tenant' ) {
+            if ($this->input('type') == 'move-in' && !$this->hasFile('contract')) {
+                $validator->errors()->add('contract', 'Upload Tenancy Contract / Ejari File.');
+            }
+            if($this->input('type') == 'move-out' && !$this->hasFile('noc_landlord') ){
+                $validator->errors()->add('noc_landlord', 'Upload NOC from Landlord File.');
+            }
+        }
+    });
+}
     public function messages()
     {
         return [

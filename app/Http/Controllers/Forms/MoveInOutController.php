@@ -16,35 +16,6 @@ class MoveInOutController extends Controller
      */
     public function store(CreateFormRequest $request)
     {
-        $UserType = auth()->user()->role->name;
-        if ($UserType == 'Owner' && $request->type =='move-in') {
-            if(!$request->title_deed ){
-                return (new CustomResponseResource([
-                    'title' => 'Error',
-                    'message' => 'Upload Title Deed File.',
-                    'code' => 400,
-                ]))->response()->setStatusCode(400);
-            }
-        }
-
-        if($UserType == 'Tenant'){
-            if($request->type =='move-in' && !$request->contract){
-                return (new CustomResponseResource([
-                    'title' => 'Error',
-                    'message' => 'Upload Tenancy Contract / Ejari File.',
-                    'code' => 400,
-                ]))->response()->setStatusCode(400);
-            }
-        } else {
-            if(!$request->noc_landlord ){
-                return (new CustomResponseResource([
-                    'title' => 'Error',
-                    'message' => 'Upload NOC from Landlord File.',
-                    'code' => 400,
-                ]))->response()->setStatusCode(400);
-            }
-        }
-
         $ownerAssociationId = Building::find($request->building_id)->owner_association_id;
 
         // Handle multiple images
