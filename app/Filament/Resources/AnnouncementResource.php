@@ -28,15 +28,13 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\AnnouncementResource\Pages;
 use App\Filament\Resources\AnnouncementResource\RelationManagers;
 
-class AnnouncementResource extends Resource
-{
+class AnnouncementResource extends Resource {
     protected static ?string $model = Post::class;
     protected static ?string $modelLabel = 'Announcement';
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
     protected static ?string $navigationGroup = 'Community';
 
-    public static function form(Form $form): Form
-    {
+    public static function form(Form $form): Form {
         return $form->schema([
             Grid::make([
                 'sm' => 1,
@@ -45,11 +43,13 @@ class AnnouncementResource extends Resource
             ])->schema([
                         RichEditor::make('content')
                             ->disableToolbarButtons([
+                                'codeBlock',
+                                'h2',
+                                'h3',
+                                'attachFiles',
                                 'blockquote',
                                 'strike',
                             ])
-                            ->fileAttachmentsDisk('s3')
-                            ->fileAttachmentsDirectory('dev')
                             ->live()
                             ->columnSpan([
                                 'sm' => 1,
@@ -62,20 +62,18 @@ class AnnouncementResource extends Resource
                             ->options([
                                 'published' => 'Published',
                                 'draft' => 'Draft',
-                                'archived' => 'Archived',
                             ])
                             ->live()
                             ->required()
-                            ->default('draft'),
+                            ->default('published'),
 
                         DateTimePicker::make('scheduled_at')
                             ->rules(['date'])
                             ->displayFormat('d-M-Y h:i A')
-                            ->hidden(function (Get $get) {
-                                if ($get('status') == 'published' && (post::where('content', $get('content'))->where('scheduled_at', null)->exists() || post::where('content', $get('content'))->exists() == false)) {
-                                    return true;
+                            ->default(function (Get $get) {
+                                if($get('status') == 'published') {
+                                    return now();
                                 }
-                                return false;
                             })
                             ->live()
                             ->minDate(now())
@@ -84,8 +82,8 @@ class AnnouncementResource extends Resource
 
                         Select::make('building_id')
                             ->relationship('building', 'name')
-                            ->options(function(){
-                                return Building::where('owner_association_id',auth()->user()->owner_association_id)->pluck('name','id');
+                            ->options(function () {
+                                return Building::where('owner_association_id', auth()->user()->owner_association_id)->pluck('name', 'id');
                             })
                             ->searchable()
                             ->multiple()
@@ -125,60 +123,57 @@ class AnnouncementResource extends Resource
         ]);
     }
 
-    public static function table(Table $table): Table
-    {
+    public static function table(Table $table): Table {
         return $table
             ->columns([
-                    TextColumn::make('status')
-                        ->searchable()
-                        ->default('NA')
-                        ->limit(50),
-                    TextColumn::make('scheduled_at')
-                        ->dateTime(),
-                    TextColumn::make('building.name')
-                        ->searchable()
-                        ->default('NA')
-                        ->limit(50),
-                    TextColumn::make('user.first_name')
-                        ->searchable()
-                        ->default('NA')
-                        ->limit(50),
-                ])
+                TextColumn::make('status')
+                    ->searchable()
+                    ->default('NA')
+                    ->limit(50),
+                TextColumn::make('scheduled_at')
+                    ->dateTime(),
+                TextColumn::make('building.name')
+                    ->searchable()
+                    ->default('NA')
+                    ->limit(50),
+                TextColumn::make('user.first_name')
+                    ->searchable()
+                    ->default('NA')
+                    ->limit(50),
+            ])
             ->defaultSort('created_at', 'desc')
             ->filters([
-                    SelectFilter::make('user_id')
-                        ->relationship('user', 'first_name')
-                        ->searchable()
-                        ->preload()
-                        ->label('User'),
-                    SelectFilter::make('building_id')
-                        ->relationship('building', 'name')
-                        ->searchable()
-                        ->preload()
-                        ->label('Building'),
-                ])
+                SelectFilter::make('user_id')
+                    ->relationship('user', 'first_name')
+                    ->searchable()
+                    ->preload()
+                    ->label('User'),
+                SelectFilter::make('building_id')
+                    ->relationship('building', 'name')
+                    ->searchable()
+                    ->preload()
+                    ->label('Building'),
+            ])
             ->actions([
-                    Tables\Actions\EditAction::make(),
-                ])
+                Tables\Actions\EditAction::make(),
+            ])
             ->bulkActions([
-                    Tables\Actions\BulkActionGroup::make([
-                        Tables\Actions\DeleteBulkAction::make(),
-                    ]),
-                ])
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\DeleteBulkAction::make(),
+                ]),
+            ])
             ->emptyStateActions([
-                    Tables\Actions\CreateAction::make(),
-                ]);
+                Tables\Actions\CreateAction::make(),
+            ]);
     }
 
-    public static function getRelations(): array
-    {
+    public static function getRelations(): array {
         return [
             //
         ];
     }
 
-    public static function getPages(): array
-    {
+    public static function getPages(): array {
         return [
             'index' => Pages\ListAnnouncements::route('/'),
             'create' => Pages\CreateAnnouncement::route('/create'),

@@ -14,14 +14,14 @@ class CreateAnnouncement extends CreateRecord
     {
         return $this->getResource()::getUrl('index');
     }
-    public function afterCreate()
-    {
-        if($this->data['status'] == 'published')
-        {
-            Post::where('id', $this->record->id)
-            ->update(
-                ['scheduled_at'=>now()]
-            );;
-        } 
-    }
+    // public function afterCreate()
+    // {
+    //     if($this->data['status'] == 'published')
+    //     {
+    //         Post::where('id', $this->record->id)
+    //         ->update(
+    //             ['scheduled_at'=>now()]
+    //         );;
+    //     } 
+    // }
 }
