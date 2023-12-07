@@ -8,6 +8,7 @@ use App\Http\Requests\Technician\AddTechnicianRequest;
 use App\Http\Requests\Technician\ServiceIdRequest;
 use App\Http\Requests\Technician\TechnicianIdRequest;
 use App\Http\Resources\CustomResponseResource;
+use App\Http\Resources\Technician\ListTechnicianResource;
 use App\Http\Resources\Technician\ServiceTechnicianResource;
 use App\Jobs\AccountCreationJob;
 use App\Jobs\TechnicianAccountCreationJob;
@@ -147,5 +148,11 @@ class TechnicianController extends Controller
             'status' => 'success',
             'data' => $complaint
         ]))->response()->setStatusCode(200);
+    }
+
+    public function listTechnicians(Vendor $vendor)
+    {
+        $technicians = TechnicianVendor::where('vendor_id', $vendor->id)->where('active', true)->get();
+        return ListTechnicianResource::collection($technicians);
     }
 }
