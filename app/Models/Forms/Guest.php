@@ -24,6 +24,9 @@ class Guest extends Model
         'dtmc_license_url',
         'owner_association_id',
         'status',
+        'guest_name',
+        'holiday_home_name',
+        'emergency_contact',
         'remarks',
     ];
 

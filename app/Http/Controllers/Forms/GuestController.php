@@ -32,11 +32,23 @@ class GuestController extends Controller
         $guest = FlatVisitor::create($request->all());
 
         $filePath = optimizeDocumentAndUpload($request->file('image'), 'dev');
-        $request->merge([
-            'flat_visitor_id'=> $guest->id,
-            'dtmc_license_url'=> $filePath,
-        ]);
-        Guest::create($request->all());
+        // $request->merge([
+        //     'flat_visitor_id' => $guest->id,
+        //     'dtmc_license_url' => $filePath,
+        // ]);
+
+        $guests = $request->get('guests');
+
+        foreach ($guests as $guestDetails) {
+            $request->merge([
+                'flat_visitor_id' => $guest->id,
+                'dtmc_license_url' => $filePath,
+                'guest_name' =>$guestDetails['guest_name'],
+                'holiday_home_name'=>$guestDetails['holiday_home_name'],
+                'emergency_contact'=>$guestDetails['emergency_contact'],
+            ]);
+            Guest::create($request->all());
+        }
 
         // Handle multiple images
         if ($request->hasFile('files')) {
@@ -46,7 +58,7 @@ class GuestController extends Controller
 
                 //TODO: NEED TO CHANGE EXPIRY_DATE LOGIC
                 $passportId = DocumentLibrary::where('name', 'Passport')->value('id');
-                
+
                 $request->merge([
                     'documentable_id' => $guest->id,
                     'document_library_id' => $passportId,
@@ -61,9 +73,9 @@ class GuestController extends Controller
             }
         }
         return (new CustomResponseResource([
-                'title' => 'Success',
-                'message' => ' created successfully!',
-                'code' => 201,
-            ]))->response()->setStatusCode(201);
+            'title' => 'Success',
+            'message' => ' created successfully!',
+            'code' => 201,
+        ]))->response()->setStatusCode(201);
     }
 }
