@@ -24,6 +24,8 @@ class AccessCard extends Model
         'user_id',
         'building_id',
         'owner_association_id',
+        'status',
+        'remarks'
     ];
 
     protected $searchableFields = ['*'];

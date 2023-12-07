@@ -32,6 +32,8 @@ class ResidentialForm extends Model
         'emirates_url',
         'title_deed_url',
         'owner_association_id',
+        'status',
+        'remarks',
     ];
 
     protected $casts = [
