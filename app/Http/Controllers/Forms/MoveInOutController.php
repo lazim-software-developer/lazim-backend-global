@@ -7,6 +7,7 @@ use App\Http\Requests\Forms\CreateFormRequest;
 use App\Http\Resources\CustomResponseResource;
 use App\Models\Building\Building;
 use App\Models\Forms\MoveInOut;
+use App\Models\User\User;
 
 class MoveInOutController extends Controller
 {
@@ -15,6 +16,29 @@ class MoveInOutController extends Controller
      */
     public function store(CreateFormRequest $request)
     {
+        $UserType = auth()->user()->role->name;
+        if ($UserType == 'Owner' && $request->type =='move-in') {
+            if(!$request->title_deed ){
+                return (new CustomResponseResource([
+                    'title' => 'Error',
+                    'message' => 'Upload Title Deed File.',
+                    'code' => 400,
+                ]))->response()->setStatusCode(400);
+            }
+        }
+
+        if($UserType == 'Tenant' && $request->type =='move-in'){
+            if(!$request->contract){
+                if(!$request->title_deed ){
+                    return (new CustomResponseResource([
+                        'title' => 'Error',
+                        'message' => 'Upload Tenancy Contract / Ejari File.',
+                        'code' => 400,
+                    ]))->response()->setStatusCode(400);
+                }
+            }
+        }
+
         $ownerAssociationId = Building::find($request->building_id)->owner_association_id;
 
         // Handle multiple images
@@ -32,6 +56,7 @@ class MoveInOutController extends Controller
             'movers_liability',
         ];
 
+
         $data = $request->all();  // Get all request data
 
         foreach ($document_paths as $document) {
@@ -46,7 +71,7 @@ class MoveInOutController extends Controller
         $data['email']= auth()->user()->email;
         $data['user_id']= auth()->user()->id;
         $data['owner_association_id']= $ownerAssociationId;
-        
+
         MoveInOut::create($data);
 
         return (new CustomResponseResource([
