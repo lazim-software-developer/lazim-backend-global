@@ -30,6 +30,8 @@ class CreateAccessCardFormsRequest extends FormRequest
             'occupied_by' => 'required|in:Owner,Tenant,Vacant',
             'tenancy' => 'required_if:occupied_by,Tenant|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
             'vehicle_registration' => 'required_if:card_type,Parking|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
+            'title_deed' => 'required_if:occupied_by,Owner|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
+            'passport' => 'required|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
         ];
     }
 
@@ -38,6 +40,8 @@ class CreateAccessCardFormsRequest extends FormRequest
         return [
             'tenancy.max' => 'The uploaded file for tenancy must be less than 2MB.',
             'vehicle_registration.max' => 'The uploaded file for vehicle registration must be less than 2MB.',
+            'passport.max' => 'The uploaded image must be less than 2MB.',
+            'title_deed.max' => 'The uploaded image must be less than 2MB.',
         ];
     }
 }
