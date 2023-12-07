@@ -31,17 +31,30 @@ class ProposalsRelationManager extends RelationManager
         return $form
             ->schema([
                 TextInput::make('amount')
-                    ->label('Amount'),
-                Hidden::make('submitted_by')
+                    ->label('Amount')
+                    ->disabled(),
+                TextInput::make('submitted_by')
+                    ->label('Vendor Name')
+                    ->disabled()
                     ->default(1),
-                Hidden::make('submitted_on')
+                TextInput::make('submitted_on')
+                    ->disabled()
                     ->default(now()),
                 FileUpload::make('document')
                     ->disk('s3')
                     ->directory('dev')
-                    ->openable(true)
-                    ->downloadable(true)
+                    ->disabled()
                     ->label('Document'),
+                Select::make('status')
+                ->options([
+                    'approved' => 'Approved',
+                    'rejected' => 'Rejected',
+                ])
+                ->searchable()
+                ->required()
+                ->placeholder('Status'),
+
+
             ]);
     }
 
@@ -62,7 +75,7 @@ class ProposalsRelationManager extends RelationManager
                 //Tables\Actions\CreateAction::make(),
             ])
             ->actions([
-                //Tables\Actions\EditAction::make(),
+                // Tables\Actions\EditAction::make(),
                 Action::make('Approve')
                     ->visible(fn($record) => $record->status == null)
                     ->button()
@@ -148,14 +161,6 @@ class ProposalsRelationManager extends RelationManager
                         $record->save();
                     })
                     ->slideOver()
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    //Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ])
-            ->emptyStateActions([
-                //Tables\Actions\CreateAction::make(),
             ]);
     }
 }
