@@ -24,10 +24,10 @@ class CreateFormRequest extends FormRequest
         return [
             'building_id' => 'required|integer',
             'flat_id' => 'required|integer',
-            'type' =>'required',
-            'moving_date'=> 'required|after_or_equal:today',
-            'moving_time'=> 'required',
-            'time_preference'=> 'required',
+            'type' => 'required',
+            'moving_date' => 'required|after_or_equal:today',
+            'moving_time' => 'required',
+            'time_preference' => 'required',
             'handover_acceptance' => 'nullable|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
             'receipt_charges' => 'nullable|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
             'contract' => 'file|mimes:pdf,jpeg,png,doc,docx|max:2048',
@@ -39,44 +39,44 @@ class CreateFormRequest extends FormRequest
             'vehicle_registration' => 'nullable|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
             'movers_license' => 'nullable|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
             'movers_liability' => 'nullable|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
-            'etisalat_final'=> 'nullable|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
+            'etisalat_final' => 'nullable|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
 
-            'dewa_final'=> 'required_if:type, move-out|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
-            'gas_clearance'=> 'required_if:type, move-out|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
-            'cooling_clearance'=> 'required_if:type, move-out|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
-            'gas_final'=> 'nullable|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
-            'cooling_final'=> 'nullable|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
-            'noc_landlord'=> 'file|mimes:pdf,jpeg,png,doc,docx|max:2048',
+            'dewa_final' => 'required_if:type, move-out|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
+            'gas_clearance' => 'required_if:type, move-out|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
+            'cooling_clearance' => 'required_if:type, move-out|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
+            'gas_final' => 'nullable|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
+            'cooling_final' => 'nullable|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
+            'noc_landlord' => 'file|mimes:pdf,jpeg,png,doc,docx|max:2048',
         ];
     }
 
     public function withValidator($validator)
-{
-    $validator->after(function ($validator) {
-        $UserType = auth()->user()->role->name;
-        if ($UserType == 'Owner' && $this->input('type') == 'move-in') {
-            if (!$this->hasFile('title_deed')) {
-                $validator->errors()->add('title_deed', 'Upload Title Deed File.');
+    {
+        $validator->after(function ($validator) {
+            $UserType = auth()->user()->role->name;
+            if ($UserType == 'Owner' && $this->input('type') == 'move-in') {
+                if (!$this->hasFile('title_deed')) {
+                    $validator->errors()->add('title_deed', 'Upload Title Deed File.');
+                }
             }
-        }
 
-        if ($UserType == 'Tenant' ) {
-            if ($this->input('type') == 'move-in' && !$this->hasFile('contract')) {
-                $validator->errors()->add('contract', 'Upload Tenancy Contract / Ejari File.');
+            if ($UserType == 'Tenant') {
+                if ($this->input('type') == 'move-in' && !$this->hasFile('contract')) {
+                    $validator->errors()->add('contract', 'Upload Tenancy Contract / Ejari File.');
+                }
+                if ($this->input('type') == 'move-out' && !$this->hasFile('noc_landlord')) {
+                    $validator->errors()->add('noc_landlord', 'Upload NOC from Landlord File.');
+                }
             }
-            if($this->input('type') == 'move-out' && !$this->hasFile('noc_landlord') ){
-                $validator->errors()->add('noc_landlord', 'Upload NOC from Landlord File.');
-            }
-        }
-    });
-}
+        });
+    }
     public function messages()
     {
         return [
             'building_id' => "Please select a building",
             'flat_id' => "Please select a flat",
-            'type.required' =>'Type is required.',
-            'handover_acceptance.max' => 'The uploaded image must be less than 2MB.' ,
+            'type.required' => 'Type is required.',
+            'handover_acceptance.max' => 'The uploaded image must be less than 2MB.',
             'receipt_charges.max' => 'The uploaded image must be less than 2MB.',
             'contract.max' => 'The uploaded image must be less than 2MB.',
             'title_deed.max' => 'The uploaded image must be less than 2MB.',
@@ -87,6 +87,12 @@ class CreateFormRequest extends FormRequest
             'vehicle_registration.max' => 'The uploaded image must be less than 2MB.',
             'movers_license.max' => 'The uploaded image must be less than 2MB.',
             'movers_liability.max' => 'The uploaded image must be less than 2MB.',
+            'dewa_final.max' => 'The uploaded image must be less than 2MB.',
+            'gas_clearance.max' => 'The uploaded image must be less than 2MB.',
+            'cooling_clearance.max' => 'The uploaded image must be less than 2MB.',
+            'gas_final.max' => 'The uploaded image must be less than 2MB.',
+            'cooling_final.max' => 'The uploaded image must be less than 2MB.',
+            'noc_landlord.max' =>'The uploaded image must be less than 2MB.',
         ];
     }
 }
