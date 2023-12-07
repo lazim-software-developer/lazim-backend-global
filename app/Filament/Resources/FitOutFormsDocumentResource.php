@@ -32,44 +32,66 @@ class FitOutFormsDocumentResource extends Resource
                     'md' => 1,
                     'lg' => 2,
                 ])->schema([
-                    TextInput::make('contractor_name')
-                        ->required()
-                        ->label('Contractor Name'),
-                    TextInput::make('email')
-                        ->label('Email')
-                        ->required()
-                        ->placeholder('Email'),
-                    TextInput::make('phone')
-                        ->label('Phone Number')
-                        ->required()
-                        ->placeholder('Phone Number'),
-                    Select::make('building_id')
-                        ->relationship('building', 'name')
-                        ->preload()
-                        ->searchable()
-                        ->label('Building Name'),
-                    Select::make('flat_id')
-                        ->relationship('flat', 'property_number')
-                        ->preload()
-                        ->searchable()
-                        ->label('Property No'),
-                    Select::make('user_id')
-                        ->rules(['exists:users,id'])
-                        ->relationship('user', 'first_name')
-                        ->required()
-                        ->preload()
-                        ->searchable()
-                        ->label('User'),
-                    TextInput::make('status')
-                        ->required()
-                        ->label('Status'),
-                    TextInput::make('remarks')
-                        ->required()
-                        ->label('Remarks'),
-                    Toggle::make('no_objection'),
-                    Toggle::make('undertaking_of_waterproofing'),
+                            TextInput::make('contractor_name')
+                                ->required()
+                                ->disabled()
+                                ->label('Contractor Name'),
+                            TextInput::make('email')
+                                ->label('Email')
+                                ->disabled()
+                                ->required()
+                                ->placeholder('Email'),
+                            TextInput::make('phone')
+                                ->label('Phone Number')
+                                ->disabled()
+                                ->required()
+                                ->placeholder('Phone Number'),
+                            Select::make('building_id')
+                                ->relationship('building', 'name')
+                                ->preload()
+                                ->disabled()
+                                ->searchable()
+                                ->label('Building Name'),
+                            Select::make('flat_id')
+                                ->relationship('flat', 'property_number')
+                                ->preload()
+                                ->disabled()
+                                ->searchable()
+                                ->label('Property No'),
+                            Select::make('user_id')
+                                ->rules(['exists:users,id'])
+                                ->relationship('user', 'first_name')
+                                ->required()
+                                ->disabled()
+                                ->preload()
+                                ->searchable()
+                                ->label('User'),
+                            Toggle::make('no_objection')->disabled(),
+                            Toggle::make('undertaking_of_waterproofing')->disabled(),
+                            Select::make('status')
+                                ->options([
+                                    'approved' => 'Approved',
+                                    'rejected' => 'Rejected',
+                                ])
+                                ->disabled(function(FitOutForm $record){
+                                    return $record->status != null;
+                                })
+                                ->searchable()
+                                ->live(),
+                            TextInput::make('remarks')
+                                ->rules(['max:255'])
+                                ->visible(function (callable $get) {
+                                    if ($get('status') == 'rejected') {
+                                        return true;
+                                    }
+                                    return false;
+                                })
+                                ->disabled(function(FitOutForm $record){
+                                    return $record->status != null;
+                                })
+                                ->required(),
 
-                ]),
+                        ]),
             ]);
     }
 
@@ -114,42 +136,6 @@ class FitOutFormsDocumentResource extends Resource
             ])
             ->actions([
                 //Tables\Actions\EditAction::make(),
-                Action::make('Update Status')
-                    ->visible(fn ($record) => $record->status === null)
-                    ->button()
-                    ->form([
-                        Select::make('status')
-                            ->options([
-                                'approved' => 'Approved',
-                                'rejected' => 'Rejected',
-                            ])
-                            ->searchable()
-                            ->live(),
-                        TextInput::make('remarks')
-                            ->rules(['max:255'])
-                            ->visible(function (callable $get) {
-                                if ($get('status') == 'rejected') {
-                                    return true;
-                                }
-                                return false;
-                            })
-                            ->required(),
-                    ])
-                    ->fillForm(fn (FitOutForm $record): array => [
-                        'status' => $record->status,
-                        'remarks' => $record->remarks,
-                    ])
-                    ->action(function (FitOutForm $record, array $data): void {
-                        if ($data['status'] == 'rejected') {
-                            $record->status = $data['status'];
-                            $record->remarks = $data['remarks'];
-                            $record->save();
-                        } else {
-                            $record->status = $data['status'];
-                            $record->save();
-                        }
-                    })
-                    ->slideOver()
             ]);
     }
 
@@ -164,7 +150,8 @@ class FitOutFormsDocumentResource extends Resource
     {
         return [
             'index' => Pages\ListFitOutFormsDocuments::route('/'),
-            'view' => Pages\ViewFitOutFormsDocument::route('/{record}'),
+            // 'view' => Pages\ViewFitOutFormsDocument::route('/{record}'),
+            'edit' => Pages\EditFitOutFormsDocument::route('/{record}/edit'),
 
         ];
     }
