@@ -32,11 +32,17 @@ class SaleNocRequest extends FormRequest
             'service_charge_paid' => 'required|boolean',
             'noc_fee_paid' => 'required|boolean',
             'service_charge_paid_till' => 'required|date',
-            'cooling_receipt' => 'nullable',
-            'cooling_soa' => 'nullable',
-            'cooling_clearance' => 'nullable',
-            'payment_receipt' => 'required',
+            'signing_authority_email' => 'required',
+            'signing_authority_phone' => 'required',
+            'signing_authority_name' => 'required',
 
+            //common documents
+            'cooling_receipt' => 'nullable|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
+            'cooling_soa' => 'nullable|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
+            'cooling_clearance' => 'nullable|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
+            'payment_receipt' => 'required|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
+
+            //details of seller's/buyer's
             'contacts.*.type' => 'required|in:buyer,seller',
             'contacts.*.emirates_id' => 'nullable|string|max:20',
             'contacts.*.first_name' => 'required|string',
@@ -46,14 +52,14 @@ class SaleNocRequest extends FormRequest
             'contacts.*.agent_phone' => 'nullable|string|max:20',
             'contacts.*.passport_number' => 'required_if:contacts.*.type,seller|string|max:20',
             'contacts.*.visa_number' => 'nullable|string|max:20',
+
+            //documents for seller's/buyer's
             'contacts.*.emirates_document_url' => 'nullable|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
             'contacts.*.poa_document' => 'nullable|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
             'contacts.*.visa_document_url' => 'nullable|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
             'contacts.*.passport_document_url' => 'required|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
             'contacts.*.title_deed' => 'required_if:contacts.*.type,seller|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
-            'signing_authority_email' => 'required',
-            'signing_authority_phone' => 'required',
-            'signing_authority_name' => 'required',
+
         ];
     }
 

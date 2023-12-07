@@ -35,7 +35,6 @@ class SaleNocController extends Controller
         $saleNoc = SaleNoc::create($validated);
 
         $contacts = $request->get('contacts');
-
         foreach ($contacts as $index => $contact) {
             // Handle file uploads for emirates_document_url
             // if ($request->hasFile("contacts.$index.emirates_document_url")) {
