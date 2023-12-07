@@ -190,7 +190,7 @@ class BuildingResource extends Resource
                             ->directory('budget_imports'), // or your preferred directory
                     ])
                     ->action(function ($record, array $data, $livewire) {
-                        try {
+                        // try {
                             $budgetPeriod = $data['budget_period'];
                             $filePath = $data['excel_file'];
                             $fullPath = storage_path('app/' . $filePath);
@@ -202,16 +202,14 @@ class BuildingResource extends Resource
 
                             // Now import using the file path
                             Excel::import(new BudgetImport($budgetPeriod, $record->id), $fullPath); // Notify user of success
-                            Notification::make()
-                            ->title("Budget file imported successfully.")
-                            ->success()
-                            ->send();
-                        } catch (\Exception $e) {
-                            Log::error('Error during file import: ' . $e->getMessage());
+                           
+                        // } 
+                        // catch (\Exception $e) {
+                        //     Log::error('Error during file import: ' . $e->getMessage());
 
-                            // Notify user of failure
-                            Session::flash('notify', ['type' => 'danger', 'message' => 'Failed to import budget file.']);
-                        }
+                        //     // Notify user of failure
+                        //     Session::flash('notify', ['type' => 'danger', 'message' => 'Failed to import budget file.']);
+                        // }
                     }),
             ])
             ->bulkActions([
@@ -231,7 +229,7 @@ class BuildingResource extends Resource
             BuildingResource\RelationManagers\ServiceBookingsRelationManager::class,
             // BuildingResource\RelationManagers\BudgetRelationManager::class,
             BuildingResource\RelationManagers\BuildingPocsRelationManager::class,
-            BuildingResource\RelationManagers\ComplaintsRelationManager::class,
+            BuildingResource\RelationManagers\ComplaintRelationManager::class,
             BuildingResource\RelationManagers\ServicesRelationManager::class,
             BuildingResource\RelationManagers\ServiceRelationManager::class,
             // BuildingResource\RelationManagers\DocumentsRelationManager::class,

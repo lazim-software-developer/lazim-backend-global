@@ -2,33 +2,32 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\ResidentialFormResource\Pages;
-use App\Filament\Resources\ResidentialFormResource\RelationManagers;
-use App\Models\ResidentialForm;
 use Filament\Forms;
-use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
 use Filament\Tables;
-use Filament\Tables\Actions\Action;
-use Filament\Tables\Columns\ImageColumn;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\SelectFilter;
+use Filament\Forms\Form;
 use Filament\Tables\Table;
+use App\Models\ResidentialForm;
+use Filament\Resources\Resource;
+use Filament\Forms\Components\Grid;
+use Filament\Tables\Actions\Action;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Forms\Components\TextInput;
+use Filament\Tables\Columns\ImageColumn;
+use Filament\Forms\Components\FileUpload;
+use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Filament\Resources\ResidentialFormResource\Pages;
+use App\Filament\Resources\ResidentialFormResource\RelationManagers;
 
-class ResidentialFormResource extends Resource
-{
+class ResidentialFormResource extends Resource {
     protected static ?string $model = ResidentialForm::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
-    public static function form(Form $form): Form
-    {
+    public static function form(Form $form): Form {
         return $form
             ->schema([
                 Grid::make([
@@ -36,89 +35,117 @@ class ResidentialFormResource extends Resource
                     'md' => 1,
                     'lg' => 2,
                 ])->schema([
-                    TextInput::make('unit_occupied_by')
-                        ->label('Unit Occupied By'),
-                    TextInput::make('passport_number')
-                        ->label('Passport Number')
-                        ->placeholder('Passport Number'),
-                    TextInput::make('number_of_children')
-                        ->label('Number Of Children')
-                        ->placeholder('Number Of Children'),
-                    TextInput::make('number_of_adults')
-                        ->label('Number Of Adults'),
-                    Select::make('building_id')
-                        ->relationship('building', 'name')
-                        ->preload()
-                        ->searchable()
-                        ->label('Building Name'),
-                    Select::make('flat_id')
-                        ->relationship('flat', 'property_number')
-                        ->preload()
-                        ->searchable()
-                        ->label('Property No'),
-                    Select::make('user_id')
-                        ->rules(['exists:users,id'])
-                        ->relationship('user', 'first_name')
-                        ->required()
-                        ->preload()
-                        ->searchable()
-                        ->label('User'),
-                    TextInput::make('office_number')
-                        ->label('Office Number'),
-                    TextInput::make('trn_number')
-                        ->label('TRN Number'),
-                    TextInput::make('unit_occupied_by')
-                        ->label('Unit Occupied By'),
-                    TextInput::make('emirates_id')
-                        ->label('Emirates Id'),
-                    TextInput::make('title_deed_number')
-                        ->label('Title Deed Number'),
-                    TextInput::make('status')
-                        ->required()
-                        ->label('Status'),
-                    TextInput::make('remarks')
-                        ->required()
-                        ->label('Remarks'),
-                    FileUpload::make('title_deed_url')
-                        ->disk('s3')
-                        ->directory('dev')
-                        ->label('Title Deed Url')
-                        ->downloadable(true)
-                        ->openable(true)
-                        ->columnSpan([
-                            'sl' => 1,
-                            'md' => 1,
-                            'lg' => 2,
-                        ]),
-                    FileUpload::make('emirates_url')
-                        ->disk('s3')
-                        ->directory('dev')
-                        ->label('Emirates Url')
-                        ->downloadable(true)
-                        ->openable(true)
-                        ->columnSpan([
-                            'sl' => 1,
-                            'md' => 1,
-                            'lg' => 2,
-                        ]),
-                    FileUpload::make('passport_url')
-                        ->disk('s3')
-                        ->directory('dev')
-                        ->label('Passport Url')
-                        ->downloadable(true)
-                        ->openable(true)
-                        ->columnSpan([
-                            'sl' => 1,
-                            'md' => 1,
-                            'lg' => 2,
-                        ]),
+                            TextInput::make('unit_occupied_by')
+                                ->disabled()
+                                ->label('Unit Occupied By'),
+                            TextInput::make('passport_number')
+                                ->label('Passport Number')
+                                ->disabled()
+                                ->placeholder('Passport Number'),
+                            TextInput::make('number_of_children')
+                                ->label('Number Of Children')
+                                ->disabled()
+                                ->placeholder('Number Of Children'),
+                            TextInput::make('number_of_adults')
+                                ->label('Number Of Adults')->disabled(),
+                            Select::make('building_id')
+                                ->relationship('building', 'name')
+                                ->preload()
+                                ->disabled()
+                                ->searchable()
+                                ->label('Building Name'),
+                            Select::make('flat_id')
+                                ->relationship('flat', 'property_number')
+                                ->preload()
+                                ->disabled()
+                                ->searchable()
+                                ->label('Property No'),
+                            Select::make('user_id')
+                                ->rules(['exists:users,id'])
+                                ->relationship('user', 'first_name')
+                                ->required()
+                                ->disabled()
+                                ->preload()
+                                ->searchable()
+                                ->label('User'),
+                            TextInput::make('office_number')
+                                ->label('Office Number')->disabled(),
+                            TextInput::make('trn_number')
+                                ->label('TRN Number')->disabled(),
+                            TextInput::make('emirates_id')
+                                ->label('Emirates Id')->disabled(),
+                            TextInput::make('title_deed_number')
+                                ->label('Title Deed Number')->disabled(),
+                            Textarea::make('emergency_contact')
+                                ->label('Emergency Contact')->disabled(),
+                            TextInput::make('passport_expires_on')
+                                ->label('Passport Expires On')->disabled(),
+                            TextInput::make('emirates_expires_on')
+                                ->label('Emirates Expires On')->disabled(),
+                            FileUpload::make('title_deed_url')
+                                ->disk('s3')
+                                ->directory('dev')
+                                ->label('Title Deed Url')
+                                ->disabled()
+                                ->downloadable(true)
+                                ->openable(true)
+                                ->columnSpan([
+                                    'sl' => 1,
+                                    'md' => 1,
+                                    'lg' => 2,
+                                ]),
+                            FileUpload::make('emirates_url')
+                                ->disk('s3')
+                                ->directory('dev')
+                                ->disabled()
+                                ->label('Emirates Url')
+                                ->downloadable(true)
+                                ->openable(true)
+                                ->columnSpan([
+                                    'sl' => 1,
+                                    'md' => 1,
+                                    'lg' => 2,
+                                ]),
+                            FileUpload::make('passport_url')
+                                ->disk('s3')
+                                ->directory('dev')
+                                ->disabled()
+                                ->label('Passport Url')
+                                ->downloadable(true)
+                                ->openable(true)
+                                ->columnSpan([
+                                    'sl' => 1,
+                                    'md' => 1,
+                                    'lg' => 2,
+                                ]),
+                            Select::make('status')
+                                ->options([
+                                    'approved' => 'Approved',
+                                    'rejected' => 'Rejected',
+                                ])
+                                ->disabled(function (ResidentialForm $record) {
+                                    return $record->status != null;
+                                })
+                                ->searchable()
+                                ->live(),
+                            TextInput::make('remarks')
+                                ->rules(['max:255'])
+                                ->visible(function (callable $get) {
+                                    if($get('status') == 'rejected') {
+                                        return true;
+                                    }
+                                    return false;
+                                })
+                                ->disabled(function (ResidentialForm $record) {
+                                    return $record->status != null;
+                                })
+                                ->required(),
 
-                ]),
+                        ]),
             ]);
     }
 
-    public static function table(Table $table): Table
-    {
+    public static function table(Table $table): Table {
         return $table
             ->columns([
                 TextColumn::make('building.name')
@@ -161,57 +188,21 @@ class ResidentialFormResource extends Resource
             ])
             ->defaultSort('created_at', 'desc')
             ->actions([
-                Action::make('Update Status')
-                    ->visible(fn ($record) => $record->status === null)
-                    ->button()
-                    ->form([
-                        Select::make('status')
-                            ->options([
-                                'approved' => 'Approved',
-                                'rejected' => 'Rejected',
-                            ])
-                            ->searchable()
-                            ->live(),
-                        TextInput::make('remarks')
-                            ->rules(['max:255'])
-                            ->visible(function (callable $get) {
-                                if ($get('status') == 'rejected') {
-                                    return true;
-                                }
-                                return false;
-                            })
-                            ->required(),
-                    ])
-                    ->fillForm(fn (ResidentialForm $record): array => [
-                        'status' => $record->status,
-                        'remarks' => $record->remarks,
-                    ])
-                    ->action(function (ResidentialForm $record, array $data): void {
-                        if ($data['status'] == 'rejected') {
-                            $record->status = $data['status'];
-                            $record->remarks = $data['remarks'];
-                            $record->save();
-                        } else {
-                            $record->status = $data['status'];
-                            $record->save();
-                        }
-                    })
-                    ->slideOver()
+
             ]);
     }
 
-    public static function getRelations(): array
-    {
+    public static function getRelations(): array {
         return [
             //
         ];
     }
 
-    public static function getPages(): array
-    {
+    public static function getPages(): array {
         return [
             'index' => Pages\ListResidentialForms::route('/'),
-            'view' => Pages\ViewResidentialForm::route('/{record}'),
+            // 'view' => Pages\ViewResidentialForm::route('/{record}'),
+            'edit' => Pages\EditResidentialForm::route('/{record}/edit'),
         ];
     }
 }
