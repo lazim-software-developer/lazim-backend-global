@@ -127,7 +127,7 @@ class VendorRegistrationController extends Controller
         }
 
         $role = Role::where('name', 'Vendor')->value('id');
-        $request->merge(['first_name' => $request->name, 'active' => 1, 'role_id' => $role, 'owner_association_id' => 2]);
+        $request->merge(['first_name' => $request->name, 'active' => 1, 'role_id' => $role]);
         
         $user = User::create($request->all());
 
