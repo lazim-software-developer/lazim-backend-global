@@ -39,7 +39,7 @@ class TenderController extends Controller
         if ($proposalExists) {
             return (new CustomResponseResource([
                 'title' => 'Error',
-                'message' => 'Ypu have already submitted proposal for this tender',
+                'message' => 'You have already submitted proposal for this tender',
                 'code' => 400,
             ]))->response()->setStatusCode(400);
         }
@@ -64,7 +64,7 @@ class TenderController extends Controller
 
         return (new CustomResponseResource([
             'title' => 'Success',
-            'message' => 'Proposal created successfully!',
+            'message' => 'Proposal submitted successfully!',
             'code' => 201,
         ]))->response()->setStatusCode(201);
     }
