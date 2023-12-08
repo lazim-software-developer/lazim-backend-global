@@ -16,8 +16,8 @@ class SelectServicesResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'service_id' => $this->id,
-            'service_name' => $this->name,
+            'id' => $this->id,
+            'name' => $this->name,
         ];
     }
 }
