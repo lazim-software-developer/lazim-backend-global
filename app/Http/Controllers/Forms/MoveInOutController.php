@@ -7,10 +7,30 @@ use App\Http\Requests\Forms\CreateFormRequest;
 use App\Http\Resources\CustomResponseResource;
 use App\Models\Building\Building;
 use App\Models\Forms\MoveInOut;
-use App\Models\User\User;
+use Illuminate\Support\Facades\Schema;
 
 class MoveInOutController extends Controller
 {
+    public function index(MoveInOut $movein)
+    {
+        if ($movein->status == 'rejected') {
+            $rejectedFields = json_decode($movein->rejected_fields);
+
+            $allColumns = Schema::getColumnListing($movein->getTable());
+
+            // Filter out the rejected fields
+            $selectedColumns = array_diff($allColumns, $rejectedFields->rejected_fields);
+
+            // Query the MoveInOut model, selecting only the filtered columns
+            $moveInOutData = MoveInOut::select($selectedColumns)->get();
+
+            $moveInOutData->rejected_fields = json_decode($movein->rejected_fields);
+
+            return $moveInOutData;
+        }
+        return "Request is not rejected";
+    }
+
     /**
      * Show the form for creating a new resource.
      */
@@ -51,10 +71,10 @@ class MoveInOutController extends Controller
         }
 
         $data['name'] = auth()->user()->first_name;
-        $data['phone']= auth()->user()->phone;
-        $data['email']= auth()->user()->email;
-        $data['user_id']= auth()->user()->id;
-        $data['owner_association_id']= $ownerAssociationId;
+        $data['phone'] = auth()->user()->phone;
+        $data['email'] = auth()->user()->email;
+        $data['user_id'] = auth()->user()->id;
+        $data['owner_association_id'] = $ownerAssociationId;
 
         MoveInOut::create($data);
 
