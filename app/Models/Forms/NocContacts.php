@@ -24,6 +24,10 @@ class NocContacts extends Model
         'passport_document_url',
         'noc_form_id',
         'documents_verified_by',
+        'agent_email',
+        'agent_phone',
+        'title_deed',
+        'poa_document'
     ];
 
     protected $searchableFields = ['*'];
@@ -32,11 +36,11 @@ class NocContacts extends Model
         'allow_postupload' => 'boolean',
     ];
 
-    public function noc() 
+    public function noc()
     {
         return $this->belongsTo(SaleNOC::class);
     }
-    public function nocforms() 
+    public function nocforms()
     {
         return $this->belongsTo(NocForms::class);
     }
