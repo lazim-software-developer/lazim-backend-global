@@ -136,7 +136,7 @@ class AccessCardFormsDocumentResource extends Resource {
                                 'tenancy' => 'Tenancy / Ejari',
                                 'vehicle_registration' => 'Vehicle registration / Mulkiya',
                                 'passport' => 'Passport / EID',
-                            ])->columns(3)
+                            ])->columns(4)
                             ->visible(function (callable $get) {
                                 if ($get('status') == 'rejected') {
                                     return true;

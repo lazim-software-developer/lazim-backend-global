@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\GuestRegistrationResource\Pages;
 use App\Models\Forms\Guest;
+use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
@@ -38,121 +39,142 @@ class GuestRegistrationResource extends Resource
                     'md' => 1,
                     'lg' => 2,
                 ])->schema([
-                            TextInput::make('passport_number')->disabled(),
-                            DatePicker::make('visa_validity_date')->disabled(),
-                            DatePicker::make('expiry_date')->disabled(),
-                            TextInput::make('stay_duration')->disabled(),
-                            FileUpload::make('dtmc_license_url')
-                                ->disk('s3')
-                                ->directory('dev')
-                                ->downloadable(true)
-                                ->openable(true)
+                    TextInput::make('passport_number')->disabled(),
+                    DatePicker::make('visa_validity_date')->disabled()->label('Tourist/Visitor visa validity date'),
+                    TextInput::make('stay_duration')->disabled()->label('duration of stay'),
+                    FileUpload::make('dtmc_license_url')
+                        ->disk('s3')
+                        ->directory('dev')
+                        ->downloadable(true)
+                        ->openable(true)
+                        ->disabled()
+                        ->label('Dtmc License')
+                        ->required(),
+                    // ViewField::make('Building')
+                    //     ->view('forms.components.fieldbuilding'),
+                    select::make('flat_visitor_id')
+                        ->relationship('flatVisitor', 'name')
+                        // ->createOptionForm([
+                        //     Select::make('building_id')
+                        //         ->relationship('building', 'name')
+                        //         ->preload()
+                        //         ->searchable()
+                        //         ->label('Building Name'),
+                        //     Select::make('flat_id')
+                        //         ->relationship('flat', 'property_number')
+                        //         ->preload()
+                        //         ->searchable()
+                        //         ->label('Property No'),
+                        //     TextInput::make('name'),
+                        //     TextInput::make('phone'),
+                        //     Hidden::make('type')
+                        //         ->default('Guest'),
+                        //     Hidden::make('initiated_by')
+                        //         ->default(auth()->user()->id),
+                        //     TextInput::make('email'),
+                        //     DatePicker::make('start_time')
+                        //         ->label('From Date'),
+                        //     DatePicker::make('end_time')
+                        //         ->label('To Date'),
+                        //     TextInput::make('number_of_visitors'),
+                        // ])
+                        ->editOptionForm([
+                            Select::make('building_id')
+                                ->relationship('building', 'name')
+                                ->preload()
                                 ->disabled()
-                                ->label('Dtmc License')
-                                ->required()
-                                ->columnSpan([
-                                    'sm' => 1,
-                                    'md' => 1,
-                                    'lg' => 2,
-                                ]),
-                            // ViewField::make('Building')
-                            //     ->view('forms.components.fieldbuilding'),
-                            select::make('flat_visitor_id')
-                                ->relationship('flatVisitor', 'name')
-                                ->createOptionForm([
-                                    Select::make('building_id')
-                                        ->relationship('building', 'name')
-                                        ->preload()
-                                        ->searchable()
-                                        ->label('Building Name'),
-                                    Select::make('flat_id')
-                                        ->relationship('flat', 'property_number')
-                                        ->preload()
-                                        ->searchable()
-                                        ->label('Property No'),
-                                    TextInput::make('name'),
-                                    TextInput::make('phone'),
-                                    Hidden::make('type')
-                                        ->default('Guest'),
-                                    Hidden::make('initiated_by')
-                                        ->default(auth()->user()->id),
-                                    TextInput::make('email'),
-                                    DatePicker::make('start_time')
-                                        ->label('From Date'),
-                                    DatePicker::make('end_time')
-                                        ->label('To Date'),
-                                    TextInput::make('number_of_visitors'),
-                                ])
-                                ->editOptionForm([
-                                    Select::make('building_id')
-                                        ->relationship('building', 'name')
-                                        ->preload()
-                                        ->searchable()
-                                        ->label('Building Name'),
-                                    Select::make('flat_id')
-                                        ->relationship('flat', 'property_number')
-                                        ->preload()
-                                        ->searchable()
-                                        ->label('Property No'),
-                                    TextInput::make('name'),
-                                    TextInput::make('phone')
-                                        ->unique(
-                                            'flat_visitors',
-                                            'phone',
-                                            fn(?Model $record) => $record
-                                        ),
-                                    Hidden::make('type')
-                                        ->default('Guest'),
-                                    Hidden::make('initiated_by')
-                                        ->default(auth()->user()->id),
-                                    Hidden::make('approved_by')
-                                        ->default(auth()->user()->id),
-                                    TextInput::make('email'),
-                                    DatePicker::make('start_time')
-                                        ->rules(['date'])
-                                        ->required()
-                                        ->placeholder('From Date')
-                                        ->label('From Date'),
-                                    DatePicker::make('end_time')
-                                        ->label('To Date')
-                                        ->rules(['date'])
-                                        ->required()
-                                        ->placeholder('To Date'),
-                                    TextInput::make('number_of_visitors'),
-                                ])
-                                ->disabled()
-                                ->label('Flat Visitor')
-                                ->columnSpan([
-                                    'sm' => 1,
-                                    'md' => 1,
-                                    'lg' => 2,
-                                ]),
-                            Toggle::make('access_card_holder')->disabled(),
-                            Toggle::make('original_passport')->disabled(),
-                            Toggle::make('guest_registration')->disabled(),
-                            Select::make('status')
-                                ->options([
-                                    'approved' => 'Approved',
-                                    'rejected' => 'Rejected',
-                                ])
-                                ->disabled(function(Guest $record){
-                                    return $record->status != null;
-                                })
                                 ->searchable()
-                                ->live(),
-                            TextInput::make('remarks')
-                                ->rules(['max:255'])
-                                ->visible(function (callable $get) {
-                                    if ($get('status') == 'rejected') {
-                                        return true;
-                                    }
-                                    return false;
-                                })
-                                ->disabled(function(Guest $record){
-                                    return $record->status != null;
-                                })
-                                ->required(),
+                                ->label('Building Name'),
+                            Select::make('flat_id')
+                                ->relationship('flat', 'property_number')
+                                ->preload()
+                                ->searchable()
+                                ->disabled()
+                                ->label('Property No'),
+                            TextInput::make('name')
+                                ->disabled(),
+                            TextInput::make('phone')
+                                ->disabled()
+                                ->unique(
+                                    'flat_visitors',
+                                    'phone',
+                                    fn (?Model $record) => $record
+                                ),
+                            Hidden::make('type')
+                                ->default('Guest'),
+                            Hidden::make('initiated_by')
+                                ->default(auth()->user()->id),
+                            Hidden::make('approved_by')
+                                ->default(auth()->user()->id),
+                            TextInput::make('email')
+                                ->disabled(),
+                            DatePicker::make('start_time')
+                                ->rules(['date'])
+                                ->required()
+                                ->disabled()
+                                ->placeholder('From Date')
+                                ->label('Guest Arrival Date'),
+                            DatePicker::make('end_time')
+                                ->label('Guest Departure Date')
+                                ->rules(['date'])
+                                ->required()
+                                ->disabled()
+                                ->placeholder('Guest Departure Date'),
+                            TextInput::make('number_of_visitors')
+                                ->disabled(),
                         ])
+                        // ->disabled()
+                        ->label('Flat Visitor'),
+                    Toggle::make('access_card_holder')->disabled(),
+                    Toggle::make('original_passport')->disabled(),
+                    Toggle::make('guest_registration')->disabled(),
+                    Select::make('status')
+                        ->options([
+                            'approved' => 'Approved',
+                            'rejected' => 'Rejected',
+                        ])
+                        ->disabled(function (Guest $record) {
+                            return $record->status != null;
+                        })
+                        ->searchable()
+                        ->live(),
+                    TextInput::make('remarks')
+                        ->rules(['max:255'])
+                        ->visible(function (callable $get) {
+                            if ($get('status') == 'rejected') {
+                                return true;
+                            }
+                            return false;
+                        })
+                        ->disabled(function (Guest $record) {
+                            return $record->status != null;
+                        })
+                        ->required(),
+                    // If the form is rejected, we need to capture which fields are rejected
+                    CheckboxList::make('rejected_fields')
+                        ->label('Please select rejected fields')
+                        ->options([
+                            'passport_number' => 'Passport Number',
+                            'visa_validity_date' => 'Tourist/Visitor visa validity date',
+                            'stay_duration' => 'duration of stay',
+                            'start_date' => 'Guest arrival date',
+                            'number_of_visitors' => 'Number of visitors',
+                            'end_date' => 'Guest departure date',
+                            'email' => 'Guest Email',
+                        ])
+                        ->columns(4)
+                        ->columnSpan([
+                            'sm' => 1,
+                            'md' => 1,
+                            'lg' => 2,
+                        ])
+                        ->visible(function (callable $get) {
+                            if ($get('status') == 'rejected') {
+                                return true;
+                            }
+                            return false;
+                        })
+                ])
             ]);
     }
 

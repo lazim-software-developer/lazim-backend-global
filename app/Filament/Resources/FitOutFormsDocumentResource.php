@@ -98,7 +98,7 @@ class FitOutFormsDocumentResource extends Resource
                                     'contractor_name' => 'Contractor Name',
                                     'email' => 'Contractor email',
                                     'phone' => 'Contractor phone',
-                                ])->columns(3)
+                                ])->columns(4)
                                 ->visible(function (callable $get) {
                                     if ($get('status') == 'rejected') {
                                         return true;

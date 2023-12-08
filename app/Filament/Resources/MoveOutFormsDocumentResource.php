@@ -166,7 +166,7 @@ class MoveOutFormsDocumentResource extends Resource
                                     'gas_final' => 'Gas final bill',
                                     'cooling_final' => 'Cooling final bill',
                                     'noc_landlord' => 'NOC landlord',
-                                ])->columns(3)
+                                ])->columns(4)
                                 ->visible(function (callable $get) {
                                     if ($get('status') == 'rejected') {
                                         return true;
