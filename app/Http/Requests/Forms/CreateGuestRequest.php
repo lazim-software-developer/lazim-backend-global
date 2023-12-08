@@ -36,7 +36,7 @@ class CreateGuestRequest extends FormRequest
             'guests.*.guest_name' => 'nullable',
             'guests.*.holiday_home_name' => 'nullable',
             'guests.*.emergency_contact' => 'nullable',
-            'end_date' => 'required|date|after:start_date',
+            'end_date' => 'required|date', //|after:start_date
             'image' => 'required|file|max:2048',
             // 'files'=> 'file|mimes:pdf,jpg,jpeg,png,doc,docx|max:2048'
         ];
