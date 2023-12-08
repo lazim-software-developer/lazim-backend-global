@@ -295,6 +295,7 @@ Route::middleware([])->prefix('vendor')->group(function () {
     Route::post('/add-service/{vendor}', [SelectServicesController::class, 'addService']);
     // Attcah existing service to vendor
     Route::post('/{vendor}/tag-services', [SelectServicesController::class, 'tagServices']);
+    Route::post('/{vendor}/untag-services', [SelectServicesController::class, 'untagServices']);
     Route::post('/{vendor}/documents-upload', [DocumentsUploadController::class, 'documentsUpload']);
     Route::get('/owner-associations',[VendorRegistrationController::class,'listOa']);
 });
