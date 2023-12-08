@@ -17,6 +17,8 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Set;
+use Illuminate\Support\Str;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\FileUpload;
@@ -27,6 +29,8 @@ use Filament\Forms\Components\DateTimePicker;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\AnnouncementResource\Pages;
 use App\Filament\Resources\AnnouncementResource\RelationManagers;
+use Carbon\Carbon;
+use DateTime;
 
 class AnnouncementResource extends Resource {
     protected static ?string $model = Post::class;
@@ -63,21 +67,23 @@ class AnnouncementResource extends Resource {
                                 'published' => 'Published',
                                 'draft' => 'Draft',
                             ])
+                            ->reactive()
                             ->live()
-                            ->required()
-                            ->default('published'),
+                            // ->afterStateUpdated(function (Set $set, Get $get) {
+                            //     $set('scheduled_at',Carbon::now()->addDay());
+                            //     // dd($get('scheduled_at'));
+                            // })
+                            ->default('published')
+                            ->required(),
 
                         DateTimePicker::make('scheduled_at')
                             ->rules(['date'])
                             ->displayFormat('d-M-Y h:i A')
-                            ->default(function (Get $get) {
-                                if($get('status') == 'published') {
-                                    return now();
-                                }
-                            })
-                            ->live()
+                            // ->default(fn (Get $get) => $get('status') == null ? now() : dd($get('status')))
                             ->minDate(now())
+                            ->live()
                             ->required()
+                            ->default(now())
                             ->placeholder('Scheduled At'),
 
                         Select::make('building_id')
@@ -89,6 +95,8 @@ class AnnouncementResource extends Resource {
                             ->multiple()
                             ->preload()
                             ->required(),
+                        Toggle::make('allow_like')->default(0),
+                        Toggle::make('allow_comment')->default(0),
 
                         Hidden::make('user_id')
                             ->default(auth()->user()->id),
@@ -98,27 +106,6 @@ class AnnouncementResource extends Resource {
 
                         Hidden::make('is_announcement')
                             ->default(true),
-
-                        // Repeater::make('media')
-                        //     ->relationship('media')
-                        //     ->schema([
-                        //         TextInput::make('name')
-                        //             ->rules(['max:30','regex:/^[a-zA-Z\s]*$/'])
-                        //             ->required()
-                        //             ->placeholder('Name'),
-                        //         FileUpload::make('url')
-                        //             ->disk('s3')
-                        //             ->directory('dev')
-                        //             ->maxSize(2048)
-                        //             ->required()
-
-                        //     ])
-                        //     ->columnSpan([
-                        //         'sm' => 1,
-                        //         'md' => 1,
-                        //         'lg' => 2,
-                        //     ])
-
                     ])
         ]);
     }
