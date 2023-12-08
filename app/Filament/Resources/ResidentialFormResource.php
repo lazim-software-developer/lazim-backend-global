@@ -21,6 +21,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\ResidentialFormResource\Pages;
 use App\Filament\Resources\ResidentialFormResource\RelationManagers;
+use Filament\Forms\Components\CheckboxList;
 
 class ResidentialFormResource extends Resource {
     protected static ?string $model = ResidentialForm::class;
@@ -77,7 +78,9 @@ class ResidentialFormResource extends Resource {
                             TextInput::make('title_deed_number')
                                 ->label('Title Deed Number')->disabled(),
                             Textarea::make('emergency_contact')
-                                ->label('Emergency Contact')->disabled(),
+                                ->label('Emergency Contact')
+                                ->rows(10)
+                                ->disabled(),
                             TextInput::make('passport_expires_on')
                                 ->label('Passport Expires On')->disabled(),
                             TextInput::make('emirates_expires_on')
@@ -88,36 +91,28 @@ class ResidentialFormResource extends Resource {
                                 ->label('Title Deed Url')
                                 ->disabled()
                                 ->downloadable(true)
-                                ->openable(true)
-                                ->columnSpan([
-                                    'sl' => 1,
-                                    'md' => 1,
-                                    'lg' => 2,
-                                ]),
+                                ->openable(true),
                             FileUpload::make('emirates_url')
                                 ->disk('s3')
                                 ->directory('dev')
                                 ->disabled()
                                 ->label('Emirates Url')
                                 ->downloadable(true)
-                                ->openable(true)
-                                ->columnSpan([
-                                    'sl' => 1,
-                                    'md' => 1,
-                                    'lg' => 2,
-                                ]),
+                                ->openable(true),
                             FileUpload::make('passport_url')
                                 ->disk('s3')
                                 ->directory('dev')
                                 ->disabled()
                                 ->label('Passport Url')
                                 ->downloadable(true)
-                                ->openable(true)
-                                ->columnSpan([
-                                    'sl' => 1,
-                                    'md' => 1,
-                                    'lg' => 2,
-                                ]),
+                                ->openable(true),
+                            FileUpload::make('tenancy_contract')
+                                ->disk('s3')
+                                ->directory('dev')
+                                ->disabled()
+                                ->label('Tenancy / Ejari Url')
+                                ->downloadable(true)
+                                ->openable(true),
                             Select::make('status')
                                 ->options([
                                     'approved' => 'Approved',
@@ -140,6 +135,35 @@ class ResidentialFormResource extends Resource {
                                     return $record->status != null;
                                 })
                                 ->required(),
+                            // If the form is rejected, we need to capture which fields are rejected
+                            CheckboxList::make('rejected_fields')
+                            ->label('Please select rejected fields')
+                            ->options([
+                                'passport_url' => 'Passport / EID',
+                                'emirates_url' => 'Email',
+                                'title_deed_url' => 'Mobile number',
+                                'emirates_expires_on' => 'Emirates Expires Date',
+                                'passport_expires_on' => 'Passport Expires Date',
+                                'title_deed_number' => 'Title Deed Number',
+                                'emirates_id' => 'Emirates Id',
+                                'trn_number' => 'TRN Number',
+                                'office_number' => 'Office Number',
+                                'tenancy_contract' => 'Tenancy / Ejari',
+                                'number_of_adults' => 'Number of adults',
+                                'number_of_children' => 'Number Of Children',
+                                'unit_occupied_by' => 'Unit Occupied By',
+                            ])->columns(4)
+                            ->columnSpan([
+                                'sl' => 1,
+                                'md' => 1,
+                                'lg' => 2,
+                            ])
+                            ->visible(function (callable $get) {
+                                if ($get('status') == 'rejected') {
+                                    return true;
+                                }
+                                return false;
+                            })
 
                         ]),
             ]);
