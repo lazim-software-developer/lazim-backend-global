@@ -34,13 +34,34 @@ class ResidentialFormRequest extends FormRequest
             'passport_expires_on' => 'required|date',
             'emirates_id' => 'required|string',
             'emirates_expires_on' => 'required|date',
-            'title_deed_number' => 'required_if:unit_occupied_by,Owner|string',
+            'title_deed_number' => 'string',
             'emergency_contact' => 'required|json',
             'passport_url' => 'required|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
             'emirates_url' => 'required|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
-            'title_deed_url' => 'required_if:unit_occupied_by,Owner|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
-            'tenancy_contract' => 'required_if:unit_occupied_by,Tenant|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
+            'title_deed_url' => 'file|mimes:pdf,jpeg,png,doc,docx|max:2048',
+            'tenancy_contract' => 'file|mimes:pdf,jpeg,png,doc,docx|max:2048',
         ];
+    }
+
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+            $UserType = auth()->user()->role->name;
+            if ($UserType == 'Owner') {
+                if (!$this->hasFile('title_deed_url')) {
+                    $validator->errors()->add('title_deed_url', 'Upload Title Deed File.');
+                }
+                if (!$this->hasFile('title_deed_number') ) {
+                    $validator->errors()->add('title_deed_number', 'Please enter title deed number.');
+                }
+            }
+
+            if ($UserType == 'Tenant') {
+                if (!$this->hasFile('tenancy_contract')) {
+                    $validator->errors()->add('tenancy_contract', 'Upload Tenancy Contract / Ejari File.');
+                }
+            }
+        });
     }
 
     public function messages()
