@@ -45,7 +45,7 @@ class NocFormResource extends Resource
                             TextInput::make('unit_occupied_by')->disabled(),
                             TextInput::make('applicant')->disabled(),
                             TextInput::make('unit_area')->disabled(),
-                            TextInput::make('sale_price')->disabled(),
+                            TextInput::make('sale_price')->disabled()->prefix('AED'),
                             TextInput::make('signing_authority_email')->disabled(),
                             TextInput::make('signing_authority_phone')->disabled(),
                             TextInput::make('signing_authority_name')->disabled(),

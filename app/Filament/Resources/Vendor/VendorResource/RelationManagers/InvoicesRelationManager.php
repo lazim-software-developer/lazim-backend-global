@@ -19,12 +19,10 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Resources\RelationManagers\RelationManager;
 
-class InvoicesRelationManager extends RelationManager
-{
+class InvoicesRelationManager extends RelationManager {
     protected static string $relationship = 'invoices';
 
-    public function form(Form $form): Form
-    {
+    public function form(Form $form): Form {
         return $form
             ->schema([
                 Grid::make([
@@ -36,50 +34,68 @@ class InvoicesRelationManager extends RelationManager
                         Select::make('building_id')
                             ->relationship('building', 'name')
                             ->preload()
+                            ->disabled()
                             ->searchable()
                             ->label('Building Name'),
                         Select::make('contract_id')
                             ->relationship('contract', 'contract_type')
                             ->preload()
+                            ->disabled()
                             ->searchable()
                             ->label('Contract Type'),
                         TextInput::make('invoice_number')
                             ->required()
+                            ->disabled()
                             ->maxLength(255),
                         Select::make('wda_id')
                             ->relationship('wda', 'job_description')
                             ->preload()
+                            ->disabled()
                             ->searchable()
                             ->label('Job Description(WDA)'),
                         DatePicker::make('date')
                             ->rules(['date'])
                             ->required()
-                            ->placeholder('Date'),
+                            ->disabled()
+                            ->label('Start Date'),
                         FileUpload::make('document')
                             ->disk('s3')
                             ->directory('dev')
+                            ->disabled()
                             ->openable(true)
                             ->downloadable(true)
                             ->label('Document'),
-                        TextInput::make('status')
-                            ->label('Status'),
-                        TextInput::make('remarks')
-                            ->label('Status'),
-                        Select::make('status_updated_by')
-                            ->rules(['exists:users,id'])
-                            ->relationship('user', 'first_name')
-                            ->required()
-                            ->preload()
-                            ->searchable()
-                            ->label('Status Updated By'),
                         TextInput::make('invoice_amount')
-                            ->label('Invoice Amount'),
+                            ->label('Invoice Amount')
+                            ->disabled()
+                            ->prefix('AED'),
+                        Select::make('status')
+                            ->options([
+                                'approved' => 'Approved',
+                                'rejected' => 'Rejected',
+                            ])
+                            ->disabled(function (Invoice $record) {
+                                return $record->status != 'pending';
+                            })
+                            ->searchable()
+                            ->live(),
+                        TextInput::make('remarks')
+                            ->rules(['max:255'])
+                            ->visible(function (callable $get) {
+                                if($get('status') == 'rejected') {
+                                    return true;
+                                }
+                                return false;
+                            })
+                            ->disabled(function (Invoice $record) {
+                                return $record->status != 'pending';
+                            })
+                            ->required(),
                     ])
             ]);
     }
 
-    public function table(Table $table): Table
-    {
+    public function table(Table $table): Table {
         return $table
             ->columns([
                 TextColumn::make('building.name')
@@ -92,24 +108,14 @@ class InvoicesRelationManager extends RelationManager
                     ->label('Job Description(WDA)'),
                 TextColumn::make('date')
                     ->default('NA')
-                    ->label('Date'),
-                ImageColumn::make('document')
-                    ->square()
-                    ->disk('s3')
-                    ->label('Document'),
+                    ->label('Start Date'),
                 TextColumn::make('status')
                     ->default('NA')
                     ->label('Status'),
-                TextColumn::make('remarks')
-                    ->default('NA')
-                    ->label('Remarks'),
-                TextColumn::make('user.first_name')
-                    ->label('Status Updated By')
-                    ->default('NA'),
                 TextColumn::make('invoice_amount')
                     ->default('NA')
                     ->label('Invoice Amount'),
-                
+
             ])
             ->filters([
                 //
@@ -118,45 +124,13 @@ class InvoicesRelationManager extends RelationManager
                 //Tables\Actions\CreateAction::make(),
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
-                Action::make('Update Status')
-                    ->visible(fn($record) => $record->status === 'pending')
-                    ->button()
-                    ->form([
-                        Select::make('status')
-                            ->options([
-                                'approved' => 'Approved',
-                                'rejected' => 'Rejected',
-                            ])
-                            ->searchable()
-                            ->live(),
-                        TextInput::make('remarks')
-                            ->rules(['max:255'])
-                            ->visible(function (callable $get) {
-                                if ($get('status') == 'rejected') {
-                                    return true;
-                                }
-                                return false;
-                            })
-                            ->required(),
-                    ])
-                    ->fillForm(fn(Invoice $record): array => [
-                        'status' => $record->status,
-                        'remarks' => $record->remarks,
-                    ])
-                    ->action(function (Invoice $record, array $data): void {
-                        if ($data['status'] == 'rejected') {
-                            $record->status = $data['status'];
-                            $record->remarks = $data['remarks'];
-                            $record->status_updated_by = auth()->user()->id;
-                            $record->save();
-                        } else {
-                            $record->status = $data['status'];
-                            $record->status_updated_by = auth()->user()->id;
-                            $record->save();
+                Tables\Actions\EditAction::make()
+                    ->mutateFormDataUsing(function (array $data): array {
+                        if($data['status'] != 'pending'){
+                            $data['status_updated_by'] = auth()->user()->id;
                         }
+                        return $data;
                     })
-                    ->slideOver()
                 //Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([

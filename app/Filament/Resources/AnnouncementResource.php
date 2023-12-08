@@ -17,6 +17,8 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Set;
+use Illuminate\Support\Str;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\FileUpload;
@@ -27,6 +29,8 @@ use Filament\Forms\Components\DateTimePicker;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\AnnouncementResource\Pages;
 use App\Filament\Resources\AnnouncementResource\RelationManagers;
+use Carbon\Carbon;
+use DateTime;
 
 class AnnouncementResource extends Resource {
     protected static ?string $model = Post::class;
@@ -63,21 +67,23 @@ class AnnouncementResource extends Resource {
                                 'published' => 'Published',
                                 'draft' => 'Draft',
                             ])
+                            ->reactive()
                             ->live()
-                            ->required()
-                            ->default('published'),
+                            // ->afterStateUpdated(function (Set $set, Get $get) {
+                            //     $set('scheduled_at',Carbon::now()->addDay());
+                            //     // dd($get('scheduled_at'));
+                            // })
+                            ->default('published')
+                            ->required(),
 
                         DateTimePicker::make('scheduled_at')
                             ->rules(['date'])
                             ->displayFormat('d-M-Y h:i A')
-                            ->default(function (Get $get) {
-                                if($get('status') == 'published') {
-                                    return now();
-                                }
-                            })
-                            ->live()
+                            // ->default(fn (Get $get) => $get('status') == null ? now() : dd($get('status')))
                             ->minDate(now())
+                            ->live()
                             ->required()
+                            ->default(now())
                             ->placeholder('Scheduled At'),
 
                         Select::make('building_id')
