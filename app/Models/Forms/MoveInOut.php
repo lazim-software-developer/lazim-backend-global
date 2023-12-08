@@ -39,6 +39,7 @@ class MoveInOut extends Model
         'owner_association_id',
         'status',
         'remarks',
+        'rejected_fields'
     ];
 
     protected $table = 'move_in_out';
