@@ -34,12 +34,12 @@ class ResidentialFormRequest extends FormRequest
             'passport_expires_on' => 'required|date',
             'emirates_id' => 'required|string',
             'emirates_expires_on' => 'required|date',
-            'title_deed_number' => 'required_if:unit_occupied_by,Owner|string',
+            'title_deed_number' => 'string',
             'emergency_contact' => 'required|json',
             'passport_url' => 'required|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
             'emirates_url' => 'required|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
-            'title_deed_url' => 'required_if:unit_occupied_by,Owner|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
-            'tenancy_contract' => 'required_if:unit_occupied_by,Tenant|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
+            'title_deed_url' => 'file|mimes:pdf,jpeg,png,doc,docx|max:2048',
+            'tenancy_contract' => 'file|mimes:pdf,jpeg,png,doc,docx|max:2048',
         ];
     }
 
