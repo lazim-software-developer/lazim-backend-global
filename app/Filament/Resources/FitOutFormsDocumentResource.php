@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\FitOutFormsDocumentResource\Pages;
 use App\Models\Forms\FitOutForm;
+use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -90,7 +91,20 @@ class FitOutFormsDocumentResource extends Resource
                                     return $record->status != null;
                                 })
                                 ->required(),
-
+                             // If the form is rejected, we need to capture which fields are rejected
+                             CheckboxList::make('rejected_fields')
+                                ->label('Please select rejected fields')
+                                ->options([
+                                    'contractor_name' => 'Contractor Name',
+                                    'email' => 'Contractor email',
+                                    'phone' => 'Contractor phone',
+                                ])->columns(3)
+                                ->visible(function (callable $get) {
+                                    if ($get('status') == 'rejected') {
+                                        return true;
+                                    }
+                                    return false;
+                                })
                         ]),
             ]);
     }
