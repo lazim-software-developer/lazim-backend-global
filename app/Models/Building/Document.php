@@ -26,7 +26,9 @@ class Document extends Model
         'accepted_by',
         'documentable_id',
         'documentable_type',
-        'name'
+        'name',
+        'building_id',
+        'flat_id',
     ];
 
     protected $searchableFields = ['*'];
