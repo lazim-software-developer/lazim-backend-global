@@ -78,9 +78,9 @@ class BudgetImport implements ToCollection, WithHeadingRow {
             $subcategory = SubCategory::firstOrCreate(
                 [
                     'name' => $row['subcategory'],
-                    'category_id' => $category->id,
                 ],
                 [
+                    'category_id' => $category->id,
                     'code' => 'Y',
                 ]
                 );
