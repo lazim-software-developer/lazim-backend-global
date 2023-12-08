@@ -35,8 +35,6 @@ class SaleNocController extends Controller
             $contact['noc_form_id'] = $saleNoc->id;
 
             NocContacts::create($contact);
-
-            // SendSaleNocEmail::dispatch($saleNoc)->delay(5);
         }
 
         return response()->json([
@@ -79,11 +77,15 @@ class SaleNocController extends Controller
             $saleNoc->update(['submit_status' => 'seller_uploaded']);
 
             // Upload document to NocFormSignedDocument
-            NocFormSignedDocument::create([
+            $document = NocFormSignedDocument::create([
                 'noc_form_id' => $saleNoc->id,
                 'document' => $filePath,
                 'uploaded_by' => auth()->user()->id
             ]);
+
+            // Send email to buyers attaching the document
+            SendSaleNocEmail::dispatch($saleNoc, $document)->delay(5);
+
         } else if ($status == 'seller_uploaded') {
             $saleNoc->update(['submit_status' => 'buyer_uploaded']);
 
