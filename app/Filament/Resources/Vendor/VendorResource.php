@@ -45,66 +45,77 @@ class VendorResource extends Resource
                     'md' => 1,
                     'lg' => 2,
                 ])->schema([
-                   
-                    Hidden::make('owner_association_id')
-                        ->default(auth()->user()->owner_association_id),
-                    Select::make('owner_id')
-                        ->label('Vendor Name')
-                        ->rules(['exists:users,id'])
-                        ->required()
-                        ->disabled()
-                        ->preload()
-                        ->relationship('user', 'first_name')
-                        ->searchable()
-                        ->getSearchResultsUsing(fn (string $search): array => User::where('role_id', 2, "%{$search}%")->limit(50)->pluck('first_name', 'id')->toArray())
-                        ->getOptionLabelUsing(fn ($value): ?string => User::find($value)?->first_name)
-                        ->placeholder('Vendor Name'),
-                    TextInput::make('tl_number')->label('Trade Lisence Number')
-                        ->rules(['max:50', 'string'])
-                        ->disabled()
-                        ->required()
-                        ->unique(
-                            'vendors',
-                            'tl_number',
-                            fn (?Model $record) => $record
-                        )
-                        ->placeholder('Trade Lisence Number'),
 
-                    DatePicker::make('tl_expiry')
-                        ->label('Trade Licence Expiry')
-                        ->rules(['date'])
-                        ->disabled()
-                        ->required()
-                        ->placeholder('Trade Lisence Expiry'),
-                    TextInput::make('status')
-                        ->label('Status')
-                        ->disabled(),
-                    TextInput::make('remarks')
-                        ->placeholder('NA')
-                        ->disabled()
-                        ->label('Remarks'),
-                    TextInput::make('address_line_1')
-                        ->placeholder('NA')
-                        ->disabled()
-                        ->label('Address Line 1'),
-                    TextInput::make('address_line_2')
-                        ->placeholder('NA')
-                        ->disabled()
-                        ->label('Address Line 2'),
-                    TextInput::make('landline_number')
-                        ->placeholder('NA')
-                        ->disabled()
-                        ->label('Landline Number'),
-                    TextInput::make('website')
-                        ->placeholder('NA')
-                        ->disabled()
-                        ->label('Website'),
-                    TextInput::make('fax')
-                        ->placeholder('NA')
-                        ->disabled()
-                        ->label('Fax'),
+                            Hidden::make('owner_association_id')
+                                ->default(auth()->user()->owner_association_id),
+                            Select::make('owner_id')
+                                ->label('Vendor Name')
+                                ->rules(['exists:users,id'])
+                                ->required()
+                                ->disabled()
+                                ->preload()
+                                ->relationship('user', 'first_name')
+                                ->searchable()
+                                ->getSearchResultsUsing(fn(string $search): array => User::where('role_id', 2, "%{$search}%")->limit(50)->pluck('first_name', 'id')->toArray())
+                                ->getOptionLabelUsing(fn($value): ?string => User::find($value)?->first_name)
+                                ->placeholder('Vendor Name'),
+                            TextInput::make('tl_number')->label('Trade Lisence Number')
+                                ->rules(['max:50', 'string'])
+                                ->disabled()
+                                ->required()
+                                ->unique(
+                                    'vendors',
+                                    'tl_number',
+                                    fn(?Model $record) => $record
+                                )
+                                ->placeholder('Trade Lisence Number'),
 
-                ]),
+                            DatePicker::make('tl_expiry')
+                                ->label('Trade Licence Expiry')
+                                ->rules(['date'])
+                                ->disabled()
+                                ->required()
+                                ->placeholder('Trade Lisence Expiry'),
+                            TextInput::make('address_line_1')
+                                ->placeholder('NA')
+                                ->disabled()
+                                ->label('Address Line 1'),
+                            TextInput::make('address_line_2')
+                                ->placeholder('NA')
+                                ->disabled()
+                                ->label('Address Line 2'),
+                            TextInput::make('landline_number')
+                                ->placeholder('NA')
+                                ->disabled()
+                                ->label('Landline Number'),
+                            TextInput::make('website')
+                                ->placeholder('NA')
+                                ->disabled()
+                                ->label('Website'),
+                            TextInput::make('fax')
+                                ->placeholder('NA')
+                                ->disabled()
+                                ->label('Fax'),
+                            Select::make('status')
+                                ->options([
+                                    'approved' => 'Approved',
+                                    'rejected' => 'Rejected',
+                                ])
+                                ->visible(fn($record) => $record->status === null && $record->documents()->count() > 0 && $record->services()->count() > 0 && $record->managers()->count() > 0)
+                                ->searchable()
+                                ->live(),
+                            TextInput::make('remarks')
+                                ->rules(['max:255'])
+                                ->required()
+                                ->visible(function (callable $get) {
+                                    if ($get('status') == 'rejected') {
+                                        return true;
+                                    }
+                                    return false;
+                                })
+                                ->disabled(fn($record) => $record->status !== null ),
+
+                        ]),
             ]);
     }
 
@@ -140,54 +151,6 @@ class VendorResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
-                Action::make('Update Status')
-                ->visible(fn ($record) => $record->status === null && $record->documents()->count() > 0 && $record->services()->count() > 0 && $record->managers()->count() > 0)
-                ->button()
-                ->form([
-                    Select::make('status')
-                        ->options([
-                            'approved' => 'Approved',
-                            'rejected' => 'Rejected',
-                        ])
-                        ->searchable()
-                        ->live(),
-                    TextInput::make('remarks')
-                        ->rules(['max:255'])
-                        ->required()
-                        ->visible(function (callable $get) {
-                            if ($get('status') == 'rejected') {
-                                return true;
-                            }
-                            return false;
-                        }),
-                ])
-                ->fillForm(fn (Vendor $record): array => [
-                    'status' => $record->status,
-                    'remarks' => $record->remarks,
-                ])
-                ->action(function (Vendor $record, array $data): void {
-                    if ($data['status'] == 'rejected') {
-                        $vendor=Vendor::where('id',$record->id)->first();
-                        $user = User::find($vendor->owner_id);
-                        $remarks= $data['remarks'];
-                        VendorRejectionJob::dispatch($user,$remarks);
-                        $record->status = $data['status'];
-                        $record->remarks = $data['remarks'];
-                        $record->save();
-                    }
-                    if ($data['status'] == 'approved') 
-                    {
-                        $vendor=Vendor::where('id',$record->id)->first();
-                        $user = User::find($vendor->owner_id);
-                        $password = Str::random(12);
-                        $user->password = Hash::make($password);
-                        $user->save();
-                        VendorAccountCreationJob::dispatch($user, $password);
-                        $record->status = $data['status'];
-                        $record->save();
-                    }
-                })
-                ->slideOver()
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -203,8 +166,8 @@ class VendorResource extends Resource
     {
         return [
             VendorResource\RelationManagers\ServicesRelationManager::class,
-            // VendorResource\RelationManagers\UsersRelationManager::class,
-            // VendorResource\RelationManagers\ContactsRelationManager::class,
+                // VendorResource\RelationManagers\UsersRelationManager::class,
+                // VendorResource\RelationManagers\ContactsRelationManager::class,
             VendorResource\RelationManagers\DocumentsRelationManager::class,
             VendorResource\RelationManagers\BuildingsRelationManager::class,
             VendorResource\RelationManagers\TechnicianVendorsRelationManager::class,
@@ -220,9 +183,9 @@ class VendorResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => Pages\ListVendors::route('/'),
+            'index' => Pages\ListVendors::route('/'),
             //'create' => Pages\CreateVendor::route('/create'),
-            'edit'   => Pages\EditVendor::route('/{record}/edit'),
+            'edit' => Pages\EditVendor::route('/{record}/edit'),
             'view' => Pages\ViewVendor::route('/{record}'),
         ];
     }
