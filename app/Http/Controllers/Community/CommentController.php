@@ -61,7 +61,7 @@ class CommentController extends Controller
     // List all comments for a given complaint
     public function listComplaintComments(Complaint $complaint)
     {
-        $comments = $complaint->comments()->orderBy('id', 'asc')->get();
+        $comments = $complaint->comments()->orderBy('id', 'desc')->get();
 
         return CommentResource::collection($comments);
     }
