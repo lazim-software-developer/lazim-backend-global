@@ -293,6 +293,7 @@ Route::middleware([])->prefix('vendor')->group(function () {
     // Attcah existing service to vendor
     Route::post('/{vendor}/tag-services', [SelectServicesController::class, 'tagServices']);
     Route::post('/{vendor}/documents-upload', [DocumentsUploadController::class, 'documentsUpload']);
+    Route::get('/owner-associations',[VendorRegistrationController::class,'listOa']);
 });
 
 // Vendor APIs after logging in
