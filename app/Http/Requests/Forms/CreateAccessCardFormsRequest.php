@@ -27,7 +27,7 @@ class CreateAccessCardFormsRequest extends FormRequest
             'card_type' => 'required|string|in:Parking,Lobby/Access Doors',
             'reason' => 'nullable|string',
             'parking_details' => 'nullable|json',
-            'occupied_by' => 'required|in:Owner,Tenant,Vacant',
+            'occupied_by' => 'nullable|in:Owner,Tenant,Vacant',
             'tenancy' => 'file|mimes:pdf,jpeg,png,doc,docx|max:2048',
             'vehicle_registration' => 'nullable|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
             'title_deed' => 'file|mimes:pdf,jpeg,png,doc,docx|max:2048',
