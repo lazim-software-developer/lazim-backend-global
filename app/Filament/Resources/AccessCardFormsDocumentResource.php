@@ -16,6 +16,7 @@ use Filament\Forms\Components\ViewField;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Forms\Components\FileUpload;
 use App\Filament\Resources\AccessCardFormsDocumentResource\Pages;
+use Filament\Forms\Components\CheckboxList;
 
 class AccessCardFormsDocumentResource extends Resource {
     protected static ?string $model = AccessCard::class;
@@ -69,36 +70,35 @@ class AccessCardFormsDocumentResource extends Resource {
                                 ->required()
                                 ->disabled()
                                 ->rows(10)
-                                ->placeholder('No Parking Details')
-                                ->columnSpan([
-                                    'sm' => 1,
-                                    'md' => 1,
-                                    'lg' => 2,
-                                ]),
+                                ->placeholder('No Parking Details'),
                             FileUpload::make('tenancy')
                                 ->disk('s3')
                                 ->directory('dev')
                                 ->disabled()
                                 ->downloadable(true)
                                 ->openable(true)
-                                ->label('Tenancy')
-                                ->columnSpan([
-                                    'sm' => 1,
-                                    'md' => 1,
-                                    'lg' => 2,
-                                ]),
+                                ->label('Tenancy / Ejari'),
                             FileUpload::make('vehicle_registration')
                                 ->disk('s3')
                                 ->directory('dev')
                                 ->disabled()
                                 ->downloadable(true)
                                 ->openable(true)
-                                ->label('Vehicle Registration')
-                                ->columnSpan([
-                                    'sm' => 1,
-                                    'md' => 1,
-                                    'lg' => 2,
-                                ]),
+                                ->label('Vehicle Registration'),
+                            FileUpload::make('title_deed')
+                                ->disk('s3')
+                                ->directory('dev')
+                                ->disabled()
+                                ->downloadable(true)
+                                ->openable(true)
+                                ->label('Title Deed'),
+                            FileUpload::make('passport')
+                                ->disk('s3')
+                                ->directory('dev')
+                                ->disabled()
+                                ->downloadable(true)
+                                ->openable(true)
+                                ->label('Passport / EID'),
                             Select::make('status')
                                 ->options([
                                     'approved' => 'Approved',
@@ -121,6 +121,28 @@ class AccessCardFormsDocumentResource extends Resource {
                                     return $record->status != null;
                                 })
                                 ->required(),
+                            // If the form is rejected, we need to capture which fields are rejected
+                            CheckboxList::make('rejected_fields')
+                            ->label('Please select rejected fields')
+                            ->options([
+                                'card_type' => 'Card type',
+                                'email' => 'Email',
+                                'mobile' => 'Mobile number',
+                                'make_model' => 'Make and model',
+                                'vehicle_color' => 'Vehicle color',
+                                'emirates_of_registration' => 'Emirates of registration',
+                                'parking_bay_number' => 'Parking bay number',
+                                'vehicle_registration_number' => 'Vehicle registration number',
+                                'tenancy' => 'Tenancy / Ejari',
+                                'vehicle_registration' => 'Vehicle registration / Mulkiya',
+                                'passport' => 'Passport / EID',
+                            ])->columns(3)
+                            ->visible(function (callable $get) {
+                                if ($get('status') == 'rejected') {
+                                    return true;
+                                }
+                                return false;
+                            })
 
                         ]),
             ]);
