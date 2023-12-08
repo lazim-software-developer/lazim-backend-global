@@ -25,7 +25,7 @@ class BuildingDocumentResource extends Resource
 {
     protected static ?string $model = Document::class;
 
-    protected static ?string $navigationIcon  = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
     protected static ?string $navigationGroup = 'Document Management';
     protected static ?string $navigationLabel = 'Building';
 
@@ -39,52 +39,63 @@ class BuildingDocumentResource extends Resource
                     'lg' => 2,
                 ])->schema([
 
-                    Select::make('document_library_id')
-                        ->rules(['exists:document_libraries,id'])
-                        ->required()
-                        ->preload()
-                        ->relationship('documentLibrary', 'name')
-                        ->searchable()
-                        ->placeholder('Document Library'),
+                            Select::make('document_library_id')
+                                ->rules(['exists:document_libraries,id'])
+                                ->required()
+                                ->preload()
+                                ->relationship('documentLibrary', 'name')
+                                ->searchable()
+                                ->placeholder('Document Library'),
 
-                    FileUpload::make('url')
-                        ->disk('s3')
-                        ->directory('dev')
-                        ->label('Document')
-                        ->required(),
-                    Select::make('status')
-                        ->options([
-                            'submitted' => 'Submitted',
-                            'approved' => 'Approved',
-                            'rejected' => 'Rejected',
-                        ])
-                        ->searchable()
-                        ->required()
-                        ->placeholder('Status'),
-                    TextInput::make('comments'),
-                    TextInput::make('name'),
-                    //->required(),
-                    DatePicker::make('expiry_date')
-                        ->rules(['date'])
-                        ->required()
-                        ->placeholder('Expiry Date'),
+                            FileUpload::make('url')
+                                ->disk('s3')
+                                ->directory('dev')
+                                ->label('Document')
+                                ->required(),
+                            TextInput::make('name'),
+                            DatePicker::make('expiry_date')
+                                ->rules(['date'])
+                                ->required()
+                                ->placeholder('Expiry Date'),
 
-                    Hidden::make('owner_association_id')
-                        ->default(auth()->user()->owner_association_id),
+                            Hidden::make('owner_association_id')
+                                ->default(auth()->user()->owner_association_id),
 
-                    Hidden::make('documentable_type')
-                        ->default('App\Models\Building\Building'),
+                            Hidden::make('documentable_type')
+                                ->default('App\Models\Building\Building'),
 
-                    Select::make('documentable_id')
-                        ->options(
-                            DB::table('buildings')->pluck('name', 'id')->toArray()
-                        )
-                        ->searchable()
-                        ->preload()
-                        ->required()
-                        ->label('Building')
-                        ->placeholder('Documentable Id'),
-                ]),
+                            Select::make('documentable_id')
+                                ->options(
+                                    DB::table('buildings')->pluck('name', 'id')->toArray()
+                                )
+                                ->searchable()
+                                ->preload()
+                                ->required()
+                                ->label('Building')
+                                ->placeholder('Documentable Id'),
+                            Select::make('status')
+                                ->options([
+                                    'approved' => 'Approved',
+                                    'rejected' => 'Rejected',
+                                ])
+                                ->disabled(function (Document $record) {
+                                    return $record->status != null;
+                                })
+                                ->searchable()
+                                ->live(),
+                            TextInput::make('remarks')
+                                ->rules(['max:255'])
+                                ->visible(function (callable $get) {
+                                    if ($get('status') == 'rejected') {
+                                        return true;
+                                    }
+                                    return false;
+                                })
+                                ->disabled(function (Document $record) {
+                                    return $record->status != null;
+                                })
+                                ->required(),
+                        ]),
 
             ]);
     }
@@ -93,7 +104,7 @@ class BuildingDocumentResource extends Resource
     {
         return $table
             ->poll('60s')
-            ->modifyQueryUsing(fn (Builder $query) => $query->where('documentable_type', 'App\Models\Building\Building')->withoutGlobalScopes())
+            ->modifyQueryUsing(fn(Builder $query) => $query->where('documentable_type', 'App\Models\Building\Building')->withoutGlobalScopes())
             ->columns([
                 TextColumn::make('documentLibrary.name')
                     ->searchable()
@@ -116,42 +127,8 @@ class BuildingDocumentResource extends Resource
             ->filters([
                 //
             ])->actions([
-                Action::make('Update Status')
-                    ->visible(fn ($record) => $record->status === null)
-                    ->button()
-                    ->form([
-                        Select::make('status')
-                            ->options([
-                                'approved' => 'Approved',
-                                'rejected' => 'Rejected',
-                            ])
-                            ->searchable()
-                            ->live(),
-                        TextInput::make('remarks')
-                            ->rules(['max:255'])
-                            ->visible(function (callable $get) {
-                                if ($get('status') == 'rejected') {
-                                    return true;
-                                }
-                                return false;
-                            })
-                            ->required(),
-                    ])
-                    ->fillForm(fn (Document $record): array => [
-                        'status' => $record->status,
-                        'remarks' => $record->remarks,
-                    ])
-                    ->action(function (Document $record, array $data): void {
-                        if ($data['status'] == 'rejected') {
-                            $record->status = $data['status'];
-                            $record->remarks = $data['remarks'];
-                            $record->save();
-                        } else {
-                            $record->status = $data['status'];
-                            $record->save();
-                        }
-                    }),
-            ]);
+                    
+                ]);
     }
 
     public static function getRelations(): array
@@ -164,9 +141,9 @@ class BuildingDocumentResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => ListBuildingDocuments::route('/'),
+            'index' => ListBuildingDocuments::route('/'),
             'create' => CreateBuildingDocument::route('/create'),
-            'edit'   => EditBuildingDocument::route('/{record}/edit'),
+            'edit' => EditBuildingDocument::route('/{record}/edit'),
         ];
     }
 }

@@ -57,7 +57,7 @@ class InvoicesRelationManager extends RelationManager {
                             ->rules(['date'])
                             ->required()
                             ->disabled()
-                            ->placeholder('Date'),
+                            ->label('Start Date'),
                         FileUpload::make('document')
                             ->disk('s3')
                             ->directory('dev')
@@ -108,7 +108,7 @@ class InvoicesRelationManager extends RelationManager {
                     ->label('Job Description(WDA)'),
                 TextColumn::make('date')
                     ->default('NA')
-                    ->label('Date'),
+                    ->label('Start Date'),
                 TextColumn::make('status')
                     ->default('NA')
                     ->label('Status'),
