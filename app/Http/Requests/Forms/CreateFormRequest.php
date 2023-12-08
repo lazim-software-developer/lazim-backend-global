@@ -32,7 +32,7 @@ class CreateFormRequest extends FormRequest
             'receipt_charges' => 'nullable|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
             'contract' => 'file|mimes:pdf,jpeg,png,doc,docx|max:2048',
             'title_deed' => 'file|mimes:pdf,jpeg,png,doc,docx|max:2048',
-            'passport' => 'required|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
+            'passport' => 'required_if:type,move-out|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
             'dewa' => 'nullable|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
             'cooling_registration' => 'nullable|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
             'gas_registration' => 'nullable|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
