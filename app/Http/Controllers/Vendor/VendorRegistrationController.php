@@ -97,7 +97,7 @@ class VendorRegistrationController extends Controller
                 if ($existingEmail->email_verified) {
                     return (new CustomResponseResource([
                         'title' => 'account_present',
-                        'message' => 'Your email is already registered in our application. Please try login instead!',
+                        'message' => 'Your email is already registered in our application.',
                         'code' => 400,
                     ]))->response()->setStatusCode(400);
                 } else {
@@ -114,7 +114,7 @@ class VendorRegistrationController extends Controller
                 if ($existingPhone->phone_verified) {
                     return (new CustomResponseResource([
                         'title' => 'account_present',
-                        'message' => 'Your phone is already registered in our application. Please try login instead!',
+                        'message' => 'Your phone is already registered in our application.',
                         'code' => 400,
                     ]))->response()->setStatusCode(400);
                 } else {

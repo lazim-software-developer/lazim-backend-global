@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Forms;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Forms\SaleNocRequest;
 use App\Http\Resources\CustomResponseResource;
+use App\Jobs\SendSaleNocEmail;
 use App\Models\Building\Building;
 use App\Models\Forms\NocContacts;
 use App\Models\Forms\NocFormSignedDocument;
@@ -20,13 +21,6 @@ class SaleNocController extends Controller
 
         $ownerAssociationId = Building::find($request->building_id)->owner_association_id;
 
-        // Handle the file uploads using the optimizeDocumentAndUpload function
-        // $validated['cooling_receipt'] = optimizeDocumentAndUpload($request->file('cooling_receipt'));
-        // $validated['cooling_soa'] = optimizeDocumentAndUpload($request->file('cooling_soa'));
-        // $validated['cooling_clearance'] = optimizeDocumentAndUpload($request->file('cooling_clearance'));
-        // $validated['payment_receipt'] = optimizeDocumentAndUpload($request->file('payment_receipt'));
-
-
         $validated['user_id'] = auth()->user()->id;
         $validated['owner_association_id'] = $ownerAssociationId;
         $validated['submit_status'] = 'download_file';
@@ -35,25 +29,9 @@ class SaleNocController extends Controller
         $saleNoc = SaleNoc::create($validated);
 
         $contacts = $request->get('contacts');
+
         foreach ($contacts as $index => $contact) {
-            // Handle file uploads for emirates_document_url
-            // if ($request->hasFile("contacts.$index.emirates_document_url")) {
-            //     $file = optimizeDocumentAndUpload($request->file("contacts.$index.emirates_document_url"));
-            //     $contact['emirates_document_url'] = $file;
-            // }
-
-            // // Handle file uploads for visa_document_url
-            // if ($request->hasFile("contacts.$index.visa_document_url")) {
-            //     $file = optimizeDocumentAndUpload($request->file("contacts.$index.visa_document_url"));
-            //     $contact['visa_document_url'] = $file;
-            // }
-
-            // // Handle file uploads for passport_document_url
-            // if ($request->hasFile("contacts.$index.passport_document_url")) {
-            //     $file = optimizeDocumentAndUpload($request->file("contacts.$index.passport_document_url"));
-            //     $contact['passport_document_url'] = $file;
-            // }
-
+           
             $contact['noc_form_id'] = $saleNoc->id;
 
             NocContacts::create($contact);
@@ -99,11 +77,15 @@ class SaleNocController extends Controller
             $saleNoc->update(['submit_status' => 'seller_uploaded']);
 
             // Upload document to NocFormSignedDocument
-            NocFormSignedDocument::create([
+            $document = NocFormSignedDocument::create([
                 'noc_form_id' => $saleNoc->id,
                 'document' => $filePath,
                 'uploaded_by' => auth()->user()->id
             ]);
+
+            // Send email to buyers attaching the document
+            SendSaleNocEmail::dispatch($saleNoc, $document)->delay(5);
+
         } else if ($status == 'seller_uploaded') {
             $saleNoc->update(['submit_status' => 'buyer_uploaded']);
 
