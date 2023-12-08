@@ -165,14 +165,7 @@ class MoveInFormsDocumentResource extends Resource
                             'vehicle_registration' => 'Vehicle registration',
                             'movers_license' => 'Movers license',
                             'movers_liability' => 'Movers liability',
-                            'etisalat_final' => 'Mtisalat final',
-                            'dewa_final' => 'Dewa final',
-                            'gas_clearance' => 'Gas clearance',
-                            'cooling_clearance' => 'Cooling clearance',
-                            'gas_final' => 'Gas final',
-                            'cooling_final' => 'Cooling final',
-                            'noc_landlord' => 'NOC landlord',
-                        ])->columns(3)
+                        ])->columns(4)
                         ->visible(function (callable $get) {
                             if ($get('status') == 'rejected') {
                                 return true;

@@ -39,13 +39,22 @@ class MoveInOut extends Model
         'owner_association_id',
         'status',
         'remarks',
-        'rejected_fields'
+        'rejected_fields',
+        'cooling_clearance',
+        'gas_clearance',
+        'noc_landlord',
+        'cooling_final',
+        'gas_final',
+        'dewa_final',
+        'etisalat_final'
+
+
     ];
 
     protected $table = 'move_in_out';
 
     protected $searchableFields = ['*'];
-    
+
     protected $casts = [
         'allow_postupload' => 'boolean',
     ];

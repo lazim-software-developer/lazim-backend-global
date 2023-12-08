@@ -28,6 +28,7 @@ class Guest extends Model
         'holiday_home_name',
         'emergency_contact',
         'remarks',
+        'rejected_fields'
     ];
 
     protected $searchableFields = ['*'];
