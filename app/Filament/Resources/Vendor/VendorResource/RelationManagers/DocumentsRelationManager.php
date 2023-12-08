@@ -82,44 +82,8 @@ class DocumentsRelationManager extends RelationManager
                 //Tables\Actions\CreateAction::make(),
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
+                Tables\Actions\EditAction::make(),
                 //Tables\Actions\DeleteAction::make(),
-                Action::make('Update Status')
-                    ->visible(fn ($record) => $record->status == 'pending')
-                    ->button()
-                    ->form([
-                        Select::make('status')
-                            ->options([
-                                'approved' => 'Approved',
-                                'rejected' => 'Rejected',
-                            ])
-                            ->searchable()
-                            ->live(),
-                        TextInput::make('remarks')
-                            ->rules(['max:255'])
-                            ->visible(function (callable $get) {
-                                if ($get('status') == 'rejected') {
-                                    return true;
-                                }
-                                return false;
-                            })
-                            ->required(),
-                    ])
-                    ->fillForm(fn (Document $record): array => [
-                        'status' => $record->status,
-                        'remarks' => $record->remarks,
-                    ])
-                    ->action(function (Document $record, array $data): void {
-                        if ($data['status'] == 'rejected') {
-                            $record->status = $data['status'];
-                            $record->remarks = $data['remarks'];
-                            $record->save();
-                        } else {
-                            $record->status = $data['status'];
-                            $record->save();
-                        }
-                    })
-                    ->slideOver()
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

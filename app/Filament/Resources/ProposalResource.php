@@ -48,7 +48,7 @@ class ProposalResource extends Resource
                     ->searchable()
                     ->label('Tender Created ID'),
                 TextInput::make('amount')
-                    ->label('Amount'),
+                    ->label('Amount')->prefix('AED'),
                 Hidden::make('submitted_by')
                     ->default(1),
                 Hidden::make('submitted_on')
