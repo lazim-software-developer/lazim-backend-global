@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\TenderResource\RelationManagers;
 
+use App\Models\TechnicianVendor;
 use Filament\Forms;
 use Filament\Tables;
 use Filament\Forms\Form;
@@ -10,6 +11,9 @@ use App\Models\BuildingVendor;
 use Illuminate\Support\Facades\DB;
 use App\Models\Accounting\Proposal;
 use App\Models\Accounting\Tender;
+use App\Models\Asset;
+use App\Models\TechnicianAssets;
+use App\Models\User\User;
 use App\Models\Vendor\Contract;
 use Filament\Tables\Actions\Action;
 use App\Models\Vendor\ServiceVendor;
@@ -21,6 +25,7 @@ use Filament\Forms\Components\FileUpload;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Resources\RelationManagers\RelationManager;
+use Illuminate\Support\Facades\Log;
 
 class ProposalsRelationManager extends RelationManager
 {
@@ -140,6 +145,38 @@ class ProposalsRelationManager extends RelationManager
                         $record->status_updated_by = auth()->user()->id;
                         $record->status_updated_on = now();
                         $record->save();
+
+                        $technicianVendorIds = DB::table('service_technician_vendor')
+                                 ->where('service_id',$contract->service_id)
+                                 ->pluck('technician_vendor_id');
+
+                        $assets = Asset::where('building_id',$contract->building_id)->where('service_id',$contract->service_id)->get();
+                        
+                        foreach($assets as $asset){
+                            $asset->vendors()->syncWithoutDetaching([$contract->vendor_id]);
+                            $technicianIds = TechnicianVendor::whereIn('id', $technicianVendorIds)->where('vendor_id',$contract->vendor_id)->where('active', true)->pluck('technician_id');
+                            if ($technicianIds){
+                                $assignees = User::whereIn('id',$technicianIds)
+                                ->withCount(['assets' => function ($query) {
+                                    $query->where('active', true);
+                                }])
+                                ->orderBy('assets_count', 'asc')
+                                ->get();
+                                $selectedTechnician = $assignees->first();
+                                
+                                if ($selectedTechnician) {
+                                    $assigned = TechnicianAssets::create([
+                                        'asset_id' => $asset->id,
+                                        'technician_id' => $selectedTechnician->id,
+                                        'vendor_id' => $contract->vendor_id,
+                                        'building_id' => $asset->building_id,
+                                        'active' => 1,
+                                    ]);
+                                } else {
+                                    Log::info("No technicians to add", []);
+                                }
+                            }
+                        }
 
                     })
                     ->slideOver(),
