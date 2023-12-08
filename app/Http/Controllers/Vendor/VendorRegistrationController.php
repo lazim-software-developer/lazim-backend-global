@@ -7,11 +7,13 @@ use App\Http\Requests\Vendor\CompanyDetailsRequest;
 use App\Http\Requests\Vendor\ManagerDetailsRequest;
 use App\Http\Requests\Vendor\VendorRegisterRequest;
 use App\Http\Resources\CustomResponseResource;
+use App\Http\Resources\Vendor\ListOAResource;
 use App\Http\Resources\Vendor\VendorManagerResource;
 use App\Http\Resources\Vendor\VendorResource;
 use App\Jobs\SendVerificationOtp;
 use App\Models\Building\Document;
 use App\Models\Master\Role;
+use App\Models\OwnerAssociation;
 use App\Models\User\User;
 use App\Models\Vendor\Vendor;
 use App\Models\Vendor\VendorManager;
@@ -205,5 +207,13 @@ class VendorRegistrationController extends Controller
     public function showVendorDetails()
     {
         return new VendorResource(auth()->user()->vendors()->first());
+    }
+
+    public function listOa()
+    {
+        $OwnerAssociations = OwnerAssociation::where('active', true)->get();
+
+        return ListOAResource::collection($OwnerAssociations);
+
     }
 }
