@@ -165,7 +165,7 @@ class MoveInFormsDocumentResource extends Resource
                             'vehicle_registration' => 'Vehicle registration',
                             'movers_license' => 'Movers license',
                             'movers_liability' => 'Movers liability',
-                        ])->columns(3)
+                        ])->columns(4)
                         ->visible(function (callable $get) {
                             if ($get('status') == 'rejected') {
                                 return true;
