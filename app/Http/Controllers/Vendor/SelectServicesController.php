@@ -58,9 +58,21 @@ public function listServices(SubCategory $subcategory)
         $vendor->services()->syncWithoutDetaching([$request->service]);
 
         return (new CustomResponseResource([
-            'title' => 'Services taged!',
+            'title' => 'Service taged!',
             'message' => "",
             'code' => 201,
+            'status' => 'success',
+        ]))->response()->setStatusCode(201);
+    }
+
+    public function untagServices(SelectServicesRequest $request, Vendor $vendor)
+    {
+        $vendor->services()->detach([$request->service]);
+
+        return (new CustomResponseResource([
+            'title' => 'Service untaged!',
+            'message' => "",
+            'code' => 200,
             'status' => 'success',
         ]))->response()->setStatusCode(201);
     }
