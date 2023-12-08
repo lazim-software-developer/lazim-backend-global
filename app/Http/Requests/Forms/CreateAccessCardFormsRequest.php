@@ -28,11 +28,29 @@ class CreateAccessCardFormsRequest extends FormRequest
             'reason' => 'nullable|string',
             'parking_details' => 'nullable|json',
             'occupied_by' => 'required|in:Owner,Tenant,Vacant',
-            'tenancy' => 'required_if:occupied_by,Tenant|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
-            'vehicle_registration' => 'required_if:card_type,Parking|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
-            'title_deed' => 'required_if:occupied_by,Owner|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
+            'tenancy' => 'file|mimes:pdf,jpeg,png,doc,docx|max:2048',
+            'vehicle_registration' => 'nullable|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
+            'title_deed' => 'file|mimes:pdf,jpeg,png,doc,docx|max:2048',
             'passport' => 'required|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
         ];
+    }
+
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+            $UserType = auth()->user()->role->name;
+            if ($UserType == 'Owner') {
+                if (!$this->hasFile('title_deed')) {
+                    $validator->errors()->add('title_deed', 'Upload Title Deed File.');
+                }
+            }
+
+            if ($UserType == 'Tenant') {
+                if (!$this->hasFile('tenancy')) {
+                    $validator->errors()->add('tenancy', 'Upload Tenancy Contract / Ejari File.');
+                }
+            }
+        });
     }
 
     public function messages()

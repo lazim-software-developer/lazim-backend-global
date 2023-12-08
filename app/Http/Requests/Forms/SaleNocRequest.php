@@ -40,25 +40,25 @@ class SaleNocRequest extends FormRequest
             'cooling_receipt' => 'nullable',
             'cooling_soa' => 'nullable',
             'cooling_clearance' => 'nullable',
-            'payment_receipt' => 'required',
+            'payment_receipt' => 'nullable',
 
             //details of seller's/buyer's
             'contacts.*.type' => 'required|in:buyer,seller',
-            'contacts.*.emirates_id' => 'nullable|string|max:20',
             'contacts.*.first_name' => 'required|string',
             'contacts.*.email' => 'required|string',
             'contacts.*.mobile' => 'required|string|max:20',
             'contacts.*.agent_email' => 'nullable|string',
             'contacts.*.agent_phone' => 'nullable|string|max:20',
-            'contacts.*.passport_number' => 'required_if:contacts.*.type,seller|string|max:20',
+            'contacts.*.passport_number' => 'required|string|max:20',
             'contacts.*.visa_number' => 'nullable|string|max:20',
+            'contacts.*.emirates_id' => 'nullable|string|max:20',
 
             //documents for seller's/buyer's
             'contacts.*.emirates_document_url' => 'nullable',
             'contacts.*.poa_document' => 'nullable',
             'contacts.*.visa_document_url' => 'nullable',
             'contacts.*.passport_document_url' => 'required',
-            'contacts.*.title_deed' => 'required_if:contacts.*.type,seller',
+            'contacts.*.title_deed' => 'required_if:contacts.type,seller',
 
         ];
     }
