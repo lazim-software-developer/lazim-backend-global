@@ -79,6 +79,7 @@ class ContractsRelationManager extends RelationManager
                             ->label('Document'),
                         TextInput::make('amount')
                             ->numeric(true)
+                            ->prefix('AED')
                             ->required(),
                         Hidden::make('vendor_id')
                             ->default(function (RelationManager $livewire) {

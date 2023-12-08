@@ -66,7 +66,7 @@ class VendorLedgersResource extends Resource
                     ->live(),
                 TextInput::make('invoice_number')->disabled(),
                 TextInput::make('opening_balance')->disabled(),
-                TextInput::make('invoice_amount')->disabled()->reactive(),
+                TextInput::make('invoice_amount')->prefix('AED')->disabled()->reactive(),
                 TextInput::make('payment')->disabled(function (callable $get) {
                     return $get('status') == 'pending';
                 })->reactive(),

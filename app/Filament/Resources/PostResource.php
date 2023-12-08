@@ -3,34 +3,36 @@
 namespace App\Filament\Resources;
 
 use Filament\Forms;
-use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\MorphToSelect;
-use Filament\Forms\Components\Repeater;
-use Filament\Forms\Components\RichEditor;
-use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Toggle;
 use Filament\Tables;
+use Filament\Forms\Get;
+use Filament\Forms\Set;
 use Filament\Forms\Form;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\Filter;
-use Filament\Tables\Filters\SelectFilter;
-use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use App\Models\Community\Post;
 use Filament\Resources\Resource;
+use App\Models\Building\Building;
+use Illuminate\Support\Facades\DB;
+use Filament\Forms\Components\Grid;
+use Filament\Tables\Filters\Filter;
+use function Laravel\Prompts\select;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Toggle;
+use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Textarea;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\RichEditor;
+use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Tables\Filters\TernaryFilter;
+use Filament\Forms\Components\MorphToSelect;
+use Filament\Forms\Components\DateTimePicker;
 use App\Filament\Resources\PostResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\PostResource\RelationManagers;
-use App\Models\Building\Building;
-use Filament\Forms\Components\DateTimePicker;
-use Filament\Forms\Components\Grid;
-
-use Illuminate\Support\Facades\DB;
-use function Laravel\Prompts\select;
+use DateTime;
 
 class PostResource extends Resource {
     protected static ?string $model = Post::class;
@@ -68,16 +70,18 @@ class PostResource extends Resource {
                             ->options([
                                 'published' => 'Published',
                                 'draft' => 'Draft',
-                                'archived' => 'Archived',
                             ])
-                            ->required()
-                            ->default('draft'),
+                            ->reactive()
+                            ->live()
+                            ->default('published')
+                            ->required(),
 
                         DateTimePicker::make('scheduled_at')
                             ->rules(['date'])
                             ->displayFormat('d-M-Y h:i A')
                             ->minDate(now())
                             ->required()
+                            ->default(now())
                             ->placeholder('Scheduled At'),
 
                         Select::make('building')

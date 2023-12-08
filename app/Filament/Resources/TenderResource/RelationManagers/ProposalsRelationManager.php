@@ -32,6 +32,7 @@ class ProposalsRelationManager extends RelationManager
             ->schema([
                 TextInput::make('amount')
                     ->label('Amount')
+                    ->prefix('AED')
                     ->disabled(),
                 TextInput::make('submitted_by')
                     ->label('Vendor Name')
