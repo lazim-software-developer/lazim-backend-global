@@ -121,7 +121,9 @@ class PostResource extends Resource {
                                 'sm' => 1,
                                 'md' => 1,
                                 'lg' => 2,
-                            ])
+                            ]),
+                        Toggle::make('allow_like')->default(0),
+                        Toggle::make('allow_comment')->default(0),
                     ])
         ]);
     }
