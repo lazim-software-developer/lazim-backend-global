@@ -38,7 +38,7 @@ class CreateGuestRequest extends FormRequest
             'guests.*.emergency_contact' => 'nullable',
             'end_date' => 'required|date|after:start_date',
             'image' => 'required|file|max:2048',
-            'files'=> 'required|file|mimes:pdf,jpeg,png,doc,docx|max:2048'
+            // 'files'=> 'file|mimes:pdf,jpg,jpeg,png,doc,docx|max:2048'
         ];
     }
 
@@ -46,7 +46,7 @@ class CreateGuestRequest extends FormRequest
     {
         return [
             'image.max' => 'The uploaded image must be less than 2MB.',
-            'files.max' => 'The uploaded image must be less than 2MB.',
+            // 'files.max' => 'The uploaded image must be less than 2MB.',
         ];
     }
 }
