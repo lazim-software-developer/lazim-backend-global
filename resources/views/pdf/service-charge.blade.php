@@ -19,7 +19,7 @@
     <h4>Subject: Service Charge and Utility Bills Payment Undertaking</h4>
 
     <p>
-        Date: ____________________
+        Date: {{ now()->format('d-F-Y') }}
     </p>
 
     <p>
