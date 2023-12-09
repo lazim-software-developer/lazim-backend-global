@@ -27,20 +27,22 @@ class SendSaleNocEmail implements ShouldQueue
 
     public function handle()
     {
-        // $email = new SaleNocSubmitted($this->saleNoc, $this->documentPath);
-        // Mail::to($this->saleNoc->signing_authority_email)->send($email);
+        $email = new SaleNocSubmitted($this->saleNoc, $this->documentPath);
+        Mail::to($this->saleNoc->signing_authority_email)->send($email);
 
-        // $beautymail = app()->make(\Snowfire\Beautymail\Beautymail::class);
+        $beautymail = app()->make(\Snowfire\Beautymail\Beautymail::class);
 
-        // $beautymail->send('emails.salenoc_submitted', ['data' => $this->saleNoc], function ($message) {
-        //     $message
-        //         ->to($this->saleNoc->signing_authority_email)
-        //         ->subject('Sale Noc');
+        $beautymail->send('emails.salenoc_submitted', ['data' => $this->saleNoc], function ($message) {
+            $message
+                ->to($this->saleNoc->signing_authority_email)
+                ->subject('Sale Noc');
 
-        //     // Attach the file
-        //     $tempPath = tempnam(sys_get_temp_dir(), 'attachment');
-        //     copy(Storage::disk('s3')->url($this->documentPath->document), $tempPath);
-        //     $message->attach($tempPath);
-        // });
+            // Attach the file
+            $tempPath = tempnam(sys_get_temp_dir(), 'attachment');
+            copy(Storage::disk('s3')->url($this->documentPath->document), $tempPath);
+            $message->attach($tempPath, [
+                'as' => 'sales_noc.pdf', // Optional, set a custom filename for the attachment
+            ]);
+        });
     }
 }
