@@ -6,11 +6,14 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Forms\CreateFormRequest;
 use App\Http\Resources\CustomResponseResource;
 use App\Models\Building\Building;
+use App\Models\ExpoPushNotification;
 use App\Models\Forms\MoveInOut;
+use App\Traits\UtilsTrait;
 use Illuminate\Support\Facades\Schema;
 
 class MoveInOutController extends Controller
 {
+    use UtilsTrait;
     public function index(MoveInOut $movein)
     {
         if ($movein->status == 'rejected') {
@@ -71,12 +74,36 @@ class MoveInOutController extends Controller
         }
 
         $data['name'] = auth()->user()->first_name;
-        $data['phone'] = auth()->user()->phone;
-        $data['email'] = auth()->user()->email;
-        $data['user_id'] = auth()->user()->id;
-        $data['owner_association_id'] = $ownerAssociationId;
+        $data['phone']= auth()->user()->phone;
+        $data['email']= auth()->user()->email;
+        $data['user_id']= auth()->user()->id;
+        $data['owner_association_id']= $ownerAssociationId;
 
-        MoveInOut::create($data);
+        $moveInOut = MoveInOut::create($data);
+
+        $expoPushTokens = ExpoPushNotification::where('user_id', $moveInOut->user_id)->pluck('token');
+        if ($expoPushTokens->count() > 0) {
+            foreach ($expoPushTokens as $expoPushToken) {
+                if ($moveInOut->type == 'move-in') {
+                    $message = [
+                        'to' => $expoPushToken,
+                        'sound' => 'default',
+                        'title' => 'New MoveIn',
+                        'body' => 'New MoveIn created by ' . auth()->user()->first_name,
+                        'data' => ['notificationType' => 'app_notification'],
+                    ];
+                } else {
+                    $message = [
+                        'to' => $expoPushToken,
+                        'sound' => 'default',
+                        'title' => 'New MoveOut',
+                        'body' => 'New MoveOut created by ' . auth()->user()->first_name,
+                        'data' => ['notificationType' => 'app_notification'],
+                    ];
+                }
+                $this->expoNotification($message);
+            }
+        }
 
         return (new CustomResponseResource([
             'title' => 'Success',
