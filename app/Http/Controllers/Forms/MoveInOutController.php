@@ -8,10 +8,12 @@ use App\Http\Resources\CustomResponseResource;
 use App\Models\Building\Building;
 use App\Models\ExpoPushNotification;
 use App\Models\Forms\MoveInOut;
+use App\Traits\UtilsTrait;
 use Illuminate\Support\Facades\Schema;
 
 class MoveInOutController extends Controller
 {
+    use UtilsTrait;
     public function index(MoveInOut $movein)
     {
         if ($movein->status == 'rejected') {
