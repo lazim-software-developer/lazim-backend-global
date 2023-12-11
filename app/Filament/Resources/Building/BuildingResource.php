@@ -198,7 +198,7 @@ class BuildingResource extends Resource
                             ->directory('budget_imports'), // or your preferred directory
                     ])
                     ->action(function ($record, array $data, $livewire) {
-                        try {
+                        // try {
                             $budgetPeriod = $data['budget_period'];
                             $filePath = $data['excel_file'];
                             $fullPath = storage_path('app/' . $filePath);
@@ -211,12 +211,13 @@ class BuildingResource extends Resource
                             // Now import using the file path
                             Excel::import(new BudgetImport($budgetPeriod, $record->id), $fullPath); // Notify user of success
             
-                        } catch (\Exception $e) {
-                            Log::error('Error during file import: ' . $e->getMessage());
-
-                            // Notify user of failure
-                            Session::flash('notify', ['type' => 'danger', 'message' => 'Failed to import budget file.']);
-                        }
+                        // } catch (\Exception $e) {
+                        //     // Log::error('Error during file import: ' . $e->getMessage());
+                        //     Notification::make()
+                        //     ->title($e->getMessage())
+                        //     ->danger()
+                        //     ->send();
+                        // }
                     }),
             ])
             ->bulkActions([
