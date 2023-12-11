@@ -95,8 +95,8 @@ class TechnicianController extends Controller
     public function technicianList(Service $service, Vendor $vendor){
         $contract = Contract::where('vendor_id', $vendor->id)
                                     ->where('service_id', $service->id)->where('end_date','>=',Carbon::now()->toDateString())->first()->service_id;
-        $assigned = DB::table('service_technician_vendor')->where('service_id', $contract)->pluck('technician_vendor_id');
-        $technicians = TechnicianVendor::where('vendor_id', $vendor->id)->where('active', true)->whereNotIn('id',$assigned)->get();
+        $serviceTechnician = DB::table('service_technician_vendor')->where('service_id', $contract)->pluck('technician_vendor_id');
+        $technicians = TechnicianVendor::whereIn('id', $serviceTechnician)->where('active', true)->get();
         return ListTechnicianResource::collection($technicians);
     }
 
