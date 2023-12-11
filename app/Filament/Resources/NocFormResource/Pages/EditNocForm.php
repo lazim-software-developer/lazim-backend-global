@@ -32,8 +32,8 @@ class EditNocForm extends EditRecord
                     $message = [
                         'to' => $expoPushToken,
                         'sound' => 'default',
-                        'title' => 'MoveOut form Updated!',
-                        'body' => auth()->user()->first_name . ' approved your MoveOut form.',
+                        'title' => 'Sales NOC form Updated!',
+                        'body' => auth()->user()->first_name . ' approved your Sales NOC form.',
                         'data' => ['notificationType' => 'app_notification'],
                     ];
                     $this->expoNotification($message);
@@ -47,8 +47,8 @@ class EditNocForm extends EditRecord
                     $message = [
                         'to' => $expoPushToken,
                         'sound' => 'default',
-                        'title' => 'MoveOut form Updated!',
-                        'body' => auth()->user()->first_name . ' rejected your MoveOut form.',
+                        'title' => 'Sales NOC form Updated!',
+                        'body' => auth()->user()->first_name . ' rejected your Sales NOC form.',
                         'data' => ['notificationType' => 'app_notification'],
                     ];
                     $this->expoNotification($message);

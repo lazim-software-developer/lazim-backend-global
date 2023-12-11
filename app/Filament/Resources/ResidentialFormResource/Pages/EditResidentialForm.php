@@ -54,8 +54,8 @@ class EditResidentialForm extends EditRecord
                     $message = [
                         'to' => $expoPushToken,
                         'sound' => 'default',
-                        'title' => 'MoveOut form Updated!',
-                        'body' => auth()->user()->first_name . ' approved your MoveOut form.',
+                        'title' => 'Residential form Updated!',
+                        'body' => auth()->user()->first_name . ' approved your Residential form.',
                         'data' => ['notificationType' => 'app_notification'],
                     ];
                     $this->expoNotification($message);
@@ -69,8 +69,8 @@ class EditResidentialForm extends EditRecord
                     $message = [
                         'to' => $expoPushToken,
                         'sound' => 'default',
-                        'title' => 'MoveOut form Updated!',
-                        'body' => auth()->user()->first_name . ' rejected your MoveOut form.',
+                        'title' => 'Residential form Updated!',
+                        'body' => auth()->user()->first_name . ' rejected your Residential form.',
                         'data' => ['notificationType' => 'app_notification'],
                     ];
                     $this->expoNotification($message);
