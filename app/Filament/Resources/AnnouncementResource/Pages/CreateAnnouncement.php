@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\AnnouncementResource\Pages;
 
 use App\Filament\Resources\AnnouncementResource;
+use App\Models\Building\Building;
 use App\Models\Community\Post;
 use App\Models\ExpoPushNotification;
 use App\Models\User\User;
@@ -21,7 +22,9 @@ class CreateAnnouncement extends CreateRecord
 
     public function afterCreate()
     {
-        $users = User::where('active', 1)->first();
+        $buildingId = Building::where('id', $this->data['building_id'])->first();
+        $users = User::where('active', 1)
+            ->where('owner_association_id', $buildingId->owner_association_id)->first();
         $expoPushTokens = ExpoPushNotification::where('user_id', $users->id)->pluck('token');
         if ($expoPushTokens->count() > 0) {
             foreach ($expoPushTokens as $expoPushToken) {
