@@ -62,6 +62,7 @@ class ProfileController extends Controller
                 'title' => 'Password Update Failed',
                 'message' => 'The provided current password does not match our records.',
                 'code' => 422,
+                'status' => 'error',
             ]);
         }
 
