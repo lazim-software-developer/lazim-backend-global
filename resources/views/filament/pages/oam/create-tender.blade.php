@@ -14,7 +14,7 @@
 
 
                     <div class="md:col-span-1 max-w-md my-5">
-                        <label for="end-date" class="block text-sm font-medium leading-6 text-gray-900">Contract document</label>
+                        <label for="end-date" class="block text-sm font-medium leading-6 text-gray-900">Tender document</label>
                         <div class="mt-2">
                             <input id="file-upload" name="document" type="file" class="mt-2 block w-full text-sm text-gray-900 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100">
                         </div>
