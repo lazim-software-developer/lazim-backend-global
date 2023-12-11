@@ -48,8 +48,8 @@ class ResidentialFormRequest extends FormRequest
         $validator->after(function ($validator) {
             $UserType = auth()->user()->role->name;
             if ($UserType == 'Owner') {
-                if (!$this->hasFile('title_deed_url')) {
-                    $validator->errors()->add('title_deed_url', 'Upload Title Deed File.');
+                if (!$this->hasFile('file_title_deed_url')) {
+                    $validator->errors()->add('file_title_deed_url', 'Upload Title Deed File.');
                 }
                 // if (!$this->hasFile('title_deed_number')) {
                 //     $validator->errors()->add('title_deed_number', 'Please enter title deed number.');
@@ -57,8 +57,8 @@ class ResidentialFormRequest extends FormRequest
             }
 
             if ($UserType == 'Tenant') {
-                if (!$this->hasFile('tenancy_contract')) {
-                    $validator->errors()->add('tenancy_contract', 'Upload Tenancy Contract / Ejari File.');
+                if (!$this->hasFile('file_tenancy_contract')) {
+                    $validator->errors()->add('file_tenancy_contract', 'Upload Tenancy Contract / Ejari File.');
                 }
             }
         });
@@ -67,10 +67,10 @@ class ResidentialFormRequest extends FormRequest
     public function messages()
     {
         return [
-            'passport_url.max' => 'The uploaded image must be less than 2MB.',
-            'emirates_url.max' => 'The uploaded image must be less than 2MB.',
-            'title_deed_url.max' => 'The uploaded image must be less than 2MB.',
-            'tenancy_contract.max' => 'The uploaded image must be less than 2MB.',
+            'file_passport_url.max' => 'The uploaded image must be less than 2MB.',
+            'file_emirates_url.max' => 'The uploaded image must be less than 2MB.',
+            'file_title_deed_url.max' => 'The uploaded image must be less than 2MB.',
+            'file_tenancy_contract.max' => 'The uploaded image must be less than 2MB.',
         ];
     }
 }
