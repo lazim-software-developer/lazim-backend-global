@@ -79,11 +79,11 @@ public function listServices(SubCategory $subcategory)
 
     public function showServices(Request $request,Vendor $vendor)
     {
-        $vendorServices = ServiceVendor::where('vendor_id',$vendor->id)->where('active', true)->when(isset($request->building_id), function ($query) use ($request) {
-            $buildingId = $request->building_id;
-            return $query->where('building_id', $buildingId);
-        })->pluck('service_id');
-        $services = $vendor->services->whereIn('id',$vendorServices)->unique();
+        // $vendorServices = ServiceVendor::where('vendor_id',$vendor->id)->where('active', true)->when(isset($request->building_id), function ($query) use ($request) {
+        //     $buildingId = $request->building_id;
+        //     return $query->where('building_id', $buildingId);
+        // })->pluck('service_id');
+        $services = $vendor->services->unique();
 
         return SelectServicesResource::collection($services);
     }
