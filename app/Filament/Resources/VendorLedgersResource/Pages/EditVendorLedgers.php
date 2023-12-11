@@ -21,4 +21,14 @@ class EditVendorLedgers extends EditRecord
     {
         return $this->getResource()::getUrl('index');
     }
+    public function afterSave()
+    {
+
+        Invoice::where('id', $this->data['id'])
+            ->update([
+                'opening_balance' => $this->data['invoice_amount'] - $this->data['payment'],
+                'balance' => $this->data['invoice_amount'] - $this->data['payment'],
+            ]);
+
+    }
 }

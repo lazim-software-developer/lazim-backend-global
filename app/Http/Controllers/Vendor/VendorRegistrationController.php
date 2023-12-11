@@ -7,11 +7,13 @@ use App\Http\Requests\Vendor\CompanyDetailsRequest;
 use App\Http\Requests\Vendor\ManagerDetailsRequest;
 use App\Http\Requests\Vendor\VendorRegisterRequest;
 use App\Http\Resources\CustomResponseResource;
+use App\Http\Resources\Vendor\ListOAResource;
 use App\Http\Resources\Vendor\VendorManagerResource;
 use App\Http\Resources\Vendor\VendorResource;
 use App\Jobs\SendVerificationOtp;
 use App\Models\Building\Document;
 use App\Models\Master\Role;
+use App\Models\OwnerAssociation;
 use App\Models\User\User;
 use App\Models\Vendor\Vendor;
 use App\Models\Vendor\VendorManager;
@@ -95,7 +97,7 @@ class VendorRegistrationController extends Controller
                 if ($existingEmail->email_verified) {
                     return (new CustomResponseResource([
                         'title' => 'account_present',
-                        'message' => 'Your email is already registered in our application. Please try login instead!',
+                        'message' => 'Your email is already registered in our application.',
                         'code' => 400,
                     ]))->response()->setStatusCode(400);
                 } else {
@@ -112,7 +114,7 @@ class VendorRegistrationController extends Controller
                 if ($existingPhone->phone_verified) {
                     return (new CustomResponseResource([
                         'title' => 'account_present',
-                        'message' => 'Your phone is already registered in our application. Please try login instead!',
+                        'message' => 'Your phone is already registered in our application.',
                         'code' => 400,
                     ]))->response()->setStatusCode(400);
                 } else {
@@ -127,8 +129,8 @@ class VendorRegistrationController extends Controller
         }
 
         $role = Role::where('name', 'Vendor')->value('id');
-        $request->merge(['first_name' => $request->name, 'active' => 1, 'role_id' => $role, 'owner_association_id' => 4]);
-
+        $request->merge(['first_name' => $request->name, 'active' => 1, 'role_id' => $role]);
+        
         $user = User::create($request->all());
 
         // Send email after 5 seconds
@@ -205,5 +207,13 @@ class VendorRegistrationController extends Controller
     public function showVendorDetails()
     {
         return new VendorResource(auth()->user()->vendors()->first());
+    }
+
+    public function listOa()
+    {
+        $OwnerAssociations = OwnerAssociation::where('active', true)->get();
+
+        return ListOAResource::collection($OwnerAssociations);
+
     }
 }

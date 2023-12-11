@@ -3,44 +3,44 @@
 namespace App\Filament\Resources;
 
 use Filament\Forms;
-use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\MorphToSelect;
-use Filament\Forms\Components\Repeater;
-use Filament\Forms\Components\RichEditor;
-use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Toggle;
 use Filament\Tables;
+use Filament\Forms\Get;
+use Filament\Forms\Set;
 use Filament\Forms\Form;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\Filter;
-use Filament\Tables\Filters\SelectFilter;
-use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use App\Models\Community\Post;
 use Filament\Resources\Resource;
+use App\Models\Building\Building;
+use Illuminate\Support\Facades\DB;
+use Filament\Forms\Components\Grid;
+use Filament\Tables\Filters\Filter;
+use function Laravel\Prompts\select;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Toggle;
+use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Textarea;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\RichEditor;
+use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Tables\Filters\TernaryFilter;
+use Filament\Forms\Components\MorphToSelect;
+use Filament\Forms\Components\DateTimePicker;
 use App\Filament\Resources\PostResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\PostResource\RelationManagers;
-use App\Models\Building\Building;
-use Filament\Forms\Components\DateTimePicker;
-use Filament\Forms\Components\Grid;
+use DateTime;
 
-use Illuminate\Support\Facades\DB;
-use function Laravel\Prompts\select;
-
-class PostResource extends Resource
-{
+class PostResource extends Resource {
     protected static ?string $model = Post::class;
     protected static ?string $modelLabel = 'Post';
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
     protected static ?string $navigationGroup = 'Community';
 
-    public static function form(Form $form): Form
-    {
+    public static function form(Form $form): Form {
         return $form->schema([
             Grid::make([
                 'sm' => 1,
@@ -48,6 +48,14 @@ class PostResource extends Resource
                 'lg' => 2,
             ])->schema([
                         RichEditor::make('content')
+                            ->disableToolbarButtons([
+                                'codeBlock',
+                                'h2',
+                                'h3',
+                                'attachFiles',
+                                'blockquote',
+                                'strike',
+                            ])
                             ->minLength(10)
                             ->maxLength(255)
                             ->required()
@@ -62,16 +70,18 @@ class PostResource extends Resource
                             ->options([
                                 'published' => 'Published',
                                 'draft' => 'Draft',
-                                'archived' => 'Archived',
                             ])
-                            ->required()
-                            ->default('draft'),
+                            ->reactive()
+                            ->live()
+                            ->default('published')
+                            ->required(),
 
                         DateTimePicker::make('scheduled_at')
                             ->rules(['date'])
                             ->displayFormat('d-M-Y h:i A')
                             ->minDate(now())
                             ->required()
+                            ->default(now())
                             ->placeholder('Scheduled At'),
 
                         Select::make('building')
@@ -115,13 +125,14 @@ class PostResource extends Resource
                                 'sm' => 1,
                                 'md' => 1,
                                 'lg' => 2,
-                            ])
+                            ]),
+                        Toggle::make('allow_like')->default(0),
+                        Toggle::make('allow_comment')->default(0),
                     ])
         ]);
     }
 
-    public static function table(Table $table): Table
-    {
+    public static function table(Table $table): Table {
         return $table
             ->columns([
                 TextColumn::make('status')
@@ -165,15 +176,13 @@ class PostResource extends Resource
             ]);
     }
 
-    public static function getRelations(): array
-    {
+    public static function getRelations(): array {
         return [
             //
         ];
     }
 
-    public static function getPages(): array
-    {
+    public static function getPages(): array {
         return [
             'index' => Pages\ListPosts::route('/'),
             'create' => Pages\CreatePost::route('/create'),

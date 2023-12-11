@@ -4,6 +4,8 @@ namespace App\Filament\Resources;
 
 use Filament\Forms;
 use Filament\Tables;
+use Filament\Forms\Get;
+use Filament\Forms\Set;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use App\Models\VendorLedgers;
@@ -20,12 +22,12 @@ use Filament\Forms\Components\TextInput;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\FileUpload;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Tables\Columns\TextInputColumn;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\VendorLedgersResource\Pages;
 use App\Filament\Resources\VendorLedgersResource\RelationManagers;
-use Filament\Forms\Components\FileUpload;
 use Malzariey\FilamentDaterangepickerFilter\Fields\DateRangePicker;
 
 class VendorLedgersResource extends Resource
@@ -42,7 +44,7 @@ class VendorLedgersResource extends Resource
     {
         return $form
             ->schema([
-                DatePicker::make('date')->disabled(),
+                DatePicker::make('date')->label('Start Date')->disabled(),
                 Select::make('building_id')
                     ->relationship('building', 'name')
                     ->preload()
@@ -65,12 +67,10 @@ class VendorLedgersResource extends Resource
                     ->reactive()
                     ->live(),
                 TextInput::make('invoice_number')->disabled(),
-                TextInput::make('opening_balance')->disabled(),
-                TextInput::make('invoice_amount')->disabled()->reactive(),
-                TextInput::make('payment')->disabled(function (callable $get) {
-                    return $get('status') == 'pending';
-                })->reactive(),
-                TextInput::make('balance')->disabled()->reactive(),
+                TextInput::make('opening_balance')->prefix('AED')->disabled()->live(),
+                TextInput::make('invoice_amount')->prefix('AED')->disabled()->live(),
+                TextInput::make('payment')->prefix('AED')->live(),
+                TextInput::make('balance')->prefix('AED')->disabled()->live(),
                 FileUpload::make('document')
                     ->disk('s3')
                     ->directory('dev')
@@ -87,6 +87,7 @@ class VendorLedgersResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('date')
+                    ->label('Start Date')
                     ->date(),
                 TextColumn::make('building.name')
                     ->searchable()
@@ -150,26 +151,26 @@ class VendorLedgersResource extends Resource
                     }),
             ], layout: FiltersLayout::AboveContent)->filtersFormColumns(3)
             ->actions([
-                //Tables\Actions\EditAction::make(),
-                Action::make('Update Payment')
-                    ->button()
-                    ->form([
-                        TextInput::make('invoice_amount')
-                            ->disabled()
-                            ->label('Bill Amount'),
-                        TextInput::make('payment'),
-                    ])
-                    ->fillForm(fn(Invoice $record): array => [
-                        'invoice_amount' => $record->invoice_amount,
-                        'payment' => $record->payment,
-                    ])
-                    ->action(function (Invoice $record, array $data): void {
-                        $record->payment = $data['payment'];
-                        $record->opening_balance = $record->invoice_amount - $data['payment'];
-                        $record->balance = $record->invoice_amount - $data['payment'];
-                        $record->save();
-                    })
-                    ->slideOver()
+                Tables\Actions\EditAction::make(),
+                // Action::make('Update Payment')
+                //     ->button()
+                //     ->form([
+                //         TextInput::make('invoice_amount')
+                //             ->disabled()
+                //             ->label('Bill Amount'),
+                //         TextInput::make('payment'),
+                //     ])
+                //     ->fillForm(fn(Invoice $record): array => [
+                //         'invoice_amount' => $record->invoice_amount,
+                //         'payment' => $record->payment,
+                //     ])
+                //     ->action(function (Invoice $record, array $data): void {
+                //         $record->payment = $data['payment'];
+                //         $record->opening_balance = $record->invoice_amount - $data['payment'];
+                //         $record->balance = $record->invoice_amount - $data['payment'];
+                //         $record->save();
+                //     })
+                //     ->slideOver()
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -194,7 +195,7 @@ class VendorLedgersResource extends Resource
             'index' => Pages\ListVendorLedgers::route('/'),
             // 'create' => Pages\CreateVendorLedgers::route('/create'),
             //'view' => Pages\ViewVendorLedgers::route('/{record}'),
-            //'edit' => Pages\EditVendorLedgers::route('/{record}/edit'),
+            'edit' => Pages\EditVendorLedgers::route('/{record}/edit'),
         ];
     }
 }
