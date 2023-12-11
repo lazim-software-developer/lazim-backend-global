@@ -27,18 +27,18 @@ class PostLikeController extends Controller
             ]))->response()->setStatusCode(400);
         }
 
-        $postLike = PostLike::create([
+        PostLike::create([
             'post_id' => $post->id,
             'user_id' => auth()->user()->id
         ]);
-        $expoPushTokens = ExpoPushNotification::where('user_id', $postLike->user_id)->pluck('token');
+        $expoPushTokens = ExpoPushNotification::where('user_id', $post->user_id)->pluck('token');
         if ($expoPushTokens->count() > 0) {
             foreach ($expoPushTokens as $expoPushToken) {
                 $message = [
                     'to' => $expoPushToken,
                     'sound' => 'default',
-                    'title' => $post->content. 'Post liked',
-                    'body' => 'Your po',
+                    'title' => 'Post liked',
+                    'body' => auth()->user()->first_name . ' liked your post',
                     'data' => ['notificationType' => 'app_notification'],
                 ];
                 $this->expoNotification($message);
@@ -67,6 +67,20 @@ class PostLikeController extends Controller
         }
 
         $existingLike->delete();
+
+        $expoPushTokens = ExpoPushNotification::where('user_id', $post->user_id)->pluck('token');
+        if ($expoPushTokens->count() > 0) {
+            foreach ($expoPushTokens as $expoPushToken) {
+                $message = [
+                    'to' => $expoPushToken,
+                    'sound' => 'default',
+                    'title' => 'Post unliked',
+                    'body' => 'Your post has been unliked by'.auth()->user()->firstName,
+                    'data' => ['notificationType' => 'app_notification'],
+                ];
+                $this->expoNotification($message);
+            }
+        }
 
         return (new CustomResponseResource([
             'title' => 'Success',
