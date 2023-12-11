@@ -12,6 +12,17 @@
                         </div>
                     </div>
 
+                    <div class="md:col-span-1 max-w-md">
+                        <label for="tender-type" class="block text-sm font-medium leading-6 text-gray-900">Tender Type</label>
+                        <div class="mt-2">
+                            <select name="tender_type" id="tender-type" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" required>
+                                <option value="" selected disabled>Select Tender Type</option>
+                                <option value="One time">One time</option>
+                                <option value="AMC">AMC</option>
+                            </select>
+                        </div>
+                    </div>
+
 
                     <div class="md:col-span-1 max-w-md my-5">
                         <label for="end-date" class="block text-sm font-medium leading-6 text-gray-900">Tender document</label>
@@ -93,16 +104,18 @@
         // Populate services for a sub category
         document.getElementById('subcategory-dropdown').addEventListener('change', function() {
             var subcategoryId = this.value;
+            var budgetId = @json($budgetId);
+
             var servicesDropdown = document.getElementById('services-dropdown');
 
-            axios.get('/api/sub-categories/' + subcategoryId + '/services')
+            axios.get('/budget/' + budgetId + '/available-services/' + subcategoryId)
                 .then(function(response) {
                     // Clear current options in services dropdown
                     servicesDropdown.innerHTML = '<option value="">Select Service</option>';
                     servicesDropdown.disabled = false;
 
                     // Populate new options from response
-                    response.data.data.forEach(function(service) {
+                    response.data.forEach(function(service) { // Assuming response.data is an array
                         var option = new Option(service.name, service.id);
                         servicesDropdown.appendChild(option);
                     });
