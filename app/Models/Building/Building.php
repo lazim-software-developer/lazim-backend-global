@@ -50,7 +50,8 @@ class Building extends Model
         'lng',
         'description',
         'floors',
-        'owner_association_id'
+        'owner_association_id',
+        'allow_postupload',
     ];
 
     protected $casts = [
