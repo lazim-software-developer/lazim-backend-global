@@ -99,10 +99,10 @@ class CreateTender extends Page
             'owner_association_id' => $building->owner_association_id,
             'end_date' => $request->get('end_date'),
             'document' => $documentUrl,
-            'service_id', $request->get('services')
+            'service_id' =>$request->get('service'),
+            'tender_type' => $request->get('tender_type')
         ]);
-        $tender->service_id = $request->get('services');
-        $tender->save();
+
         // Attach tender vendors
         $tender->vendors()->syncWithoutDetaching($request->get('vendors'));
 
