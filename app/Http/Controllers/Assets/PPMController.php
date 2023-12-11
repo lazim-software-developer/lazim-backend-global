@@ -60,14 +60,40 @@ class PPMController extends Controller
             "date" => Carbon::now()->format('Y-m-d'),
         ]);
 
-        $ppm = PPM::create($request->all());
+        $exists = PPM::where('asset_id', $request->asset_id)->where('quarter', $request->quarter)->where('building_id',$request->building_id)->first();
+        if(!$exists){
+            $ppm = PPM::create($request->all());
 
+            return (new CustomResponseResource([
+                'title' => 'Success',
+                'message' => 'PPM created successfully!',
+                'status' => 'success',
+                'code' => 201,
+                'data' => $ppm,
+            ]))->response()->setStatusCode(201);
+        }
+        
         return (new CustomResponseResource([
-            'title' => 'Success',
-            'message' => 'PPM created successfully!',
-            'status' => 'success',
-            'code' => 201,
-            'data' => $ppm,
-        ]))->response()->setStatusCode(201);
+            'title' => 'error',
+            'message' => 'PPM for this quarter exists!',
+            'status' => 'error',
+            'code' => 400,
+        ]))->response()->setStatusCode(400);
+        
+    }
+
+    public function submit(PPMStoreRequest $request){
+        $exists = PPM::where('asset_id', $request->asset_id)->where('quarter', $request->quarter)->where('building_id',$request->building_id)->first();
+        if(!$exists){
+            $ppm = $exists->update($request->all());
+
+            return (new CustomResponseResource([
+                'title' => 'Success',
+                'message' => 'PPM created successfully!',
+                'status' => 'success',
+                'code' => 201,
+                'data' => $ppm,
+            ]))->response()->setStatusCode(201);
+        }
     }
 }

@@ -381,6 +381,7 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('technician')->group(funct
     Route::patch('/active-deactive/{technician}',[TechnicianController::class, 'activeDeactive']);
     Route::post('/attach-technician/{technician}',[TechnicianController::class, 'attachTechnician']);
     Route::post('/assign-technician/{complaint}',[TechnicianController::class, 'assignTechnician']);
+    Route::get('/{service}/list-technicians/{vendor}',[TechnicianController::class, 'technicianList']);
 });
 
 // Assets related APIs

@@ -4,9 +4,12 @@ namespace App\Filament\Pages\OAM;
 
 use App\Jobs\OAM\SendProposalRequestEmail;
 use App\Models\Accounting\Budget;
+use App\Models\Accounting\SubCategory;
 use App\Models\Accounting\Tender;
 use App\Models\Building\Building;
+use App\Models\Master\Service;
 use App\Models\Vendor\Vendor;
+use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -66,8 +69,16 @@ class CreateTender extends Page
                 })->toArray()
             ];
         }
+        
+        $services = Service::whereHas('buildings', function ($query) use ($buildingId) {
+            $query->where('buildings.id', $buildingId); // Specify the table name
+        })->get();
+    
+        // Get the unique subcategories for these services
+        $subcategories = $services->pluck('subcategory')->unique('id');
 
         return [
+            'subcategories' => $subcategories,
             'subcategoryServices' => $subcategoryServices,
             'building' => $building,
             'budgetId' => $this->budget->id,
@@ -88,10 +99,10 @@ class CreateTender extends Page
             'owner_association_id' => $building->owner_association_id,
             'end_date' => $request->get('end_date'),
             'document' => $documentUrl,
-            'service_id', $request->get('services')
+            'service_id' =>$request->get('service'),
+            'tender_type' => $request->get('tender_type')
         ]);
-        $tender->service_id = $request->get('services');
-        $tender->save();
+
         // Attach tender vendors
         $tender->vendors()->syncWithoutDetaching($request->get('vendors'));
 
@@ -99,6 +110,11 @@ class CreateTender extends Page
         $vendors = Vendor::whereIn('id', $request->get('vendors'))->get();
         SendProposalRequestEmail::dispatch($vendors, $documentUrl);
 
-        return redirect()->back();
+        Notification::make()
+            ->title("Tendet created successfully")
+            ->success()
+            ->send();
+
+        return redirect('/admin/tenders');
     }
 }
