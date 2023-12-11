@@ -24,7 +24,7 @@ class ContractResource extends JsonResource
         $daysRemaining = $status === 'expired' ? 0 : $daysRemaining;
         return [
             'id'  => $this->id,
-            'contract'=> $this->contract_type,
+            'contract'=> $this->service->name.' - '.$this->contract_type,
             'start_date' => $startDate->format('Y-m-d'), 
             'end_date' => $endDate->format('Y-m-d'), 
             'days_remaining' => $daysRemaining,
