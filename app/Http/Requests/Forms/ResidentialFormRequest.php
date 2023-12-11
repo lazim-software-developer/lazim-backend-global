@@ -49,7 +49,7 @@ class ResidentialFormRequest extends FormRequest
             $UserType = auth()->user()->role->name;
             if ($UserType == 'Owner') {
                 if (!$this->hasFile('file_title_deed_url')) {
-                    $validator->errors()->add('file_title_deed_url', 'Upload Title Deed File.');
+                    $validator->errors()->add('title_deed_url', 'Upload Title Deed File.');
                 }
                 // if (!$this->hasFile('title_deed_number')) {
                 //     $validator->errors()->add('title_deed_number', 'Please enter title deed number.');
@@ -58,7 +58,7 @@ class ResidentialFormRequest extends FormRequest
 
             if ($UserType == 'Tenant') {
                 if (!$this->hasFile('file_tenancy_contract')) {
-                    $validator->errors()->add('file_tenancy_contract', 'Upload Tenancy Contract / Ejari File.');
+                    $validator->errors()->add('tenancy_contract', 'Upload Tenancy Contract / Ejari File.');
                 }
             }
         });
