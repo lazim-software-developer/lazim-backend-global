@@ -66,35 +66,37 @@ class BudgetImport implements ToCollection, WithHeadingRow {
         Log::info("Here", [$budget]);
 
         foreach($rows as $row) {
-            // $service = Service::firs('code', $row['servicecode'])->first();
-            $category = Category::firstOrCreate(
-                [
-                    'name' => $row['category'],
-                ],
-                [
-                    'code' => preg_replace("/[^a-zA-Z]/", "", $row['servicecode']),
-                ]
-            );
-            $subcategory = SubCategory::firstOrCreate(
-                [
-                    'name' => $row['subcategory'],
-                ],
-                [
-                    'category_id' => $category->id,
-                    'code' => 'Y',
-                ]
-                );
-            $service = Service::firstOrCreate(
-                [
-                    'code' => $row['servicecode'],
-                    'subcategory_id' => $subcategory->id,
-                ],
-                [
-                    'name' => $row['servicename'],
-                    'type' => 'vendor_service',
-                    'active' => true,
-                ]
-            );
+            // $category = Category::firstOrCreate(
+            //     [
+            //         'name' => $row['category'],
+            //     ],
+            //     [
+            //         'code' => preg_replace("/[^a-zA-Z]/", "", $row['servicecode']),
+            //     ]
+            // );
+            // $subcategory = SubCategory::firstOrCreate(
+            //     [
+            //         'name' => $row['subcategory'],
+            //     ],
+            //     [
+            //         'category_id' => $category->id,
+            //         'code' => 'Y',
+            //     ]
+            //     );
+            // $service = Service::firstOrCreate(
+            //     [
+            //         'code' => $row['servicecode'],
+            //         'subcategory_id' => $subcategory->id,
+            //     ],
+            //     [
+            //         'name' => $row['servicename'],
+            //         'type' => 'vendor_service',
+            //         'active' => true,
+            //     ]
+            // );
+
+            $service = Service::where('code', $row['servicecode'])->first();
+
             // Check if the building has this service, if not add the service to building
             $building->services()->syncWithoutDetaching([$service->id]);
 

@@ -48,8 +48,7 @@ class GuestRegistrationResource extends Resource
                         ->downloadable(true)
                         ->openable(true)
                         ->disabled()
-                        ->label('Dtmc License')
-                        ->required(),
+                        ->label('Dtmc License'),
                     // ViewField::make('Building')
                     //     ->view('forms.components.fieldbuilding'),
                     select::make('flat_visitor_id')
@@ -110,14 +109,12 @@ class GuestRegistrationResource extends Resource
                                 ->disabled(),
                             DatePicker::make('start_time')
                                 ->rules(['date'])
-                                ->required()
                                 ->disabled()
                                 ->placeholder('From Date')
                                 ->label('Guest Arrival Date'),
                             DatePicker::make('end_time')
                                 ->label('Guest Departure Date')
                                 ->rules(['date'])
-                                ->required()
                                 ->disabled()
                                 ->placeholder('Guest Departure Date'),
                             TextInput::make('number_of_visitors')
@@ -136,6 +133,7 @@ class GuestRegistrationResource extends Resource
                         ->disabled(function (Guest $record) {
                             return $record->status != null;
                         })
+                        ->required()
                         ->searchable()
                         ->live(),
                     TextInput::make('remarks')

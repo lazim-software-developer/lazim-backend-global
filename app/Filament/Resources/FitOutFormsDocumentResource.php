@@ -34,18 +34,15 @@ class FitOutFormsDocumentResource extends Resource
                     'lg' => 2,
                 ])->schema([
                             TextInput::make('contractor_name')
-                                ->required()
                                 ->disabled()
                                 ->label('Contractor Name'),
                             TextInput::make('email')
                                 ->label('Email')
                                 ->disabled()
-                                ->required()
                                 ->placeholder('Email'),
                             TextInput::make('phone')
                                 ->label('Phone Number')
                                 ->disabled()
-                                ->required()
                                 ->placeholder('Phone Number'),
                             Select::make('building_id')
                                 ->relationship('building', 'name')
@@ -62,7 +59,6 @@ class FitOutFormsDocumentResource extends Resource
                             Select::make('user_id')
                                 ->rules(['exists:users,id'])
                                 ->relationship('user', 'first_name')
-                                ->required()
                                 ->disabled()
                                 ->preload()
                                 ->searchable()
@@ -77,6 +73,7 @@ class FitOutFormsDocumentResource extends Resource
                                 ->disabled(function(FitOutForm $record){
                                     return $record->status != null;
                                 })
+                                ->required()
                                 ->searchable()
                                 ->live(),
                             TextInput::make('remarks')
