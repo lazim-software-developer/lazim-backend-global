@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Building;
 
 use Filament\Tables;
 use Filament\Forms\Form;
+use App\Models\User\User;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
 use App\Models\Building\Building;
@@ -19,6 +20,7 @@ use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\TimePicker;
 use Filament\Tables\Filters\SelectFilter;
 use App\Filament\Resources\Building\FacilityBookingResource\Pages;
+use Filament\Tables\Actions\EditAction;
 
 class FacilityBookingResource extends Resource
 {
@@ -47,6 +49,7 @@ class FacilityBookingResource extends Resource
                                     ->pluck('name', 'id');
                             })
                             ->reactive()
+                            ->disabledOn('edit')
                             ->required()
                             ->preload()
                             ->searchable()
@@ -55,6 +58,7 @@ class FacilityBookingResource extends Resource
                         Select::make('bookable_id')
                             ->label('Facility ')
                             ->required()
+                            ->disabledOn('edit')
                             ->options(
                                 DB::table('facilities')
                                     ->pluck('name', 'id')
@@ -71,31 +75,44 @@ class FacilityBookingResource extends Resource
                             ->rules(['exists:users,id'])
                             ->required()
                             ->relationship('user', 'first_name')
+                            ->options(function () {
+                                return User::whereIn('role_id', [1,11])->pluck('first_name', 'id');
+                            })
                             ->preload()
+                            ->disabledOn('edit')
                             ->searchable()
                             ->placeholder('User'),
                         DatePicker::make('date')
                             ->rules(['date'])
+                            ->disabledOn('edit')
                             ->minDate(now()->subYears(150))
                             ->closeOnDateSelection()
                             ->required()
                             ->placeholder('Date'),
                         TimePicker::make('start_time')
                             ->required()
+                            ->disabledOn('edit')
                             ->minDate(now()->subYears(150))
                             ->placeholder('Start Time'),
                         TimePicker::make('end_time')
                             ->after('start_time')
+                            ->disabledOn('edit')
                             ->required()
                             ->placeholder('End Time'),
-                        TextInput::make('remarks')
-                            ->default('NA')
-                            ->required(),
-                        TextInput::make('reference_number')
-                            ->rules(['numeric'])
-                            ->default('0')
-                            ->numeric()
-                            ->placeholder('References Number'),
+                        // TextInput::make('remarks')
+                        //     ->default('NA')
+                        //     ->disabledOn('edit')
+                        //     ->required(),
+                        // TextInput::make('reference_number')
+                        //     ->rules(['numeric'])
+                        //     ->disabledOn('edit')
+                        //     ->default('0')
+                        //     ->numeric()
+                        //     ->placeholder('References Number'),
+                        Toggle::make('approved')
+                            ->rules(['boolean'])
+                            ->required()
+                            ->live(),
 
                     ]),
 
@@ -129,9 +146,9 @@ class FacilityBookingResource extends Resource
                 Tables\Columns\TextColumn::make('end_time')
                     ->default('NA')
                     ->time(),
-                Tables\Columns\TextColumn::make('reference_number')
-                    ->default('0')
-                    ->searchable(),
+                // Tables\Columns\TextColumn::make('reference_number')
+                //     ->default('0')
+                //     ->searchable(),
                 Tables\Columns\IconColumn::make('approved')
                     ->boolean(),
             ])
@@ -143,7 +160,7 @@ class FacilityBookingResource extends Resource
                     ->preload()
             ])
             ->actions([
-
+                EditAction::make(),
                 Action::make('Update Status')
                     ->visible(fn($record) => $record->approved === 0)
                     ->button()
@@ -184,7 +201,8 @@ class FacilityBookingResource extends Resource
         return [
             'index' => Pages\ListFacilityBookings::route('/'),
             'create' => Pages\CreateFacilityBooking::route('/create'),
-            'view' => Pages\ViewFacilityBooking::route('/{record}'),
+            // 'view' => Pages\ViewFacilityBooking::route('/{record}'),
+            'edit' => Pages\EditFacilityBooking::route('/{record}/edit'),
         ];
     }
 }

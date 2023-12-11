@@ -27,6 +27,9 @@ class Invoice extends Model
         'remarks',
         'status_updated_by',
         'vendor_id',
+        'opening_balance',
+        'payment',
+        'balance',
         'invoice_amount',
     ];
 
