@@ -7,6 +7,7 @@ use App\Filament\Resources\MoveOutFormsDocumentResource\RelationManagers;
 use App\Models\Forms\MoveInOut;
 use App\Models\MoveOutFormsDocument;
 use Filament\Forms;
+use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Select;
@@ -38,102 +39,142 @@ class MoveOutFormsDocumentResource extends Resource
                     'md' => 1,
                     'lg' => 2,
                 ])->schema([
-                    TextInput::make('name'),
-                    Select::make('building_id')
-                        ->relationship('building', 'name')
-                        ->preload()
-                        ->searchable()
-                        ->label('Building Name'),
-                    Select::make('flat_id')
-                        ->relationship('flat', 'property_number')
-                        ->preload()
-                        ->searchable()
-                        ->label('Property No'),
-                    Select::make('user_id')
-                        ->rules(['exists:users,id'])
-                        ->relationship('user', 'first_name')
-                        ->required()
-                        ->preload()
-                        ->searchable()
-                        ->label('User'),
-                    TextInput::make('status')
-                        ->required()
-                        ->label('Status'),
-                    TextInput::make('remarks')
-                        ->required()
-                        ->label('Remarks'),
+                            TextInput::make('name')->disabled(),
+                            TextInput::make('email')->disabled(),
+                            TextInput::make('phone')->disabled(),
+                            TextInput::make('moving_date')->disabled(),
+                            TextInput::make('moving_time')->disabled(),
+                            Select::make('building_id')
+                                ->relationship('building', 'name')
+                                ->preload()
+                                ->disabled()
+                                ->searchable()
+                                ->label('Building Name'),
+                            Select::make('flat_id')
+                                ->relationship('flat', 'property_number')
+                                ->preload()
+                                ->disabled()
+                                ->searchable()
+                                ->label('Property No'),
+                            FileUpload::make('noc_landlord')
+                                ->disk('s3')
+                                ->directory('dev')
+                                ->downloadable(true)
+                                ->openable(true)
+                                ->disabled()
+                                ->previewable(true)
+                                ->label('NOC Landlord'),
+                            FileUpload::make('cooling_final')
+                                ->disk('s3')
+                                ->directory('dev')
+                                ->downloadable(true)
+                                ->disabled()
+                                ->previewable(true)
+                                ->openable(true)
+                                ->label('Cooling Final Bill'),
+                            FileUpload::make('contract')
+                                ->disk('s3')
+                                ->directory('dev')
+                                ->disabled()
+                                ->downloadable(true)
+                                ->openable(true)
+                                ->label('Tenancy / Ejari'),
+                            FileUpload::make('gas_final')
+                                ->disk('s3')
+                                ->directory('dev')
+                                ->disabled()
+                                ->downloadable(true)
+                                ->openable(true)
+                                ->label('Gas Final Bill'),
+                            FileUpload::make('gas_clearance')
+                                ->disk('s3')
+                                ->directory('dev')
+                                ->disabled()
+                                ->downloadable(true)
+                                ->openable(true)
+                                ->label('Gas Clearance'),
+                            FileUpload::make('cooling_clearance')
+                                ->disk('s3')
+                                ->directory('dev')
+                                ->disabled()
+                                ->downloadable(true)
+                                ->openable(true)
+                                ->label('Cooling Clearance'),
+                            FileUpload::make('dewa_final')
+                                ->disk('s3')
+                                ->directory('dev')
+                                ->disabled()
+                                ->downloadable(true)
+                                ->openable(true)
+                                ->label('Dewa Final Bill'),
+                            FileUpload::make('etisalat_final')
+                                ->disk('s3')
+                                ->directory('dev')
+                                ->disabled()
+                                ->downloadable(true)
+                                ->openable(true)
+                                ->label('Etisalat Final Bill'),
+                            FileUpload::make('movers_license')
+                                ->disk('s3')
+                                ->directory('dev')
+                                ->disabled()
+                                ->downloadable(true)
+                                ->openable(true)
+                                ->label('Movers License'),
+                            FileUpload::make('movers_liability')
+                                ->disk('s3')
+                                ->directory('dev')
+                                ->disabled()
+                                ->downloadable(true)
+                                ->openable(true)
+                                ->label('Movers Liability'),
+                            Select::make('status')
+                                ->options([
+                                    'approved' => 'Approved',
+                                    'rejected' => 'Rejected',
+                                ])
+                                ->disabled(function(MoveInOut $record){
+                                    return $record->status != null;
+                                })
+                                ->searchable()
+                                ->live(),
+                            TextInput::make('remarks')
+                                ->rules(['max:255'])
+                                ->visible(function (callable $get) {
+                                    if ($get('status') == 'rejected') {
+                                        return true;
+                                    }
+                                    return false;
+                                })
+                                ->disabled(function(MoveInOut $record){
+                                    return $record->status != null;
+                                })
+                                ->required(),
+                            // If the form is rejected, we need to capture which fields are rejected
+                            CheckboxList::make('rejected_fields')
+                                ->label('Please select rejected fields')
+                                ->options([
+                                    'noc_landlord' => 'Handover Acceptance',
+                                    'cooling_final' => 'Receipt charges',
+                                    'contract' => 'Tenancy / Ejari',
+                                    'movers_license' => 'Movers license',
+                                    'movers_liability' => 'Movers liability',
+                                    'etisalat_final' => 'Etisalat final bill',
+                                    'dewa_final' => 'Dewa final bill',
+                                    'gas_clearance' => 'Gas clearance',
+                                    'cooling_clearance' => 'Cooling clearance',
+                                    'gas_final' => 'Gas final bill',
+                                    'cooling_final' => 'Cooling final bill',
+                                    'noc_landlord' => 'NOC landlord',
+                                ])->columns(4)
+                                ->visible(function (callable $get) {
+                                    if ($get('status') == 'rejected') {
+                                        return true;
+                                    }
+                                    return false;
+                                })
 
-                    FileUpload::make('handover_acceptance')
-                        ->disk('s3')
-                        ->directory('dev')
-                        ->downloadable(true)
-                        ->openable(true)
-
-                        ->previewable(true)
-                        ->label('Handover Acceptance'),
-                    FileUpload::make('receipt_charges')
-                        ->disk('s3')
-                        ->directory('dev')
-                        ->downloadable(true)
-                        ->previewable(true)
-                        ->openable(true)
-                        ->label('Receipt Charges'),
-                    FileUpload::make('contract')
-                        ->disk('s3')
-                        ->directory('dev')
-                        ->downloadable(true)
-                        ->openable(true)
-                        ->label('Contract'),
-                    FileUpload::make('title_deed')
-                        ->disk('s3')
-                        ->directory('dev')
-                        ->downloadable(true)
-                        ->openable(true)
-                        ->label('Title Deed'),
-                    FileUpload::make('passport')
-                        ->disk('s3')
-                        ->directory('dev')
-                        ->downloadable(true)
-                        ->openable(true)
-                        ->label('Passport'),
-                    FileUpload::make('dewa')
-                        ->disk('s3')
-                        ->directory('dev')
-                        ->downloadable(true)
-                        ->openable(true)
-                        ->label('Dewa'),
-                    FileUpload::make('cooling_registration')
-                        ->disk('s3')
-                        ->directory('dev')
-                        ->downloadable(true)
-                        ->openable(true)
-                        ->label('Cooling Registration'),
-                    FileUpload::make('gas_registration')
-                        ->disk('s3')
-                        ->directory('dev')
-                        ->downloadable(true)
-                        ->openable(true)
-                        ->label('Gas Registration'),
-                    FileUpload::make('vehicle_registration')
-                        ->disk('s3')
-                        ->directory('dev')
-                        ->downloadable(true)
-                        ->openable(true)
-                        ->label('Vehicle Registration'),
-                    FileUpload::make('movers_license')
-                        ->disk('s3')
-                        ->directory('dev')
-                        ->downloadable(true)
-                        ->openable(true)
-                        ->label('Movers License'),
-                    FileUpload::make('movers_liability')
-                        ->disk('s3')
-                        ->directory('dev')
-                        ->downloadable(true)
-                        ->openable(true)
-                        ->label('Movers Liability'),
-
-                ]),
+                        ]),
 
             ]);
     }
@@ -142,17 +183,13 @@ class MoveOutFormsDocumentResource extends Resource
     {
         return $table
             ->poll('60s')
-            ->modifyQueryUsing(fn (Builder $query) => $query->where('type', 'move-out')->withoutGlobalScopes())
+            ->modifyQueryUsing(fn(Builder $query) => $query->where('type', 'move-out')->withoutGlobalScopes())
             ->columns([
                 TextColumn::make('name')
                     ->searchable()
                     ->default('NA')
                     ->limit(50),
                 TextColumn::make('building.name')
-                    ->searchable()
-                    ->default('NA')
-                    ->limit(50),
-                TextColumn::make('user.first_name')
                     ->searchable()
                     ->default('NA')
                     ->limit(50),
@@ -175,42 +212,6 @@ class MoveOutFormsDocumentResource extends Resource
             ])
             ->actions([
                 //Tables\Actions\EditAction::make(),
-                Action::make('Update Status')
-                    ->visible(fn ($record) => $record->status === null)
-                    ->button()
-                    ->form([
-                        Select::make('status')
-                            ->options([
-                                'approved' => 'Approved',
-                                'rejected' => 'Rejected',
-                            ])
-                            ->searchable()
-                            ->live(),
-                        TextInput::make('remarks')
-                            ->rules(['max:255'])
-                            ->visible(function (callable $get) {
-                                if ($get('status') == 'rejected') {
-                                    return true;
-                                }
-                                return false;
-                            })
-                            ->required(),
-                    ])
-                    ->fillForm(fn (MoveInOut $record): array => [
-                        'status' => $record->status,
-                        'remarks' => $record->remarks,
-                    ])
-                    ->action(function (MoveInOut $record, array $data): void {
-                        if ($data['status'] == 'rejected') {
-                            $record->status = $data['status'];
-                            $record->remarks = $data['remarks'];
-                            $record->save();
-                        } else {
-                            $record->status = $data['status'];
-                            $record->save();
-                        }
-                    })
-                    ->slideOver()
             ]);
     }
 
@@ -225,7 +226,8 @@ class MoveOutFormsDocumentResource extends Resource
     {
         return [
             'index' => Pages\ListMoveOutFormsDocuments::route('/'),
-            'view' => Pages\ViewMoveOutFormsDocument::route('/{record}'),
+            // 'view' => Pages\ViewMoveOutFormsDocument::route('/{record}'),
+            'edit'   => Pages\EditMoveOutFormsDocument::route('/{record}/edit'),
         ];
     }
 }

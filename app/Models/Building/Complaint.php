@@ -13,6 +13,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\Building\Flat;
+use App\Models\Vendor\Vendor;
 
 class Complaint extends Model
 {
@@ -40,7 +41,8 @@ class Complaint extends Model
         'priority',
         'vendor_id',
         'technician_id',
-        'flat_id'
+        'flat_id',
+        'complaint_location'
     ];
 
     protected $searchableFields = ['*'];
@@ -103,6 +105,10 @@ class Complaint extends Model
     }
     public function technician()
     {
-        return $this->hasOne(User::class,'id','technician_id');
+        return $this->belongsTo(User::class);
+    }
+    public function vendor()
+    {
+        return $this->belongsTo(Vendor::class);
     }
 }

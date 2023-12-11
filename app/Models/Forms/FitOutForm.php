@@ -21,6 +21,9 @@ class FitOutForm extends Model
         'building_id',
         'user_id',
         'owner_association_id',
+        'status',
+        'remarks',
+        'rejected_fields'
     ];
 
     protected $searchableFields = ['*'];

@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Facade;
 use Illuminate\Support\ServiceProvider;
+use NotificationChannels\ExpoPushNotifications\ExpoPushNotificationsServiceProvider;
 
 return [
 
@@ -174,7 +175,7 @@ return [
         App\Providers\JetstreamServiceProvider::class,
         Intervention\Image\ImageServiceProvider::class,
         SimpleSoftwareIO\QrCode\QrCodeServiceProvider::class,
-        NotificationChannels\ExpoPushNotifications\ExpoPushNotificationsServiceProvider::class,
+        // ExpoPushNotificationsServiceProvider::class,
     ])->toArray(),
 
     /*

@@ -53,7 +53,13 @@ class ComplaintPolicy
      */
     public function update(User $user, Complaint $model): bool
     {
-        return false;
+        $allowedRoles = ['OA', 'Admin'];
+
+        if (in_array($user->role->name, $allowedRoles)) {
+            return true;
+        }
+
+        return true;
     }
 
     /**
