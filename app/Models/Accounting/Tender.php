@@ -18,7 +18,7 @@ class Tender extends Model
     protected $fillable = ['date', 'created_by', 'building_id', 'budget_id', 'owner_association_id', 'end_date', 'document', 'service_id', 'tender_type'];
 
     // Tender has many services through TenderService
-    public function services()
+    public function service()
     {
         return $this->belongsTo(Service::class);
     }
