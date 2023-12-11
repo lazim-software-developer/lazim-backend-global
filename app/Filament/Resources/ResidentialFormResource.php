@@ -64,7 +64,6 @@ class ResidentialFormResource extends Resource {
                             Select::make('user_id')
                                 ->rules(['exists:users,id'])
                                 ->relationship('user', 'first_name')
-                                ->required()
                                 ->disabled()
                                 ->preload()
                                 ->searchable()
@@ -121,6 +120,7 @@ class ResidentialFormResource extends Resource {
                                 ->disabled(function (ResidentialForm $record) {
                                     return $record->status != null;
                                 })
+                                ->required()
                                 ->searchable()
                                 ->live(),
                             TextInput::make('remarks')
