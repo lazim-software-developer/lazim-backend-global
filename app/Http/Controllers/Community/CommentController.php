@@ -9,9 +9,12 @@ use App\Http\Resources\CustomResponseResource;
 use App\Models\Building\Complaint;
 use App\Models\Community\Comment;
 use App\Models\Community\Post;
+use App\Models\ExpoPushNotification;
+use App\Traits\UtilsTrait;
 
 class CommentController extends Controller
 {
+    use UtilsTrait;
     // List all comments for a post in community
     public function index(Post $post)
     {
@@ -29,6 +32,20 @@ class CommentController extends Controller
         $comment->commentable()->associate($post);
         $comment->user_id = auth()->id();
         $comment->save();
+
+        $expoPushTokens = ExpoPushNotification::where('user_id', $post->user_id)->pluck('token');
+        if ($expoPushTokens->count() > 0) {
+            foreach ($expoPushTokens as $expoPushToken) {
+                $message = [
+                    'to' => $expoPushToken,
+                    'sound' => 'default',
+                    'title' => 'New Comment!',
+                    'body' => auth()->user()->first_name . ' commented on your post',
+                    'data' => ['notificationType' => 'app_notification'],
+                ];
+                $this->expoNotification($message);
+            }
+        }
 
         return (new CustomResponseResource([
             'title' => 'Success',
