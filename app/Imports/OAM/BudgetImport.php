@@ -18,11 +18,13 @@ use Illuminate\Validation\ValidationException as LaravelValidationException;
 use Maatwebsite\Excel\Validators\Failure;
 use Illuminate\Support\Facades\Validator;
 
-class BudgetImport implements ToCollection, WithHeadingRow {
+class BudgetImport implements ToCollection, WithHeadingRow
+{
     protected $budgetPeriod;
     protected $buildingId;
 
-    public function __construct($budgetPeriod, $buildingId) {
+    public function __construct($budgetPeriod, $buildingId)
+    {
         $this->budgetPeriod = $budgetPeriod;
         $this->buildingId = $buildingId;
     }
@@ -30,7 +32,8 @@ class BudgetImport implements ToCollection, WithHeadingRow {
     /**
      * @param Collection $collection
      */
-    public function collection(Collection $rows) {
+    public function collection(Collection $rows)
+    {
         [$start, $end] = explode(' - ', $this->budgetPeriod);
         $startDate = Carbon::createFromFormat('M Y', $start)->startOfMonth();
         $endDate = Carbon::createFromFormat('M Y', $end)->endOfMonth();
@@ -44,7 +47,7 @@ class BudgetImport implements ToCollection, WithHeadingRow {
             ->where('budget_to', $endDate->toDateString())
             ->first();
 
-        if($existingBudget) {
+        if ($existingBudget) {
             // Create a Laravel ValidationException
             $validator = Validator::make([], []); // Empty data and rules
             $validator->errors()->add('budget', 'A budget for the specified period and building already exists.');
@@ -65,7 +68,7 @@ class BudgetImport implements ToCollection, WithHeadingRow {
 
         Log::info("Here", [$budget]);
 
-        foreach($rows as $row) {
+        foreach ($rows as $row) {
             // $category = Category::firstOrCreate(
             //     [
             //         'name' => $row['category'],
@@ -96,11 +99,16 @@ class BudgetImport implements ToCollection, WithHeadingRow {
             // );
 
             $service = Service::where('code', $row['servicecode'])->first();
+            
+            // Check if the service is found, if not, move on to the next iteration
+            if (!$service) {
+                continue;
+            }
 
             // Check if the building has this service, if not add the service to building
             $building->services()->syncWithoutDetaching([$service->id]);
 
-            if($service) {
+            if ($service) {
                 Budgetitem::create([
                     'budget_id' => $budget->id,
                     'service_id' => $service->id,
