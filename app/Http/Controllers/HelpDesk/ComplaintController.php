@@ -143,7 +143,7 @@ class ComplaintController extends Controller
         $serviceId = $complaint->service_id;
         $buildingId = $complaint->building_id;
 
-        $contract = Contract::where('service_id', $serviceId)->where('building_id', $buildingId)->where('end_date', Carbon::now()->toDateString())->first();
+        $contract = Contract::where('service_id', $serviceId)->where('building_id', $buildingId)->where('end_date','>=', Carbon::now()->toDateString())->first();
         if ($contract){
             // Fetch technician_vendor_ids for the given service
             $technicianVendorIds = DB::table('service_technician_vendor')
