@@ -18,7 +18,9 @@ use App\Models\Master\Service;
 use App\Models\TechnicianAssets;
 use App\Models\TechnicianVendor;
 use App\Models\User\User;
+use App\Models\Vendor\Contract;
 use App\Models\Vendor\Vendor;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -88,6 +90,14 @@ class TechnicianController extends Controller
         $technicians = $service->technicianVendors->where('vendor_id', $vendor->id);
 
         return ServiceTechnicianResource::collection($technicians);
+    }
+
+    public function technicianList(Service $service, Vendor $vendor){
+        $contract = Contract::where('vendor_id', $vendor->id)
+                                    ->where('service_id', $service->id)->where('end_date','>=',Carbon::now()->toDateString())->first()->service_id;
+        $assigned = DB::table('service_technician_vendor')->where('service_id', $contract)->pluck('technician_vendor_id');
+        $technicians = TechnicianVendor::where('vendor_id', $vendor->id)->where('active', true)->whereNotIn('id',$assigned)->get();
+        return ListTechnicianResource::collection($technicians);
     }
 
     public function activeDeactive(ActiveRequest $request, TechnicianVendor $technician)
