@@ -21,10 +21,9 @@ class SaleNocSubmitted extends Mailable
 
     public function build()
     {
-        return $this->view('emails.salenoc_submitted', ['saleNoc' => $this->saleNoc])
-            ->with([
-                'saleNoc' => $this->saleNoc,
-            ])
+
+        return $this->view('emails.salenoc_submitted')
+            ->subject('Sale NOC')
             ->attachFromStorageDisk('s3', $this->documentPath->document);
     }
 }

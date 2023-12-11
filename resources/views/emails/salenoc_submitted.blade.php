@@ -18,7 +18,7 @@
 </head>
 <body>
     <div class="container">
-        <p>Dear {{$data->signing_authority_name}},</p>
+        <p>Dear {{$name}},</p>
         <p>We are pleased to inform you that the SaleNOC process has been successfully completed. Attached to this email, you will find the signed copy of the Sale NOC document.</p>
         <p>Please review the attached SaleNOC document for your records and further action as required.</p>
         <p>Best regards,</p>
