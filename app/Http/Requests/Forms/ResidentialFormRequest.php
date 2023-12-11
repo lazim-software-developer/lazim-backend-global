@@ -51,9 +51,9 @@ class ResidentialFormRequest extends FormRequest
                 if (!$this->hasFile('title_deed_url')) {
                     $validator->errors()->add('title_deed_url', 'Upload Title Deed File.');
                 }
-                if (!$this->hasFile('title_deed_number') ) {
-                    $validator->errors()->add('title_deed_number', 'Please enter title deed number.');
-                }
+                // if (!$this->hasFile('title_deed_number')) {
+                //     $validator->errors()->add('title_deed_number', 'Please enter title deed number.');
+                // }
             }
 
             if ($UserType == 'Tenant') {
