@@ -140,8 +140,8 @@ class FacilityBookingsRelationManager extends RelationManager
                                 $message = [
                                     'to' => $expoPushToken,
                                     'sound' => 'default',
-                                    'title' => 'Service Booking Updated!',
-                                    'body' => auth()->user()->first_name . ' approved your Service Booking form.',
+                                    'title' => 'Facility Booking Updated!',
+                                    'body' => auth()->user()->first_name . ' approved your Facility Booking form.',
                                     'data' => ['notificationType' => 'app_notification'],
                                 ];
                                 $this->expoNotification($message);
@@ -156,8 +156,8 @@ class FacilityBookingsRelationManager extends RelationManager
                                 $message = [
                                     'to' => $expoPushToken,
                                     'sound' => 'default',
-                                    'title' => 'Service Booking Updated!',
-                                    'body' => auth()->user()->first_name . ' rejected your Service Booking form.',
+                                    'title' => 'Facility Booking Updated!',
+                                    'body' => auth()->user()->first_name . ' rejected your Facility Booking form.',
                                     'data' => ['notificationType' => 'app_notification'],
                                 ];
                                 $this->expoNotification($message);
