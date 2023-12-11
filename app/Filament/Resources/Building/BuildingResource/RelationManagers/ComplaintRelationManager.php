@@ -115,7 +115,7 @@ class ComplaintRelationManager extends RelationManager {
                         Select::make('status')
                             ->options([
                                 'open' => 'Open',
-                                'resolved' => 'Resolved',
+                                'closed' => 'Closed',
                             ])
                             ->disabled(function (Complaint $record) {
                                 return $record->status != 'open';
@@ -125,7 +125,7 @@ class ComplaintRelationManager extends RelationManager {
                         TextInput::make('remarks')
                             ->rules(['max:255'])
                             ->visible(function (callable $get) {
-                                if($get('status') == 'resolved') {
+                                if($get('status') == 'closed') {
                                     return true;
                                 }
                                 return false;

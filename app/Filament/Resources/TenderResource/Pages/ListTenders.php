@@ -2,9 +2,11 @@
 
 namespace App\Filament\Resources\TenderResource\Pages;
 
-use App\Filament\Resources\TenderResource;
 use Filament\Actions;
+use App\Models\Building\Building;
 use Filament\Resources\Pages\ListRecords;
+use Illuminate\Database\Eloquent\Builder;
+use App\Filament\Resources\TenderResource;
 
 class ListTenders extends ListRecords
 {
@@ -15,5 +17,9 @@ class ListTenders extends ListRecords
         return [
             //Actions\CreateAction::make(),
         ];
+    }
+    protected function getTableQuery(): Builder
+    {
+        return parent::getTableQuery()->whereIn('building_id', Building::where('owner_association_id', auth()->user()->owner_association_id)->pluck('id'));
     }
 }
