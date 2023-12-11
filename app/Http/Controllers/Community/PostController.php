@@ -5,14 +5,17 @@ namespace App\Http\Controllers\Community;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Community\CreatePostRequest;
 use App\Models\Community\Post;
+use App\Traits\UtilsTrait;
 use App\Http\Resources\Community\PostResource;
 use App\Http\Resources\CustomResponseResource;
 use App\Models\Building\Building;
+use App\Models\ExpoPushNotification;
 use App\Models\Media;
 use Illuminate\Http\Request;
 
 class PostController extends Controller
 {
+    use UtilsTrait;
     /**
      * Display a listing of the posts for a specific building.
      *
@@ -25,7 +28,7 @@ class PostController extends Controller
 
         // Start the query on the Post model
         $query = Post::where('status', 'published')
-        ->where('scheduled_at', '<=', now())
+            ->where('scheduled_at', '<=', now())
             ->whereHas('building', function ($q) use ($building) {
                 $q->where('buildings.id', $building->id);
             });
@@ -64,7 +67,7 @@ class PostController extends Controller
         // Handle multiple images
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $image) {
-               $imagePath = optimizeAndUpload($image, 'dev');
+                $imagePath = optimizeAndUpload($image, 'dev');
 
                 // Create a new media entry for each image
                 $media = new Media([
