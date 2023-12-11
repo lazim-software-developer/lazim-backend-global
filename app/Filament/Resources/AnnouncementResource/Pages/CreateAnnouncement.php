@@ -5,6 +5,7 @@ namespace App\Filament\Resources\AnnouncementResource\Pages;
 use App\Filament\Resources\AnnouncementResource;
 use App\Models\Community\Post;
 use App\Models\ExpoPushNotification;
+use App\Models\User\User;
 use App\Traits\UtilsTrait;
 use Filament\Actions;
 use Filament\Resources\Pages\CreateRecord;
@@ -20,8 +21,8 @@ class CreateAnnouncement extends CreateRecord
 
     public function afterCreate()
     {
-        $post = Post::where('id', $this->record->id)->pluck('user_id');
-        $expoPushTokens = ExpoPushNotification::where('user_id', $post->user_id)->pluck('token');
+        $users = User::where('active', 1)->first();
+        $expoPushTokens = ExpoPushNotification::where('user_id', $users->id)->pluck('token');
         if ($expoPushTokens->count() > 0) {
             foreach ($expoPushTokens as $expoPushToken) {
                 $message = [
