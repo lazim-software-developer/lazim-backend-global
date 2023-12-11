@@ -80,20 +80,6 @@ class PostController extends Controller
             }
         }
 
-        $expoPushTokens = ExpoPushNotification::where('user_id', $post->user_id)->pluck('token');
-        if ($expoPushTokens->count() > 0) {
-            foreach ($expoPushTokens as $expoPushToken) {
-                $message = [
-                    'to' => $expoPushToken,
-                    'sound' => 'default',
-                    'title' => 'New post',
-                    'body' => 'New post has been created by ' . auth()->user()->first_name,
-                    'data' => ['notificationType' => 'app_notification'],
-                ];
-                $this->expoNotification($message);
-            }
-        }
-
         return (new CustomResponseResource([
             'title' => 'Success',
             'message' => 'Post created successfully!',
