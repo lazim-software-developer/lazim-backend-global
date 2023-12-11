@@ -25,7 +25,8 @@ class EditMoveOutFormsDocument extends EditRecord
 
     public function afterSave()
     {
-        $expoPushTokens = ExpoPushNotification::where('user_id', $this->record->user_id)->pluck('token');
+        if ($this->record->status == 'approved') {
+            $expoPushTokens = ExpoPushNotification::where('user_id', $this->record->user_id)->pluck('token');
             if ($expoPushTokens->count() > 0) {
                 foreach ($expoPushTokens as $expoPushToken) {
                     $message = [
@@ -38,6 +39,7 @@ class EditMoveOutFormsDocument extends EditRecord
                     $this->expoNotification($message);
                 }
             }
+        }
 
         if ($this->record->status == 'rejected') {
             $expoPushTokens = ExpoPushNotification::where('user_id', $this->record->user_id)->pluck('token');
