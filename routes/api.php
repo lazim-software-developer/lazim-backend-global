@@ -38,6 +38,7 @@ use App\Http\Controllers\Services\ServiceController;
 use App\Http\Controllers\TagController;
 use App\Http\Controllers\Technician\BuildingController as TechnicianBuildingController;
 use App\Http\Controllers\Technician\TasksController;
+use App\Http\Controllers\User\PaymentController;
 use App\Http\Controllers\User\ProfileController;
 use App\Http\Controllers\User\UserController;
 use App\Http\Controllers\Vendor\InvoiceController;
@@ -70,7 +71,10 @@ Route::post('/verify-otp', [VerificationController::class, 'verify']);
 Route::post('/set-password', [AuthController::class, 'setPassword']);
 
 //expo
-Route::post('/expo', [AuthController::class, 'expo'])->middleware('auth:sanctum');
+Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active'])->group(function () {
+    Route::post('/expo', [AuthController::class, 'expo']);
+});
+
 
 // These APIs work only if the user's account is active
 Route::middleware(['active'])->group(function () {
@@ -234,6 +238,13 @@ Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active']
     Route::post('buildings/{building}/book/service', [ServiceController::class, 'bookService']);
 });
 
+
+/**
+ * Payment APIs for Owners
+ */
+Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active'])->prefix('payments')->group(function () {
+    Route::get('/{flat}/service-charges', [PaymentController::class, 'fetchServiceCharges']);
+});
 
 /**
  * Documents related APIs
