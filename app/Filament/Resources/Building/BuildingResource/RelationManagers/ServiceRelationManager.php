@@ -17,11 +17,11 @@ use Filament\Resources\RelationManagers\RelationManager;
 class ServiceRelationManager extends RelationManager
 {
     protected static string $relationship = 'services';
-    protected static ?string $modelLabel = 'Vendor Service';
+    protected static ?string $modelLabel = 'Service';
 
     public static function getTitle(Model $ownerRecord, string $pageClass): string
     {
-        return 'Vendor Service';
+        return 'Service';
     }
 
     public function form(Form $form): Form
@@ -40,8 +40,6 @@ class ServiceRelationManager extends RelationManager
             ->modifyQueryUsing(fn(Builder $query) => $query->where('type', 'vendor_service'))
             ->columns([
                 Tables\Columns\TextColumn::make('name')->limit(50),
-                Tables\Columns\TextColumn::make('type')
-                    ->label('Service Type'),
                 Tables\Columns\IconColumn::make('active')
                     ->boolean()
                     ->trueIcon('heroicon-o-check-badge')
@@ -74,7 +72,7 @@ class ServiceRelationManager extends RelationManager
             ])
             ->actions([
                 //Tables\Actions\EditAction::make(),
-                Tables\Actions\DetachAction::make()->label('Remove'),
+                // Tables\Actions\DetachAction::make()->label('Remove'),
                 //Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
