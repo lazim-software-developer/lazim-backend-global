@@ -19,21 +19,21 @@ class CreateAnnouncement extends CreateRecord
         return $this->getResource()::getUrl('index');
     }
 
-    // public function afterCreate()
-    // {
-    //     $users = User::where('active', 1)->pluck('id');
-    //     $expoPushTokens = ExpoPushNotification::where('user_id', $users->id)->pluck('token');
-    //     if ($expoPushTokens->count() > 0) {
-    //         foreach ($expoPushTokens as $expoPushToken) {
-    //             $message = [
-    //                 'to' => $expoPushToken,
-    //                 'sound' => 'default',
-    //                 'title' => 'New Announcement',
-    //                 'body' => 'New Announcement',
-    //                 'data' => ['notificationType' => 'app_notification'],
-    //             ];
-    //             $this->expoNotification($message);
-    //         }
-    //     }
-    // }
+    public function afterCreate()
+    {
+        $users = User::where('active', 1)->first();
+        $expoPushTokens = ExpoPushNotification::where('user_id', $users->id)->pluck('token');
+        if ($expoPushTokens->count() > 0) {
+            foreach ($expoPushTokens as $expoPushToken) {
+                $message = [
+                    'to' => $expoPushToken,
+                    'sound' => 'default',
+                    'title' => 'New Announcement',
+                    'body' => 'New Announcement',
+                    'data' => ['notificationType' => 'app_notification'],
+                ];
+                $this->expoNotification($message);
+            }
+        }
+    }
 }
