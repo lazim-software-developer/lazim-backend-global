@@ -3,11 +3,14 @@
 namespace App\Filament\Resources\ResidentialFormResource\Pages;
 
 use App\Filament\Resources\ResidentialFormResource;
+use App\Models\ExpoPushNotification;
+use App\Traits\UtilsTrait;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 
 class EditResidentialForm extends EditRecord
 {
+    use UtilsTrait;
     protected static string $resource = ResidentialFormResource::class;
 
     protected function getHeaderActions(): array
@@ -42,4 +45,37 @@ class EditResidentialForm extends EditRecord
 
     //     return $data;
     // }
+
+    public function afterSave()
+    {
+        $expoPushTokens = ExpoPushNotification::where('user_id', $this->record->user_id)->pluck('token');
+            if ($expoPushTokens->count() > 0) {
+                foreach ($expoPushTokens as $expoPushToken) {
+                    $message = [
+                        'to' => $expoPushToken,
+                        'sound' => 'default',
+                        'title' => 'MoveOut form Updated!',
+                        'body' => auth()->user()->first_name . ' approved your MoveOut form.',
+                        'data' => ['notificationType' => 'app_notification'],
+                    ];
+                    $this->expoNotification($message);
+                }
+            }
+
+        if ($this->record->status == 'rejected') {
+            $expoPushTokens = ExpoPushNotification::where('user_id', $this->record->user_id)->pluck('token');
+            if ($expoPushTokens->count() > 0) {
+                foreach ($expoPushTokens as $expoPushToken) {
+                    $message = [
+                        'to' => $expoPushToken,
+                        'sound' => 'default',
+                        'title' => 'MoveOut form Updated!',
+                        'body' => auth()->user()->first_name . ' rejected your MoveOut form.',
+                        'data' => ['notificationType' => 'app_notification'],
+                    ];
+                    $this->expoNotification($message);
+                }
+            }
+        }
+    }
 }
