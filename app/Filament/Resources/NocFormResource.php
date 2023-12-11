@@ -52,7 +52,6 @@ class NocFormResource extends Resource
                             Select::make('user_id')
                                 ->rules(['exists:users,id'])
                                 ->relationship('user', 'first_name')
-                                ->required()
                                 ->preload()
                                 ->disabled()
                                 ->searchable()
@@ -185,6 +184,7 @@ class NocFormResource extends Resource
                                 ->disabled(function(SaleNOC $record){
                                     return $record->status != null;
                                 })
+                                ->required()
                                 ->searchable()
                                 ->live(),
                             TextInput::make('remarks')
