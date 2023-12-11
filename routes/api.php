@@ -325,6 +325,7 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('vendor')->group(function 
     Route::post('/vendor-comment/{complaint}', [VendorComplaintController::class, 'addComment']);
     Route::get('/list-buildings/{vendor}', [VendorBuildingController::class, 'listBuildings']);
     Route::get('/{vendor}/contracts', [ContractController::class, 'index']);
+    Route::get('/{vendor}/list-contracts', [ContractController::class, 'listContracts']);
 
     //Dashboard Snags
     Route::get('/dashboard-snag-stats/{vendor}', [SnagDashboardController::class, 'tasks']);
