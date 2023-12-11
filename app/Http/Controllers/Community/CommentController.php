@@ -33,20 +33,6 @@ class CommentController extends Controller
         $comment->user_id = auth()->id();
         $comment->save();
 
-        $expoPushTokens = ExpoPushNotification::where('user_id', $post->user_id)->pluck('token');
-        if ($expoPushTokens->count() > 0) {
-            foreach ($expoPushTokens as $expoPushToken) {
-                $message = [
-                    'to' => $expoPushToken,
-                    'sound' => 'default',
-                    'title' => 'New Comment!',
-                    'body' => auth()->user()->first_name . ' commented on your post',
-                    'data' => ['notificationType' => 'app_notification'],
-                ];
-                $this->expoNotification($message);
-            }
-        }
-
         return (new CustomResponseResource([
             'title' => 'Success',
             'message' => "Comment added successfully",

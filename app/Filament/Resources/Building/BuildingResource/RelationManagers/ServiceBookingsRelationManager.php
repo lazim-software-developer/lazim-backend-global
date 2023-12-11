@@ -16,6 +16,8 @@ use Filament\Forms\Components\Toggle;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Building\FacilityBooking;
+use App\Models\ExpoPushNotification;
+use App\Traits\UtilsTrait;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\TimePicker;
 use Illuminate\Database\Eloquent\Builder;
@@ -24,6 +26,7 @@ use Filament\Resources\RelationManagers\RelationManager;
 
 class ServiceBookingsRelationManager extends RelationManager
 {
+    use UtilsTrait;
     protected static string $relationship = 'facilityBookings';
 
     public function form(Form $form): Form
@@ -130,8 +133,41 @@ class ServiceBookingsRelationManager extends RelationManager
                 Tables\Actions\CreateAction::make()->label('Create Service Booking'),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                
+                Tables\Actions\EditAction::make()
+                ->after(function (RelationManager $livewire) {
+                    $user = FacilityBooking::where('id',$livewire->ownerRecord->id)->first();
+                    if ($user->approved == 1) {
+                        $expoPushTokens = ExpoPushNotification::where('user_id', $user->user_id)->pluck('token');
+                        if ($expoPushTokens->count() > 0) {
+                            foreach ($expoPushTokens as $expoPushToken) {
+                                $message = [
+                                    'to' => $expoPushToken,
+                                    'sound' => 'default',
+                                    'title' => 'Service Booking Updated!',
+                                    'body' => auth()->user()->first_name . ' approved your Service Booking form.',
+                                    'data' => ['notificationType' => 'app_notification'],
+                                ];
+                                $this->expoNotification($message);
+                            }
+                        }
+                    }
+
+                    if ($user->approved == 0) {
+                        $expoPushTokens = ExpoPushNotification::where('user_id', $user->user_id)->pluck('token');
+                        if ($expoPushTokens->count() > 0) {
+                            foreach ($expoPushTokens as $expoPushToken) {
+                                $message = [
+                                    'to' => $expoPushToken,
+                                    'sound' => 'default',
+                                    'title' => 'Service Booking Updated!',
+                                    'body' => auth()->user()->first_name . ' rejected your Service Booking form.',
+                                    'data' => ['notificationType' => 'app_notification'],
+                                ];
+                                $this->expoNotification($message);
+                            }
+                        }
+                    }
+                }),
             ]);
     }
 
