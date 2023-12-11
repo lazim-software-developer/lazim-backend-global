@@ -180,7 +180,7 @@ class AdminPanelProvider extends PanelProvider
                     $builder->groups([
                         NavigationGroup::make('OAM')
                             ->items([
-                                NavigationItem::make('Budgets')
+                                NavigationItem::make('Budget')
                                     ->url('/admin/budgets')
                                     ->icon('heroicon-o-currency-dollar')
                                     ->activeIcon('heroicon-o-currency-dollar')

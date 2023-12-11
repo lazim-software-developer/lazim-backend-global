@@ -52,20 +52,21 @@ class RegistrationController extends Controller
                 'code' => 400, 
             ]))->response()->setStatusCode(400);
         }
-    
+
+        // Determine the type (tenant or owner)
+        $type = $request->input('type', 'Owner');
+
         // Check if the given flat_id is already allotted to someone with active true
-        $flatOwner = DB::table('flat_tenants')->where(['flat_id' => $flat->id, 'active' => 1])->exists();
-    
-        if ($flatOwner) {
+        $flatOwner = DB::table('flat_tenants')->where(['flat_id' => $flat->id, 'active' => 1, 'role' => 'Tenant']);
+
+
+        if ($type === 'Tenant' && $flatOwner->exists()) {
             return (new CustomResponseResource([
                 'title' => 'Error',
                 'message' => 'Looks like this flat is already allocated to someone!',
-                'code' => 400, 
+                'code' => 400,
             ]))->response()->setStatusCode(400);
         }
-    
-        // Determine the type (tenant or owner)
-        $type = $request->input('type', 'Owner');
     
         if ($type === 'Owner') {
             $queryModel = $flat->owners()->where('email', $request->email)->where('mobile', $request->mobile);

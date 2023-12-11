@@ -16,6 +16,7 @@ use App\Models\Media;
 use App\Models\Tag;
 use App\Models\TechnicianVendor;
 use App\Models\User\User;
+use App\Models\Vendor\Contract;
 use App\Models\Vendor\ServiceVendor;
 use App\Models\Vendor\Vendor;
 use Carbon\Carbon;
@@ -140,33 +141,40 @@ class ComplaintController extends Controller
         // Assign complaint to a technician
         // AssignTechnicianToComplaint::dispatch($complaint);
         $serviceId = $complaint->service_id;
+        $buildingId = $complaint->building_id;
 
-        // Fetch technician_vendor_ids for the given service
-        $technicianVendorIds = DB::table('service_technician_vendor')
-                                 ->where('service_id', $serviceId)
-                                 ->pluck('technician_vendor_id');
+        $contract = Contract::where('service_id', $serviceId)->where('building_id', $buildingId)->where('end_date', Carbon::now()->toDateString())->first();
+        if ($contract){
+            // Fetch technician_vendor_ids for the given service
+            $technicianVendorIds = DB::table('service_technician_vendor')
+                                     ->where('service_id', $contract->service_id)
+                                     ->pluck('technician_vendor_id');
+                            
+            $vendorId = $contract->vendor_id;
 
-        $vendorIds = Vendor::where('owner_association_id',auth()->user()->owner_association_id)->pluck('id');
-
-        // Fetch technicians who are active and match the service
-        $technicianIds = TechnicianVendor::whereIn('id', $technicianVendorIds)
-                                      ->where('active', true)->whereIn('vendor_id',$vendorIds)
-                                      ->pluck('technician_id');
-        
-        $assignees = User::whereIn('id',$technicianIds)
-                            ->withCount(['assignees' => function ($query) {
-                                    $query->where('status', 'open');
-                                }])
-                                ->orderBy('assignees_count', 'asc')
-                                ->get();
-        $selectedTechnician = $assignees->first();
-        
-        if ($selectedTechnician) {
-            $complaint->technician_id = $selectedTechnician->id;
-            $complaint->save();
-        } else {
-            Log::info("No technicians to add", []);
+            // Fetch technicians who are active and match the service
+            $technicianIds = TechnicianVendor::whereIn('id', $technicianVendorIds)
+                                          ->where('active', true)->where('vendor_id',$vendorId)
+                                          ->pluck('technician_id');
+            $assignees = User::whereIn('id',$technicianIds)
+                                ->withCount(['assignees' => function ($query) {
+                                        $query->where('status', 'open');
+                                    }])
+                                    ->orderBy('assignees_count', 'asc')
+                                    ->get();
+            $selectedTechnician = $assignees->first();
+            
+            if ($selectedTechnician) {
+                $complaint->technician_id = $selectedTechnician->id;
+                $complaint->save();
+            } else {
+                Log::info("No technicians to add", []);
+            }
         }
+
+
+
+        
 
             return (new CustomResponseResource([
                 'title' => 'Success',

@@ -55,7 +55,7 @@ class BudgetImport implements ToCollection, WithHeadingRow
                 ->title("A budget for the specified period and building already exists. ")
                 ->danger()
                 ->send();
-            throw new LaravelValidationException($validator);
+            return 'error';
         }
 
         $budget = Budget::create([
@@ -65,8 +65,6 @@ class BudgetImport implements ToCollection, WithHeadingRow
             'budget_from' => $startDate->toDateString(),
             'budget_to' => $endDate->toDateString(),
         ]);
-
-        Log::info("Here", [$budget]);
 
         foreach ($rows as $row) {
             // $category = Category::firstOrCreate(
@@ -99,7 +97,7 @@ class BudgetImport implements ToCollection, WithHeadingRow
             // );
 
             $service = Service::where('code', $row['servicecode'])->first();
-            
+
             // Check if the service is found, if not, move on to the next iteration
             if (!$service) {
                 continue;
@@ -120,8 +118,10 @@ class BudgetImport implements ToCollection, WithHeadingRow
             }
         }
         Notification::make()
-            ->title("Budget file imported successfully.")
+            ->title("Budget imported successfully.")
             ->success()
             ->send();
+
+        return 'success';
     }
 }
