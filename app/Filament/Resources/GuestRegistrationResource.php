@@ -48,7 +48,12 @@ class GuestRegistrationResource extends Resource
                         ->downloadable(true)
                         ->openable(true)
                         ->disabled()
-                        ->label('Dtmc License'),
+                        ->label('Dtmc License')
+                        ->columnSpan([
+                            'sm' => 1,
+                            'md' => 1,
+                            'lg' => 2,
+                        ]),
                     // ViewField::make('Building')
                     //     ->view('forms.components.fieldbuilding'),
                     select::make('flat_visitor_id')
@@ -120,7 +125,7 @@ class GuestRegistrationResource extends Resource
                             TextInput::make('number_of_visitors')
                                 ->disabled(),
                         ])
-                        // ->disabled()
+                        ->disabled()
                         ->label('Flat Visitor'),
                     Toggle::make('access_card_holder')->disabled(),
                     Toggle::make('original_passport')->disabled(),
