@@ -71,7 +71,10 @@ Route::post('/verify-otp', [VerificationController::class, 'verify']);
 Route::post('/set-password', [AuthController::class, 'setPassword']);
 
 //expo
-Route::post('/expo', [AuthController::class, 'expo'])->middleware('auth:sanctum');
+Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active'])->group(function () {
+    Route::post('/expo', [AuthController::class, 'expo']);
+});
+
 
 // These APIs work only if the user's account is active
 Route::middleware(['active'])->group(function () {

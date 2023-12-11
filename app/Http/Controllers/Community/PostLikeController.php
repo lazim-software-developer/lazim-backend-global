@@ -7,9 +7,12 @@ use App\Http\Resources\CustomResponseResource;
 use App\Http\Resources\User\UserResource;
 use App\Models\Community\Post;
 use App\Models\Community\PostLike;
+use App\Models\ExpoPushNotification;
+use App\Traits\UtilsTrait;
 
 class PostLikeController extends Controller
 {
+    use UtilsTrait;
     public function like(Post $post)
     {
         $existingLike = PostLike::where('post_id', $post->id)
@@ -28,6 +31,19 @@ class PostLikeController extends Controller
             'post_id' => $post->id,
             'user_id' => auth()->user()->id
         ]);
+        $expoPushTokens = ExpoPushNotification::where('user_id', $post->user_id)->pluck('token');
+        if ($expoPushTokens->count() > 0) {
+            foreach ($expoPushTokens as $expoPushToken) {
+                $message = [
+                    'to' => $expoPushToken,
+                    'sound' => 'default',
+                    'title' => 'Post liked',
+                    'body' => auth()->user()->first_name . ' liked your post',
+                    'data' => ['notificationType' => 'app_notification'],
+                ];
+                $this->expoNotification($message);
+            }
+        }
 
         return (new CustomResponseResource([
             'title' => 'Success',
@@ -51,6 +67,20 @@ class PostLikeController extends Controller
         }
 
         $existingLike->delete();
+
+        $expoPushTokens = ExpoPushNotification::where('user_id', $post->user_id)->pluck('token');
+        if ($expoPushTokens->count() > 0) {
+            foreach ($expoPushTokens as $expoPushToken) {
+                $message = [
+                    'to' => $expoPushToken,
+                    'sound' => 'default',
+                    'title' => 'Post unliked',
+                    'body' => 'Your post has been unliked by'.auth()->user()->firstName,
+                    'data' => ['notificationType' => 'app_notification'],
+                ];
+                $this->expoNotification($message);
+            }
+        }
 
         return (new CustomResponseResource([
             'title' => 'Success',
