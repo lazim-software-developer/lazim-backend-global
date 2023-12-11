@@ -45,12 +45,11 @@ class TenderResource extends Resource
                     ->preload()
                     ->searchable()
                     ->label('Budget Period'),
-                // FileUpload::make('document')
-                //     ->disk('s3')
-                //     ->directory('dev')
-                //     ->openable(true)
-                //     ->downloadable(true)
-                //     ->label('Document'),
+                Select::make('service_id')
+                    ->relationship('service','name')
+                    ->preload()
+                    ->searchable()
+                    ->label('Service'),
                 DatePicker::make('date')
                     ->rules(['date'])
                     ->required()
@@ -75,6 +74,10 @@ class TenderResource extends Resource
                     ->searchable()
                     ->default('NA')
                     ->label('Budget Period'),
+                TextColumn::make('service.name')
+                    ->searchable()
+                    ->default('NA')
+                    ->label('Service'),
                 TextColumn::make('date')
                     ->date(),
                 TextColumn::make('end_date')

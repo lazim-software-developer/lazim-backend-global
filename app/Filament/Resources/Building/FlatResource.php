@@ -89,10 +89,10 @@ class FlatResource extends Resource
     public static function getRelations(): array
     {
         return [
-            FlatResource\RelationManagers\FlatDomesticHelpRelationManager::class,
-            FlatResource\RelationManagers\FlatTenantRelationManager::class,
-            FlatResource\RelationManagers\FlatVisitorRelationManager::class,
-            FlatResource\RelationManagers\UserRelationManager::class,
+            // FlatResource\RelationManagers\FlatDomesticHelpRelationManager::class,
+            // FlatResource\RelationManagers\FlatTenantRelationManager::class,
+            // FlatResource\RelationManagers\FlatVisitorRelationManager::class,
+            // FlatResource\RelationManagers\UserRelationManager::class,
         ];
     }
 
