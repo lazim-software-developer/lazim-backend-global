@@ -33,17 +33,14 @@ class AccessCardFormsDocumentResource extends Resource {
                     'lg' => 2,
                 ])->schema([
                             TextInput::make('card_type')
-                                ->required()
                                 ->disabled()
                                 ->label('Card Type'),
                             TextInput::make('email')
                                 ->label('Email')
-                                ->required()
                                 ->disabled()
                                 ->placeholder('Email'),
                             TextInput::make('mobile')
                                 ->label('Mobile Number')
-                                ->required()
                                 ->disabled()
                                 ->placeholder('Mobile Number'),
                             Select::make('building_id')
@@ -61,13 +58,11 @@ class AccessCardFormsDocumentResource extends Resource {
                             Select::make('user_id')
                                 ->rules(['exists:users,id'])
                                 ->relationship('user', 'first_name')
-                                ->required()
                                 ->disabled()
                                 ->preload()
                                 ->searchable()
                                 ->label('User'),
                             Textarea::make('parking_details')
-                                ->required()
                                 ->disabled()
                                 ->rows(10)
                                 ->placeholder('No Parking Details'),
@@ -107,6 +102,7 @@ class AccessCardFormsDocumentResource extends Resource {
                                 ->disabled(function (AccessCard $record) {
                                     return $record->status != null;
                                 })
+                                ->required()
                                 ->searchable()
                                 ->live(),
                             TextInput::make('remarks')

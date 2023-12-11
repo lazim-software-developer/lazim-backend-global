@@ -136,6 +136,7 @@ class MoveInFormsDocumentResource extends Resource
                         ->disabled(function (MoveInOut $record) {
                             return $record->status != null;
                         })
+                        ->required()
                         ->searchable()
                         ->live(),
                     TextInput::make('remarks')
