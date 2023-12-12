@@ -247,6 +247,9 @@ Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active']
  */
 Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active'])->prefix('payments')->group(function () {
     Route::get('/{flat}/service-charges', [PaymentController::class, 'fetchServiceCharges']);
+
+    // Access PDF link for serviceCharge
+    Route::get('/{invoice}/pdf-link', [PaymentController::class, 'fetchPDF']);
 });
 
 /**
