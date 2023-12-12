@@ -237,6 +237,8 @@ Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active']
 Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active'])->group(function () {
     Route::get('/buildings/{building}/services', [ServiceController::class, 'listServicesForBuilding']);
     Route::post('buildings/{building}/book/service', [ServiceController::class, 'bookService']);
+    // about Community
+    Route::get('/about-community/{building}', [CommunityController::class, 'about']);
 });
 
 
@@ -405,5 +407,3 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('assets')->group(function 
 // API to import services
 Route::post('/import-services', [ServiceController::class, 'import']);
 
-// about Community
-Route::get('/about-community/{building}', [CommunityController::class, 'about']);
