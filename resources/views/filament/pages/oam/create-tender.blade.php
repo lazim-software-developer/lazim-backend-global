@@ -86,12 +86,11 @@
                 event.preventDefault(); // Prevent form submission
             }
         });
-
         function checkFileType(filename, allowedTypes) {
             var ext = filename.substring(filename.lastIndexOf('.')).toLowerCase();
             return allowedTypes.indexOf(ext) !== -1;
         }
-
+        // Checking vendors for Service
         function loadVendors() {
             const servicesDropdown = document.getElementById('services-dropdown');
             const selectedServiceId = servicesDropdown.value;
