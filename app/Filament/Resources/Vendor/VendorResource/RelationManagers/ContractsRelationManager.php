@@ -39,6 +39,7 @@ class ContractsRelationManager extends RelationManager
                                 'annual maintenance contract' => 'Annual Maintenance Contract',
                                 'onetime' => 'OneTime',
                             ])
+                            ->disabled()
                             ->searchable()
                             ->required()
                             ->label('Contract Type'),
@@ -50,6 +51,7 @@ class ContractsRelationManager extends RelationManager
                             ->reactive()
                             ->required()
                             ->preload()
+                            ->disabled()
                             ->searchable()
                             ->placeholder('Building'),
                         Select::make('service_id')
@@ -61,14 +63,17 @@ class ContractsRelationManager extends RelationManager
                             ->required()
                             ->preload()
                             ->searchable()
+                            ->disabled()
                             ->placeholder('Service'),
                         DatePicker::make('start_date')
                             ->required()
                             ->rules(['date'])
+                            ->disabled()
                             ->placeholder('Start Date'),
                         DatePicker::make('end_date')
                             ->required()
                             ->rules(['date'])
+                            ->disabled()
                             ->placeholder('End Date'),
                         FileUpload::make('document_url')
                             ->required()
@@ -80,6 +85,7 @@ class ContractsRelationManager extends RelationManager
                         TextInput::make('amount')
                             ->numeric(true)
                             ->prefix('AED')
+                            ->disabled()
                             ->required(),
                         Hidden::make('vendor_id')
                             ->default(function (RelationManager $livewire) {
@@ -105,19 +111,19 @@ class ContractsRelationManager extends RelationManager
                 //
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make(),
+                // Tables\Actions\CreateAction::make(),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                // Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    // Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ])
             ->emptyStateActions([
-                Tables\Actions\CreateAction::make(),
+                // Tables\Actions\CreateAction::make(),
             ]);
     }
 }
