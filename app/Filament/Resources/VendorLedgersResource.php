@@ -105,6 +105,7 @@ class VendorLedgersResource extends Resource
                 TextColumn::make('status')
                     ->searchable(),
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 Filter::make('date')
                     ->form([

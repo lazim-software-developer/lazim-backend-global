@@ -87,7 +87,7 @@ class ResidentialFormResource extends Resource {
                             FileUpload::make('title_deed_url')
                                 ->disk('s3')
                                 ->directory('dev')
-                                ->label('Title Deed Url')
+                                ->label('Title Deed File')
                                 ->disabled()
                                 ->downloadable(true)
                                 ->openable(true),
@@ -95,21 +95,21 @@ class ResidentialFormResource extends Resource {
                                 ->disk('s3')
                                 ->directory('dev')
                                 ->disabled()
-                                ->label('Emirates Url')
+                                ->label('Emirates File')
                                 ->downloadable(true)
                                 ->openable(true),
                             FileUpload::make('passport_url')
                                 ->disk('s3')
                                 ->directory('dev')
                                 ->disabled()
-                                ->label('Passport Url')
+                                ->label('Passport File')
                                 ->downloadable(true)
                                 ->openable(true),
                             FileUpload::make('tenancy_contract')
                                 ->disk('s3')
                                 ->directory('dev')
                                 ->disabled()
-                                ->label('Tenancy / Ejari Url')
+                                ->label('Tenancy / Ejari File')
                                 ->downloadable(true)
                                 ->openable(true),
                             Select::make('status')
