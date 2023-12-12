@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Assets\PPMController;
+use App\Http\Controllers\Community\CommunityController;
 use App\Http\Controllers\MollakController;
 use App\Http\Controllers\Technician\TechnicianController;
 use App\Http\Controllers\TestController;
@@ -403,3 +404,6 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('assets')->group(function 
 });
 // API to import services
 Route::post('/import-services', [ServiceController::class, 'import']);
+
+// about Community
+Route::get('/about-community/{building}', [CommunityController::class, 'about']);
