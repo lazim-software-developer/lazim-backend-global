@@ -83,7 +83,7 @@ class TenantDocumentResource extends Resource
                                     'rejected' => 'Rejected',
                                 ])
                                 ->disabled(function (Document $record) {
-                                    return $record->status != null;
+                                    return $record->status != 'submitted';
                                 })
                                 ->searchable()
                                 ->live(),
@@ -96,7 +96,7 @@ class TenantDocumentResource extends Resource
                                     return false;
                                 })
                                 ->disabled(function (Document $record) {
-                                    return $record->status != null;
+                                    return $record->status != 'submitted';
                                 })
                                 ->required(),
                         ]),
