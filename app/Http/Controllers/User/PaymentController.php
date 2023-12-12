@@ -8,6 +8,7 @@ use App\Models\Accounting\OAMReceipts;
 use App\Models\Building\Flat;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Http;
 
 class PaymentController extends Controller
 {
@@ -76,5 +77,15 @@ class PaymentController extends Controller
             'start' => \Carbon\Carbon::createFromFormat('d-M-Y', trim($startDate)),
             'end' => \Carbon\Carbon::createFromFormat('d-M-Y', trim($endDate))
         ];
+    }
+
+    public function fetchPDF(OAMInvoice $invoice)
+    {
+        $invoice->invoice_pdf_link;
+
+        $response = Http::withoutVerifying()->withHeaders([
+            'content-type' => 'application/json',
+            'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
+        ])->get($invoice->invoice_pdf_link);
     }
 }
