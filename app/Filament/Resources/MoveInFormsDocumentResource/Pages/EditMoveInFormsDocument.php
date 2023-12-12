@@ -26,7 +26,7 @@ class EditMoveInFormsDocument extends EditRecord
     public function afterSave()
     {
         // If updated value of status is approved
-        if ($this->record->status == 'Approved') {
+        if ($this->record->status == 'approved') {
             Document::where('id', $this->data['id'])
                 ->update([
                     'accepted_by' => auth()->id(),
