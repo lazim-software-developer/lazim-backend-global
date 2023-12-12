@@ -36,7 +36,6 @@ class EditServiceBooking extends EditRecord
                         'title' => 'Facility Booking Updated!',
                         'body' => auth()->user()->first_name . ' approved your Facility Booking form.',
                         'data' => ['notificationType' => 'app_notification'],
-                        'rout' => route('facility.book')
                     ];
                     $this->expoNotification($message);
                 }
