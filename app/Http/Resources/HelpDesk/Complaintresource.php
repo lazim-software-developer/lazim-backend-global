@@ -40,7 +40,7 @@ class Complaintresource extends JsonResource
             'comments' => CommentResource::collection($this->whenLoaded('comments', function () {
                 return $this->comments()->latest()->get();
             })),
-            'assignee_id' => $this->technician?->id,
+            'assignee_id' => $this->technician?->technicianVendors->first()->id,
             'assignee_name' => $this->technician?->first_name,
             'priority' => $this->priority,
             'priority_name' => $priority,

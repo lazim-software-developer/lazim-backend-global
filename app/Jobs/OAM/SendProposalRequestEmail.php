@@ -40,7 +40,7 @@ class SendProposalRequestEmail implements ShouldQueue
                 $tempPath = tempnam(sys_get_temp_dir(), 'attachment');
                 copy(Storage::disk('s3')->url($this->documentUrl), $tempPath);
                 $message->attach($tempPath, [
-                    'as' => 'proposal_request.pdf', // Optional, set a custom filename for the attachment
+                    'as' => 'proposal_request.pdf',
                 ]);
             });
         }
