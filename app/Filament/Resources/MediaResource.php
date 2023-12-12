@@ -45,7 +45,8 @@ class MediaResource extends Resource
                             ->directory('dev')
                             ->helperText('The uploaded image must be less than 2MB.')
                             ->disabled()
-                            ->required(),
+                            ->required()
+                            ->label('File'),
 
                         MorphToSelect::make('mediaable')
                             ->types([

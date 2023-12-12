@@ -48,7 +48,7 @@ class GuestRegistrationResource extends Resource
                         ->downloadable(true)
                         ->openable(true)
                         ->disabled()
-                        ->label('Dtmc License')
+                        ->label('Dtmc License File')
                         ->columnSpan([
                             'sm' => 1,
                             'md' => 1,

@@ -19,6 +19,7 @@ use App\Filament\Resources\TenderResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\TenderResource\RelationManagers;
 use App\Filament\Resources\TenderResource\RelationManagers\ProposalsRelationManager;
+use Filament\Forms\Components\TextInput;
 
 class TenderResource extends Resource
 {
@@ -50,6 +51,9 @@ class TenderResource extends Resource
                     ->preload()
                     ->searchable()
                     ->label('Service'),
+                TextInput::make('tender_type')
+                    ->placeholder('NA')
+                    ->label('Contract Type'),
                 DatePicker::make('date')
                     ->rules(['date'])
                     ->required()
@@ -78,12 +82,17 @@ class TenderResource extends Resource
                     ->searchable()
                     ->default('NA')
                     ->label('Service'),
+                TextColumn::make('tender_type')
+                    ->searchable()
+                    ->default('NA')
+                    ->label('Contract Type'),
                 TextColumn::make('date')
                     ->date(),
                 TextColumn::make('end_date')
                     ->date(),
 
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])

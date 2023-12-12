@@ -74,6 +74,7 @@ class ProposalsRelationManager extends RelationManager
                 TextColumn::make('submitted_on')->label('Submitted On'),
                 TextColumn::make('status')->default('NA')->label('Status'),
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])

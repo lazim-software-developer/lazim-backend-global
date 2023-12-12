@@ -86,19 +86,19 @@ class NocFormResource extends Resource
                                     FileUpload::make('emirates_document_url')
                                         ->disk('s3')
                                         ->directory('dev')
-                                        ->label('Emirates Document Url')
+                                        ->label('Emirates Document File')
                                         ->downloadable(true)
                                         ->openable(true),
                                     FileUpload::make('visa_document_url')
                                         ->disk('s3')
                                         ->directory('dev')
-                                        ->label('Visa Document Url')
+                                        ->label('Visa Document File')
                                         ->downloadable(true)
                                         ->openable(true),
                                     FileUpload::make('passport_document_url')
                                         ->disk('s3')
                                         ->directory('dev')
-                                        ->label('Passport Document Url')
+                                        ->label('Passport Document File')
                                         ->downloadable(true)
                                         ->openable(true),
                                 ])

@@ -109,7 +109,7 @@ class TechnicianAssetsResource extends Resource
                 ]),
             ])
             ->emptyStateActions([
-                Tables\Actions\CreateAction::make(),
+                // Tables\Actions\CreateAction::make(),
             ]);
     }
 
@@ -124,7 +124,7 @@ class TechnicianAssetsResource extends Resource
     {
         return [
             'index' => Pages\ListTechnicianAssets::route('/'),
-            'create' => Pages\CreateTechnicianAssets::route('/create'),
+            // 'create' => Pages\CreateTechnicianAssets::route('/create'),
             'edit' => Pages\EditTechnicianAssets::route('/{record}/edit'),
         ];
     }
