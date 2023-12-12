@@ -31,23 +31,7 @@
                         </div>
                     </div>
 
-                    <!-- Checkboxes for Services -->
-                    <!-- @foreach($subcategoryServices as $category)
-                    <div class="md:col-span-1">
-                        <fieldset>
-                            <legend class="text-sm font-medium leading-6 text-gray-900">{{ $category['subcategory_name'] }}</legend>
-                            @foreach($category['services'] as $service)
-                            <div class="mt-3">
-                                <label for="service-{{ $service['id'] }}" class="flex items-center gap-x-2">
-                                    <input id="service-{{ $service['id'] }}" aria-describedby="candidates-description" name="services" value="{{ $service['id']}}" type="radio" class="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600" onChange="loadVendors()">
-                                    <span class="text-sm text-gray-600">{{ $service['name'] }}</span>
-                                </label>
-                            </div>
-                            @endforeach
-                        </fieldset>
-                    </div>
-                    @endforeach
-                </div> -->
+                    
                     <div class="md:col-span-1 max-w-md">
                         <select id="subcategory-dropdown" name="subcategory" class="w-full" required>
                             <option value="" selected disabled>Select Subcategory</option>

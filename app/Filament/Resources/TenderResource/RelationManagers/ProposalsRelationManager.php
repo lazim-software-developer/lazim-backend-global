@@ -95,29 +95,31 @@ class ProposalsRelationManager extends RelationManager
                     ])
                     ->action(function (Proposal $record, array $data): void {
 
-
                         $tenderId = Proposal::where('vendor_id', $record->vendor_id)->where('status', null)->first()->tender_id;
+                        $tenderAmount = Proposal::where('vendor_id', $record->vendor_id)->where('status', null)->first()->amount;
                         $budgetId = Tender::where('id', $tenderId)->first()->budget_id;
                         $serviceId = Tender::find($tenderId)->service_id;
-                        $buildingId = DB::table('budgets')->where('id', $budgetId)->pluck('building_id');
+                        $contractType = Tender::find($tenderId)->tender_type;
+                        $buildingId = Tender::find($tenderId)->building_id;
                         $budget_from = DB::table('budgets')->where('id', $budgetId)->pluck('budget_from')[0];
                         $budget_to = DB::table('budgets')->where('id', $budgetId)->pluck('budget_to')[0];
 
 
                         $contract = Contract::create([
                             'start_date' => $budget_from,
+                            'amount'=>$tenderAmount,
                             'end_date' => $budget_to,
-                            'contract_type' => 'onetime',
+                            'contract_type' => $contractType,
                             'service_id' => $serviceId,
                             'vendor_id' => $record->vendor_id,
-                            'building_id' => $buildingId[0],
+                            'building_id' => $buildingId,
                         ]);
 
                         $servicefind = ServiceVendor::all()->where('service_id',$serviceId)->where('vendor_id',$record->vendor_id)->first();
-                        if($servicefind)
+                        if($servicefind->building_id == null)
                         {
                             $servicefind->contract_id = $contract->id;
-                            $servicefind->building_id = $buildingId[0];
+                            $servicefind->building_id = $buildingId;
                             $servicefind->save();
                         }
                         else{
@@ -126,7 +128,7 @@ class ProposalsRelationManager extends RelationManager
                                 'vendor_id' => $record->vendor_id,
                                 'active' => true,
                                 'contract_id' => $contract->id,
-                                'building_id' => $buildingId[0],
+                                'building_id' => $buildingId,
                             ]);
                             $servicevendor->contract_id = $contract->id;
                             $servicevendor->save();
@@ -135,7 +137,7 @@ class ProposalsRelationManager extends RelationManager
                         BuildingVendor::create([
                             'vendor_id' => $record->vendor_id,
                             'active' => true,
-                            'building_id' => $buildingId[0],
+                            'building_id' => $buildingId,
                             'contract_id' => $contract->id,
                             'start_date' => $budget_from,
                             'end_date' => $budget_to,
