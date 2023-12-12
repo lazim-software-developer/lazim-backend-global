@@ -44,7 +44,7 @@ class CreateAnnouncement extends CreateRecord
                         'duration' => 'persistent',
                         'icon' => 'heroicon-o-document-text',
                         'iconColor' => 'warning',
-                        'title' => 'Residential form Updated!',
+                        'title' => 'New Announcement',
                         'view' => 'notifications::notification',
                         'viewData' => [],
                         'format' => 'filament'

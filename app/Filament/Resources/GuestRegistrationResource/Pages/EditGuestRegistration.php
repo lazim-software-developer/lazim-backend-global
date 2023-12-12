@@ -73,7 +73,7 @@ class EditGuestRegistration extends EditRecord
                     DB::table('notifications')->insert([
                         'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
                         'type' => 'Filament\Notifications\DatabaseNotification',
-                        'notifiable_type' => 'user',
+                        'notifiable_type' => 'App\Models\User\User',
                         'notifiable_id' => $this->record->user_id,
                         'data' => json_encode([
                             'actions' => [],

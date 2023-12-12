@@ -12,10 +12,10 @@ class NotificationController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $Notification = DB::table('notifications')->where('notifiable_id',auth()->user()->id)->latest()->paginate(10);
-        return NotificationsResource::collection($Notification);
+        $notification = DB::table('notifications')->where('notifiable_id',auth()->user()->id)->latest()->paginate(10);
+        return NotificationsResource::collection($notification);
     }
 
     /**
