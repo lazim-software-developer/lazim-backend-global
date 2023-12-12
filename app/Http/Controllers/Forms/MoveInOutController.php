@@ -79,32 +79,7 @@ class MoveInOutController extends Controller
         $data['user_id']= auth()->user()->id;
         $data['owner_association_id']= $ownerAssociationId;
 
-        $moveInOut = MoveInOut::create($data);
-
-        $expoPushTokens = ExpoPushNotification::where('user_id', $moveInOut->user_id)->pluck('token');
-        if ($expoPushTokens->count() > 0) {
-            foreach ($expoPushTokens as $expoPushToken) {
-                if ($moveInOut->type == 'move-in') {
-                    $message = [
-                        'to' => $expoPushToken,
-                        'sound' => 'default',
-                        'title' => 'New MoveIn',
-                        'body' => 'New MoveIn created by ' . auth()->user()->first_name,
-                        'data' => ['notificationType' => 'app_notification'],
-                    ];
-                } else {
-                    $message = [
-                        'to' => $expoPushToken,
-                        'sound' => 'default',
-                        'title' => 'New MoveOut',
-                        'body' => 'New MoveOut created by ' . auth()->user()->first_name,
-                        'data' => ['notificationType' => 'app_notification'],
-                    ];
-                }
-                $this->expoNotification($message);
-            }
-        }
-
+        MoveInOut::create($data);
         return (new CustomResponseResource([
             'title' => 'Success',
             'message' => 'Form submitted successfully!',
