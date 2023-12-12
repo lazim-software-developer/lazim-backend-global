@@ -80,6 +80,7 @@ class LedgersResource extends Resource
                     ->label('Balance'),
                     
                     ])
+                    ->defaultSort('created_at', 'desc')
                     ->filters([
                         Filter::make('invoice_date')
                             ->form([
