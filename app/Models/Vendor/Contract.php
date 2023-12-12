@@ -18,6 +18,7 @@ class Contract extends Model
         'end_date',
         'document_url',
         'contract_type',
+        'amount',
         'building_id',
         'service_id',
         'vendor_id',
