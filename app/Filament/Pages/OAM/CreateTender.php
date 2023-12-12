@@ -41,45 +41,16 @@ class CreateTender extends Page
         $building = Building::with(['services.subcategory'])
             ->where('id', $buildingId)
             ->first();
-
-        $services = $building->services()
-            ->whereNotIn('services.id', $serviceIds)
-            ->get();
-
-        if ($building) {
-            // Group services by subcategory
-            $groupedServices = $services
-                ->groupBy(function ($service) {
-                    return $service->subcategory->name;
-                });
-        } else {
-            $groupedServices = collect();
-        }
-
-        $subcategoryServices = [];
-
-        foreach ($groupedServices as $subcategoryName => $services) {
-            $subcategoryServices[] = [
-                'subcategory_name' => $subcategoryName,
-                'services' => $services->map(function ($service) {
-                    return [
-                        'id' => $service->id,
-                        'name' => $service->name,
-                    ];
-                })->toArray()
-            ];
-        }
         
         $services = Service::whereHas('buildings', function ($query) use ($buildingId) {
             $query->where('buildings.id', $buildingId); // Specify the table name
         })->get();
-    
+
         // Get the unique subcategories for these services
-        $subcategories = $services->pluck('subcategory')->unique('id');
+        $subcategories = $services->whereNotNull('subcategory')->pluck('subcategory')->unique('id');
 
         return [
             'subcategories' => $subcategories,
-            'subcategoryServices' => $subcategoryServices,
             'building' => $building,
             'budgetId' => $this->budget->id,
             'serviceIds' => $serviceIds
@@ -111,7 +82,7 @@ class CreateTender extends Page
         SendProposalRequestEmail::dispatch($vendors, $documentUrl);
 
         Notification::make()
-            ->title("Tendet created successfully")
+            ->title("Tender created successfully")
             ->success()
             ->send();
 
