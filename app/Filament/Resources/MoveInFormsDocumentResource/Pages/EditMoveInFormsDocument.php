@@ -9,6 +9,7 @@ use App\Models\Forms\MoveInOut;
 use App\Traits\UtilsTrait;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class EditMoveInFormsDocument extends EditRecord
@@ -42,6 +43,25 @@ class EditMoveInFormsDocument extends EditRecord
                         'data' => ['notificationType' => 'app_notification'],
                     ];
                     $this->expoNotification($message);
+                    DB::table('notifications')->insert([
+                        'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
+                        'type' => 'Filament\Notifications\DatabaseNotification',
+                        'notifiable_type' => 'App\Models\User\User',
+                        'notifiable_id' => $this->record->user_id,
+                        'data' => json_encode([
+                            'actions' => [],
+                            'body' => 'Approved your moveIn form by ' . auth()->user()->first_name,
+                            'duration' => 'persistent',
+                            'icon' => 'heroicon-o-document-text',
+                            'iconColor' => 'warning',
+                            'title' => 'MoveIn form Updated!',
+                            'view' => 'notifications::notification',
+                            'viewData' => [],
+                            'format' => 'filament'
+                        ]),
+                        'created_at' => now()->format('Y-m-d H:i:s'),
+                        'updated_at' => now()->format('Y-m-d H:i:s'),
+                    ]);
                 }
             }
         }
@@ -58,6 +78,25 @@ class EditMoveInFormsDocument extends EditRecord
                         'data' => ['notificationType' => 'app_notification'],
                     ];
                     $this->expoNotification($message);
+                    DB::table('notifications')->insert([
+                        'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
+                        'type' => 'Filament\Notifications\DatabaseNotification',
+                        'notifiable_type' => 'App\Models\User\User',
+                        'notifiable_id' => $this->record->user_id,
+                        'data' => json_encode([
+                            'actions' => [],
+                            'body' => 'Rejected your moveIn form by ' . auth()->user()->first_name,
+                            'duration' => 'persistent',
+                            'icon' => 'heroicon-o-document-text',
+                            'iconColor' => 'warning',
+                            'title' => 'MoveIn form Updated!',
+                            'view' => 'notifications::notification',
+                            'viewData' => [],
+                            'format' => 'filament'
+                        ]),
+                        'created_at' => now()->format('Y-m-d H:i:s'),
+                        'updated_at' => now()->format('Y-m-d H:i:s'),
+                    ]);
                 }
             }
         }
