@@ -15,6 +15,8 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
 use Filament\Tables\Columns\TextColumn;
 use App\Models\Building\FacilityBooking;
+use App\Models\ExpoPushNotification;
+use App\Traits\UtilsTrait;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\TimePicker;
@@ -24,6 +26,7 @@ use Filament\Resources\RelationManagers\RelationManager;
 
 class FacilityBookingsRelationManager extends RelationManager
 {
+    use UtilsTrait;
     protected static string $relationship = 'facilityBookings';
 
     public function form(Form $form): Form
@@ -127,8 +130,41 @@ class FacilityBookingsRelationManager extends RelationManager
                 Tables\Actions\CreateAction::make(),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-               
+                Tables\Actions\EditAction::make()
+                ->after(function (RelationManager $livewire) {
+                    $user = FacilityBooking::where('id',$livewire->ownerRecord->id)->first();
+                    if ($user->approved == 1) {
+                        $expoPushTokens = ExpoPushNotification::where('user_id', $user->user_id)->pluck('token');
+                        if ($expoPushTokens->count() > 0) {
+                            foreach ($expoPushTokens as $expoPushToken) {
+                                $message = [
+                                    'to' => $expoPushToken,
+                                    'sound' => 'default',
+                                    'title' => 'Facility Booking Updated!',
+                                    'body' => auth()->user()->first_name . ' approved your Facility Booking form.',
+                                    'data' => ['notificationType' => 'app_notification'],
+                                ];
+                                $this->expoNotification($message);
+                            }
+                        }
+                    }
+
+                    if ($user->approved == 0) {
+                        $expoPushTokens = ExpoPushNotification::where('user_id', $user->user_id)->pluck('token');
+                        if ($expoPushTokens->count() > 0) {
+                            foreach ($expoPushTokens as $expoPushToken) {
+                                $message = [
+                                    'to' => $expoPushToken,
+                                    'sound' => 'default',
+                                    'title' => 'Facility Booking Updated!',
+                                    'body' => auth()->user()->first_name . ' rejected your Facility Booking form.',
+                                    'data' => ['notificationType' => 'app_notification'],
+                                ];
+                                $this->expoNotification($message);
+                            }
+                        }
+                    }
+                }),
             ]);
     }
 }
