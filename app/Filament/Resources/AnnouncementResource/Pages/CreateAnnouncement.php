@@ -3,12 +3,9 @@
 namespace App\Filament\Resources\AnnouncementResource\Pages;
 
 use App\Filament\Resources\AnnouncementResource;
-use App\Models\Building\Building;
-use App\Models\Community\Post;
+use App\Models\Building\FlatTenant;
 use App\Models\ExpoPushNotification;
-use App\Models\User\User;
 use App\Traits\UtilsTrait;
-use Filament\Actions;
 use Filament\Resources\Pages\CreateRecord;
 
 class CreateAnnouncement extends CreateRecord
@@ -22,10 +19,9 @@ class CreateAnnouncement extends CreateRecord
 
     public function afterCreate()
     {
-        $buildingId = Building::where('id', $this->data['building_id'])->first();
-        $users = User::where('active', 1)
-            ->where('owner_association_id', $buildingId->owner_association_id)->first();
-        $expoPushTokens = ExpoPushNotification::where('user_id', $users->id)->pluck('token');
+        $users = FlatTenant::where('active', 1)
+            ->where('building_id', $this->data['building_id'])->first();
+        $expoPushTokens = ExpoPushNotification::where('user_id', $users->tenant_id)->pluck('token');
         if ($expoPushTokens->count() > 0) {
             foreach ($expoPushTokens as $expoPushToken) {
                 $message = [
