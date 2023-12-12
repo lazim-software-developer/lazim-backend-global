@@ -19,36 +19,36 @@ class ComplaintObserver
             Notification::make()
                 ->success()
                 ->title("Happiness Center Complaint created")
-                ->icon('heroicon-o-document-text') 
-                ->iconColor('warning') 
-                ->body('New Happiness Center Complaint has been created')
+                ->icon('heroicon-o-document-text')
+                ->iconColor('warning')
+                ->body(`Complaint has been created by`)
                 ->sendToDatabase($notifyTo);
         }
         elseif ($complaint->complaint_type == 'enquiries') {
             Notification::make()
                 ->success()
                 ->title("Happiness Center Enquire created")
-                ->icon('heroicon-o-document-text') 
-                ->iconColor('warning') 
-                ->body('New  Happiness Center Enquire has been created')
+                ->icon('heroicon-o-document-text')
+                ->iconColor('warning')
+                ->body('A enquiry has been recived raised by')
                 ->sendToDatabase($notifyTo);
         }
         elseif ($complaint->complaint_type == 'suggestions') {
             Notification::make()
                 ->success()
                 ->title("Happiness Center Suggestion created")
-                ->icon('heroicon-o-document-text') 
-                ->iconColor('warning') 
-                ->body('New Happiness Center Suggestion has been created')
+                ->icon('heroicon-o-document-text')
+                ->iconColor('warning')
+                ->body('A suggestion made by')
                 ->sendToDatabase($notifyTo);
         }
         else{
             Notification::make()
                 ->success()
                 ->title("HelpDesk Complaint created")
-                ->icon('heroicon-o-document-text') 
-                ->iconColor('warning') 
-                ->body('New HelpDesk Complaint has been created')
+                ->icon('heroicon-o-document-text')
+                ->iconColor('warning')
+                ->body('A new Ticket is raised by')
                 ->sendToDatabase($notifyTo);
         }
     }
