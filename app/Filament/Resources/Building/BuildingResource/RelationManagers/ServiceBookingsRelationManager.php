@@ -47,7 +47,7 @@ class ServiceBookingsRelationManager extends RelationManager
                         Select::make('bookable_id')
                             ->options(
                                 DB::table('services')
-                                    ->where('type','inhouse')
+                                    ->where('type', 'inhouse')
                                     ->pluck('name', 'id')
                                     ->toArray()
                             )
@@ -55,7 +55,7 @@ class ServiceBookingsRelationManager extends RelationManager
                             ->label('Service')
                             ->preload()
                             ->disabledOn('edit')
-                            ->placeholder('Service'),
+                            ->label('Service'),
 
                         Hidden::make('bookable_type')
                             ->default('App\Models\Master\Service'),
@@ -65,7 +65,7 @@ class ServiceBookingsRelationManager extends RelationManager
                             ->required()
                             ->relationship('user', 'first_name')
                             ->options(function () {
-                                return User::whereIn('role_id', [1,11])->pluck('first_name', 'id');
+                                return User::whereIn('role_id', [1, 11])->pluck('first_name', 'id');
                             })
                             ->searchable()
                             ->preload()
@@ -99,7 +99,7 @@ class ServiceBookingsRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn (Builder $query) => $query->where('bookable_type', 'App\Models\Master\Service')->withoutGlobalScopes())
+            ->modifyQueryUsing(fn(Builder $query) => $query->where('bookable_type', 'App\Models\Master\Service')->withoutGlobalScopes())
             ->columns([
                 TextColumn::make('bookable.name')
                     ->searchable()
@@ -110,6 +110,7 @@ class ServiceBookingsRelationManager extends RelationManager
                     ->default('NA')
                     ->label('User'),
                 TextColumn::make('date')
+                    ->date()
                     ->searchable()
                     ->default('NA')
                     ->label('Date'),
@@ -134,40 +135,40 @@ class ServiceBookingsRelationManager extends RelationManager
             ])
             ->actions([
                 Tables\Actions\EditAction::make()
-                ->after(function (RelationManager $livewire) {
-                    $user = FacilityBooking::where('id',$livewire->ownerRecord->id)->first();
-                    if ($user->approved == 1) {
-                        $expoPushTokens = ExpoPushNotification::where('user_id', $user->user_id)->pluck('token');
-                        if ($expoPushTokens->count() > 0) {
-                            foreach ($expoPushTokens as $expoPushToken) {
-                                $message = [
-                                    'to' => $expoPushToken,
-                                    'sound' => 'default',
-                                    'title' => 'Service Booking Updated!',
-                                    'body' => auth()->user()->first_name . ' approved your Service Booking form.',
-                                    'data' => ['notificationType' => 'app_notification'],
-                                ];
-                                $this->expoNotification($message);
+                    ->after(function (RelationManager $livewire) {
+                        $user = FacilityBooking::where('id', $livewire->ownerRecord->id)->first();
+                        if ($user->approved == 1) {
+                            $expoPushTokens = ExpoPushNotification::where('user_id', $user->user_id)->pluck('token');
+                            if ($expoPushTokens->count() > 0) {
+                                foreach ($expoPushTokens as $expoPushToken) {
+                                    $message = [
+                                        'to' => $expoPushToken,
+                                        'sound' => 'default',
+                                        'title' => 'Service Booking Updated!',
+                                        'body' => auth()->user()->first_name . ' approved your Service Booking form.',
+                                        'data' => ['notificationType' => 'app_notification'],
+                                    ];
+                                    $this->expoNotification($message);
+                                }
                             }
                         }
-                    }
 
-                    if ($user->approved == 0) {
-                        $expoPushTokens = ExpoPushNotification::where('user_id', $user->user_id)->pluck('token');
-                        if ($expoPushTokens->count() > 0) {
-                            foreach ($expoPushTokens as $expoPushToken) {
-                                $message = [
-                                    'to' => $expoPushToken,
-                                    'sound' => 'default',
-                                    'title' => 'Service Booking Updated!',
-                                    'body' => auth()->user()->first_name . ' rejected your Service Booking form.',
-                                    'data' => ['notificationType' => 'app_notification'],
-                                ];
-                                $this->expoNotification($message);
+                        if ($user->approved == 0) {
+                            $expoPushTokens = ExpoPushNotification::where('user_id', $user->user_id)->pluck('token');
+                            if ($expoPushTokens->count() > 0) {
+                                foreach ($expoPushTokens as $expoPushToken) {
+                                    $message = [
+                                        'to' => $expoPushToken,
+                                        'sound' => 'default',
+                                        'title' => 'Service Booking Updated!',
+                                        'body' => auth()->user()->first_name . ' rejected your Service Booking form.',
+                                        'data' => ['notificationType' => 'app_notification'],
+                                    ];
+                                    $this->expoNotification($message);
+                                }
                             }
                         }
-                    }
-                }),
+                    }),
             ]);
     }
 

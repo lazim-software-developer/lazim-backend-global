@@ -72,9 +72,9 @@ class ComplaintssuggessionResource extends Resource
                             ->required()
                             ->label('User'),
                         TextInput::make('complaint')
-                            ->placeholder('Suggestion'),
+                            ->label('Suggestion'),
                         TextInput::make('complaint_details')
-                            ->placeholder('Complaint Details'),
+                            ->label('Suggestion Details'),
                         Hidden::make('status')
                             ->default('open'),
                         Hidden::make('complaint_type')
@@ -113,7 +113,7 @@ class ComplaintssuggessionResource extends Resource
                 TextColumn::make('complaint_details')
                     ->toggleable()
                     ->searchable()
-                    ->label('Complaint Details'),
+                    ->label('Suggestion Details'),
                 TextColumn::make('status')
                     ->toggleable()
                     ->searchable()

@@ -84,7 +84,7 @@ class BuildingResource extends Resource
                                 ->preload()
                                 ->relationship('cities', 'name')
                                 ->searchable()
-                                ->placeholder('City'),
+                                ->placeholder('NA'),
                             Toggle::make('allow_postupload')
                                 ->rules(['boolean']),
 

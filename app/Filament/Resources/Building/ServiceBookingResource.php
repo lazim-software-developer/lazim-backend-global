@@ -70,7 +70,7 @@ class ServiceBookingResource extends Resource
                             ->label('Service')
                             ->disabledOn('edit')
                             ->required()
-                            ->placeholder('Service'),
+                            ->label('Service'),
 
                         Hidden::make('bookable_type')
                             ->default('App\Models\Master\Service'),
@@ -131,12 +131,14 @@ class ServiceBookingResource extends Resource
                 Tables\Columns\TextColumn::make('bookable.name')
                     ->searchable()
                     ->default('NA')
-                    ->limit(50),
+                    ->limit(50)
+                    ->label('Service'),
                 Tables\Columns\TextColumn::make('user.first_name')
                     ->default('NA')
                     ->searchable()
                     ->limit(50),
                 Tables\Columns\TextColumn::make('date')
+                    ->date()
                     ->searchable()
                     ->default('NA')
                     ->date(),
