@@ -80,16 +80,33 @@
         document.getElementById('form').addEventListener('submit', function (event) {
             var inputFile = document.getElementById('file-upload');
             var allowedTypes = [".png", ".jpg", ".jpeg", ".pdf"];
+            var errorContainer = document.getElementById('file-upload-error');
 
             if (!checkFileType(inputFile.value, allowedTypes)) {
-                alert('Invalid file type. Please upload a valid file.');
-                event.preventDefault(); // Prevent form submission
+                // Display error message
+                if (!errorContainer) {
+                    errorContainer = document.createElement('div');
+                    errorContainer.id = 'file-upload-error';
+                    errorContainer.className = 'text-red-500 text-sm mt-2';
+                    inputFile.parentNode.appendChild(errorContainer);
+                }
+                errorContainer.textContent = 'Invalid file type. Please upload a valid file.';
+
+                // Prevent form submission
+                event.preventDefault();
+            } else {
+                // Clear error message if file type is valid
+                if (errorContainer) {
+                    errorContainer.parentNode.removeChild(errorContainer);
+                }
             }
         });
+
         function checkFileType(filename, allowedTypes) {
             var ext = filename.substring(filename.lastIndexOf('.')).toLowerCase();
             return allowedTypes.indexOf(ext) !== -1;
         }
+
         // Checking vendors for Service
         function loadVendors() {
             const servicesDropdown = document.getElementById('services-dropdown');

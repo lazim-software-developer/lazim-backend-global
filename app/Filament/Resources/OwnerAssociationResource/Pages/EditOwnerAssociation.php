@@ -54,7 +54,7 @@ class EditOwnerAssociation extends EditRecord
             // Update verified in owner_association table
             OwnerAssociation::where('id', $this->data['id'])
                 ->update([
-                    'verified_by' => auth()->id(),
+                    'verified_by' => auth()->user()->id,
                 ]);
 
             // Create an entry in Users table
