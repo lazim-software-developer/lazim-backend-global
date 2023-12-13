@@ -34,6 +34,8 @@ use App\Models\Visitor\FlatDomesticHelp;
 use App\Models\Visitor\FlatVisitor;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Spatie\Sluggable\HasSlug;
+use Spatie\Sluggable\SlugOptions;
 
 class Building extends Model
 {
@@ -50,7 +52,9 @@ class Building extends Model
         'lng',
         'description',
         'floors',
-        'owner_association_id'
+        'owner_association_id',
+        'allow_postupload',
+        'slug'
     ];
 
     protected $casts = [
@@ -58,6 +62,18 @@ class Building extends Model
     ];
 
     protected $searchableFields = ['*'];
+
+    use HasSlug;
+
+    /**
+     * Get the options for generating the slug.
+     */
+    public function getSlugOptions() : SlugOptions
+    {
+        return SlugOptions::create()
+            ->generateSlugsFrom('name')
+            ->saveSlugsTo('slug');
+    }
     
     public function cities()
     {

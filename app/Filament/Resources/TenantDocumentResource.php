@@ -13,6 +13,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables\Actions\Action;
+use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Filters\SelectFilter;
@@ -38,52 +39,67 @@ class TenantDocumentResource extends Resource
                     'md' => 1,
                     'lg' => 2,
                 ])->schema([
-
-                    Select::make('document_library_id')
-                        ->required()
-                        ->relationship('documentLibrary', 'name')
-                        ->preload()
-                        ->searchable()
-                        ->placeholder('Document Library')
-                        ->getSearchResultsUsing(
-                            fn (string $search) => DB::table('document_libraries')
-                                ->join('building_documentlibraries', function (JoinClause $join) {
-                                    $join->on('document_libraries.id', '=', 'building_documentlibraries.documentlibrary_id')
-                                        ->where([
-                                            ['building_id', '=', Filament::getTenant()->id],
-
-                                        ]);
+                            TextInput::make('name')->disabled(),
+                            Select::make('document_library_id')
+                                ->rules(['exists:document_libraries,id'])
+                                ->relationship('documentLibrary', 'name')
+                                ->disabled()
+                                ->searchable()
+                                ->placeholder('Document Library'),
+                            Select::make('building_id')
+                                ->relationship('building', 'name')
+                                ->preload()
+                                ->disabled()
+                                ->default('NA')
+                                ->searchable()
+                                ->label('Building Name'),
+                            Select::make('flat_id')
+                                ->relationship('flat', 'property_number')
+                                ->preload()
+                                ->default('NA')
+                                ->disabled()
+                                ->searchable()
+                                ->label('Unit Number'),
+                            FileUpload::make('url')
+                                ->disk('s3')
+                                ->directory('dev')
+                                ->disabled()
+                                ->openable(true)
+                                ->downloadable(true)
+                                ->label('Document')
+                                ->columnSpan([
+                                    'sm' => 1,
+                                    'md' => 1,
+                                    'lg' => 2,
+                                ]),
+                            DatePicker::make('expiry_date')
+                                ->rules(['date'])
+                                ->required()
+                                ->readonly()
+                                ->placeholder('Expiry Date'),
+                            Select::make('status')
+                                ->options([
+                                    'approved' => 'Approved',
+                                    'rejected' => 'Rejected',
+                                ])
+                                ->disabled(function (Document $record) {
+                                    return $record->status != 'submitted';
                                 })
-                                ->pluck('document_libraries.name', 'document_libraries.id')
-                        ),
-                    FileUpload::make('url')->label('Document')
-                        ->disk('s3')
-                        ->directory('dev')
-                        ->required()
-                        ->downloadable(true)
-                        ->preserveFilenames(),
-                    Select::make('status')
-                        ->options([
-                            'submitted' => 'Submitted',
-                            'approved' => 'Approved',
-                            'rejected' => 'Rejected',
-                        ])
-                        ->searchable()
-                        ->required()
-                        ->placeholder('Status'),
-                    TextInput::make('comments')
-                        ->readonly(),
-                    DatePicker::make('expiry_date')
-                        ->rules(['date'])
-                        ->required()
-                        ->readonly()
-                        ->placeholder('Expiry Date'),
-
-                    // Hidden::make('documentable_type')
-                    //     ->default('App\Models\User\User'),
-                    // Hidden::make('documentable_id')
-                    //     ->default(Auth()->user()->id),
-                ]),
+                                ->searchable()
+                                ->live(),
+                            TextInput::make('remarks')
+                                ->rules(['max:255'])
+                                ->visible(function (callable $get) {
+                                    if ($get('status') == 'rejected') {
+                                        return true;
+                                    }
+                                    return false;
+                                })
+                                ->disabled(function (Document $record) {
+                                    return $record->status != 'submitted';
+                                })
+                                ->required(),
+                        ]),
 
             ]);
     }
@@ -92,7 +108,7 @@ class TenantDocumentResource extends Resource
     {
         return $table
             ->poll('60s')
-            ->modifyQueryUsing(fn (Builder $query) => $query->where('documentable_type', 'App\Models\User\User')->withoutGlobalScopes())
+            ->modifyQueryUsing(fn(Builder $query) => $query->where('documentable_type', 'App\Models\User\User')->withoutGlobalScopes())
             ->columns([
                 TextColumn::make('name')
                     ->searchable()
@@ -107,7 +123,7 @@ class TenantDocumentResource extends Resource
                 TextColumn::make('flat.property_number')
                     ->searchable()
                     ->default('NA')
-                    ->label('Flat Number')
+                    ->label('Unit Number')
                     ->limit(50),
                 TextColumn::make('status')
                     ->searchable()
@@ -133,41 +149,7 @@ class TenantDocumentResource extends Resource
                     ->label('Building'),
             ])
             ->actions([
-                Action::make('Update Status')
-                    ->visible(fn ($record) => $record->status === null)
-                    ->button()
-                    ->form([
-                        Select::make('status')
-                            ->options([
-                                'approved' => 'Approved',
-                                'rejected' => 'Rejected',
-                            ])
-                            ->searchable()
-                            ->live(),
-                        TextInput::make('remarks')
-                            ->rules(['max:255'])
-                            ->visible(function (callable $get) {
-                                if ($get('status') == 'rejected') {
-                                    return true;
-                                }
-                                return false;
-                            })
-                            ->required(),
-                    ])
-                    ->fillForm(fn (Document $record): array => [
-                        'status' => $record->status,
-                        'remarks' => $record->remarks,
-                    ])
-                    ->action(function (Document $record, array $data): void {
-                        if ($data['status'] == 'rejected') {
-                            $record->status = $data['status'];
-                            $record->remarks = $data['remarks'];
-                            $record->save();
-                        } else {
-                            $record->status = $data['status'];
-                            $record->save();
-                        }
-                    }),
+                EditAction::make(),
             ]);
     }
 

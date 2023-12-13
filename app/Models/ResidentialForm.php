@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 class ResidentialForm extends Model
 {
     use HasFactory;
-    
+
     protected $fillable = [
         'unit_occupied_by',
         'name',
@@ -32,6 +32,10 @@ class ResidentialForm extends Model
         'emirates_url',
         'title_deed_url',
         'owner_association_id',
+        'status',
+        'tenancy_contract',
+        'remarks',
+        'rejected_fields'
     ];
 
     protected $casts = [

@@ -10,6 +10,7 @@ use App\Http\Resources\Vendor\SelectServicesResource;
 use App\Http\Resources\Vendor\SubCategoryResource;
 use App\Models\Accounting\SubCategory;
 use App\Models\Master\Service;
+use App\Models\Vendor\ServiceVendor;
 use App\Models\Vendor\Vendor;
 use Illuminate\Http\Request;
 
@@ -57,15 +58,31 @@ public function listServices(SubCategory $subcategory)
         $vendor->services()->syncWithoutDetaching([$request->service]);
 
         return (new CustomResponseResource([
-            'title' => 'Services taged!',
+            'title' => 'Service taged!',
             'message' => "",
             'code' => 201,
             'status' => 'success',
         ]))->response()->setStatusCode(201);
     }
 
-    public function showServices(Vendor $vendor)
+    public function untagServices(SelectServicesRequest $request, Vendor $vendor)
     {
+        $vendor->services()->detach([$request->service]);
+
+        return (new CustomResponseResource([
+            'title' => 'Service untaged!',
+            'message' => "",
+            'code' => 200,
+            'status' => 'success',
+        ]))->response()->setStatusCode(201);
+    }
+
+    public function showServices(Request $request,Vendor $vendor)
+    {
+        // $vendorServices = ServiceVendor::where('vendor_id',$vendor->id)->where('active', true)->when(isset($request->building_id), function ($query) use ($request) {
+        //     $buildingId = $request->building_id;
+        //     return $query->where('building_id', $buildingId);
+        // })->pluck('service_id');
         $services = $vendor->services->unique();
 
         return SelectServicesResource::collection($services);

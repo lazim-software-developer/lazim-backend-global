@@ -7,6 +7,7 @@ use App\Models\Building\FlatTenant;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -19,7 +20,7 @@ class FlatTenantResource extends Resource
 {
     protected static ?string $model = FlatTenant::class;
 
-    protected static ?string $navigationIcon  = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
     protected static ?string $modelLabel = 'Tenants';
     protected static ?string $navigationGroup = 'Flat Management';
 
@@ -34,14 +35,16 @@ class FlatTenantResource extends Resource
                     ->schema([
                         Select::make('flat_id')
                             ->rules(['exists:flats,id'])
+                            ->disabled()
                             ->required()
                             ->relationship('flat', 'property_number')
                             ->searchable()
                             ->preload()
-                            ->placeholder('Flat'),
+                            ->label('Unit Number'),
                         Select::make('tenant_id')
                             ->rules(['exists:users,id'])
                             ->required()
+                            ->disabled()
                             ->relationship('user', 'first_name')
                             ->searchable()
                             ->preload()
@@ -50,17 +53,24 @@ class FlatTenantResource extends Resource
                             ->rules(['exists:buildings,id'])
                             ->relationship('building', 'name')
                             ->reactive()
+                            ->disabled()
                             ->preload()
                             ->searchable()
                             ->placeholder('Building'),
                         DatePicker::make('start_date')
                             ->rules(['date'])
+                            ->disabled()
                             ->required()
                             ->placeholder('Start Date'),
                         DatePicker::make('end_date')
                             ->rules(['date'])
+                            ->disabled()
                             ->placeholder('End Date'),
+                        TextInput::make('role')
+                            ->disabled()
+                            ->placeholder('NA'),
                         Toggle::make('primary')
+                            ->disabled()
                             ->rules(['boolean']),
                     ]),
             ]);
@@ -74,7 +84,7 @@ class FlatTenantResource extends Resource
                 TextColumn::make('flat.property_number')
                     ->default('NA')
                     ->searchable()
-                    ->label('Flat Number')
+                    ->label('Unit Number')
                     ->limit(50),
                 TextColumn::make('user.first_name')
                     ->default('NA')
@@ -87,8 +97,7 @@ class FlatTenantResource extends Resource
                     ->default('NA')
                     ->searchable()
                     ->limit(50),
-                TextColumn::make('end_date')
-                    ->date(),
+                TextColumn::make('role')->default('NA'),
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
@@ -114,17 +123,17 @@ class FlatTenantResource extends Resource
     public static function getRelations(): array
     {
         return [
-            FlatTenantResource\RelationManagers\DocumentsRelationManager::class,
-            FlatTenantResource\RelationManagers\ComplaintsRelationManager::class,
+            // FlatTenantResource\RelationManagers\DocumentsRelationManager::class,
+            // FlatTenantResource\RelationManagers\ComplaintsRelationManager::class,
         ];
     }
 
     public static function getPages(): array
     {
         return [
-            'index'  => Pages\ListFlatTenants::route('/'),
+            'index' => Pages\ListFlatTenants::route('/'),
             //'create' => Pages\CreateFlatTenant::route('/create'),
-            'edit'   => Pages\EditFlatTenant::route('/{record}/edit'),
+            'edit' => Pages\EditFlatTenant::route('/{record}/edit'),
         ];
     }
 }

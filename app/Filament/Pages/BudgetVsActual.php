@@ -41,7 +41,8 @@ class BudgetVsActual extends Page implements HasTable
                 ViewColumn::make('budget')->label('Budget Annual')->view('tables.columns.service-budget'),
                 ViewColumn::make('actual')->label('Actual Annual')->view('tables.columns.service-actual'),
                 ViewColumn::make('surplus')->label('(Deficit)/Surplus')->view('tables.columns.service-surplus'),
-            ])->filters([
+            ])
+            ->defaultSort('created_at', 'desc')->filters([
                 Filter::make('invoice_date')
                     ->form([
                         Select::make('year')

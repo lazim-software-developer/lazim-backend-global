@@ -22,7 +22,7 @@ class FlatResource extends Resource
     protected static ?string $model = Flat::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-    protected static ?string $navigationLabel = 'Flats';
+    protected static ?string $modelLabel = 'Units';
     protected static ?string $navigationGroup = 'Flat Management';
 
 
@@ -39,7 +39,7 @@ class FlatResource extends Resource
                         ->rules(['numeric'])
                         ->required()
                         ->numeric()
-                        ->placeholder('Number'),
+                        ->placeholder('Unit Number'),
                     Select::make('building_id')
                         ->rules(['exists:buildings,id'])
                         ->relationship('building', 'name')
@@ -59,7 +59,7 @@ class FlatResource extends Resource
                 Tables\Columns\TextColumn::make('property_number')
                     ->default('NA')
                     ->searchable()
-                    ->label('Flat Number'),
+                    ->label('Unit Number'),
                 Tables\Columns\TextColumn::make('building.name')
                     ->default('NA')
                     ->searchable()
@@ -89,10 +89,10 @@ class FlatResource extends Resource
     public static function getRelations(): array
     {
         return [
-            FlatResource\RelationManagers\FlatDomesticHelpRelationManager::class,
-            FlatResource\RelationManagers\FlatTenantRelationManager::class,
-            FlatResource\RelationManagers\FlatVisitorRelationManager::class,
-            FlatResource\RelationManagers\UserRelationManager::class,
+            // FlatResource\RelationManagers\FlatDomesticHelpRelationManager::class,
+            // FlatResource\RelationManagers\FlatTenantRelationManager::class,
+            // FlatResource\RelationManagers\FlatVisitorRelationManager::class,
+            // FlatResource\RelationManagers\UserRelationManager::class,
         ];
     }
 

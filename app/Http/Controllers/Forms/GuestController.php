@@ -46,7 +46,7 @@ class GuestController extends Controller
 
                 //TODO: NEED TO CHANGE EXPIRY_DATE LOGIC
                 $passportId = DocumentLibrary::where('name', 'Passport')->value('id');
-                
+
                 $request->merge([
                     'documentable_id' => $guest->id,
                     'document_library_id' => $passportId,

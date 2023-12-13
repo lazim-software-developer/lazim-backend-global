@@ -4,11 +4,14 @@ namespace App\Imports\OAM;
 
 use App\Models\Accounting\Budget;
 use App\Models\Accounting\Budgetitem;
+use App\Models\Accounting\Category;
+use App\Models\Accounting\SubCategory;
 use App\Models\Building\Building;
 use App\Models\Master\Service;
 use Carbon\Carbon;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Illuminate\Validation\ValidationException as LaravelValidationException;
@@ -35,6 +38,7 @@ class BudgetImport implements ToCollection, WithHeadingRow
         $startDate = Carbon::createFromFormat('M Y', $start)->startOfMonth();
         $endDate = Carbon::createFromFormat('M Y', $end)->endOfMonth();
 
+
         $building = Building::where('id', $this->buildingId)->first();
 
         // Check if budget exists for the given period
@@ -43,16 +47,16 @@ class BudgetImport implements ToCollection, WithHeadingRow
             ->where('budget_to', $endDate->toDateString())
             ->first();
 
-            if ($existingBudget) {
-                // Create a Laravel ValidationException
-                $validator = Validator::make([], []); // Empty data and rules
-                $validator->errors()->add('budget', 'A budget for the specified period and building already exists.');
-                Notification::make()
-                        ->title("A budget for the specified period and building already exists. ")
-                        ->danger()
-                        ->send();
-                throw new LaravelValidationException($validator);
-            }
+        if ($existingBudget) {
+            // Create a Laravel ValidationException
+            $validator = Validator::make([], []); // Empty data and rules
+            $validator->errors()->add('budget', 'A budget for the specified period and building already exists.');
+            Notification::make()
+                ->title("A budget for the specified period and building already exists. ")
+                ->danger()
+                ->send();
+            return 'error';
+        }
 
         $budget = Budget::create([
             'building_id' => $this->buildingId,
@@ -63,7 +67,41 @@ class BudgetImport implements ToCollection, WithHeadingRow
         ]);
 
         foreach ($rows as $row) {
+            // $category = Category::firstOrCreate(
+            //     [
+            //         'name' => $row['category'],
+            //     ],
+            //     [
+            //         'code' => preg_replace("/[^a-zA-Z]/", "", $row['servicecode']),
+            //     ]
+            // );
+            // $subcategory = SubCategory::firstOrCreate(
+            //     [
+            //         'name' => $row['subcategory'],
+            //     ],
+            //     [
+            //         'category_id' => $category->id,
+            //         'code' => 'Y',
+            //     ]
+            //     );
+            // $service = Service::firstOrCreate(
+            //     [
+            //         'code' => $row['servicecode'],
+            //         'subcategory_id' => $subcategory->id,
+            //     ],
+            //     [
+            //         'name' => $row['servicename'],
+            //         'type' => 'vendor_service',
+            //         'active' => true,
+            //     ]
+            // );
+
             $service = Service::where('code', $row['servicecode'])->first();
+
+            // Check if the service is found, if not, move on to the next iteration
+            if (!$service) {
+                continue;
+            }
 
             // Check if the building has this service, if not add the service to building
             $building->services()->syncWithoutDetaching([$service->id]);
@@ -79,5 +117,11 @@ class BudgetImport implements ToCollection, WithHeadingRow
                 ]);
             }
         }
+        Notification::make()
+            ->title("Budget imported successfully.")
+            ->success()
+            ->send();
+
+        return 'success';
     }
 }

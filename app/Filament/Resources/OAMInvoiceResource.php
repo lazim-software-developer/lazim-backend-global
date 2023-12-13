@@ -47,16 +47,16 @@ class OAMInvoiceResource extends Resource
                     ->preload()
                     ->disabled()
                     ->searchable()
-                    ->label('Property No'),
+                    ->label('Unit Number'),
                 TextInput::make('invoice_number')->disabled()->label('Invoice Number'),
                 DatePicker::make('invoice_date')->disabled()->label('Invoice Date'),
                 Select::make('invoice_status')->options(['Paid' => 'Paid', 'Defered' => 'Defered'])->searchable()->label('Invoice Status'),
-                TextInput::make('due_amount')->label('Due Amount'),
-                TextInput::make('general_fund_amount')->disabled()->label('General Fund Amount'),
-                TextInput::make('reserve_fund_amount')->disabled()->label('Reserve Fund Amount'),
-                TextInput::make('additional_charges')->disabled()->label('Additional Charges'),
-                TextInput::make('previous_balance')->disabled()->label('Previous Balance'),
-                TextInput::make('Adjust_amount')->disabled()->label('Adjust Amount'),
+                TextInput::make('due_amount')->label('Due Amount')->prefix('AED'),
+                TextInput::make('general_fund_amount')->disabled()->label('General Fund Amount')->prefix('AED'),
+                TextInput::make('reserve_fund_amount')->disabled()->label('Reserve Fund Amount')->prefix('AED'),
+                TextInput::make('additional_charges')->disabled()->label('Additional Charges')->prefix('AED'),
+                TextInput::make('previous_balance')->disabled()->label('Previous Balance')->prefix('AED'),
+                TextInput::make('Adjust_amount')->disabled()->label('Adjust Amount')->prefix('AED'),
                 TextInput::make('invoice_due_date')->disabled()->label('Invoice Due Date'),
 
             ]);
@@ -73,6 +73,7 @@ class OAMInvoiceResource extends Resource
                 TextColumn::make('flat.property_number')
                     ->searchable()
                     ->default('NA')
+                    ->label('Unit Number')
                     ->limit(50),
                 TextColumn::make('invoice_number')
                     ->searchable()

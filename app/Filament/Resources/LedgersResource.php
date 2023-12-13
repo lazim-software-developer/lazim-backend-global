@@ -58,6 +58,7 @@ class LedgersResource extends Resource
                 TextColumn::make('flat.property_number')
                     ->searchable()
                     ->default('NA')
+                    ->label('Unit Number')
                     ->limit(50),
                 TextColumn::make('invoice_number')
                     ->searchable()
@@ -80,6 +81,7 @@ class LedgersResource extends Resource
                     ->label('Balance'),
                     
                     ])
+                    ->defaultSort('created_at', 'desc')
                     ->filters([
                         Filter::make('invoice_date')
                             ->form([

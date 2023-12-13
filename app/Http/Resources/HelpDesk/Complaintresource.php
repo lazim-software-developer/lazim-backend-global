@@ -37,8 +37,10 @@ class Complaintresource extends JsonResource
             'media' => MediaResource::collection($this->media),
             'complaint_type' => $this->complaint_type,
             'complaint_details' => $this->complaint_details,
-            'comments' => CommentResource::collection($this->whenLoaded('comments')),
-            'assignee_id' => $this->technician?->id,
+            'comments' => CommentResource::collection($this->whenLoaded('comments', function () {
+                return $this->comments()->latest()->get();
+            })),
+            'assignee_id' => $this->technician?->technicianVendors->first()->id,
             'assignee_name' => $this->technician?->first_name,
             'priority' => $this->priority,
             'priority_name' => $priority,

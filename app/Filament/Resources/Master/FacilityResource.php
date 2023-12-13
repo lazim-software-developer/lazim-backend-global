@@ -14,7 +14,6 @@ use Filament\Forms\Components\Toggle;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\RichEditor;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\Master\FacilityResource\Pages;
@@ -74,11 +73,9 @@ class FacilityResource extends Resource
             ->query($facilities)
             ->columns([
                 TextColumn::make('name')
-                    ->toggleable()
-                    ->searchable(true, null, true)
+                    ->searchable()
                     ->limit(50),
                 IconColumn::make('active')
-                    ->toggleable()
                     ->boolean()
                     ->trueIcon('heroicon-o-check-badge')
                     ->falseIcon('heroicon-o-x-mark'),
@@ -103,8 +100,8 @@ class FacilityResource extends Resource
     public static function getRelations(): array
     {
         return [
-            FacilityResource\RelationManagers\FacilityBookingRelationManager::class,
-            FacilityResource\RelationManagers\BuildingsRelationManager::class,
+            // FacilityResource\RelationManagers\FacilityBookingRelationManager::class,
+            // FacilityResource\RelationManagers\BuildingsRelationManager::class,
         ];
     }
 

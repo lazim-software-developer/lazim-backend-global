@@ -88,7 +88,7 @@ class ComplaintsenquiryResource extends Resource
                                     ->maxSize(2048)
                                     ->openable(true)
                                     ->downloadable(true)
-                                    ->label('Media'),
+                                    ->label('File'),
                             ])
                     ])
             ]);

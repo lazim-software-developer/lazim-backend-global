@@ -101,6 +101,7 @@ class BudgetResource extends Resource
                 TextColumn::make('budget_to')
                     ->date(),
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])

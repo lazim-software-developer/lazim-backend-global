@@ -8,16 +8,21 @@ use App\Http\Requests\Technician\AddTechnicianRequest;
 use App\Http\Requests\Technician\ServiceIdRequest;
 use App\Http\Requests\Technician\TechnicianIdRequest;
 use App\Http\Resources\CustomResponseResource;
+use App\Http\Resources\Technician\ListTechnicianResource;
 use App\Http\Resources\Technician\ServiceTechnicianResource;
 use App\Jobs\AccountCreationJob;
 use App\Jobs\TechnicianAccountCreationJob;
 use App\Models\Building\Complaint;
 use App\Models\Master\Role;
 use App\Models\Master\Service;
+use App\Models\TechnicianAssets;
 use App\Models\TechnicianVendor;
 use App\Models\User\User;
+use App\Models\Vendor\Contract;
 use App\Models\Vendor\Vendor;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
@@ -25,6 +30,8 @@ class TechnicianController extends Controller
 {
     public function registration(AddTechnicianRequest $request)
     {
+        // $vendor= Vendor::where('owner_id', auth()->user()->id)->first();
+        // return !(TechnicianAssets::where('asset_id', 1)->where('vendor_id', $vendor->id)->where('active',1)->exists());
 
         $request->merge([
             'first_name' => $request->name,
@@ -53,8 +60,20 @@ class TechnicianController extends Controller
 
         $technician->services()->syncWithoutDetaching([$request->service_id]);
 
-        // AccountCreationJob::dispatch($user, $password);
         TechnicianAccountCreationJob::dispatch($user, $password);
+
+        $assets = $vendor->assets->unique();
+        foreach ($assets as $asset){
+            if (!(TechnicianAssets::where('asset_id', $asset->id)->where('vendor_id', $vendor->id)->where('active',1)->exists()) && $asset->service_id == $request->service_id){
+                TechnicianAssets::create([
+                    'asset_id' => $asset->id,
+                    'technician_id' => $user->id,
+                    'vendor_id' => $vendor->id,
+                    'building_id' => $asset->building_id,
+                    'active' => 1,
+                ]);
+            }
+        }
 
         return (new CustomResponseResource([
             'title' => 'Technician Added Successfully!',
@@ -71,6 +90,14 @@ class TechnicianController extends Controller
         $technicians = $service->technicianVendors->where('vendor_id', $vendor->id);
 
         return ServiceTechnicianResource::collection($technicians);
+    }
+
+    public function technicianList(Service $service, Vendor $vendor){
+        $contract = Contract::where('vendor_id', $vendor->id)
+                                    ->where('service_id', $service->id)->where('end_date','>=',Carbon::now()->toDateString())->first()->service_id;
+        $serviceTechnician = DB::table('service_technician_vendor')->where('service_id', $contract)->pluck('technician_vendor_id');
+        $technicians = TechnicianVendor::whereIn('id', $serviceTechnician)->where('active', true)->get();
+        return ListTechnicianResource::collection($technicians);
     }
 
     public function activeDeactive(ActiveRequest $request, TechnicianVendor $technician)
@@ -98,6 +125,19 @@ class TechnicianController extends Controller
         }
 
         $technician->services()->syncWithoutDetaching([$request->service_id]);
+        $vendor= Vendor::where('owner_id', auth()->user()->id)->first();
+        $assets = $vendor->assets->unique();
+        foreach ($assets as $asset){
+            if (!(TechnicianAssets::where('asset_id', $asset->id)->where('vendor_id', $vendor->id)->where('active',1)->exists()) && $asset->service_id == $request->service_id){
+                TechnicianAssets::create([
+                    'asset_id' => $asset->id,
+                    'technician_id' => $technician->technician_id,
+                    'vendor_id' => $vendor->id,
+                    'building_id' => $asset->building_id,
+                    'active' => 1,
+                ]);
+            }
+        }
 
         return (new CustomResponseResource([
             'title' => 'Technician assigned',
@@ -119,5 +159,12 @@ class TechnicianController extends Controller
             'status' => 'success',
             'data' => $complaint
         ]))->response()->setStatusCode(200);
+    }
+
+    public function listTechnicians(ServiceIdRequest $request, Vendor $vendor)
+    {
+        $assigned = DB::table('service_technician_vendor')->where('service_id', $request->service_id)->pluck('technician_vendor_id');
+        $technicians = TechnicianVendor::where('vendor_id', $vendor->id)->where('active', true)->whereNotIn('id',$assigned)->get();
+        return ListTechnicianResource::collection($technicians);
     }
 }
