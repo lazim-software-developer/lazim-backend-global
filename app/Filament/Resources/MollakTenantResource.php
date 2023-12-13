@@ -65,13 +65,13 @@ class MollakTenantResource extends Resource
                     ->default('NA'),
                 TextColumn::make('flat.property_number')
                     ->searchable()
-                    ->default('NA'),
+                    ->default('NA')
+                    ->label('Unit Number'),
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
                 //
-            ])
-            ->defaultSort('created_at', 'desc');
+            ]);
     }
 
     public static function getRelations(): array

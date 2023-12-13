@@ -50,7 +50,7 @@ class MoveInFormsDocumentResource extends Resource
                         ->preload()
                         ->disabled()
                         ->searchable()
-                        ->label('Property No'),
+                        ->label('Unit Number'),
                     FileUpload::make('handover_acceptance')
                         ->disk('s3')
                         ->directory('dev')
@@ -194,6 +194,7 @@ class MoveInFormsDocumentResource extends Resource
                 TextColumn::make('flat.property_number')
                     ->searchable()
                     ->default('NA')
+                    ->label('Unit Number')
                     ->limit(50),
                 TextColumn::make('status')
                     ->searchable()

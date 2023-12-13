@@ -37,15 +37,22 @@ class ServiceResource extends Resource
                 Grid::make([
                     'sm' => 1,
                     'md' => 1,
-                    'lg' => 2
+                    'lg' => 1,
                 ])
                     ->schema([
                         TextInput::make('name')
                             ->rules(['max:50', 'string'])
                             ->required()
+                            ->disabled()
                             ->placeholder('Name'),
                         Hidden::make('type')
                             ->default('inhouse'),
+                        FileUpload::make('icon')
+                            ->acceptedFileTypes(['image/jpeg', 'image/png'])
+                            ->disk('s3')
+                            ->directory('dev')
+                            ->required()
+                            ->maxSize(2048),
                         Toggle::make('active')
                             ->label('Active')
                             ->default(1)
@@ -64,9 +71,6 @@ class ServiceResource extends Resource
                 TextColumn::make('name')
                     ->searchable()
                     ->limit(50),
-                TextColumn::make('type')
-                    ->searchable()
-                    ->label('Service Type'),
                 IconColumn::make('active')
                     ->boolean()
                     ->trueIcon('heroicon-o-check-badge')
@@ -77,7 +81,7 @@ class ServiceResource extends Resource
                 //
             ])
             ->actions([
-                //EditAction::make(),
+                EditAction::make(),
             ])
             ->bulkActions([
                 BulkActionGroup::make([
@@ -101,7 +105,7 @@ class ServiceResource extends Resource
         return [
             'index' => ListServices::route('/'),
             //'create' => CreateService::route('/create'),
-            //'edit' => EditService::route('/{record}/edit'),
+            'edit' => EditService::route('/{record}/edit'),
         ];
     }
 }

@@ -60,7 +60,7 @@ class ResidentialFormResource extends Resource {
                                 ->preload()
                                 ->disabled()
                                 ->searchable()
-                                ->label('Property No'),
+                                ->label('Unit Number'),
                             Select::make('user_id')
                                 ->rules(['exists:users,id'])
                                 ->relationship('user', 'first_name')
@@ -182,7 +182,7 @@ class ResidentialFormResource extends Resource {
                     ->default('NA'),
                 TextColumn::make('flat.property_number')
                     ->searchable()
-                    ->label('Flat Number')
+                    ->label('Unit Number')
                     ->default('NA'),
                 TextColumn::make('status')
                     ->searchable()
@@ -208,7 +208,7 @@ class ResidentialFormResource extends Resource {
                     ->relationship('flat', 'property_number')
                     ->searchable()
                     ->preload()
-                    ->label('Flat Number'),
+                    ->label('Unit Number'),
             ])
             ->defaultSort('created_at', 'desc')
             ->actions([

@@ -54,7 +54,7 @@ class AccessCardFormsDocumentResource extends Resource {
                                 ->preload()
                                 ->disabled()
                                 ->searchable()
-                                ->label('Property No'),
+                                ->label('Unit Number'),
                             Select::make('user_id')
                                 ->rules(['exists:users,id'])
                                 ->relationship('user', 'first_name')
@@ -162,6 +162,7 @@ class AccessCardFormsDocumentResource extends Resource {
                 TextColumn::make('flat.property_number')
                     ->searchable()
                     ->default('NA')
+                    ->label('Unit Number')
                     ->limit(50),
                 ImageColumn::make('tenancy')
                     ->label('Tenancy')
