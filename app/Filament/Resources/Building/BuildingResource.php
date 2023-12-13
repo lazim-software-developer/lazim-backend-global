@@ -2,27 +2,28 @@
 
 namespace App\Filament\Resources\Building;
 
-use App\Filament\Resources\Building\BuildingResource\Pages;
-use App\Filament\Resources\Building\BuildingResource\RelationManagers;
+use Filament\Forms;
+use Filament\Tables;
+use Filament\Forms\Form;
+use Filament\Tables\Table;
+use Filament\Resources\Resource;
 use App\Imports\OAM\BudgetImport;
 use App\Models\Building\Building;
-use Filament\Forms;
 use Filament\Forms\Components\Grid;
+use Filament\Tables\Actions\Action;
+use Illuminate\Support\Facades\Log;
+use Maatwebsite\Excel\Facades\Excel;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
-use Filament\Tables;
-use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
-use Filament\Tables\Actions\Action;
-use EightyNine\ExcelImport\ExcelImportAction;
-use Filament\Notifications\Notification;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
-use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Validation\Rules\Unique;
+use Filament\Forms\Components\TextInput;
+use Filament\Notifications\Notification;
+use EightyNine\ExcelImport\ExcelImportAction;
+use App\Filament\Resources\Building\BuildingResource\Pages;
+use App\Filament\Resources\Building\BuildingResource\RelationManagers;
 
 class BuildingResource extends Resource
 {
@@ -40,65 +41,72 @@ class BuildingResource extends Resource
                     'md' => 1,
                     'lg' => 1,
                 ])->schema([
-                    TextInput::make('name')
-                        ->rules(['max:50', 'string'])
-                        ->required()
-                        ->placeholder('Name'),
+                            TextInput::make('name')
+                                ->rules(['max:50', 'string'])
+                                ->required()
+                                ->placeholder('Name'),
 
-                    TextInput::make('property_group_id')
-                        ->rules(['max:50', 'string'])
-                        ->required()
-                        ->placeholder('Property Group Id')
-                        ->unique(
-                            'buildings',
-                            'property_group_id',
-                            fn (?Model $record) => $record
-                        ),
+                            TextInput::make('property_group_id')
+                                ->rules(['max:50', 'string'])
+                                ->required()
+                                ->placeholder('Property Group Id')
+                                ->unique(
+                                    'buildings',
+                                    'property_group_id',
+                                    fn(?Model $record) => $record,
+                                    modifyRuleUsing: function (Unique $rule, callable $get, ?Model $record) {
+                                        if (Building::where('property_group_id', $record->property_group_id)->exists()) {
+                                            return $rule->whereNot('name', $get('name'));
+                                        }
+                                        return $rule->where('name', $get('name'));
+                                    }
+                                ),
 
-                    TextInput::make('address_line1')
-                        ->rules(['max:255', 'string'])
-                        ->required()
-                        ->placeholder('Address Line1'),
+                            TextInput::make('address_line1')
+                                ->rules(['max:255', 'string'])
+                                ->required()
+                                ->placeholder('Address Line1'),
 
-                    TextInput::make('address_line2')
-                        ->rules(['max:255', 'string'])
-                        ->nullable()
-                        ->placeholder('Address Line2'),
-                    Hidden::make('owner_association_id')
-                        ->default(auth()->user()->owner_association_id),
+                            TextInput::make('address_line2')
+                                ->rules(['max:255', 'string'])
+                                ->nullable()
+                                ->placeholder('Address Line2'),
+                            Hidden::make('owner_association_id')
+                                ->default(auth()->user()->owner_association_id),
 
-                    // TextInput::make('area')
-                    //     ->rules(['max:50', 'string'])
-                    //     ->required()
-                    //     ->placeholder('Area'),
+                            // TextInput::make('area')
+                            //     ->rules(['max:50', 'string'])
+                            //     ->required()
+                            //     ->placeholder('Area'),
 
-                    Select::make('city_id')
-                        ->rules(['exists:cities,id'])
-                        ->required()
-                        ->preload()
-                        ->relationship('cities', 'name')
-                        ->searchable()
-                        ->placeholder('City'),
+                            Select::make('city_id')
+                                ->rules(['exists:cities,id'])
+                                ->preload()
+                                ->relationship('cities', 'name')
+                                ->searchable()
+                                ->placeholder('City'),
+                            Toggle::make('allow_postupload')
+                                ->rules(['boolean']),
 
-                    // TextInput::make('lat')
-                    //     ->rules(['numeric'])
-                    //     ->placeholder('Lat'),
+                            // TextInput::make('lat')
+                            //     ->rules(['numeric'])
+                            //     ->placeholder('Lat'),
 
-                    // TextInput::make('lng')
-                    //     ->rules(['numeric'])
-                    //     ->placeholder('Lng'),
+                            // TextInput::make('lng')
+                            //     ->rules(['numeric'])
+                            //     ->placeholder('Lng'),
 
-                    // TextInput::make('description')
-                    //     ->rules(['max:255', 'string'])
-                    //     ->placeholder('Description'),
+                            // TextInput::make('description')
+                            //     ->rules(['max:255', 'string'])
+                            //     ->placeholder('Description'),
 
-                    // TextInput::make('floors')
-                    //     ->rules(['numeric'])
-                    //     ->required()
-                    //     ->numeric()
-                    //     ->placeholder('Floors')
+                            // TextInput::make('floors')
+                            //     ->rules(['numeric'])
+                            //     ->required()
+                            //     ->numeric()
+                            //     ->placeholder('Floors')
 
-                ]),
+                        ]),
             ]);
     }
 
@@ -190,7 +198,7 @@ class BuildingResource extends Resource
                             ->directory('budget_imports'), // or your preferred directory
                     ])
                     ->action(function ($record, array $data, $livewire) {
-                        try {
+                        // try {
                             $budgetPeriod = $data['budget_period'];
                             $filePath = $data['excel_file'];
                             $fullPath = storage_path('app/' . $filePath);
@@ -202,26 +210,24 @@ class BuildingResource extends Resource
 
                             // Now import using the file path
                             Excel::import(new BudgetImport($budgetPeriod, $record->id), $fullPath); // Notify user of success
-                            Notification::make()
-                            ->title("Budget file imported successfully.")
-                            ->success()
-                            ->send();
-                        } catch (\Exception $e) {
-                            Log::error('Error during file import: ' . $e->getMessage());
-
-                            // Notify user of failure
-                            Session::flash('notify', ['type' => 'danger', 'message' => 'Failed to import budget file.']);
-                        }
+            
+                        // } catch (\Exception $e) {
+                        //     // Log::error('Error during file import: ' . $e->getMessage());
+                        //     Notification::make()
+                        //     ->title($e->getMessage())
+                        //     ->danger()
+                        //     ->send();
+                        // }
                     }),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ])
+                    Tables\Actions\BulkActionGroup::make([
+                        Tables\Actions\DeleteBulkAction::make(),
+                    ]),
+                ])
             ->emptyStateActions([
-                Tables\Actions\CreateAction::make(),
-            ]);
+                    Tables\Actions\CreateAction::make(),
+                ]);
     }
 
     public static function getRelations(): array
@@ -229,12 +235,12 @@ class BuildingResource extends Resource
         return [
             BuildingResource\RelationManagers\FacilityBookingsRelationManager::class,
             BuildingResource\RelationManagers\ServiceBookingsRelationManager::class,
-            // BuildingResource\RelationManagers\BudgetRelationManager::class,
+                // BuildingResource\RelationManagers\BudgetRelationManager::class,
             BuildingResource\RelationManagers\BuildingPocsRelationManager::class,
-            BuildingResource\RelationManagers\ComplaintsRelationManager::class,
+            BuildingResource\RelationManagers\ComplaintRelationManager::class,
             BuildingResource\RelationManagers\ServicesRelationManager::class,
             BuildingResource\RelationManagers\ServiceRelationManager::class,
-            // BuildingResource\RelationManagers\DocumentsRelationManager::class,
+                // BuildingResource\RelationManagers\DocumentsRelationManager::class,
             BuildingResource\RelationManagers\FacilitiesRelationManager::class,
             BuildingResource\RelationManagers\FlatsRelationManager::class,
             BuildingResource\RelationManagers\VendorRelationManager::class,

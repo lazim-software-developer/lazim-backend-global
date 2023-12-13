@@ -23,18 +23,22 @@ class CreateGuestRequest extends FormRequest
     {
         return [
             'passport_number' => 'required|alpha_num',
-            'visa_validity_date' => 'required|date',
+            'visa_validity_date' => 'nullable|date',
             'stay_duration' => 'required',
-            'expiry_date' => 'required|date',
             'original_passport' => 'nullable',
+            'access_card_holder'=> 'nullable',
             'guest_registration' => 'nullable',
             'building_id' => 'required|integer',
             'flat_id' => 'required|integer',
             'start_date' => 'required|date',
             'number_of_visitors' => 'required|integer',
             'type' => 'required',
-            'end_date' => 'required|date|after:start_date',
-            'image' => 'required|file|max:2048'
+            'guests.*.guest_name' => 'nullable',
+            'guests.*.holiday_home_name' => 'nullable',
+            'guests.*.emergency_contact' => 'nullable',
+            'end_date' => 'required|date', //|after:start_date
+            'image' => 'required|file|max:2048',
+            // 'files'=> 'file|mimes:pdf,jpg,jpeg,png,doc,docx|max:2048'
         ];
     }
 
@@ -42,6 +46,7 @@ class CreateGuestRequest extends FormRequest
     {
         return [
             'image.max' => 'The uploaded image must be less than 2MB.',
+            // 'files.max' => 'The uploaded image must be less than 2MB.',
         ];
     }
 }

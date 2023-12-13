@@ -7,8 +7,14 @@ use App\Models\Asset;
 use App\Models\Assets\Assetmaintenance;
 use App\Models\Building\Building;
 use App\Models\TechnicianAssets;
+use App\Models\TechnicianVendor;
+use App\Models\User\User;
+use App\Models\Vendor\Contract;
+use Carbon\Carbon;
 use Filament\Actions;
 use Filament\Resources\Pages\CreateRecord;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class CreateAsset extends CreateRecord
@@ -22,6 +28,7 @@ class CreateAsset extends CreateRecord
     // }
     public function afterCreate(): void
     {
+        
         // Fetch asset details from the database
         $asset = Asset::where('id', $this->record->id)->first();
         // Fetch technician_asset details 
@@ -50,6 +57,45 @@ class CreateAsset extends CreateRecord
 
         // Update the newly created asset record with the generated QR code
         Asset::where('id', $this->record->id)->update(['qr_code' => $qrCode]);
+
+        $buildingId = $this->record->building_id;
+        $serviceId = $this->record->service_id;
+        $assetId = $this->record->id;
+        $contract = Contract::where('building_id', $buildingId)->where('service_id', $serviceId)->where('end_date','>=', Carbon::now()->toDateString())->first();
+        if($contract){
+            $vendorId = $contract->vendor_id;
+            
+            $asset = Asset::find($assetId);
+            // dd($asset);
+            $technicianVendorIds = DB::table('service_technician_vendor')
+                                    ->where('service_id',$serviceId)
+                                    ->pluck('technician_vendor_id');
+                                    
+            $asset->vendors()->syncWithoutDetaching([$vendorId]);
+            
+            $technicianIds = TechnicianVendor::whereIn('id', $technicianVendorIds)->where('vendor_id',$vendorId)->where('active', true)->pluck('technician_id');
+            if ($technicianIds){
+                $assignees = User::whereIn('id',$technicianIds)
+                ->withCount(['assets' => function ($query) {
+                    $query->where('active', true);
+                }])
+                ->orderBy('assets_count', 'asc')
+                ->get();
+                $selectedTechnician = $assignees->first();
+                
+                if ($selectedTechnician) {
+                    $assigned = TechnicianAssets::create([
+                        'asset_id' => $asset->id,
+                        'technician_id' => $selectedTechnician->id,
+                        'vendor_id' => $contract->vendor_id,
+                        'building_id' => $asset->building_id,
+                        'active' => 1,
+                    ]);
+                } else {
+                    Log::info("No technicians to add", []);
+                }
+            }
+        }
     }
 
 }

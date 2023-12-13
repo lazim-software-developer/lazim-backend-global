@@ -40,10 +40,11 @@ class SaleNOC extends Model
         'signing_authority_phone',
         'signing_authority_name',
         'submit_status',
+        'remarks',
     ];
 
     public function contacts() {
-        return $this->hasMany(NocContacts::class);
+        return $this->hasMany(NocContacts::class,'noc_form_id');
     }
     public function ownerAssociation()
     {

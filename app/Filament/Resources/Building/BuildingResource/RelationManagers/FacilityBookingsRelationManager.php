@@ -2,27 +2,31 @@
 
 namespace App\Filament\Resources\Building\BuildingResource\RelationManagers;
 
-use App\Models\Building\FacilityBooking;
 use Filament\Forms;
-use Filament\Forms\Components\DatePicker;
+use Filament\Tables;
+use Filament\Forms\Form;
+use App\Models\User\User;
+use Filament\Tables\Table;
+use Illuminate\Support\Facades\DB;
 use Filament\Forms\Components\Grid;
+use Filament\Tables\Actions\Action;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\TimePicker;
 use Filament\Forms\Components\Toggle;
-use Filament\Forms\Form;
-use Filament\Resources\RelationManagers\RelationManager;
-use Filament\Tables;
-use Filament\Tables\Actions\Action;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Table;
+use App\Models\Building\FacilityBooking;
+use App\Models\ExpoPushNotification;
+use App\Traits\UtilsTrait;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\TimePicker;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Illuminate\Support\Facades\DB;
+use Filament\Resources\RelationManagers\RelationManager;
 
 class FacilityBookingsRelationManager extends RelationManager
 {
+    use UtilsTrait;
     protected static string $relationship = 'facilityBookings';
 
     public function form(Form $form): Form
@@ -48,6 +52,7 @@ class FacilityBookingsRelationManager extends RelationManager
                             )
                             ->searchable()
                             ->label('Facility')
+                            ->disabledOn('edit')
                             ->preload()
                             ->placeholder('Facility'),
 
@@ -58,7 +63,11 @@ class FacilityBookingsRelationManager extends RelationManager
                             ->rules(['exists:users,id'])
                             ->required()
                             ->relationship('user', 'first_name')
+                            ->options(function () {
+                                return User::whereIn('role_id', [1,11])->pluck('first_name', 'id');
+                            })
                             ->searchable()
+                            ->disabledOn('edit')
                             ->preload()
                             ->placeholder('User'),
 
@@ -68,12 +77,15 @@ class FacilityBookingsRelationManager extends RelationManager
                         DatePicker::make('date')
                             ->rules(['date'])
                             ->required()
+                            ->disabledOn('edit')
                             ->placeholder('Date'),
                         TimePicker::make('start_time')
                             ->required()
+                            ->disabledOn('edit')
                             ->placeholder('Start Time'),
                         TimePicker::make('end_time')
                             ->required()
+                            ->disabledOn('edit')
                             ->placeholder('End Time'),
                         Toggle::make('approved')
                             ->rules(['boolean'])
@@ -118,22 +130,41 @@ class FacilityBookingsRelationManager extends RelationManager
                 Tables\Actions\CreateAction::make(),
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
-                Action::make('Approval')
-                    ->visible(fn ($record) => $record->approved === false)
-                    ->button()
-                    ->form([
-                        Toggle::make('approved')
-                            ->rules(['boolean'])
-                            ->required(),
-                    ])
-                    ->fillForm(fn (FacilityBooking $record): array => [
-                        'approved' => $record->approved,
-                    ])
-                    ->action(function (FacilityBooking $record, array $data): void {
-                        $record->approved = $data['approved'];
-                        $record->save();
-                    })
+                Tables\Actions\EditAction::make()
+                ->after(function (RelationManager $livewire) {
+                    $user = FacilityBooking::where('id',$livewire->ownerRecord->id)->first();
+                    if ($user->approved == 1) {
+                        $expoPushTokens = ExpoPushNotification::where('user_id', $user->user_id)->pluck('token');
+                        if ($expoPushTokens->count() > 0) {
+                            foreach ($expoPushTokens as $expoPushToken) {
+                                $message = [
+                                    'to' => $expoPushToken,
+                                    'sound' => 'default',
+                                    'title' => 'Facility Booking Updated!',
+                                    'body' => auth()->user()->first_name . ' approved your Facility Booking form.',
+                                    'data' => ['notificationType' => 'app_notification'],
+                                ];
+                                $this->expoNotification($message);
+                            }
+                        }
+                    }
+
+                    if ($user->approved == 0) {
+                        $expoPushTokens = ExpoPushNotification::where('user_id', $user->user_id)->pluck('token');
+                        if ($expoPushTokens->count() > 0) {
+                            foreach ($expoPushTokens as $expoPushToken) {
+                                $message = [
+                                    'to' => $expoPushToken,
+                                    'sound' => 'default',
+                                    'title' => 'Facility Booking Updated!',
+                                    'body' => auth()->user()->first_name . ' rejected your Facility Booking form.',
+                                    'data' => ['notificationType' => 'app_notification'],
+                                ];
+                                $this->expoNotification($message);
+                            }
+                        }
+                    }
+                }),
             ]);
     }
 }

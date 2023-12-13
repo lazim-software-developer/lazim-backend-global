@@ -23,6 +23,7 @@ use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\AssetResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\AssetResource\RelationManagers;
+use App\Models\Master\Service;
 
 class AssetResource extends Resource
 {
@@ -69,6 +70,9 @@ class AssetResource extends Resource
                             ->label('Description'),
                         Select::make('service_id')
                             ->relationship('service', 'name')
+                            ->options(function(){
+                                return Service::where('type','vendor_service')->where('active',1)->pluck('name','id');
+                            })
                             ->preload()
                             ->searchable()
                             ->label('Service'),

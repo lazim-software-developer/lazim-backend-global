@@ -7,9 +7,12 @@ use App\Http\Resources\CustomResponseResource;
 use App\Http\Resources\User\UserResource;
 use App\Models\Community\Post;
 use App\Models\Community\PostLike;
+use App\Models\ExpoPushNotification;
+use App\Traits\UtilsTrait;
 
 class PostLikeController extends Controller
 {
+    use UtilsTrait;
     public function like(Post $post)
     {
         $existingLike = PostLike::where('post_id', $post->id)
@@ -51,7 +54,6 @@ class PostLikeController extends Controller
         }
 
         $existingLike->delete();
-
         return (new CustomResponseResource([
             'title' => 'Success',
             'message' => 'Post unliked successfully.',

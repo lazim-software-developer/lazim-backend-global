@@ -45,7 +45,8 @@ class MediaResource extends Resource
                             ->directory('dev')
                             ->helperText('The uploaded image must be less than 2MB.')
                             ->disabled()
-                            ->required(),
+                            ->required()
+                            ->label('File'),
 
                         MorphToSelect::make('mediaable')
                             ->types([
@@ -72,18 +73,18 @@ class MediaResource extends Resource
             ->defaultSort('created_at', 'desc')
             ->filters([
                 //
-            ])
-            ->actions([
-                Tables\Actions\EditAction::make(),
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ])
-            ->emptyStateActions([
-                Tables\Actions\CreateAction::make(),
             ]);
+            // ->actions([
+            //     Tables\Actions\EditAction::make(),
+            // ])
+            // ->bulkActions([
+            //     Tables\Actions\BulkActionGroup::make([
+            //         Tables\Actions\DeleteBulkAction::make(),
+            //     ]),
+            // ])
+            // ->emptyStateActions([
+            //     Tables\Actions\CreateAction::make(),
+            // ]);
     }
 
     public static function getRelations(): array

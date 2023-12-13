@@ -23,6 +23,12 @@ class Guest extends Model
         'flat_visitor_id',
         'dtmc_license_url',
         'owner_association_id',
+        'status',
+        'guest_name',
+        'holiday_home_name',
+        'emergency_contact',
+        'remarks',
+        'rejected_fields'
     ];
 
     protected $searchableFields = ['*'];

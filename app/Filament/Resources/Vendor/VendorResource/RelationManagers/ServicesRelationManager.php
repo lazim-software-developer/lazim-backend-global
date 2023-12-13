@@ -50,7 +50,6 @@ class ServicesRelationManager extends RelationManager
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')->limit(50),
-                Tables\Columns\TextColumn::make('price')->limit(50),
                 Tables\Columns\IconColumn::make('active')->boolean(),
             ])
             ->defaultSort('created_at', 'desc')

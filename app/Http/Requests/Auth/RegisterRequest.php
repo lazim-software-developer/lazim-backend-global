@@ -17,7 +17,7 @@ class RegisterRequest extends FormRequest
     public function rules()
     {
         return [
-            'email' => 'required|regex:/^[a-zA-Z0-9_.-]+@[a-zA-Z]+\.[a-zA-Z]+$/',
+            'email' => 'required|email:rfc,dns',
             'mobile' => 'required|string',
             'building_id' => 'required|integer',
             'flat_id' => 'required|integer',

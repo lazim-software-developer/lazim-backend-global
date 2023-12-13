@@ -19,6 +19,7 @@ use App\Filament\Resources\TenderResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\TenderResource\RelationManagers;
 use App\Filament\Resources\TenderResource\RelationManagers\ProposalsRelationManager;
+use Filament\Forms\Components\TextInput;
 
 class TenderResource extends Resource
 {
@@ -45,12 +46,14 @@ class TenderResource extends Resource
                     ->preload()
                     ->searchable()
                     ->label('Budget Period'),
-                // FileUpload::make('document')
-                //     ->disk('s3')
-                //     ->directory('dev')
-                //     ->openable(true)
-                //     ->downloadable(true)
-                //     ->label('Document'),
+                Select::make('service_id')
+                    ->relationship('service','name')
+                    ->preload()
+                    ->searchable()
+                    ->label('Service'),
+                TextInput::make('tender_type')
+                    ->placeholder('NA')
+                    ->label('Contract Type'),
                 DatePicker::make('date')
                     ->rules(['date'])
                     ->required()
@@ -75,17 +78,26 @@ class TenderResource extends Resource
                     ->searchable()
                     ->default('NA')
                     ->label('Budget Period'),
+                TextColumn::make('service.name')
+                    ->searchable()
+                    ->default('NA')
+                    ->label('Service'),
+                TextColumn::make('tender_type')
+                    ->searchable()
+                    ->default('NA')
+                    ->label('Contract Type'),
                 TextColumn::make('date')
                     ->date(),
                 TextColumn::make('end_date')
                     ->date(),
 
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                // Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -108,8 +120,7 @@ class TenderResource extends Resource
     {
         return [
             'index' => Pages\ListTenders::route('/'),
-            'create' => Pages\CreateTender::route('/create'),
-            'edit' => Pages\EditTender::route('/{record}/edit'),
+            'view' => Pages\ViewTender::route('/{record}'),
         ];
     }
 }

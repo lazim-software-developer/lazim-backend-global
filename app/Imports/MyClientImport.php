@@ -2,62 +2,58 @@
 
 namespace App\Imports;
 
-use App\Models\Building\Building;
-use App\Models\Building\Flat;
 use App\Models\MollakTenant;
-use Filament\Notifications\Notification;
+use App\Models\Building\Flat;
+use App\Models\Building\Building;
 use Illuminate\Support\Collection;
-use Illuminate\Validation\ValidationException;
+use Filament\Notifications\Notification;
 use Maatwebsite\Excel\Concerns\ToCollection;
+use Illuminate\Validation\ValidationException;
+use Maatwebsite\Excel\Concerns\WithHeadingRow;
 
-class MyClientImport implements ToCollection
+class MyClientImport implements ToCollection, WithHeadingRow
 {
+    protected $buildingId;
+    public function __construct($buildingId)
+    {
+        $this->buildingId = $buildingId;
+    }
     /**
      * @param Collection $collection
      */
-    public function collection(Collection $collection)
+    public function collection(Collection $rows)
     {
-        $iterate = count($collection);
-        $int = 1;
-        while ($iterate > 1) {
-            $createbuild = Building::firstOrCreate(
-                [
-                    'name' => $collection[$int][1], 
-                    'property_group_id' => $collection[$int][0],
-                    'owner_association_id' => auth()->user()->owner_association_id,
-                ],
-                [
-                    'address_line1' => 'Define',
-                ]
-            );
-
+        foreach ($rows as $row) {
+            $building = Building::find($this->buildingId)->first();
             $createflat = Flat::firstOrCreate(
                 [
-                    'property_number' => $collection[$int][3],
-                    'mollak_property_id' => $collection[$int][2],
-                    'building_id' => $createbuild->id,
+                    'property_number' => $row['unit_number'],
+                    'mollak_property_id' => $row['mollak_id'],
+                    'building_id' => $this->buildingId,
                 ],
                 [
                     'property_type' => 'owner',
-                    'owner_association_id' => auth()->user()->owner_association_id,
+                    'owner_association_id' => $building->owner_association_id,
                 ]
             );
-
             MollakTenant::create([
-                'building_id' => $createbuild->id,
+                'building_id' => $this->buildingId,
                 'flat_id' => $createflat->id,
-                'contract_number' => $collection[$int][4],
-                'name' => $collection[$int][5],
-                'emirates_id' => $collection[$int][6],
-                'license_number' => $collection[$int][7],
-                'mobile' => preg_replace('/0/','+971', $collection[$int][8],1),
-                'email' => $collection[$int][9],
-                'start_date' => $collection[$int][10],
-                'end_date' => $collection[$int][11],
-                'contract_status' => $collection[$int][12],
+                'contract_number' => $row['contract_number'],
+                'name' => $row['tenant_name'],
+                'emirates_id' => $row['emirates_id'],
+                'license_number' => $row['license_number'],
+                'mobile' => preg_replace('/0/', '+971', $row['mobile'], 1),
+                'email' => $row['email'],
+                'start_date' => $row['start_date'],
+                'end_date' => $row['end_date'],
+                'contract_status' => $row['contract_status'],
             ]);
-            $int = $int + 1;
-            $iterate = $iterate - 1;
         }
+        Notification::make()
+            ->title("Details uploaded successfully")
+            ->success()
+            ->send();
+        return 'success';
     }
 }
