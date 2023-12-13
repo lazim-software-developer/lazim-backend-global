@@ -115,7 +115,7 @@ class DocumentsResource extends Resource
                     ->default('NA')
                     ->toggleable()
                     ->limit(50),
-                TextColumn::make('url')->label('Uploaded Document')
+                TextColumn::make('url')->label('Document')
                     ->toggleable()
                     ->searchable()
                     ->limit(50),

@@ -16,10 +16,10 @@ class GuestObserver
         $notifyTo = User::where('owner_association_id',$guest->owner_association_id)->get();
         Notification::make()
         ->success()
-        ->title("Guest created")
+        ->title("New Guest registration form Submission")
         ->icon('heroicon-o-document-text')
         ->iconColor('warning')
-        ->body('New Guest has been registered.')
+        ->body('New form submission by '.auth()->user()->first_name)
         ->sendToDatabase($notifyTo);
     }
 
