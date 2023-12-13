@@ -2,6 +2,7 @@
 
 namespace App\Observers;
 use App\Models\Building\Complaint;
+use App\Models\Master\Role;
 use App\Models\User\User;
 use Filament\Notifications\Notification;
 
@@ -30,7 +31,7 @@ class ComplaintObserver
                 ->title("New Enquiry Received")
                 ->icon('heroicon-o-document-text')
                 ->iconColor('warning')
-                ->body('A enquiry has been recived raised by '.auth()->user()->first_name)
+                ->body('A enquiry has been received raised by '.auth()->user()->first_name)
                 ->sendToDatabase($notifyTo);
         }
         elseif ($complaint->complaint_type == 'suggestions') {
@@ -58,7 +59,15 @@ class ComplaintObserver
      */
     public function updated(Complaint $complaint): void
     {
-        //
+        $role = Role::where('id', auth()->user()->role_id)->first();
+        $notifyTo = User::where('owner_association_id',$complaint->owner_association_id)->get();
+        Notification::make()
+                ->success()
+                ->title("Help Dest Complaint Resolution ")
+                ->icon('heroicon-o-document-text')
+                ->iconColor('warning')
+                ->body('Complaint has been resolved by  a '.$role->name. ' '.auth()->user()->first_name)
+                ->sendToDatabase($notifyTo);
     }
 
     /**

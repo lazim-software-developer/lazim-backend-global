@@ -14,7 +14,7 @@ class PostLikeObserver
      */
     public function created(PostLike $postLike): void
     {
-        $post = Post::where('id',$postLike->post_id)->get();
+        $post = Post::where('id',$postLike->post_id)->first();
         $notifyTo = User::where('id',$post->user_id)->get();
         Notification::make()
             ->success()
