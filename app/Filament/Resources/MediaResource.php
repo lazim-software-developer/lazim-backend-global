@@ -3,6 +3,8 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\MediaResource\Pages;
+use App\Models\Building\Complaint;
+use App\Models\Building\Document;
 use App\Models\Community\Post;
 use App\Models\Media;
 use Filament\Forms\Components\Card;
@@ -51,6 +53,8 @@ class MediaResource extends Resource
                         MorphToSelect::make('mediaable')
                             ->types([
                                 Type::make(Post::class)->titleAttribute('content'),
+                                Type::make(Complaint::class)->titleAttribute('complaint'),
+                                Type::make(Document::class)->titleAttribute('name'),
                             ])
                             ->disabled()
                             ->label('Mediaable')
