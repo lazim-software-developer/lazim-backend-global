@@ -61,13 +61,25 @@ class ComplaintObserver
     {
         $role = Role::where('id', auth()->user()->role_id)->first();
         $notifyTo = User::where('owner_association_id',$complaint->owner_association_id)->get();
-        Notification::make()
-                ->success()
-                ->title("Help Dest Complaint Resolution ")
-                ->icon('heroicon-o-document-text')
-                ->iconColor('warning')
-                ->body('Complaint has been resolved by  a '.$role->name. ' '.auth()->user()->first_name)
-                ->sendToDatabase($notifyTo);
+        if ($complaint->complaint_type == 'help_desk') {
+            Notification::make()
+            ->success()
+            ->title("Help Desk Complaint Resolution ")
+            ->icon('heroicon-o-document-text')
+            ->iconColor('warning')
+            ->body('Complaint has been resolved by  a '.$role->name. ' '.auth()->user()->first_name)
+            ->sendToDatabase($notifyTo);
+        } else {
+            Notification::make()
+            ->success()
+            ->title("Complaints Resolved")
+            ->icon('heroicon-o-document-text')
+            ->iconColor('warning')
+            ->body('Complaint has been resolved by  a '.$role->name. ' '.auth()->user()->first_name)
+            ->sendToDatabase($notifyTo);
+        }
+
+
     }
 
     /**
