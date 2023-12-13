@@ -90,7 +90,7 @@ class ComplaintController extends Controller
         $categoryName = $request->category ? Service::where('id', $request->category)->value('name') : '';
 
         $service_id = $request->category ?? null;
-        
+
 
         // Fetch vendor id who is having an active contract for the given service in the building
         $vendor = ServiceVendor::where([
@@ -149,7 +149,7 @@ class ComplaintController extends Controller
             $technicianVendorIds = DB::table('service_technician_vendor')
                                      ->where('service_id', $contract->service_id)
                                      ->pluck('technician_vendor_id');
-                            
+
             $vendorId = $contract->vendor_id;
 
             // Fetch technicians who are active and match the service
@@ -163,7 +163,7 @@ class ComplaintController extends Controller
                                     ->orderBy('assignees_count', 'asc')
                                     ->get();
             $selectedTechnician = $assignees->first();
-            
+
             if ($selectedTechnician) {
                 $complaint->technician_id = $selectedTechnician->id;
                 $complaint->save();
@@ -171,11 +171,6 @@ class ComplaintController extends Controller
                 Log::info("No technicians to add", []);
             }
         }
-
-
-
-        
-
             return (new CustomResponseResource([
                 'title' => 'Success',
                 'message' => "We'll get back to you at the earliest!",
