@@ -86,7 +86,7 @@ class EditFitOutFormsDocument extends EditRecord
                             'body' => 'Rejected your fitout form by ' . auth()->user()->first_name,
                             'duration' => 'persistent',
                             'icon' => 'heroicon-o-document-text',
-                            'iconColor' => 'warning',
+                            'iconColor' => 'danger',
                             'title' => 'FitOut form Updated!',
                             'view' => 'notifications::notification',
                             'viewData' => [],

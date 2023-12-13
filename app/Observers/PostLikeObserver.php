@@ -16,13 +16,12 @@ class PostLikeObserver
     {
         $post = Post::where('id',$postLike->post_id)->get();
         $notifyTo = User::where('id',$post->user_id)->get();
-        $body = auth()->user()->first_name . 'liked the post!';
         Notification::make()
             ->success()
             ->title("Likes")
             ->icon('heroicon-o-document-text')
             ->iconColor('warning')
-            ->body($body)
+            ->body(auth()->user()->first_name . 'liked the post!')
             ->sendToDatabase($notifyTo);
     }
 

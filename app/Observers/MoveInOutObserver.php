@@ -17,19 +17,19 @@ class MoveInOutObserver
         if($moveInOut->type == 'move-in'){
             Notification::make()
             ->success()
-            ->title("MoveIn created")
+            ->title("New MoveIn Submission")
             ->icon('heroicon-o-document-text')
             ->iconColor('warning')
-            ->body('New MoveIn has been  registered')
+            ->body('New form submission by'.auth()->user()->first_name)
             ->sendToDatabase($notifyTo);
         }
         else{
             Notification::make()
             ->success()
-            ->title("MoveOut created")
+            ->title("New MoveOut Submission")
             ->icon('heroicon-o-document-text')
             ->iconColor('warning')
-            ->body('New MoveOut has been registered')
+            ->body('New form submission by'.auth()->user()->first_name)
             ->sendToDatabase($notifyTo);
         }
     }
