@@ -34,8 +34,8 @@ class EditNocForm extends EditRecord
                     $message = [
                         'to' => $expoPushToken,
                         'sound' => 'default',
-                        'title' => 'Sales NOC form Updated!',
-                        'body' => auth()->user()->first_name . ' approved your Sales NOC form.',
+                        'title' => 'Sales NOC form status',
+                        'body' => 'Your Sales NOC form has been approved.',
                         'data' => ['notificationType' => 'app_notification'],
                     ];
                     $this->expoNotification($message);
@@ -46,11 +46,11 @@ class EditNocForm extends EditRecord
                         'notifiable_id' => $this->record->user_id,
                         'data' => json_encode([
                             'actions' => [],
-                            'body' => 'Approved your Sales NOC form by ' . auth()->user()->first_name,
+                            'body' => 'Your Sales NOC form has been approved.',
                             'duration' => 'persistent',
                             'icon' => 'heroicon-o-document-text',
                             'iconColor' => 'warning',
-                            'title' => 'Sales NOC form Updated!',
+                            'title' => 'Sales NOC form status',
                             'view' => 'notifications::notification',
                             'viewData' => [],
                             'format' => 'filament'
@@ -69,8 +69,8 @@ class EditNocForm extends EditRecord
                     $message = [
                         'to' => $expoPushToken,
                         'sound' => 'default',
-                        'title' => 'Sales NOC form Updated!',
-                        'body' => auth()->user()->first_name . ' rejected your Sales NOC form.',
+                        'title' => 'Sales NOC form status',
+                        'body' => 'Your Sales NOC form has been rejected.',
                         'data' => ['notificationType' => 'app_notification'],
                     ];
                     $this->expoNotification($message);
@@ -81,11 +81,11 @@ class EditNocForm extends EditRecord
                         'notifiable_id' => $this->record->user_id,
                         'data' => json_encode([
                             'actions' => [],
-                            'body' => 'Rejected your Sales NOC form by ' . auth()->user()->first_name,
+                            'body' => 'Your Sales NOC form has been rejected.',
                             'duration' => 'persistent',
                             'icon' => 'heroicon-o-document-text',
-                            'iconColor' => 'warning',
-                            'title' => 'Sales NOC form Updated!',
+                            'iconColor' => 'danger',
+                            'title' => 'Sales NOC form status',
                             'view' => 'notifications::notification',
                             'viewData' => [],
                             'format' => 'filament'
