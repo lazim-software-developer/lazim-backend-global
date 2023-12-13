@@ -16,10 +16,10 @@ class FitOutFormObserver
         $notifyTo = User::where('owner_association_id',$fitOutForm->owner_association_id)->get();
         Notification::make()
         ->success()
-        ->title("FitOutForm created")
+        ->title("New FitOut Form Submission")
         ->icon('heroicon-o-document-text')
         ->iconColor('warning')
-        ->body('New Fit-Out has been created.')
+        ->body('New form submissin by '.auth()->user()->first_name)
         ->sendToDatabase($notifyTo);
     }
 

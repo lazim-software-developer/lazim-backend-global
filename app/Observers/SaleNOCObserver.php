@@ -16,10 +16,10 @@ class SaleNOCObserver
         $notifyTo = User::where('owner_association_id',$saleNOC->owner_association_id)->get();
         Notification::make()
         ->success()
-        ->title("SaleNoc created")
+        ->title("New SaleNoc Submission")
         ->icon('heroicon-o-document-text')
         ->iconColor('warning')
-        ->body('New SaleNoc has been registered')
+        ->body('New form submission by'.auth()->user()->first_name)
         ->sendToDatabase($notifyTo);
     }
 

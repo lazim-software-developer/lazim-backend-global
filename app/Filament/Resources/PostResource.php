@@ -120,6 +120,7 @@ class PostResource extends Resource {
                                     ->image()
                                     ->maxSize(2048)
                                     ->required()
+                                    ->label('File')
 
                             ])
                             ->columnSpan([

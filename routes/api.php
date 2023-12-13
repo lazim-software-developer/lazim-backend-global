@@ -34,6 +34,7 @@ use App\Http\Controllers\Forms\GuestController;
 use App\Http\Controllers\Forms\ResidentialFormController;
 use App\Http\Controllers\Forms\SaleNocController;
 use App\Http\Controllers\HelpDesk\ComplaintController;
+use App\Http\Controllers\Notifications\NotificationController;
 use App\Http\Controllers\Security\SecurityController;
 use App\Http\Controllers\Services\ServiceController;
 use App\Http\Controllers\TagController;
@@ -74,6 +75,7 @@ Route::post('/set-password', [AuthController::class, 'setPassword']);
 //expo
 Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active'])->group(function () {
     Route::post('/expo', [AuthController::class, 'expo']);
+    Route::get('/app-notification', [NotificationController::class, 'index']);
 });
 
 
@@ -247,6 +249,9 @@ Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active']
  */
 Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active'])->prefix('payments')->group(function () {
     Route::get('/{flat}/service-charges', [PaymentController::class, 'fetchServiceCharges']);
+
+    // Access PDF link for serviceCharge
+    Route::get('/{invoice}/pdf-link', [PaymentController::class, 'fetchPDF']);
 });
 
 /**

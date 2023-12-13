@@ -16,10 +16,10 @@ class AccessCardObserver
         $notifyTo = User::where('owner_association_id',$accessCard->owner_association_id)->get();
         Notification::make()
         ->success()
-        ->title("AccessCard created")
-        ->icon('heroicon-o-document-text') 
-        ->iconColor('warning') 
-        ->body('New AccessCard has been created')
+        ->title("New AccessCard Submission")
+        ->icon('heroicon-o-document-text')
+        ->iconColor('warning')
+        ->body('New form submission by'.auth()->user()->first_name)
         ->sendToDatabase($notifyTo);
     }
 
