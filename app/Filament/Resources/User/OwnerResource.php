@@ -79,7 +79,7 @@ class OwnerResource extends Resource
                                 ->relationship('flat', 'property_number')
                                 ->preload()
                                 ->searchable()
-                                ->label('Flat'),
+                                ->label('Unit Number'),
                             // ViewField::make('Building')
                             //     ->view('forms.components.building-name-owner')
                         ])

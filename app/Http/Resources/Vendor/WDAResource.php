@@ -18,7 +18,7 @@ class WDAResource extends JsonResource
             'id'    => $this->id,
             'wda_number' => $this->wda_number,
             'contract_id' => $this->contract_id,
-            'contract_name' => $this->contract->contract_type,
+            'contract_name' => $this->contract?->contract_type,
             'date' => $this->date,
             'status' => $this->status,
             'invoice_status' => $this->invoice_status,
