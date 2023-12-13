@@ -61,9 +61,6 @@ class VendorServiceResource extends Resource
                 TextColumn::make('name')
                     ->searchable()
                     ->limit(50),
-                TextColumn::make('type')
-                    ->searchable()
-                    ->label('Service Type'),
                 IconColumn::make('active')
                     ->boolean()
                     ->trueIcon('heroicon-o-check-badge')

@@ -66,7 +66,8 @@ class FlatDocumentResource extends Resource
                             Select::make('flat_id')
                                 ->relationship('flat', 'property_number')
                                 ->searchable()
-                                ->preload(),
+                                ->preload()
+                                ->label('Unit Number'),
                             Select::make('status')
                                 ->options([
                                     'submitted' => 'Submitted',
@@ -139,16 +140,12 @@ class FlatDocumentResource extends Resource
                 TextColumn::make('flat.property_number')
                     ->searchable()
                     ->default('NA')
-                    ->label('Flat Number')
+                    ->label('Unit Number')
                     ->limit(50),
                 TextColumn::make('status')
                     ->searchable()
                     ->default('NA')
                     ->limit(50),
-                TextColumn::make('flat.property_number')
-                    ->searchable()
-                    ->label('Flat Number')
-                    ->default('NA'),
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([

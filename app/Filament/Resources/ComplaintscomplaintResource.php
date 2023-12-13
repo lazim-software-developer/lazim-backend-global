@@ -6,7 +6,9 @@ use Filament\Forms;
 use Filament\Tables;
 use Filament\Forms\Get;
 use Filament\Forms\Form;
+use App\Models\User\User;
 use Filament\Tables\Table;
+use App\Models\TechnicianVendor;
 use Filament\Resources\Resource;
 use App\Models\Building\Complaint;
 use Illuminate\Support\Facades\DB;
@@ -25,15 +27,18 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\ComplaintscomplaintResource\Pages;
 use App\Filament\Resources\ComplaintscomplaintResource\RelationManagers;
+use App\Models\Vendor\Vendor;
 
-class ComplaintscomplaintResource extends Resource {
+class ComplaintscomplaintResource extends Resource
+{
     protected static ?string $model = Complaint::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
     protected static ?string $modelLabel = 'Complaint';
 
     protected static ?string $navigationGroup = 'Happiness center';
-    public static function form(Form $form): Form {
+    public static function form(Form $form): Form
+    {
         return $form
             ->schema([
                 Grid::make([
@@ -69,8 +74,18 @@ class ComplaintscomplaintResource extends Resource {
                         Select::make('vendor_id')
                             ->relationship('vendor', 'name')
                             ->preload()
-                            ->disabled()
-                            ->disabled()
+                            ->required()
+                            ->options(function (Complaint $record) {
+                                return Vendor::where('owner_association_id', auth()->user()->owner_association_id)->pluck('name', 'id');
+                            })
+                            ->disabled(function (Complaint $record) {
+                                if ($record->vendor_id == null) {
+                                    return false;
+                                }
+                                return true;
+                                
+                            })
+                            ->live()
                             ->searchable()
                             ->label('vendor Name'),
                         Select::make('flat_id')
@@ -80,9 +95,14 @@ class ComplaintscomplaintResource extends Resource {
                             ->relationship('flat', 'property_number')
                             ->searchable()
                             ->preload()
-                            ->placeholder('Flat'),
+                            ->placeholder('Unit Number'),
                         Select::make('technician_id')
                             ->relationship('technician', 'first_name')
+                            ->options(function (Complaint $record,Get $get) {
+                                $technician_vendor = DB::table('service_technician_vendor')->where('service_id', $record->service_id)->pluck('technician_vendor_id');
+                                $technicians = TechnicianVendor::find($technician_vendor)->where('vendor_id', $get('vendor_id'))->pluck('technician_id');
+                                return User::find($technicians)->pluck('first_name', 'id');
+                            })
                             ->preload()
                             ->searchable()
                             ->label('Technician Name'),
@@ -136,7 +156,7 @@ class ComplaintscomplaintResource extends Resource {
                         TextInput::make('remarks')
                             ->rules(['max:255'])
                             ->visible(function (callable $get) {
-                                if($get('status') == 'closed') {
+                                if ($get('status') == 'closed') {
                                     return true;
                                 }
                                 return false;
@@ -150,7 +170,8 @@ class ComplaintscomplaintResource extends Resource {
             ]);
     }
 
-    public static function table(Table $table): Table {
+    public static function table(Table $table): Table
+    {
         return $table
             ->columns([
                 TextColumn::make('building.name')
@@ -191,13 +212,15 @@ class ComplaintscomplaintResource extends Resource {
             ]);
     }
 
-    public static function getRelations(): array {
+    public static function getRelations(): array
+    {
         return [
             //
         ];
     }
 
-    public static function getPages(): array {
+    public static function getPages(): array
+    {
         return [
             'index' => Pages\ListComplaintscomplaints::route('/'),
             // 'view' => Pages\ViewComplaintscomplaints::route('/{record}'),

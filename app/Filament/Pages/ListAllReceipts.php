@@ -36,7 +36,7 @@ class ListAllReceipts extends Page implements HasTable
             ->query(OAMReceipts::query()->where('flat_id', $this->invoice->flat_id)->where('receipt_period', $this->invoice->invoice_period))
             ->columns([
                 TextColumn::make('building.name'),
-                TextColumn::make('flat.property_number'),
+                TextColumn::make('flat.property_number')->label('Unit Number'),
                 TextColumn::make('receipt_number'),
                 TextColumn::make('receipt_period'),
                 TextColumn::make('receipt_date'),
