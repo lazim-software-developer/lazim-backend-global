@@ -225,9 +225,9 @@ class AdminPanelProvider extends PanelProvider
                     ]);
                 }
                 $builder->groups([
-                    NavigationGroup::make('Flat Management')
+                    NavigationGroup::make('Unit Management')
                         ->items([
-                            NavigationItem::make('Flats')
+                            NavigationItem::make('Units')
                                 ->url('/admin/building/flats')
                                 ->icon('heroicon-o-home')
                                 ->activeIcon('heroicon-o-home')
@@ -249,7 +249,7 @@ class AdminPanelProvider extends PanelProvider
                                     ->icon('heroicon-o-building-office-2')
                                     ->activeIcon('heroicon-o-building-office-2')
                                     ->sort(1),
-                                NavigationItem::make('Flats')
+                                NavigationItem::make('Units')
                                     ->url('/admin/flat-documents')
                                     ->hidden(DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] == 'Admin' ? true : false)
                                     ->icon('heroicon-o-home')

@@ -5,7 +5,10 @@ namespace App\Filament\Resources;
 use Filament\Tables;
 use Filament\Forms\Get;
 use Filament\Forms\Form;
+use App\Models\User\User;
 use Filament\Tables\Table;
+use App\Models\Vendor\Vendor;
+use App\Models\TechnicianVendor;
 use Filament\Resources\Resource;
 use App\Models\Building\Building;
 use App\Models\Building\Complaint;
@@ -30,7 +33,8 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\HelpdeskcomplaintResource\Pages;
 use App\Filament\Resources\HelpdeskcomplaintResource\RelationManagers;
 
-class HelpdeskcomplaintResource extends Resource {
+class HelpdeskcomplaintResource extends Resource
+{
     protected static ?string $model = Complaint::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
@@ -38,7 +42,8 @@ class HelpdeskcomplaintResource extends Resource {
 
     protected static ?string $navigationGroup = 'Help Desk';
 
-    public static function form(Form $form): Form {
+    public static function form(Form $form): Form
+    {
         return $form
             ->schema([
                 Grid::make([
@@ -74,8 +79,18 @@ class HelpdeskcomplaintResource extends Resource {
                         Select::make('vendor_id')
                             ->relationship('vendor', 'name')
                             ->preload()
-                            ->disabled()
-                            ->disabled()
+                            ->required()
+                            ->options(function (Complaint $record) {
+                                return Vendor::where('owner_association_id', auth()->user()->owner_association_id)->pluck('name', 'id');
+                            })
+                            ->disabled(function (Complaint $record) {
+                                if ($record->vendor_id == null) {
+                                    return false;
+                                }
+                                return true;
+                                
+                            })
+                            ->live()
                             ->searchable()
                             ->label('vendor Name'),
                         Select::make('flat_id')
@@ -85,9 +100,14 @@ class HelpdeskcomplaintResource extends Resource {
                             ->relationship('flat', 'property_number')
                             ->searchable()
                             ->preload()
-                            ->placeholder('Flat'),
+                            ->placeholder('Unit Number'),
                         Select::make('technician_id')
                             ->relationship('technician', 'first_name')
+                            ->options(function (Complaint $record, Get $get) {
+                                $technician_vendor = DB::table('service_technician_vendor')->where('service_id', $record->service_id)->pluck('technician_vendor_id');
+                                $technicians = TechnicianVendor::find($technician_vendor)->where('vendor_id', $get('vendor_id'))->pluck('technician_id');
+                                return User::find($technicians)->pluck('first_name', 'id');
+                            })
                             ->preload()
                             ->searchable()
                             ->label('Technician Name'),
@@ -141,7 +161,7 @@ class HelpdeskcomplaintResource extends Resource {
                         TextInput::make('remarks')
                             ->rules(['max:255'])
                             ->visible(function (callable $get) {
-                                if($get('status') == 'closed') {
+                                if ($get('status') == 'closed') {
                                     return true;
                                 }
                                 return false;
@@ -154,7 +174,8 @@ class HelpdeskcomplaintResource extends Resource {
                     ])
             ]);
     }
-    public static function table(Table $table): Table {
+    public static function table(Table $table): Table
+    {
         return $table
             // ->modifyQueryUsing(fn(Builder $query) => $query->where('complaintable_type', 'App\Models\Building\Building')->withoutGlobalScopes())
             // ->poll('60s')
@@ -196,13 +217,15 @@ class HelpdeskcomplaintResource extends Resource {
             ]);
     }
 
-    public static function getRelations(): array {
+    public static function getRelations(): array
+    {
         return [
             //
         ];
     }
 
-    public static function getPages(): array {
+    public static function getPages(): array
+    {
         return [
             'index' => Pages\ListHelpdeskcomplaints::route('/'),
             // 'view' => Pages\ViewHelpdeskcomplaint::route('/{record}'),

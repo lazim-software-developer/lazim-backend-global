@@ -94,7 +94,7 @@ class GuestRegistrationResource extends Resource
                                 ->preload()
                                 ->searchable()
                                 ->disabled()
-                                ->label('Property No'),
+                                ->label('Unit Number'),
                             TextInput::make('name')
                                 ->disabled(),
                             TextInput::make('phone')
