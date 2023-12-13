@@ -80,7 +80,7 @@ class EditGuestRegistration extends EditRecord
                             'body' => 'Rejected your guest registration form by ' . auth()->user()->first_name,
                             'duration' => 'persistent',
                             'icon' => 'heroicon-o-document-text',
-                            'iconColor' => 'warning',
+                            'iconColor' => 'danger',
                             'title' => 'Guest registration form Updated!',
                             'view' => 'notifications::notification',
                             'viewData' => [],
