@@ -30,7 +30,7 @@ class ComplaintObserver
                 ->title("New Enquiry Received")
                 ->icon('heroicon-o-document-text')
                 ->iconColor('warning')
-                ->body('A enquiry has been recived raised by '.auth()->user()->first_name)
+                ->body('A enquiry has been received raised by '.auth()->user()->first_name)
                 ->sendToDatabase($notifyTo);
         }
         elseif ($complaint->complaint_type == 'suggestions') {
