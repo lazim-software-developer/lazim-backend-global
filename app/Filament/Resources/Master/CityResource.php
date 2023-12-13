@@ -48,7 +48,7 @@ class CityResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('name')
                     ->toggleable()
-                    ->searchable(true, null, true)
+                    ->searchable()
                     ->limit(50),
             ])
             ->defaultSort('created_at', 'desc')
@@ -71,7 +71,7 @@ class CityResource extends Resource
     public static function getRelations(): array
     {
         return [
-            CityResource\RelationManagers\BuildingsRelationManager::class
+            // CityResource\RelationManagers\BuildingsRelationManager::class
         ];
     }
 
