@@ -92,7 +92,7 @@ class CreateTender extends Page
                 ->title("There Were No Vendor For Selected Service")
                 ->danger()
                 ->send();
-            return redirect('/admin/tenders');
+            return redirect()->back();
         }
 
 
