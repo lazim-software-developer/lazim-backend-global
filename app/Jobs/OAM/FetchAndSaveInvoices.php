@@ -39,8 +39,7 @@ class FetchAndSaveInvoices implements ShouldQueue
         $currentYear = $currentDate->format('Y');
         $currentQuarter = ceil($currentDate->format('n') / 3);
 
-        // $quarter = $currentQuarter . "-JAN" . $currentYear . "-DEC" . $currentYear;
-        $quarter = "Q4-JAN" . $currentYear . "-DEC" . $currentYear;
+        $quarter = $currentQuarter . "-JAN" . $currentYear . "-DEC" . $currentYear;
 
         try {
             $response = Http::withoutVerifying()->withHeaders([

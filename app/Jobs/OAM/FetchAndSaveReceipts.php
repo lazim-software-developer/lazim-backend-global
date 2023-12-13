@@ -62,12 +62,9 @@ class FetchAndSaveReceipts implements ShouldQueue
                             'virtual_account_description' => $receipt['virtualAccountDescription'],
                             'noqodi_info' => $receipt['noqodiInfo'] ? json_encode($receipt['noqodiInfo']) : null,
                             'payment_status' => $receipt['paymentStatus'],
-                            // 'from_date' => $currentQuarterDates['from_date'],
-                            'from_date' => '2023-10-01',
-                            // 'to_date' => $currentQuarterDates['to_date'],
-                            'to_date' => '2023-12-31',
-                            // 'receipt_period' => $currentQuarterDates['receipt_period']
-                            'receipt_period' => '01-Oct-2023 To 31-Dec-2023'
+                            'from_date' => $currentQuarterDates['from_date'],
+                            'to_date' => $currentQuarterDates['to_date'],
+                            'receipt_period' => $currentQuarterDates['receipt_period']
                         ]
                     );
                 }
