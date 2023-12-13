@@ -56,8 +56,8 @@ class EditResidentialForm extends EditRecord
                     $message = [
                         'to' => $expoPushToken,
                         'sound' => 'default',
-                        'title' => 'Residential form Updated!',
-                        'body' => auth()->user()->first_name . ' approved your Residential form.',
+                        'title' => 'Residential form status',
+                        'body' => 'Your Residential form has been approved.',
                         'data' => ['notificationType' => 'app_notification'],
                     ];
                     $this->expoNotification($message);
@@ -68,11 +68,11 @@ class EditResidentialForm extends EditRecord
                         'notifiable_id' => $this->record->user_id,
                         'data' => json_encode([
                             'actions' => [],
-                            'body' => 'Approved your Residential form by ' . auth()->user()->first_name,
+                            'body' => 'Your Residential form has been approved.',
                             'duration' => 'persistent',
                             'icon' => 'heroicon-o-document-text',
                             'iconColor' => 'warning',
-                            'title' => 'Residential form Updated!',
+                            'title' => 'Residential form status',
                             'view' => 'notifications::notification',
                             'viewData' => [],
                             'format' => 'filament'
@@ -91,8 +91,8 @@ class EditResidentialForm extends EditRecord
                     $message = [
                         'to' => $expoPushToken,
                         'sound' => 'default',
-                        'title' => 'Residential form Updated!',
-                        'body' => auth()->user()->first_name . ' rejected your Residential form.',
+                        'title' => 'Residential form status',
+                        'body' => 'Your Residential form has been rejected.',
                         'data' => ['notificationType' => 'app_notification'],
                     ];
                     $this->expoNotification($message);
@@ -103,11 +103,11 @@ class EditResidentialForm extends EditRecord
                         'notifiable_id' => $this->record->user_id,
                         'data' => json_encode([
                             'actions' => [],
-                            'body' => 'Rejected your Residential form by ' . auth()->user()->first_name,
+                            'body' => 'Your Residential form has been rejected.',
                             'duration' => 'persistent',
                             'icon' => 'heroicon-o-document-text',
-                            'iconColor' => 'warning',
-                            'title' => 'Residential form Updated!',
+                            'iconColor' => 'danger',
+                            'title' => 'Residential form status',
                             'view' => 'notifications::notification',
                             'viewData' => [],
                             'format' => 'filament'
