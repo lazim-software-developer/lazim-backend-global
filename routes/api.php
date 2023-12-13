@@ -400,6 +400,8 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('assets')->group(function 
     Route::post('/maintenance/{assetMaintenance}/update-before', [AssetController::class, 'updateBefore']);
     Route::post('/maintenance/{assetMaintenance}/update-after', [AssetController::class, 'updateAfter']);
 
+    Route::get('/{asset}',[TechnicianController::class, 'fetchTechnicianAssetDetails']);
+
     //Vendor assets
     Route::get('/vendor/{vendor}', [AssetController::class, 'listAssets']);
     Route::post('/attach-asset/{asset}', [AssetController::class, 'attachAsset']);
