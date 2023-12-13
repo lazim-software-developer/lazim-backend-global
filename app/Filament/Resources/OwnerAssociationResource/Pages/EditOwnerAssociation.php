@@ -52,10 +52,9 @@ class EditOwnerAssociation extends EditRecord
         // If updated value of verified is true and the value is DB is false(This happens only for the first time)
         if($this->record->verified == 'true' && DB::table('owner_associations')->where('id',$this->record->id)->value('verified_by') == null) {
             // Update verified in owner_association table
-            OwnerAssociation::where('id', $this->data['id'])
-                ->update([
-                    'verified_by' => auth()->user()->id,
-                ]);
+            $oa = OwnerAssociation::where('id', $this->data['id']);
+            $oa->verified_by = auth()->user()->id;
+            $oa->save();
 
             // Create an entry in Users table
             // check if entered email and phone number is already present for other users in users table
