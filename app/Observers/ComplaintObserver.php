@@ -18,37 +18,37 @@ class ComplaintObserver
 
             Notification::make()
                 ->success()
-                ->title("Happiness Center Complaint created")
+                ->title("Happiness center Complaint")
                 ->icon('heroicon-o-document-text')
                 ->iconColor('warning')
-                ->body(`Complaint has been created by`)
+                ->body(`Complaint has been created by `.auth()->user()->first_name)
                 ->sendToDatabase($notifyTo);
         }
         elseif ($complaint->complaint_type == 'enquiries') {
             Notification::make()
                 ->success()
-                ->title("Happiness Center Enquire created")
+                ->title("New Enquiry Received")
                 ->icon('heroicon-o-document-text')
                 ->iconColor('warning')
-                ->body('A enquiry has been recived raised by')
+                ->body('A enquiry has been recived raised by '.auth()->user()->first_name)
                 ->sendToDatabase($notifyTo);
         }
         elseif ($complaint->complaint_type == 'suggestions') {
             Notification::make()
                 ->success()
-                ->title("Happiness Center Suggestion created")
+                ->title("New Suggestion Received")
                 ->icon('heroicon-o-document-text')
                 ->iconColor('warning')
-                ->body('A suggestion made by')
+                ->body('A suggestion made by '.auth()->user()->first_name)
                 ->sendToDatabase($notifyTo);
         }
         else{
             Notification::make()
                 ->success()
-                ->title("HelpDesk Complaint created")
+                ->title("Help Desk Ticket ")
                 ->icon('heroicon-o-document-text')
                 ->iconColor('warning')
-                ->body('A new Ticket is raised by')
+                ->body('A new Ticket is raised by '.auth()->user()->first_name)
                 ->sendToDatabase($notifyTo);
         }
     }
