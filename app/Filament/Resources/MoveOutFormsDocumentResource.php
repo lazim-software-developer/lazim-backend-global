@@ -55,7 +55,7 @@ class MoveOutFormsDocumentResource extends Resource
                                 ->preload()
                                 ->disabled()
                                 ->searchable()
-                                ->label('Property No'),
+                                ->label('Unit Number'),
                             FileUpload::make('noc_landlord')
                                 ->disk('s3')
                                 ->directory('dev')
@@ -197,6 +197,7 @@ class MoveOutFormsDocumentResource extends Resource
                 TextColumn::make('flat.property_number')
                     ->searchable()
                     ->default('NA')
+                    ->label('Unit Number')
                     ->limit(50),
                 TextColumn::make('status')
                     ->searchable()
