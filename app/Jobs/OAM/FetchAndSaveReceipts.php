@@ -36,7 +36,7 @@ class FetchAndSaveReceipts implements ShouldQueue
             $response = Http::withoutVerifying()->withHeaders([
                 'content-type' => 'application/json',
                 'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
-            ])->get(env("MOLLAK_API_URL") . '/sync/receipts/' . $propertyGroupId . '/01-Jul-2023/30-Sep-2023');
+            ])->get(env("MOLLAK_API_URL") . '/sync/receipts/' . $propertyGroupId . '/01-Jan-2023/31-Mar-2023');
             // ])->get(env("MOLLAK_API_URL") . '/sync/receipts/' . $propertyGroupId . '/' . $dateRange);
             
             $properties = $response->json()['response']['properties'];
@@ -63,11 +63,11 @@ class FetchAndSaveReceipts implements ShouldQueue
                             'noqodi_info' => $receipt['noqodiInfo'] ? json_encode($receipt['noqodiInfo']) : null,
                             'payment_status' => $receipt['paymentStatus'],
                             // 'from_date' => $currentQuarterDates['from_date'],
-                            'from_date' => '2023-07-01',
+                            'from_date' => '2023-01-01',
                             // 'to_date' => $currentQuarterDates['to_date'],
-                            'to_date' => '2023-09-30',
+                            'to_date' => '2023-03-31',
                             // 'receipt_period' => $currentQuarterDates['receipt_period']
-                            'receipt_period' => '01-Jul-2023 To 30-Sep-2023'
+                            'receipt_period' => '01-Jan-2023 To 31-Mar-2023'
                         ]
                     );
                 }
