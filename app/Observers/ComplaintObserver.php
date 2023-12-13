@@ -2,6 +2,7 @@
 
 namespace App\Observers;
 use App\Models\Building\Complaint;
+use App\Models\Master\Role;
 use App\Models\User\User;
 use Filament\Notifications\Notification;
 
@@ -58,7 +59,15 @@ class ComplaintObserver
      */
     public function updated(Complaint $complaint): void
     {
-        //
+        $role = Role::where('id', auth()->user()->role_id)->first();
+        $notifyTo = User::where('owner_association_id',$complaint->owner_association_id)->get();
+        Notification::make()
+                ->success()
+                ->title("Help Dest Complaint Resolution ")
+                ->icon('heroicon-o-document-text')
+                ->iconColor('warning')
+                ->body('Complaint has been resolved by  a '.$role->name. ' '.auth()->user()->first_name)
+                ->sendToDatabase($notifyTo);
     }
 
     /**
