@@ -41,7 +41,7 @@ class FlatDomesticHelpResource extends Resource
                             ->required()
                             ->relationship('flat', 'number')
                             ->searchable()
-                            ->placeholder('Flat'),
+                            ->label('Unit Number'),
                         TextInput::make('first_name')
                             ->rules(['max:50', 'string'])
                             ->required()

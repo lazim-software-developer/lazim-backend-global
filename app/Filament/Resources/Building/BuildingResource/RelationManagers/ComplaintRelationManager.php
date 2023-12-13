@@ -4,8 +4,12 @@ namespace App\Filament\Resources\Building\BuildingResource\RelationManagers;
 
 use Filament\Forms;
 use Filament\Tables;
+use Filament\Forms\Get;
 use Filament\Forms\Form;
+use App\Models\User\User;
 use Filament\Tables\Table;
+use App\Models\Vendor\Vendor;
+use App\Models\TechnicianVendor;
 use App\Models\Building\Complaint;
 use Illuminate\Support\Facades\DB;
 use Filament\Forms\Components\Grid;
@@ -19,10 +23,12 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Resources\RelationManagers\RelationManager;
 
-class ComplaintRelationManager extends RelationManager {
+class ComplaintRelationManager extends RelationManager
+{
     protected static string $relationship = 'complaint';
 
-    public function form(Form $form): Form {
+    public function form(Form $form): Form
+    {
         return $form
             ->schema([
                 Grid::make([
@@ -58,8 +64,18 @@ class ComplaintRelationManager extends RelationManager {
                         Select::make('vendor_id')
                             ->relationship('vendor', 'name')
                             ->preload()
-                            ->disabled()
-                            ->disabled()
+                            ->required()
+                            ->options(function (Complaint $record) {
+                                return Vendor::where('owner_association_id', auth()->user()->owner_association_id)->pluck('name', 'id');
+                            })
+                            ->disabled(function (Complaint $record) {
+                                if ($record->vendor_id == null) {
+                                    return false;
+                                }
+                                return true;
+                                
+                            })
+                            ->live()
                             ->searchable()
                             ->label('vendor Name'),
                         Select::make('flat_id')
@@ -69,9 +85,14 @@ class ComplaintRelationManager extends RelationManager {
                             ->relationship('flat', 'property_number')
                             ->searchable()
                             ->preload()
-                            ->placeholder('Flat'),
+                            ->label('Unit Number'),
                         Select::make('technician_id')
                             ->relationship('technician', 'first_name')
+                            ->options(function (Complaint $record,Get $get) {
+                                $technician_vendor = DB::table('service_technician_vendor')->where('service_id', $record->service_id)->pluck('technician_vendor_id');
+                                $technicians = TechnicianVendor::find($technician_vendor)->where('vendor_id', $get('vendor_id'))->pluck('technician_id');
+                                return User::find($technicians)->pluck('first_name', 'id');
+                            })
                             ->preload()
                             ->searchable()
                             ->label('Technician Name'),
@@ -125,7 +146,7 @@ class ComplaintRelationManager extends RelationManager {
                         TextInput::make('remarks')
                             ->rules(['max:255'])
                             ->visible(function (callable $get) {
-                                if($get('status') == 'closed') {
+                                if ($get('status') == 'closed') {
                                     return true;
                                 }
                                 return false;
@@ -140,7 +161,8 @@ class ComplaintRelationManager extends RelationManager {
 
     }
 
-    public function table(Table $table): Table {
+    public function table(Table $table): Table
+    {
         return $table
             ->modifyQueryUsing(fn(Builder $query) => $query->whereIn('complaint_type', ['help_desk', 'tenant_complaint']))
             ->columns([
@@ -164,6 +186,7 @@ class ComplaintRelationManager extends RelationManager {
                     ->searchable()
                     ->limit(50),
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])

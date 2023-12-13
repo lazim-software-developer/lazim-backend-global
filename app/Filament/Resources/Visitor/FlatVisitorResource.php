@@ -43,7 +43,7 @@ class FlatVisitorResource extends Resource
                             ->required()
                             ->relationship('flat', 'number')
                             ->searchable()
-                            ->placeholder('Flat'),
+                            ->label('unit Number'),
                         TextInput::make('name')
                             ->rules(['max:50', 'string'])
                             ->required()

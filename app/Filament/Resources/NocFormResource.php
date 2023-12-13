@@ -67,7 +67,7 @@ class NocFormResource extends Resource
                                 ->preload()
                                 ->disabled()
                                 ->searchable()
-                                ->label('Property No'),
+                                ->label('Unit Number'),
                             DatePicker::make('service_charge_paid_till')
                                 ->disabled()
                                 ->date(),
@@ -215,6 +215,7 @@ class NocFormResource extends Resource
                     ->default('NA'),
                 TextColumn::make('flat.property_number')
                     ->searchable()
+                    ->label('Unit Number')
                     ->default('NA'),
                 TextColumn::make('status')
                     ->searchable()
@@ -234,7 +235,7 @@ class NocFormResource extends Resource
                     ->relationship('flat', 'property_number')
                     ->searchable()
                     ->preload()
-                    ->label('Flat Number'),
+                    ->label('Unit Number'),
             ])
             ->actions([
 
