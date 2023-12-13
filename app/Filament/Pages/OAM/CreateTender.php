@@ -41,7 +41,7 @@ class CreateTender extends Page
         $building = Building::with(['services.subcategory'])
             ->where('id', $buildingId)
             ->first();
-        
+
         $services = Service::whereHas('buildings', function ($query) use ($buildingId) {
             $query->where('buildings.id', $buildingId); // Specify the table name
         })->get();
@@ -70,22 +70,31 @@ class CreateTender extends Page
             'owner_association_id' => $building->owner_association_id,
             'end_date' => $request->get('end_date'),
             'document' => $documentUrl,
-            'service_id' =>$request->get('service'),
+            'service_id' => $request->get('service'),
             'tender_type' => $request->get('tender_type')
         ]);
 
         // Attach tender vendors
         $tender->vendors()->syncWithoutDetaching($request->get('vendors'));
+        if ($request->get('vendors') != null) {
+            // Send email to vendors
+            $vendors = Vendor::whereIn('id', $request->get('vendors'))->get();
+            SendProposalRequestEmail::dispatch($vendors, $documentUrl);
 
-        // Send email to vendors
-        $vendors = Vendor::whereIn('id', $request->get('vendors'))->get();
-        SendProposalRequestEmail::dispatch($vendors, $documentUrl);
+            Notification::make()
+                ->title("Tender created successfully")
+                ->success()
+                ->send();
 
-        Notification::make()
-            ->title("Tender created successfully")
-            ->success()
-            ->send();
+            return redirect('/admin/tenders');
+        } else {
+            Notification::make()
+                ->title("There Were No Vendor For Selected Service")
+                ->danger()
+                ->send();
+            return redirect('/admin/tenders');
+        }
 
-        return redirect('/admin/tenders');
+
     }
 }

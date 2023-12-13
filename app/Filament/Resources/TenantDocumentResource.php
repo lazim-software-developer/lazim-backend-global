@@ -59,7 +59,7 @@ class TenantDocumentResource extends Resource
                                 ->default('NA')
                                 ->disabled()
                                 ->searchable()
-                                ->label('Property No'),
+                                ->label('Unit Number'),
                             FileUpload::make('url')
                                 ->disk('s3')
                                 ->directory('dev')
@@ -123,7 +123,7 @@ class TenantDocumentResource extends Resource
                 TextColumn::make('flat.property_number')
                     ->searchable()
                     ->default('NA')
-                    ->label('Flat Number')
+                    ->label('Unit Number')
                     ->limit(50),
                 TextColumn::make('status')
                     ->searchable()

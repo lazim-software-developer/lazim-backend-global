@@ -40,7 +40,7 @@ class FlatTenantResource extends Resource
                             ->relationship('flat', 'property_number')
                             ->searchable()
                             ->preload()
-                            ->placeholder('Flat'),
+                            ->label('Unit Number'),
                         Select::make('tenant_id')
                             ->rules(['exists:users,id'])
                             ->required()
@@ -84,7 +84,7 @@ class FlatTenantResource extends Resource
                 TextColumn::make('flat.property_number')
                     ->default('NA')
                     ->searchable()
-                    ->label('Flat Number')
+                    ->label('Unit Number')
                     ->limit(50),
                 TextColumn::make('user.first_name')
                     ->default('NA')
