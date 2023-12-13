@@ -68,7 +68,7 @@ class TenantResource extends Resource
                         ->relationship('flat', 'property_number')
                         ->searchable()
                         ->preload()
-                        ->placeholder('Flat'),
+                        ->label('Unit Number'),
                     Select::make('building_id')
                         ->rules(['exists:buildings,id'])
                         ->relationship('building', 'name')
@@ -122,7 +122,7 @@ class TenantResource extends Resource
                 TextColumn::make('flat.property_number')
                     ->searchable()
                     ->default('NA')
-                    ->label('Flats'),
+                    ->label('Unit Number'),
                 Tables\Columns\TextColumn::make('contract_status')
                     ->searchable()
                     ->default('NA')
