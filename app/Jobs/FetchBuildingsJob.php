@@ -50,6 +50,7 @@ class FetchBuildingsJob implements ShouldQueue
                     ],
                     [
                         'name' => $group['propertyGroupName']['englishName'],
+                        'area' => $group['masterCommunityName']['englishName'],
                         'merchant_code' => $group['merchantCode'],
                         'address_line1' => $group['projectName']['englishName'],
                     ]

@@ -25,7 +25,6 @@ class FetchFlatsAndOwnersForBuilding implements ShouldQueue
 
     public function handle()
     {
-        Log::info("FetchFlatsAndOwnersForBuilding executed", []);
         $response = Http::withOptions(['verify' => false])->withHeaders([
             'content-type' => 'application/json',
             'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
@@ -48,10 +47,12 @@ class FetchFlatsAndOwnersForBuilding implements ShouldQueue
                 );
 
                 foreach ($property['owners'] as $ownerData) {
+                    $phone = $this->cleanPhoneNumber($ownerData['mobile']);
+                    
                     $owner = ApartmentOwner::firstOrCreate([
                         'owner_number' => $ownerData['ownerNumber'],
                         'email' => $ownerData['email'],
-                        'mobile' => preg_replace('/00/','+', $ownerData['mobile'],1),
+                        'mobile' => $phone,
                     ], [
                         'name' => $ownerData['name']['englishName'],
                         'passport' => $ownerData['passport'],
@@ -64,5 +65,16 @@ class FetchFlatsAndOwnersForBuilding implements ShouldQueue
                 }
             }
         }
+    }
+
+    function cleanPhoneNumber($phoneNumber)
+    {
+        // Remove -, +, and | characters
+        $cleaned = preg_replace('/[-+|]/', '', $phoneNumber);
+
+        // Remove leading zeros
+        $cleaned = ltrim($cleaned, '0');
+
+        return $cleaned;
     }
 }
