@@ -177,7 +177,7 @@ class ComplaintsenquiryResource extends Resource
                                         'body' => 'You enquiry has been acknowledged by ' . auth()->user()->first_name . '. Team will contact you soon.',
                                         'data' => ['notificationType' => 'app_notification'],
                                     ];
-                                    $this->expoNotification($message);
+                                    echo $this->expoNotification($message);
                                     DB::table('notifications')->insert([
                                         'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
                                         'type' => 'Filament\Notifications\DatabaseNotification',
