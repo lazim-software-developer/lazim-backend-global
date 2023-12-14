@@ -166,7 +166,7 @@ class ComplaintssuggessionResource extends Resource
                                         'body' => 'You suggestion has been acknowledged by '.auth()->user()->first_name.'. Thank you for your suggestion.',
                                         'data' => ['notificationType' => 'app_notification'],
                                     ];
-                                    $this->expoNotification($message);
+                                    echo $this->expoNotification($message);
                                     DB::table('notifications')->insert([
                                         'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
                                         'type' => 'Filament\Notifications\DatabaseNotification',
