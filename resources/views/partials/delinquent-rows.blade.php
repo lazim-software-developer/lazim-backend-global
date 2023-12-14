@@ -1,24 +1,4 @@
-<x-filament-panels::page >
-
-    <div>
-        <div class="inline-block py-2 align-middle w-full">
-            <div class=""> <!-- Enables horizontal scrolling -->
-                <!-- Filters -->
-                    <div class="mb-4">
-                        <select id="year-dropdown" name="year" class="mr-2" onChange="loadDelinquent()">
-                            @foreach($years as $year)
-                                <option value="{{ $year }}">{{ $year }}</option>
-                            @endforeach
-                        </select>
-
-                        <select id="building-dropdown" name="building" searchable onChange="loadDelinquent()" class="mr-2">
-                            <option value="">Select a Building</option>
-                            @foreach($buildings as $building)
-                                <option value="{{ $building->id }}">{{ $building->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-            <div id="table-full">
+<div id="table-full">
                 <table class="text-left " style="width: 100%;">
                     <thead class="bg-white ">
                         <tr>
@@ -48,7 +28,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($data as $flat)
+                        @foreach($flats as $flat)
                         <tr>
                             <td class="relative py-4 px-3 px-4 text-sm font-medium text-gray-900">
                                 {{$flat['property_number']}}
@@ -125,34 +105,6 @@
                 </table>
                 <!-- Pagination Links -->
                 <div class="mt-10 flex justify-center ">
-                {{ $data->links() }}
+                {{ $flats->links() }}
                 </div>
-        </div>  
-            </div>
-        </div>
-    </div>
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-
-    <script>
-            function loadDelinquent() {
-                    const yearDropdown = document.getElementById('year-dropdown');
-                    const buildingDropdown = document.getElementById('building-dropdown');
-                    const selectedYear = yearDropdown.value;
-                    const selectedBuilding = buildingDropdown.value;
-
-                    // Construct the data payload based on what is selected
-                    let dataPayload = {};
-                    if (selectedYear !== "") dataPayload.year = selectedYear;
-                    if (selectedBuilding !== "") dataPayload.building_id = selectedBuilding;
-
-                    axios.post(`/get-delinquent-owners`, dataPayload)
-                        .then(response => {
-                            document.getElementById('table-full').innerHTML = response.data;
-                        })
-                        .catch(error => {
-                            console.error('Error fetching data:', error);
-                        });
-                }
-        </script>
-
-</x-filament-panels::page>
+</div>
