@@ -72,9 +72,9 @@ class ComplaintsenquiryResource extends Resource
                             ->required()
                             ->label('User'),
                         TextInput::make('complaint')
-                            ->placeholder('Enquiry'),
+                            ->label('Enquiry'),
                         TextInput::make('complaint_details')
-                            ->placeholder('Complaint Details'),
+                            ->label('Enquiry Details'),
                         Hidden::make('status')
                             ->default('open'),
                         Hidden::make('complaint_type')
@@ -116,7 +116,7 @@ class ComplaintsenquiryResource extends Resource
                     ->toggleable()
                     ->default('NA')
                     ->searchable()
-                    ->label('Complaint Details'),
+                    ->label('Enquiry Details'),
                 TextColumn::make('status')
                     ->toggleable()
                     ->searchable()
