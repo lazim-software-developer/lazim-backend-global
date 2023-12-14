@@ -396,9 +396,15 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('technician')->group(funct
 Route::middleware(['auth:sanctum', 'active'])->prefix('assets')->group(function () {
     // List all assets for the technicians
     Route::get('/technican/assets', [AssetController::class, 'index']);
+    // Service history for an asset
+    Route::get('/maintenance-list/{technicianasset}', [AssetController::class, 'fetchAssetMaintenances']);
+
     Route::post('/maintenance', [AssetController::class, 'store']);
     Route::post('/maintenance/{assetMaintenance}/update-before', [AssetController::class, 'updateBefore']);
     Route::post('/maintenance/{assetMaintenance}/update-after', [AssetController::class, 'updateAfter']);
+
+    // API to list asset details for the technician when he scans the QR code
+    Route::get('/{asset}',[TechnicianController::class, 'fetchTechnicianAssetDetails']);
 
     //Vendor assets
     Route::get('/vendor/{vendor}', [AssetController::class, 'listAssets']);
