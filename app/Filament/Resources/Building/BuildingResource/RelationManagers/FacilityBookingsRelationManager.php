@@ -54,7 +54,7 @@ class FacilityBookingsRelationManager extends RelationManager
                             ->label('Facility')
                             ->disabledOn('edit')
                             ->preload()
-                            ->placeholder('Facility'),
+                            ->label('Facility'),
 
                         Hidden::make('bookable_type')
                             ->default('App\Models\Master\Facility'),
@@ -110,6 +110,7 @@ class FacilityBookingsRelationManager extends RelationManager
                     ->default('NA')
                     ->label('User'),
                 TextColumn::make('date')
+                    ->date()
                     ->searchable()
                     ->default('NA')
                     ->label('Date'),

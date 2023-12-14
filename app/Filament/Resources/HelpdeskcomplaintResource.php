@@ -88,7 +88,7 @@ class HelpdeskcomplaintResource extends Resource
                                     return false;
                                 }
                                 return true;
-                                
+
                             })
                             ->live()
                             ->searchable()
@@ -112,8 +112,10 @@ class HelpdeskcomplaintResource extends Resource
                             ->searchable()
                             ->label('Technician Name'),
                         TextInput::make('priority')
+                            ->rules(['regex:/^[1-3]$/'])
                             ->numeric(),
                         DatePicker::make('due_date')
+                            ->minDate(now())
                             ->rules(['date'])
                             ->placeholder('Due Date'),
                         Repeater::make('media')

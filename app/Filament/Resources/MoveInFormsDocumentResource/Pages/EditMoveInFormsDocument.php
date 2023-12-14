@@ -38,8 +38,8 @@ class EditMoveInFormsDocument extends EditRecord
                     $message = [
                         'to' => $expoPushToken,
                         'sound' => 'default',
-                        'title' => 'MoveIn form Updated!',
-                        'body' => auth()->user()->first_name . ' approved your MoveIn form.',
+                        'title' => 'MoveIn form status',
+                        'body' => 'Your MoveIn form has been approved.',
                         'data' => ['notificationType' => 'app_notification'],
                     ];
                     $this->expoNotification($message);
@@ -50,11 +50,11 @@ class EditMoveInFormsDocument extends EditRecord
                         'notifiable_id' => $this->record->user_id,
                         'data' => json_encode([
                             'actions' => [],
-                            'body' => 'Approved your moveIn form by ' . auth()->user()->first_name,
+                            'body' => 'Your MoveIn form has been approved.',
                             'duration' => 'persistent',
                             'icon' => 'heroicon-o-document-text',
                             'iconColor' => 'warning',
-                            'title' => 'MoveIn form Updated!',
+                            'title' => 'MoveIn form status',
                             'view' => 'notifications::notification',
                             'viewData' => [],
                             'format' => 'filament'
@@ -73,8 +73,8 @@ class EditMoveInFormsDocument extends EditRecord
                     $message = [
                         'to' => $expoPushToken,
                         'sound' => 'default',
-                        'title' => 'MoveIn form Updated!',
-                        'body' => auth()->user()->first_name . ' rejected your MoveIn form.',
+                        'title' => 'MoveIn form status',
+                        'body' => 'Your MoveIn form has been rejected.',
                         'data' => ['notificationType' => 'app_notification'],
                     ];
                     $this->expoNotification($message);
@@ -85,11 +85,11 @@ class EditMoveInFormsDocument extends EditRecord
                         'notifiable_id' => $this->record->user_id,
                         'data' => json_encode([
                             'actions' => [],
-                            'body' => 'Rejected your moveIn form by ' . auth()->user()->first_name,
+                            'body' => 'Your MoveIn form has been rejected.',
                             'duration' => 'persistent',
                             'icon' => 'heroicon-o-document-text',
-                            'iconColor' => 'warning',
-                            'title' => 'MoveIn form Updated!',
+                            'iconColor' => 'danger',
+                            'title' => 'MoveIn form status',
                             'view' => 'notifications::notification',
                             'viewData' => [],
                             'format' => 'filament'

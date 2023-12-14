@@ -36,8 +36,8 @@ class EditFitOutFormsDocument extends EditRecord
                     $message = [
                         'to' => $expoPushToken,
                         'sound' => 'default',
-                        'title' => 'FitOut form Updated!',
-                        'body' => auth()->user()->first_name . ' approved your fitout form.',
+                        'title' => 'FitOut form status',
+                        'body' => 'Your FitOut form has been approved.',
                         'data' => ['notificationType' => 'app_notification'],
                     ];
                     $this->expoNotification($message);
@@ -48,11 +48,11 @@ class EditFitOutFormsDocument extends EditRecord
                         'notifiable_id' => $this->record->user_id,
                         'data' => json_encode([
                             'actions' => [],
-                            'body' => 'Approved your fitout form by ' . auth()->user()->first_name,
+                            'body' => 'Your FitOut form has been approved.',
                             'duration' => 'persistent',
                             'icon' => 'heroicon-o-document-text',
                             'iconColor' => 'warning',
-                            'title' => 'FitOut form Updated!',
+                            'title' => 'FitOut form status',
                             'view' => 'notifications::notification',
                             'viewData' => [],
                             'format' => 'filament'
@@ -70,8 +70,8 @@ class EditFitOutFormsDocument extends EditRecord
                     $message = [
                         'to' => $expoPushToken,
                         'sound' => 'default',
-                        'title' => 'FitOut form Updated!',
-                        'body' => auth()->user()->first_name . ' rejected your fitout form.',
+                        'title' => 'FitOut form status',
+                        'body' => 'Your FitOut form has been rejected.',
                         'data' => ['notificationType' => 'app_notification'],
                     ];
                     $this->expoNotification($message);
@@ -83,11 +83,11 @@ class EditFitOutFormsDocument extends EditRecord
                         'notifiable_id' => $this->record->user_id,
                         'data' => json_encode([
                             'actions' => [],
-                            'body' => 'Rejected your fitout form by ' . auth()->user()->first_name,
+                            'body' => 'Your FitOut form has been rejected.',
                             'duration' => 'persistent',
                             'icon' => 'heroicon-o-document-text',
                             'iconColor' => 'danger',
-                            'title' => 'FitOut form Updated!',
+                            'title' => 'FitOut form status',
                             'view' => 'notifications::notification',
                             'viewData' => [],
                             'format' => 'filament'
