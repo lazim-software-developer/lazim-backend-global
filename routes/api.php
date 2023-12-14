@@ -397,7 +397,7 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('assets')->group(function 
     // List all assets for the technicians
     Route::get('/technican/assets', [AssetController::class, 'index']);
     // Service history for an asset
-    Route::get('/maintenance-list', [AssetController::class, 'fetchAssetMaintenances']);
+    Route::get('/maintenance-list/{technicianasset}', [AssetController::class, 'fetchAssetMaintenances']);
 
     Route::post('/maintenance', [AssetController::class, 'store']);
     Route::post('/maintenance/{assetMaintenance}/update-before', [AssetController::class, 'updateBefore']);
