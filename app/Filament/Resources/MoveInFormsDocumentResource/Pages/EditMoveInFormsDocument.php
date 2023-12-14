@@ -73,6 +73,7 @@ class EditMoveInFormsDocument extends EditRecord
                     $message = [
                         'to' => $expoPushToken,
                         'sound' => 'default',
+                        'url' => 'MyRequest',
                         'title' => 'MoveIn form status',
                         'body' => 'Your MoveIn form has been rejected.',
                         'data' => ['notificationType' => 'app_notification'],

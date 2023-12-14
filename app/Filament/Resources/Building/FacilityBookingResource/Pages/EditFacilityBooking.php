@@ -36,6 +36,7 @@ class EditFacilityBooking extends EditRecord
                     $message = [
                         'to' => $expoPushToken,
                         'sound' => 'default',
+                        'url' => 'MyBookings',
                         'title' => $facilityName->name.' Booking Status.',
                         'body' => 'Your facility booking request for '.$facilityName->name. 'is approved',
                         'data' => ['notificationType' => 'app_notification'],

@@ -65,6 +65,7 @@ class EditGuestRegistration extends EditRecord
                     $message = [
                         'to' => $expoPushToken,
                         'sound' => 'default',
+                        'url' => 'MyRequest',
                         'title' => 'Guest registration form status',
                         'body' => 'Your Guest registration form has been rejected.',
                         'data' => ['notificationType' => 'app_notification'],
