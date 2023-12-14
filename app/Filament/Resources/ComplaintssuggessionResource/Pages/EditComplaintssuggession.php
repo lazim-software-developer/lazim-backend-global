@@ -30,6 +30,7 @@ class EditComplaintssuggession extends EditRecord
                     $message = [
                         'to' => $expoPushToken,
                         'sound' => 'default',
+                        'url' => 'InAppNotficationScreen',
                         'title' => 'Suggestion Acknowledgement',
                         'body' => 'You suggestion has been acknowledged by '.auth()->user()->first_name.'. Thank you for your suggestion.',
                         'data' => ['notificationType' => 'app_notification'],

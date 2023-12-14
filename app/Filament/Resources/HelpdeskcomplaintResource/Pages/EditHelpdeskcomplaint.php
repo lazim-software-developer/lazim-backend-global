@@ -40,6 +40,7 @@ class EditHelpdeskcomplaint extends EditRecord
                     $message = [
                         'to' => $expoPushToken,
                         'sound' => 'default',
+                        'url' => 'HelpDeskTab',
                         'title' => 'Help Desk complaint status',
                         'body' => 'A complaint has been resolved by a ' .$role->name .' '.auth()->user()->first_name,
                         'data' => ['notificationType' => 'app_notification'],
