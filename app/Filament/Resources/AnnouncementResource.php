@@ -2,11 +2,15 @@
 
 namespace App\Filament\Resources;
 
+use DateTime;
+use Carbon\Carbon;
 use Filament\Forms;
 use Filament\Tables;
 use Filament\Forms\Get;
+use Filament\Forms\Set;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
+use Illuminate\Support\Str;
 use App\Models\Announcement;
 use App\Models\Community\Post;
 use Filament\Resources\Resource;
@@ -17,8 +21,6 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Textarea;
-use Filament\Forms\Set;
-use Illuminate\Support\Str;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\FileUpload;
@@ -26,34 +28,37 @@ use Filament\Forms\Components\RichEditor;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\MarkdownEditor;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\AnnouncementResource\Pages;
 use App\Filament\Resources\AnnouncementResource\RelationManagers;
-use Carbon\Carbon;
-use DateTime;
 
-class AnnouncementResource extends Resource {
+class AnnouncementResource extends Resource
+{
     protected static ?string $model = Post::class;
     protected static ?string $modelLabel = 'Announcement';
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
     protected static ?string $navigationGroup = 'Community';
 
-    public static function form(Form $form): Form {
+    public static function form(Form $form): Form
+    {
         return $form->schema([
             Grid::make([
                 'sm' => 1,
                 'md' => 1,
                 'lg' => 2,
             ])->schema([
-                        RichEditor::make('content')
-                            ->disableToolbarButtons([
-                                'codeBlock',
-                                'h2',
-                                'h3',
-                                'attachFiles',
-                                'blockquote',
-                                'strike',
+                        MarkdownEditor::make('content')
+                            ->toolbarButtons([
+                                'bold',
+                                'bulletList',
+                                'italic',
+                                'link',
+                                'orderedList',
+                                'redo',
+                                'undo',
                             ])
+                            ->required()
                             ->live()
                             ->columnSpan([
                                 'sm' => 1,
@@ -95,8 +100,6 @@ class AnnouncementResource extends Resource {
                             ->multiple()
                             ->preload()
                             ->required(),
-                        Toggle::make('allow_like')->default(0),
-                        Toggle::make('allow_comment')->default(0),
 
                         Hidden::make('user_id')
                             ->default(auth()->user()->id),
@@ -110,7 +113,8 @@ class AnnouncementResource extends Resource {
         ]);
     }
 
-    public static function table(Table $table): Table {
+    public static function table(Table $table): Table
+    {
         return $table
             ->columns([
                 TextColumn::make('status')
@@ -154,13 +158,15 @@ class AnnouncementResource extends Resource {
             ]);
     }
 
-    public static function getRelations(): array {
+    public static function getRelations(): array
+    {
         return [
             //
         ];
     }
 
-    public static function getPages(): array {
+    public static function getPages(): array
+    {
         return [
             'index' => Pages\ListAnnouncements::route('/'),
             'create' => Pages\CreateAnnouncement::route('/create'),

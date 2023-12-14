@@ -75,8 +75,15 @@ class TenantDocumentResource extends Resource
                             DatePicker::make('expiry_date')
                                 ->rules(['date'])
                                 ->required()
+                                ->disabled()
                                 ->readonly()
                                 ->placeholder('Expiry Date'),
+                            TextInput::make('comments')
+                                ->required()
+                                ->disabled(function (Document $record) {
+                                    return $record->status != 'submitted';
+                                })
+                                ->label('Comments'),
                             Select::make('status')
                                 ->options([
                                     'approved' => 'Approved',

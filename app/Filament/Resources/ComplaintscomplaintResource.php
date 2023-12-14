@@ -83,7 +83,7 @@ class ComplaintscomplaintResource extends Resource
                                     return false;
                                 }
                                 return true;
-                                
+
                             })
                             ->live()
                             ->searchable()
@@ -98,7 +98,7 @@ class ComplaintscomplaintResource extends Resource
                             ->placeholder('Unit Number'),
                         Select::make('technician_id')
                             ->relationship('technician', 'first_name')
-                            ->options(function (Complaint $record,Get $get) {
+                            ->options(function (Complaint $record, Get $get) {
                                 $technician_vendor = DB::table('service_technician_vendor')->where('service_id', $record->service_id)->pluck('technician_vendor_id');
                                 $technicians = TechnicianVendor::find($technician_vendor)->where('vendor_id', $get('vendor_id'))->pluck('technician_id');
                                 return User::find($technicians)->pluck('first_name', 'id');
@@ -107,8 +107,10 @@ class ComplaintscomplaintResource extends Resource
                             ->searchable()
                             ->label('Technician Name'),
                         TextInput::make('priority')
+                            ->rules(['regex:/^[1-3]$/'])
                             ->numeric(),
                         DatePicker::make('due_date')
+                            ->minDate(now())
                             ->rules(['date'])
                             ->placeholder('Due Date'),
                         Repeater::make('media')
