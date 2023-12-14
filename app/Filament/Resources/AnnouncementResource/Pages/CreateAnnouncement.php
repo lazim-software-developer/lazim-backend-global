@@ -28,8 +28,8 @@ class CreateAnnouncement extends CreateRecord
                 $message = [
                     'to' => $expoPushToken,
                     'sound' => 'default',
-                    'title' => 'New Announcement',
-                    'body' => 'New Announcement',
+                    'title' => 'New Announcement!',
+                    'body' =>  $this->record->content,
                     'data' => ['notificationType' => 'app_notification'],
                 ];
                 $this->expoNotification($message);
@@ -40,11 +40,11 @@ class CreateAnnouncement extends CreateRecord
                     'notifiable_id' => $this->record->user_id,
                     'data' => json_encode([
                         'actions' => [],
-                        'body' => 'New Announcement by ' . auth()->user()->first_name,
+                        'body' => $this->record->content,
                         'duration' => 'persistent',
                         'icon' => 'heroicon-o-document-text',
                         'iconColor' => 'warning',
-                        'title' => 'New Announcement',
+                        'title' => 'New Announcement!',
                         'view' => 'notifications::notification',
                         'viewData' => [],
                         'format' => 'filament'

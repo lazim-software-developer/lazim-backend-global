@@ -6,12 +6,14 @@ use App\Filament\Resources\HelpdeskcomplaintResource;
 use App\Models\Building\Complaint;
 use App\Models\ExpoPushNotification;
 use App\Models\Master\Role;
+use App\Traits\UtilsTrait;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Support\Facades\DB;
 
 class EditHelpdeskcomplaint extends EditRecord
 {
+    use UtilsTrait;
     protected static string $resource = HelpdeskcomplaintResource::class;
 
     protected function getHeaderActions(): array
@@ -42,6 +44,7 @@ class EditHelpdeskcomplaint extends EditRecord
                         'body' => 'A complaint has been resolved by a ' .$role->name  .auth()->user()->first_name,
                         'data' => ['notificationType' => 'app_notification'],
                     ];
+                    dd();
                     $this->expoNotification($message);
                     DB::table('notifications')->insert([
                         'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
