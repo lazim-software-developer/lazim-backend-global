@@ -1,6 +1,7 @@
 <?php
 
 use App\Filament\Resources\LedgersResource\Pages\ListReceipts;
+use App\Http\Controllers\Vendor\DelinquentController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Master\PDFController;
@@ -53,6 +54,8 @@ Route::post('admin/{budget}/tender/create', [CreateTender::class, 'store'])->nam
 
 // List all services for the budget
 Route::get('/budget/{budget}/available-services/{subcategory}', [MasterController::class, 'getAvailableServices']);
+
+Route::post('/get-delinquent-owners', [DelinquentController::class, 'getDelinquentOwners']);
 
 
 // Route::get('/admin/ledgers/{invoice}/receipts', function () {
