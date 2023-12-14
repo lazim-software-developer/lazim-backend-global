@@ -57,7 +57,7 @@ class EditAccessCardFormsDocument extends EditRecord {
                         'url' => 'MyRequest',
                         'title' => 'Access card form status',
                         'body' => 'Your Access card form has been approved.',
-                        'data' => ['notificationType' => 'app_notification'],
+                        'data' => ['notificationType' => 'MyRequest'],
                     ];
                     $this->expoNotification($message);
                     DB::table('notifications')->insert([
@@ -91,7 +91,7 @@ class EditAccessCardFormsDocument extends EditRecord {
                         'sound' => 'default',
                         'title' => 'Access card form status!',
                         'body' => 'Your Access card form has been rejected.',
-                        'data' => ['notificationType' => 'app_notification'],
+                        'data' => ['notificationType' => 'MyRequest'],
                     ];
                     $this->expoNotification($message);
                     DB::table('notifications')->insert([

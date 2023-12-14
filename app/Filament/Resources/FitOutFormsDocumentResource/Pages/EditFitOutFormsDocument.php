@@ -38,7 +38,7 @@ class EditFitOutFormsDocument extends EditRecord
                         'sound' => 'default',
                         'title' => 'FitOut form status',
                         'body' => 'Your FitOut form has been approved.',
-                        'data' => ['notificationType' => 'app_notification'],
+                        'data' => ['notificationType' => 'MyRequest'],
                     ];
                     $this->expoNotification($message);
                     DB::table('notifications')->insert([
@@ -73,7 +73,7 @@ class EditFitOutFormsDocument extends EditRecord
                         'url' => 'MyRequest',
                         'title' => 'FitOut form status',
                         'body' => 'Your FitOut form has been rejected.',
-                        'data' => ['notificationType' => 'app_notification'],
+                        'data' => ['notificationType' => 'MyRequest'],
                     ];
                     $this->expoNotification($message);
 

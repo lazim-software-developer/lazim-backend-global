@@ -35,7 +35,7 @@ class EditMoveOutFormsDocument extends EditRecord
                         'sound' => 'default',
                         'title' => 'MoveOut form status',
                         'body' => 'Your MoveOut form has been approved.',
-                        'data' => ['notificationType' => 'app_notification'],
+                        'data' => ['notificationType' => 'MyRequest'],
                     ];
                     $this->expoNotification($message);
                     DB::table('notifications')->insert([
@@ -71,7 +71,7 @@ class EditMoveOutFormsDocument extends EditRecord
                         'url' => 'MyRequest',
                         'title' => 'MoveOut form status',
                         'body' => 'Your MoveOut form has been rejected.',
-                        'data' => ['notificationType' => 'app_notification'],
+                        'data' => ['notificationType' => 'MyRequest'],
                     ];
                     $this->expoNotification($message);
                     DB::table('notifications')->insert([
