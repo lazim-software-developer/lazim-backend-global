@@ -162,6 +162,7 @@ class ComplaintsenquiryResource extends Resource
                         'remarks' => $record->remarks,
                     ])
                     ->action(function (Complaint $record, array $data): void {
+                        $instance = new static();
                         if ($data['status'] == 'closed') {
                             $record->status = $data['status'];
                             $record->remarks = $data['remarks'];
@@ -177,7 +178,7 @@ class ComplaintsenquiryResource extends Resource
                                         'body' => 'You enquiry has been acknowledged by ' . auth()->user()->first_name . '. Team will contact you soon.',
                                         'data' => ['notificationType' => 'app_notification'],
                                     ];
-                                    echo $this->expoNotification($message);
+                                    $instance->expoNotification($message);
                                     DB::table('notifications')->insert([
                                         'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
                                         'type' => 'Filament\Notifications\DatabaseNotification',
