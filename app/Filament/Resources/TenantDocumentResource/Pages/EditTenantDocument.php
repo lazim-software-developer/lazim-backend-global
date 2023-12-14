@@ -6,12 +6,14 @@ use App\Filament\Resources\TenantDocumentResource;
 use App\Models\Building\Document;
 use App\Models\ExpoPushNotification;
 use App\Models\User\User;
+use App\Traits\UtilsTrait;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Support\Facades\DB;
 
 class EditTenantDocument extends EditRecord
 {
+    use UtilsTrait;
     protected static string $resource = TenantDocumentResource::class;
 
     protected function getHeaderActions(): array
