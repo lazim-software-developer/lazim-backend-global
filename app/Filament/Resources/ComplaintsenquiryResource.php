@@ -109,13 +109,13 @@ class ComplaintsenquiryResource extends Resource
                         TextInput::make('remarks')
                             ->rules(['max:255'])
                             ->visible(function (callable $get) {
-                                if ($get('status') == 'open') {
+                                if ($get('status') == 'closed') {
                                     return true;
                                 }
                                 return false;
                             })
                             ->disabled(function (Complaint $record) {
-                                return $record->status != null;
+                                return $record->status == 'closed';
                             })
                             ->required(),
                     ])
