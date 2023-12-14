@@ -70,6 +70,7 @@ class EditFitOutFormsDocument extends EditRecord
                     $message = [
                         'to' => $expoPushToken,
                         'sound' => 'default',
+                        'url' => 'MyRequest',
                         'title' => 'FitOut form status',
                         'body' => 'Your FitOut form has been rejected.',
                         'data' => ['notificationType' => 'app_notification'],

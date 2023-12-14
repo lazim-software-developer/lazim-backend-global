@@ -25,6 +25,41 @@ class EditComplaintscomplaint extends EditRecord
     public function afterSave()
     {
         $role = Role::where('id', auth()->user()->role_id)->first();
+        if ($this->record->technician_id != null) {
+            $expoPushTokens = ExpoPushNotification::where('user_id', $this->record->technician_id)->pluck('token');
+            if ($expoPushTokens->count() > 0) {
+                foreach ($expoPushTokens as $expoPushToken) {
+                    $message = [
+                        'to' => $expoPushToken,
+                        'sound' => 'default',
+                        'url' => 'HelpDeskTab',
+                        'title' => 'New Complaint Assigned',
+                        'body' =>'A new complaint <unique_id> assigned to you.',
+                        'data' => ['notificationType' => 'app_notification'],
+                    ];
+                    $this->expoNotification($message);
+                    DB::table('notifications')->insert([
+                        'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
+                        'type' => 'Filament\Notifications\DatabaseNotification',
+                        'notifiable_type' => 'App\Models\User\User',
+                        'notifiable_id' => $this->record->technician_id,
+                        'data' => json_encode([
+                            'actions' => [],
+                            'body' =>'A new complaint assigned to you.',
+                            'duration' => 'persistent',
+                            'icon' => 'heroicon-o-document-text',
+                            'iconColor' => 'warning',
+                            'title' => 'New Complaint Assigned',
+                            'view' => 'notifications::notification',
+                            'viewData' => [],
+                            'format' => 'filament'
+                        ]),
+                        'created_at' => now()->format('Y-m-d H:i:s'),
+                        'updated_at' => now()->format('Y-m-d H:i:s'),
+                    ]);
+                }
+            }
+        }
         if ($this->record->status == 'closed') {
             $expoPushTokens = ExpoPushNotification::where('user_id', $this->record->user_id)->pluck('token');
             if ($expoPushTokens->count() > 0) {
@@ -32,6 +67,7 @@ class EditComplaintscomplaint extends EditRecord
                     $message = [
                         'to' => $expoPushToken,
                         'sound' => 'default',
+                        'url' => 'HelpDeskTab',
                         'title' => 'Happiness complaint status',
                         'body' => 'Your happiness complaint has been resolved by '.$role->name.' :'.auth()->user()->first_name,
                         'data' => ['notificationType' => 'app_notification'],

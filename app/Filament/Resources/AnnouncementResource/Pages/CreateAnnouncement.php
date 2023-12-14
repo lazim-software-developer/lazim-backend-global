@@ -28,6 +28,7 @@ class CreateAnnouncement extends CreateRecord
                 $message = [
                     'to' => $expoPushToken,
                     'sound' => 'default',
+                    'url' => 'ComunityPostTab',
                     'title' => 'New Announcement!',
                     'body' =>  $this->record->content,
                     'data' => ['notificationType' => 'app_notification'],
