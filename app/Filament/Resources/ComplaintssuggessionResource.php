@@ -2,9 +2,6 @@
 
 namespace App\Filament\Resources;
 
-use Filament\Forms;
-use Filament\Tables;
-use Filament\Forms\Get;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
@@ -12,7 +9,6 @@ use App\Models\Building\Complaint;
 use Illuminate\Support\Facades\DB;
 use Filament\Forms\Components\Grid;
 use Filament\Tables\Actions\Action;
-use App\Models\Complaintssuggession;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Repeater;
@@ -20,13 +16,13 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\FileUpload;
 use Filament\Tables\Filters\SelectFilter;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\ComplaintssuggessionResource\Pages;
-use App\Filament\Resources\ComplaintssuggessionResource\RelationManagers;
+use App\Models\ExpoPushNotification;
+use App\Traits\UtilsTrait;
 
 class ComplaintssuggessionResource extends Resource
 {
+    use UtilsTrait;
     protected static ?string $model = Complaint::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
@@ -159,11 +155,45 @@ class ComplaintssuggessionResource extends Resource
                             $record->status = $data['status'];
                             $record->remarks = $data['remarks'];
                             $record->save();
+
+                            $expoPushTokens = ExpoPushNotification::where('user_id', $record->user_id)->pluck('token');
+                            if ($expoPushTokens->count() > 0) {
+                                foreach ($expoPushTokens as $expoPushToken) {
+                                    $message = [
+                                        'to' => $expoPushToken,
+                                        'sound' => 'default',
+                                        'title' => 'Suggestion Acknowledgement',
+                                        'body' => 'You suggestion has been acknowledged by '.auth()->user()->first_name.'. Thank you for your suggestion.',
+                                        'data' => ['notificationType' => 'app_notification'],
+                                    ];
+                                    $this->expoNotification($message);
+                                    DB::table('notifications')->insert([
+                                        'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
+                                        'type' => 'Filament\Notifications\DatabaseNotification',
+                                        'notifiable_type' => 'App\Models\User\User',
+                                        'notifiable_id' => $record->user_id,
+                                        'data' => json_encode([
+                                            'actions' => [],
+                                            'body' => 'You suggestion has been acknowledged by '.auth()->user()->first_name.'. Thank you for your suggestion.',
+                                            'duration' => 'persistent',
+                                            'icon' => 'heroicon-o-document-text',
+                                            'iconColor' => 'warning',
+                                            'title' => 'Suggestion Acknowledgement',
+                                            'view' => 'notifications::notification',
+                                            'viewData' => [],
+                                            'format' => 'filament'
+                                        ]),
+                                        'created_at' => now()->format('Y-m-d H:i:s'),
+                                        'updated_at' => now()->format('Y-m-d H:i:s'),
+                                    ]);
+                                }
+                            }
                         } else {
                             $record->status = $data['status'];
                             $record->save();
                         }
                     })
+
                     ->slideOver()
             ]);
     }
