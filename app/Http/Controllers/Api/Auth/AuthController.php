@@ -143,7 +143,8 @@ class AuthController extends Controller
 
         return response()->json([
             'token' => $token,
-            'refresh_token' => $refreshToken
+            'refresh_token' => $refreshToken,
+            'user' => $user
         ], 200);
     }
 
