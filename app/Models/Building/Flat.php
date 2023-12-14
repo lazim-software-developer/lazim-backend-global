@@ -2,6 +2,7 @@
 
 namespace App\Models\Building;
 
+use App\Models\Accounting\OAMReceipts;
 use App\Models\CoolingAccount;
 use App\Models\User\User;
 use App\Models\Forms\Guest;
@@ -92,6 +93,11 @@ class Flat extends Model
     public function oaminvoices()
     {
         return $this->hasMany(OAMInvoice::class);
+    }
+
+    public function oamreceipts()
+    {
+        return $this->hasMany(OAMReceipts::class);
     }
 
     public function coolingAccounts()
