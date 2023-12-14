@@ -40,7 +40,7 @@ class EditMoveInFormsDocument extends EditRecord
                         'sound' => 'default',
                         'title' => 'MoveIn form status',
                         'body' => 'Your MoveIn form has been approved.',
-                        'data' => ['notificationType' => 'app_notification'],
+                        'data' => ['notificationType' => 'MyRequest'],
                     ];
                     $this->expoNotification($message);
                     DB::table('notifications')->insert([
@@ -76,7 +76,7 @@ class EditMoveInFormsDocument extends EditRecord
                         'url' => 'MyRequest',
                         'title' => 'MoveIn form status',
                         'body' => 'Your MoveIn form has been rejected.',
-                        'data' => ['notificationType' => 'app_notification'],
+                        'data' => ['notificationType' => 'MyRequest'],
                     ];
                     $this->expoNotification($message);
                     DB::table('notifications')->insert([

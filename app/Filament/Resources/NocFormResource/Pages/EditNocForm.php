@@ -36,7 +36,7 @@ class EditNocForm extends EditRecord
                         'sound' => 'default',
                         'title' => 'Sales NOC form status',
                         'body' => 'Your Sales NOC form has been approved.',
-                        'data' => ['notificationType' => 'app_notification'],
+                        'data' => ['notificationType' => 'MyRequest'],
                     ];
                     $this->expoNotification($message);
                     DB::table('notifications')->insert([
@@ -72,7 +72,7 @@ class EditNocForm extends EditRecord
                         'url' => 'MyRequest',
                         'title' => 'Sales NOC form status',
                         'body' => 'Your Sales NOC form has been rejected.',
-                        'data' => ['notificationType' => 'app_notification'],
+                        'data' => ['notificationType' => 'MyRequest'],
                     ];
                     $this->expoNotification($message);
                     DB::table('notifications')->insert([
