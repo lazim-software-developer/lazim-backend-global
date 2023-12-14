@@ -2,6 +2,9 @@
 
 namespace App\Filament\Resources;
 
+use Filament\Forms;
+use Filament\Tables;
+use Filament\Forms\Get;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
@@ -9,6 +12,7 @@ use App\Models\Building\Complaint;
 use Illuminate\Support\Facades\DB;
 use Filament\Forms\Components\Grid;
 use Filament\Tables\Actions\Action;
+use App\Models\Complaintssuggession;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Repeater;
@@ -16,13 +20,13 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\FileUpload;
 use Filament\Tables\Filters\SelectFilter;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\ComplaintssuggessionResource\Pages;
-use App\Models\ExpoPushNotification;
-use App\Traits\UtilsTrait;
+use App\Filament\Resources\ComplaintssuggessionResource\RelationManagers;
 
 class ComplaintssuggessionResource extends Resource
 {
-    use UtilsTrait;
     protected static ?string $model = Complaint::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
@@ -50,6 +54,7 @@ class ComplaintssuggessionResource extends Resource
                             ->relationship('building', 'name')
                             ->reactive()
                             ->preload()
+                            ->disabled()
                             ->searchable()
                             ->placeholder('Building'),
                         Select::make('user_id')
@@ -65,18 +70,22 @@ class ComplaintssuggessionResource extends Resource
                             })
                             ->searchable()
                             ->preload()
+                            ->disabled()
                             ->required()
                             ->label('User'),
                         TextInput::make('complaint')
-                            ->label('Suggestion'),
+                            ->label('Suggestion')
+                            ->disabled(),
                         TextInput::make('complaint_details')
-                            ->label('Suggestion Details'),
+                            ->label('Suggestion Details')
+                            ->disabled(),
                         Hidden::make('status')
                             ->default('open'),
                         Hidden::make('complaint_type')
                             ->default('suggestions'),
                         Repeater::make('media')
                             ->relationship()
+                            ->disabled()
                             ->schema([
                                 FileUpload::make('url')
                                     ->disk('s3')
@@ -85,7 +94,30 @@ class ComplaintssuggessionResource extends Resource
                                     ->openable(true)
                                     ->downloadable(true)
                                     ->label('File'),
+                            ]),
+                        Select::make('status')
+                            ->options([
+                                'open' => 'Open',
+                                'closed' => 'Closed',
                             ])
+                            ->disabled(function (Complaint $record) {
+                                return $record->status != null;
+                            })
+                            ->required()
+                            ->searchable()
+                            ->live(),
+                        TextInput::make('remarks')
+                            ->rules(['max:255'])
+                            ->visible(function (callable $get) {
+                                if ($get('status') == 'closed') {
+                                    return true;
+                                }
+                                return false;
+                            })
+                            ->disabled(function (Complaint $record) {
+                                return $record->status != null;
+                            })
+                            ->required(),
                     ])
             ]);
     }
@@ -123,79 +155,6 @@ class ComplaintssuggessionResource extends Resource
                     ->searchable()
                     ->label('Building')
                     ->preload()
-            ])
-            ->actions([
-                Action::make('Update Status')
-                    ->visible(fn ($record) => $record->status === 'open')
-                    ->button()
-                    ->form([
-                        Select::make('status')
-                            ->options([
-                                'open'   => 'Open',
-                                'closed' => 'Closed',
-                            ])
-                            ->searchable()
-                            ->live(),
-                        TextInput::make('remarks')
-                            ->rules(['max:255'])
-                            ->visible(function (callable $get) {
-                                if ($get('status') == 'closed') {
-                                    return true;
-                                }
-                                return false;
-                            })
-                            ->required(),
-                    ])
-                    ->fillForm(fn (Complaint $record): array => [
-                        'status' => $record->status,
-                        'remarks' => $record->remarks,
-                    ])
-                    ->action(function (Complaint $record, array $data): void {
-                        $instance = new static();
-                        if ($data['status'] == 'closed') {
-                            $record->status = $data['status'];
-                            $record->remarks = $data['remarks'];
-                            $record->save();
-
-                            $expoPushTokens = ExpoPushNotification::where('user_id', $record->user_id)->pluck('token');
-                            if ($expoPushTokens->count() > 0) {
-                                foreach ($expoPushTokens as $expoPushToken) {
-                                    $message = [
-                                        'to' => $expoPushToken,
-                                        'sound' => 'default',
-                                        'title' => 'Suggestion Acknowledgement',
-                                        'body' => 'You suggestion has been acknowledged by '.auth()->user()->first_name.'. Thank you for your suggestion.',
-                                        'data' => ['notificationType' => 'app_notification'],
-                                    ];
-                                    $instance->expoNotification($message);
-                                    DB::table('notifications')->insert([
-                                        'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
-                                        'type' => 'Filament\Notifications\DatabaseNotification',
-                                        'notifiable_type' => 'App\Models\User\User',
-                                        'notifiable_id' => $record->user_id,
-                                        'data' => json_encode([
-                                            'actions' => [],
-                                            'body' => 'You suggestion has been acknowledged by '.auth()->user()->first_name.'. Thank you for your suggestion.',
-                                            'duration' => 'persistent',
-                                            'icon' => 'heroicon-o-document-text',
-                                            'iconColor' => 'warning',
-                                            'title' => 'Suggestion Acknowledgement',
-                                            'view' => 'notifications::notification',
-                                            'viewData' => [],
-                                            'format' => 'filament'
-                                        ]),
-                                        'created_at' => now()->format('Y-m-d H:i:s'),
-                                        'updated_at' => now()->format('Y-m-d H:i:s'),
-                                    ]);
-                                }
-                            }
-                        } else {
-                            $record->status = $data['status'];
-                            $record->save();
-                        }
-                    })
-
-                    ->slideOver()
             ]);
     }
 
@@ -210,7 +169,8 @@ class ComplaintssuggessionResource extends Resource
     {
         return [
             'index' => Pages\ListComplaintssuggessions::route('/'),
-            'view' => Pages\ViewComplaintssuggession::route('/{record}'),
+            // 'view' => Pages\ViewComplaintssuggession::route('/{record}'),
+            'edit' => Pages\EditComplaintssuggession::route('/{record}/edit'),
         ];
     }
 }
