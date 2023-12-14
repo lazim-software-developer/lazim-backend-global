@@ -101,7 +101,7 @@ class ComplaintsenquiryResource extends Resource
                                 'closed' => 'Closed',
                             ])
                             ->disabled(function (Complaint $record) {
-                                return $record->status != null;
+                                return $record->status == 'closed';
                             })
                             ->required()
                             ->searchable()
