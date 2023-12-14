@@ -44,7 +44,6 @@ class EditHelpdeskcomplaint extends EditRecord
                         'body' => 'A complaint has been resolved by a ' .$role->name  .auth()->user()->first_name,
                         'data' => ['notificationType' => 'app_notification'],
                     ];
-                    dd();
                     $this->expoNotification($message);
                     DB::table('notifications')->insert([
                         'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
