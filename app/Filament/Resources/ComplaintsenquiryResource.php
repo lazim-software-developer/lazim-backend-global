@@ -158,45 +158,6 @@ class ComplaintsenquiryResource extends Resource
                     ->searchable()
                     ->label('Building')
                     ->preload()
-            ])
-            ->actions([
-                //Tables\Actions\EditAction::make(),
-                Action::make('Update Status')
-                    ->visible(fn ($record) => $record->status === 'open')
-                    ->button()
-                    ->form([
-                        Select::make('status')
-                            ->options([
-                                'open'   => 'Open',
-                                'closed' => 'Closed',
-                            ])
-                            ->searchable()
-                            ->live(),
-                        TextInput::make('remarks')
-                            ->rules(['max:255'])
-                            ->visible(function (callable $get) {
-                                if ($get('status') == 'closed') {
-                                    return true;
-                                }
-                                return false;
-                            })
-                            ->required(),
-                    ])
-                    ->fillForm(fn (Complaint $record): array => [
-                        'status' => $record->status,
-                        'remarks' => $record->remarks,
-                    ])
-                    ->action(function (Complaint $record, array $data): void {
-                        if ($data['status'] == 'closed') {
-                            $record->status = $data['status'];
-                            $record->remarks = $data['remarks'];
-                            $record->save();
-                        } else {
-                            $record->status = $data['status'];
-                            $record->save();
-                        }
-                    })
-                    ->slideOver()
             ]);
     }
 
@@ -211,7 +172,8 @@ class ComplaintsenquiryResource extends Resource
     {
         return [
             'index' => Pages\ListComplaintsenquiries::route('/'),
-            'view' => Pages\ViewComplaintsenquiry::route('/{record}'),
+            // 'view' => Pages\ViewComplaintsenquiry::route('/{record}'),
+            'edit' => Pages\EditComplaintsenquiry::route('/{record}/edit'),
         ];
     }
 }
