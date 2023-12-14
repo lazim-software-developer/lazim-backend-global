@@ -48,7 +48,7 @@ class EditTenantDocument extends EditRecord
                         'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
                         'type' => 'Filament\Notifications\DatabaseNotification',
                         'notifiable_type' => 'App\Models\User\User',
-                        'notifiable_id' => $this->record->user_id,
+                        'notifiable_id' => $this->record->documentable_id,
                         'data' => json_encode([
                             'actions' => [],
                             'body' => 'Your Access card form has been approved. ',
@@ -83,7 +83,7 @@ class EditTenantDocument extends EditRecord
                         'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
                         'type' => 'Filament\Notifications\DatabaseNotification',
                         'notifiable_type' => 'App\Models\User\User',
-                        'notifiable_id' => $this->record->user_id,
+                        'notifiable_id' => $this->record->documentable_id,
                         'data' => json_encode([
                             'actions' => [],
                             'body' => 'The document ' . $this->record->name . 'submitted by you has been ' . $this->record->status . ' by OA admin.',
