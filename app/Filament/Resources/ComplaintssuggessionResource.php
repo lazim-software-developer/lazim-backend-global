@@ -151,6 +151,7 @@ class ComplaintssuggessionResource extends Resource
                         'remarks' => $record->remarks,
                     ])
                     ->action(function (Complaint $record, array $data): void {
+                        $instance = new static();
                         if ($data['status'] == 'closed') {
                             $record->status = $data['status'];
                             $record->remarks = $data['remarks'];
@@ -166,7 +167,7 @@ class ComplaintssuggessionResource extends Resource
                                         'body' => 'You suggestion has been acknowledged by '.auth()->user()->first_name.'. Thank you for your suggestion.',
                                         'data' => ['notificationType' => 'app_notification'],
                                     ];
-                                    echo $this->expoNotification($message);
+                                    $instance->expoNotification($message);
                                     DB::table('notifications')->insert([
                                         'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
                                         'type' => 'Filament\Notifications\DatabaseNotification',
