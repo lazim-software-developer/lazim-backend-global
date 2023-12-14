@@ -12,6 +12,9 @@ use App\Models\FlatOwners;
 use Carbon\Carbon;
 use Filament\Pages\Page;
 use Illuminate\Support\Facades\Log;
+use \Filament\Pages\Actions;
+use Illuminate\Support\Facades\DB;
+use \Livewire\WithPagination;
 
 class DelinquentOwners extends Page
 {
@@ -20,6 +23,9 @@ class DelinquentOwners extends Page
     protected static string $view = 'filament.pages.delinquent-owners';
 
     protected static ?string $slug = 'delinquent-owners';
+
+    
+
 
     function getQuarterPeriod($year, $quarterNumber)
     {
@@ -37,81 +43,75 @@ class DelinquentOwners extends Page
         // Fetch all buildigns for logged in users
         $buildings = Building::where('owner_association_id', auth()->user()->owner_association_id)->pluck('id');
 
-        // List all invoices for the last quarter
+        //Get current date
         $currentDate = Carbon::now();
 
-        // Get the first day of the last quarter
-        $lastQuarterStart = $currentDate->subQuarter()->startOfQuarter();
-
-        // Get the last day of the last quarter
-        $lastQuarterEnd = $lastQuarterStart->copy()->endOfQuarter();
-
-        // Fetch all last 4 invocies
+        //Get current year
         $currentYear = Carbon::now()->year;
 
-        // End 
+        $flats = Flat::whereIn('building_id', $buildings)->with('oaminvoices')->whereExists(function ($query) use ($currentYear, $currentDate, $buildings) {
+            $query->select(DB::raw(1))
+                  ->from('oam_invoices')
+                  ->whereColumn('oam_invoices.flat_id', 'flats.id')
+                  ->where('oam_invoices.invoice_period', 'like', '%' . $currentYear . '%')
+                  ->where('oam_invoices.invoice_date', '<', $currentDate)
+                  ->whereIn('oam_invoices.building_id', $buildings)
+                  ->havingRaw('SUM(oam_invoices.invoice_amount) - COALESCE((SELECT SUM(receipt_amount) FROM oam_receipts WHERE oam_receipts.flat_id = flats.id AND oam_receipts.receipt_period LIKE ?), 0) > 0', ["%$currentYear%"]);
+        })
+        ->paginate(10);
+        
+        // dd($flats);
+        foreach($flats as $flat){
+            // dd($filteredFlats);
+            $ownerId = FlatOwners::where('flat_id', $flat->id)->where('active', 1)->first();
+            $owner = ApartmentOwner::where('id', $ownerId->owner_id)->first();
+            $flat['owner'] = $owner;
+            // dd($flat);
 
-        // Format dates
-        $lastQuarterStartFormatted = $lastQuarterStart->format('d-M-Y');
-        $lastQuarterEndFormatted = $lastQuarterEnd->format('d-M-Y');
+            $lastReceipt = OAMReceipts::where(['flat_id' => $flat->id])
+            ->latest('receipt_date')
+            ->first(['receipt_date', 'receipt_amount']);
+            $flat['lastReceipt'] = $lastReceipt;
 
-        // Combine the dates into the desired format
-        // $lastQuarterPeriod = $lastQuarterStartFormatted . ' To ' . $lastQuarterEndFormatted;
-
-        $lastQuarterPeriod = "01-APR-2023 To 30-JUN-2023";
-
-        Log::info("HERREE", [$lastQuarterPeriod]);
-
-        // Fetch invoices for last quarter
-        $lastQuarterInvoices = OAMInvoice::query()
-            ->where('invoice_period', $lastQuarterPeriod)
-            ->where('invoice_date', '<', $currentDate)
-            ->whereIn('building_id', $buildings)
-            ->paginate(10);
-
-        foreach ($lastQuarterInvoices as $invoice) {
-            $receipts = OAMReceipts::where(['flat_id' => $invoice->flat_id, 'receipt_period' => $lastQuarterPeriod])->get();
-
-            // Get all receipts
-            $invoice['receipts'] = $receipts;
-
-            // GEt last receipt for this flat
-            $lastReceipt = OAMReceipts::where(['flat_id' => $invoice->flat_id, 'receipt_period' => $lastQuarterPeriod])
-                ->latest('receipt_date')
-                ->first(['receipt_date', 'receipt_amount']);
-
-            // Fetch q1,q2 q3 and q4 invoice_amount and invocie_pdf_link for the flat_id from oam_invocies table
-
-            // Fetch owners for the flats
-            $ownerId = FlatOwners::where('flat_id', $invoice->flat_id)->where('active', 1)->first();
-            $flat = Flat::where('id', $invoice->flat_id)->first();
-
-            $owner = ApartmentOwner::where('id', $ownerId->id)->first();
-
-            $invoice['owner'] = $owner;
-            $invoice['flat'] = $flat;
-
-            $invoice['lastReceipt'] = $lastReceipt;
-
+            $yearlyInvoices = OAMInvoice::query()->where('invoice_period', 'like', '%' . $currentYear . '%')
+                                                        ->where('flat_id' , $flat->id)
+                                                        ->where('invoice_date', '<', $currentDate)
+                                                        ->whereIn('building_id', $buildings)->sum('invoice_amount');
+                
+            $yearlyReceipts = OAMReceipts::where('flat_id' , $flat->id)->where('receipt_period', 'like', '%' . $currentYear . '%')
+                                            ->whereIn('building_id', $buildings)->sum('receipt_amount');
+            $flat['balance'] = round($yearlyInvoices - $yearlyReceipts,2);
 
             for ($quarter = 1; $quarter <= 4; $quarter++) {
+
                 $quarterPeriod = $this->getQuarterPeriod($currentYear, $quarter);
-
+                // dd($quarterPeriod);
+    
                 // Fetch invoices for the quarter
-                $invoicesss = OAMInvoice::where('flat_id', $invoice->flat_id)
+                $receipts = OAMReceipts::where('flat_id', $flat->id)
+                    ->where('receipt_period', $quarterPeriod)
+                    ->first()?->receipt_amount;
+
+                $invoicesss = OAMInvoice::where('flat_id', $flat->id)
                     ->where('invoice_period', $quarterPeriod)
-                    ->first(['invoice_amount', 'invoice_pdf_link']);
-
-                $invoice["Q{$quarter}_invoices"] = $invoicesss;
-
-                $invoice['lastReceipt'] = $lastReceipt;
+                    ->first()?->invoice_amount;
+                $dueAmount = abs($receipts - $invoicesss);
+                Log::info('receipt'.$receipts);
+                Log::info('invoice'.$invoicesss);
+                $flat["Q{$quarter}_receipts"] = round($dueAmount, 2);
+    
             }
+            $lastInvoice = OAMInvoice::where(['flat_id' => $flat->id])
+                                ->latest('invoice_date')
+                                ->first()?->invoice_pdf_link;
+            $flat['invoice_file'] = $lastInvoice;
         }
 
-        Log::info("HER",  [$lastQuarterInvoices]);
-
         return [
-            'data' => $lastQuarterInvoices
-        ];
+                'data' => $flats,
+                'years' => range($currentYear,Carbon::now()->subYears(5)->year ), // Adjust range as needed
+                'buildings' => Building::where('owner_association_id', auth()->user()->owner_association_id)->get() // Fetch all buildings for the dropdown
+        
+            ];
     }
 }
