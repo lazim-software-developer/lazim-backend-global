@@ -30,6 +30,7 @@ class EditComplaintsenquiry extends EditRecord
                     $message = [
                         'to' => $expoPushToken,
                         'sound' => 'default',
+                        'url' => 'InAppNotficationScreen',
                         'title' => 'Enquiry Acknowledgement',
                         'body' => 'You enquiry has been acknowledged by '.auth()->user()->first_name. '. Team will contact you soon.',
                         'data' => ['notificationType' => 'app_notification'],

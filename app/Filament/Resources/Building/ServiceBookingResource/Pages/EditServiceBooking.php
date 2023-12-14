@@ -36,6 +36,7 @@ class EditServiceBooking extends EditRecord
                     $message = [
                         'to' => $expoPushToken,
                         'sound' => 'default',
+                        'url' => 'MyBookings',
                         'title' => $serviceName->name.' Booking Status.',
                         'body' => 'Your service booking request for '.$serviceName->name. 'is approved',
                         'data' => ['notificationType' => 'app_notification'],
