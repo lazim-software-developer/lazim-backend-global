@@ -40,8 +40,8 @@ class EditHelpdeskcomplaint extends EditRecord
                     $message = [
                         'to' => $expoPushToken,
                         'sound' => 'default',
-                        'title' => 'Help Dest Complaint Resolution',
-                        'body' => 'A complaint has been resolved by a ' .$role->name  .auth()->user()->first_name,
+                        'title' => 'Help Desk complaint status',
+                        'body' => 'A complaint has been resolved by a ' .$role->name .' '.auth()->user()->first_name,
                         'data' => ['notificationType' => 'app_notification'],
                     ];
                     $this->expoNotification($message);
@@ -52,11 +52,11 @@ class EditHelpdeskcomplaint extends EditRecord
                         'notifiable_id' => $this->record->user_id,
                         'data' => json_encode([
                             'actions' => [],
-                            'body' => 'A complaint has been resolved by a ' .$role->name  .auth()->user()->first_name,
+                            'body' => 'A complaint has been resolved by a ' .$role->name.' '.auth()->user()->first_name,
                             'duration' => 'persistent',
                             'icon' => 'heroicon-o-document-text',
                             'iconColor' => 'warning',
-                            'title' => 'Help Dest Complaint Resolution',
+                            'title' => 'Help Desk complaint status',
                             'view' => 'notifications::notification',
                             'viewData' => [],
                             'format' => 'filament'

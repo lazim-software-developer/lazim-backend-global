@@ -11,7 +11,6 @@ use Illuminate\Support\Facades\DB;
 
 class EditComplaintsenquiry extends EditRecord
 {
-    use UtilsTrait;
     protected static string $resource = ComplaintsenquiryResource::class;
 
     protected function getHeaderActions(): array
