@@ -58,7 +58,7 @@ class EditResidentialForm extends EditRecord
                         'sound' => 'default',
                         'title' => 'Residential form status',
                         'body' => 'Your Residential form has been approved.',
-                        'data' => ['notificationType' => 'app_notification'],
+                        'data' => ['notificationType' => 'MyRequest'],
                     ];
                     $this->expoNotification($message);
                     DB::table('notifications')->insert([
@@ -94,7 +94,7 @@ class EditResidentialForm extends EditRecord
                         'url' => 'MyRequest',
                         'title' => 'Residential form status',
                         'body' => 'Your Residential form has been rejected.',
-                        'data' => ['notificationType' => 'app_notification'],
+                        'data' => ['notificationType' => 'MyRequest'],
                     ];
                     $this->expoNotification($message);
                     DB::table('notifications')->insert([
