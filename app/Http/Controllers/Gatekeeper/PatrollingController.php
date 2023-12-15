@@ -22,4 +22,7 @@ class PatrollingController extends Controller
         return $floors = Building::find($buildingId)->floors()->orderBy('floors')->get();
 
     }
+
+    // Start patrolling API
+    
 }
