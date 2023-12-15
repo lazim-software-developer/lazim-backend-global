@@ -275,6 +275,7 @@ class AuthController extends Controller
         ]);
 
         $user->building_id = $building->first()->building_id;
+        $user->building_nam = $building->first()->building->name;
 
         return response()->json([
             'token' => $token,
