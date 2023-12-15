@@ -87,6 +87,10 @@ Route::middleware(['active'])->group(function () {
     // Route for Refreshing the token
     Route::post('/refresh-token', [AuthController::class, 'refreshToken']);
 
+    // Security login
+
+    Route::post('/gatekeeper-login', [AuthController::class, 'gateKeeperLogin']);
+
     // Forgot password route
     Route::post(
         '/forgot-password',
