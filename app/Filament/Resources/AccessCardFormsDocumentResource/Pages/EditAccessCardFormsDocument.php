@@ -54,7 +54,6 @@ class EditAccessCardFormsDocument extends EditRecord {
                     $message = [
                         'to' => $expoPushToken,
                         'sound' => 'default',
-                        'url' => 'MyRequest',
                         'title' => 'Access card form status',
                         'body' => 'Your Access card form has been approved.',
                         'data' => ['notificationType' => 'MyRequest'],

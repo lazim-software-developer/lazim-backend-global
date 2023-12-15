@@ -13,9 +13,10 @@ class MediaPolicy
      */
     public function viewAny(User $user): bool
     {
-        $role = $user->role;
+        // $role = $user->role;
 
-        return $role && $role->name == 'Admin';
+        // return $role && $role->name == 'Admin';
+        return true;
     }
 
     /**
@@ -23,9 +24,10 @@ class MediaPolicy
      */
     public function view(User $user, Media $media): bool
     {
-        $role = $user->role;
+        // $role = $user->role;
 
-        return $role && $role->name == 'Admin';
+        // return $role && $role->name == 'Admin';
+        return true;
     }
 
     /**
@@ -33,9 +35,10 @@ class MediaPolicy
      */
     public function create(User $user): bool
     {
-        $role = $user->role;
+        // $role = $user->role;
 
-        return $role && $role->name == 'Admin';
+        // return $role && $role->name == 'Admin';
+        return true;
     }
 
     /**

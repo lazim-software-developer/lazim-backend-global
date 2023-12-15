@@ -2,20 +2,21 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\OwnerAssociationResource\Pages;
-use App\Models\OwnerAssociation;
 use Closure;
-use Filament\Forms\Components\Component;
-use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Toggle;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Forms\Form;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Model;
+use App\Models\OwnerAssociation;
+use Filament\Resources\Resource;
 use Illuminate\Support\Facades\DB;
+use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Toggle;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Validation\Rules\Unique;
+use Filament\Forms\Components\Component;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\FileUpload;
+use App\Filament\Resources\OwnerAssociationResource\Pages;
 
 class OwnerAssociationResource extends Resource
 {
@@ -30,7 +31,7 @@ class OwnerAssociationResource extends Resource
             ->schema([
                 Grid::make([
                     'sm' => 1,
-                    'md' => 2,
+                    'md' => 1,
                     'lg' => 2,
                 ])->schema([
                     TextInput::make('name')
@@ -90,11 +91,11 @@ class OwnerAssociationResource extends Resource
                     TextInput::make('email')
                         ->rules(['min:6', 'max:30', 'regex:/^[a-z0-9.]+@[a-z]+\.[a-z]{2,}$/', function () {
                             return function (string $attribute, $value, Closure $fail) {
-                                if (DB::table('owner_associations')->where('email', $value)->where('verified', 1)->exists()) {
-                                    $fail('The email is already taken.');
+                                if (DB::table('owner_associations')->where('email', $value)->count() > 1) {
+                                    $fail('The email is already taken by a OA.');
                                 }
                                 if (DB::table('users')->where('email', $value)->exists()) {
-                                    $fail('The email is already taken.');
+                                    $fail('The email is already taken by a USER.');
                                 }
                             };
                         },])
@@ -117,13 +118,27 @@ class OwnerAssociationResource extends Resource
                             }
                         )
                         ->placeholder('Email'),
-                    Toggle::make('verified')
-                        ->rules(['boolean'])
+                    FileUpload::make('profile_photo')
+                        ->disk('s3')
+                        ->directory('dev')
+                        ->image()
+                        ->maxSize(2048)
+                        ->label('Profile Photo')
                         ->disabled(function (callable $get) {
                             return DB::table('owner_associations')
                                 ->where('phone', $get('phone'))
                                 ->where('verified', 1)
                                 ->exists();
+                        })
+                        ->columnSpan([
+                            'sm' => 1,
+                            'md' => 1,
+                            'lg' => 2,
+                        ]),
+                    Toggle::make('verified')
+                        ->rules(['boolean'])
+                        ->hidden(function ($record) {
+                            return $record->verified;
                         }),
                     Toggle::make('active')
                         ->label('Active')

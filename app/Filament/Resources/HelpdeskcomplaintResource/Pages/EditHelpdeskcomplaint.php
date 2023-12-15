@@ -37,7 +37,6 @@ class EditHelpdeskcomplaint extends EditRecord
                     $message = [
                         'to' => $expoPushToken,
                         'sound' => 'default',
-                        'url' => 'HelpDeskTab',
                         'title' => 'Help Desk complaint status',
                         'body' => 'A complaint has been resolved by a ' . $role->name . ' ' . auth()->user()->first_name,
                         'data' => ['notificationType' => 'HelpDeskTab'],
@@ -73,10 +72,9 @@ class EditHelpdeskcomplaint extends EditRecord
                     $message = [
                         'to' => $expoPushToken,
                         'sound' => 'default',
-                        // 'url' => 'HelpDeskTab',
                         'title' => 'New Complaint Assigned',
                         'body' => 'A new complaint <unique_id> assigned to you.',
-                        'data' => ['notificationType' => 'app_notification'],
+                        'data' => ['notificationType' => 'HelpDeskTab'],
                     ];
                     $this->expoNotification($message);
                     DB::table('notifications')->insert([

@@ -47,6 +47,13 @@ class ServiceResource extends Resource
                             ->placeholder('Name'),
                         Hidden::make('type')
                             ->default('inhouse'),
+                        TextInput::make('payment_link')
+                            ->placeholder('NA')
+                            ->url(),
+                        TextInput::make('price')
+                            ->prefix('AED')
+                            ->placeholder('NA')
+                            ->numeric(),
                         FileUpload::make('icon')
                             ->acceptedFileTypes(['image/jpeg', 'image/png'])
                             ->disk('s3')

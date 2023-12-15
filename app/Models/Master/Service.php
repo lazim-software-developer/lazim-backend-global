@@ -19,7 +19,7 @@ class Service extends Model
     use HasFactory;
     use Searchable;
 
-    protected $fillable = ['name','type', 'building_id','icon','active', 'subcategory_id','custom','owner_association_id', 'code'];
+    protected $fillable = ['name','type', 'building_id','icon','active', 'subcategory_id','custom','owner_association_id', 'code', 'price', 'payment_link'];
 
     protected $searchableFields = ['*'];
 
