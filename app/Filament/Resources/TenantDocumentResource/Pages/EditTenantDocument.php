@@ -74,6 +74,7 @@ class EditTenantDocument extends EditRecord
                     $message = [
                         'to' => $expoPushToken,
                         'sound' => 'default',
+                        'url'=> 'MyDocuments',
                         'title' => $this->record->name . ' Submission Status',
                         'body' => 'The document ' . $this->record->name . 'submitted by you has been ' . $this->record->status . ' by OA admin.',
                         'data' => ['notificationType' => 'app_notification'],

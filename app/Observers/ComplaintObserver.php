@@ -2,13 +2,16 @@
 
 namespace App\Observers;
 use App\Models\Building\Complaint;
+use App\Models\ExpoPushNotification;
 use App\Models\Master\Role;
 use App\Models\User\User;
+use App\Traits\UtilsTrait;
 use Filament\Notifications\Notification;
-
+use Illuminate\Support\Facades\DB;
 
 class ComplaintObserver
 {
+    use UtilsTrait;
     /**
      * Handle the Complaint "created" event.
      */
@@ -77,6 +80,42 @@ class ComplaintObserver
             ->iconColor('warning')
             ->body('Complaint has been resolved by  a '.$role->name. ' '.auth()->user()->first_name)
             ->sendToDatabase($notifyTo);
+        }
+
+        if ($complaint->technician_id != null) {
+            $expoPushTokens = ExpoPushNotification::where('user_id', $complaint->technician_id)->pluck('token');
+            if ($expoPushTokens->count() > 0) {
+                foreach ($expoPushTokens as $expoPushToken) {
+                    $message = [
+                        'to' => $expoPushToken,
+                        'sound' => 'default',
+                        // 'url' => 'HelpDeskTab',
+                        'title' => 'New Complaint Assigned',
+                        'body' => 'A new complaint <unique_id> assigned to you.',
+                        'data' => ['notificationType' => 'app_notification'],
+                    ];
+                    $this->expoNotification($message);
+                    DB::table('notifications')->insert([
+                        'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
+                        'type' => 'Filament\Notifications\DatabaseNotification',
+                        'notifiable_type' => 'App\Models\User\User',
+                        'notifiable_id' => $complaint->technician_id,
+                        'data' => json_encode([
+                            'actions' => [],
+                            'body' => 'A new complaint assigned to you.',
+                            'duration' => 'persistent',
+                            'icon' => 'heroicon-o-document-text',
+                            'iconColor' => 'warning',
+                            'title' => 'New Complaint Assigned',
+                            'view' => 'notifications::notification',
+                            'viewData' => [],
+                            'format' => 'filament'
+                        ]),
+                        'created_at' => now()->format('Y-m-d H:i:s'),
+                        'updated_at' => now()->format('Y-m-d H:i:s'),
+                    ]);
+                }
+            }
         }
 
 
