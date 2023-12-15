@@ -39,9 +39,8 @@ class EditTenantDocument extends EditRecord
                         'to' => $expoPushToken,
                         'sound' => 'default',
                         'title' => $this->record->name . ' Submission Status',
-                        'body' => 'Your Access card form has been approved.',
                         'body' => 'The document ' . $this->record->name . 'submitted by you has been ' . $this->record->status . ' by OA admin.',
-                        'data' => ['notificationType' => 'app_notification'],
+                        'data' => ['notificationType' => 'MyDocuments'],
                     ];
                     $this->expoNotification($message);
                     DB::table('notifications')->insert([
@@ -51,7 +50,7 @@ class EditTenantDocument extends EditRecord
                         'notifiable_id' => $this->record->documentable_id,
                         'data' => json_encode([
                             'actions' => [],
-                            'body' => 'Your Access card form has been approved. ',
+                            'body' => 'The document ' . $this->record->name . 'submitted by you has been ' . $this->record->status . ' by OA admin.',
                             'duration' => 'persistent',
                             'icon' => 'heroicon-o-document-text',
                             'iconColor' => 'warning',
@@ -74,10 +73,9 @@ class EditTenantDocument extends EditRecord
                     $message = [
                         'to' => $expoPushToken,
                         'sound' => 'default',
-                        'url'=> 'MyDocuments',
                         'title' => $this->record->name . ' Submission Status',
                         'body' => 'The document ' . $this->record->name . 'submitted by you has been ' . $this->record->status . ' by OA admin.',
-                        'data' => ['notificationType' => 'app_notification'],
+                        'data' => ['notificationType' => 'MyDocuments'],
                     ];
                     $this->expoNotification($message);
                     DB::table('notifications')->insert([

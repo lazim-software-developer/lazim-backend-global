@@ -25,12 +25,12 @@ class ComplaintStoreRequest extends FormRequest
             'category' => 'required_if:complaint_type,tenant_complaint,help_desk',
             'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'complaint' => 'required|min:5|max:150',
-            'complaint_type' => 'required|in:help_desk,tenant_complaint,suggestions,enquiries',
+            'complaint_type' => 'required|in:help_desk,tenant_complaint,suggestions,enquiries,snag',
             'complaint_details' => [
                 'required_if:complaint_type,tenant_complaint,suggestions,enquiries',
                 'string','max:1000','min:20'
             ],
-            'flat_id' => 'required'
+            'flat_id' => 'required_if:complaint_type,tenant_complaint,suggestions,enquiries,help_desk'
         ];
     }
 
