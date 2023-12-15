@@ -2,28 +2,36 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\AnnouncementResource\Pages;
-use App\Filament\Resources\AnnouncementResource\RelationManagers;
+use DateTime;
+use Carbon\Carbon;
+use Filament\Forms;
+use Filament\Tables;
+use Filament\Forms\Get;
+use Filament\Forms\Set;
+use Filament\Forms\Form;
+use Filament\Tables\Table;
+use Illuminate\Support\Str;
 use App\Models\Announcement;
 use App\Models\Community\Post;
-use Filament\Forms;
-use Filament\Forms\Components\DateTimePicker;
-use Filament\Forms\Components\FileUpload;
+use Filament\Resources\Resource;
+use App\Models\Building\Building;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
-use Filament\Tables;
+use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Textarea;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\RichEditor;
 use Filament\Tables\Filters\SelectFilter;
-use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\MarkdownEditor;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Filament\Resources\AnnouncementResource\Pages;
+use App\Filament\Resources\AnnouncementResource\RelationManagers;
 
 class AnnouncementResource extends Resource
 {
@@ -39,106 +47,103 @@ class AnnouncementResource extends Resource
                 'sm' => 1,
                 'md' => 1,
                 'lg' => 2,
-                ])->schema([
-                    Textarea::make('content')
-                        ->autosize()
-                        ->minLength(10)
-                        ->maxLength(255)
-                        ->required()
-                        ->columnSpan([
-                            'sm' => 1,
-                            'md' => 1,
-                            'lg' => 2,
-                        ]),
-                
-                    Select::make('status')
-                        ->searchable()
-                        ->options([
-                            'published' => 'Published',
-                            'draft' => 'Draft',
-                            'archived' => 'Archived',
-                        ])
-                        ->required()
-                        ->default('draft'),
-                
-                    DateTimePicker::make('scheduled_at')
-                        ->rules(['date'])
-                        ->displayFormat('d-M-Y h:i A')
-                        ->minDate(now())
-                        ->required()
-                        ->placeholder('Scheduled At'),
+            ])->schema([
+                        MarkdownEditor::make('content')
+                            ->toolbarButtons([
+                                'bold',
+                                'bulletList',
+                                'italic',
+                                'link',
+                                'orderedList',
+                                'redo',
+                                'undo',
+                            ])
+                            ->required()
+                            ->live()
+                            ->columnSpan([
+                                'sm' => 1,
+                                'md' => 1,
+                                'lg' => 2,
+                            ]),
 
-                    Select::make('building_id')
-                        ->relationship('building', 'name')
-                        ->searchable()
-                        ->preload()
-                        ->required()
-                        ->columnSpan([
-                            'sm' => 1,
-                            'md' => 1,
-                            'lg' => 2,
-                        ]), 
-                    
-                    Hidden::make('user_id')
-                        ->default(auth()->user()->id), 
+                        Select::make('status')
+                            ->searchable()
+                            ->options([
+                                'published' => 'Published',
+                                'draft' => 'Draft',
+                            ])
+                            ->reactive()
+                            ->live()
+                            // ->afterStateUpdated(function (Set $set, Get $get) {
+                            //     $set('scheduled_at',Carbon::now()->addDay());
+                            //     // dd($get('scheduled_at'));
+                            // })
+                            ->default('published')
+                            ->required(),
 
-                    Hidden::make('is_announcement')
-                        ->default(true),
-                        
-                    Repeater::make('media')
-                        ->relationship('media')
-                        ->schema([
-                            TextInput::make('name')
-                                ->rules(['max:30','regex:/^[a-zA-Z\s]*$/'])
-                                ->required()
-                                ->placeholder('Name'),
-                            FileUpload::make('url')
-                                ->disk('s3')
-                                ->directory('dev')
-                                ->image()
-                                ->required()
-                                
-                        ])
-                        ->columnSpan([
-                            'sm' => 1,
-                            'md' => 1,
-                            'lg' => 2,
-                        ])
-                ])
-            ]);
+                        DateTimePicker::make('scheduled_at')
+                            ->rules(['date'])
+                            ->displayFormat('d-M-Y h:i A')
+                            // ->default(fn (Get $get) => $get('status') == null ? now() : dd($get('status')))
+                            ->minDate(now())
+                            ->live()
+                            ->required()
+                            ->default(now())
+                            ->placeholder('Scheduled At'),
+
+                        Select::make('building_id')
+                            ->relationship('building', 'name')
+                            ->options(function () {
+                                return Building::where('owner_association_id', auth()->user()->owner_association_id)->pluck('name', 'id');
+                            })
+                            ->searchable()
+                            ->multiple()
+                            ->preload()
+                            ->required(),
+
+                        Hidden::make('user_id')
+                            ->default(auth()->user()->id),
+
+                        Hidden::make('owner_association_id')
+                            ->default(auth()->user()->owner_association_id),
+
+                        Hidden::make('is_announcement')
+                            ->default(true),
+                    ])
+        ]);
     }
 
     public static function table(Table $table): Table
     {
         return $table
-        ->columns([
-            TextColumn::make('content')
-                ->toggleable()
-                ->limit(50),
-            TextColumn::make('status')
-                ->toggleable()
-                ->limit(50),
-            TextColumn::make('scheduled_at')
-                ->toggleable()
-                ->dateTime(),
-            TextColumn::make('building.name')
-                ->toggleable()
-                ->searchable()
-                ->limit(50),
-            TextColumn::make('user.first_name')
-                ->toggleable()
-                ->searchable()
-                ->limit(50),
-        ])
+            ->columns([
+                TextColumn::make('status')
+                    ->searchable()
+                    ->default('NA')
+                    ->limit(50),
+                TextColumn::make('scheduled_at')
+                    ->dateTime(),
+                TextColumn::make('building.name')
+                    ->searchable()
+                    ->default('NA')
+                    ->limit(50),
+                TextColumn::make('user.first_name')
+                    ->searchable()
+                    ->default('NA')
+                    ->limit(50),
+            ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 SelectFilter::make('user_id')
                     ->relationship('user', 'first_name')
                     ->searchable()
-                    ->preload(),
+                    ->preload()
+                    ->label('User'),
                 SelectFilter::make('building_id')
                     ->relationship('building', 'name')
                     ->searchable()
-                    ->preload(),
+                    ->preload()
+                    ->label('Building'),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
@@ -152,14 +157,14 @@ class AnnouncementResource extends Resource
                 Tables\Actions\CreateAction::make(),
             ]);
     }
-    
+
     public static function getRelations(): array
     {
         return [
             //
         ];
     }
-    
+
     public static function getPages(): array
     {
         return [
@@ -167,5 +172,5 @@ class AnnouncementResource extends Resource
             'create' => Pages\CreateAnnouncement::route('/create'),
             'edit' => Pages\EditAnnouncement::route('/{record}/edit'),
         ];
-    }    
+    }
 }

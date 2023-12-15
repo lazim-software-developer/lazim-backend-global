@@ -26,7 +26,7 @@ class TenantcomplaintResource extends Resource
     protected static ?string $navigationIcon  = 'heroicon-o-rectangle-stack';
     protected static ?string $navigationLabel = 'Complaints';
     protected static ?string $navigationGroup = 'Flat Management';
-
+    protected static bool $shouldRegisterNavigation = false;
     public static function form(Form $form): Form
     {
         return $form
@@ -107,6 +107,7 @@ class TenantcomplaintResource extends Resource
                     ->searchable(true, null, true)
                     ->limit(50),
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])

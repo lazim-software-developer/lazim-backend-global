@@ -12,12 +12,12 @@ class ListComplaintssuggessions extends ListRecords
     protected static string $resource = ComplaintssuggessionResource::class;
     protected function getTableQuery(): Builder
     {
-        return parent::getTableQuery()->where('complaint_type', 'suggestions');
+        return parent::getTableQuery()->where('complaint_type', 'suggestions')->where('owner_association_id',auth()->user()->owner_association_id);
     }
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make(),
+            // Actions\CreateAction::make(),
         ];
     }
 }

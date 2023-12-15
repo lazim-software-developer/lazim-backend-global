@@ -15,19 +15,13 @@ class FacilityPolicy
      */
     public function viewAny(User $user): bool
     {
-        $role = $user->role->name == 'Admin';
-
-        if($role)
-        {
-            return false;
-        }
         return true;
     }
 
     /**
      * Determine whether the facility can view the model.
      */
-    public function view(User $user, Facility $model): bool
+    public function view(User $user): bool
     {
         return true;
     }

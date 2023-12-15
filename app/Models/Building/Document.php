@@ -5,6 +5,7 @@ use App\Models\User\User;
 use App\Models\Building\Building;
 use App\Models\Scopes\Searchable;
 use App\Models\Master\DocumentLibrary;
+use App\Models\Media;
 use App\Models\OaUserRegistration;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -19,11 +20,15 @@ class Document extends Model
         'owner_association_id',
         'url',
         'status',
+        'remarks',
         'comments',
         'expiry_date',
         'accepted_by',
         'documentable_id',
         'documentable_type',
+        'name',
+        'building_id',
+        'flat_id',
     ];
 
     protected $searchableFields = ['*'];
@@ -42,9 +47,17 @@ class Document extends Model
     {
         return $this->belongsTo(User::class, 'accepted_by');
     }
+    public function documentUsers()
+    {
+        return $this->belongsTo(User::class, 'documentable_id');
+    }
     public function building()
     {
         return $this->belongsTo(Building::class);
+    }
+    public function flat()
+    {
+        return $this->belongsTo(Flat::class);
     }
     public function documentable()
     {
@@ -53,5 +66,9 @@ class Document extends Model
     public function oaUserRegistration()
     {
         return $this->belongsTo(OaUserRegistration::class);
+    }
+    public function media()
+    {
+        return $this->morphMany(Media::class, 'mediaable');
     }
 }

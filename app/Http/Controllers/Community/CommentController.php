@@ -9,9 +9,12 @@ use App\Http\Resources\CustomResponseResource;
 use App\Models\Building\Complaint;
 use App\Models\Community\Comment;
 use App\Models\Community\Post;
+use App\Models\ExpoPushNotification;
+use App\Traits\UtilsTrait;
 
 class CommentController extends Controller
 {
+    use UtilsTrait;
     // List all comments for a post in community
     public function index(Post $post)
     {
@@ -33,7 +36,7 @@ class CommentController extends Controller
         return (new CustomResponseResource([
             'title' => 'Success',
             'message' => "Comment added successfully",
-            'errorCode' => 201,
+            'code' => 201,
             'status' => 'success',
             'data' => new CommentResource($comment)
         ]))->response()->setStatusCode(201);
@@ -52,7 +55,7 @@ class CommentController extends Controller
         return (new CustomResponseResource([
             'title' => 'Success',
             'message' => "Comment added successfully",
-            'errorCode' => 201,
+            'code' => 201,
             'status' => 'success',
             'data' => new CommentResource($comment)
         ]))->response()->setStatusCode(201);
@@ -61,7 +64,7 @@ class CommentController extends Controller
     // List all comments for a given complaint
     public function listComplaintComments(Complaint $complaint)
     {
-        $comments = $complaint->comments()->latest()->get();
+        $comments = $complaint->comments()->orderBy('id', 'desc')->get();
 
         return CommentResource::collection($comments);
     }

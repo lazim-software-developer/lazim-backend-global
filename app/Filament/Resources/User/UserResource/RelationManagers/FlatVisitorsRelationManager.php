@@ -29,7 +29,7 @@ class FlatVisitorsRelationManager extends RelationManager
                         ->rules(['exists:flats,id'])
                         ->relationship('flat', 'description')
                         ->searchable()
-                        ->placeholder('Flat')
+                        ->label('Unit Number')
                         ->columnSpan([
                             'default' => 12,
                             'md' => 12,
