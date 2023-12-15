@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\MollakTenantResource\Pages;
 
 use Filament\Actions;
+use App\Models\Master\Role;
 use Filament\Actions\Action;
 use App\Imports\MyClientImport;
 use App\Models\Building\Building;
@@ -13,6 +14,7 @@ use App\Imports\CoolingAccountImport;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\FileUpload;
 use Filament\Resources\Pages\ListRecords;
+use Illuminate\Database\Eloquent\Builder;
 use EightyNine\ExcelImport\ExcelImportAction;
 use App\Filament\Resources\MollakTenantResource;
 
@@ -32,6 +34,14 @@ class ListMollakTenants extends ListRecords
     //         ->use(MyClientImport::class),
     //     ];
     // }
+    protected function getTableQuery(): Builder
+    {
+        if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') 
+        {
+            return parent::getTableQuery();
+        }
+        return parent::getTableQuery()->whereIn('building_id',Building::where('owner_association_id',auth()->user()->owner_association_id)->pluck('id'));
+    }
     protected function getHeaderActions(): array
     {
         return [

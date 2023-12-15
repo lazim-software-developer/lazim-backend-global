@@ -54,7 +54,8 @@ class Building extends Model
         'floors',
         'owner_association_id',
         'allow_postupload',
-        'slug'
+        'slug',
+        'cover_photo'
     ];
 
     protected $casts = [
