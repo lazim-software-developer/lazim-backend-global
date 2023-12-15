@@ -20,19 +20,27 @@ class EditBuilding extends EditRecord
     }
     public function afterSave()
     {
-        if ($this->record->floors != null) {
-            // Build an object with the required properties
-            $qrCodeContent = [
-                'floors' => $this->record->floors,
-                'building_id' => $this->record->id,
-            ];
-            // Generate a QR code using the QrCode library
-            $qrCode = QrCode::size(200)->generate(json_encode($qrCodeContent));
-            Floor::create([
-                'floors' => $this->record->floors,
-                'building_id' => $this->record->id,
-                'qr_code' => $qrCode,
-            ]);
+        if ($this->record->floors != null) 
+        {
+            $countfloor = $this->record->floors;
+            while ($countfloor > 0) 
+            {
+                // Build an object with the required properties
+                $qrCodeContent = [
+                    'floors' => $countfloor,
+                    'building_id' => $this->record->id,
+                ];
+                // Generate a QR code using the QrCode library
+                $qrCode = QrCode::size(200)->generate(json_encode($qrCodeContent));
+                Floor::create([
+                    'floors' => $countfloor,
+                    'building_id' => $this->record->id,
+                    'qr_code' => $qrCode,
+                ]);
+                $countfloor = $countfloor - 1;
+            }
+
+
         }
     }
 }
