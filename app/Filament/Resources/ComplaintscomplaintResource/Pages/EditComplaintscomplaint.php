@@ -26,6 +26,7 @@ class EditComplaintscomplaint extends EditRecord
     {
         $role = Role::where('id', auth()->user()->role_id)->first();
         if ($this->record->technician_id != null) {
+            dd($this->record->technician_id);
             $expoPushTokens = ExpoPushNotification::where('user_id', $this->record->technician_id)->pluck('token');
             if ($expoPushTokens->count() > 0) {
                 foreach ($expoPushTokens as $expoPushToken) {
@@ -33,7 +34,7 @@ class EditComplaintscomplaint extends EditRecord
                         'to' => $expoPushToken,
                         'sound' => 'default',
                         'title' => 'New Complaint Assigned',
-                        'body' =>'A new complaint <unique_id> assigned to you.',
+                        'body' =>'A new complaint assigned to you.',
                         'data' => ['notificationType' => 'app_notification'],
                     ];
                     $this->expoNotification($message);
