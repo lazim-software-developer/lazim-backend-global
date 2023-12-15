@@ -24,6 +24,7 @@ use Filament\Notifications\Notification;
 use EightyNine\ExcelImport\ExcelImportAction;
 use App\Filament\Resources\Building\BuildingResource\Pages;
 use App\Filament\Resources\Building\BuildingResource\RelationManagers;
+use App\Filament\Resources\Building\BuildingResource\RelationManagers\FloorsRelationManager;
 use Filament\Forms\Components\FileUpload;
 
 class BuildingResource extends Resource
@@ -243,6 +244,7 @@ class BuildingResource extends Resource
             BuildingResource\RelationManagers\ServiceBookingsRelationManager::class,
                 // BuildingResource\RelationManagers\BudgetRelationManager::class,
             BuildingResource\RelationManagers\BuildingPocsRelationManager::class,
+            FloorsRelationManager::class,
             BuildingResource\RelationManagers\ComplaintRelationManager::class,
             BuildingResource\RelationManagers\ServicesRelationManager::class,
             BuildingResource\RelationManagers\ServiceRelationManager::class,
