@@ -2,10 +2,11 @@
 
 namespace App\Filament\Pages\Auth;
 
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
-use Filament\Pages\Auth\EditProfile as BaseEditProfile;
 use Illuminate\Database\Eloquent\Model;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\FileUpload;
+use Filament\Pages\Auth\EditProfile as BaseEditProfile;
 
 class EditProfile extends BaseEditProfile
 {
@@ -41,6 +42,12 @@ class EditProfile extends BaseEditProfile
                         fn(?Model $record) => $record
                     )
                     ->placeholder('Phone'),
+                FileUpload::make('profile_photo')
+                    ->disk('s3')
+                    ->directory('dev')
+                    ->image()
+                    ->maxSize(2048)
+                    ->label('Profile Photo'),
                 //$this->getNameFormComponent(),
                 //$this->getEmailFormComponent(),
                 $this->getPasswordFormComponent(),

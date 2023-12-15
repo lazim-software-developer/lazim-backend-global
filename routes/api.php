@@ -33,6 +33,8 @@ use App\Http\Controllers\Forms\MoveInOutController;
 use App\Http\Controllers\Forms\GuestController;
 use App\Http\Controllers\Forms\ResidentialFormController;
 use App\Http\Controllers\Forms\SaleNocController;
+use App\Http\Controllers\Gatekeeper\ComplaintController as GatekeeperComplaintController;
+use App\Http\Controllers\Gatekeeper\PatrollingController;
 use App\Http\Controllers\HelpDesk\ComplaintController;
 use App\Http\Controllers\Notifications\NotificationController;
 use App\Http\Controllers\Security\SecurityController;
@@ -86,6 +88,10 @@ Route::middleware(['active'])->group(function () {
 
     // Route for Refreshing the token
     Route::post('/refresh-token', [AuthController::class, 'refreshToken']);
+
+    // Security login
+
+    Route::post('/gatekeeper-login', [AuthController::class, 'gateKeeperLogin']);
 
     // Forgot password route
     Route::post(
@@ -415,6 +421,13 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('assets')->group(function 
     Route::post('/create/ppm', [PPMController::class, 'store']);
     Route::get('/{vendor}/ppm/', [PPMController::class, 'index']);
 });
+
+Route::middleware(['auth:sanctum', 'active', 'active.gatekeeper'])->prefix('gatekeeper')->group(function () {
+    Route::get('snags', [GatekeeperComplaintController::class, 'index']);
+    
+    Route::get('floors', [PatrollingController::class, 'featchAllFloors']);
+});
+
 // API to import services
 Route::post('/import-services', [ServiceController::class, 'import']);
 
