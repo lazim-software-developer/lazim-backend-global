@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use App\Models\Gatekeeper\Patrolling;
 use Carbon\Carbon;
 use App\Models\Floor;
+use App\Http\Resources\GateKeeper\FloorResource;
 
 class PatrollingController extends Controller
 {
@@ -21,9 +22,12 @@ class PatrollingController extends Controller
             'active' => 1
         ])->value('building_id');
 
-        // Fetch floors
-        return $floors = Building::find($buildingId)->floors()->orderBy('floors')->get();
+        $today = Carbon::today();
 
+        // Fetch floors
+        $floors = Patrolling::where(['building_id' => $buildingId])->whereDate('created_at', $today)->get();
+        
+        return FloorResource::collection($floors);
     }
 
     // Start patrolling API
