@@ -131,41 +131,7 @@ class FacilityBookingsRelationManager extends RelationManager
                 Tables\Actions\CreateAction::make(),
             ])
             ->actions([
-                Tables\Actions\EditAction::make()
-                ->after(function (RelationManager $livewire) {
-                    $user = FacilityBooking::where('id',$livewire->ownerRecord->id)->first();
-                    if ($user->approved == 1) {
-                        $expoPushTokens = ExpoPushNotification::where('user_id', $user->user_id)->pluck('token');
-                        if ($expoPushTokens->count() > 0) {
-                            foreach ($expoPushTokens as $expoPushToken) {
-                                $message = [
-                                    'to' => $expoPushToken,
-                                    'sound' => 'default',
-                                    'title' => 'Facility Booking Updated!',
-                                    'body' => auth()->user()->first_name . ' approved your Facility Booking form.',
-                                    'data' => ['notificationType' => 'app_notification'],
-                                ];
-                                $this->expoNotification($message);
-                            }
-                        }
-                    }
-
-                    if ($user->approved == 0) {
-                        $expoPushTokens = ExpoPushNotification::where('user_id', $user->user_id)->pluck('token');
-                        if ($expoPushTokens->count() > 0) {
-                            foreach ($expoPushTokens as $expoPushToken) {
-                                $message = [
-                                    'to' => $expoPushToken,
-                                    'sound' => 'default',
-                                    'title' => 'Facility Booking Updated!',
-                                    'body' => auth()->user()->first_name . ' rejected your Facility Booking form.',
-                                    'data' => ['notificationType' => 'app_notification'],
-                                ];
-                                $this->expoNotification($message);
-                            }
-                        }
-                    }
-                }),
+                Tables\Actions\EditAction::make(),
             ]);
     }
 }

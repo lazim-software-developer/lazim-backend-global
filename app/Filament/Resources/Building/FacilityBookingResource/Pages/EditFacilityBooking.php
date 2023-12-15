@@ -36,10 +36,9 @@ class EditFacilityBooking extends EditRecord
                     $message = [
                         'to' => $expoPushToken,
                         'sound' => 'default',
-                        'url' => 'MyBookings',
                         'title' => $facilityName->name.' Booking Status.',
                         'body' => 'Your facility booking request for '.$facilityName->name. 'is approved',
-                        'data' => ['notificationType' => 'app_notification'],
+                        'data' => ['notificationType' => 'MyBookingsFacility'],
                     ];
                     $this->expoNotification($message);
                     DB::table('notifications')->insert([
@@ -74,7 +73,7 @@ class EditFacilityBooking extends EditRecord
                         'sound' => 'default',
                         'title' =>  $facilityName->name.' Booking Status.',
                         'body' => 'Your facility booking request for '.$facilityName->name. 'is rejected',
-                        'data' => ['notificationType' => 'app_notification'],
+                        'data' => ['notificationType' => 'MyBookingsFacility'],
                     ];
                     $this->expoNotification($message);
                     DB::table('notifications')->insert([
@@ -87,7 +86,7 @@ class EditFacilityBooking extends EditRecord
                             'body' => 'Your facility booking request for '.$facilityName->name. 'is rejected',
                             'duration' => 'persistent',
                             'icon' => 'heroicon-o-document-text',
-                            'iconColor' => 'warning',
+                            'iconColor' => 'danger',
                             'title' =>  $facilityName->name.' Booking Status.',
                             'view' => 'notifications::notification',
                             'viewData' => [],
