@@ -89,9 +89,8 @@ class ComplaintObserver
                     $message = [
                         'to' => $expoPushToken,
                         'sound' => 'default',
-                        // 'url' => 'HelpDeskTab',
                         'title' => 'New Complaint Assigned',
-                        'body' => 'A new complaint <unique_id> assigned to you.',
+                        'body' => 'A new complaint assigned to you.',
                         'data' => ['notificationType' => 'app_notification'],
                     ];
                     $this->expoNotification($message);

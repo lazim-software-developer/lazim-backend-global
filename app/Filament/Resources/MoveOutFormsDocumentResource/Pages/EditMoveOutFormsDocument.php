@@ -68,7 +68,6 @@ class EditMoveOutFormsDocument extends EditRecord
                     $message = [
                         'to' => $expoPushToken,
                         'sound' => 'default',
-                        'url' => 'MyRequest',
                         'title' => 'MoveOut form status',
                         'body' => 'Your MoveOut form has been rejected.',
                         'data' => ['notificationType' => 'MyRequest'],

@@ -69,7 +69,6 @@ class EditNocForm extends EditRecord
                     $message = [
                         'to' => $expoPushToken,
                         'sound' => 'default',
-                        'url' => 'MyRequest',
                         'title' => 'Sales NOC form status',
                         'body' => 'Your Sales NOC form has been rejected.',
                         'data' => ['notificationType' => 'MyRequest'],
