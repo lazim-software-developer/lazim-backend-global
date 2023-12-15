@@ -68,5 +68,6 @@ class Kernel extends HttpKernel
         'api.token' => \App\Http\Middleware\Custom\CheckApiToken::class,
         'email.verified' => \App\Http\Middleware\Custom\CheckEmailVerified::class,
         'phone.verified' => \App\Http\Middleware\Custom\CheckPhoneVerified::class,
+        'active.gatekeeper' => \App\Http\Middleware\Custom\CheckActiveGateKeeper::class,
     ];
 }
