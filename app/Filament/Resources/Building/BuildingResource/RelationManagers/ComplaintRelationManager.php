@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Building\BuildingResource\RelationManagers;
 
+use Closure;
 use Filament\Forms;
 use Filament\Tables;
 use Filament\Forms\Get;
@@ -97,10 +98,17 @@ class ComplaintRelationManager extends RelationManager
                             ->searchable()
                             ->label('Technician Name'),
                         TextInput::make('priority')
-                            ->rules(['regex:/^[1-3]$/'])
+                            ->rules([function () {
+                                return function (string $attribute, $value, Closure $fail) {
+                                    if ($value < 1 || $value > 3) {
+                                        $fail('The priority field accepts 1, 2 and 3 only.');
+                                    }
+                                };
+                            },
+                            ])
                             ->numeric(),
                         DatePicker::make('due_date')
-                            ->minDate(now())
+                            ->minDate(now()->format('Y-m-d'))
                             ->rules(['date'])
                             ->placeholder('Due Date'),
                         Repeater::make('media')

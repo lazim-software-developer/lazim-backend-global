@@ -30,7 +30,6 @@ class AssetResource extends Resource
     protected static ?string $model = Asset::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-    protected static ?string $navigationLabel = 'Facility Bookings';
     protected static ?string $navigationGroup = 'Vendor Management';
 
     public static function form(Form $form): Form
@@ -98,6 +97,7 @@ class AssetResource extends Resource
                 TextColumn::make('service.name')->searchable()->label('Service'),
                 TextColumn::make('building.name')->searchable()->label('Building Name'),
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])

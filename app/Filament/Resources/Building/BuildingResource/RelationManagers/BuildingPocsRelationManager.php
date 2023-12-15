@@ -176,6 +176,8 @@ class BuildingPocsRelationManager extends RelationManager
                             'active' => $data['active'],
                             'role_id' => 12,
                             'owner_association_id' => auth()->user()->owner_association_id,
+                            'email_verified' => 1,
+                            'phone_verified' => 1
 
                         ]);
 
