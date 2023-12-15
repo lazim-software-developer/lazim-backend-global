@@ -17,6 +17,7 @@ use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Building\FacilityBooking;
 use App\Models\ExpoPushNotification;
+use App\Models\Master\Service;
 use App\Traits\UtilsTrait;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\TimePicker;
@@ -99,7 +100,7 @@ class ServiceBookingsRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn(Builder $query) => $query->where('bookable_type', 'App\Models\Master\Service')->withoutGlobalScopes())
+            ->modifyQueryUsing(fn (Builder $query) => $query->where('bookable_type', 'App\Models\Master\Service')->withoutGlobalScopes())
             ->columns([
                 TextColumn::make('bookable.name')
                     ->searchable()
@@ -137,37 +138,79 @@ class ServiceBookingsRelationManager extends RelationManager
                 Tables\Actions\EditAction::make()
                     ->after(function (RelationManager $livewire) {
                         $user = FacilityBooking::where('id', $livewire->ownerRecord->id)->first();
-                        if ($user->approved == 1) {
-                            $expoPushTokens = ExpoPushNotification::where('user_id', $user->user_id)->pluck('token');
-                            if ($expoPushTokens->count() > 0) {
-                                foreach ($expoPushTokens as $expoPushToken) {
-                                    $message = [
-                                        'to' => $expoPushToken,
-                                        'sound' => 'default',
-                                        'title' => 'Service Booking Updated!',
-                                        'body' => auth()->user()->first_name . ' approved your Service Booking form.',
-                                        'data' => ['notificationType' => 'app_notification'],
-                                    ];
-                                    $this->expoNotification($message);
+                        $serviceName = Service::where('id', $user->bookable_id)->first();
+                        if($user->approved != null){
+                            if ($user->approved == 1) {
+                                $expoPushTokens = ExpoPushNotification::where('user_id', $user->user_id)->pluck('token');
+                                if ($expoPushTokens->count() > 0) {
+                                    foreach ($expoPushTokens as $expoPushToken) {
+                                        $message = [
+                                            'to' => $expoPushToken,
+                                            'sound' => 'default',
+                                            'title' => $serviceName->name . ' Booking Status.',
+                                            'body' => 'Your service booking request for ' . $serviceName->name . 'is approved',
+                                            'data' => ['notificationType' => 'MyBookingsService'],
+                                        ];
+                                        $this->expoNotification($message);
+                                        DB::table('notifications')->insert([
+                                            'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
+                                            'type' => 'Filament\Notifications\DatabaseNotification',
+                                            'notifiable_type' => 'App\Models\User\User',
+                                            'notifiable_id' => $user->user_id,
+                                            'data' => json_encode([
+                                                'actions' => [],
+                                                'body' => 'Your service booking request for ' . $serviceName->name . 'is approved',
+                                                'duration' => 'persistent',
+                                                'icon' => 'heroicon-o-document-text',
+                                                'iconColor' => 'warning',
+                                                'title' => 'service booking form Updated!',
+                                                'view' => 'notifications::notification',
+                                                'viewData' => [],
+                                                'format' => 'filament'
+                                            ]),
+                                            'created_at' => now()->format('Y-m-d H:i:s'),
+                                            'updated_at' => now()->format('Y-m-d H:i:s'),
+                                        ]);
+                                    }
+                                }
+                            }
+
+                            if ($user->approved == 0) {
+                                $expoPushTokens = ExpoPushNotification::where('user_id', $user->user_id)->pluck('token');
+                                if ($expoPushTokens->count() > 0) {
+                                    foreach ($expoPushTokens as $expoPushToken) {
+                                        $message = [
+                                            'to' => $expoPushToken,
+                                            'sound' => 'default',
+                                            'title' => $serviceName->name . ' Booking Status.',
+                                            'body' => 'Your service booking request for ' . $serviceName->name . 'is rejected',
+                                            'data' => ['notificationType' => 'MyBookingsService'],
+                                        ];
+                                        $this->expoNotification($message);
+                                        DB::table('notifications')->insert([
+                                            'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
+                                            'type' => 'Filament\Notifications\DatabaseNotification',
+                                            'notifiable_type' => 'App\Models\User\User',
+                                            'notifiable_id' => $user->user_id,
+                                            'data' => json_encode([
+                                                'actions' => [],
+                                                'body' => 'Your service booking request for ' . $serviceName->name . 'is rejected',
+                                                'duration' => 'persistent',
+                                                'icon' => 'heroicon-o-document-text',
+                                                'iconColor' => 'danger',
+                                                'title' => $serviceName->name . ' Booking Status.',
+                                                'view' => 'notifications::notification',
+                                                'viewData' => [],
+                                                'format' => 'filament'
+                                            ]),
+                                            'created_at' => now()->format('Y-m-d H:i:s'),
+                                            'updated_at' => now()->format('Y-m-d H:i:s'),
+                                        ]);
+                                    }
                                 }
                             }
                         }
 
-                        if ($user->approved == 0) {
-                            $expoPushTokens = ExpoPushNotification::where('user_id', $user->user_id)->pluck('token');
-                            if ($expoPushTokens->count() > 0) {
-                                foreach ($expoPushTokens as $expoPushToken) {
-                                    $message = [
-                                        'to' => $expoPushToken,
-                                        'sound' => 'default',
-                                        'title' => 'Service Booking Updated!',
-                                        'body' => auth()->user()->first_name . ' rejected your Service Booking form.',
-                                        'data' => ['notificationType' => 'app_notification'],
-                                    ];
-                                    $this->expoNotification($message);
-                                }
-                            }
-                        }
                     }),
             ]);
     }

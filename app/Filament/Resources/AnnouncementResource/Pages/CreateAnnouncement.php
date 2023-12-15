@@ -31,7 +31,7 @@ class CreateAnnouncement extends CreateRecord
                     'url' => 'ComunityPostTab',
                     'title' => 'New Announcement!',
                     'body' =>  $this->record->content,
-                    'data' => ['notificationType' => 'app_notification'],
+                    'data' => ['notificationType' => 'ComunityPostTabNotice'],
                 ];
                 $this->expoNotification($message);
                 DB::table('notifications')->insert([
