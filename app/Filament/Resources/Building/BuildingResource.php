@@ -24,6 +24,7 @@ use Filament\Notifications\Notification;
 use EightyNine\ExcelImport\ExcelImportAction;
 use App\Filament\Resources\Building\BuildingResource\Pages;
 use App\Filament\Resources\Building\BuildingResource\RelationManagers;
+use Filament\Forms\Components\FileUpload;
 
 class BuildingResource extends Resource
 {
@@ -54,12 +55,6 @@ class BuildingResource extends Resource
                                     'buildings',
                                     'property_group_id',
                                     fn(?Model $record) => $record,
-                                    modifyRuleUsing: function (Unique $rule, callable $get, ?Model $record) {
-                                        if (Building::where('property_group_id', $record->property_group_id)->exists()) {
-                                            return $rule->whereNot('name', $get('name'));
-                                        }
-                                        return $rule->where('name', $get('name'));
-                                    }
                                 ),
 
                             TextInput::make('address_line1')
@@ -85,6 +80,23 @@ class BuildingResource extends Resource
                                 ->relationship('cities', 'name')
                                 ->searchable()
                                 ->placeholder('NA'),
+                            FileUpload::make('cover_photo')
+                                ->disk('s3')
+                                ->directory('dev')
+                                ->image()
+                                ->maxSize(2048)
+                                ->label('Cover Photo'),
+                            TextInput::make('floors')
+                                ->numeric()
+                                ->disabled(function ($record) {
+                                    if($record->floors == null){
+                                        return false;
+                                    }
+                                    return true;
+                                })
+                                ->placeholder('Floors')
+                                ->label('Floor'),
+
                             Toggle::make('allow_postupload')
                                 ->rules(['boolean']),
 
@@ -99,12 +111,6 @@ class BuildingResource extends Resource
                             // TextInput::make('description')
                             //     ->rules(['max:255', 'string'])
                             //     ->placeholder('Description'),
-
-                            // TextInput::make('floors')
-                            //     ->rules(['numeric'])
-                            //     ->required()
-                            //     ->numeric()
-                            //     ->placeholder('Floors')
 
                         ]),
             ]);
@@ -199,17 +205,17 @@ class BuildingResource extends Resource
                     ])
                     ->action(function ($record, array $data, $livewire) {
                         // try {
-                            $budgetPeriod = $data['budget_period'];
-                            $filePath = $data['excel_file'];
-                            $fullPath = storage_path('app/' . $filePath);
-                            Log::info("Full path: ", [$fullPath]);
+                        $budgetPeriod = $data['budget_period'];
+                        $filePath = $data['excel_file'];
+                        $fullPath = storage_path('app/' . $filePath);
+                        Log::info("Full path: ", [$fullPath]);
 
-                            if (!file_exists($fullPath)) {
-                                Log::error("File not found at path: ", [$fullPath]);
-                            }
+                        if (!file_exists($fullPath)) {
+                            Log::error("File not found at path: ", [$fullPath]);
+                        }
 
-                            // Now import using the file path
-                            Excel::import(new BudgetImport($budgetPeriod, $record->id), $fullPath); // Notify user of success
+                        // Now import using the file path
+                        Excel::import(new BudgetImport($budgetPeriod, $record->id), $fullPath); // Notify user of success
             
                         // } catch (\Exception $e) {
                         //     // Log::error('Error during file import: ' . $e->getMessage());
@@ -221,13 +227,13 @@ class BuildingResource extends Resource
                     }),
             ])
             ->bulkActions([
-                    Tables\Actions\BulkActionGroup::make([
-                        Tables\Actions\DeleteBulkAction::make(),
-                    ]),
-                ])
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\DeleteBulkAction::make(),
+                ]),
+            ])
             ->emptyStateActions([
-                    Tables\Actions\CreateAction::make(),
-                ]);
+                Tables\Actions\CreateAction::make(),
+            ]);
     }
 
     public static function getRelations(): array

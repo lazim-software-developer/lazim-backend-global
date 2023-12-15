@@ -52,6 +52,7 @@ class AdminPanelProvider extends PanelProvider
                 // Widgets\AccountWidget::class,
                 //Widgets\FilamentInfoWidget::class,
             ])
+            ->darkMode(false)
             ->databaseNotifications()
             ->databaseNotificationsPolling('30s')
             ->navigation(function (NavigationBuilder $builder): NavigationBuilder {
@@ -75,7 +76,7 @@ class AdminPanelProvider extends PanelProvider
                                 ->sort(1),
                             NavigationItem::make('Medias')
                                 ->url('/admin/media')
-                                ->hidden(DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] == 'Admin' ? false : true)
+                                // ->hidden(DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] == 'Admin' ? false : true)
                                 ->icon('heroicon-m-photo')
                                 ->activeIcon('heroicon-m-photo')
                                 ->sort(2),
@@ -86,7 +87,7 @@ class AdminPanelProvider extends PanelProvider
                                 ->activeIcon('heroicon-s-user-group')
                                 ->sort(3),
                             NavigationItem::make('Cities')
-                                ->hidden(DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] == 'Admin' ? false : true)
+                                // ->hidden(DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] == 'Admin' ? false : true)
                                 ->url('/admin/master/cities')
                                 ->icon('heroicon-m-globe-americas')
                                 ->activeIcon('heroicon-m-globe-americas')
@@ -98,25 +99,25 @@ class AdminPanelProvider extends PanelProvider
                             //     ->activeIcon('heroicon-m-document-chart-bar')
                             //     ->sort(5),
                             NavigationItem::make('Facilities')
-                                ->hidden(DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] == 'Admin' ? false : true)
+                                // ->hidden(DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] == 'Admin' ? false : true)
                                 ->url('/admin/master/facilities')
                                 ->icon('heroicon-o-cube-transparent')
                                 ->activeIcon('heroicon-o-cube-transparent')
                                 ->sort(6),
                             NavigationItem::make('Roles')
-                                ->hidden(DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] == 'Admin' ? false : true)
+                                // ->hidden(DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] == 'Admin' ? false : true)
                                 ->url('/admin/master/roles')
                                 ->icon('heroicon-s-user-group')
                                 ->activeIcon('heroicon-s-user-group')
                                 ->sort(7),
                             NavigationItem::make('Inhouse Services')
-                                ->hidden(DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] == 'Admin' ? false : true)
+                                // ->hidden(DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] == 'Admin' ? false : true)
                                 ->url('/admin/master/services')
                                 ->icon('heroicon-m-wrench')
                                 ->activeIcon('heroicon-m-wrench')
                                 ->sort(8),
                             NavigationItem::make('Vendor Services')
-                                ->hidden(DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] == 'Admin' ? false : true)
+                                // ->hidden(DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] == 'Admin' ? false : true)
                                 ->url('/admin/master/vendor-services')
                                 ->icon('heroicon-m-wrench-screwdriver')
                                 ->activeIcon('heroicon-m-wrench-screwdriver')
@@ -164,16 +165,21 @@ class AdminPanelProvider extends PanelProvider
                                 ->icon('heroicon-m-clipboard-document-check')
                                 ->activeIcon('heroicon-m-clipboard-document-check')
                                 ->sort(1),
+                            NavigationItem::make('Floors')
+                                ->url('/admin/floors')
+                                ->icon('heroicon-m-clipboard-document-check')
+                                ->activeIcon('heroicon-m-clipboard-document-check')
+                                ->sort(2),
                             NavigationItem::make('Facility Bookings')
                                 ->url('/admin/building/facility-bookings')
                                 ->icon('heroicon-o-cube-transparent')
                                 ->activeIcon('heroicon-o-cube-transparent')
-                                ->sort(2),
+                                ->sort(3),
                             NavigationItem::make('Service Bookings')
                                 ->url('/admin/building/service-bookings')
                                 ->icon('heroicon-m-wrench')
                                 ->activeIcon('heroicon-m-wrench')
-                                ->sort(3),
+                                ->sort(4),
                         ]),
                 ]);
                 if (DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] != 'Admin') {
