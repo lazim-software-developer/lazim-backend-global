@@ -16,12 +16,10 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-class DocumentsRelationManager extends RelationManager
-{
+class DocumentsRelationManager extends RelationManager {
     protected static string $relationship = 'documents';
 
-    public function form(Form $form): Form
-    {
+    public function form(Form $form): Form {
         return $form
             ->schema([
                 Grid::make(['default' => 0])->schema([
@@ -35,8 +33,16 @@ class DocumentsRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     RichEditor::make('url')
+                        ->disableToolbarButtons([
+                            'codeBlock',
+                            'h2',
+                            'h3',
+                            'attachFiles',
+                            'blockquote',
+                            'strike',
+                        ])
                         ->rules(['max:255', 'string'])
                         ->placeholder('Url')
                         ->columnSpan([
@@ -44,7 +50,7 @@ class DocumentsRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     TextInput::make('status')
                         ->rules(['max:50', 'string'])
                         ->placeholder('Status')
@@ -53,7 +59,7 @@ class DocumentsRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     KeyValue::make('comments')
                         ->required()
                         ->columnSpan([
@@ -61,7 +67,7 @@ class DocumentsRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     DatePicker::make('expiry_date')
                         ->rules(['date'])
                         ->placeholder('Expiry Date')
@@ -70,7 +76,7 @@ class DocumentsRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     Select::make('accepted_by')
                         ->rules(['exists:users,id'])
                         ->relationship('user', 'first_name')
@@ -81,7 +87,7 @@ class DocumentsRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     TextInput::make('documentable_id')
                         ->rules(['max:255'])
                         ->placeholder('Documentable Id')
@@ -90,7 +96,7 @@ class DocumentsRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     TextInput::make('documentable_type')
                         ->rules(['max:255', 'string'])
                         ->placeholder('Documentable Type')
@@ -103,8 +109,7 @@ class DocumentsRelationManager extends RelationManager
             ]);
     }
 
-    public function table(Table $table): Table
-    {
+    public function table(Table $table): Table {
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('documentLibrary.name')->limit(
@@ -117,11 +122,12 @@ class DocumentsRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('documentable_id')->limit(50),
                 Tables\Columns\TextColumn::make('documentable_type')->limit(50),
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make(),
+                //Tables\Actions\CreateAction::make(),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
@@ -133,7 +139,7 @@ class DocumentsRelationManager extends RelationManager
                 ]),
             ])
             ->emptyStateActions([
-                Tables\Actions\CreateAction::make(),
+                //Tables\Actions\CreateAction::make(),
             ]);
     }
 }

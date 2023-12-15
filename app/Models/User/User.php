@@ -2,37 +2,43 @@
 
 namespace App\Models\User;
 
-
-use App\Models\Building\Building;
-use App\Models\Building\BuildingPoc;
-use App\Models\Building\Complaint;
-use App\Models\Building\Document;
-use App\Models\Building\FacilityBooking;
-use App\Models\Building\Flat;
-use App\Models\Building\FlatTenant;
-use App\Models\Community\Post;
+use App\Models\Vendor\PPM;
+use Filament\Panel;
+use App\Models\Asset;
+use App\Models\Forms\Guest;
 use App\Models\Master\Role;
-use App\Models\OaDetails;
-use App\Models\OaUserRegistration as ModelsOaUserRegistration;
-use App\Models\OaUserRegistration;
+use App\Models\Building\Flat;
+use App\Models\Forms\SaleNOC;
+use App\Models\Vendor\Vendor;
+use App\Models\Accounting\WDA;
+use App\Models\Community\Post;
+use App\Models\Forms\MoveInOut;
+use App\Models\ResidentialForm;
+use App\Models\Forms\AccessCard;
+use App\Models\Forms\FitOutForm;
 use App\Models\OwnerAssociation;
+use App\Models\TechnicianVendor;
+use App\Models\Building\Document;
 use App\Models\Scopes\Searchable;
 use App\Models\Vendor\Attendance;
-use App\Models\Vendor\Vendor;
-use App\Models\Visitor\FlatVisitor;
-use Filament\Models\Contracts\FilamentUser;
-use Filament\Models\Contracts\HasName;
-use Filament\Models\Contracts\HasTenants;
-use Filament\Panel;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
-use Illuminate\Support\Collection;
-use Laravel\Fortify\TwoFactorAuthenticatable;
-use Laravel\Jetstream\HasProfilePhoto;
 use Laravel\Sanctum\HasApiTokens;
+use App\Models\Accounting\Invoice;
+use App\Models\Building\Complaint;
+use App\Models\Community\PostLike;
+use App\Models\OaUserRegistration;
+use App\Models\Building\FlatTenant;
+use App\Models\Visitor\FlatVisitor;
+use App\Models\Building\BuildingPoc;
+use Filament\Models\Contracts\HasName;
+use Laravel\Jetstream\HasProfilePhoto;
+use App\Models\Building\FacilityBooking;
+use App\Models\ExpoPushNotification;
+use App\Models\TechnicianAssets;
+use Illuminate\Notifications\Notifiable;
+use Filament\Models\Contracts\FilamentUser;
+use Laravel\Fortify\TwoFactorAuthenticatable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class User extends Authenticatable implements FilamentUser, HasName
 {
@@ -49,6 +55,7 @@ class User extends Authenticatable implements FilamentUser, HasName
         'email',
         'phone',
         'password',
+        'email_verified',
         'phone_verified',
         'active',
         'lazim_id',
@@ -172,8 +179,7 @@ class User extends Authenticatable implements FilamentUser, HasName
     }
     public function canAccessPanel(Panel $panel): bool
     {
-        if($this->role_id == 10 || $this->role_id == 9)
-        {
+        if ($this->role_id == 10 || $this->role_id == 9) {
             return true;
         }
         return false;
@@ -196,5 +202,78 @@ class User extends Authenticatable implements FilamentUser, HasName
     public function Posts()
     {
         return $this->hasMany(Post::class);
+    }
+    public function moveinOut()
+    {
+        return $this->hasMany(MoveInOut::class);
+    }
+    public function guests()
+    {
+        return $this->hasMany(Guest::class);
+    }
+
+    public function nocForms()
+    {
+        return $this->hasMany(Guest::class);
+    }
+
+    public function userDocuments()
+    {
+        return $this->hasMany(Document::class, 'documentable_id');
+    }
+    public function fitOut()
+    {
+        return $this->hasMany(FitOutForm::class);
+    }
+    public function accessCard()
+    {
+        return $this->hasMany(AccessCard::class);
+    }
+    public function residentialForm()
+    {
+        return $this->hasMany(ResidentialForm::class);
+    }
+    public function guestRegsitration()
+    {
+        return $this->hasMany(Guest::class);
+    }
+    public function moveinData()
+    {
+        return $this->hasMany(MoveInOut::class);
+    }
+    public function saleNoc()
+    {
+        return $this->hasMany(SaleNOC::class);
+    }
+
+    public function technicianVendors()
+    {
+        return $this->hasMany(TechnicianVendor::class, 'technician_id')->where('active', true);
+    }
+    public function wdas()
+    {
+        return $this->hasMany(WDA::class);
+    }
+    public function invoices()
+    {
+        return $this->hasMany(Invoice::class);
+    }
+    public function assets()
+    {
+        return $this->belongsToMany(Asset::class,'technician_assets','technician_id');
+    }
+    public function ppms()
+    {
+        return $this->hasMany(PPM::class);
+    }
+
+    public function assignees()
+    {
+        return $this->hasMany(Complaint::class,'technician_id');
+    }
+
+    public function expoNotification()
+    {
+        return $this->hasOne(ExpoPushNotification::class);
     }
 }

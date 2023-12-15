@@ -13,12 +13,12 @@ class ListHelpdeskcomplaints extends ListRecords
 
     protected function getTableQuery(): Builder
     {
-        return parent::getTableQuery()->where('complaint_type', 'help_desk');
+        return parent::getTableQuery()->where('complaint_type', 'help_desk')->where('owner_association_id',auth()->user()->owner_association_id);
     }
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make(),
+           // Actions\CreateAction::make(),
         ];
     }
 }

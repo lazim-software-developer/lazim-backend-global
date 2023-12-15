@@ -15,9 +15,11 @@ class DatabaseSeeder extends Seeder
             CitySeeder::class,
             FacilitySeeder::class,
             RoleSeeder::class,
-            ServiceSeeder::class,
+            // ServiceSeeder::class,
             UserSeeder::class,
             ServiceParameterSeeder::class,
+            // DocumentLibrarySeeder::class,
+            TagsTableSeeder::class
         ]);
     }
 }

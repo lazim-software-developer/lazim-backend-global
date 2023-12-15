@@ -14,15 +14,11 @@ return new class extends Migration {
             $table
                 ->foreign('owner_id')
                 ->references('id')
-                ->on('users')
-                ->onUpdate('CASCADE')
-                ->onDelete('CASCADE');
+                ->on('users');
             $table
                 ->foreign('building_id')
                 ->references('id')
-                ->on('buildings')
-                ->onUpdate('CASCADE')
-                ->onDelete('CASCADE');
+                ->on('buildings');
         });
     }
 

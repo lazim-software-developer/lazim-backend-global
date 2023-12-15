@@ -17,10 +17,11 @@ class RegisterRequest extends FormRequest
     public function rules()
     {
         return [
-            'email' => 'required|unique:users,email|regex:/^[a-zA-Z0-9_.-]+@[a-zA-Z]+\.[a-zA-Z]+$/',
-            'mobile' => 'required|string|unique:users,phone',
+            'email' => 'required|email:rfc,dns',
+            'mobile' => 'required|string',
             'building_id' => 'required|integer',
             'flat_id' => 'required|integer',
+            'type' =>'required'
         ];
     }
 

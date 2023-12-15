@@ -54,4 +54,13 @@ class MollakController extends Controller
         // Return the transformed data using the API resource
         return UnitResource::collection($data['response']['units']);
     }
+
+    public function test() {
+        $response = Http::withOptions(['verify' => false])->withHeaders([
+            'content-type' => 'application/json',
+            'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
+        ])->get(env("MOLLAK_API_URL") . "/sync/owners/235553");
+
+        return $data = $response->json();
+    }
 }

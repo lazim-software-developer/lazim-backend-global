@@ -2,8 +2,10 @@
 
 namespace App\Filament\Resources\Vendor\VendorResource\RelationManagers;
 
+use App\Models\Master\Service;
 use Filament\Forms;
 use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
@@ -12,6 +14,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\DB;
 
 class ServicesRelationManager extends RelationManager
 {
@@ -30,7 +33,7 @@ class ServicesRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     Toggle::make('active')
                         ->rules(['boolean'])
                         ->columnSpan([
@@ -47,25 +50,34 @@ class ServicesRelationManager extends RelationManager
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')->limit(50),
-                Tables\Columns\IconColumn::make('active'),
+                Tables\Columns\IconColumn::make('active')->boolean(),
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])
-            ->headerActions([
-                Tables\Actions\CreateAction::make(),
-            ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\DetachAction::make() ->label('Remove'),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ])
-            ->emptyStateActions([
-                Tables\Actions\CreateAction::make(),
+            ->headerActions([
+                Tables\Actions\AttachAction::make()
+                    ->label('Add')
+                    ->recordSelect(function (RelationManager $livewire) {
+                        $vendorId = $livewire->ownerRecord->id;
+
+                        // Get all the Servicess
+                        $allServices = Service::where('type', '!=', 'inhouse')->orWhereNull('type')->get()->pluck('id')->toArray();
+                        $existingServices =  DB::table('service_vendor')
+                            ->where('vendor_id', $vendorId)
+                            ->whereIn('service_id', $allServices)->pluck('service_id')->toArray();
+                        $notSelected = Service::whereNotIn('id', $existingServices)->where('type', '!=', 'inhouse')->orWhereNull('type')->get()->pluck('name', 'id')->toArray();
+                        return Select::make('recordId')
+                            ->label('Services')
+                            ->options($notSelected)
+                            ->searchable()
+                            ->required()
+                            ->preload();
+                    })
             ]);
     }
 }

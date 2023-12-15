@@ -12,12 +12,12 @@ class ListComplaintsenquiries extends ListRecords
     protected static string $resource = ComplaintsenquiryResource::class;
     protected function getTableQuery(): Builder
     {
-        return parent::getTableQuery()->where('complaint_type', 'enquiries');
+        return parent::getTableQuery()->where('complaint_type', 'enquiries')->where('owner_association_id', auth()->user()->owner_association_id);
     }
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make(),
+            // Actions\CreateAction::make(),
         ];
     }
 }

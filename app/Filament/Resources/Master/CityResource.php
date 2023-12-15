@@ -32,7 +32,7 @@ class CityResource extends Resource
                     'lg' => 2,
                 ])->schema([
                     TextInput::make('name')
-                        ->rules(['max:50', 'string'])
+                        ->rules(['max:50', 'regex:/^[a-zA-Z\s]*$/'])
                         ->required()
                         ->placeholder('Name'),
                 ])
@@ -48,9 +48,10 @@ class CityResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('name')
                     ->toggleable()
-                    ->searchable(true, null, true)
+                    ->searchable()
                     ->limit(50),
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])
@@ -70,7 +71,7 @@ class CityResource extends Resource
     public static function getRelations(): array
     {
         return [
-            CityResource\RelationManagers\BuildingsRelationManager::class
+            // CityResource\RelationManagers\BuildingsRelationManager::class
         ];
     }
 

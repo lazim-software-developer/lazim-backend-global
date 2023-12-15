@@ -2,27 +2,25 @@
 
 namespace App\Filament\Resources\Building;
 
-use App\Filament\Resources\Building\FacilityBookingResource\Pages;
-use App\Filament\Resources\Building\FacilityBookingResource\RelationManagers;
-use App\Models\Building\FacilityBooking;
-use App\Models\Master\Facility;
-use Filament\Forms;
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\DateTimePicker;
-use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\KeyValue;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\TimePicker;
-use Filament\Forms\Components\Toggle;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Forms\Form;
+use App\Models\User\User;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Illuminate\Database\Query\JoinClause;
+use Filament\Resources\Resource;
+use App\Models\Building\Building;
 use Illuminate\Support\Facades\DB;
+use Filament\Forms\Components\Grid;
+use Filament\Tables\Actions\Action;
+use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Toggle;
+use App\Models\Building\FacilityBooking;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\TimePicker;
+use Filament\Tables\Filters\SelectFilter;
+use App\Filament\Resources\Building\FacilityBookingResource\Pages;
+use Filament\Tables\Actions\EditAction;
 
 class FacilityBookingResource extends Resource
 {
@@ -39,64 +37,84 @@ class FacilityBookingResource extends Resource
                 Grid::make([
                     'sm' => 1,
                     'md' => 1,
-                    'lg' => 2,])
+                    'lg' => 2,
+                ])
                     ->schema([
 
-                    Select::make('building_id')
-                        ->rules(['exists:buildings,id'])
-                        ->relationship('building', 'name')
-                        ->reactive()
-                        ->preload()
-                        ->searchable()
-                        ->placeholder('Building'),
-                        
-                    Select::make('facility_id')
-                        ->rules(['exists:facilities,id'])
-                        ->relationship('facility', 'name')
-                        ->searchable()
-                        ->options(function (callable $get) {
-                            $facilityid = DB::table('building_facility')
-                                    ->where('building_facility.building_id', '=', $get('building_id'))
-                                    ->select('building_facility.facility_id')
-                                    ->pluck('building_facility.facility_id');
-                            
-                            return DB::table('facilities')
-                                    ->whereIn('facilities.id',$facilityid)
-                                    ->select('facilities.id','facilities.name')
-                                    ->pluck('facilities.name','facilities.id')
-                                    ->toArray();
-                        })
-                        ->required()
-                        ->preload()
-                        ->placeholder('Facilities'),
+                        Select::make('building_id')
+                            ->rules(['exists:buildings,id'])
+                            ->relationship('building', 'name')
+                            ->options(function () {
+                                return Building::where('owner_association_id', auth()->user()->owner_association_id)
+                                    ->pluck('name', 'id');
+                            })
+                            ->reactive()
+                            ->disabledOn('edit')
+                            ->required()
+                            ->preload()
+                            ->searchable()
+                            ->placeholder('Building'),
 
-                    Select::make('user_id')
-                        ->rules(['exists:users,id'])
-                        ->required()
-                        ->relationship('user', 'first_name')
-                        ->searchable()
-                        ->placeholder('User'),
-                    DatePicker::make('date')
-                        ->rules(['date'])
-                        ->required()
-                        ->placeholder('Date'),
-                    TimePicker::make('start_time')
-                        ->required()
-                        ->placeholder('Start Time'),
-                    TimePicker::make('end_time')
-                        ->required()
-                        ->placeholder('End Time'),
-                    TextInput::make('remarks')
-                        ->required(),
-                    TextInput::make('reference_number')
-                        ->rules(['numeric'])
-                        ->required()
-                        ->numeric()
-                        ->placeholder('References Number'),
-                    Toggle::make('approved')
-                        ->rules(['boolean'])
-                        ->required(),
-                ]),
+                        Select::make('bookable_id')
+                            ->label('Facility ')
+                            ->required()
+                            ->disabledOn('edit')
+                            ->options(
+                                DB::table('facilities')
+                                    ->pluck('name', 'id')
+                                    ->toArray()
+                            )
+                            ->searchable()
+                            ->preload()
+                            ->label('Facility'),
+
+                        Hidden::make('bookable_type')
+                            ->default('App\Models\Master\Facility'),
+
+                        Select::make('user_id')
+                            ->rules(['exists:users,id'])
+                            ->required()
+                            ->relationship('user', 'first_name')
+                            ->options(function () {
+                                return User::whereIn('role_id', [1, 11])->pluck('first_name', 'id');
+                            })
+                            ->preload()
+                            ->disabledOn('edit')
+                            ->searchable()
+                            ->placeholder('User'),
+                        DatePicker::make('date')
+                            ->rules(['date'])
+                            ->disabledOn('edit')
+                            ->minDate(now()->subYears(150))
+                            ->closeOnDateSelection()
+                            ->required()
+                            ->placeholder('Date'),
+                        TimePicker::make('start_time')
+                            ->required()
+                            ->disabledOn('edit')
+                            ->minDate(now()->subYears(150))
+                            ->placeholder('Start Time'),
+                        TimePicker::make('end_time')
+                            ->after('start_time')
+                            ->disabledOn('edit')
+                            ->required()
+                            ->placeholder('End Time'),
+                        // TextInput::make('remarks')
+                        //     ->default('NA')
+                        //     ->disabledOn('edit')
+                        //     ->required(),
+                        // TextInput::make('reference_number')
+                        //     ->rules(['numeric'])
+                        //     ->disabledOn('edit')
+                        //     ->default('0')
+                        //     ->numeric()
+                        //     ->placeholder('References Number'),
+                        Toggle::make('approved')
+                            ->rules(['boolean'])
+                            ->required()
+                            ->live(),
+
+                    ]),
 
             ]);
     }
@@ -107,35 +125,61 @@ class FacilityBookingResource extends Resource
             ->poll('60s')
             ->columns([
                 Tables\Columns\TextColumn::make('building.name')
-                ->toggleable()
-                ->limit(50),
-                Tables\Columns\TextColumn::make('facility.name')
-                    ->toggleable()
+                    ->default('NA')
+                    ->searchable()
                     ->limit(50),
+                Tables\Columns\TextColumn::make('bookable.name')
+                    ->default('NA')
+                    ->searchable()
+                    ->limit(50)
+                    ->label('Facility'),
                 Tables\Columns\TextColumn::make('user.first_name')
-                    ->toggleable()
-                    ->searchable(isIndividual: false, isGlobal: true)
+                    ->searchable()
+                    ->default('NA')
                     ->limit(50),
                 Tables\Columns\TextColumn::make('date')
-                    ->toggleable()
+                    ->date()
+                    ->default('NA')
+                    ->searchable()
                     ->date(),
                 Tables\Columns\TextColumn::make('start_time')
-                    ->toggleable()
-                    ->date(),
+                    ->default('NA')
+                    ->time(),
                 Tables\Columns\TextColumn::make('end_time')
-                    ->toggleable()
-                    ->date(),
-                Tables\Columns\TextColumn::make('reference_number')
-                    ->toggleable(),
+                    ->default('NA')
+                    ->time(),
+                // Tables\Columns\TextColumn::make('reference_number')
+                //     ->default('0')
+                //     ->searchable(),
                 Tables\Columns\IconColumn::make('approved')
-                    ->toggleable()
                     ->boolean(),
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
-                //
+                SelectFilter::make('building_id')
+                    ->relationship('building', 'name')
+                    ->searchable()
+                    ->preload()
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                EditAction::make(),
+                Action::make('Update Status')
+                    ->visible(fn($record) => $record->approved === 0)
+                    ->button()
+                    ->form([
+                        Toggle::make('approved')
+                            ->rules(['boolean'])
+                            ->required()
+                            ->live(),
+                    ])
+                    ->fillForm(fn(FacilityBooking $record): array => [
+                        'approved' => $record->approved,
+                    ])
+                    ->action(function (FacilityBooking $record, array $data): void {
+                        $record->approved = $data['approved'];
+                        $record->save();
+                    })
+                    ->slideOver()
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -159,6 +203,7 @@ class FacilityBookingResource extends Resource
         return [
             'index' => Pages\ListFacilityBookings::route('/'),
             'create' => Pages\CreateFacilityBooking::route('/create'),
+            // 'view' => Pages\ViewFacilityBooking::route('/{record}'),
             'edit' => Pages\EditFacilityBooking::route('/{record}/edit'),
         ];
     }

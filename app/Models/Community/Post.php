@@ -15,10 +15,11 @@ class Post extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id', 'content', 'status', 'scheduled_at', 'building_id', 'is_announcement'
+        'user_id', 'content', 'status', 'scheduled_at', 'building_id', 'is_announcement', 'owner_association_id','allow_comment','allow_like'
     ];
     protected $casts = [
         'is_announcement' => 'boolean',
+        'building_id' => 'array',
     ];
     protected $appends = ['is_liked_by_user'];
 
@@ -29,7 +30,7 @@ class Post extends Model
 
     public function building()
     {
-        return $this->belongsTo(Building::class);
+        return $this->belongsToMany(Building::class);
     }
 
     public function media()

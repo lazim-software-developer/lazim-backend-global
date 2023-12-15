@@ -2,19 +2,21 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\OwnerAssociationResource\Pages;
-use App\Models\OwnerAssociation;
-use Filament\Forms\Components\Component;
-use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Toggle;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
+use Closure;
 use Filament\Tables;
+use Filament\Forms\Form;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Model;
+use App\Models\OwnerAssociation;
+use Filament\Resources\Resource;
 use Illuminate\Support\Facades\DB;
+use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Toggle;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Validation\Rules\Unique;
+use Filament\Forms\Components\Component;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\FileUpload;
+use App\Filament\Resources\OwnerAssociationResource\Pages;
 
 class OwnerAssociationResource extends Resource
 {
@@ -29,12 +31,18 @@ class OwnerAssociationResource extends Resource
             ->schema([
                 Grid::make([
                     'sm' => 1,
-                    'md' => 2,
+                    'md' => 1,
                     'lg' => 2,
                 ])->schema([
                     TextInput::make('name')
-                        ->rules(['max:30','regex:/^[a-zA-Z\s]*$/'])
+                        ->rules(['regex:/^[a-zA-Z\s]*$/'])
                         ->required()
+                        ->disabled(function (callable $get) {
+                            return DB::table('owner_associations')
+                                ->where('email', $get('email'))
+                                ->where('verified', 1)
+                                ->exists();
+                        })
                         ->placeholder('User'),
                     TextInput::make('mollak_id')->label('Oa Number')
                         ->required()
@@ -47,44 +55,90 @@ class OwnerAssociationResource extends Resource
 
                         ->placeholder('TRN Number'),
                     TextInput::make('phone')
-                        ->rules(['regex:/^(\+971)(50|51|52|55|56|58|02|03|04|06|07|09)\d{7}$/'])
+                        ->rules(['regex:/^(\+971)(50|51|52|55|56|58|02|03|04|06|07|09)\d{7}$/',function () {
+                            return function (string $attribute, $value, Closure $fail) {
+                                if (DB::table('owner_associations')->where('phone', $value)->count() > 1) {
+                                    $fail('The phone is already taken as OA.');
+                                }
+                                if (DB::table('users')->where('phone', $value)->exists()) {
+                                    $fail('The phone is already taken as user.');
+                                }
+                            };
+                        },
+                        ])
                         ->required()
                         ->unique(
                             'users',
                             'phone',
                         )
+                        ->live()
+                        ->disabled(function (callable $get) {
+                            return DB::table('owner_associations')
+                                ->where('email', $get('email'))
+                                ->where('verified', 1)
+                                ->exists();
+                        })
                         ->placeholder('Contact Number'),
                     TextInput::make('address')
                         ->required()
-                        ->placeholder('Address'),
-                    TextInput::make('email')
-                        ->rules(['min:6', 'max:30', 'regex:/^[a-z0-9.]+@[a-z]+\.[a-z]{2,}$/'])
-                        ->required()
                         ->disabled(function (callable $get) {
                             return DB::table('owner_associations')
-                                ->where('phone',$get('phone'))
+                                ->where('email', $get('email'))
+                                ->where('verified', 1)
+                                ->exists();
+                        })
+                        ->placeholder('Address'),
+                    TextInput::make('email')
+                        ->rules(['min:6', 'max:30', 'regex:/^[a-z0-9.]+@[a-z]+\.[a-z]{2,}$/', function () {
+                            return function (string $attribute, $value, Closure $fail) {
+                                if (DB::table('owner_associations')->where('email', $value)->count() > 1) {
+                                    $fail('The email is already taken by a OA.');
+                                }
+                                if (DB::table('users')->where('email', $value)->exists()) {
+                                    $fail('The email is already taken by a USER.');
+                                }
+                            };
+                        },])
+                        ->required()
+                        ->live()
+                        ->disabled(function (callable $get) {
+                            return DB::table('owner_associations')
+                                ->where('phone', $get('phone'))
                                 ->where('verified', 1)
                                 ->exists();
                         })
                         ->unique(
                             'users',
                             'email',
-                            modifyRuleUsing: function (Unique $rule,callable $get,?Model $record) {
-                                if(DB::table('users')->where('owner_association_id',$record->id)->exists())
-                                {
-                                    return $rule->whereNot('email',$get('email'));
+                            modifyRuleUsing: function (Unique $rule, callable $get, ?Model $record) {
+                                if (DB::table('users')->where('owner_association_id', $record->id)->exists()) {
+                                    return $rule->whereNot('email', $get('email'));
                                 }
-                                return $rule->where('email',$get('email'));
+                                return $rule->where('email', $get('email'));
                             }
                         )
                         ->placeholder('Email'),
-                    Toggle::make('verified')
-                        ->rules(['boolean'])
+                    FileUpload::make('profile_photo')
+                        ->disk('s3')
+                        ->directory('dev')
+                        ->image()
+                        ->maxSize(2048)
+                        ->label('Profile Photo')
                         ->disabled(function (callable $get) {
                             return DB::table('owner_associations')
-                                ->where('phone',$get('phone'))
+                                ->where('phone', $get('phone'))
                                 ->where('verified', 1)
                                 ->exists();
+                        })
+                        ->columnSpan([
+                            'sm' => 1,
+                            'md' => 1,
+                            'lg' => 2,
+                        ]),
+                    Toggle::make('verified')
+                        ->rules(['boolean'])
+                        ->hidden(function ($record) {
+                            return $record->verified;
                         }),
                     Toggle::make('active')
                         ->label('Active')
@@ -100,29 +154,30 @@ class OwnerAssociationResource extends Resource
             ->poll('60s')
             ->columns([
                 Tables\Columns\TextColumn::make('mollak_id')
-                    ->toggleable()
                     ->searchable()
+                    ->default('NA')
                     ->limit(50),
                 Tables\Columns\TextColumn::make('name')
-                    ->toggleable()
                     ->searchable()
+                    ->default('NA')
                     ->limit(50),
                 Tables\Columns\TextColumn::make('phone')
-                    ->toggleable()
                     ->searchable()
+                    ->default('NA')
                     ->limit(50),
                 Tables\Columns\TextColumn::make('email')
-                    ->toggleable()
                     ->searchable()
+                    ->default('NA')
                     ->limit(50),
                 Tables\Columns\TextColumn::make('trn_number')
-                    ->toggleable()
                     ->searchable()
+                    ->default('NA')
                     ->limit(50),
                 Tables\Columns\TextColumn::make('address')
-                    ->toggleable()
+                    ->default('NA')
                     ->searchable(),
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])

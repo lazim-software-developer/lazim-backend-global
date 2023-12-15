@@ -27,7 +27,7 @@ class SnaggingResource extends Resource
     protected static ?string $navigationLabel = 'Snags';
 
     protected static ?string $navigationGroup = 'Property Management';
-
+    protected static bool $shouldRegisterNavigation = false;
     public static function form(Form $form): Form
     {
         return $form
@@ -35,7 +35,8 @@ class SnaggingResource extends Resource
                 Grid::make([
                     'sm' => 1,
                     'md' => 1,
-                    'lg' => 2])
+                    'lg' => 2
+                ])
                     ->schema([
                         MorphToSelect::make('complaintable')
 
@@ -79,7 +80,7 @@ class SnaggingResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn(Builder $query) => $query->where('complaintable_type', 'App\Models\Building\Building')->withoutGlobalScopes())
+            ->modifyQueryUsing(fn (Builder $query) => $query->where('complaintable_type', 'App\Models\Building\Building')->withoutGlobalScopes())
             ->poll('60s')
             ->columns([
                 Tables\Columns\TextColumn::make('complaintable_type')
@@ -107,6 +108,7 @@ class SnaggingResource extends Resource
                     ->dateTime(),
 
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])

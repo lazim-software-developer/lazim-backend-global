@@ -25,7 +25,7 @@ class FlatDomesticHelpResource extends Resource
     protected static ?string $navigationIcon  = 'heroicon-o-rectangle-stack';
     protected static ?string $navigationLabel = 'Domestic Help';
     protected static ?string $navigationGroup = 'Flat Management';
-
+    protected static bool $shouldRegisterNavigation = false;
     public static function form(Form $form): Form
     {
         return $form
@@ -33,14 +33,15 @@ class FlatDomesticHelpResource extends Resource
                 Grid::make([
                     'sm' => 1,
                     'md' => 1,
-                    'lg' => 2])
+                    'lg' => 2
+                ])
                     ->schema([
                         Select::make('flat_id')
                             ->rules(['exists:flats,id'])
                             ->required()
                             ->relationship('flat', 'number')
                             ->searchable()
-                            ->placeholder('Flat'),
+                            ->label('Unit Number'),
                         TextInput::make('first_name')
                             ->rules(['max:50', 'string'])
                             ->required()
@@ -55,7 +56,7 @@ class FlatDomesticHelpResource extends Resource
                             ->unique(
                                 'flat_domestic_helps',
                                 'phone',
-                                fn(?Model $record) => $record
+                                fn (?Model $record) => $record
                             )
                             ->placeholder('Phone'),
                         FileUpload::make('profile_photo')
@@ -115,6 +116,7 @@ class FlatDomesticHelpResource extends Resource
                     ->searchable(true, null, true)
                     ->limit(50),
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])

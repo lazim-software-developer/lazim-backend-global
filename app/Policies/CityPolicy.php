@@ -15,12 +15,9 @@ class CityPolicy
      */
     public function viewAny(User $user): bool
     {
-        $role = $user->role->name == 'Admin';
+        // $role = $user->role;
 
-        if($role)
-        {
-            return false;
-        }
+        // return $role && $role->name == 'Admin';
         return true;
     }
 
@@ -29,6 +26,9 @@ class CityPolicy
      */
     public function view(User $user, City $model): bool
     {
+        // $role = $user->role;
+
+        // return $role && $role->name == 'Admin';
         return true;
     }
 
@@ -37,6 +37,9 @@ class CityPolicy
      */
     public function create(User $user): bool
     {
+        // $role = $user->role;
+
+        // return $role && $role->name == 'Admin';
         return true;
     }
 
@@ -45,6 +48,9 @@ class CityPolicy
      */
     public function update(User $user, City $model): bool
     {
+        // $role = $user->role;
+
+        // return $role && $role->name == 'Admin';
         return true;
     }
 

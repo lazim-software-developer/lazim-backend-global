@@ -19,17 +19,17 @@ class UserResource extends Resource
     protected static ?string $model = User::class;
 
     protected static ?string $navigationIcon       = 'heroicon-o-rectangle-stack';
-    protected static ?string $recordTitleAttribute = 'first_name';
     protected static ?string $navigationLabel      = 'Owner';
     protected static ?string $navigationGroup      = 'Flat Management';
-
+    protected static bool $shouldRegisterNavigation = false;
     public static function form(Form $form): Form
     {
         return $form->schema([
             Grid::make([
                 'sm' => 1,
                 'md' => 1,
-                'lg' => 2])
+                'lg' => 2
+            ])
                 ->schema([
                     TextInput::make('first_name')
                         ->rules(['max:50', 'string'])
@@ -47,7 +47,7 @@ class UserResource extends Resource
                         ->unique(
                             'users',
                             'email',
-                            fn(?Model $record) => $record
+                            fn (?Model $record) => $record
                         )
                         ->email()
                         ->placeholder('Email'),
@@ -58,7 +58,7 @@ class UserResource extends Resource
                         ->unique(
                             'users',
                             'phone',
-                            fn(?Model $record) => $record
+                            fn (?Model $record) => $record
                         )
                         ->placeholder('Phone'),
 
@@ -68,7 +68,7 @@ class UserResource extends Resource
                         ->unique(
                             'users',
                             'lazim_id',
-                            fn(?Model $record) => $record
+                            fn (?Model $record) => $record
                         )
                         ->placeholder('Lazim Id'),
 
@@ -86,7 +86,6 @@ class UserResource extends Resource
                 ]),
 
         ]);
-
     }
 
     public static function table(Table $table): Table
@@ -96,31 +95,32 @@ class UserResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('first_name')
                     ->toggleable()
-                    ->searchable(true, null, true)
+                    ->searchable()
                     ->limit(50),
                 Tables\Columns\TextColumn::make('last_name')
                     ->toggleable()
-                    ->searchable(true, null, true)
+                    ->searchable()
                     ->limit(50),
                 Tables\Columns\TextColumn::make('email')
                     ->toggleable()
-                    ->searchable(true, null, true)
+                    ->searchable()
                     ->limit(50),
                 Tables\Columns\TextColumn::make('phone')
                     ->toggleable()
-                    ->searchable(true, null, true)
+                    ->searchable()
                     ->limit(50),
                 Tables\Columns\IconColumn::make('active')
                     ->toggleable()
                     ->boolean(),
                 Tables\Columns\TextColumn::make('lazim_id')
                     ->toggleable()
-                    ->searchable(true, null, true)
+                    ->searchable()
                     ->limit(50),
                 Tables\Columns\TextColumn::make('role.name')
                     ->toggleable()
                     ->limit(50),
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])
