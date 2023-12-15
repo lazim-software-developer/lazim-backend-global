@@ -89,6 +89,9 @@ class PostResource extends Resource
 
                         Select::make('building')
                             ->relationship('building', 'name')
+                            ->options(function () {
+                                return Building::where('owner_association_id', auth()->user()->owner_association_id)->pluck('name', 'id');
+                            })
                             ->searchable()
                             ->preload()
                             ->required()
