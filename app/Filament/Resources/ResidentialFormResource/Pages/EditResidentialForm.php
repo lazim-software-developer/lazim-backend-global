@@ -91,7 +91,6 @@ class EditResidentialForm extends EditRecord
                     $message = [
                         'to' => $expoPushToken,
                         'sound' => 'default',
-                        'url' => 'MyRequest',
                         'title' => 'Residential form status',
                         'body' => 'Your Residential form has been rejected.',
                         'data' => ['notificationType' => 'MyRequest'],
