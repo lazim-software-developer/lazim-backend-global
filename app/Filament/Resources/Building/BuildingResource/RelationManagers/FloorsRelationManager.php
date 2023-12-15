@@ -1,29 +1,24 @@
 <?php
 
-namespace App\Filament\Resources;
+namespace App\Filament\Resources\Building\BuildingResource\RelationManagers;
 
 use Filament\Forms;
 use Filament\Tables;
-use App\Models\Floor;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
-use Filament\Resources\Resource;
+use App\Forms\Components\FloorQrCode;
 use Filament\Forms\Components\Select;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Illuminate\Database\Eloquent\Builder;
-use App\Filament\Resources\FloorResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use App\Filament\Resources\FloorResource\RelationManagers;
-use App\Forms\Components\FloorQrCode;
+use Filament\Resources\RelationManagers\RelationManager;
 
-class FloorResource extends Resource
+class FloorsRelationManager extends RelationManager
 {
-    protected static ?string $model = Floor::class;
+    protected static string $relationship = 'floors';
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-
-    public static function form(Form $form): Form
+    public function form(Form $form): Form
     {
         return $form
             ->schema([
@@ -43,9 +38,10 @@ class FloorResource extends Resource
             ]);
     }
 
-    public static function table(Table $table): Table
+    public function table(Table $table): Table
     {
         return $table
+            ->recordTitleAttribute('floors')
             ->columns([
                 TextColumn::make('building.name')->searchable()->label('Building'),
                 TextColumn::make('floors')->searchable()->label('Floor'),
@@ -53,8 +49,12 @@ class FloorResource extends Resource
             ->filters([
                 //
             ])
+            ->headerActions([
+                // Tables\Actions\CreateAction::make(),
+            ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -64,21 +64,5 @@ class FloorResource extends Resource
             ->emptyStateActions([
                 // Tables\Actions\CreateAction::make(),
             ]);
-    }
-
-    public static function getRelations(): array
-    {
-        return [
-            //
-        ];
-    }
-
-    public static function getPages(): array
-    {
-        return [
-            'index' => Pages\ListFloors::route('/'),
-            // 'create' => Pages\CreateFloor::route('/create'),
-            'edit' => Pages\EditFloor::route('/{record}/edit'),
-        ];
     }
 }
