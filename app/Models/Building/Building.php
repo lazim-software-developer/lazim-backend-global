@@ -24,6 +24,7 @@ use App\Models\Scopes\Searchable;
 use App\Models\Vendor\Attendance;
 use App\Models\Building\Complaint;
 use App\Models\Building\BuildingPoc;
+use App\Models\Floor;
 use App\Models\Forms\FitOutForm;
 use App\Models\Forms\MoveInOut;
 use App\Models\Vendor\Contact;
@@ -54,7 +55,8 @@ class Building extends Model
         'floors',
         'owner_association_id',
         'allow_postupload',
-        'slug'
+        'slug',
+        'cover_photo'
     ];
 
     protected $casts = [
@@ -83,6 +85,10 @@ class Building extends Model
     public function buildingPocs()
     {
         return $this->hasMany(BuildingPoc::class);
+    }
+    public function floors()
+    {
+        return $this->hasMany(Floor::class);
     }
     public function saleNoc()
     {

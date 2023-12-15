@@ -2,12 +2,14 @@
 
 namespace App\Filament\Resources;
 
+use Closure;
 use Filament\Forms;
 use Filament\Tables;
 use Filament\Forms\Get;
 use Filament\Forms\Form;
 use App\Models\User\User;
 use Filament\Tables\Table;
+use App\Models\Vendor\Vendor;
 use App\Models\TechnicianVendor;
 use Filament\Resources\Resource;
 use App\Models\Building\Complaint;
@@ -27,7 +29,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\ComplaintscomplaintResource\Pages;
 use App\Filament\Resources\ComplaintscomplaintResource\RelationManagers;
-use App\Models\Vendor\Vendor;
 
 class ComplaintscomplaintResource extends Resource
 {
@@ -107,10 +108,17 @@ class ComplaintscomplaintResource extends Resource
                             ->searchable()
                             ->label('Technician Name'),
                         TextInput::make('priority')
-                            ->rules(['regex:/^[1-3]$/'])
+                            ->rules([function () {
+                                return function (string $attribute, $value, Closure $fail) {
+                                    if ($value < 1 || $value > 3) {
+                                        $fail('The priority field accepts 1, 2 and 3 only.');
+                                    }
+                                };
+                            },
+                            ])
                             ->numeric(),
                         DatePicker::make('due_date')
-                            ->minDate(now())
+                            ->minDate(now()->format('Y-m-d'))
                             ->rules(['date'])
                             ->placeholder('Due Date'),
                         Repeater::make('media')
