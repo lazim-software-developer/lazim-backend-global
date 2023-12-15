@@ -7,7 +7,8 @@
                 <div class="grid grid-cols-1 gap-x-6 gap-y-8 md:grid-cols-4">
                     <!-- Date Field -->
                     <div class="md:col-span-1 max-w-md">
-                        <label for="end-date" class="block text-sm font-medium leading-6 text-gray-900">End date</label>
+                        <label for="end-date" class="block text-sm font-medium leading-6 text-gray-900">End
+                            date*</label>
                         <div class="mt-2">
                             <input type="date" name="end_date" id="end-date"
                                 class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
@@ -17,7 +18,7 @@
 
                     <div class="md:col-span-1 max-w-md">
                         <label for="tender-type" class="block text-sm font-medium leading-6 text-gray-900">Tender
-                            Type</label>
+                            Type*</label>
                         <div class="mt-2">
                             <select name="tender_type" id="tender-type"
                                 class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
@@ -32,7 +33,7 @@
 
                     <div class="md:col-span-1 max-w-md my-5">
                         <label for="end-date" class="block text-sm font-medium leading-6 text-gray-900">Tender
-                            document</label>
+                            document*</label>
                         <div class="mt-2">
                             <input id="file-upload" name="document" type="file"
                                 class="mt-2 block w-full text-sm text-gray-900 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100"
@@ -43,7 +44,7 @@
 
                     <div class="md:col-span-1 max-w-md">
                         <select id="subcategory-dropdown" name="subcategory" class="w-full" required>
-                            <option value="" selected disabled>Select Subcategory</option>
+                            <option value="" selected disabled>Select Subcategory*</option>
                             @foreach ($subcategories as $subcategory)
                             <option value="{{ $subcategory->id }}">{{ $subcategory->name }}</option>
                             @endforeach
@@ -52,12 +53,12 @@
                     <div class="md:col-span-1 max-w-md">
                         <select id="services-dropdown" name="service" disabled onChange="loadVendors()" class="w-full"
                             required>
-                            <option value="" selected disabled>Select Service</option>
+                            <option value="" selected disabled>Select Service*</option>
                         </select>
                     </div>
 
                     {{-- Vendors List --}}
-                    <div id="vendors-list" class="mt-6"></div>
+                    <div id="vendors-list"  class="mt-6"></div>
 
 
                     <!-- Form Submission Buttons -->
@@ -77,34 +78,56 @@
         // Set the min attribute of the date input field
         document.getElementById("end-date").min = currentDate;
         // Document validation
+        var inputFile = document.getElementById('file-upload');
+
         document.getElementById('form').addEventListener('submit', function (event) {
-            var inputFile = document.getElementById('file-upload');
             var allowedTypes = [".png", ".jpg", ".jpeg", ".pdf"];
+            var maxSizeMB = 2; // Maximum file size allowed in megabytes
             var errorContainer = document.getElementById('file-upload-error');
 
+            // Check file type
             if (!checkFileType(inputFile.value, allowedTypes)) {
-                // Display error message
-                if (!errorContainer) {
-                    errorContainer = document.createElement('div');
-                    errorContainer.id = 'file-upload-error';
-                    errorContainer.className = 'text-red-500 text-sm mt-2';
-                    inputFile.parentNode.appendChild(errorContainer);
-                }
-                errorContainer.textContent = 'Invalid file type. Please upload a valid file.';
-
-                // Prevent form submission
+                displayErrorMessage('Please upload a valid file (".png", ".jpg", ".jpeg", ".pdf").');
                 event.preventDefault();
-            } else {
-                // Clear error message if file type is valid
-                if (errorContainer) {
-                    errorContainer.parentNode.removeChild(errorContainer);
+                return; // Stop further validation if file type is invalid
+            }
+
+            // Check file size
+            if (inputFile.files.length > 0) {
+                var fileSizeMB = inputFile.files[0].size / (1024 * 1024); // Convert bytes to megabytes
+                if (fileSizeMB > maxSizeMB) {
+                    displayErrorMessage('File size exceeds the maximum allowed (2MB).');
+                    event.preventDefault();
+                    return; // Stop further validation if file size is too large
                 }
             }
+
+            // Clear error message if file type and size are valid
+            clearErrorMessage();
         });
 
         function checkFileType(filename, allowedTypes) {
             var ext = filename.substring(filename.lastIndexOf('.')).toLowerCase();
             return allowedTypes.indexOf(ext) !== -1;
+        }
+
+        function displayErrorMessage(message) {
+            var errorContainer = document.getElementById('file-upload-error');
+            if (!errorContainer) {
+                errorContainer = document.createElement('div');
+                errorContainer.id = 'file-upload-error';
+                errorContainer.className = 'text-red-500 text-sm mt-2';
+                errorContainer.style.color = 'red';
+                inputFile.parentNode.appendChild(errorContainer);
+            }
+            errorContainer.textContent = message;
+        }
+
+        function clearErrorMessage() {
+            var errorContainer = document.getElementById('file-upload-error');
+            if (errorContainer) {
+                errorContainer.parentNode.removeChild(errorContainer);
+            }
         }
 
         // Checking vendors for Service
@@ -118,8 +141,8 @@
                 axios.post(`/get-vendors-based-on-services`, {
                     service_id: selectedServiceId
                 })
-                    .then(response => {
-                        document.getElementById('vendors-list').innerHTML = response.data;
+                    .then(response => {   
+                        document.getElementById('vendors-list').innerHTML = response.data; 
                     })
                     .catch(error => {
                         console.error('Error fetching vendors:', error);
