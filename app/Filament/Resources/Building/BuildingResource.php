@@ -90,7 +90,7 @@ class BuildingResource extends Resource
                             TextInput::make('floors')
                                 ->numeric()
                                 ->disabled(function ($record) {
-                                    if($record->floors == null){
+                                    if($record?->floors == null){
                                         return false;
                                     }
                                     return true;
