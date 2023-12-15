@@ -426,6 +426,7 @@ Route::middleware(['auth:sanctum', 'active', 'active.gatekeeper'])->prefix('gate
     Route::get('snags', [GatekeeperComplaintController::class, 'index']);
     
     Route::get('floors', [PatrollingController::class, 'featchAllFloors']);
+    Route::post('store-patrolling/{building}', [PatrollingController::class, 'store']);
 });
 
 // API to import services
