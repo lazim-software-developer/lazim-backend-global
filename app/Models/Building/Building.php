@@ -20,6 +20,7 @@ use App\Models\Master\City;
 use App\Models\Building\Flat;
 use App\Models\Master\Facility;
 use App\Models\Building\Document;
+use App\Models\RuleRegulation;
 use App\Models\Scopes\Searchable;
 use App\Models\Vendor\Attendance;
 use App\Models\Building\Complaint;
@@ -89,6 +90,10 @@ class Building extends Model
     public function floors()
     {
         return $this->hasMany(Floor::class);
+    }
+    public function ruleregulations()
+    {
+        return $this->hasMany(RuleRegulation::class);
     }
     public function saleNoc()
     {
