@@ -116,7 +116,7 @@ class GuestController extends Controller
     // List all future visits for a building
     public function futureVisits(Building $building)
     {
-        // Assuming you have a Building model with a 'visitors' relationship
+        // List only approved requests from flat_visitors table
         $futureVisits = FlatVisitor::where('building_id', $building->id)
             ->where('start_time', '>', now())
             ->where('type', 'visitor')
