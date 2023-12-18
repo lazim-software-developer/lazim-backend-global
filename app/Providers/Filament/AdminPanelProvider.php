@@ -312,6 +312,11 @@ class AdminPanelProvider extends PanelProvider
                                 ->icon('heroicon-m-photo')
                                 ->activeIcon('heroicon-m-photo')
                                 ->sort(2),
+                            NavigationItem::make('Polls')
+                                ->url('/admin/polls')
+                                ->icon('heroicon-s-hand-thumb-up')
+                                ->activeIcon('heroicon-s-hand-thumb-up')
+                                ->sort(3),
                         ]),
                 ]);
 
