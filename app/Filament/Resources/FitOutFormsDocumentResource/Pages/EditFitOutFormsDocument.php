@@ -9,6 +9,7 @@ use App\Traits\UtilsTrait;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class EditFitOutFormsDocument extends EditRecord
 {
@@ -28,11 +29,13 @@ class EditFitOutFormsDocument extends EditRecord
 
     public function afterSave()
     {
-
         if ($this->record->status == 'approved') {
+            Log::info('userID->>>>>',[$this->record->user_id]);
             $expoPushTokens = ExpoPushNotification::where('user_id', $this->record->user_id)->pluck('token');
+            Log::info('expoId->>>>>',[$expoPushTokens]);
             if ($expoPushTokens->count() > 0) {
                 foreach ($expoPushTokens as $expoPushToken) {
+                    Log::info('expoId in foreach->>>>>',[$expoPushToken]);
                     $message = [
                         'to' => $expoPushToken,
                         'sound' => 'default',
@@ -40,7 +43,9 @@ class EditFitOutFormsDocument extends EditRecord
                         'body' => 'Your FitOut form has been approved.',
                         'data' => ['notificationType' => 'MyRequest'],
                     ];
-                    $this->expoNotification($message);
+                    Log::info('expoMessage->>>>>',[$message]);
+                    $note = $this->expoNotification($message);
+                    Log::info('notification->>>>>',[$note]);
                     DB::table('notifications')->insert([
                         'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
                         'type' => 'Filament\Notifications\DatabaseNotification',
