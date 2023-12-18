@@ -30,7 +30,7 @@ class CommentObserver
             ->sendToDatabase($notifyTo);
 
         if ($comment->commentable_type == 'App\Models\Building\Complaint') {
-            $allowedRoles = ['OA', 'Vendor', 'Tenant'];
+            $allowedRoles = ['Owner', 'Vendor', 'Tenant'];
             $user = auth()->user();
             if (in_array($user->role->name, $allowedRoles)) {
                 $complaint = Complaint::where('id', $comment->commentable_id)->first();
