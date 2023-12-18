@@ -7,6 +7,7 @@ use App\Models\Accounting\Invoice;
 use App\Models\Accounting\OAMInvoice;
 use App\Models\Accounting\WDA;
 use App\Models\Asset;
+use App\Models\Community\Poll;
 use App\Models\Community\Post;
 use App\Models\CoolingAccount;
 use App\Models\Forms\AccessCard;
@@ -233,5 +234,10 @@ class Building extends Model
     public function coolingAccounts()
     {
         return $this->hasMany(CoolingAccount::class);
+    }
+
+    public function polls()
+    {
+        return $this->hasMany(Poll::class);
     }
 }
