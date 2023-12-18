@@ -49,6 +49,7 @@ use App\Http\Controllers\Vendor\InvoiceController;
 use App\Http\Controllers\Vendor\TenderController;
 use App\Http\Controllers\Vendor\WDAController;
 use App\Http\Controllers\Vendor\VendorBuildingController;
+use App\Http\Controllers\Gatekeeper\TenantsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -427,6 +428,13 @@ Route::middleware(['auth:sanctum', 'active', 'active.gatekeeper'])->prefix('gate
     
     Route::get('floors', [PatrollingController::class, 'featchAllFloors']);
     Route::post('store-patrolling/{building}', [PatrollingController::class, 'store']);
+
+    // List all residents for an 
+    // Save visitor for a floor
+    Route::post('visitor', [PatrollingController::class, 'storeVisitor']);
+
+    // List all tenants for a building with flat name and searchable flat number option
+    Route::get('{building}/tenants/{unit?}', [TenantsController::class, 'fetchAllTenants']);
 });
 
 // API to import services
