@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Resources\Gatekeeper;
+namespace App\Http\Resources\GateKeeper;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
