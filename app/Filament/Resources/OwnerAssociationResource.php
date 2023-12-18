@@ -52,16 +52,15 @@ class OwnerAssociationResource extends Resource
                     TextInput::make('trn_number')->label('TRN Number')
                         ->required()
                         ->disabled()
-
                         ->placeholder('TRN Number'),
                     TextInput::make('phone')
-                        ->rules(['regex:/^(\+971)(50|51|52|55|56|58|02|03|04|06|07|09)\d{7}$/',function () {
-                            return function (string $attribute, $value, Closure $fail) {
-                                if (DB::table('owner_associations')->where('phone', $value)->count() > 1) {
-                                    $fail('The phone is already taken as OA.');
+                        ->rules(['regex:/^(\+971)(50|51|52|55|56|58|02|03|04|06|07|09)\d{7}$/',function (Model $record) {
+                            return function (string $attribute, $value, Closure $fail) use($record) {
+                                if (DB::table('owner_associations')->whereNot('id',$record->id)->where('phone', $value)->count() > 0) {
+                                    $fail('The phone is already taken by a OA.');
                                 }
                                 if (DB::table('users')->where('phone', $value)->exists()) {
-                                    $fail('The phone is already taken as user.');
+                                    $fail('The phone is already taken by a user.');
                                 }
                             };
                         },
@@ -89,9 +88,9 @@ class OwnerAssociationResource extends Resource
                         })
                         ->placeholder('Address'),
                     TextInput::make('email')
-                        ->rules(['min:6', 'max:30', 'regex:/^[a-z0-9.]+@[a-z]+\.[a-z]{2,}$/', function () {
-                            return function (string $attribute, $value, Closure $fail) {
-                                if (DB::table('owner_associations')->where('email', $value)->count() > 1) {
+                        ->rules(['min:6', 'max:30', 'regex:/^[a-z0-9.]+@[a-z]+\.[a-z]{2,}$/', function (Model $record) {
+                            return function (string $attribute, $value, Closure $fail) use($record) {
+                                if (DB::table('owner_associations')->whereNot('id',$record->id)->where('email', $value)->count() > 0) {
                                     $fail('The email is already taken by a OA.');
                                 }
                                 if (DB::table('users')->where('email', $value)->exists()) {
@@ -107,16 +106,6 @@ class OwnerAssociationResource extends Resource
                                 ->where('verified', 1)
                                 ->exists();
                         })
-                        ->unique(
-                            'users',
-                            'email',
-                            modifyRuleUsing: function (Unique $rule, callable $get, ?Model $record) {
-                                if (DB::table('users')->where('owner_association_id', $record->id)->exists()) {
-                                    return $rule->whereNot('email', $get('email'));
-                                }
-                                return $rule->where('email', $get('email'));
-                            }
-                        )
                         ->placeholder('Email'),
                     FileUpload::make('profile_photo')
                         ->disk('s3')
