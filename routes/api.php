@@ -23,6 +23,7 @@ use App\Http\Controllers\Assets\AssetController;
 use App\Http\Controllers\Building\BuildingController;
 use App\Http\Controllers\Building\FlatController;
 use App\Http\Controllers\Community\CommentController;
+use App\Http\Controllers\Community\PollController;
 use App\Http\Controllers\Community\PostController;
 use App\Http\Controllers\Community\PostLikeController;
 use App\Http\Controllers\Documents\DocumentsController;
@@ -178,6 +179,14 @@ Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active']
 
     // Check if post upload is enabled for a building
     Route::get('/buildings/{building}/post-upload-permission', [PostController::class, 'checkPostUploadPermission']);
+
+    // Polls for a building
+    //  List all polls for the buidling
+    Route::get('/building/{building}/polls', [PollController::class, 'index']);
+    // Route::get('/poll/{poll}', [PollController::class, 'show']);
+
+    // create a post
+    Route::post('/poll/{poll}', [PollController::class, 'store']);
 });
 
 
