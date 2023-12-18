@@ -25,13 +25,14 @@ use Laravel\Sanctum\HasApiTokens;
 use App\Models\Accounting\Invoice;
 use App\Models\Building\Complaint;
 use App\Models\Community\PostLike;
-use App\Models\OaUserRegistration;
 use App\Models\Building\FlatTenant;
 use App\Models\Visitor\FlatVisitor;
 use App\Models\Building\BuildingPoc;
 use Filament\Models\Contracts\HasName;
 use Laravel\Jetstream\HasProfilePhoto;
 use App\Models\Building\FacilityBooking;
+use App\Models\Community\Poll;
+use App\Models\Community\PollResponse;
 use App\Models\ExpoPushNotification;
 use App\Models\TechnicianAssets;
 use Illuminate\Notifications\Notifiable;
@@ -86,11 +87,7 @@ class User extends Authenticatable implements FilamentUser, HasName
 
         return "{$this->first_name} {$this->last_name}";
     }
-
-    public function oaUserRegistration()
-    {
-        return $this->hasMany(OaUserRegistration::class);
-    }
+    
     public function role()
     {
         return $this->belongsTo(Role::class);
@@ -260,7 +257,7 @@ class User extends Authenticatable implements FilamentUser, HasName
     }
     public function assets()
     {
-        return $this->belongsToMany(Asset::class,'technician_assets','technician_id');
+        return $this->belongsToMany(Asset::class, 'technician_assets', 'technician_id');
     }
     public function ppms()
     {
@@ -269,11 +266,21 @@ class User extends Authenticatable implements FilamentUser, HasName
 
     public function assignees()
     {
-        return $this->hasMany(Complaint::class,'technician_id');
+        return $this->hasMany(Complaint::class, 'technician_id');
     }
 
     public function expoNotification()
     {
         return $this->hasOne(ExpoPushNotification::class);
+    }
+
+    public function poll()
+    {
+        return $this->hasMany(Poll::class);
+    }
+
+    public function pollResponse()
+    {
+        return $this->hasMany(PollResponse::class);
     }
 }
