@@ -3,11 +3,10 @@
 namespace App\Http\Controllers\Gatekeeper;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Gatekeeper\TenantResource;
 use Illuminate\Http\Request;
 use App\Models\Building\FlatTenant;
-use App\Http\Resources\Gatekeeper\TenantResource;
 use App\Models\Building\Flat;
-
 use App\Models\Building\Building;
 
 class TenantsController extends Controller
