@@ -223,8 +223,13 @@ class AdminPanelProvider extends PanelProvider
                                     ->icon('heroicon-s-bars-arrow-down')
                                     ->activeIcon('heroicon-s-bars-arrow-down')
                                     ->sort(3),
-
-                            ]), NavigationGroup::make('Reports')
+                                NavigationItem::make('Aging Report')
+                                    ->url('/admin/aging-report')
+                                    ->icon('heroicon-o-document')
+                                    ->activeIcon('heroicon-o-document')
+                                    ->sort(4),
+                                    
+                                ]), NavigationGroup::make('Reports')
                             ->items([
                                 NavigationItem::make('Service Charge Ledgers')
                                     ->url('/admin/ledgers')

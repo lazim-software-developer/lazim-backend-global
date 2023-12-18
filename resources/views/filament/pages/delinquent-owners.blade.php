@@ -70,19 +70,19 @@
 
                             <td class="px-3 py-4 text-sm text-gray-500 md:table-cell">
                                 @if($flat['lastReceipt'])
-                                AED {{$flat['lastReceipt']['receipt_amount'] }}
+                                 {{$flat['lastReceipt']['receipt_amount'] }}
                                 @else
                                 N/A
                                 @endif
                             </td>
 
                             <td class="px-3 py-4 text-sm text-gray-500">
-                                AED {{$flat['balance']}}
+                                 {{$flat['balance']}}
                             </td>
 
                             <td class="px-3 py-4 text-sm text-gray-500">
                                 @if($flat['Q1_receipts'])
-                                AED {{$flat['Q1_receipts']}}
+                                 {{$flat['Q1_receipts']}}
                                 @else
                                 0
                                 @endif
@@ -90,7 +90,7 @@
 
                             <td class="px-3 py-4 text-sm text-gray-500">
                                 @if($flat['Q2_receipts'])
-                                AED {{$flat['Q2_receipts']}}
+                                 {{$flat['Q2_receipts']}}
                                 @else
                                 0
                                 @endif
@@ -98,7 +98,7 @@
 
                             <td class="px-3 py-4 text-sm text-gray-500">
                                 @if($flat['Q3_receipts'])
-                                AED {{$flat['Q3_receipts']}}
+                                 {{$flat['Q3_receipts']}}
                                 @else
                                 0
                                 @endif
@@ -106,7 +106,7 @@
 
                             <td class="px-3 py-4 text-sm text-gray-500">
                                 @if($flat['Q4_receipts'])
-                                AED {{$flat['Q4_receipts']}}
+                                 {{$flat['Q4_receipts']}}
                                 @else
                                 0
                                 @endif
