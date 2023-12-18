@@ -12,13 +12,14 @@ use App\Models\Building\Building;
 
 class TenantsController extends Controller
 {
-    function fetchAllTenants(Request $request, Building $building) {
+    function fetchAllTenants(Request $request, Building $building)
+    {
 
         $tenantsQuery = FlatTenant::where(['building_id' => $building->id, 'active' => 1]);
 
-        if($request->has('unit')) {
+        if ($request->has('unit')) {
             $unit = $request->input('unit');
-            $flatId = Flat::where('property_number','LIKE','%'.$unit.'%')->get(['id']);
+            $flatId = Flat::where('property_number', 'LIKE', '%' . $unit . '%')->get(['id']);
             $tenantsQuery->whereIn('flat_id', $flatId);
         }
 
