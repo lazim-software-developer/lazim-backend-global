@@ -30,7 +30,7 @@ class EditFitOutFormsDocument extends EditRecord
     public function afterSave()
     {
         if ($this->record->status == 'approved') {
-            Log::info('user id--------->'.$this->record->user_id);
+            Log::info('user id--------->',[$this->record->user_id]);
             $expoPushTokens = ExpoPushNotification::where('user_id', $this->record->user_id)->pluck('token');
             if ($expoPushTokens->count() > 0) {
                 foreach ($expoPushTokens as $expoPushToken) {
@@ -41,7 +41,7 @@ class EditFitOutFormsDocument extends EditRecord
                         'body' => 'Your FitOut form has been approved.',
                         'data' => ['notificationType' => 'MyRequest'],
                     ];
-                    Log::info('expo details--------->'.$expoPushToken);
+                    Log::info('expo details--------->',[$expoPushToken]);
                     $this->expoNotification($message);
                     DB::table('notifications')->insert([
                         'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
