@@ -13,7 +13,7 @@ class GuestObserver
      */
     public function created(Guest $guest): void
     {
-        $notifyTo = User::where('owner_association_id',$guest->owner_association_id)->get();
+        $notifyTo = User::where('owner_association_id',$guest->owner_association_id)->where('role_id', 10)->get();
         Notification::make()
         ->success()
         ->title("New Guest registration form Submission")
