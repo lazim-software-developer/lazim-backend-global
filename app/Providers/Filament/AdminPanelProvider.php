@@ -208,11 +208,6 @@ class AdminPanelProvider extends PanelProvider
                                     ->icon('heroicon-o-currency-dollar')
                                     ->activeIcon('heroicon-o-currency-dollar')
                                     ->sort(1),
-                                NavigationItem::make('Aging Report')
-                                    ->url('/admin/aging-report')
-                                    ->icon('heroicon-o-document')
-                                    ->activeIcon('heroicon-o-document')
-                                    ->sort(5),
                                 NavigationItem::make('Budget Vs Actual')
                                     ->url('/admin/budget-vs-actual')
                                     ->icon('heroicon-s-pencil-square')
@@ -223,8 +218,13 @@ class AdminPanelProvider extends PanelProvider
                                     ->icon('heroicon-s-bars-arrow-down')
                                     ->activeIcon('heroicon-s-bars-arrow-down')
                                     ->sort(3),
-
-                            ]), NavigationGroup::make('Reports')
+                                NavigationItem::make('Aging Report')
+                                    ->url('/admin/aging-report')
+                                    ->icon('heroicon-o-document')
+                                    ->activeIcon('heroicon-o-document')
+                                    ->sort(4),
+                                    
+                                ]), NavigationGroup::make('Reports')
                             ->items([
                                 NavigationItem::make('Service Charge Ledgers')
                                     ->url('/admin/ledgers')
