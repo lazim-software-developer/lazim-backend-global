@@ -105,6 +105,7 @@ class GuestController extends Controller
                 Document::create($request->all());
             }
         }
+        
         return (new CustomResponseResource([
             'title' => 'Success',
             'message' => ' created successfully!',
