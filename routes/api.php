@@ -255,8 +255,6 @@ Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active']
 Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active'])->group(function () {
     Route::get('/buildings/{building}/services', [ServiceController::class, 'listServicesForBuilding']);
     Route::post('buildings/{building}/book/service', [ServiceController::class, 'bookService']);
-    // about Community
-    Route::get('/about-community/{building}', [CommunityController::class, 'about']);
 });
 
 
@@ -332,7 +330,7 @@ Route::middleware([])->prefix('vendor')->group(function () {
     Route::post('/{vendor}/tag-services', [SelectServicesController::class, 'tagServices']);
     Route::post('/{vendor}/untag-services', [SelectServicesController::class, 'untagServices']);
     Route::post('/{vendor}/documents-upload', [DocumentsUploadController::class, 'documentsUpload']);
-    Route::get('/owner-associations',[VendorRegistrationController::class,'listOa']);
+    Route::get('/owner-associations', [VendorRegistrationController::class, 'listOa']);
 });
 
 // Vendor APIs after logging in
@@ -400,12 +398,12 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('technician')->group(funct
     Route::get('/buildings', [TechnicianBuildingController::class, 'index']);
     Route::get('/tasks', [TasksController::class, 'index']);
     //List all technicians for a service
-    Route::get('/{service}/technicians/{vendor}',[TechnicianController::class, 'index']);
-    Route::get('/{vendor}/technicians',[TechnicianController::class,'listTechnicians']);
-    Route::patch('/active-deactive/{technician}',[TechnicianController::class, 'activeDeactive']);
-    Route::post('/attach-technician/{technician}',[TechnicianController::class, 'attachTechnician']);
-    Route::post('/assign-technician/{complaint}',[TechnicianController::class, 'assignTechnician']);
-    Route::get('/{service}/list-technicians/{vendor}',[TechnicianController::class, 'technicianList']);
+    Route::get('/{service}/technicians/{vendor}', [TechnicianController::class, 'index']);
+    Route::get('/{vendor}/technicians', [TechnicianController::class, 'listTechnicians']);
+    Route::patch('/active-deactive/{technician}', [TechnicianController::class, 'activeDeactive']);
+    Route::post('/attach-technician/{technician}', [TechnicianController::class, 'attachTechnician']);
+    Route::post('/assign-technician/{complaint}', [TechnicianController::class, 'assignTechnician']);
+    Route::get('/{service}/list-technicians/{vendor}', [TechnicianController::class, 'technicianList']);
 });
 
 // Assets related APIs
@@ -420,7 +418,7 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('assets')->group(function 
     Route::post('/maintenance/{assetMaintenance}/update-after', [AssetController::class, 'updateAfter']);
 
     // API to list asset details for the technician when he scans the QR code
-    Route::get('/{asset}',[TechnicianController::class, 'fetchTechnicianAssetDetails']);
+    Route::get('/{asset}', [TechnicianController::class, 'fetchTechnicianAssetDetails']);
 
     //Vendor assets
     Route::get('/vendor/{vendor}', [AssetController::class, 'listAssets']);
@@ -434,7 +432,7 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('assets')->group(function 
 
 Route::middleware(['auth:sanctum', 'active', 'active.gatekeeper'])->prefix('gatekeeper')->group(function () {
     Route::get('snags', [GatekeeperComplaintController::class, 'index']);
-    
+
     Route::get('floors', [PatrollingController::class, 'featchAllFloors']);
     Route::post('store-patrolling/{building}', [PatrollingController::class, 'store']);
 
@@ -449,3 +447,5 @@ Route::middleware(['auth:sanctum', 'active', 'active.gatekeeper'])->prefix('gate
 // API to import services
 Route::post('/import-services', [ServiceController::class, 'import']);
 
+// about Community
+Route::get('/building/{building}', [CommunityController::class, 'about']);
