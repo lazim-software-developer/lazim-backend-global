@@ -16,6 +16,7 @@ use App\Models\Forms\MoveInOut;
 use App\Models\Forms\SaleNOC;
 use App\Models\OwnerAssociation;
 use App\Models\ResidentialForm;
+use App\Models\TechnicianAssets;
 use App\Models\User\User;
 use App\Observers\AccessCardObserver;
 use App\Observers\AnnouncementObserver;
@@ -31,6 +32,7 @@ use App\Observers\PostLikeObserver;
 use App\Observers\ProposalObserver;
 use App\Observers\ResidentialFormObserver;
 use App\Observers\SaleNOCObserver;
+use App\Observers\TechnicianAssetsObserver;
 use App\Observers\UserObserver;
 use App\Observers\WDAObserver;
 use Illuminate\Support\Facades\Schema;
@@ -72,5 +74,6 @@ class AppServiceProvider extends ServiceProvider
         User::observe(UserObserver::class);
         // Proposal::observe(ProposalObserver::class);
         WDA::observe(WDAObserver::class);
+        TechnicianAssets::observe(TechnicianAssetsObserver::class);
     }
 }
