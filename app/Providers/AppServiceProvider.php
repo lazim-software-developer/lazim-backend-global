@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Models\Accounting\Proposal;
 use App\Models\Accounting\WDA;
 use App\Models\Building\Building;
 use App\Models\Building\Complaint;
@@ -72,7 +73,7 @@ class AppServiceProvider extends ServiceProvider
         FacilityBooking::observe(FacilityServiceBookingObserver::class);
         PostLike::observe(PostLikeObserver::class);
         User::observe(UserObserver::class);
-        // Proposal::observe(ProposalObserver::class);
+        Proposal::observe(ProposalObserver::class);
         WDA::observe(WDAObserver::class);
         TechnicianAssets::observe(TechnicianAssetsObserver::class);
     }
