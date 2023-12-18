@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Building;
 
+use App\Filament\Resources\Building\BuildingResource\RelationManagers\RuleregulationsRelationManager;
 use Filament\Forms;
 use Filament\Tables;
 use Filament\Forms\Form;
@@ -90,7 +91,7 @@ class BuildingResource extends Resource
                             TextInput::make('floors')
                                 ->numeric()
                                 ->disabled(function ($record) {
-                                    if($record->floors == null){
+                                    if($record?->floors == null){
                                         return false;
                                     }
                                     return true;
@@ -245,6 +246,7 @@ class BuildingResource extends Resource
                 // BuildingResource\RelationManagers\BudgetRelationManager::class,
             BuildingResource\RelationManagers\BuildingPocsRelationManager::class,
             FloorsRelationManager::class,
+            RuleregulationsRelationManager::class,
             BuildingResource\RelationManagers\ComplaintRelationManager::class,
             BuildingResource\RelationManagers\ServicesRelationManager::class,
             BuildingResource\RelationManagers\ServiceRelationManager::class,
