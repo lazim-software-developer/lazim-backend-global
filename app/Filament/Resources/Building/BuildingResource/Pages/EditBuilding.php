@@ -20,7 +20,7 @@ class EditBuilding extends EditRecord
     }
     public function afterSave()
     {
-        if ($this->record->floors != null) 
+        if ($this->record->floors != null && Floor::where('building_id',$this->record->id)->count() === 0) 
         {
             $countfloor = $this->record->floors;
             while ($countfloor > 0) 
