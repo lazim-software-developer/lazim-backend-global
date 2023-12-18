@@ -13,7 +13,7 @@ class ResidentialFormObserver
      */
     public function created(ResidentialForm $residentialForm): void
     {
-        $notifyTo = User::where('owner_association_id',$residentialForm->owner_association_id)->get();
+        $notifyTo = User::where('owner_association_id',$residentialForm->owner_association_id)->where('role_id', 10)->get();
         Notification::make()
         ->success()
         ->title("New ResidentialForm Submission")

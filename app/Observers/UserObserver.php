@@ -13,7 +13,7 @@ class UserObserver
     public function created(User $user): void
     {
         $notifyTo = User::where('owner_association_id', $user->owner_association_id)->where('role_id',10)->get();
-        if($user->role_id == 2){
+        if(auth()->user->role_id == 2){
             Notification::make()
             ->success()
             ->title("New Vendor")

@@ -15,7 +15,6 @@ class AnnouncementObserver
     {
         $notifyTo = User::where('owner_association_id',$post->owner_association_id)->get();
         if($post->is_announcement){
-
             Notification::make()
                 ->success()
                 ->title("Announcement created")
