@@ -49,7 +49,7 @@ class AgingReport extends Page implements HasTable
         $currentDate = Carbon::now();
         //Get current year
         $currentYear = Carbon::now()->year;
-
+        
         $flats = Flat::whereIn('building_id', $buildingIds)->with('oaminvoices')->get();
         $filteredFlats=$flats->filter(function ($flat) use ($currentYear, $currentDate, $buildingIds) 
             {
@@ -60,7 +60,7 @@ class AgingReport extends Page implements HasTable
                     
                     $yearlyReceipts = OAMReceipts::where('flat_id' , $flat->id)->where('receipt_period', 'like', '%' . $currentYear . '%')->whereIn('building_id', $buildingIds)->sum('receipt_amount');
                     
-                    if ((int)$yearlyInvoices - (int)$yearlyReceipts >0 || $this->checkDueDate($flat,$currentYear)) {
+                    if ((int)($yearlyInvoices - $yearlyReceipts) >0 || $this->checkDueDate($flat,$currentYear)) {
                         Log::info('flat'. $flat);
                         Log::info('invoice'. (int)$yearlyInvoices);
                         Log::info('recipts'.(int)$yearlyReceipts);
@@ -74,33 +74,15 @@ class AgingReport extends Page implements HasTable
             ->query(Flat::query()->whereIn('id', $filteredFlats)->orderBy('id'))
             ->columns([
                 TextColumn::make('property_number')->label('Unit'),
-                TextColumn::make('owners.name')->label('Owner'),
-                // ViewColumn::make('owner')->label('Owner')->view('tables.columns.aging-report.owner-name'),
-                // ViewColumn::make('service_name')->label('Service Name')->view('tables.columns.service-name'),
-                // ViewColumn::make('vendor')->label('Supplier Name')->view('tables.columns.service-supplier'),
-                // ViewColumn::make('budget')->label('Budget Annual')->view('tables.columns.service-budget'),
-                // ViewColumn::make('actual')->label('Actual Annual')->view('tables.columns.service-actual'),
-                // ViewColumn::make('surplus')->label('(Deficit)/Surplus')->view('tables.columns.service-surplus'),
+                TextColumn::make('owners.name')->label('Owner')->limit(20),
+                ViewColumn::make('outstanding_balance')->label('Outstanding Balance')->view('tables.columns.aging-report.outstanding-balance'),
+                ViewColumn::make('balance1')->label("Aged Balance 0-90")->view('tables.columns.aging-report.balance-quarter1'),
+                ViewColumn::make('balance2')->label('Aged Balance 91-180')->view('tables.columns.aging-report.balance-quarter2'),
+                ViewColumn::make('balance3')->label('Aged Balance 180-270')->view('tables.columns.aging-report.balance-quarter3'),
+                ViewColumn::make('balance4')->label('Aged Balance 270-360')->view('tables.columns.aging-report.balance-quarter4'),
+                ViewColumn::make('over_balance')->label('Aged Balance Above 360')->view('tables.columns.aging-report.over-balance'),
             ])
             ->defaultSort('created_at', 'desc')->filters([
-                Filter::make('invoice_date')
-                    ->form([
-                        Select::make('year')
-                        ->searchable()
-                        ->placeholder('Select Year')
-                        ->options(array_combine(range(now()->year, 2018), range(now()->year, 2018))),
-                    ])
-                    ->query(function (Builder $query, array $data): Builder {
-                        if (isset($data['year'])) {       
-                                return $query
-                                    ->when(
-                                        $data['year'],
-                                        fn (Builder $query, $year) => $query->whereYear('budget_from', $year)->orWhereYear('budget_to', $year)
-                                    );
-                        }
-                        
-                            return $query;
-                        }),
                 Filter::make('Building')
                     ->form([
                         Select::make('building')
