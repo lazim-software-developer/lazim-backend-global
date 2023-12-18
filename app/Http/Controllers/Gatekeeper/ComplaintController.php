@@ -36,6 +36,8 @@ class ComplaintController extends Controller
             'status' => 'open',
         ])->latest()->paginate(10);
 
+        return $complaints;
+
         return Complaintresource::collection($complaints);
     }
 }

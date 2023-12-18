@@ -30,7 +30,7 @@ class CommentController extends Controller
         $comment = new Comment($request->all());
 
         $comment->commentable()->associate($post);
-        $comment->user_id = auth()->id();
+        $comment->user_id = auth()->user()->id;
         $comment->save();
 
         return (new CustomResponseResource([
