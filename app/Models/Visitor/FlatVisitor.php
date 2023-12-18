@@ -30,6 +30,7 @@ class FlatVisitor extends Model
         'remarks',
         'email',
         'number_of_visitors',
+        'time_of_viewing'
     ];
 
     protected $searchableFields = ['*'];

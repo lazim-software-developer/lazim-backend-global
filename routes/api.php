@@ -442,6 +442,9 @@ Route::middleware(['auth:sanctum', 'active', 'active.gatekeeper'])->prefix('gate
 
     // List all tenants for a building with flat name and searchable flat number option
     Route::get('{building}/tenants/{unit?}', [TenantsController::class, 'fetchAllTenants']);
+
+    // List all visitors for a building
+    Route::get('/building/{building}/visits', [GuestController::class, 'futureVisits']);
 });
 
 // API to import services
@@ -449,3 +452,6 @@ Route::post('/import-services', [ServiceController::class, 'import']);
 
 // about Community
 Route::get('/building/{building}', [CommunityController::class, 'about']);
+
+// Visitor form
+Route::post('/store-visitor', [GuestController::class, 'saveFlatVisitors']);
