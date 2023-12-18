@@ -18,7 +18,7 @@ class ComplaintObserver
      */
     public function created(Complaint $complaint): void
     {
-        $notifyTo = User::where('owner_association_id', $complaint->owner_association_id)->get();
+        $notifyTo = User::where('owner_association_id', $complaint->owner_association_id)->where('role_id', 10)->get();
         if ($complaint->complaint_type == 'tenant_complaint') {
 
             Notification::make()
@@ -26,7 +26,7 @@ class ComplaintObserver
                 ->title("Happiness center Complaint")
                 ->icon('heroicon-o-document-text')
                 ->iconColor('warning')
-                ->body(`Complaint has been created by ` . auth()->user()->first_name)
+                ->body('Complaint has been created by' . auth()->user()->first_name)
                 ->sendToDatabase($notifyTo);
         } elseif ($complaint->complaint_type == 'enquiries') {
             Notification::make()
@@ -61,7 +61,7 @@ class ComplaintObserver
     public function updated(Complaint $complaint): void
     {
         $role = Role::where('id', auth()->user()->role_id)->first();
-        $notifyTo = User::where('owner_association_id', $complaint->owner_association_id)->get();
+        $notifyTo = User::where('owner_association_id', $complaint->owner_association_id)->where('role_id', 10)->get();
         //DB notification for ADMIN
         if ($complaint->complaint_type == 'help_desk') {
             Notification::make()
@@ -81,6 +81,7 @@ class ComplaintObserver
                 ->sendToDatabase($notifyTo);
         }
 
+        //assign technician
         if ($complaint->technician_id != null) {
             $expoPushTokens = ExpoPushNotification::where('user_id', $complaint->technician_id)->pluck('token');
             if ($expoPushTokens->count() > 0) {
