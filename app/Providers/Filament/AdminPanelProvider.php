@@ -69,7 +69,7 @@ class AdminPanelProvider extends PanelProvider
                 $builder->groups([
                     NavigationGroup::make('Master')
                         ->items([
-                            NavigationItem::make('MollakTenant')
+                            NavigationItem::make('Tenants')
                                 ->url('/admin/mollak-tenants')
                                 ->icon('heroicon-o-users')
                                 ->activeIcon('heroicon-o-users')
@@ -92,12 +92,12 @@ class AdminPanelProvider extends PanelProvider
                                 ->icon('heroicon-m-globe-americas')
                                 ->activeIcon('heroicon-m-globe-americas')
                                 ->sort(4),
-                            // NavigationItem::make('Document Libraries')
-                            //     ->hidden(DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] == 'Admin' ? true : false)
-                            //     ->url('/admin/master/document-libraries')
-                            //     ->icon('heroicon-m-document-chart-bar')
-                            //     ->activeIcon('heroicon-m-document-chart-bar')
-                            //     ->sort(5),
+                            NavigationItem::make('Residents')
+                                ->url('/admin/tenant-documents')
+                                ->hidden(DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] == 'Admin' ? true : false)
+                                ->icon('heroicon-o-user-circle')
+                                ->activeIcon('heroicon-o-user-circle')
+                                ->sort(5),
                             NavigationItem::make('Facilities')
                                 // ->hidden(DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] == 'Admin' ? false : true)
                                 ->url('/admin/master/facilities')
@@ -133,16 +133,21 @@ class AdminPanelProvider extends PanelProvider
                                 ->icon('heroicon-m-clipboard-document-check')
                                 ->activeIcon('heroicon-m-clipboard-document-check')
                                 ->sort(1),
+                            NavigationItem::make('Units')
+                                ->url('/admin/building/flats')
+                                ->icon('heroicon-o-home')
+                                ->activeIcon('heroicon-o-home')
+                                ->sort(2),
                             NavigationItem::make('Facility Bookings')
                                 ->url('/admin/building/facility-bookings')
                                 ->icon('heroicon-o-cube-transparent')
                                 ->activeIcon('heroicon-o-cube-transparent')
-                                ->sort(2),
+                                ->sort(3),
                             NavigationItem::make('Service Bookings')
                                 ->url('/admin/building/service-bookings')
                                 ->icon('heroicon-m-wrench')
                                 ->activeIcon('heroicon-m-wrench')
-                                ->sort(3),
+                                ->sort(4),
                         ]),
                 ]);
 
@@ -309,16 +314,11 @@ class AdminPanelProvider extends PanelProvider
                                 ->sort(2),
                         ]),
                 ]);
-               
-               
+
+
                 $builder->groups([
                     NavigationGroup::make('Unit Management')
                         ->items([
-                            NavigationItem::make('Units')
-                                ->url('/admin/building/flats')
-                                ->icon('heroicon-o-home')
-                                ->activeIcon('heroicon-o-home')
-                                ->sort(1),
                             NavigationItem::make('Tenants')
                                 ->url('/admin/building/flat-tenants')
                                 ->icon('heroicon-o-user-circle')
@@ -326,33 +326,27 @@ class AdminPanelProvider extends PanelProvider
                                 ->sort(2),
                         ]),
                 ]);
-                if (DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] != 'Admin') {
-                    $builder->groups([
-                        NavigationGroup::make('Document Management')
-                            ->items([
-                                NavigationItem::make('Buildings')
-                                    ->url('/admin/building-documents')
-                                    ->hidden(DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] == 'Admin' ? true : false)
-                                    ->icon('heroicon-o-building-office-2')
-                                    ->activeIcon('heroicon-o-building-office-2')
-                                    ->sort(1),
-                                NavigationItem::make('Units')
-                                    ->url('/admin/flat-documents')
-                                    ->hidden(DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] == 'Admin' ? true : false)
-                                    ->icon('heroicon-o-home')
-                                    ->activeIcon('heroicon-o-home')
-                                    ->sort(2),
-                                NavigationItem::make('Residents')
-                                    ->url('/admin/tenant-documents')
-                                    ->hidden(DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] == 'Admin' ? true : false)
-                                    ->icon('heroicon-o-user-circle')
-                                    ->activeIcon('heroicon-o-user-circle')
-                                    ->sort(2),
-                            ]),
-                    ]);
-                }
-                
-                
+                // if (DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] != 'Admin') {
+                //     $builder->groups([
+                //         NavigationGroup::make('Document Management')
+                //             ->items([
+                //                 NavigationItem::make('Buildings')
+                //                     ->url('/admin/building-documents')
+                //                     ->hidden(DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] == 'Admin' ? true : false)
+                //                     ->icon('heroicon-o-building-office-2')
+                //                     ->activeIcon('heroicon-o-building-office-2')
+                //                     ->sort(1),
+                //                 NavigationItem::make('Units')
+                //                     ->url('/admin/flat-documents')
+                //                     ->hidden(DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] == 'Admin' ? true : false)
+                //                     ->icon('heroicon-o-home')
+                //                     ->activeIcon('heroicon-o-home')
+                //                     ->sort(2),
+                //             ]),
+                //     ]);
+                // }
+    
+
                 if (DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] != 'Admin') {
                     $builder->groups([
                         NavigationGroup::make('Happiness center')
