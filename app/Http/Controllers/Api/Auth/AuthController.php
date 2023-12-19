@@ -277,6 +277,7 @@ class AuthController extends Controller
         $user->building_id = $building->first()->building_id;
         $user->building_name = $building->first()->building->name;
         $user->slug = $building->first()->building->slug;
+        $user->profile_photo = user->profile_photo ? Storage::disk('s3')->url($user->profile_photo) : null
 
         return response()->json([
             'token' => $token,
