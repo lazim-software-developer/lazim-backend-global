@@ -17,12 +17,14 @@ use App\Models\Master\Role;
 use App\Models\User\User;
 use App\Models\Visitor;
 use App\Models\Visitor\FlatVisitor;
+use App\Traits\UtilsTrait;
 use Filament\Notifications\Notification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class GuestController extends Controller
 {
+    use UtilsTrait;
     /**
      * Show the form for creating a new resource.
      */
