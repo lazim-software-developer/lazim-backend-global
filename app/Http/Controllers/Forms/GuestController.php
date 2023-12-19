@@ -11,7 +11,10 @@ use App\Models\Building\Building;
 use App\Models\Building\Document;
 use App\Models\Forms\Guest;
 use App\Models\Master\DocumentLibrary;
+use App\Models\Master\Role;
+use App\Models\User\User;
 use App\Models\Visitor\FlatVisitor;
+use Filament\Notifications\Notification;
 
 class GuestController extends Controller
 {
@@ -83,6 +86,14 @@ class GuestController extends Controller
         ]);
 
         $visitor = FlatVisitor::create($request->all());
+        $user = User::where('owner_association_id', $ownerAssociationId)->where('role_id', Role::where('name','OA')->value('id'))->get();
+        Notification::make()
+            ->success()
+            ->title('Flat Visit Request')
+            ->body("Flat visit request received for $request->start_date")
+            ->icon('heroicon-o-document-text')
+            ->iconColor('warning')
+            ->sendToDatabase($user);
 
         // Handle multiple images
         if ($request->hasFile('files')) {
