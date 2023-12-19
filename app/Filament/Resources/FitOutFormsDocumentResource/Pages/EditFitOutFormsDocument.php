@@ -29,10 +29,15 @@ class EditFitOutFormsDocument extends EditRecord
 
     public function afterSave()
     {
+        Log::info('current status-->>>', [$this->record->status]);
         if ($this->record->status == 'approved') {
+            Log::info('requested by userId-->>>', [$this->record->user_id]);
             $expoPushTokens = ExpoPushNotification::where('user_id', $this->record->user_id)->pluck('token');
+            Log::info('expotoken-->>>', [$expoPushTokens]);
             if ($expoPushTokens->count() > 0) {
+                Log::info('expotoken count-->>>', [$expoPushTokens->count()]);
                 foreach ($expoPushTokens as $expoPushToken) {
+                    Log::info('expotoken foreach-->>>', [$expoPushToken]);
                     $message = [
                         'to' => $expoPushToken,
                         'sound' => 'default',
@@ -40,7 +45,9 @@ class EditFitOutFormsDocument extends EditRecord
                         'body' => 'Your FitOut form has been approved.',
                         'data' => ['notificationType' => 'MyRequest'],
                     ];
-                    $this->expoNotification($message);
+                    Log::info('expo MSG-->>>', [$message]);
+                    $note = $this->expoNotification($message);
+                    Log::info('notification-->>>', [$note]);
                     DB::table('notifications')->insert([
                         'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
                         'type' => 'Filament\Notifications\DatabaseNotification',
@@ -64,8 +71,11 @@ class EditFitOutFormsDocument extends EditRecord
             }
         }
         if ($this->record->status == 'rejected') {
+            Log::info('requested by userId-->>>', [$this->record->user_id]);
             $expoPushTokens = ExpoPushNotification::where('user_id', $this->record->user_id)->pluck('token');
+            Log::info('expotoken-->>>', [$expoPushTokens]);
             if ($expoPushTokens->count() > 0) {
+                Log::info('expotoken count-->>>', [$expoPushTokens->count()]);
                 foreach ($expoPushTokens as $expoPushToken) {
                     $message = [
                         'to' => $expoPushToken,
@@ -74,7 +84,9 @@ class EditFitOutFormsDocument extends EditRecord
                         'body' => 'Your FitOut form has been rejected.',
                         'data' => ['notificationType' => 'MyRequest'],
                     ];
-                    $this->expoNotification($message);
+                    Log::info('expotoken foreach-->>>', [$expoPushToken]);
+                    $note = $this->expoNotification($message);
+                    Log::info('notification-->>>', [$note]);
 
                     DB::table('notifications')->insert([
                         'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
