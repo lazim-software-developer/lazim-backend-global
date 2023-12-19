@@ -20,6 +20,7 @@ class UserFlatResource extends JsonResource
             'flat_name' => $this->property_number,
             'flat_id' => $this->id,
             'building_name' => $this->building->name,
+            'building_slug' => $this->building->slug,
             'building_id' => $this->building->id,
             'role' => $role
         ];;
