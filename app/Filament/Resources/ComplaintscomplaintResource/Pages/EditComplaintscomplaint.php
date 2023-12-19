@@ -26,7 +26,6 @@ class EditComplaintscomplaint extends EditRecord
     {
         $role = Role::where('id', auth()->user()->role_id)->first();
         if ($this->record->technician_id != null) {
-            dd($this->record->technician_id);
             $expoPushTokens = ExpoPushNotification::where('user_id', $this->record->technician_id)->pluck('token');
             if ($expoPushTokens->count() > 0) {
                 foreach ($expoPushTokens as $expoPushToken) {
