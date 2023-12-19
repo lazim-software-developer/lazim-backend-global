@@ -108,7 +108,7 @@ class ComplaintObserver
                             'title' => 'New Complaint Assigned',
                             'view' => 'notifications::notification',
                             'viewData' => [],
-                            'format' => 'filament'
+                            'format' => 'filament',
                         ]),
                         'created_at' => now()->format('Y-m-d H:i:s'),
                         'updated_at' => now()->format('Y-m-d H:i:s'),
@@ -118,73 +118,154 @@ class ComplaintObserver
         }
 
         //push notification for mobile app
-        if ($complaint->complaint_type == 'help_desk') {
-            $expoPushTokens = ExpoPushNotification::where('user_id', $complaint->user_id)->pluck('token');
-            if ($expoPushTokens->count() > 0) {
-                foreach ($expoPushTokens as $expoPushToken) {
-                    $message = [
-                        'to' => $expoPushToken,
-                        'sound' => 'default',
-                        'title' => 'Help Desk complaint status',
-                        'body' => 'A complaint has been resolved by a ' . $role->name . ' ' . auth()->user()->first_name,
-                        'data' => ['notificationType' => 'HelpDeskTab'],
-                    ];
-                    $this->expoNotification($message);
-                    DB::table('notifications')->insert([
-                        'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
-                        'type' => 'Filament\Notifications\DatabaseNotification',
-                        'notifiable_type' => 'App\Models\User\User',
-                        'notifiable_id' => $complaint->user_id,
-                        'data' => json_encode([
-                            'actions' => [],
-                            'body' => 'A complaint has been resolved by a ' . $role->name . ' ' . auth()->user()->first_name,
-                            'duration' => 'persistent',
-                            'icon' => 'heroicon-o-document-text',
-                            'iconColor' => 'warning',
+
+        $allowedRoles = ['Owner', 'OA', 'Tenant'];
+        $user = auth()->user();
+        if (in_array($user->role->name, $allowedRoles)) {
+            if ($complaint->complaint_type == 'help_desk') {
+                $expoPushTokens = ExpoPushNotification::where('user_id', $complaint->user_id)->pluck('token');
+                if ($expoPushTokens->count() > 0) {
+                    foreach ($expoPushTokens as $expoPushToken) {
+                        $message = [
+                            'to' => $expoPushToken,
+                            'sound' => 'default',
                             'title' => 'Help Desk complaint status',
-                            'view' => 'notifications::notification',
-                            'viewData' => [],
-                            'format' => 'filament'
-                        ]),
-                        'created_at' => now()->format('Y-m-d H:i:s'),
-                        'updated_at' => now()->format('Y-m-d H:i:s'),
-                    ]);
+                            'body' => 'A complaint has been resolved by a '.$role->name.' '.auth()->user()->first_name,
+                            'data' => ['notificationType' => 'HelpDeskTab'],
+                        ];
+                        $this->expoNotification($message);
+                        DB::table('notifications')->insert([
+                            'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
+                            'type' => 'Filament\Notifications\DatabaseNotification',
+                            'notifiable_type' => 'App\Models\User\User',
+                            'notifiable_id' => $complaint->user_id,
+                            'data' => json_encode([
+                                'actions' => [],
+                                'body' => 'A complaint has been resolved by a '.$role->name.' '.auth()->user()->first_name,
+                                'duration' => 'persistent',
+                                'icon' => 'heroicon-o-document-text',
+                                'iconColor' => 'warning',
+                                'title' => 'Help Desk complaint status',
+                                'view' => 'notifications::notification',
+                                'viewData' => [],
+                                'format' => 'filament',
+                            ]),
+                            'created_at' => now()->format('Y-m-d H:i:s'),
+                            'updated_at' => now()->format('Y-m-d H:i:s'),
+                        ]);
+                    }
                 }
-            }
-        } else {
-            $expoPushTokens = ExpoPushNotification::where('user_id', $complaint->user_id)->pluck('token');
-            if ($expoPushTokens->count() > 0) {
-                foreach ($expoPushTokens as $expoPushToken) {
-                    $message = [
-                        'to' => $expoPushToken,
-                        'sound' => 'default',
-                        'title' => 'Help Desk complaint status',
-                        'body' => 'A complaint has been resolved by a ' . $role->name . ' ' . auth()->user()->first_name,
-                        'data' => ['notificationType' => 'HelpDeskTab'],
-                    ];
-                    $this->expoNotification($message);
-                    DB::table('notifications')->insert([
-                        'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
-                        'type' => 'Filament\Notifications\DatabaseNotification',
-                        'notifiable_type' => 'App\Models\User\User',
-                        'notifiable_id' => $complaint->user_id,
-                        'data' => json_encode([
-                            'actions' => [],
-                            'body' => 'A complaint has been resolved by a ' . $role->name . ' ' . auth()->user()->first_name,
-                            'duration' => 'persistent',
-                            'icon' => 'heroicon-o-document-text',
-                            'iconColor' => 'warning',
+            } else {
+                $expoPushTokens = ExpoPushNotification::where('user_id', $complaint->user_id)->pluck('token');
+                if ($expoPushTokens->count() > 0) {
+                    foreach ($expoPushTokens as $expoPushToken) {
+                        $message = [
+                            'to' => $expoPushToken,
+                            'sound' => 'default',
                             'title' => 'Help Desk complaint status',
-                            'view' => 'notifications::notification',
-                            'viewData' => [],
-                            'format' => 'filament'
-                        ]),
-                        'created_at' => now()->format('Y-m-d H:i:s'),
-                        'updated_at' => now()->format('Y-m-d H:i:s'),
-                    ]);
+                            'body' => 'A complaint has been resolved by a '.$role->name.' '.auth()->user()->first_name,
+                            'data' => ['notificationType' => 'HelpDeskTab'],
+                        ];
+                        $this->expoNotification($message);
+                        DB::table('notifications')->insert([
+                            'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
+                            'type' => 'Filament\Notifications\DatabaseNotification',
+                            'notifiable_type' => 'App\Models\User\User',
+                            'notifiable_id' => $complaint->user_id,
+                            'data' => json_encode([
+                                'actions' => [],
+                                'body' => 'A complaint has been resolved by a '.$role->name.' '.auth()->user()->first_name,
+                                'duration' => 'persistent',
+                                'icon' => 'heroicon-o-document-text',
+                                'iconColor' => 'warning',
+                                'title' => 'Help Desk complaint status',
+                                'view' => 'notifications::notification',
+                                'viewData' => [],
+                                'format' => 'filament',
+                            ]),
+                            'created_at' => now()->format('Y-m-d H:i:s'),
+                            'updated_at' => now()->format('Y-m-d H:i:s'),
+                        ]);
+                    }
                 }
             }
         }
+
+        // //if due_date updated then assign technician will get the notification
+        // $oldValues = $complaint->getOriginal();
+        // $newValues = $complaint->getAttributes();
+
+        // if($newValues['due_date'] != $oldValues['due_date']){
+        //     $expoPushTokens = ExpoPushNotification::where('user_id', $complaint->technician_id)->pluck('token');
+        //     if ($expoPushTokens->count() > 0) {
+        //         foreach ($expoPushTokens as $expoPushToken) {
+        //             $message = [
+        //                 'to' => $expoPushToken,
+        //                 'sound' => 'default',
+        //                 'title' => 'Complaint Date Changes',
+        //                 'body' => 'Due date for complaint has been changed by vendor. Check the application for the infomation.',
+        //                 'data' => ['notificationType' => 'app_notification'],
+        //             ];
+        //             $this->expoNotification($message);
+        //             DB::table('notifications')->insert([
+        //                 'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
+        //                 'type' => 'Filament\Notifications\DatabaseNotification',
+        //                 'notifiable_type' => 'App\Models\User\User',
+        //                 'notifiable_id' => $complaint->technician_id,
+        //                 'data' => json_encode([
+        //                     'actions' => [],
+        //                     'body' => 'Due date for complaint has been changed by vendor. Check the application for the infomation.',
+        //                     'duration' => 'persistent',
+        //                     'icon' => 'heroicon-o-document-text',
+        //                     'iconColor' => 'warning',
+        //                     'title' => 'Complaint Date Changes',
+        //                     'view' => 'notifications::notification',
+        //                     'viewData' => [],
+        //                     'format' => 'filament',
+        //                 ]),
+        //                 'created_at' => now()->format('Y-m-d H:i:s'),
+        //                 'updated_at' => now()->format('Y-m-d H:i:s'),
+        //             ]);
+        //         }
+        //     }
+        // }
+
+        // //if priority updated then assign technician will get the notification
+        // if($newValues['priority'] != $oldValues['priority']){
+        //     $expoPushTokens = ExpoPushNotification::where('user_id', $complaint->technician_id)->pluck('token');
+        //     if ($expoPushTokens->count() > 0) {
+        //         foreach ($expoPushTokens as $expoPushToken) {
+        //             $message = [
+        //                 'to' => $expoPushToken,
+        //                 'sound' => 'default',
+        //                 'title' => 'Complaint Priority Changes',
+        //                 'body' => 'Priority for complaint has been changed by vendor. Check the application for the infomation.',
+        //                 'data' => ['notificationType' => 'app_notification'],
+        //             ];
+        //             $this->expoNotification($message);
+        //             DB::table('notifications')->insert([
+        //                 'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
+        //                 'type' => 'Filament\Notifications\DatabaseNotification',
+        //                 'notifiable_type' => 'App\Models\User\User',
+        //                 'notifiable_id' => $complaint->technician_id,
+        //                 'data' => json_encode([
+        //                     'actions' => [],
+        //                     'body' => 'Priority for complaint has been changed by vendor. Check the application for the infomation.',
+        //                     'duration' => 'persistent',
+        //                     'icon' => 'heroicon-o-document-text',
+        //                     'iconColor' => 'warning',
+        //                     'title' => 'Complaint Priority Changes',
+        //                     'view' => 'notifications::notification',
+        //                     'viewData' => [],
+        //                     'format' => 'filament',
+        //                 ]),
+        //                 'created_at' => now()->format('Y-m-d H:i:s'),
+        //                 'updated_at' => now()->format('Y-m-d H:i:s'),
+        //             ]);
+        //         }
+        //     }
+        // }
+
     }
 
     /**
