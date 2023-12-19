@@ -38,8 +38,8 @@ class EditTenantDocument extends EditRecord
                     $message = [
                         'to' => $expoPushToken,
                         'sound' => 'default',
-                        'title' => $this->record->name . ' Submission Status',
-                        'body' => 'The document ' . $this->record->name . 'submitted by you has been ' . $this->record->status . ' by OA admin.',
+                        'title' => $this->record->name.' Submission Status',
+                        'body' => 'The document '.$this->record->name.' submitted by you has been '.$this->record->status.' by OA admin.',
                         'data' => ['notificationType' => 'MyDocuments'],
                     ];
                     $this->expoNotification($message);
@@ -50,11 +50,11 @@ class EditTenantDocument extends EditRecord
                         'notifiable_id' => $this->record->documentable_id,
                         'data' => json_encode([
                             'actions' => [],
-                            'body' => 'The document ' . $this->record->name . 'submitted by you has been ' . $this->record->status . ' by OA admin.',
+                            'body' => 'The document '.$this->record->name.' submitted by you has been '.$this->record->status.' by OA admin.',
                             'duration' => 'persistent',
                             'icon' => 'heroicon-o-document-text',
                             'iconColor' => 'warning',
-                            'title' => $this->record->name . ' Submission Status',
+                            'title' => $this->record->name.' Submission Status',
                             'view' => 'notifications::notification',
                             'viewData' => [],
                             'format' => 'filament'

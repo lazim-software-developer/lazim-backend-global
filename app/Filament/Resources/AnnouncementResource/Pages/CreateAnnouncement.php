@@ -37,6 +37,7 @@ class CreateAnnouncement extends CreateRecord
                     $this->expoNotification($message);
                     DB::table('notifications')->insert([
                         'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
+                        'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
                         'type' => 'Filament\Notifications\DatabaseNotification',
                         'notifiable_type' => 'App\Models\User\User',
                         'notifiable_id' => $this->record->user_id,
