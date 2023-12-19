@@ -4,12 +4,9 @@ namespace App\Filament\Resources\FitOutFormsDocumentResource\Pages;
 
 use App\Filament\Resources\FitOutFormsDocumentResource;
 use App\Models\ExpoPushNotification;
-use App\Models\Forms\FitOutForm;
 use App\Traits\UtilsTrait;
-use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 class EditFitOutFormsDocument extends EditRecord
 {
@@ -29,15 +26,10 @@ class EditFitOutFormsDocument extends EditRecord
 
     public function afterSave()
     {
-        Log::info('current status-->>>', [$this->record->status]);
         if ($this->record->status == 'approved') {
-            Log::info('requested by userId-->>>', [$this->record->user_id]);
             $expoPushTokens = ExpoPushNotification::where('user_id', $this->record->user_id)->pluck('token');
-            Log::info('expotoken-->>>', [$expoPushTokens]);
             if ($expoPushTokens->count() > 0) {
-                Log::info('expotoken count-->>>', [$expoPushTokens->count()]);
                 foreach ($expoPushTokens as $expoPushToken) {
-                    Log::info('expotoken foreach-->>>', [$expoPushToken]);
                     $message = [
                         'to' => $expoPushToken,
                         'sound' => 'default',
@@ -45,9 +37,7 @@ class EditFitOutFormsDocument extends EditRecord
                         'body' => 'Your FitOut form has been approved.',
                         'data' => ['notificationType' => 'MyRequest'],
                     ];
-                    Log::info('expo MSG-->>>', [$message]);
-                    $note = $this->expoNotification($message);
-                    Log::info('notification-->>>', [$note]);
+                    $this->expoNotification($message);
                     DB::table('notifications')->insert([
                         'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
                         'type' => 'Filament\Notifications\DatabaseNotification',
@@ -62,7 +52,7 @@ class EditFitOutFormsDocument extends EditRecord
                             'title' => 'FitOut form status',
                             'view' => 'notifications::notification',
                             'viewData' => [],
-                            'format' => 'filament'
+                            'format' => 'filament',
                         ]),
                         'created_at' => now()->format('Y-m-d H:i:s'),
                         'updated_at' => now()->format('Y-m-d H:i:s'),
@@ -71,11 +61,8 @@ class EditFitOutFormsDocument extends EditRecord
             }
         }
         if ($this->record->status == 'rejected') {
-            Log::info('requested by userId-->>>', [$this->record->user_id]);
             $expoPushTokens = ExpoPushNotification::where('user_id', $this->record->user_id)->pluck('token');
-            Log::info('expotoken-->>>', [$expoPushTokens]);
             if ($expoPushTokens->count() > 0) {
-                Log::info('expotoken count-->>>', [$expoPushTokens->count()]);
                 foreach ($expoPushTokens as $expoPushToken) {
                     $message = [
                         'to' => $expoPushToken,
@@ -84,9 +71,7 @@ class EditFitOutFormsDocument extends EditRecord
                         'body' => 'Your FitOut form has been rejected.',
                         'data' => ['notificationType' => 'MyRequest'],
                     ];
-                    Log::info('expotoken foreach-->>>', [$expoPushToken]);
-                    $note = $this->expoNotification($message);
-                    Log::info('notification-->>>', [$note]);
+                    $this->expoNotification($message);
 
                     DB::table('notifications')->insert([
                         'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
@@ -102,7 +87,7 @@ class EditFitOutFormsDocument extends EditRecord
                             'title' => 'FitOut form status',
                             'view' => 'notifications::notification',
                             'viewData' => [],
-                            'format' => 'filament'
+                            'format' => 'filament',
                         ]),
                         'created_at' => now()->format('Y-m-d H:i:s'),
                         'updated_at' => now()->format('Y-m-d H:i:s'),
