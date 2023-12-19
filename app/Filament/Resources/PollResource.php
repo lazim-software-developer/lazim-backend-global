@@ -39,6 +39,7 @@ class PollResource extends Resource
             ])->schema([
                         TextInput::make('question')
                             ->maxLength(200)
+                            ->required()
                             ->suffix('?')
                             ->label('Question'),
                         KeyValue::make('options')
@@ -50,6 +51,7 @@ class PollResource extends Resource
                                 'option4' => '',
                                 'option5' => '',
                             ])
+                            ->required()
                             ->deletable(false)
                             ->editableKeys(false),
                         Select::make('status')
