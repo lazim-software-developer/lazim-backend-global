@@ -298,8 +298,8 @@ class AdminPanelProvider extends PanelProvider
                                     NavigationItem::make('Visitors')
                                     ->url('/admin/visitor-forms')
                                     ->hidden(DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] == 'Admin' ? true : false)
-                                    ->icon('heroicon-m-shopping-cart')
-                                    ->activeIcon('heroicon-m-shopping-cart')
+                                    ->icon('heroicon-o-users')
+                                    ->activeIcon('heroicon-o-users')
                                     ->sort(6),
                             ]),
                     ]);
