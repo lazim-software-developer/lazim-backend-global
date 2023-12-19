@@ -215,6 +215,7 @@ class GuestController extends Controller
             "status" => $request->status,
             "approved_by" => auth()->user()->id,
         ]);
+        DB::table('notifications')->where('id', $request->notification_id)->update(['read_at' => now()]);
 
         if ($request->status == "approved"){
             $security= BuildingPoc::where('building_id',$flatTenant->building_id)->where('active',true)->first()->user_id;
