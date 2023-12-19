@@ -25,6 +25,8 @@ class EditComplaintscomplaint extends EditRecord
     public function afterSave()
     {
         $role = Role::where('id', auth()->user()->role_id)->first();
+
+        //Assigned technician will notify
         if ($this->record->technician_id != null) {
             $expoPushTokens = ExpoPushNotification::where('user_id', $this->record->technician_id)->pluck('token');
             if ($expoPushTokens->count() > 0) {
@@ -59,6 +61,8 @@ class EditComplaintscomplaint extends EditRecord
                 }
             }
         }
+
+        //If complaint is closed by OA admin whoever raised complaint will notify
         if ($this->record->status == 'closed') {
             $expoPushTokens = ExpoPushNotification::where('user_id', $this->record->user_id)->pluck('token');
             if ($expoPushTokens->count() > 0) {
