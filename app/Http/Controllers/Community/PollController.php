@@ -13,6 +13,7 @@ class PollController extends Controller
 {
     public function index(Building $building)
     {
+        $count = request('count', 10);
         $polls = Poll::with(['responses' => function ($query) {
             $query->where('submitted_by', auth()->id());
         }])
@@ -21,8 +22,7 @@ class PollController extends Controller
             ->where(function ($query) {
                 $query->where('ends_on', '>', now())
                     ->orWhereNull('ends_on');
-            })
-            ->get();
+            })->latest()->paginate($count);
 
         return PollResource::collection($polls);
     }
@@ -36,7 +36,7 @@ class PollController extends Controller
             return (new CustomResponseResource([
                 'title' => 'Error',
                 'message' => 'You have already submitted a response for this poll.',
-                'code' => 422, 
+                'code' => 422,
             ]))->response()->setStatusCode(422);
         }
 
@@ -50,7 +50,7 @@ class PollController extends Controller
         return (new CustomResponseResource([
             'title' => 'Success',
             'message' => 'Submitted successfully!',
-            'code' => 200, 
+            'code' => 200,
         ]))->response()->setStatusCode(200);
     }
 }

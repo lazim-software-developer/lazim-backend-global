@@ -9,12 +9,15 @@ use App\Http\Resources\CustomResponseResource;
 use App\Http\Resources\Forms\VisitorResource;
 use App\Models\Building\Building;
 use App\Models\Building\Document;
+use App\Models\Building\FlatTenant;
 use App\Models\Forms\Guest;
 use App\Models\Master\DocumentLibrary;
 use App\Models\Master\Role;
 use App\Models\User\User;
+use App\Models\Visitor;
 use App\Models\Visitor\FlatVisitor;
 use Filament\Notifications\Notification;
+use Illuminate\Http\Request;
 
 class GuestController extends Controller
 {
@@ -116,6 +119,7 @@ class GuestController extends Controller
                 Document::create($request->all());
             }
         }
+        
         return (new CustomResponseResource([
             'title' => 'Success',
             'message' => ' created successfully!',
@@ -126,7 +130,7 @@ class GuestController extends Controller
     // List all future visits for a building
     public function futureVisits(Building $building)
     {
-        // Assuming you have a Building model with a 'visitors' relationship
+        // List only approved requests from flat_visitors table
         $futureVisits = FlatVisitor::where('building_id', $building->id)
             ->where('start_time', '>', now())
             ->where('type', 'visitor')
@@ -134,5 +138,31 @@ class GuestController extends Controller
             ->get();
 
         return VisitorResource::collection($futureVisits);
+    }
+
+    // Notify tenant on visitor's visit
+    public function notifyTenant(Request $request) {
+        $flat = $request->input('flat_id');
+        $building = $request->input('building_id');
+
+        $user = FlatTenant::where(['flat_id' => $flat, 'building_id' => $building, 'active' => 1])->first();
+
+        if($user) {
+            Visitor::create($request->all());
+
+            // TODO:Notify user
+            return (new CustomResponseResource([
+                'title' => 'Success',
+                'message' => ' created successfully!',
+                'code' => 201,
+            ]))->response()->setStatusCode(201);
+        }
+
+        return (new CustomResponseResource([
+            'title' => 'Error',
+            'message' => 'No active tenant present in this unit!',
+            'code' => 400,
+        ]))->response()->setStatusCode(400);
+
     }
 }
