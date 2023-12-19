@@ -448,6 +448,8 @@ Route::middleware(['auth:sanctum', 'active', 'active.gatekeeper'])->prefix('gate
 
     // Notify tenants on visitor's entry
     Route::post('/notify-resident', [GuestController::class, 'notifyTenant']);
+
+    Route::post('/visitor-entry', [GuestController::class, 'visitorEntry']);
 });
 
 // API to import services
