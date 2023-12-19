@@ -10,6 +10,7 @@ use App\Http\Resources\Forms\VisitorResource;
 use App\Models\Building\Building;
 use App\Models\Building\Document;
 use App\Models\Building\FlatTenant;
+use App\Models\ExpoPushNotification;
 use App\Models\Forms\Guest;
 use App\Models\Master\DocumentLibrary;
 use App\Models\Master\Role;
@@ -18,6 +19,7 @@ use App\Models\Visitor;
 use App\Models\Visitor\FlatVisitor;
 use Filament\Notifications\Notification;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class GuestController extends Controller
 {
@@ -149,6 +151,40 @@ class GuestController extends Controller
 
         if($user) {
             Visitor::create($request->all());
+
+            $expoPushTokens = ExpoPushNotification::where('user_id', $user->tenant_id)->pluck('token');
+            if ($expoPushTokens->count() > 0) {
+                
+                foreach ($expoPushTokens as $expoPushToken) {
+                    $message = [
+                        'to' => $expoPushToken,
+                        'sound' => 'default',
+                        'title' => 'Visitors',
+                        'body' => "You have a visitor to visit",
+                        'data' => ['notificationType' => 'MyRequest'],
+                    ];
+                    $this->expoNotification($message);
+                    DB::table('notifications')->insert([
+                        'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
+                        'type' => 'Filament\Notifications\DatabaseNotification',
+                        'notifiable_type' => 'App\Models\User\User',
+                        'notifiable_id' => $user->tenant_id,
+                        'data' => json_encode([
+                            'actions' => [],
+                            'body' => "You have a visitor to visit ",
+                            'duration' => 'persistent',
+                            'icon' => 'heroicon-o-document-text',
+                            'iconColor' => 'warning',
+                            'title' => 'Visitors',
+                            'view' => 'notifications::notification',
+                            'viewData' => [],
+                            'format' => 'filament'
+                        ]),
+                        'created_at' => now()->format('Y-m-d H:i:s'),
+                        'updated_at' => now()->format('Y-m-d H:i:s'),
+                    ]);
+                }
+                }
 
             // TODO:Notify user
             return (new CustomResponseResource([
