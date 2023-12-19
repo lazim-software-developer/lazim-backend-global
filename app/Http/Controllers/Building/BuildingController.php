@@ -15,7 +15,6 @@ class BuildingController extends Controller
     public function index()
     {
         $buildings = Building::get();
-        return $buildings;
         
         return new BuildingResourceCollection($buildings);
     }
