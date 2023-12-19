@@ -4,12 +4,11 @@ namespace App\Filament\Resources\FitOutFormsDocumentResource\Pages;
 
 use App\Filament\Resources\FitOutFormsDocumentResource;
 use App\Models\ExpoPushNotification;
-use App\Models\Forms\FitOutForm;
 use App\Traits\UtilsTrait;
-use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use GuzzleHttp\Client;
 
 class EditFitOutFormsDocument extends EditRecord
 {
@@ -46,8 +45,17 @@ class EditFitOutFormsDocument extends EditRecord
                         'data' => ['notificationType' => 'MyRequest'],
                     ];
                     Log::info('expo MSG-->>>', [$message]);
-                    $note = $this->expoNotification($message);
-                    Log::info('notification-->>>', [$note]);
+                    $client = new Client();
+
+                    $client->post('https://exp.host/--/api/v2/push/send', [
+                        'headers' => [
+                            'Accept' => 'application/json',
+                            'Content-Type' => 'application/json',
+                        ],
+                        'json' => $message,
+                    ]);
+                    // $note = $this->expoNotification($message);
+                    // Log::info('notification-->>>', [$note]);
                     DB::table('notifications')->insert([
                         'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
                         'type' => 'Filament\Notifications\DatabaseNotification',
@@ -62,7 +70,7 @@ class EditFitOutFormsDocument extends EditRecord
                             'title' => 'FitOut form status',
                             'view' => 'notifications::notification',
                             'viewData' => [],
-                            'format' => 'filament'
+                            'format' => 'filament',
                         ]),
                         'created_at' => now()->format('Y-m-d H:i:s'),
                         'updated_at' => now()->format('Y-m-d H:i:s'),
@@ -102,7 +110,7 @@ class EditFitOutFormsDocument extends EditRecord
                             'title' => 'FitOut form status',
                             'view' => 'notifications::notification',
                             'viewData' => [],
-                            'format' => 'filament'
+                            'format' => 'filament',
                         ]),
                         'created_at' => now()->format('Y-m-d H:i:s'),
                         'updated_at' => now()->format('Y-m-d H:i:s'),
