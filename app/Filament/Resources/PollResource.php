@@ -43,6 +43,13 @@ class PollResource extends Resource
                             ->label('Question'),
                         KeyValue::make('options')
                             ->addActionLabel('Add Option')
+                            ->default([
+                                'option1' => '',
+                                'option2' => '',
+                                'option3' => '',
+                                'option4' => '',
+                                'option5' => '',
+                            ])
                             ->deletable(false)
                             ->editableKeys(false),
                         Select::make('status')
@@ -80,8 +87,8 @@ class PollResource extends Resource
                             ->label('Building'),
                         Hidden::make('created_by')
                             ->default(auth()->user()->id),
-                        // ViewField::make('Responses')
-                        //     ->view('forms.components.pollresponse'),
+                        ViewField::make('Responses')
+                            ->view('forms.components.pollresponse'),
 
                     ])
         ]);
@@ -123,7 +130,7 @@ class PollResource extends Resource
     public static function getRelations(): array
     {
         return [
-            ResponsesRelationManager::class,
+            // ResponsesRelationManager::class,
         ];
     }
 
