@@ -52,9 +52,10 @@ class FlatVisitorPolicy
      */
     public function update(User $user, FlatVisitor $model): bool
     {
-        $role = $user->role;
+        // $role = $user->role;
 
-        return $role && $role->name == 'Admin';
+        // return $role && $role->name == 'Admin';
+        return true;
 
     }
 

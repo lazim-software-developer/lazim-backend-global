@@ -37,7 +37,7 @@ class EditServiceBooking extends EditRecord
                         'to' => $expoPushToken,
                         'sound' => 'default',
                         'title' => $serviceName->name.' Booking Status.',
-                        'body' => 'Your service booking request for '.$serviceName->name. 'is approved',
+                        'body' => 'Your service booking request for '.$serviceName->name. ' is approved',
                         'data' => ['notificationType' => 'MyBookingsService'],
                     ];
                     $this->expoNotification($message);
@@ -48,7 +48,7 @@ class EditServiceBooking extends EditRecord
                         'notifiable_id' => $this->record->user_id,
                         'data' => json_encode([
                             'actions' => [],
-                            'body' => 'Your service booking request for '.$serviceName->name. 'is approved',
+                            'body' => 'Your service booking request for '.$serviceName->name. ' is approved',
                             'duration' => 'persistent',
                             'icon' => 'heroicon-o-document-text',
                             'iconColor' => 'warning',
@@ -72,7 +72,7 @@ class EditServiceBooking extends EditRecord
                         'to' => $expoPushToken,
                         'sound' => 'default',
                         'title' => $serviceName->name.' Booking Status.',
-                        'body' => 'Your service booking request for '.$serviceName->name. 'is rejected',
+                        'body' => 'Your service booking request for '.$serviceName->name. ' is rejected',
                         'data' => ['notificationType' => 'MyBookingsService'],
                     ];
                     $this->expoNotification($message);
@@ -83,7 +83,7 @@ class EditServiceBooking extends EditRecord
                         'notifiable_id' => $this->record->user_id,
                         'data' => json_encode([
                             'actions' => [],
-                            'body' => 'Your service booking request for '.$serviceName->name. 'is rejected',
+                            'body' => 'Your service booking request for '.$serviceName->name. ' is rejected',
                             'duration' => 'persistent',
                             'icon' => 'heroicon-o-document-text',
                             'iconColor' => 'danger',

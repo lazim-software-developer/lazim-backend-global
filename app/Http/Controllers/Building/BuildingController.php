@@ -14,8 +14,8 @@ class BuildingController extends Controller
      */
     public function index()
     {
-        $buildings = Building::get(); // Fetch 10 buildings per page. Adjust as needed.
-        // $buildings = Building::paginate(10); // Fetch 10 buildings per page. Adjust as needed.
+        $buildings = Building::get();
+        
         return new BuildingResourceCollection($buildings);
     }
 }
