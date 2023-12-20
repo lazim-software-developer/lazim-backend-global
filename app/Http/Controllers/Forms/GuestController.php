@@ -165,7 +165,7 @@ class GuestController extends Controller
                         'sound' => 'default',
                         'title' => 'Visitors',
                         'body' => "You have a visitor as $request->type \n name: $request->name",
-                        'data' => ['notificationType' => 'MyRequest'],
+                        'data' => ['notificationType' => 'VisitorAllowReject'],
                     ];
                     $this->expoNotification($message);
                     DB::table('notifications')->insert([
