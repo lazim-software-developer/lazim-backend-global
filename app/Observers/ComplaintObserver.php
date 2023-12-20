@@ -249,7 +249,7 @@ class ComplaintObserver
                         'to' => $expoPushToken,
                         'sound' => 'default',
                         'title' => 'Complaint Date Changes',
-                        'body' => 'Due date for complaint has been changed by vendor. Check the application for the infomation.',
+                        'body' => 'Due date for complaint has been changed by '.$user->role->name.'. Check the application for the infomation.',
                         'data' => ['notificationType' => 'app_notification'],
                     ];
                     $this->expoNotification($message);
@@ -260,7 +260,7 @@ class ComplaintObserver
                         'notifiable_id' => $complaint->technician_id,
                         'data' => json_encode([
                             'actions' => [],
-                            'body' => 'Due date for complaint has been changed by vendor. Check the application for the infomation.',
+                            'body' => 'Due date for complaint has been changed by '.$user->role->name.'. Check the application for the infomation.',
                             'duration' => 'persistent',
                             'icon' => 'heroicon-o-document-text',
                             'iconColor' => 'warning',
