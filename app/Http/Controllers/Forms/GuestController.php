@@ -49,8 +49,8 @@ class GuestController extends Controller
         $request->merge([
             'flat_visitor_id' => $guest->id,
             'dtmc_license_url' => $filePath,
-            'passport_number' =>$request->vistor_passports,
-            'guest_name' => $request->visitor_names,
+            'passport_number' =>json_encode($request->visitor_passports),
+            'guest_name' => json_encode($request->visitor_names),
         ]);
         Guest::create($request->all());
 
