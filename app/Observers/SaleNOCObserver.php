@@ -15,8 +15,7 @@ class SaleNOCObserver
      */
     public function created(SaleNOC $saleNOC): void
     {
-        $building = Building::where('id',$saleNOC->building_id )->first();
-        $notifyTo = User::where('owner_association_id', $building->owner_association_id)->where('role_id', 10)->get();
+        $notifyTo = User::where('owner_association_id', $saleNOC->owner_association_id)->where('role_id', 10)->get();
         Notification::make()
         ->success()
         ->title("New SaleNoc Submission")
