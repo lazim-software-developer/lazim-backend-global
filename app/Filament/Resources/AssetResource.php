@@ -44,6 +44,7 @@ class AssetResource extends Resource
                     ->schema([
                         Select::make('building_id')
                             ->relationship('building', 'name')
+                            ->required()
                             ->options(function () {
                                 $oaId = auth()->user()->owner_association_id;
                                 return Building::where('owner_association_id', $oaId)
@@ -55,23 +56,28 @@ class AssetResource extends Resource
                             ->label('Building Name'),
                         TextInput::make('name')
                             ->rules([
-                                fn(Get $get): Closure => function (string $attribute, $value, Closure $fail) use ($get) {
+                                fn (Get $get): Closure => function (string $attribute, $value, Closure $fail) use ($get) {
                                     if (Asset::where('building_id', $get('building_id'))->where('name', $value)->exists()) {
                                         $fail('The Name is already taken for this Building.');
                                     }
                                 },
                             ])
+                            ->alpha()
                             ->required()
                             ->label('Asset Name'),
                         TextInput::make('location')
+                            ->alphaDash()
+                            ->required()
                             ->label('Location'),
                         TextInput::make('description')
-                            ->label('Description'),
+                            ->label('Description')
+                            ->alphaNum(),
                         Select::make('service_id')
                             ->relationship('service', 'name')
-                            ->options(function(){
-                                return Service::where('type','vendor_service')->where('active',1)->pluck('name','id');
+                            ->options(function () {
+                                return Service::where('type', 'vendor_service')->where('active', 1)->pluck('name', 'id');
                             })
+                            ->required()
                             ->preload()
                             ->searchable()
                             ->label('Service'),
