@@ -17,7 +17,7 @@ class AnnouncementObserver
     {
         $notifyTo = User::where('owner_association_id',$post->owner_association_id)->where('role_id', 10)->get();
         if($post->is_announcement){
-            // if($post->scheduled_at == now()){
+            if($post->scheduled_at == now()){
                 Notification::make()
                 ->success()
                 ->title("Announcement created")
@@ -25,7 +25,7 @@ class AnnouncementObserver
                 ->iconColor('warning')
                 ->body('New Announcement has been created.')
                 ->sendToDatabase($notifyTo);
-            // }
+            }
         }
         else{
             Notification::make()
