@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Models\Accounting\Invoice;
 use App\Models\Accounting\Proposal;
 use App\Models\Accounting\WDA;
 use App\Models\Building\Building;
@@ -31,6 +32,7 @@ use App\Observers\DocumentObserver;
 use App\Observers\FacilityServiceBookingObserver;
 use App\Observers\FitOutFormObserver;
 use App\Observers\GuestObserver;
+use App\Observers\InvoiceObserver;
 use App\Observers\MoveInOutObserver;
 use App\Observers\OwnerAssociationObserver;
 use App\Observers\PostLikeObserver;
@@ -81,6 +83,7 @@ class AppServiceProvider extends ServiceProvider
         WDA::observe(WDAObserver::class);
         Contract::observe(ContractObserver::class);
         Document::observe(DocumentObserver::class);
+        Invoice::observe(InvoiceObserver::class);
         TechnicianAssets::observe(TechnicianAssetsObserver::class);
     }
 }
