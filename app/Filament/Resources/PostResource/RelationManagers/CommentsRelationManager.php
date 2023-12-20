@@ -7,6 +7,7 @@ use Filament\Tables;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -19,8 +20,9 @@ class CommentsRelationManager extends RelationManager
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('body')
+                Textarea::make('body')
                     ->required()
+                    ->autosize()
                     ->maxLength(255)
                     ->label('Comment')
                     ->disabled()
@@ -47,9 +49,8 @@ class CommentsRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
-            ->recordTitleAttribute('body')
             ->columns([
-                Tables\Columns\TextColumn::make('body')->label('Comment'),
+                Tables\Columns\TextColumn::make('body')->limit(50)->label('Comment'),
                 Tables\Columns\TextColumn::make('user.first_name'),
             ])
             ->filters([
