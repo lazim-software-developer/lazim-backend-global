@@ -34,10 +34,9 @@ class ComplaintController extends Controller
         ->where([
             'building_id' => $buildingId,
             'status' => 'open',
-        ])->latest()->paginate(10);
+        ])->latest();
 
-        return $complaints;
 
-        return Complaintresource::collection($complaints);
+        return Complaintresource::collection($complaints->paginate(10));
     }
 }
