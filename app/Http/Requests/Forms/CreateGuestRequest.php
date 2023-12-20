@@ -22,7 +22,8 @@ class CreateGuestRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'passport_number' => 'required|alpha_num',
+            'visitor_names' => 'required',
+            'visitor_passports' => 'required',
             'visa_validity_date' => 'nullable|date',
             'stay_duration' => 'required',
             'original_passport' => 'nullable',
@@ -33,9 +34,8 @@ class CreateGuestRequest extends FormRequest
             'start_date' => 'required|date',
             'number_of_visitors' => 'required|integer',
             'type' => 'required',
-            'guests.*.guest_name' => 'nullable',
-            'guests.*.holiday_home_name' => 'nullable',
-            'guests.*.emergency_contact' => 'nullable',
+            'holiday_home_name' => 'nullable',
+            'emergency_contact' => 'nullable',
             'end_date' => 'required|date', //|after:start_date
             'image' => 'required|file|max:2048',
             // 'files'=> 'file|mimes:pdf,jpg,jpeg,png,doc,docx|max:2048'
