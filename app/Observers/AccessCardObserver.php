@@ -14,8 +14,7 @@ class AccessCardObserver
      */
     public function created(AccessCard $accessCard): void
     {
-        $building = Building::where('id',$accessCard->building_id )->first();
-        $notifyTo = User::where('owner_association_id', $building->owner_association_id)->where('role_id', 10)->get();
+        $notifyTo = User::where('owner_association_id', $accessCard->owner_association_id)->where('role_id', 10)->get();
             Notification::make()
                 ->success()
                 ->title("New AccessCard Submission")
