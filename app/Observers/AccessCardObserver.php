@@ -2,6 +2,7 @@
 
 namespace App\Observers;
 
+use App\Models\Building\Building;
 use App\Models\Forms\AccessCard;
 use App\Models\User\User;
 use Filament\Notifications\Notification;
