@@ -24,7 +24,7 @@ class TechnicianAssetsObserver
                     'to' => $expoPushToken,
                     'sound' => 'default',
                     'title' => 'New Asset Assigned',
-                    'body' => 'A new Asset <asset_name> has been added to you. ',
+                    'body' => 'A new Asset '.$assetName->name.' has been added to you. ',
                     'data' => ['notificationType' => 'app_notification'],
                 ];
                 $this->expoNotification($message);
