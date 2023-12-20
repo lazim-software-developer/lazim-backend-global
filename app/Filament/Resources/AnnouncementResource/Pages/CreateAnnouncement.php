@@ -22,7 +22,7 @@ class CreateAnnouncement extends CreateRecord
     {
         $users = FlatTenant::where('active', 1)
             ->where('building_id', $this->data['building_id'])->first();
-        if ($this->record->scheduled_at == now()) {
+        // if ($this->record->scheduled_at == now()) {
             $expoPushTokens = ExpoPushNotification::where('user_id', $users->tenant_id)->pluck('token');
             if ($expoPushTokens->count() > 0) {
                 foreach ($expoPushTokens as $expoPushToken) {
@@ -37,10 +37,9 @@ class CreateAnnouncement extends CreateRecord
                     $this->expoNotification($message);
                     DB::table('notifications')->insert([
                         'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
-                        'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
                         'type' => 'Filament\Notifications\DatabaseNotification',
                         'notifiable_type' => 'App\Models\User\User',
-                        'notifiable_id' => $this->record->user_id,
+                        'notifiable_id' => $users->tenant_id,
                         'data' => json_encode([
                             'actions' => [],
                             'body' => $this->record->content,
@@ -57,6 +56,6 @@ class CreateAnnouncement extends CreateRecord
                     ]);
                 }
             }
-        }
+        // }
     }
 }

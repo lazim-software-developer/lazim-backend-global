@@ -2,6 +2,7 @@
 
 namespace App\Observers;
 
+use App\Models\Building\Building;
 use App\Models\Forms\AccessCard;
 use App\Models\User\User;
 use Filament\Notifications\Notification;
@@ -13,7 +14,8 @@ class AccessCardObserver
      */
     public function created(AccessCard $accessCard): void
     {
-        $notifyTo = User::where('owner_association_id', $accessCard->owner_association_id)->where('role_id', 10)->get();
+        $building = Building::where('id',$accessCard->building_id )->first();
+        $notifyTo = User::where('owner_association_id', $building->owner_association_id)->where('role_id', 10)->get();
             Notification::make()
                 ->success()
                 ->title("New AccessCard Submission")

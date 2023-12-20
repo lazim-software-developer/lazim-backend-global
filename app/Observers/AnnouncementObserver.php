@@ -1,27 +1,31 @@
 <?php
 
 namespace App\Observers;
+
 use App\Models\Community\Post;
 use App\Models\User\User;
+use App\Traits\UtilsTrait;
 use Filament\Notifications\Notification;
-
 
 class AnnouncementObserver
 {
+    use UtilsTrait;
     /**
      * Handle the Post "created" event.
      */
     public function created(Post $post): void
     {
-        $notifyTo = User::where('owner_association_id',$post->owner_association_id)->get();
+        $notifyTo = User::where('owner_association_id',$post->owner_association_id)->where('role_id', 10)->get();
         if($post->is_announcement){
-            Notification::make()
+            // if($post->scheduled_at == now()){
+                Notification::make()
                 ->success()
                 ->title("Announcement created")
                 ->icon('heroicon-o-document-text')
                 ->iconColor('warning')
                 ->body('New Announcement has been created.')
                 ->sendToDatabase($notifyTo);
+            // }
         }
         else{
             Notification::make()
