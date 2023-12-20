@@ -17,7 +17,7 @@ class MoveInOutController extends Controller
     public function index(MoveInOut $movein)
     {
         if ($movein->status == 'rejected') {
-            $rejectedFields = json_decode($movein->rejected_fields);
+            $rejectedFields = json_decode($movein->rejected_fields)->rejected_fields;
 
             $allColumns = Schema::getColumnListing($movein->getTable());
 
@@ -27,7 +27,7 @@ class MoveInOutController extends Controller
             // Query the MoveInOut model, selecting only the filtered columns
             $moveInOutData = MoveInOut::select($selectedColumns)->where('id', $movein->id)->first();
 
-            $moveInOutData->rejected_fields = json_decode($movein->rejected_fields);
+            $moveInOutData->rejected_fields = $rejectedFields;
 
             return $moveInOutData;
         }
