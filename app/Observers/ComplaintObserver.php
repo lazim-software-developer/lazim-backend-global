@@ -2,6 +2,7 @@
 
 namespace App\Observers;
 
+use App\Models\Building\Building;
 use App\Models\Building\Complaint;
 use App\Models\ExpoPushNotification;
 use App\Models\Master\Role;
@@ -61,7 +62,8 @@ class ComplaintObserver
     public function updated(Complaint $complaint): void
     {
         $user = auth()->user();
-        $notifyTo = User::where('owner_association_id', $complaint->owner_association_id)->where('role_id', 10)->get();
+        $building = Building::where('id',$complaint->building_id )->first();
+        $notifyTo = User::where('owner_association_id', $building->owner_association_id)->where('role_id', 10)->get();
         //DB notification for ADMIN status update from resident
         if($complaint->status == 'closed'){
             if ($complaint->complaint_type == 'help_desk') {

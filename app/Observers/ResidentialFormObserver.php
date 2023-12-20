@@ -2,6 +2,7 @@
 
 namespace App\Observers;
 
+use App\Models\Building\Building;
 use App\Models\ResidentialForm;
 use App\Models\User\User;
 use Filament\Notifications\Notification;
@@ -13,7 +14,8 @@ class ResidentialFormObserver
      */
     public function created(ResidentialForm $residentialForm): void
     {
-        $notifyTo = User::where('owner_association_id',$residentialForm->owner_association_id)->where('role_id', 10)->get();
+        $building = Building::where('id',$residentialForm->building_id )->first();
+        $notifyTo = User::where('owner_association_id', $building->owner_association_id)->where('role_id', 10)->get();
         Notification::make()
         ->success()
         ->title("New ResidentialForm Submission")
