@@ -22,10 +22,10 @@ class MoveInOutController extends Controller
             $allColumns = Schema::getColumnListing($movein->getTable());
 
             // Filter out the rejected fields
-            $selectedColumns = array_diff($allColumns, $rejectedFields->rejected_fields);
+            $selectedColumns = array_diff($allColumns, $rejectedFields);
 
             // Query the MoveInOut model, selecting only the filtered columns
-            $moveInOutData = MoveInOut::select($selectedColumns)->get();
+            $moveInOutData = MoveInOut::select($selectedColumns)->where('id', $movein->id)->first();
 
             $moveInOutData->rejected_fields = json_decode($movein->rejected_fields);
 
