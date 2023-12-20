@@ -2,35 +2,33 @@
 
 namespace App\Filament\Resources;
 
-use Filament\Forms\Form;
-use App\Models\User\User;
-use Filament\Tables\Table;
-use App\Models\Master\Role;
-use Filament\Facades\Filament;
-use Filament\Resources\Resource;
+use App\Filament\Resources\TenantDocumentResource\Pages;
 use App\Models\Building\Document;
-use Illuminate\Support\Facades\DB;
+use Filament\Facades\Filament;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
-use Filament\Tables\Actions\Action;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Form;
+use Filament\Resources\Resource;
+use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ViewColumn;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\FileUpload;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Query\JoinClause;
-use App\Filament\Resources\TenantDocumentResource\Pages;
+use Illuminate\Support\Facades\DB;
 
 class TenantDocumentResource extends Resource
 {
     protected static ?string $model = Document::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-user-circle';
-    protected static ?string $navigationGroup = 'Master';
-    protected static ?string $navigationLabel = 'Resident Document';
+    protected static ?string $navigationGroup = 'Document Management';
+    protected static ?string $navigationLabel = 'Resident';
 
     public static function form(Form $form): Form
     {
@@ -147,12 +145,12 @@ class TenantDocumentResource extends Resource
             ->defaultSort('created_at', 'desc')
             ->filters([
                 SelectFilter::make('documentable_id')
-                    ->relationship('documentUsers', 'first_name', fn (Builder $query) => $query->where('role_id',Role::where('name','Tenant')->first()->id))
+                    ->relationship('documentUsers', 'first_name')
                     ->searchable()
                     ->preload()
-                    ->label('Resident'),
+                    ->label('Tenant'),
                 SelectFilter::make('building_id')
-                    ->relationship('building', 'name', fn (Builder $query) => $query->where('owner_association_id',auth()->user()->owner_association_id))
+                    ->relationship('building', 'name')
                     ->searchable()
                     ->preload()
                     ->label('Building'),
