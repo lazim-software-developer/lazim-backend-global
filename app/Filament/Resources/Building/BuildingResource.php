@@ -71,17 +71,17 @@ class BuildingResource extends Resource
                             Hidden::make('owner_association_id')
                                 ->default(auth()->user()->owner_association_id),
 
-                            // TextInput::make('area')
-                            //     ->rules(['max:50', 'string'])
-                            //     ->required()
-                            //     ->placeholder('Area'),
+                            TextInput::make('area')
+                                ->rules(['max:50', 'string'])
+                                ->required()
+                                ->placeholder('Area'),
 
-                            Select::make('city_id')
-                                ->rules(['exists:cities,id'])
-                                ->preload()
-                                ->relationship('cities', 'name')
-                                ->searchable()
-                                ->placeholder('NA'),
+                            // Select::make('city_id')
+                            //     ->rules(['exists:cities,id'])
+                            //     ->preload()
+                            //     ->relationship('cities', 'name')
+                            //     ->searchable()
+                            //     ->placeholder('NA'),
                             FileUpload::make('cover_photo')
                                 ->disk('s3')
                                 ->directory('dev')
@@ -90,6 +90,8 @@ class BuildingResource extends Resource
                                 ->label('Cover Photo'),
                             TextInput::make('floors')
                                 ->numeric()
+                                ->minValue(1)
+                                ->maxValue(999)
                                 ->disabled(function ($record) {
                                     if($record?->floors == null){
                                         return false;
