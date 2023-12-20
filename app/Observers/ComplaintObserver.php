@@ -62,6 +62,8 @@ class ComplaintObserver
     public function updated(Complaint $complaint): void
     {
         $user = auth()->user();
+        $oldValues = $complaint->getOriginal();
+        $newValues = $complaint->getAttributes();
         $building = Building::where('id',$complaint->building_id )->first();
         $notifyTo = User::where('owner_association_id', $building->owner_association_id)->where('role_id', 10)->get();
         //DB notification for ADMIN status update from resident/technician
@@ -122,9 +124,45 @@ class ComplaintObserver
                     }
                 }
             }
+
+            //if technician updated then older technician will notify
+            if($newValues['technician_id'] != $oldValues['technician_id']){
+                $expoPushTokens = ExpoPushNotification::where('user_id', $oldValues['technician_id'])->pluck('token');
+                if ($expoPushTokens->count() > 0) {
+                    foreach ($expoPushTokens as $expoPushToken) {
+                        $message = [
+                            'to' => $expoPushToken,
+                            'sound' => 'default',
+                            'title' => 'Complaint Assignment Status',
+                            'body' => 'You have been relived from the complaint by the vendor.',
+                            'data' => ['notificationType' => 'app_notification'],
+                        ];
+                        $this->expoNotification($message);
+                        DB::table('notifications')->insert([
+                            'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
+                            'type' => 'Filament\Notifications\DatabaseNotification',
+                            'notifiable_type' => 'App\Models\User\User',
+                            'notifiable_id' => $oldValues['technician_id'],
+                            'data' => json_encode([
+                                'actions' => [],
+                                'body' => 'You have been relived from the complaint by the vendor.',
+                                'duration' => 'persistent',
+                                'icon' => 'heroicon-o-document-text',
+                                'iconColor' => 'warning',
+                                'title' => 'Complaint Assignment Status',
+                                'view' => 'notifications::notification',
+                                'viewData' => [],
+                                'format' => 'filament',
+                            ]),
+                            'created_at' => now()->format('Y-m-d H:i:s'),
+                            'updated_at' => now()->format('Y-m-d H:i:s'),
+                        ]);
+                    }
+                }
+            }
         }
 
-        //push notification to technician mobile app (if closed by 'Owner', 'OA', 'Tenant')
+        //complaints status update push notification to technician mobile app (if closed by 'Owner', 'OA', 'Tenant')
         $allowedRoles = ['Owner', 'OA', 'Tenant'];
         if (in_array($user->role->name, $allowedRoles)) {
             if($complaint->status == 'closed'){
@@ -166,81 +204,77 @@ class ComplaintObserver
 
         }
 
-        // //if due_date updated then assign technician will get the notification
-        // $oldValues = $complaint->getOriginal();
-        // $newValues = $complaint->getAttributes();
-
-        // if($newValues['due_date'] != $oldValues['due_date']){
-        //     $expoPushTokens = ExpoPushNotification::where('user_id', $complaint->technician_id)->pluck('token');
-        //     if ($expoPushTokens->count() > 0) {
-        //         foreach ($expoPushTokens as $expoPushToken) {
-        //             $message = [
-        //                 'to' => $expoPushToken,
-        //                 'sound' => 'default',
-        //                 'title' => 'Complaint Date Changes',
-        //                 'body' => 'Due date for complaint has been changed by vendor. Check the application for the infomation.',
-        //                 'data' => ['notificationType' => 'app_notification'],
-        //             ];
-        //             $this->expoNotification($message);
-        //             DB::table('notifications')->insert([
-        //                 'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
-        //                 'type' => 'Filament\Notifications\DatabaseNotification',
-        //                 'notifiable_type' => 'App\Models\User\User',
-        //                 'notifiable_id' => $complaint->technician_id,
-        //                 'data' => json_encode([
-        //                     'actions' => [],
-        //                     'body' => 'Due date for complaint has been changed by vendor. Check the application for the infomation.',
-        //                     'duration' => 'persistent',
-        //                     'icon' => 'heroicon-o-document-text',
-        //                     'iconColor' => 'warning',
-        //                     'title' => 'Complaint Date Changes',
-        //                     'view' => 'notifications::notification',
-        //                     'viewData' => [],
-        //                     'format' => 'filament',
-        //                 ]),
-        //                 'created_at' => now()->format('Y-m-d H:i:s'),
-        //                 'updated_at' => now()->format('Y-m-d H:i:s'),
-        //             ]);
-        //         }
-        //     }
-        // }
+        //if due_date updated then assign technician will get the notification
+        if($newValues['due_date'] != $oldValues['due_date']){
+            $expoPushTokens = ExpoPushNotification::where('user_id', $complaint->technician_id)->pluck('token');
+            if ($expoPushTokens->count() > 0) {
+                foreach ($expoPushTokens as $expoPushToken) {
+                    $message = [
+                        'to' => $expoPushToken,
+                        'sound' => 'default',
+                        'title' => 'Complaint Date Changes',
+                        'body' => 'Due date for complaint has been changed by vendor. Check the application for the infomation.',
+                        'data' => ['notificationType' => 'app_notification'],
+                    ];
+                    $this->expoNotification($message);
+                    DB::table('notifications')->insert([
+                        'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
+                        'type' => 'Filament\Notifications\DatabaseNotification',
+                        'notifiable_type' => 'App\Models\User\User',
+                        'notifiable_id' => $complaint->technician_id,
+                        'data' => json_encode([
+                            'actions' => [],
+                            'body' => 'Due date for complaint has been changed by vendor. Check the application for the infomation.',
+                            'duration' => 'persistent',
+                            'icon' => 'heroicon-o-document-text',
+                            'iconColor' => 'warning',
+                            'title' => 'Complaint Date Changes',
+                            'view' => 'notifications::notification',
+                            'viewData' => [],
+                            'format' => 'filament',
+                        ]),
+                        'created_at' => now()->format('Y-m-d H:i:s'),
+                        'updated_at' => now()->format('Y-m-d H:i:s'),
+                    ]);
+                }
+            }
+        }
 
         // //if priority updated then assign technician will get the notification
-        // if($newValues['priority'] != $oldValues['priority']){
-        //     $expoPushTokens = ExpoPushNotification::where('user_id', $complaint->technician_id)->pluck('token');
-        //     if ($expoPushTokens->count() > 0) {
-        //         foreach ($expoPushTokens as $expoPushToken) {
-        //             $message = [
-        //                 'to' => $expoPushToken,
-        //                 'sound' => 'default',
-        //                 'title' => 'Complaint Priority Changes',
-        //                 'body' => 'Priority for complaint has been changed by vendor. Check the application for the infomation.',
-        //                 'data' => ['notificationType' => 'app_notification'],
-        //             ];
-        //             $this->expoNotification($message);
-        //             DB::table('notifications')->insert([
-        //                 'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
-        //                 'type' => 'Filament\Notifications\DatabaseNotification',
-        //                 'notifiable_type' => 'App\Models\User\User',
-        //                 'notifiable_id' => $complaint->technician_id,
-        //                 'data' => json_encode([
-        //                     'actions' => [],
-        //                     'body' => 'Priority for complaint has been changed by vendor. Check the application for the infomation.',
-        //                     'duration' => 'persistent',
-        //                     'icon' => 'heroicon-o-document-text',
-        //                     'iconColor' => 'warning',
-        //                     'title' => 'Complaint Priority Changes',
-        //                     'view' => 'notifications::notification',
-        //                     'viewData' => [],
-        //                     'format' => 'filament',
-        //                 ]),
-        //                 'created_at' => now()->format('Y-m-d H:i:s'),
-        //                 'updated_at' => now()->format('Y-m-d H:i:s'),
-        //             ]);
-        //         }
-        //     }
-        // }
-
+        if($newValues['priority'] != $oldValues['priority']){
+            $expoPushTokens = ExpoPushNotification::where('user_id', $complaint->technician_id)->pluck('token');
+            if ($expoPushTokens->count() > 0) {
+                foreach ($expoPushTokens as $expoPushToken) {
+                    $message = [
+                        'to' => $expoPushToken,
+                        'sound' => 'default',
+                        'title' => 'Complaint Priority Changes',
+                        'body' => 'Priority for complaint has been changed by vendor. Check the application for the infomation.',
+                        'data' => ['notificationType' => 'app_notification'],
+                    ];
+                    $this->expoNotification($message);
+                    DB::table('notifications')->insert([
+                        'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
+                        'type' => 'Filament\Notifications\DatabaseNotification',
+                        'notifiable_type' => 'App\Models\User\User',
+                        'notifiable_id' => $complaint->technician_id,
+                        'data' => json_encode([
+                            'actions' => [],
+                            'body' => 'Priority for complaint has been changed by vendor. Check the application for the infomation.',
+                            'duration' => 'persistent',
+                            'icon' => 'heroicon-o-document-text',
+                            'iconColor' => 'warning',
+                            'title' => 'Complaint Priority Changes',
+                            'view' => 'notifications::notification',
+                            'viewData' => [],
+                            'format' => 'filament',
+                        ]),
+                        'created_at' => now()->format('Y-m-d H:i:s'),
+                        'updated_at' => now()->format('Y-m-d H:i:s'),
+                    ]);
+                }
+            }
+        }
     }
 
     /**
