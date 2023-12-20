@@ -12,17 +12,16 @@ class UserObserver
      */
     public function created(User $user): void
     {
-        // $notifyTo = User::where('owner_association_id', $user->owner_association_id)->where('role_id',10)->get();
-
-        // if(auth()->user->role_id == 2){
-        //     Notification::make()
-        //     ->success()
-        //     ->title("New Vendor")
-        //     ->icon('heroicon-o-document-text')
-        //     ->iconColor('warning')
-        //     ->body('New vendor created '.$user->first_name)
-        //     ->sendToDatabase($notifyTo);
-        // }
+        if($user->role_id == 2){
+            $notifyTo = User::where('owner_association_id', $user->owner_association_id)->where('role_id',10)->get();
+            Notification::make()
+            ->success()
+            ->title("New Vendor")
+            ->icon('heroicon-o-document-text')
+            ->iconColor('warning')
+            ->body('New vendor created '.$user->first_name)
+            ->sendToDatabase($notifyTo);
+        }
     }
 
     /**

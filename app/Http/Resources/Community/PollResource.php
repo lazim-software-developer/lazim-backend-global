@@ -14,12 +14,15 @@ class PollResource extends JsonResource
      */
     public function toArray($request)
     {
-        // $options = json_decode($this->options, true); // Decode the options as an associative array
+        // Filter out null values from the decoded options
+        $filteredOptions = array_filter($this->options, function ($value) {
+            return $value !== null;
+        });
 
         $data = [
             'id' => $this->id,
             'question' => $this->question,
-            'options' => $this->options,
+            'options' => $filteredOptions,
             'status' => $this->status,
             'scheduled_at' => $this->scheduled_at,
             'ends_on' => $this->ends_on_diff,
@@ -31,7 +34,7 @@ class PollResource extends JsonResource
         }
 
         // Calculate option statistics
-        $optionStatistics = $this->calculateOptionStatistics($this->options);
+        $optionStatistics = $this->calculateOptionStatistics($filteredOptions);
 
         $data['option_statistics'] = $optionStatistics;
 
