@@ -86,12 +86,12 @@ class AdminPanelProvider extends PanelProvider
                                 ->icon('heroicon-s-user-group')
                                 ->activeIcon('heroicon-s-user-group')
                                 ->sort(3),
-                            NavigationItem::make('Cities')
-                                // ->hidden(DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] == 'Admin' ? false : true)
-                                ->url('/admin/master/cities')
-                                ->icon('heroicon-m-globe-americas')
-                                ->activeIcon('heroicon-m-globe-americas')
-                                ->sort(4),
+                            // NavigationItem::make('Cities')
+                            //     // ->hidden(DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] == 'Admin' ? false : true)
+                            //     ->url('/admin/master/cities')
+                            //     ->icon('heroicon-m-globe-americas')
+                            //     ->activeIcon('heroicon-m-globe-americas')
+                            //     ->sort(4),
                             NavigationItem::make('Residents')
                                 ->url('/admin/tenant-documents')
                                 ->hidden(DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] == 'Admin' ? true : false)
@@ -143,11 +143,11 @@ class AdminPanelProvider extends PanelProvider
                                 ->icon('heroicon-o-cube-transparent')
                                 ->activeIcon('heroicon-o-cube-transparent')
                                 ->sort(3),
-                            NavigationItem::make('Service Bookings')
-                                ->url('/admin/building/service-bookings')
-                                ->icon('heroicon-m-wrench')
-                                ->activeIcon('heroicon-m-wrench')
-                                ->sort(4),
+                            // NavigationItem::make('Service Bookings')
+                            //     ->url('/admin/building/service-bookings')
+                            //     ->icon('heroicon-m-wrench')
+                            //     ->activeIcon('heroicon-m-wrench')
+                            //     ->sort(4),
                         ]),
                 ]);
 
@@ -330,11 +330,11 @@ class AdminPanelProvider extends PanelProvider
                 $builder->groups([
                     NavigationGroup::make('Unit Management')
                         ->items([
-                            NavigationItem::make('Tenants')
+                            NavigationItem::make('Residents')
                                 ->url('/admin/building/flat-tenants')
                                 ->icon('heroicon-o-user-circle')
                                 ->activeIcon('heroicon-o-user-circle')
-                                ->sort(2),
+                                ->sort(1),
                         ]),
                 ]);
                 // if (DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] != 'Admin') {
