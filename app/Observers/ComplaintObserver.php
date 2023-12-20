@@ -64,7 +64,7 @@ class ComplaintObserver
         $user = auth()->user();
         $building = Building::where('id',$complaint->building_id )->first();
         $notifyTo = User::where('owner_association_id', $building->owner_association_id)->where('role_id', 10)->get();
-        //DB notification for ADMIN status update from resident
+        //DB notification for ADMIN status update from resident/technician
         if($complaint->status == 'closed'){
             if ($complaint->complaint_type == 'help_desk') {
                 Notification::make()
@@ -84,7 +84,6 @@ class ComplaintObserver
                     ->sendToDatabase($notifyTo);
                 }
             }
-
 
         //assign technician notification to assigned technician
         if ($complaint->technician_id != null) {
