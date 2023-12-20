@@ -76,6 +76,9 @@ class PostResource extends Resource
                             ])
                             ->reactive()
                             ->live()
+                            ->afterStateUpdated(function (Set $set, Get $get) {
+                                $set('scheduled_at',null);
+                            })
                             ->default('published')
                             ->required(),
 
@@ -83,7 +86,12 @@ class PostResource extends Resource
                             ->rules(['date'])
                             ->displayFormat('d-M-Y h:i A')
                             ->minDate(now())
-                            ->required()
+                            ->required(function (callable $get) {
+                                if ($get('status') == 'published') {
+                                    return true;
+                                }
+                                return false;
+                            })
                             ->default(now())
                             ->placeholder('Scheduled At'),
 

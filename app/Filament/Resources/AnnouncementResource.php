@@ -74,10 +74,9 @@ class AnnouncementResource extends Resource
                             ])
                             ->reactive()
                             ->live()
-                            // ->afterStateUpdated(function (Set $set, Get $get) {
-                            //     $set('scheduled_at',Carbon::now()->addDay());
-                            //     // dd($get('scheduled_at'));
-                            // })
+                            ->afterStateUpdated(function (Set $set, Get $get) {
+                                $set('scheduled_at',null);
+                            })
                             ->default('published')
                             ->required(),
 
@@ -87,7 +86,12 @@ class AnnouncementResource extends Resource
                             // ->default(fn (Get $get) => $get('status') == null ? now() : dd($get('status')))
                             ->minDate(now())
                             ->live()
-                            ->required()
+                            ->required(function (callable $get) {
+                                if ($get('status') == 'published') {
+                                    return true;
+                                }
+                                return false;
+                            })
                             ->default(now())
                             ->placeholder('Scheduled At'),
 
