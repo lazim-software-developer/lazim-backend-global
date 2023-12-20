@@ -20,15 +20,15 @@ class CommentObserver
     public function created(Comment $comment): void
     {
         //Post comment notification for admin
-        $post = Post::where('id', $comment->commentable_id)->first();
-        $notifyTo = User::where('id', $post->user_id)->get();
-        Notification::make()
-            ->success()
-            ->title("New comment")
-            ->icon('heroicon-o-document-text')
-            ->iconColor('warning')
-            ->body(auth()->user()->first_name .' commented on a post.')
-            ->sendToDatabase($notifyTo);
+        // $post = Post::where('id', $comment->commentable_id)->first();
+        // $notifyTo = User::where('id', $post->user_id)->get();
+        // Notification::make()
+        //     ->success()
+        //     ->title("New comment")
+        //     ->icon('heroicon-o-document-text')
+        //     ->iconColor('warning')
+        //     ->body(auth()->user()->first_name .' commented on a post.')
+        //     ->sendToDatabase($notifyTo);
 
         //Complaints comments by ('Owner', 'Vendor', 'Tenant') these roles then notification will trigger to technician
         if ($comment->commentable_type == 'App\Models\Building\Complaint') {
