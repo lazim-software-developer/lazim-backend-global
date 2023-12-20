@@ -43,22 +43,17 @@ class ServiceResource extends Resource
                         TextInput::make('name')
                             ->rules(['max:50', 'string'])
                             ->required()
+                            ->disabled()
                             ->placeholder('Name'),
                         Hidden::make('type')
                             ->default('inhouse'),
-                        TextInput::make('code')
-                            ->alphaDash()
-                            ->required()
-                            ->placeholder('NA'),
                         TextInput::make('payment_link')
                             ->placeholder('NA')
                             ->url(),
                         TextInput::make('price')
                             ->prefix('AED')
-                            ->numeric()
-                            ->minValue(1)
-                            ->maxValue(10000)
-                            ->placeholder('NA'),
+                            ->placeholder('NA')
+                            ->numeric(),
                         FileUpload::make('icon')
                             ->acceptedFileTypes(['image/jpeg', 'image/png'])
                             ->disk('s3')
@@ -76,6 +71,8 @@ class ServiceResource extends Resource
 
     public static function table(Table $table): Table
     {
+        $query = Service::where('custom', [0, NULL]);
+
         return $table
             ->columns([
                 TextColumn::make('name')
@@ -114,7 +111,7 @@ class ServiceResource extends Resource
     {
         return [
             'index' => ListServices::route('/'),
-            'create' => CreateService::route('/create'),
+            //'create' => CreateService::route('/create'),
             'edit' => EditService::route('/{record}/edit'),
         ];
     }
