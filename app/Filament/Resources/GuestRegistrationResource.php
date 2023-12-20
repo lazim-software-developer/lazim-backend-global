@@ -12,6 +12,7 @@ use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Forms\Components\ViewField;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -39,7 +40,7 @@ class GuestRegistrationResource extends Resource
                     'md' => 1,
                     'lg' => 2,
                 ])->schema([
-                    TextInput::make('passport_number')->disabled(),
+                    ViewField::make('Guest Details')->view('forms.components.form.guest-registration-name'),
                     DatePicker::make('visa_validity_date')->disabled()->label('Tourist/Visitor visa validity date'),
                     TextInput::make('stay_duration')->disabled()->label('duration of stay'),
                     FileUpload::make('dtmc_license_url')
