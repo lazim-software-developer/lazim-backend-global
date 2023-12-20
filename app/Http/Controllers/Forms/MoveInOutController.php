@@ -75,10 +75,10 @@ class MoveInOutController extends Controller
         }
 
         $data['name'] = auth()->user()->first_name;
-        $data['phone']= auth()->user()->phone;
-        $data['email']= auth()->user()->email;
-        $data['user_id']= auth()->user()->id;
-        $data['owner_association_id']= $ownerAssociationId;
+        $data['phone'] = auth()->user()->phone;
+        $data['email'] = auth()->user()->email;
+        $data['user_id'] = auth()->user()->id;
+        $data['owner_association_id'] = $ownerAssociationId;
 
         MoveInOut::create($data);
         return (new CustomResponseResource([
@@ -113,14 +113,14 @@ class MoveInOutController extends Controller
             'noc_landlord',
         ];
 
+        $data = $request->all();
+
         foreach ($document_paths as $document) {
             if ($request->hasFile($document)) {
                 $file = $request->file($document);
                 $data[$document] = optimizeDocumentAndUpload($file, 'dev');
             }
         }
-
-        $data = $request->all();
 
         $movein->update($data);
 
