@@ -16,13 +16,12 @@ class InvoiceObserver
     {
         $building = Building::where('id', $invoice->building_id)->first();
         $notifyTo = User::where('owner_association_id', $building->owner_association_id)->where('role_id',10)->get();
-
             Notification::make()
             ->success()
-            ->title("New WDA Form")
+            ->title("New Invoice")
             ->icon('heroicon-o-document-text')
             ->iconColor('warning')
-            ->body('New WDA form submitted by  '.auth()->user()->first_name)
+            ->body('New Invoice submitted by  '.auth()->user()->first_name)
             ->sendToDatabase($notifyTo);
     }
 
