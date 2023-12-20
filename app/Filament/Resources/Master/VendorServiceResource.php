@@ -44,7 +44,57 @@ class VendorServiceResource extends Resource
                             ->required()
                             ->placeholder('Name'),
                         Hidden::make('type')
-                            ->default('vendor'),
+                            ->default('vendor_service'),
+                        TextInput::make('code')
+                            ->required()
+                            ->placeholder('NA'),
+                        Select::make('subcategory_id')
+                            ->relationship('subcategory', 'name')
+                            ->searchable()
+                            ->preload()
+                            ->createOptionForm([
+                                TextInput::make('name')
+                                    ->rules(['max:50', 'string'])
+                                    ->required(),
+                                TextInput::make('code')
+                                    ->required(),
+                                Select::make('category_id')
+                                    ->relationship('category', 'name')
+                                    ->searchable()
+                                    ->preload()
+                                    ->createOptionForm([
+                                        TextInput::make('name')
+                                            ->rules(['max:50', 'string'])
+                                            ->required(),
+                                        TextInput::make('code')
+                                            ->required(),
+                                    ]),
+                            ])
+                            ->editOptionForm([
+                                TextInput::make('name')
+                                    ->rules(['max:50', 'string'])
+                                    ->required(),
+                                TextInput::make('code')
+                                    ->required(),
+                                Select::make('category_id')
+                                    ->relationship('category', 'name')
+                                    ->searchable()
+                                    ->preload()
+                                    ->createOptionForm([
+                                        TextInput::make('name')
+                                            ->rules(['max:50', 'string'])
+                                            ->required(),
+                                        TextInput::make('code')
+                                            ->required(),
+                                    ])
+                                    ->editOptionForm([
+                                        TextInput::make('name')
+                                            ->rules(['max:50', 'string'])
+                                            ->required(),
+                                        TextInput::make('code')
+                                            ->required(),
+                                    ]),
+                            ]),
                         Toggle::make('active')
                             ->label('Active')
                             ->default(1)
@@ -71,7 +121,7 @@ class VendorServiceResource extends Resource
                 //
             ])
             ->actions([
-                //Tables\Actions\EditAction::make(),
+                // Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -94,8 +144,8 @@ class VendorServiceResource extends Resource
     {
         return [
             'index' => Pages\ListVendorServices::route('/'),
-            //'create' => Pages\CreateVendorService::route('/create'),
-            //'edit' => Pages\EditVendorService::route('/{record}/edit'),
+            'create' => Pages\CreateVendorService::route('/create'),
+            // 'edit' => Pages\EditVendorService::route('/{record}/edit'),
         ];
     }
 }
