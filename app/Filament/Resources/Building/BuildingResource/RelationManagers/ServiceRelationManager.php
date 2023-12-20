@@ -17,11 +17,11 @@ use Filament\Resources\RelationManagers\RelationManager;
 class ServiceRelationManager extends RelationManager
 {
     protected static string $relationship = 'services';
-    protected static ?string $modelLabel = 'Vendor Service';
+    protected static ?string $modelLabel = 'Service';
 
     public static function getTitle(Model $ownerRecord, string $pageClass): string
     {
-        return 'Vendor Service';
+        return 'Service';
     }
 
     public function form(Form $form): Form
