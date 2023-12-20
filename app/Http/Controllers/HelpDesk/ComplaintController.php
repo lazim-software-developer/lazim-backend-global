@@ -234,7 +234,7 @@ class ComplaintController extends Controller
 
     public function update(ComplaintUpdateRequest $request, Complaint $complaint)
     {
-        // $request['technician_id'] = TechnicianVendor::find($request->technician_id)->technician_id;
+        $request['technician_id'] = TechnicianVendor::find($request->technician_id)->technician_id;
         $complaint->update($request->all());
         return (new CustomResponseResource([
             'title' => 'Complaint Updated Successfully',
