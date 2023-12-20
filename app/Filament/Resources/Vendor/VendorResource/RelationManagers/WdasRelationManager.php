@@ -111,9 +111,9 @@ class WdasRelationManager extends RelationManager {
                 TextColumn::make('date')
                     ->default('NA')
                     ->label('Date'),
-                TextColumn::make('service.name')
+                TextColumn::make('job_description')
                     ->default('NA')
-                    ->label('Service'),
+                    ->label('Job Description'),
                 TextColumn::make('status')
                     ->default('NA')
                     ->label('Status'),

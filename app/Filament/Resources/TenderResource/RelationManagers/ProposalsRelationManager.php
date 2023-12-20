@@ -68,7 +68,7 @@ class ProposalsRelationManager extends RelationManager
     {
         return $table
             ->columns([
-                // TextColumn::make('tender.created_by')->searchable()->label('Tender Created By'),
+                TextColumn::make('tender.created_by')->searchable()->label('Tender Created By'),
                 TextColumn::make('amount')->label('Amount'),
                 TextColumn::make('submittedBy.name')->searchable()->label('Vendor Name'),
                 TextColumn::make('submitted_on')->label('Submitted On'),
