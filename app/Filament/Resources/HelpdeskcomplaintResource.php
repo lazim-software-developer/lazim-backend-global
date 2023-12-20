@@ -20,7 +20,6 @@ use Filament\Tables\Actions\Action;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Repeater;
-use Filament\Forms\Components\Textarea;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ViewColumn;
 use Filament\Forms\Components\TextInput;
@@ -156,7 +155,7 @@ class HelpdeskcomplaintResource extends Resource
                         TextInput::make('complaint')
                             ->disabled()
                             ->placeholder('Complaint'),
-                        Textarea::make('complaint_details')
+                        TextInput::make('complaint_details')
                             ->disabled()
                             ->placeholder('Complaint Details'),
                         Select::make('status')
