@@ -9,6 +9,7 @@ use App\Models\Building\Building;
 use App\Models\ExpoPushNotification;
 use App\Models\Forms\MoveInOut;
 use App\Traits\UtilsTrait;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
 
 class MoveInOutController extends Controller
@@ -86,5 +87,48 @@ class MoveInOutController extends Controller
             'code' => 201,
             'status' => 'success',
         ]))->response()->setStatusCode(201);
+    }
+
+    // Update details for move in and move out
+    public function update(Request $request, MoveInOut $movein)
+    {
+        $document_paths = [
+            'handover_acceptance',
+            'receipt_charges',
+            'contract',
+            'title_deed',
+            'passport',
+            'dewa',
+            'cooling_registration',
+            'gas_registration',
+            'vehicle_registration',
+            'movers_license',
+            'movers_liability',
+            'etisalat_final',
+            'dewa_final',
+            'gas_clearance',
+            'cooling_clearance',
+            'gas_final',
+            'cooling_final',
+            'noc_landlord',
+        ];
+
+        foreach ($document_paths as $document) {
+            if ($request->hasFile($document)) {
+                $file = $request->file($document);
+                $data[$document] = optimizeDocumentAndUpload($file, 'dev');
+            }
+        }
+
+        $data = $request->all();
+
+        $movein->update($data);
+
+        return (new CustomResponseResource([
+            'title' => 'Success',
+            'message' => 'Form edited successfully!',
+            'code' => 200,
+            'status' => 'success',
+        ]))->response()->setStatusCode(200);
     }
 }
