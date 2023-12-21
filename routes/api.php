@@ -8,6 +8,7 @@ use App\Http\Controllers\TestController;
 use App\Http\Controllers\Vendor\ContractController;
 use App\Http\Controllers\Vendor\DocumentsUploadController;
 use App\Http\Controllers\Vendor\EscalationMatrixController;
+use App\Http\Controllers\Vendor\ProposalController;
 use App\Http\Controllers\Vendor\SelectServicesController;
 use App\Http\Controllers\Vendor\SnagDashboardController;
 use App\Http\Controllers\Vendor\VendorComplaintController;
@@ -399,6 +400,9 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('vendor')->group(function 
     // TL number 
     Route::get('/{vendor}/trade-licenses',[TLController::class,'show']);
     Route::post('/{vendor}/trade-licenses/update',[TLController::class,'update']);
+
+    //proposals
+    Route::get('/{vendor}/proposals', [ProposalController::class, 'index']);
 });
 
 // Technician Related APIs
