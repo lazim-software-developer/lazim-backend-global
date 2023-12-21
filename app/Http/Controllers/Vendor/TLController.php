@@ -22,7 +22,7 @@ class TLController extends Controller
         $vendor->update($request->all());
         $document = Document::where('documentable_id',$vendor->id)->where('name','tl_document')->latest()->first();
         $document->update([
-            'url' => optimizeDocumentAndUpload($request->tl_document),
+            'url' => optimizeDocumentAndUpload($request->file('tl_document')),
         ]);
 
         return (new CustomResponseResource([
