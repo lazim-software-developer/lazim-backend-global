@@ -64,17 +64,17 @@ class ComplaintObserver
         $user = auth()->user();
         $oldValues = $complaint->getOriginal();
         $newValues = $complaint->getAttributes();
-        $building = Building::where('id',$complaint->building_id )->first();
+        $building = Building::where('id', $complaint->building_id)->first();
         $notifyTo = User::where('owner_association_id', $building->owner_association_id)->where('role_id', 10)->get();
         //DB notification for ADMIN status update from resident/technician
-        if($complaint->status == 'closed'){
+        if ($complaint->status == 'closed') {
             if ($complaint->complaint_type == 'help_desk') {
                 Notification::make()
                     ->success()
                     ->title("Help Desk Complaint Resolution ")
                     ->icon('heroicon-o-document-text')
                     ->iconColor('warning')
-                    ->body('Complaint has been resolved by a '.$user->role->name.' '.auth()->user()->first_name)
+                    ->body('Complaint has been resolved by a ' . $user->role->name . ' ' . auth()->user()->first_name)
                     ->sendToDatabase($notifyTo);
             } else {
                 Notification::make()
@@ -82,14 +82,14 @@ class ComplaintObserver
                     ->title("Complaints Resolved")
                     ->icon('heroicon-o-document-text')
                     ->iconColor('warning')
-                    ->body('Complaint has been resolved by a '.$user->role->name.' '.auth()->user()->first_name)
+                    ->body('Complaint has been resolved by a ' . $user->role->name . ' ' . auth()->user()->first_name)
                     ->sendToDatabase($notifyTo);
-                }
             }
+        }
 
         //assign technician notification to assigned technician (assigned by 'OA', 'Vendor')
         $allowedRole = ['OA', 'Vendor'];
-        if (in_array($user->role->name, $allowedRole)){
+        if (in_array($user->role->name, $allowedRole)) {
             if (!$complaint->technician_id) {
                 $expoPushTokens = ExpoPushNotification::where('user_id', $complaint->technician_id)->pluck('token');
                 if ($expoPushTokens->count() > 0) {
@@ -126,7 +126,7 @@ class ComplaintObserver
             }
 
             //if technician updated then older technician will notify
-            if($newValues['technician_id'] != $oldValues['technician_id']){
+            if ($newValues['technician_id'] != $oldValues['technician_id']) {
                 $expoPushTokens = ExpoPushNotification::where('user_id', $oldValues['technician_id'])->pluck('token');
                 if ($expoPushTokens->count() > 0) {
                     foreach ($expoPushTokens as $expoPushToken) {
@@ -162,7 +162,7 @@ class ComplaintObserver
             }
 
             //if technician updated then new technician will notify
-            if($newValues['technician_id'] != $oldValues['technician_id']){
+            if ($newValues['technician_id'] != $oldValues['technician_id']) {
                 $expoPushTokens = ExpoPushNotification::where('user_id', $newValues['technician_id'])->pluck('token');
                 if ($expoPushTokens->count() > 0) {
                     foreach ($expoPushTokens as $expoPushToken) {
@@ -201,7 +201,7 @@ class ComplaintObserver
         //complaints status update push notification to technician mobile app (if closed by 'Owner', 'OA', 'Tenant')
         $allowedRoles = ['Owner', 'OA', 'Tenant'];
         if (in_array($user->role->name, $allowedRoles)) {
-            if($complaint->status == 'closed'){
+            if ($complaint->status == 'closed') {
                 if ($complaint->complaint_type == 'help_desk') {
                     $expoPushTokens = ExpoPushNotification::where('user_id', $complaint->technician_id)->pluck('token');
                     if ($expoPushTokens->count() > 0) {
@@ -209,7 +209,7 @@ class ComplaintObserver
                             $message = [
                                 'to' => $expoPushToken,
                                 'sound' => 'default',
-                                'title' => 'Help Desk complaint status',
+                                'title' => 'Complaint status',
                                 'body' => 'A complaint has been resolved by a '.$user->role->name.' '.auth()->user()->first_name,
                                 'data' => ['notificationType' => 'HelpDeskTab'],
                             ];
@@ -225,7 +225,7 @@ class ComplaintObserver
                                     'duration' => 'persistent',
                                     'icon' => 'heroicon-o-document-text',
                                     'iconColor' => 'warning',
-                                    'title' => 'Help Desk complaint status',
+                                    'title' => 'Complaint status',
                                     'view' => 'notifications::notification',
                                     'viewData' => [],
                                     'format' => 'filament',
@@ -241,7 +241,7 @@ class ComplaintObserver
         }
 
         //if due_date updated then assign technician will get the notification
-        if($newValues['due_date'] != $oldValues['due_date']){
+        if ($newValues['due_date'] != $oldValues['due_date']) {
             $expoPushTokens = ExpoPushNotification::where('user_id', $complaint->technician_id)->pluck('token');
             if ($expoPushTokens->count() > 0) {
                 foreach ($expoPushTokens as $expoPushToken) {
@@ -277,7 +277,7 @@ class ComplaintObserver
         }
 
         //if priority updated then assign technician will get the notification
-        if($newValues['priority'] != $oldValues['priority']){
+        if ($newValues['priority'] != $oldValues['priority']) {
             $expoPushTokens = ExpoPushNotification::where('user_id', $complaint->technician_id)->pluck('token');
             if ($expoPushTokens->count() > 0) {
                 foreach ($expoPushTokens as $expoPushToken) {
@@ -285,7 +285,7 @@ class ComplaintObserver
                         'to' => $expoPushToken,
                         'sound' => 'default',
                         'title' => 'Complaint Priority Changes',
-                        'body' => 'Priority for complaint has been changed by vendor. Check the application for the infomation.',
+                        'body' => 'Priority for complaint has been changed by '.$user->role->name.'. Check the application for the infomation.',
                         'data' => ['notificationType' => 'app_notification'],
                     ];
                     $this->expoNotification($message);
@@ -296,7 +296,7 @@ class ComplaintObserver
                         'notifiable_id' => $complaint->technician_id,
                         'data' => json_encode([
                             'actions' => [],
-                            'body' => 'Priority for complaint has been changed by vendor. Check the application for the infomation.',
+                            'body' => 'Priority for complaint has been changed by '.$user->role->name.'. Check the application for the infomation.',
                             'duration' => 'persistent',
                             'icon' => 'heroicon-o-document-text',
                             'iconColor' => 'warning',
