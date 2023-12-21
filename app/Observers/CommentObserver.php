@@ -19,7 +19,7 @@ class CommentObserver
     {
         //Complaints comments by ('Owner', 'Vendor', 'Tenant') these roles then notification will trigger to technician
         if ($comment->commentable_type == 'App\Models\Building\Complaint') {
-            $allowedRoles = ['Owner', 'Vendor', 'Tenant'];
+            $allowedRoles = ['Owner', 'Vendor','Tenant'];
             $user = auth()->user();
             if (in_array($user->role->name, $allowedRoles)) {
                 $complaint = Complaint::where('id', $comment->commentable_id)->first();
@@ -31,7 +31,7 @@ class CommentObserver
                                 'to' => $expoPushToken,
                                 'sound' => 'default',
                                 'title' => 'New Comment',
-                                'body' => 'Comment made on ',
+                                'body' => 'Comment made by '.$user->role->name.' '.$user->first_name.' on your complaint. Check the application for the infomation.',
                                 'data' => ['notificationType' => 'app_notification'],
                             ];
                             $this->expoNotification($message);
@@ -42,7 +42,7 @@ class CommentObserver
                                 'notifiable_id' => $complaint->technician_id,
                                 'data' => json_encode([
                                     'actions' => [],
-                                    'body' => 'Comment made on ',
+                                    'body' => 'Comment made by '.$user->role->name.' '.$user->first_name.' on your complaint. Check the application for the infomation.',
                                     'duration' => 'persistent',
                                     'icon' => 'heroicon-o-document-text',
                                     'iconColor' => 'warning',
@@ -69,7 +69,7 @@ class CommentObserver
                             'to' => $expoPushToken,
                             'sound' => 'default',
                             'title' => 'New Comment',
-                            'body' => 'Comment made on ',
+                            'body' => 'Comment made by '.$user->role->name.' '.$user->first_name.' on your complaint. Check the application for the infomation.',
                             'data' => ['notificationType' => 'app_notification'],
                         ];
                         $this->expoNotification($message);
@@ -80,7 +80,7 @@ class CommentObserver
                             'notifiable_id' => $complaint->user_id,
                             'data' => json_encode([
                                 'actions' => [],
-                                'body' => 'Comment made on ',
+                                'body' => 'Comment made by '.$user->role->name.' '.$user->first_name.' on your complaint. Check the application for the infomation.',
                                 'duration' => 'persistent',
                                 'icon' => 'heroicon-o-document-text',
                                 'iconColor' => 'warning',

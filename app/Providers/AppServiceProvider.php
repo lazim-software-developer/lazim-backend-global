@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Models\Accounting\Invoice;
 use App\Models\Accounting\Proposal;
+use App\Models\Accounting\Tender;
 use App\Models\Accounting\WDA;
 use App\Models\Building\Building;
 use App\Models\Building\Complaint;
@@ -40,6 +41,7 @@ use App\Observers\ProposalObserver;
 use App\Observers\ResidentialFormObserver;
 use App\Observers\SaleNOCObserver;
 use App\Observers\TechnicianAssetsObserver;
+use App\Observers\TenderObserver;
 use App\Observers\UserObserver;
 use App\Observers\WDAObserver;
 use Illuminate\Support\Facades\Schema;
@@ -84,6 +86,7 @@ class AppServiceProvider extends ServiceProvider
         Contract::observe(ContractObserver::class);
         Document::observe(DocumentObserver::class);
         Invoice::observe(InvoiceObserver::class);
+        Tender::observe(TenderObserver::class);
         TechnicianAssets::observe(TechnicianAssetsObserver::class);
     }
 }
