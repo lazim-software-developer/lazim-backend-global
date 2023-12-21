@@ -66,7 +66,7 @@ class ProposalObserver
                     'notifiable_id' => $vendor->owner_id,
                     'data' => json_encode([
                         'actions' => [],
-                        'body' => 'Your Proposal has been approved.',
+                        'body' => 'Your Proposal has been rejected.',
                         'duration' => 'persistent',
                         'icon' => 'heroicon-o-document-text',
                         'iconColor' => 'warning',
