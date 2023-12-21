@@ -13,9 +13,11 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule): void
     {
         // $schedule->command('sync:owner-associations')->hourly();
-        $schedule->command('telescope:prune')->daily();
-        $schedule->command('app:deactivate-vendor')->daily();
-        $schedule->command('budget:clean-imports')->daily();
+        // $schedule->command('telescope:prune')->daily();
+        // $schedule->command('app:deactivate-vendor')->daily();
+        // $schedule->command('budget:clean-imports')->daily();
+        // $schedule->command('app:contract-renewal-mail')->daily();
+        $schedule->command('app:trade-licence-expiry-mail')->everyFiveSeconds();
     }
 
     /**
