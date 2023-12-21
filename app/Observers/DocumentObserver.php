@@ -12,18 +12,18 @@ class DocumentObserver
     /**
      * Handle the Document "created" event.
      */
-    public function created(Document $document): void
-    {
-        $building = Building::where('id', $document->building_id)->first();
-        $notifyTo = User::where('owner_association_id', $building->owner_association_id)->where('role_id',10)->get();
-        Notification::make()
-            ->success()
-            ->title($document->name." Received")
-            ->icon('heroicon-o-document-text')
-            ->iconColor('warning')
-            ->body('A new document received from  '.auth()->user()->first_name)
-            ->sendToDatabase($notifyTo);
-    }
+    // public function created(Document $document): void
+    // {
+    //     $building = Building::where('id', $document->building_id)->first();
+    //     $notifyTo = User::where('owner_association_id', $building->owner_association_id)->where('role_id',10)->get();
+    //     Notification::make()
+    //         ->success()
+    //         ->title($document->name." Received")
+    //         ->icon('heroicon-o-document-text')
+    //         ->iconColor('warning')
+    //         ->body('A new document received from  '.auth()->user()->first_name)
+    //         ->sendToDatabase($notifyTo);
+    // }
 
     /**
      * Handle the Document "updated" event.
