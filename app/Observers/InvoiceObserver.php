@@ -6,6 +6,7 @@ use App\Models\Accounting\Invoice;
 use App\Models\Building\Building;
 use App\Models\User\User;
 use Filament\Notifications\Notification;
+use Illuminate\Support\Facades\DB;
 
 class InvoiceObserver
 {
@@ -30,7 +31,52 @@ class InvoiceObserver
      */
     public function updated(Invoice $invoice): void
     {
-        //
+        $user = auth()->user();
+        if ($user->role->name == 'OA') {
+            if ($invoice->status == 'approved') {
+                DB::table('notifications')->insert([
+                    'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
+                    'type' => 'Filament\Notifications\DatabaseNotification',
+                    'notifiable_type' => 'App\Models\User\User',
+                    'notifiable_id' => $invoice->created_by,
+                    'data' => json_encode([
+                        'actions' => [],
+                        'body' => 'Your invoice has been approved.',
+                        'duration' => 'persistent',
+                        'icon' => 'heroicon-o-document-text',
+                        'iconColor' => 'warning',
+                        'title' => 'invoice status update.',
+                        'view' => 'notifications::notification',
+                        'viewData' => [],
+                        'format' => 'filament',
+                    ]),
+                    'created_at' => now()->format('Y-m-d H:i:s'),
+                    'updated_at' => now()->format('Y-m-d H:i:s'),
+                ]);
+            }
+            if ($invoice->status == 'rejected') {
+                DB::table('notifications')->insert([
+                    'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
+                    'type' => 'Filament\Notifications\DatabaseNotification',
+                    'notifiable_type' => 'App\Models\User\User',
+                    'notifiable_id' => $invoice->created_by,
+                    'data' => json_encode([
+                        'actions' => [],
+                        'body' => 'Your invoice has been rejected.',
+                        'duration' => 'persistent',
+                        'icon' => 'heroicon-o-document-text',
+                        'iconColor' => 'warning',
+                        'title' => 'invoice status update.',
+                        'view' => 'notifications::notification',
+                        'viewData' => [],
+                        'format' => 'filament',
+                    ]),
+                    'created_at' => now()->format('Y-m-d H:i:s'),
+                    'updated_at' => now()->format('Y-m-d H:i:s'),
+                ]);
+            }
+
+        }
     }
 
     /**
