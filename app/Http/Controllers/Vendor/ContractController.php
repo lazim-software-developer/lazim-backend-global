@@ -26,6 +26,9 @@ class ContractController extends Controller
         if ($request->has('building_id') && !empty($request->building_id)) {
             $Contracts = $Contracts->where('building_id', $request->building_id);
         }
+        if ($request->has('contract_type') && !empty($request->contract_type)) {
+            $Contracts = $Contracts->where('contract_type', $request->contract_type);
+        }
 
         return ContractResource::collection($Contracts);
     }
