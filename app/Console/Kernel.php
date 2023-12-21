@@ -16,7 +16,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('telescope:prune')->daily();
         $schedule->command('app:deactivate-vendor')->daily();
         $schedule->command('budget:clean-imports')->daily();
-        $schedule->command('app:contract-renewal-mail')->everySecond();
+        $schedule->command('app:contract-renewal-mail')->daily();
     }
 
     /**
