@@ -51,6 +51,7 @@ use App\Http\Controllers\Vendor\TenderController;
 use App\Http\Controllers\Vendor\WDAController;
 use App\Http\Controllers\Vendor\VendorBuildingController;
 use App\Http\Controllers\Gatekeeper\TenantsController;
+use App\Http\Controllers\Vendor\TLController;
 
 /*
 |--------------------------------------------------------------------------
@@ -394,6 +395,10 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('vendor')->group(function 
     // List all tenders
     Route::get('/tenders', [TenderController::class, 'index']);
     Route::post('/tenders/{tender}', [TenderController::class, 'store']);
+
+    // TL number 
+    Route::get('/{vendor}/trade-licenses',[TLController::class,'show']);
+    Route::post('/{vendor}/trade-licenses/update',[TLController::class,'update']);
 });
 
 // Technician Related APIs
