@@ -90,40 +90,40 @@ class ComplaintObserver
         //assign technician notification to assigned technician (assigned by 'OA', 'Vendor')
         $allowedRole = ['OA', 'Vendor'];
         if (in_array($user->role->name, $allowedRole)){
-            // if (!$complaint->technician_id) {
-            //     $expoPushTokens = ExpoPushNotification::where('user_id', $complaint->technician_id)->pluck('token');
-            //     if ($expoPushTokens->count() > 0) {
-            //         foreach ($expoPushTokens as $expoPushToken) {
-            //             $message = [
-            //                 'to' => $expoPushToken,
-            //                 'sound' => 'default',
-            //                 'title' => 'New Complaint Assigned',
-            //                 'body' => 'A new complaint assigned to you.',
-            //                 'data' => ['notificationType' => 'app_notification'],
-            //             ];
-            //             $this->expoNotification($message);
-            //             DB::table('notifications')->insert([
-            //                 'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
-            //                 'type' => 'Filament\Notifications\DatabaseNotification',
-            //                 'notifiable_type' => 'App\Models\User\User',
-            //                 'notifiable_id' => $complaint->technician_id,
-            //                 'data' => json_encode([
-            //                     'actions' => [],
-            //                     'body' => 'A new complaint assigned to you.',
-            //                     'duration' => 'persistent',
-            //                     'icon' => 'heroicon-o-document-text',
-            //                     'iconColor' => 'warning',
-            //                     'title' => 'New Complaint Assigned',
-            //                     'view' => 'notifications::notification',
-            //                     'viewData' => [],
-            //                     'format' => 'filament',
-            //                 ]),
-            //                 'created_at' => now()->format('Y-m-d H:i:s'),
-            //                 'updated_at' => now()->format('Y-m-d H:i:s'),
-            //             ]);
-            //         }
-            //     }
-            // }
+            if (!$complaint->technician_id) {
+                $expoPushTokens = ExpoPushNotification::where('user_id', $complaint->technician_id)->pluck('token');
+                if ($expoPushTokens->count() > 0) {
+                    foreach ($expoPushTokens as $expoPushToken) {
+                        $message = [
+                            'to' => $expoPushToken,
+                            'sound' => 'default',
+                            'title' => 'New Complaint Assigned',
+                            'body' => 'A new complaint assigned to you.',
+                            'data' => ['notificationType' => 'app_notification'],
+                        ];
+                        $this->expoNotification($message);
+                        DB::table('notifications')->insert([
+                            'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
+                            'type' => 'Filament\Notifications\DatabaseNotification',
+                            'notifiable_type' => 'App\Models\User\User',
+                            'notifiable_id' => $complaint->technician_id,
+                            'data' => json_encode([
+                                'actions' => [],
+                                'body' => 'A new complaint assigned to you.',
+                                'duration' => 'persistent',
+                                'icon' => 'heroicon-o-document-text',
+                                'iconColor' => 'warning',
+                                'title' => 'New Complaint Assigned',
+                                'view' => 'notifications::notification',
+                                'viewData' => [],
+                                'format' => 'filament',
+                            ]),
+                            'created_at' => now()->format('Y-m-d H:i:s'),
+                            'updated_at' => now()->format('Y-m-d H:i:s'),
+                        ]);
+                    }
+                }
+            }
 
             //if technician updated then older technician will notify
             if($newValues['technician_id'] != $oldValues['technician_id']){
@@ -249,7 +249,7 @@ class ComplaintObserver
                         'to' => $expoPushToken,
                         'sound' => 'default',
                         'title' => 'Complaint Date Changes',
-                        'body' => 'Due date for complaint has been changed by vendor. Check the application for the infomation.',
+                        'body' => 'Due date for complaint has been changed by '.$user->role->name.'. Check the application for the infomation.',
                         'data' => ['notificationType' => 'app_notification'],
                     ];
                     $this->expoNotification($message);
@@ -260,7 +260,7 @@ class ComplaintObserver
                         'notifiable_id' => $complaint->technician_id,
                         'data' => json_encode([
                             'actions' => [],
-                            'body' => 'Due date for complaint has been changed by vendor. Check the application for the infomation.',
+                            'body' => 'Due date for complaint has been changed by '.$user->role->name.'. Check the application for the infomation.',
                             'duration' => 'persistent',
                             'icon' => 'heroicon-o-document-text',
                             'iconColor' => 'warning',
