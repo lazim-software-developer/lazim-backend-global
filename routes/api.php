@@ -341,7 +341,7 @@ Route::middleware([])->prefix('vendor')->group(function () {
 });
 
 // Vendor APIs after logging in
-Route::middleware([])->prefix('vendor')->group(function () {
+Route::middleware(['auth:sanctum', 'active'])->prefix('vendor')->group(function () {
     // List vendor details of logged in user
     Route::get('/details', [VendorRegistrationController::class, 'showVendorDetails']);
     Route::get('/{vendor}/view-manager', [VendorRegistrationController::class, 'showManagerDetails']);
