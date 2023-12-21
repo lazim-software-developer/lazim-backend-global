@@ -304,6 +304,9 @@ Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active']
 
     // Update API for move in and move out
     Route::post('/move-in/{movein}/update', [MoveInOutController::class, 'update']);
+
+    //Fit Out rejected API
+    Route::get('/fit-out/status/{fitout}',[FitOutFormsController::class, 'index']);
 });
 
 // API  to fetch Security for a building
