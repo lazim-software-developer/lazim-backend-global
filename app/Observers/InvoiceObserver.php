@@ -62,7 +62,7 @@ class InvoiceObserver
                     'notifiable_id' => $invoice->created_by,
                     'data' => json_encode([
                         'actions' => [],
-                        'body' => 'Your invoice has been approved.',
+                        'body' => 'Your invoice has been rejected.',
                         'duration' => 'persistent',
                         'icon' => 'heroicon-o-document-text',
                         'iconColor' => 'warning',
