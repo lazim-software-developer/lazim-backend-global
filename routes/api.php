@@ -341,7 +341,7 @@ Route::middleware([])->prefix('vendor')->group(function () {
 });
 
 // Vendor APIs after logging in
-Route::middleware(['auth:sanctum', 'active'])->prefix('vendor')->group(function () {
+Route::middleware([])->prefix('vendor')->group(function () {
     // List vendor details of logged in user
     Route::get('/details', [VendorRegistrationController::class, 'showVendorDetails']);
     Route::get('/{vendor}/view-manager', [VendorRegistrationController::class, 'showManagerDetails']);
@@ -398,6 +398,7 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('vendor')->group(function 
 
     // TL number 
     Route::get('/{vendor}/trade-licenses',[TLController::class,'show']);
+    Route::post('/{vendor}/trade-licenses/update',[TLController::class,'update']);
 });
 
 // Technician Related APIs
