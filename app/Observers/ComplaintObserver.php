@@ -7,6 +7,7 @@ use App\Models\Building\Complaint;
 use App\Models\ExpoPushNotification;
 use App\Models\Master\Role;
 use App\Models\User\User;
+use App\Models\Vendor\Vendor;
 use App\Traits\UtilsTrait;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\DB;
@@ -24,7 +25,7 @@ class ComplaintObserver
 
             Notification::make()
                 ->success()
-                ->title("Happiness center Complaint")
+                ->title("Happiness center Complaint Received")
                 ->icon('heroicon-o-document-text')
                 ->iconColor('warning')
                 ->body('Complaint has been created by' . auth()->user()->first_name)
@@ -48,11 +49,55 @@ class ComplaintObserver
         } else {
             Notification::make()
                 ->success()
-                ->title("Help Desk Ticket ")
+                ->title("Help Desk Ticket Received")
                 ->icon('heroicon-o-document-text')
                 ->iconColor('warning')
                 ->body('A new Ticket is raised by ' . auth()->user()->first_name)
                 ->sendToDatabase($notifyTo);
+        }
+
+        //Notifying to vendor
+        $vendor = Vendor::where('id', $complaint->vendor_id)->first();
+        if ($complaint->complaint_type == 'tenant_complaint') {
+            DB::table('notifications')->insert([
+                'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
+                'type' => 'Filament\Notifications\DatabaseNotification',
+                'notifiable_type' => 'App\Models\User\User',
+                'notifiable_id' => $vendor->owner_id,
+                'data' => json_encode([
+                    'actions' => [],
+                    'body' => 'Complaint has been created by' . auth()->user()->first_name,
+                    'duration' => 'persistent',
+                    'icon' => 'heroicon-o-document-text',
+                    'iconColor' => 'warning',
+                    'title' => 'Complaint Received',
+                    'view' => 'notifications::notification',
+                    'viewData' => [],
+                    'format' => 'filament',
+                ]),
+                'created_at' => now()->format('Y-m-d H:i:s'),
+                'updated_at' => now()->format('Y-m-d H:i:s'),
+            ]);
+        } else {
+            DB::table('notifications')->insert([
+                'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
+                'type' => 'Filament\Notifications\DatabaseNotification',
+                'notifiable_type' => 'App\Models\User\User',
+                'notifiable_id' => $vendor->owner_id,
+                'data' => json_encode([
+                    'actions' => [],
+                    'body' => 'Complaint has been created by' . auth()->user()->first_name,
+                    'duration' => 'persistent',
+                    'icon' => 'heroicon-o-document-text',
+                    'iconColor' => 'warning',
+                    'title' => 'Complaint Received',
+                    'view' => 'notifications::notification',
+                    'viewData' => [],
+                    'format' => 'filament',
+                ]),
+                'created_at' => now()->format('Y-m-d H:i:s'),
+                'updated_at' => now()->format('Y-m-d H:i:s'),
+            ]);
         }
     }
 
@@ -90,7 +135,7 @@ class ComplaintObserver
         //assign technician notification to assigned technician (assigned by 'OA', 'Vendor')
         $allowedRole = ['OA', 'Vendor'];
         if (in_array($user->role->name, $allowedRole)) {
-            if (!$complaint->technician_id) {
+            if ($complaint->technician_id && $complaint->technician_id!= $newValues['technician_id']) {
                 $expoPushTokens = ExpoPushNotification::where('user_id', $complaint->technician_id)->pluck('token');
                 if ($expoPushTokens->count() > 0) {
                     foreach ($expoPushTokens as $expoPushToken) {
@@ -195,6 +240,31 @@ class ComplaintObserver
                         ]);
                     }
                 }
+
+                //if OA is updating the due_date then vendor will notify
+                if ($user->role->name == 'OA') {
+                    $technician = User::where('id',$newValues['technician_id'])->first();
+                    $vendor = Vendor::where('id', $complaint->vendor_id)->first();
+                    DB::table('notifications')->insert([
+                        'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
+                        'type' => 'Filament\Notifications\DatabaseNotification',
+                        'notifiable_type' => 'App\Models\User\User',
+                        'notifiable_id' => $vendor->owner_id,
+                        'data' => json_encode([
+                            'actions' => [],
+                            'body' => 'A new technician '.$technician->first_name.' is assigned to you.',
+                            'duration' => 'persistent',
+                            'icon' => 'heroicon-o-document-text',
+                            'iconColor' => 'warning',
+                            'title' => 'New Technician Assigned',
+                            'view' => 'notifications::notification',
+                            'viewData' => [],
+                            'format' => 'filament',
+                        ]),
+                        'created_at' => now()->format('Y-m-d H:i:s'),
+                        'updated_at' => now()->format('Y-m-d H:i:s'),
+                    ]);
+                }
             }
         }
 
@@ -210,7 +280,7 @@ class ComplaintObserver
                                 'to' => $expoPushToken,
                                 'sound' => 'default',
                                 'title' => 'Complaint status',
-                                'body' => 'A complaint has been resolved by a '.$user->role->name.' '.auth()->user()->first_name,
+                                'body' => 'A complaint has been resolved by a ' . $user->role->name . ' ' . auth()->user()->first_name,
                                 'data' => ['notificationType' => 'HelpDeskTab'],
                             ];
                             $this->expoNotification($message);
@@ -221,7 +291,7 @@ class ComplaintObserver
                                 'notifiable_id' => $complaint->technician_id,
                                 'data' => json_encode([
                                     'actions' => [],
-                                    'body' => 'A complaint has been resolved by a '.$user->role->name.' '.auth()->user()->first_name,
+                                    'body' => 'A complaint has been resolved by a ' . $user->role->name . ' ' . auth()->user()->first_name,
                                     'duration' => 'persistent',
                                     'icon' => 'heroicon-o-document-text',
                                     'iconColor' => 'warning',
@@ -249,7 +319,7 @@ class ComplaintObserver
                         'to' => $expoPushToken,
                         'sound' => 'default',
                         'title' => 'Complaint Date Changes',
-                        'body' => 'Due date for complaint has been changed by '.$user->role->name.'. Check the application for the infomation.',
+                        'body' => 'Due date for complaint has been changed by ' . $user->role->name . '. Check the application for the infomation.',
                         'data' => ['notificationType' => 'app_notification'],
                     ];
                     $this->expoNotification($message);
@@ -260,7 +330,7 @@ class ComplaintObserver
                         'notifiable_id' => $complaint->technician_id,
                         'data' => json_encode([
                             'actions' => [],
-                            'body' => 'Due date for complaint has been changed by '.$user->role->name.'. Check the application for the infomation.',
+                            'body' => 'Due date for complaint has been changed by ' . $user->role->name . '. Check the application for the infomation.',
                             'duration' => 'persistent',
                             'icon' => 'heroicon-o-document-text',
                             'iconColor' => 'warning',
@@ -274,6 +344,30 @@ class ComplaintObserver
                     ]);
                 }
             }
+
+            //if OA is updating the due_date then vendor will notify
+            if ($user->role->name == 'OA') {
+                $vendor = Vendor::where('id', $complaint->vendor_id)->first();
+                DB::table('notifications')->insert([
+                    'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
+                    'type' => 'Filament\Notifications\DatabaseNotification',
+                    'notifiable_type' => 'App\Models\User\User',
+                    'notifiable_id' => $vendor->owner_id,
+                    'data' => json_encode([
+                        'actions' => [],
+                        'body' => 'Due date for complaint has been changed by ' . $user->role->name . '. Check the application for the infomation.',
+                        'duration' => 'persistent',
+                        'icon' => 'heroicon-o-document-text',
+                        'iconColor' => 'warning',
+                        'title' => 'Complaint Date Changes',
+                        'view' => 'notifications::notification',
+                        'viewData' => [],
+                        'format' => 'filament',
+                    ]),
+                    'created_at' => now()->format('Y-m-d H:i:s'),
+                    'updated_at' => now()->format('Y-m-d H:i:s'),
+                ]);
+            }
         }
 
         //if priority updated then assign technician will get the notification
@@ -285,7 +379,7 @@ class ComplaintObserver
                         'to' => $expoPushToken,
                         'sound' => 'default',
                         'title' => 'Complaint Priority Changes',
-                        'body' => 'Priority for complaint has been changed by '.$user->role->name.'. Check the application for the infomation.',
+                        'body' => 'Priority for complaint has been changed by ' . $user->role->name . '. Check the application for the infomation.',
                         'data' => ['notificationType' => 'app_notification'],
                     ];
                     $this->expoNotification($message);
@@ -296,7 +390,7 @@ class ComplaintObserver
                         'notifiable_id' => $complaint->technician_id,
                         'data' => json_encode([
                             'actions' => [],
-                            'body' => 'Priority for complaint has been changed by '.$user->role->name.'. Check the application for the infomation.',
+                            'body' => 'Priority for complaint has been changed by ' . $user->role->name . '. Check the application for the infomation.',
                             'duration' => 'persistent',
                             'icon' => 'heroicon-o-document-text',
                             'iconColor' => 'warning',
@@ -310,7 +404,90 @@ class ComplaintObserver
                     ]);
                 }
             }
+
+            //if OA is updating the priority then vendor will notify
+            if ($user->role->name == 'OA') {
+                $vendor = Vendor::where('id', $complaint->vendor_id)->first();
+                DB::table('notifications')->insert([
+                    'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
+                    'type' => 'Filament\Notifications\DatabaseNotification',
+                    'notifiable_type' => 'App\Models\User\User',
+                    'notifiable_id' => $vendor->owner_id,
+                    'data' => json_encode([
+                        'actions' => [],
+                        'body' => 'Priority for complaint has been changed by ' . $user->role->name . '. Check the application for the infomation.',
+                        'duration' => 'persistent',
+                        'icon' => 'heroicon-o-document-text',
+                        'iconColor' => 'warning',
+                        'title' => 'Complaint Priority Changes',
+                        'view' => 'notifications::notification',
+                        'viewData' => [],
+                        'format' => 'filament',
+                    ]),
+                    'created_at' => now()->format('Y-m-d H:i:s'),
+                    'updated_at' => now()->format('Y-m-d H:i:s'),
+                ]);
+            }
         }
+
+        //if complaint id resolved by OA admin, technician, owner,Tenant then vendor will notify
+        $allowedRoles = ['Owner', 'OA', 'Technician', 'Tenant'];
+        if ($complaint->vendor_id) {
+            if (in_array($user->role->name, $allowedRoles)) {
+                if ($complaint->status == 'closed') {
+                    if ($complaint->complaint_type == 'help_desk' || $complaint->complaint_type == 'tenant_complaint') {
+                        $vendor = Vendor::where('id', $complaint->vendor_id)->first();
+                        DB::table('notifications')->insert([
+                            'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
+                            'type' => 'Filament\Notifications\DatabaseNotification',
+                            'notifiable_type' => 'App\Models\User\User',
+                            'notifiable_id' => $vendor->owner_id,
+                            'data' => json_encode([
+                                'actions' => [],
+                                'body' => 'A complaint has been resolved by a ' . $user->role->name . ' ' . auth()->user()->first_name,
+                                'duration' => 'persistent',
+                                'icon' => 'heroicon-o-document-text',
+                                'iconColor' => 'warning',
+                                'title' => 'Complaint status',
+                                'view' => 'notifications::notification',
+                                'viewData' => [],
+                                'format' => 'filament',
+                            ]),
+                            'created_at' => now()->format('Y-m-d H:i:s'),
+                            'updated_at' => now()->format('Y-m-d H:i:s'),
+                        ]);
+                    }
+                }
+            }
+        }
+
+        //when new technician is assigned to vendor, will notify to vendor
+        if($user->role->name == 'OA'){
+            if($complaint->technician_id && $complaint->technician_id!= $newValues['technician_id']){
+                $technician = User::where('id',$newValues['technician_id'])->first();
+                $vendor = Vendor::where('id', $complaint->vendor_id)->first();
+                DB::table('notifications')->insert([
+                    'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
+                    'type' => 'Filament\Notifications\DatabaseNotification',
+                    'notifiable_type' => 'App\Models\User\User',
+                    'notifiable_id' => $vendor->owner_id,
+                    'data' => json_encode([
+                        'actions' => [],
+                        'body' => 'A new technician '.$technician->first_name.' is assigned to you.',
+                        'duration' => 'persistent',
+                        'icon' => 'heroicon-o-document-text',
+                        'iconColor' => 'warning',
+                        'title' => 'New Complaint Assigned',
+                        'view' => 'notifications::notification',
+                        'viewData' => [],
+                        'format' => 'filament',
+                    ]),
+                    'created_at' => now()->format('Y-m-d H:i:s'),
+                    'updated_at' => now()->format('Y-m-d H:i:s'),
+                ]);
+            }
+        }
+
     }
 
     /**
