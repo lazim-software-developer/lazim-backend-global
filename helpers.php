@@ -13,7 +13,7 @@ function optimizeAndUpload($image, $path, $width = 474, $height = 622)
         })
         ->encode('jpg', 80); // 80 is the quality. You can adjust this value.
 
-    $filename = time() . '.' . $image->getClientOriginalExtension();
+    $filename = uniqid() . '.' . $image->getClientOriginalExtension();
     $fullPath = $path . '/' . $filename;
 
     Storage::disk('s3')->put($fullPath, (string) $optimizedImage, 'public');
@@ -32,16 +32,16 @@ function optimizeDocumentAndUpload($file, $path = 'dev', $width = 474, $height =
                 $constraint->aspectRatio();
                 $constraint->upsize();
             })
-            ->encode('jpg', 80); // 80 is the quality. You can adjust this value.
+            ->encode('jpg', 80);
 
-            $filename = time() . '.' . $extension;
+            $filename = uniqid() . '.' . $extension;
             $fullPath = $path . '/' . $filename;
 
             Storage::disk('s3')->put($fullPath, (string) $optimizedImage, 'public');
 
             return $fullPath;
         } elseif ($extension == 'pdf') {
-            $filename = time() . '.' . $extension;
+            $filename = uniqid() . '.' . $extension;
             $fullPath = $path . '/' . $filename;
 
             // Read the file's content
