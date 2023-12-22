@@ -22,7 +22,6 @@ class ComplaintObserver
     {
         $notifyTo = User::where('owner_association_id', $complaint->owner_association_id)->where('role_id', 10)->get();
         if ($complaint->complaint_type == 'tenant_complaint') {
-
             Notification::make()
                 ->success()
                 ->title("Happiness center Complaint Received")
@@ -78,7 +77,8 @@ class ComplaintObserver
                 'created_at' => now()->format('Y-m-d H:i:s'),
                 'updated_at' => now()->format('Y-m-d H:i:s'),
             ]);
-        } else {
+        }
+        if($complaint->complaint_type == 'help_desk') {
             DB::table('notifications')->insert([
                 'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
                 'type' => 'Filament\Notifications\DatabaseNotification',
