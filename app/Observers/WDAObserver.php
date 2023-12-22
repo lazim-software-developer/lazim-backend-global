@@ -15,7 +15,9 @@ class WDAObserver
      */
     public function created(WDA $wDA): void
     {
-        $building = Building::where('id', $wDA->building_id)->first();
+        $vendor = DB::table('building_vendor')->where('building_id', $wDA->building_id)
+                    ->where('vendor_id',$wDA->vendor_id)->first();
+        $building = Building::where('id', $vendor->building_id)->first();
         $notifyTo = User::where('owner_association_id', $building->owner_association_id)->where('role_id',10)->get();
             Notification::make()
             ->success()
