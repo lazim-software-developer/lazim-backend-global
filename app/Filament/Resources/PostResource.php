@@ -9,6 +9,7 @@ use Filament\Forms\Get;
 use Filament\Forms\Set;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
+use App\Models\Master\Role;
 use App\Models\Community\Post;
 use Filament\Resources\Resource;
 use App\Models\Building\Building;
@@ -98,6 +99,9 @@ class PostResource extends Resource
                         Select::make('building')
                             ->relationship('building', 'name')
                             ->options(function () {
+                                if(Role::where('id',auth()->user()->role_id)->first()->name == 'Admin'){
+                                    return Building::all()->pluck('name','id');
+                                }
                                 return Building::where('owner_association_id', auth()->user()->owner_association_id)->pluck('name', 'id');
                             })
                             ->searchable()
