@@ -134,6 +134,13 @@ class WdasRelationManager extends RelationManager {
                         if($data['status'] != 'pending') {
                             $data['status_updated_by'] = auth()->user()->id;
                         }
+                        
+                        return $data;
+                    })
+                    ->mutateRecordDataUsing(function (array $data): array {
+                        if($data['status'] = 'pending'){
+                            $data['status'] = null;
+                        }
                         return $data;
                     })
                 //Tables\Actions\DeleteAction::make(),
