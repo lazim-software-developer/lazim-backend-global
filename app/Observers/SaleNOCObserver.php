@@ -21,7 +21,7 @@ class SaleNOCObserver
         ->title("New SaleNoc Submission")
         ->icon('heroicon-o-document-text')
         ->iconColor('warning')
-        ->body('New form submission by'.auth()->user()->first_name)
+        ->body('New form submission by '.auth()->user()->first_name)
         ->sendToDatabase($notifyTo);
     }
 
