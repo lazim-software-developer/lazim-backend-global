@@ -13,6 +13,7 @@
         "barryvdh/laravel-dompdf": "^2.0",
         "coolsam/flatpickr": "^3.0",
         "eightynine/filament-excel-import": "^3.0",
+        "erusev/parsedown": "^1.7",
         "filament/filament": "3.0-stable",
         "filament/notifications": "3.0-stable",
         "guzzlehttp/guzzle": "^7.2",
