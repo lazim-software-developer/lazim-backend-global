@@ -21,7 +21,7 @@ class PostLikeObserver
             ->title("Likes")
             ->icon('heroicon-o-document-text')
             ->iconColor('warning')
-            ->body(auth()->user()->first_name . 'liked the post!')
+            ->body(auth()->user()->first_name . ' liked the post!')
             ->sendToDatabase($notifyTo);
     }
 
