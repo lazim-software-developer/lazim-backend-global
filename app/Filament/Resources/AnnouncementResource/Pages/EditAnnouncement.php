@@ -17,6 +17,10 @@ class EditAnnouncement extends EditRecord
             // Actions\DeleteAction::make(),
         ];
     }
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
+    }
     // public function beforeSave()
     // {
     //     if($this->record->status == 'published')

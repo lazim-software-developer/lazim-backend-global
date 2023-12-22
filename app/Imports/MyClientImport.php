@@ -23,6 +23,7 @@ class MyClientImport implements ToCollection, WithHeadingRow
      */
     public function collection(Collection $rows)
     {
+        dd($rows[0]);
         foreach ($rows as $row) {
             $building = Building::find($this->buildingId)->first();
             $createflat = Flat::firstOrCreate(
@@ -36,7 +37,7 @@ class MyClientImport implements ToCollection, WithHeadingRow
                     'owner_association_id' => $building->owner_association_id,
                 ]
             );
-            MollakTenant::create([
+            MollakTenant::firstOrCreate([
                 'building_id' => $this->buildingId,
                 'flat_id' => $createflat->id,
                 'contract_number' => $row['contract_number'],
