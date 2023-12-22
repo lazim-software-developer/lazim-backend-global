@@ -3,14 +3,13 @@
 namespace App\Filament\Resources\MoveInFormsDocumentResource\Pages;
 
 use App\Filament\Resources\MoveInFormsDocumentResource;
+use App\Models\Building\Building;
 use App\Models\Building\Document;
 use App\Models\ExpoPushNotification;
-use App\Models\Forms\MoveInOut;
+use App\Models\User\User;
 use App\Traits\UtilsTrait;
-use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 class EditMoveInFormsDocument extends EditRecord
 {
@@ -32,15 +31,16 @@ class EditMoveInFormsDocument extends EditRecord
                     'accepted_by' => auth()->id(),
                 ]);
 
+            //notification for who is created the form
             $expoPushTokens = ExpoPushNotification::where('user_id', $this->record->user_id)->pluck('token');
             if ($expoPushTokens->count() > 0) {
                 foreach ($expoPushTokens as $expoPushToken) {
                     $message = [
                         'to' => $expoPushToken,
                         'sound' => 'default',
-                        'title' => 'MoveIn form Updated!',
-                        'body' => auth()->user()->first_name . ' approved your MoveIn form.',
-                        'data' => ['notificationType' => 'app_notification'],
+                        'title' => 'MoveIn form status',
+                        'body' => 'Your MoveIn form has been approved.',
+                        'data' => ['notificationType' => 'MyRequest'],
                     ];
                     $this->expoNotification($message);
                     DB::table('notifications')->insert([
@@ -50,14 +50,14 @@ class EditMoveInFormsDocument extends EditRecord
                         'notifiable_id' => $this->record->user_id,
                         'data' => json_encode([
                             'actions' => [],
-                            'body' => 'Approved your moveIn form by ' . auth()->user()->first_name,
+                            'body' => 'Your MoveIn form has been approved.',
                             'duration' => 'persistent',
                             'icon' => 'heroicon-o-document-text',
                             'iconColor' => 'warning',
-                            'title' => 'MoveIn form Updated!',
+                            'title' => 'MoveIn form status',
                             'view' => 'notifications::notification',
                             'viewData' => [],
-                            'format' => 'filament'
+                            'format' => 'filament',
                         ]),
                         'created_at' => now()->format('Y-m-d H:i:s'),
                         'updated_at' => now()->format('Y-m-d H:i:s'),
@@ -67,15 +67,16 @@ class EditMoveInFormsDocument extends EditRecord
         }
 
         if ($this->record->status == 'rejected') {
+            //notification to whoever create submit the form
             $expoPushTokens = ExpoPushNotification::where('user_id', $this->record->user_id)->pluck('token');
             if ($expoPushTokens->count() > 0) {
                 foreach ($expoPushTokens as $expoPushToken) {
                     $message = [
                         'to' => $expoPushToken,
                         'sound' => 'default',
-                        'title' => 'MoveIn form Updated!',
-                        'body' => auth()->user()->first_name . ' rejected your MoveIn form.',
-                        'data' => ['notificationType' => 'app_notification'],
+                        'title' => 'MoveIn form status',
+                        'body' => 'Your MoveIn form has been rejected.',
+                        'data' => ['notificationType' => 'MyRequest'],
                     ];
                     $this->expoNotification($message);
                     DB::table('notifications')->insert([
@@ -85,14 +86,14 @@ class EditMoveInFormsDocument extends EditRecord
                         'notifiable_id' => $this->record->user_id,
                         'data' => json_encode([
                             'actions' => [],
-                            'body' => 'Rejected your moveIn form by ' . auth()->user()->first_name,
+                            'body' => 'Your MoveIn form has been rejected.',
                             'duration' => 'persistent',
                             'icon' => 'heroicon-o-document-text',
-                            'iconColor' => 'warning',
-                            'title' => 'MoveIn form Updated!',
+                            'iconColor' => 'danger',
+                            'title' => 'MoveIn form status',
                             'view' => 'notifications::notification',
                             'viewData' => [],
-                            'format' => 'filament'
+                            'format' => 'filament',
                         ]),
                         'created_at' => now()->format('Y-m-d H:i:s'),
                         'updated_at' => now()->format('Y-m-d H:i:s'),

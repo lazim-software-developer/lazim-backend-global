@@ -8,6 +8,7 @@ use App\Http\Controllers\TestController;
 use App\Http\Controllers\Vendor\ContractController;
 use App\Http\Controllers\Vendor\DocumentsUploadController;
 use App\Http\Controllers\Vendor\EscalationMatrixController;
+use App\Http\Controllers\Vendor\ProposalController;
 use App\Http\Controllers\Vendor\SelectServicesController;
 use App\Http\Controllers\Vendor\SnagDashboardController;
 use App\Http\Controllers\Vendor\VendorComplaintController;
@@ -23,6 +24,7 @@ use App\Http\Controllers\Assets\AssetController;
 use App\Http\Controllers\Building\BuildingController;
 use App\Http\Controllers\Building\FlatController;
 use App\Http\Controllers\Community\CommentController;
+use App\Http\Controllers\Community\PollController;
 use App\Http\Controllers\Community\PostController;
 use App\Http\Controllers\Community\PostLikeController;
 use App\Http\Controllers\Documents\DocumentsController;
@@ -33,6 +35,8 @@ use App\Http\Controllers\Forms\MoveInOutController;
 use App\Http\Controllers\Forms\GuestController;
 use App\Http\Controllers\Forms\ResidentialFormController;
 use App\Http\Controllers\Forms\SaleNocController;
+use App\Http\Controllers\Gatekeeper\ComplaintController as GatekeeperComplaintController;
+use App\Http\Controllers\Gatekeeper\PatrollingController;
 use App\Http\Controllers\HelpDesk\ComplaintController;
 use App\Http\Controllers\Notifications\NotificationController;
 use App\Http\Controllers\Security\SecurityController;
@@ -47,6 +51,8 @@ use App\Http\Controllers\Vendor\InvoiceController;
 use App\Http\Controllers\Vendor\TenderController;
 use App\Http\Controllers\Vendor\WDAController;
 use App\Http\Controllers\Vendor\VendorBuildingController;
+use App\Http\Controllers\Gatekeeper\TenantsController;
+use App\Http\Controllers\Vendor\TLController;
 
 /*
 |--------------------------------------------------------------------------
@@ -86,6 +92,10 @@ Route::middleware(['active'])->group(function () {
 
     // Route for Refreshing the token
     Route::post('/refresh-token', [AuthController::class, 'refreshToken']);
+
+    // Security login
+
+    Route::post('/gatekeeper-login', [AuthController::class, 'gateKeeperLogin']);
 
     // Forgot password route
     Route::post(
@@ -171,6 +181,14 @@ Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active']
 
     // Check if post upload is enabled for a building
     Route::get('/buildings/{building}/post-upload-permission', [PostController::class, 'checkPostUploadPermission']);
+
+    // Polls for a building
+    //  List all polls for the buidling
+    Route::get('/building/{building}/polls', [PollController::class, 'index']);
+    // Route::get('/poll/{poll}', [PollController::class, 'show']);
+
+    // create a post
+    Route::post('/poll/{poll}', [PollController::class, 'store']);
 });
 
 
@@ -239,8 +257,6 @@ Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active']
 Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active'])->group(function () {
     Route::get('/buildings/{building}/services', [ServiceController::class, 'listServicesForBuilding']);
     Route::post('buildings/{building}/book/service', [ServiceController::class, 'bookService']);
-    // about Community
-    Route::get('/about-community/{building}', [CommunityController::class, 'about']);
 });
 
 
@@ -287,6 +303,12 @@ Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active']
 
     // Rejected APIs
     Route::get('/move-in/{movein}', [MoveInOutController::class, 'index']);
+
+    // Update API for move in and move out
+    Route::post('/move-in/{movein}/update', [MoveInOutController::class, 'update']);
+
+    //Fit Out rejected API
+    Route::get('/fit-out/status/{fitout}',[FitOutFormsController::class, 'index']);
 });
 
 // API  to fetch Security for a building
@@ -316,7 +338,7 @@ Route::middleware([])->prefix('vendor')->group(function () {
     Route::post('/{vendor}/tag-services', [SelectServicesController::class, 'tagServices']);
     Route::post('/{vendor}/untag-services', [SelectServicesController::class, 'untagServices']);
     Route::post('/{vendor}/documents-upload', [DocumentsUploadController::class, 'documentsUpload']);
-    Route::get('/owner-associations',[VendorRegistrationController::class,'listOa']);
+    Route::get('/owner-associations', [VendorRegistrationController::class, 'listOa']);
 });
 
 // Vendor APIs after logging in
@@ -374,6 +396,13 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('vendor')->group(function 
     // List all tenders
     Route::get('/tenders', [TenderController::class, 'index']);
     Route::post('/tenders/{tender}', [TenderController::class, 'store']);
+
+    // TL number 
+    Route::get('/{vendor}/trade-licenses',[TLController::class,'show']);
+    Route::post('/{vendor}/trade-licenses/update',[TLController::class,'update']);
+
+    //proposals
+    Route::get('/{vendor}/proposals', [ProposalController::class, 'index']);
 });
 
 // Technician Related APIs
@@ -384,21 +413,27 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('technician')->group(funct
     Route::get('/buildings', [TechnicianBuildingController::class, 'index']);
     Route::get('/tasks', [TasksController::class, 'index']);
     //List all technicians for a service
-    Route::get('/{service}/technicians/{vendor}',[TechnicianController::class, 'index']);
-    Route::get('/{vendor}/technicians',[TechnicianController::class,'listTechnicians']);
-    Route::patch('/active-deactive/{technician}',[TechnicianController::class, 'activeDeactive']);
-    Route::post('/attach-technician/{technician}',[TechnicianController::class, 'attachTechnician']);
-    Route::post('/assign-technician/{complaint}',[TechnicianController::class, 'assignTechnician']);
-    Route::get('/{service}/list-technicians/{vendor}',[TechnicianController::class, 'technicianList']);
+    Route::get('/{service}/technicians/{vendor}', [TechnicianController::class, 'index']);
+    Route::get('/{vendor}/technicians', [TechnicianController::class, 'listTechnicians']);
+    Route::patch('/active-deactive/{technician}', [TechnicianController::class, 'activeDeactive']);
+    Route::post('/attach-technician/{technician}', [TechnicianController::class, 'attachTechnician']);
+    Route::post('/assign-technician/{complaint}', [TechnicianController::class, 'assignTechnician']);
+    Route::get('/{service}/list-technicians/{vendor}', [TechnicianController::class, 'technicianList']);
 });
 
 // Assets related APIs
 Route::middleware(['auth:sanctum', 'active'])->prefix('assets')->group(function () {
     // List all assets for the technicians
     Route::get('/technican/assets', [AssetController::class, 'index']);
+    // Service history for an asset
+    Route::get('/maintenance-list/{technicianasset}', [AssetController::class, 'fetchAssetMaintenances']);
+
     Route::post('/maintenance', [AssetController::class, 'store']);
     Route::post('/maintenance/{assetMaintenance}/update-before', [AssetController::class, 'updateBefore']);
     Route::post('/maintenance/{assetMaintenance}/update-after', [AssetController::class, 'updateAfter']);
+
+    // API to list asset details for the technician when he scans the QR code
+    Route::get('/{asset}', [TechnicianController::class, 'fetchTechnicianAssetDetails']);
 
     //Vendor assets
     Route::get('/vendor/{vendor}', [AssetController::class, 'listAssets']);
@@ -409,6 +444,35 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('assets')->group(function 
     Route::post('/create/ppm', [PPMController::class, 'store']);
     Route::get('/{vendor}/ppm/', [PPMController::class, 'index']);
 });
+
+Route::middleware(['auth:sanctum', 'active', 'active.gatekeeper'])->prefix('gatekeeper')->group(function () {
+    Route::get('snags', [GatekeeperComplaintController::class, 'index']);
+
+    Route::get('floors', [PatrollingController::class, 'featchAllFloors']);
+    Route::post('store-patrolling/{building}', [PatrollingController::class, 'store']);
+
+    // List all residents for an 
+    // Save visitor for a floor
+    Route::post('visitor', [PatrollingController::class, 'storeVisitor']);
+
+    // List all tenants for a building with flat name and searchable flat number option
+    Route::get('{building}/tenants/{unit?}', [TenantsController::class, 'fetchAllTenants']);
+
+    // List all visitors for a building
+    Route::get('/building/{building}/visits', [GuestController::class, 'futureVisits']);
+
+    // Notify tenants on visitor's entry
+    Route::post('/notify-resident', [GuestController::class, 'notifyTenant']);
+
+});
+// Approve visitor request
+Route::post('/gatekeeper/visitor-entry', [GuestController::class, 'visitorEntry'])->middleware(['auth:sanctum']);
+
 // API to import services
 Route::post('/import-services', [ServiceController::class, 'import']);
 
+// about Community
+Route::get('/building/{building}', [CommunityController::class, 'about']);
+
+// Visitor form
+Route::post('/store-visitor', [GuestController::class, 'saveFlatVisitors']);

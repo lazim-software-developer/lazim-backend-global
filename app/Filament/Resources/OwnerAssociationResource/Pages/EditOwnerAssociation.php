@@ -23,7 +23,7 @@ class EditOwnerAssociation extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            Actions\DeleteAction::make(),
+            // Actions\DeleteAction::make(),
         ];
 
     }
@@ -42,6 +42,7 @@ class EditOwnerAssociation extends EditRecord
                 'phone'   => $this->record->phone,
                 'address' => $this->record->address,
                 'active'  => $this->record->active,
+                'profile_photo' => $this->record->profile_photo,
             ]);
         User::where('owner_association_id', $this->data['id'])->where('role_id',Role::where('name','OA')->first()->id)
             ->update([
@@ -67,6 +68,7 @@ class EditOwnerAssociation extends EditRecord
                     'first_name'           => $this->record->name,
                     'email'                => $this->record->email,
                     'phone'                => $this->record->phone,
+                    'profile_photo'        => $this->record->profile_photo,
                     'role_id'              => Role::where('name', 'OA')->value('id'),
                     'active'               => true,
                     'password' => Hash::make($password),

@@ -16,6 +16,7 @@ use Filament\Forms\Components\Toggle;
 use Filament\Tables\Columns\TextColumn;
 use App\Models\Building\FacilityBooking;
 use App\Models\ExpoPushNotification;
+use App\Models\Master\Facility;
 use App\Traits\UtilsTrait;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\DatePicker;
@@ -54,7 +55,7 @@ class FacilityBookingsRelationManager extends RelationManager
                             ->label('Facility')
                             ->disabledOn('edit')
                             ->preload()
-                            ->placeholder('Facility'),
+                            ->label('Facility'),
 
                         Hidden::make('bookable_type')
                             ->default('App\Models\Master\Facility'),
@@ -64,7 +65,7 @@ class FacilityBookingsRelationManager extends RelationManager
                             ->required()
                             ->relationship('user', 'first_name')
                             ->options(function () {
-                                return User::whereIn('role_id', [1,11])->pluck('first_name', 'id');
+                                return User::whereIn('role_id', [1, 11])->pluck('first_name', 'id');
                             })
                             ->searchable()
                             ->disabledOn('edit')
@@ -110,6 +111,7 @@ class FacilityBookingsRelationManager extends RelationManager
                     ->default('NA')
                     ->label('User'),
                 TextColumn::make('date')
+                    ->date()
                     ->searchable()
                     ->default('NA')
                     ->label('Date'),
@@ -131,40 +133,81 @@ class FacilityBookingsRelationManager extends RelationManager
             ])
             ->actions([
                 Tables\Actions\EditAction::make()
-                ->after(function (RelationManager $livewire) {
-                    $user = FacilityBooking::where('id',$livewire->ownerRecord->id)->first();
-                    if ($user->approved == 1) {
-                        $expoPushTokens = ExpoPushNotification::where('user_id', $user->user_id)->pluck('token');
-                        if ($expoPushTokens->count() > 0) {
-                            foreach ($expoPushTokens as $expoPushToken) {
-                                $message = [
-                                    'to' => $expoPushToken,
-                                    'sound' => 'default',
-                                    'title' => 'Facility Booking Updated!',
-                                    'body' => auth()->user()->first_name . ' approved your Facility Booking form.',
-                                    'data' => ['notificationType' => 'app_notification'],
-                                ];
-                                $this->expoNotification($message);
+                    ->after(function (RelationManager $livewire) {
+                        $user = FacilityBooking::where('id', $livewire->ownerRecord->id)->first();
+                        $facilityName = Facility::where('id', $user->bookable_id)->first();
+                        if($user->approved != null){
+                            if ($user->approved == 1) {
+                                $expoPushTokens = ExpoPushNotification::where('user_id', $user->user_id)->pluck('token');
+                                if ($expoPushTokens->count() > 0) {
+                                    foreach ($expoPushTokens as $expoPushToken) {
+                                        $message = [
+                                            'to' => $expoPushToken,
+                                            'sound' => 'default',
+                                            'title' => $facilityName->name . ' Booking Status.',
+                                            'body' => 'Your facility booking request for '.$facilityName->name.' is approved',
+                                            'data' => ['notificationType' => 'MyBookingsFacility'],
+                                        ];
+                                        $this->expoNotification($message);
+                                        DB::table('notifications')->insert([
+                                            'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
+                                            'type' => 'Filament\Notifications\DatabaseNotification',
+                                            'notifiable_type' => 'App\Models\User\User',
+                                            'notifiable_id' => $user->user_id,
+                                            'data' => json_encode([
+                                                'actions' => [],
+                                                'body' => 'Your facility booking request for '.$facilityName->name.' is approved',
+                                                'duration' => 'persistent',
+                                                'icon' => 'heroicon-o-document-text',
+                                                'iconColor' => 'warning',
+                                                'title' =>  $facilityName->name . ' Booking Status.',
+                                                'view' => 'notifications::notification',
+                                                'viewData' => [],
+                                                'format' => 'filament'
+                                            ]),
+                                            'created_at' => now()->format('Y-m-d H:i:s'),
+                                            'updated_at' => now()->format('Y-m-d H:i:s'),
+                                        ]);
+                                    }
+                                }
                             }
-                        }
-                    }
 
-                    if ($user->approved == 0) {
-                        $expoPushTokens = ExpoPushNotification::where('user_id', $user->user_id)->pluck('token');
-                        if ($expoPushTokens->count() > 0) {
-                            foreach ($expoPushTokens as $expoPushToken) {
-                                $message = [
-                                    'to' => $expoPushToken,
-                                    'sound' => 'default',
-                                    'title' => 'Facility Booking Updated!',
-                                    'body' => auth()->user()->first_name . ' rejected your Facility Booking form.',
-                                    'data' => ['notificationType' => 'app_notification'],
-                                ];
-                                $this->expoNotification($message);
+                            if ($user->approved == 0) {
+                                $expoPushTokens = ExpoPushNotification::where('user_id', $user->user_id)->pluck('token');
+                                if ($expoPushTokens->count() > 0) {
+                                    foreach ($expoPushTokens as $expoPushToken) {
+                                        $message = [
+                                            'to' => $expoPushToken,
+                                            'sound' => 'default',
+                                            'title' =>  $facilityName->name . ' Booking Status.',
+                                            'body' => 'Your facility booking request for '.$facilityName->name.' is rejected',
+                                            'data' => ['notificationType' => 'MyBookingsFacility'],
+                                        ];
+                                        $this->expoNotification($message);
+                                        DB::table('notifications')->insert([
+                                            'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
+                                            'type' => 'Filament\Notifications\DatabaseNotification',
+                                            'notifiable_type' => 'App\Models\User\User',
+                                            'notifiable_id' => $user->user_id,
+                                            'data' => json_encode([
+                                                'actions' => [],
+                                                'body' => 'Your facility booking request for '.$facilityName->name.' is rejected',
+                                                'duration' => 'persistent',
+                                                'icon' => 'heroicon-o-document-text',
+                                                'iconColor' => 'danger',
+                                                'title' =>  $facilityName->name . ' Booking Status.',
+                                                'view' => 'notifications::notification',
+                                                'viewData' => [],
+                                                'format' => 'filament'
+                                            ]),
+                                            'created_at' => now()->format('Y-m-d H:i:s'),
+                                            'updated_at' => now()->format('Y-m-d H:i:s'),
+                                        ]);
+                                    }
+                                }
                             }
                         }
-                    }
-                }),
+                    }),
             ]);
     }
 }

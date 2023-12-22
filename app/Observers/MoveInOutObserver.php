@@ -1,6 +1,8 @@
 <?php
 
 namespace App\Observers;
+
+use App\Models\Building\Building;
 use App\Models\Forms\MoveInOut;
 use App\Models\User\User;
 use Filament\Notifications\Notification;
@@ -13,7 +15,7 @@ class MoveInOutObserver
      */
     public function created(MoveInOut $moveInOut): void
     {
-        $notifyTo = User::where('owner_association_id',$moveInOut->owner_association_id)->get();
+        $notifyTo = User::where('owner_association_id', $moveInOut->owner_association_id)->where('role_id', 10)->get();
         if($moveInOut->type == 'move-in'){
             Notification::make()
             ->success()

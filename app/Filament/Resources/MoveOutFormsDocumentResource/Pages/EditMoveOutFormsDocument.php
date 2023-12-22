@@ -27,15 +27,16 @@ class EditMoveOutFormsDocument extends EditRecord
     public function afterSave()
     {
         if ($this->record->status == 'approved') {
+            //notification for who is created the form
             $expoPushTokens = ExpoPushNotification::where('user_id', $this->record->user_id)->pluck('token');
             if ($expoPushTokens->count() > 0) {
                 foreach ($expoPushTokens as $expoPushToken) {
                     $message = [
                         'to' => $expoPushToken,
                         'sound' => 'default',
-                        'title' => 'MoveOut form Updated!',
-                        'body' => auth()->user()->first_name . ' approved your MoveOut form.',
-                        'data' => ['notificationType' => 'app_notification'],
+                        'title' => 'MoveOut form status',
+                        'body' => 'Your MoveOut form has been approved.',
+                        'data' => ['notificationType' => 'MyRequest'],
                     ];
                     $this->expoNotification($message);
                     DB::table('notifications')->insert([
@@ -45,14 +46,14 @@ class EditMoveOutFormsDocument extends EditRecord
                         'notifiable_id' => $this->record->user_id,
                         'data' => json_encode([
                             'actions' => [],
-                            'body' => 'Approved your MoveOut form by ' . auth()->user()->first_name,
+                            'body' => 'Your MoveOut form has been approved.',
                             'duration' => 'persistent',
                             'icon' => 'heroicon-o-document-text',
                             'iconColor' => 'warning',
-                            'title' => 'MoveOut form Updated!',
+                            'title' => 'MoveOut form status',
                             'view' => 'notifications::notification',
                             'viewData' => [],
-                            'format' => 'filament'
+                            'format' => 'filament',
                         ]),
                         'created_at' => now()->format('Y-m-d H:i:s'),
                         'updated_at' => now()->format('Y-m-d H:i:s'),
@@ -62,15 +63,16 @@ class EditMoveOutFormsDocument extends EditRecord
         }
 
         if ($this->record->status == 'rejected') {
+            //notification for who is created the form
             $expoPushTokens = ExpoPushNotification::where('user_id', $this->record->user_id)->pluck('token');
             if ($expoPushTokens->count() > 0) {
                 foreach ($expoPushTokens as $expoPushToken) {
                     $message = [
                         'to' => $expoPushToken,
                         'sound' => 'default',
-                        'title' => 'MoveOut form Updated!',
-                        'body' => auth()->user()->first_name . ' rejected your MoveOut form.',
-                        'data' => ['notificationType' => 'app_notification'],
+                        'title' => 'MoveOut form status',
+                        'body' => 'Your MoveOut form has been rejected.',
+                        'data' => ['notificationType' => 'MyRequest'],
                     ];
                     $this->expoNotification($message);
                     DB::table('notifications')->insert([
@@ -80,20 +82,26 @@ class EditMoveOutFormsDocument extends EditRecord
                         'notifiable_id' => $this->record->user_id,
                         'data' => json_encode([
                             'actions' => [],
-                            'body' => 'Rejected your MoveOut form by ' . auth()->user()->first_name,
+                            'body' => 'Your MoveOut form has been rejected.',
                             'duration' => 'persistent',
                             'icon' => 'heroicon-o-document-text',
-                            'iconColor' => 'warning',
-                            'title' => 'MoveOut form Updated!',
+                            'iconColor' => 'danger',
+                            'title' => 'MoveOut form status',
                             'view' => 'notifications::notification',
                             'viewData' => [],
-                            'format' => 'filament'
+                            'format' => 'filament',
                         ]),
                         'created_at' => now()->format('Y-m-d H:i:s'),
                         'updated_at' => now()->format('Y-m-d H:i:s'),
                     ]);
                 }
             }
+        }
+
+        if ($this->record->rejected_fields){
+            $rejectedFieldsJson = json_encode(['rejected_fields' => $this->record->rejected_fields]);
+            $this->record->update(['rejected_fields' =>  $rejectedFieldsJson]);
+            $this->record->save();
         }
     }
 }

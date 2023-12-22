@@ -4,9 +4,7 @@ namespace App\Filament\Resources\FitOutFormsDocumentResource\Pages;
 
 use App\Filament\Resources\FitOutFormsDocumentResource;
 use App\Models\ExpoPushNotification;
-use App\Models\Forms\FitOutForm;
 use App\Traits\UtilsTrait;
-use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Support\Facades\DB;
 
@@ -28,7 +26,6 @@ class EditFitOutFormsDocument extends EditRecord
 
     public function afterSave()
     {
-
         if ($this->record->status == 'approved') {
             $expoPushTokens = ExpoPushNotification::where('user_id', $this->record->user_id)->pluck('token');
             if ($expoPushTokens->count() > 0) {
@@ -36,9 +33,9 @@ class EditFitOutFormsDocument extends EditRecord
                     $message = [
                         'to' => $expoPushToken,
                         'sound' => 'default',
-                        'title' => 'FitOut form Updated!',
-                        'body' => auth()->user()->first_name . ' approved your fitout form.',
-                        'data' => ['notificationType' => 'app_notification'],
+                        'title' => 'FitOut form status',
+                        'body' => 'Your FitOut form has been approved.',
+                        'data' => ['notificationType' => 'MyRequest'],
                     ];
                     $this->expoNotification($message);
                     DB::table('notifications')->insert([
@@ -48,14 +45,14 @@ class EditFitOutFormsDocument extends EditRecord
                         'notifiable_id' => $this->record->user_id,
                         'data' => json_encode([
                             'actions' => [],
-                            'body' => 'Approved your fitout form by ' . auth()->user()->first_name,
+                            'body' => 'Your FitOut form has been approved.',
                             'duration' => 'persistent',
                             'icon' => 'heroicon-o-document-text',
                             'iconColor' => 'warning',
-                            'title' => 'FitOut form Updated!',
+                            'title' => 'FitOut form status',
                             'view' => 'notifications::notification',
                             'viewData' => [],
-                            'format' => 'filament'
+                            'format' => 'filament',
                         ]),
                         'created_at' => now()->format('Y-m-d H:i:s'),
                         'updated_at' => now()->format('Y-m-d H:i:s'),
@@ -70,9 +67,9 @@ class EditFitOutFormsDocument extends EditRecord
                     $message = [
                         'to' => $expoPushToken,
                         'sound' => 'default',
-                        'title' => 'FitOut form Updated!',
-                        'body' => auth()->user()->first_name . ' rejected your fitout form.',
-                        'data' => ['notificationType' => 'app_notification'],
+                        'title' => 'FitOut form status',
+                        'body' => 'Your FitOut form has been rejected.',
+                        'data' => ['notificationType' => 'MyRequest'],
                     ];
                     $this->expoNotification($message);
 
@@ -83,20 +80,25 @@ class EditFitOutFormsDocument extends EditRecord
                         'notifiable_id' => $this->record->user_id,
                         'data' => json_encode([
                             'actions' => [],
-                            'body' => 'Rejected your fitout form by ' . auth()->user()->first_name,
+                            'body' => 'Your FitOut form has been rejected.',
                             'duration' => 'persistent',
                             'icon' => 'heroicon-o-document-text',
                             'iconColor' => 'danger',
-                            'title' => 'FitOut form Updated!',
+                            'title' => 'FitOut form status',
                             'view' => 'notifications::notification',
                             'viewData' => [],
-                            'format' => 'filament'
+                            'format' => 'filament',
                         ]),
                         'created_at' => now()->format('Y-m-d H:i:s'),
                         'updated_at' => now()->format('Y-m-d H:i:s'),
                     ]);
                 }
             }
+        }
+        if ($this->record->rejected_fields){
+            $rejectedFieldsJson = json_encode(['rejected_fields' => $this->record->rejected_fields]);
+            $this->record->update(['rejected_fields' =>  $rejectedFieldsJson]);
+            $this->record->save();
         }
     }
 }

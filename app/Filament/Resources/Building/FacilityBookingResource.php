@@ -66,7 +66,7 @@ class FacilityBookingResource extends Resource
                             )
                             ->searchable()
                             ->preload()
-                            ->placeholder('Facility'),
+                            ->label('Facility'),
 
                         Hidden::make('bookable_type')
                             ->default('App\Models\Master\Facility'),
@@ -76,7 +76,7 @@ class FacilityBookingResource extends Resource
                             ->required()
                             ->relationship('user', 'first_name')
                             ->options(function () {
-                                return User::whereIn('role_id', [1,11])->pluck('first_name', 'id');
+                                return User::whereIn('role_id', [1, 11])->pluck('first_name', 'id');
                             })
                             ->preload()
                             ->disabledOn('edit')
@@ -131,12 +131,14 @@ class FacilityBookingResource extends Resource
                 Tables\Columns\TextColumn::make('bookable.name')
                     ->default('NA')
                     ->searchable()
-                    ->limit(50),
+                    ->limit(50)
+                    ->label('Facility'),
                 Tables\Columns\TextColumn::make('user.first_name')
                     ->searchable()
                     ->default('NA')
                     ->limit(50),
                 Tables\Columns\TextColumn::make('date')
+                    ->date()
                     ->default('NA')
                     ->searchable()
                     ->date(),

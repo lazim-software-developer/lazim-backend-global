@@ -2,33 +2,35 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\TenantDocumentResource\Pages;
-use App\Models\Building\Document;
-use Filament\Facades\Filament;
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
+use App\Models\User\User;
+use Filament\Tables\Table;
+use App\Models\Master\Role;
+use Filament\Facades\Filament;
 use Filament\Resources\Resource;
+use App\Models\Building\Document;
+use Illuminate\Support\Facades\DB;
+use Filament\Forms\Components\Grid;
 use Filament\Tables\Actions\Action;
+use Filament\Forms\Components\Select;
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ViewColumn;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\FileUpload;
 use Filament\Tables\Filters\SelectFilter;
-use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Query\JoinClause;
-use Illuminate\Support\Facades\DB;
+use App\Filament\Resources\TenantDocumentResource\Pages;
 
 class TenantDocumentResource extends Resource
 {
     protected static ?string $model = Document::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-user-circle';
-    protected static ?string $navigationGroup = 'Document Management';
-    protected static ?string $navigationLabel = 'Resident';
+    protected static ?string $navigationGroup = 'Master';
+    protected static ?string $navigationLabel = 'Resident Document';
 
     public static function form(Form $form): Form
     {
@@ -75,8 +77,15 @@ class TenantDocumentResource extends Resource
                             DatePicker::make('expiry_date')
                                 ->rules(['date'])
                                 ->required()
+                                ->disabled()
                                 ->readonly()
                                 ->placeholder('Expiry Date'),
+                            TextInput::make('comments')
+                                ->required()
+                                ->disabled(function (Document $record) {
+                                    return $record->status != 'submitted';
+                                })
+                                ->label('Comments'),
                             Select::make('status')
                                 ->options([
                                     'approved' => 'Approved',
@@ -138,12 +147,12 @@ class TenantDocumentResource extends Resource
             ->defaultSort('created_at', 'desc')
             ->filters([
                 SelectFilter::make('documentable_id')
-                    ->relationship('documentUsers', 'first_name')
+                    ->relationship('documentUsers', 'first_name', fn (Builder $query) => $query->where('role_id',Role::where('name','Tenant')->first()->id))
                     ->searchable()
                     ->preload()
-                    ->label('Tenant'),
+                    ->label('Resident'),
                 SelectFilter::make('building_id')
-                    ->relationship('building', 'name')
+                    ->relationship('building', 'name', fn (Builder $query) => $query->where('owner_association_id',auth()->user()->owner_association_id))
                     ->searchable()
                     ->preload()
                     ->label('Building'),
