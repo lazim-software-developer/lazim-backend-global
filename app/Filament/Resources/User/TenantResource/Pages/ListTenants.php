@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\User\TenantResource\Pages;
 
 use App\Filament\Resources\User\TenantResource;
+use App\Models\Building\Building;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
 use Illuminate\Database\Eloquent\Builder;
@@ -10,10 +11,10 @@ use Illuminate\Database\Eloquent\Builder;
 class ListTenants extends ListRecords
 {
     protected static string $resource = TenantResource::class;
-    // protected function getTableQuery(): Builder
-    // {
-    //     return parent::getTableQuery()->where('role_id',11)->where('owner_association_id',auth()->user()->owner_association_id);
-    // }
+    protected function getTableQuery(): Builder
+    {
+        return parent::getTableQuery()->whereIn('building_id',Building::where('owner_association_id',auth()->user()->owner_association_id)->pluck('id'));
+    }
     protected function getHeaderActions(): array
     {
         return [
