@@ -136,8 +136,9 @@ class ServiceBookingsRelationManager extends RelationManager
             ])
             ->actions([
                 Tables\Actions\EditAction::make()
-                    ->after(function (RelationManager $livewire) {
-                        $user = FacilityBooking::where('id', $livewire->ownerRecord->id)->first();
+                ->after(function (RelationManager $livewire) {
+                    $user = FacilityBooking::where('id', $livewire->ownerRecord->id)->first();
+                    if ($user->bookable_type ==  'App\Models\Master\Service') {
                         $serviceName = Service::where('id', $user->bookable_id)->first();
                         if($user->approved != null){
                             if ($user->approved == 1) {
@@ -174,7 +175,7 @@ class ServiceBookingsRelationManager extends RelationManager
                                     }
                                 }
                             }
-
+    
                             if ($user->approved == 0) {
                                 $expoPushTokens = ExpoPushNotification::where('user_id', $user->user_id)->pluck('token');
                                 if ($expoPushTokens->count() > 0) {
@@ -210,8 +211,8 @@ class ServiceBookingsRelationManager extends RelationManager
                                 }
                             }
                         }
-
-                    }),
+                    }
+                }),
             ]);
     }
 
