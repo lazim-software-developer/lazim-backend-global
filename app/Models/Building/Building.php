@@ -2,43 +2,48 @@
 
 namespace App\Models\Building;
 
-use App\Models\Accounting\Budget;
-use App\Models\Accounting\Invoice;
-use App\Models\Accounting\OAMInvoice;
-use App\Models\Accounting\WDA;
 use App\Models\Asset;
+use App\Models\Floor;
+use App\Models\User\User;
+use App\Models\Vendor\PPM;
+use App\Models\Forms\Guest;
+use App\Models\Master\City;
+use App\Models\Master\Role;
+use App\Models\MollakTenant;
+use App\Models\Building\Flat;
+use App\Models\Forms\SaleNOC;
+use App\Models\Vendor\Vendor;
+use Spatie\Sluggable\HasSlug;
+use App\Models\Accounting\WDA;
 use App\Models\Community\Poll;
 use App\Models\Community\Post;
 use App\Models\CoolingAccount;
-use App\Models\Forms\AccessCard;
-use App\Models\Forms\Guest;
-use App\Models\Forms\SaleNOC;
-use App\Models\Master\Role;
 use App\Models\Master\Service;
-use App\Models\MollakTenant;
-use App\Models\OwnerAssociation;
-use App\Models\Master\City;
-use App\Models\Building\Flat;
-use App\Models\Master\Facility;
-use App\Models\Building\Document;
 use App\Models\RuleRegulation;
+use App\Models\Vendor\Contact;
+use App\Models\Forms\MoveInOut;
+use App\Models\Master\Facility;
+use App\Models\Vendor\Contract;
+use App\Models\Forms\AccessCard;
+use App\Models\Forms\FitOutForm;
+use App\Models\OwnerAssociation;
+use App\Models\Accounting\Budget;
+use App\Models\Building\Document;
 use App\Models\Scopes\Searchable;
 use App\Models\Vendor\Attendance;
-use App\Models\Building\Complaint;
-use App\Models\Building\BuildingPoc;
-use App\Models\Floor;
-use App\Models\Forms\FitOutForm;
-use App\Models\Forms\MoveInOut;
-use App\Models\Vendor\Contact;
-use App\Models\Vendor\Contract;
-use App\Models\Vendor\PPM;
-use App\Models\Vendor\Vendor;
-use App\Models\Visitor\FlatDomesticHelp;
-use App\Models\Visitor\FlatVisitor;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
+use App\Models\Accounting\Invoice;
+use App\Models\Building\Complaint;
+use App\Models\Visitor\FlatVisitor;
+use App\Models\Building\BuildingPoc;
+use App\Models\Accounting\OAMInvoice;
+use App\Models\BuildingService;
+use App\Models\Meeting;
+use App\Models\OwnerCommittee;
+use Illuminate\Database\Eloquent\Model;
+use App\Models\Visitor\FlatDomesticHelp;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Building extends Model
 {
@@ -239,5 +244,21 @@ class Building extends Model
     public function polls()
     {
         return $this->hasMany(Poll::class);
+    }
+    public function ownercommittees()
+    {
+        return $this->hasMany(OwnerCommittee::class);
+    }
+    public function buildingservice()
+    {
+        return $this->hasMany(BuildingService::class);
+    }
+    public function meetings()
+    {
+        return $this->hasMany(Meeting::class);
+    }
+    public function users(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class);
     }
 }

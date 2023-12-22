@@ -2,44 +2,46 @@
 
 namespace App\Models\User;
 
-use App\Models\Vendor\PPM;
 use Filament\Panel;
 use App\Models\Asset;
+use App\Models\Vendor\PPM;
 use App\Models\Forms\Guest;
 use App\Models\Master\Role;
 use App\Models\Building\Flat;
 use App\Models\Forms\SaleNOC;
 use App\Models\Vendor\Vendor;
 use App\Models\Accounting\WDA;
+use App\Models\Community\Poll;
 use App\Models\Community\Post;
 use App\Models\Forms\MoveInOut;
 use App\Models\ResidentialForm;
 use App\Models\Forms\AccessCard;
 use App\Models\Forms\FitOutForm;
 use App\Models\OwnerAssociation;
+use App\Models\TechnicianAssets;
 use App\Models\TechnicianVendor;
 use App\Models\Building\Document;
 use App\Models\Scopes\Searchable;
 use App\Models\Vendor\Attendance;
 use Laravel\Sanctum\HasApiTokens;
 use App\Models\Accounting\Invoice;
+use App\Models\Building\Building;
 use App\Models\Building\Complaint;
 use App\Models\Community\PostLike;
 use App\Models\Building\FlatTenant;
 use App\Models\Visitor\FlatVisitor;
 use App\Models\Building\BuildingPoc;
+use App\Models\ExpoPushNotification;
+use App\Models\Community\PollResponse;
 use Filament\Models\Contracts\HasName;
 use Laravel\Jetstream\HasProfilePhoto;
 use App\Models\Building\FacilityBooking;
-use App\Models\Community\Poll;
-use App\Models\Community\PollResponse;
-use App\Models\ExpoPushNotification;
-use App\Models\TechnicianAssets;
 use Illuminate\Notifications\Notifiable;
 use Filament\Models\Contracts\FilamentUser;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class User extends Authenticatable implements FilamentUser, HasName
 {
@@ -282,5 +284,9 @@ class User extends Authenticatable implements FilamentUser, HasName
     public function pollResponse()
     {
         return $this->hasMany(PollResponse::class);
+    }
+    public function roles(): BelongsToMany
+    {
+        return $this->belongsToMany(Building::class,'owner_committees','building_id','user_id');
     }
 }
