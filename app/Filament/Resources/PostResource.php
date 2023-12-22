@@ -127,7 +127,7 @@ class PostResource extends Resource
                                     ->placeholder('Name'),
                                 FileUpload::make('url')
                                     ->disk('s3')
-                                    ->acceptedFileTypes(['image/jpeg', 'image/png'])
+                                    ->rules('file|mimes:jpeg,jpg,png|max:2048')
                                     ->directory('dev')
                                     ->openable(true)
                                     ->downloadable(true)

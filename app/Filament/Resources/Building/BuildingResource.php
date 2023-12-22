@@ -84,6 +84,7 @@ class BuildingResource extends Resource
                             //     ->placeholder('NA'),
                             FileUpload::make('cover_photo')
                                 ->disk('s3')
+                                ->rules('file|mimes:jpeg,jpg,png|max:2048')
                                 ->directory('dev')
                                 ->image()
                                 ->maxSize(2048)
