@@ -32,6 +32,7 @@ use Filament\Forms\Components\MarkdownEditor;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\AnnouncementResource\Pages;
 use App\Filament\Resources\AnnouncementResource\RelationManagers;
+use App\Models\Master\Role;
 
 class AnnouncementResource extends Resource
 {
@@ -98,6 +99,9 @@ class AnnouncementResource extends Resource
                         Select::make('building_id')
                             ->relationship('building', 'name')
                             ->options(function () {
+                                if(Role::where('id',auth()->user()->role_id)->first()->name == 'Admin'){
+                                    return Building::all()->pluck('name','id');
+                                }
                                 return Building::where('owner_association_id', auth()->user()->owner_association_id)->pluck('name', 'id');
                             })
                             ->searchable()
