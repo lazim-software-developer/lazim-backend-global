@@ -92,7 +92,7 @@ class AdminPanelProvider extends PanelProvider
                             //     ->icon('heroicon-m-globe-americas')
                             //     ->activeIcon('heroicon-m-globe-americas')
                             //     ->sort(4),
-                            NavigationItem::make('Residents')
+                            NavigationItem::make('Resident Documents')
                                 ->url('/admin/tenant-documents')
                                 ->hidden(DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] == 'Admin' ? true : false)
                                 ->icon('heroicon-o-user-circle')

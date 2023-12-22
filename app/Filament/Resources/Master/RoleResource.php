@@ -29,6 +29,7 @@ class RoleResource extends Resource
                         TextInput::make('name')
                             ->rules(['max:50', 'regex:/^[a-zA-Z\s]*$/'])
                             ->required()
+                            ->disabledOn('edit')
                             ->placeholder('Name'),
                     ]),
             ]);

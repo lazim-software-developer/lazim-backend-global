@@ -7,6 +7,7 @@ use Filament\Tables;
 use Filament\Forms\Form;
 use App\Models\User\User;
 use Filament\Tables\Table;
+use App\Models\Master\Role;
 use Filament\Resources\Resource;
 use App\Models\Building\Building;
 use Illuminate\Support\Facades\DB;
@@ -16,6 +17,7 @@ use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
 use App\Models\Building\ServiceBooking;
+use Filament\Tables\Actions\EditAction;
 use App\Models\Building\FacilityBooking;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\DatePicker;
@@ -25,7 +27,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\Building\ServiceBookingResource\Pages;
 use App\Filament\Resources\Building\ServiceBookingResource\RelationManagers;
-use Filament\Tables\Actions\EditAction;
 
 class ServiceBookingResource extends Resource
 {
@@ -41,7 +42,8 @@ class ServiceBookingResource extends Resource
                 Grid::make([
                     'sm' => 1,
                     'md' => 1,
-                    'lg' => 2,])
+                    'lg' => 2,
+                ])
                     ->schema([
 
                         Select::make('building_id')
@@ -155,7 +157,12 @@ class ServiceBookingResource extends Resource
             ->defaultSort('created_at', 'desc')
             ->filters([
                 SelectFilter::make('building_id')
-                    ->relationship('building', 'name')
+                    ->relationship('building', 'name', function (Builder $query) {
+                        if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+                            $query->all();
+                        }
+                        $query->where('owner_association_id', auth()->user()->owner_association_id);
+                    })
                     ->searchable()
                     ->preload()
             ])

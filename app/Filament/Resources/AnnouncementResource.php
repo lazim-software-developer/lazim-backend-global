@@ -60,6 +60,9 @@ class AnnouncementResource extends Resource
                                 'undo',
                             ])
                             ->required()
+                            ->disabled(function ($record) {
+                                return $record?->status == 'published';
+                            })
                             ->live()
                             ->columnSpan([
                                 'sm' => 1,
@@ -73,6 +76,9 @@ class AnnouncementResource extends Resource
                                 'published' => 'Published',
                                 'draft' => 'Draft',
                             ])
+                            ->disabled(function ($record) {
+                                return $record?->status == 'published';
+                            })
                             ->reactive()
                             ->live()
                             ->afterStateUpdated(function (Set $set, Get $get) {
@@ -93,10 +99,13 @@ class AnnouncementResource extends Resource
                                 }
                                 return false;
                             })
+                            ->disabled(function ($record) {
+                                return $record?->status == 'published';
+                            })
                             ->default(now())
                             ->placeholder('Scheduled At'),
 
-                        Select::make('building_id')
+                        Select::make('building')
                             ->relationship('building', 'name')
                             ->options(function () {
                                 if(Role::where('id',auth()->user()->role_id)->first()->name == 'Admin'){
@@ -106,6 +115,9 @@ class AnnouncementResource extends Resource
                             })
                             ->searchable()
                             ->multiple()
+                            ->disabled(function ($record) {
+                                return $record?->status == 'published';
+                            })
                             ->preload()
                             ->required(),
 
@@ -148,7 +160,13 @@ class AnnouncementResource extends Resource
                     ->preload()
                     ->label('User'),
                 SelectFilter::make('building_id')
-                    ->relationship('building', 'name')
+                    ->relationship('building', 'name',function (Builder $query){
+                        if(Role::where('id',auth()->user()->role_id)->first()->name == 'Admin')
+                        {
+                            $query->all();
+                        }
+                        $query->where('owner_association_id',auth()->user()->owner_association_id);
+                    })
                     ->searchable()
                     ->preload()
                     ->label('Building'),
@@ -158,7 +176,7 @@ class AnnouncementResource extends Resource
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    // Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ])
             ->emptyStateActions([

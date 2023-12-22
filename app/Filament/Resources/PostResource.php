@@ -63,6 +63,9 @@ class PostResource extends Resource
                                 'undo',
                             ])
                             ->required()
+                            ->disabled(function ($record) {
+                                return $record?->status == 'published';
+                            })
                             ->columnSpan([
                                 'sm' => 1,
                                 'md' => 1,
@@ -80,6 +83,9 @@ class PostResource extends Resource
                             ->afterStateUpdated(function (Set $set, Get $get) {
                                 $set('scheduled_at',null);
                             })
+                            ->disabled(function ($record) {
+                                return $record?->status == 'published';
+                            })
                             ->default('published')
                             ->required(),
 
@@ -92,6 +98,9 @@ class PostResource extends Resource
                                     return true;
                                 }
                                 return false;
+                            })
+                            ->disabled(function ($record) {
+                                return $record?->status == 'published';
                             })
                             ->default(now())
                             ->placeholder('Scheduled At'),
@@ -108,6 +117,9 @@ class PostResource extends Resource
                             ->preload()
                             ->required()
                             ->label('Building')
+                            ->disabled(function ($record) {
+                                return $record?->status == 'published';
+                            })
                             ->columnSpan([
                                 'sm' => 1,
                                 'md' => 1,
@@ -141,13 +153,20 @@ class PostResource extends Resource
                                     ->label('File')
 
                             ])
+                            ->disabled(function ($record) {
+                                return $record?->status == 'published';
+                            })
                             ->columnSpan([
                                 'sm' => 1,
                                 'md' => 1,
                                 'lg' => 2,
                             ]),
-                        Toggle::make('allow_like')->default(0),
-                        Toggle::make('allow_comment')->default(0),
+                        Toggle::make('allow_like')->default(0)->hidden(function ($record) {
+                            return $record?->status == 'published';
+                        }),
+                        Toggle::make('allow_comment')->default(0)->hidden(function ($record) {
+                            return $record?->status == 'published';
+                        }),
                     ])
         ]);
     }
@@ -179,7 +198,13 @@ class PostResource extends Resource
                     ->preload()
                     ->label('User'),
                 SelectFilter::make('building_id')
-                    ->relationship('building', 'name')
+                    ->relationship('building', 'name',function (Builder $query){
+                        if(Role::where('id',auth()->user()->role_id)->first()->name == 'Admin')
+                        {
+                            $query->all();
+                        }
+                        $query->where('owner_association_id',auth()->user()->owner_association_id);
+                    })
                     ->searchable()
                     ->preload()
                     ->label('Building'),
@@ -189,7 +214,7 @@ class PostResource extends Resource
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    // Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ])
             ->emptyStateActions([
