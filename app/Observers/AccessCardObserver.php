@@ -20,7 +20,7 @@ class AccessCardObserver
                 ->title("New AccessCard Submission")
                 ->icon('heroicon-o-document-text')
                 ->iconColor('warning')
-                ->body('New form submission by' . auth()->user()->first_name)
+                ->body('New form submission by ' . auth()->user()->first_name)
                 ->sendToDatabase($notifyTo);
     }
 
