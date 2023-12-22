@@ -95,5 +95,10 @@ class EditFitOutFormsDocument extends EditRecord
                 }
             }
         }
+        if ($this->record->rejected_fields){
+            $rejectedFieldsJson = json_encode(['rejected_fields' => $this->record->rejected_fields]);
+            $this->record->update(['rejected_fields' =>  $rejectedFieldsJson]);
+            $this->record->save();
+        }
     }
 }

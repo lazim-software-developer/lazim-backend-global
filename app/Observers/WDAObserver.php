@@ -6,6 +6,7 @@ use App\Models\Accounting\WDA;
 use App\Models\Building\Building;
 use App\Models\User\User;
 use Filament\Notifications\Notification;
+use Illuminate\Support\Facades\DB;
 
 class WDAObserver
 {
@@ -30,7 +31,52 @@ class WDAObserver
      */
     public function updated(WDA $wDA): void
     {
-        //
+        $user = auth()->user();
+        if ($user->role->name == 'OA') {
+            if ($wDA->status == 'approved') {
+                DB::table('notifications')->insert([
+                    'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
+                    'type' => 'Filament\Notifications\DatabaseNotification',
+                    'notifiable_type' => 'App\Models\User\User',
+                    'notifiable_id' => $wDA->created_by,
+                    'data' => json_encode([
+                        'actions' => [],
+                        'title' => 'wDA status update.',
+                        'duration' => 'persistent',
+                        'icon' => 'heroicon-o-document-text',
+                        'iconColor' => 'warning',
+                        'body' => 'Your wDA has been approved.',
+                        'view' => 'notifications::notification',
+                        'viewData' => [],
+                        'format' => 'filament',
+                    ]),
+                    'created_at' => now()->format('Y-m-d H:i:s'),
+                    'updated_at' => now()->format('Y-m-d H:i:s'),
+                ]);
+            }
+            if ($wDA->status == 'rejected') {
+                DB::table('notifications')->insert([
+                    'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
+                    'type' => 'Filament\Notifications\DatabaseNotification',
+                    'notifiable_type' => 'App\Models\User\User',
+                    'notifiable_id' => $wDA->created_by,
+                    'data' => json_encode([
+                        'actions' => [],
+                        'title' => 'wDA status update.',
+                        'duration' => 'persistent',
+                        'icon' => 'heroicon-o-document-text',
+                        'iconColor' => 'warning',
+                        'body' => 'Your wDA has been rejected.',
+                        'view' => 'notifications::notification',
+                        'viewData' => [],
+                        'format' => 'filament',
+                    ]),
+                    'created_at' => now()->format('Y-m-d H:i:s'),
+                    'updated_at' => now()->format('Y-m-d H:i:s'),
+                ]);
+            }
+
+        }
     }
 
     /**
