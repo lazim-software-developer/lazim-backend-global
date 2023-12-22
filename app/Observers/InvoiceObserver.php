@@ -15,7 +15,9 @@ class InvoiceObserver
      */
     public function created(Invoice $invoice): void
     {
-        $building = Building::where('id', $invoice->building_id)->first();
+        $vendor = DB::table('building_vendor')->where('building_id', $invoice->building_id)
+                    ->where('vendor_id',$invoice->vendor_id)->first();
+        $building = Building::where('id', $vendor->building_id)->first();
         $notifyTo = User::where('owner_association_id', $building->owner_association_id)->where('role_id',10)->get();
             Notification::make()
             ->success()
