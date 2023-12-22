@@ -112,6 +112,7 @@ class OwnerAssociationResource extends Resource
                         ->directory('dev')
                         ->image()
                         ->maxSize(2048)
+                        ->rules('file|mimes:jpeg,jpg,png|max:2048')
                         ->label('Profile Photo')
                         ->disabled(function (callable $get) {
                             return DB::table('owner_associations')
