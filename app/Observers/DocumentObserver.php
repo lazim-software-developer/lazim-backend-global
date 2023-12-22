@@ -25,7 +25,7 @@ class DocumentObserver
                         ->title($document->name . " Received")
                         ->icon('heroicon-o-document-text')
                         ->iconColor('warning')
-                        ->body('A new document received from  ' . auth()->user()->first_name)
+                        ->body('A new document received from  '.auth()->user()->first_name)
                         ->sendToDatabase($notifyTo);
                 }
             }

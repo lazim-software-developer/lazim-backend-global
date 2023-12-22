@@ -22,7 +22,7 @@ class MoveInOutObserver
             ->title("New MoveIn Submission")
             ->icon('heroicon-o-document-text')
             ->iconColor('warning')
-            ->body('New form submission by'.auth()->user()->first_name)
+            ->body('New form submission by '.auth()->user()->first_name)
             ->sendToDatabase($notifyTo);
         }
         else{
@@ -31,7 +31,7 @@ class MoveInOutObserver
             ->title("New MoveOut Submission")
             ->icon('heroicon-o-document-text')
             ->iconColor('warning')
-            ->body('New form submission by'.auth()->user()->first_name)
+            ->body('New form submission by '.auth()->user()->first_name)
             ->sendToDatabase($notifyTo);
         }
     }
