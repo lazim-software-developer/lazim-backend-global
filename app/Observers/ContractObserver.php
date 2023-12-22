@@ -28,39 +28,8 @@ class ContractObserver
             ->sendToDatabase($notifyTo);
 
         //contract created vendor will notify
-        if($user->role->name == 'OA'){
-            $vendor = Vendor::where('id', $contract->vendor_id)->first();
-            DB::table('notifications')->insert([
-                'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
-                'type' => 'Filament\Notifications\DatabaseNotification',
-                'notifiable_type' => 'App\Models\User\User',
-                'notifiable_id' => $vendor->owner_id,
-                'data' => json_encode([
-                    'actions' => [],
-                    'body' => 'New contract is created.',
-                    'duration' => 'persistent',
-                    'icon' => 'heroicon-o-document-text',
-                    'iconColor' => 'warning',
-                    'title' => 'New Contract',
-                    'view' => 'notifications::notification',
-                    'viewData' => [],
-                    'format' => 'filament',
-                ]),
-                'created_at' => now()->format('Y-m-d H:i:s'),
-                'updated_at' => now()->format('Y-m-d H:i:s'),
-            ]);
-        }
-    }
-
-    /**
-     * Handle the Contract "updated" event.
-     */
-    public function updated(Contract $contract): void
-    {
-        $user = auth()->user();
-        //contract document updates vendor will notify
-        if($user->role->name == 'OA'){
-            if($contract->document_url){
+        if($contract->vendor_id){
+            if($user->role->name == 'OA'){
                 $vendor = Vendor::where('id', $contract->vendor_id)->first();
                 DB::table('notifications')->insert([
                     'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
@@ -81,6 +50,41 @@ class ContractObserver
                     'created_at' => now()->format('Y-m-d H:i:s'),
                     'updated_at' => now()->format('Y-m-d H:i:s'),
                 ]);
+            }
+        }
+    }
+
+    /**
+     * Handle the Contract "updated" event.
+     */
+    public function updated(Contract $contract): void
+    {
+        $user = auth()->user();
+        //contract document updates vendor will notify
+        if($contract->vendor_id){
+            if($user->role->name == 'OA'){
+                if($contract->document_url){
+                    $vendor = Vendor::where('id', $contract->vendor_id)->first();
+                    DB::table('notifications')->insert([
+                        'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
+                        'type' => 'Filament\Notifications\DatabaseNotification',
+                        'notifiable_type' => 'App\Models\User\User',
+                        'notifiable_id' => $vendor->owner_id,
+                        'data' => json_encode([
+                            'actions' => [],
+                            'body' => 'New contract is created.',
+                            'duration' => 'persistent',
+                            'icon' => 'heroicon-o-document-text',
+                            'iconColor' => 'warning',
+                            'title' => 'New Contract',
+                            'view' => 'notifications::notification',
+                            'viewData' => [],
+                            'format' => 'filament',
+                        ]),
+                        'created_at' => now()->format('Y-m-d H:i:s'),
+                        'updated_at' => now()->format('Y-m-d H:i:s'),
+                    ]);
+                }
             }
         }
     }
