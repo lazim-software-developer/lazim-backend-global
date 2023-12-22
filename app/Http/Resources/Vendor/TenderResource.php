@@ -32,7 +32,7 @@ class TenderResource extends JsonResource
             'buildign' => $this->building->name,
             'end_date' => $this->end_date,
             'document' => Storage::disk('s3')->url($this->document),
-            'contract_type' => "AMC",
+            'contract_type' => $this->tender_type,
             'status' => $tenderData?->status,
             'services' =>  $this->service_id ? Service::find($this->service_id)->name : '',
         ];
