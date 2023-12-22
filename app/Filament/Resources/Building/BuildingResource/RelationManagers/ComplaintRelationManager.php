@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Building\BuildingResource\RelationManagers;
 
+use Closure;
 use Filament\Forms;
 use Filament\Tables;
 use Filament\Forms\Get;
@@ -19,6 +20,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Textarea;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -73,7 +75,7 @@ class ComplaintRelationManager extends RelationManager
                                     return false;
                                 }
                                 return true;
-                                
+
                             })
                             ->live()
                             ->searchable()
@@ -88,7 +90,7 @@ class ComplaintRelationManager extends RelationManager
                             ->label('Unit Number'),
                         Select::make('technician_id')
                             ->relationship('technician', 'first_name')
-                            ->options(function (Complaint $record,Get $get) {
+                            ->options(function (Complaint $record, Get $get) {
                                 $technician_vendor = DB::table('service_technician_vendor')->where('service_id', $record->service_id)->pluck('technician_vendor_id');
                                 $technicians = TechnicianVendor::find($technician_vendor)->where('vendor_id', $get('vendor_id'))->pluck('technician_id');
                                 return User::find($technicians)->pluck('first_name', 'id');
@@ -97,8 +99,17 @@ class ComplaintRelationManager extends RelationManager
                             ->searchable()
                             ->label('Technician Name'),
                         TextInput::make('priority')
+                            ->rules([function () {
+                                return function (string $attribute, $value, Closure $fail) {
+                                    if ($value < 1 || $value > 3) {
+                                        $fail('The priority field accepts 1, 2 and 3 only.');
+                                    }
+                                };
+                            },
+                            ])
                             ->numeric(),
                         DatePicker::make('due_date')
+                            ->minDate(now()->format('Y-m-d'))
                             ->rules(['date'])
                             ->placeholder('Due Date'),
                         Repeater::make('media')
@@ -130,7 +141,7 @@ class ComplaintRelationManager extends RelationManager
                         TextInput::make('complaint')
                             ->disabled()
                             ->placeholder('Complaint'),
-                        TextInput::make('complaint_details')
+                        Textarea::make('complaint_details')
                             ->disabled()
                             ->placeholder('Complaint Details'),
                         Select::make('status')

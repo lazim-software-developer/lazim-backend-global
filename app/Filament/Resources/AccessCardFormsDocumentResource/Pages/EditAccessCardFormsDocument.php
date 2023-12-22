@@ -54,9 +54,9 @@ class EditAccessCardFormsDocument extends EditRecord {
                     $message = [
                         'to' => $expoPushToken,
                         'sound' => 'default',
-                        'title' => 'Access card form Updated!',
-                        'body' => auth()->user()->first_name . ' approved your access card form.',
-                        'data' => ['notificationType' => 'app_notification'],
+                        'title' => 'Access card form status',
+                        'body' => 'Your Access card form has been approved.',
+                        'data' => ['notificationType' => 'MyRequest'],
                     ];
                     $this->expoNotification($message);
                     DB::table('notifications')->insert([
@@ -66,11 +66,11 @@ class EditAccessCardFormsDocument extends EditRecord {
                         'notifiable_id' => $this->record->user_id,
                         'data' => json_encode([
                             'actions' => [],
-                            'body' => 'Approved your access card form by ' . auth()->user()->first_name,
+                            'body' => 'Your Access card form has been approved. ',
                             'duration' => 'persistent',
                             'icon' => 'heroicon-o-document-text',
                             'iconColor' => 'warning',
-                            'title' => 'Access card form Updated!',
+                            'title' => 'Access card form status',
                             'view' => 'notifications::notification',
                             'viewData' => [],
                             'format' => 'filament'
@@ -88,9 +88,9 @@ class EditAccessCardFormsDocument extends EditRecord {
                     $message = [
                         'to' => $expoPushToken,
                         'sound' => 'default',
-                        'title' => 'Access card form Updated!',
-                        'body' => auth()->user()->first_name . ' rejected your access card form.',
-                        'data' => ['notificationType' => 'app_notification'],
+                        'title' => 'Access card form status!',
+                        'body' => 'Your Access card form has been rejected.',
+                        'data' => ['notificationType' => 'MyRequest'],
                     ];
                     $this->expoNotification($message);
                     DB::table('notifications')->insert([
@@ -100,11 +100,11 @@ class EditAccessCardFormsDocument extends EditRecord {
                         'notifiable_id' => $this->record->user_id,
                         'data' => json_encode([
                             'actions' => [],
-                            'body' => 'Rejected your access card form by ' . auth()->user()->first_name,
+                            'body' => 'Your Access card form has been rejected.',
                             'duration' => 'persistent',
                             'icon' => 'heroicon-o-document-text',
-                            'iconColor' => 'warning',
-                            'title' => 'Access card form Updated!',
+                            'iconColor' => 'danger',
+                            'title' => 'Access card form status!',
                             'view' => 'notifications::notification',
                             'viewData' => [],
                             'format' => 'filament'

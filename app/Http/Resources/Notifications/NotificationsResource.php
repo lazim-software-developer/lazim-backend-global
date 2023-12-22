@@ -20,6 +20,8 @@ class NotificationsResource extends JsonResource
             'id' => $this->id,
             'title' => $jsonData['title'] ?? null,
             'body' => $jsonData['body'] ?? null,
+            'isSubmitted' =>$this->read_at ? true : false,
+            'created_at'=>$this->created_at,
         ];
     }
 }

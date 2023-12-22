@@ -12,6 +12,7 @@ use App\Http\Resources\Technician\ListTechnicianResource;
 use App\Http\Resources\Technician\ServiceTechnicianResource;
 use App\Jobs\AccountCreationJob;
 use App\Jobs\TechnicianAccountCreationJob;
+use App\Models\Asset;
 use App\Models\Building\Complaint;
 use App\Models\Master\Role;
 use App\Models\Master\Service;
@@ -43,9 +44,9 @@ class TechnicianController extends Controller
 
         $user = User::create($request->all());
 
-        $vendor= Vendor::where('owner_id', auth()->user()->id)->first();
+        $vendor = Vendor::where('owner_id', auth()->user()->id)->first();
         $name = $vendor->name;
-        $technician_number = strtoupper(substr($name, 0, 2)).date('YmdHis');
+        $technician_number = strtoupper(substr($name, 0, 2)) . date('YmdHis');
         $password = Str::random(12);
         $user->password = Hash::make($password);
         $user->save();
@@ -63,8 +64,8 @@ class TechnicianController extends Controller
         TechnicianAccountCreationJob::dispatch($user, $password);
 
         $assets = $vendor->assets->unique();
-        foreach ($assets as $asset){
-            if (!(TechnicianAssets::where('asset_id', $asset->id)->where('vendor_id', $vendor->id)->where('active',1)->exists()) && $asset->service_id == $request->service_id){
+        foreach ($assets as $asset) {
+            if (!(TechnicianAssets::where('asset_id', $asset->id)->where('vendor_id', $vendor->id)->where('active', 1)->exists()) && $asset->service_id == $request->service_id) {
                 TechnicianAssets::create([
                     'asset_id' => $asset->id,
                     'technician_id' => $user->id,
@@ -92,11 +93,12 @@ class TechnicianController extends Controller
         return ServiceTechnicianResource::collection($technicians);
     }
 
-    public function technicianList(Service $service, Vendor $vendor){
+    public function technicianList(Service $service, Vendor $vendor)
+    {
         $contract = Contract::where('vendor_id', $vendor->id)
-                                    ->where('service_id', $service->id)->where('end_date','>=',Carbon::now()->toDateString())->first()->service_id;
+            ->where('service_id', $service->id)->where('end_date', '>=', Carbon::now()->toDateString())->first()?->service_id;
         $serviceTechnician = DB::table('service_technician_vendor')->where('service_id', $contract)->pluck('technician_vendor_id');
-        $technicians = TechnicianVendor::whereIn('id', $serviceTechnician)->where('active', true)->get();
+        $technicians = TechnicianVendor::whereIn('id', $serviceTechnician)->where('active', true)->where('vendor_id',$vendor->id)->get();
         return ListTechnicianResource::collection($technicians);
     }
 
@@ -114,7 +116,8 @@ class TechnicianController extends Controller
         ]))->response()->setStatusCode(200);
     }
 
-    public function attachTechnician(ServiceIdRequest $request, TechnicianVendor $technician){
+    public function attachTechnician(ServiceIdRequest $request, TechnicianVendor $technician)
+    {
 
         if ($technician->active == false) {
             return (new CustomResponseResource([
@@ -125,10 +128,10 @@ class TechnicianController extends Controller
         }
 
         $technician->services()->syncWithoutDetaching([$request->service_id]);
-        $vendor= Vendor::where('owner_id', auth()->user()->id)->first();
+        $vendor = Vendor::where('owner_id', auth()->user()->id)->first();
         $assets = $vendor->assets->unique();
-        foreach ($assets as $asset){
-            if (!(TechnicianAssets::where('asset_id', $asset->id)->where('vendor_id', $vendor->id)->where('active',1)->exists()) && $asset->service_id == $request->service_id){
+        foreach ($assets as $asset) {
+            if (!(TechnicianAssets::where('asset_id', $asset->id)->where('vendor_id', $vendor->id)->where('active', 1)->exists()) && $asset->service_id == $request->service_id) {
                 TechnicianAssets::create([
                     'asset_id' => $asset->id,
                     'technician_id' => $technician->technician_id,
@@ -147,11 +150,12 @@ class TechnicianController extends Controller
         ]))->response()->setStatusCode(200);
     }
 
-    public function assignTechnician(TechnicianIdRequest $request,Complaint $complaint){
+    public function assignTechnician(TechnicianIdRequest $request, Complaint $complaint)
+    {
 
         $complaint->technician_id = $request->technician_id;
         $complaint->save();
-        
+
         return (new CustomResponseResource([
             'title' => 'Technician assigned',
             'message' => "Technician assigned to complaint successfully!",
@@ -164,7 +168,48 @@ class TechnicianController extends Controller
     public function listTechnicians(ServiceIdRequest $request, Vendor $vendor)
     {
         $assigned = DB::table('service_technician_vendor')->where('service_id', $request->service_id)->pluck('technician_vendor_id');
-        $technicians = TechnicianVendor::where('vendor_id', $vendor->id)->where('active', true)->whereNotIn('id',$assigned)->get();
+        $technicians = TechnicianVendor::where('vendor_id', $vendor->id)->where('active', true)->whereNotIn('id', $assigned)->get();
         return ListTechnicianResource::collection($technicians);
+    }
+
+    public function fetchTechnicianAssetDetails(Asset $asset)
+    {
+        // Check if asset assigned for the logged in user
+        $technicianAssetData = TechnicianAssets::where(['technician_id' => auth()->user()->id, 'asset_id' => $asset->id, 'active' => 1]);
+
+        if (!$technicianAssetData->exists()) {
+            return (new CustomResponseResource([
+                'title' => 'Asset is not assigned to you!',
+                'message' => ". Please contact admin team for more details!",
+                'code' => 400,
+                'status' => 'error',
+            ]))->response()->setStatusCode(400);
+        }
+
+        // Fetch details
+        $technicianAsset = $technicianAssetData->first();
+        $latestMaintenance = $technicianAsset->assetMaintenances->last();
+        $status = 'not-started';
+        $id = null;
+        $last_date =  null;
+
+        if ($latestMaintenance) {
+            $status = $latestMaintenance->status;
+            $id = $latestMaintenance->id;
+            $last_date = $latestMaintenance->maintenance_date;
+        }
+
+        return [
+            'id' => $id,
+            'technician_asset_id' => $technicianAsset->id,
+            'asset_id' => $technicianAsset->asset_id,
+            'asset_name' => $technicianAsset->asset->name,
+            'maintenance_status' => $status,
+            'building_name' => $technicianAsset->building->name,
+            'building_id' => $technicianAsset->building->id,
+            'location' => $technicianAsset->asset->location,
+            'description' => $technicianAsset->asset->description,
+            'last_service_on' => $last_date
+        ];
     }
 }

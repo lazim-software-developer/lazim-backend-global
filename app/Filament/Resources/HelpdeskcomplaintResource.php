@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use Closure;
 use Filament\Tables;
 use Filament\Forms\Get;
 use Filament\Forms\Form;
@@ -19,6 +20,7 @@ use Filament\Tables\Actions\Action;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Textarea;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ViewColumn;
 use Filament\Forms\Components\TextInput;
@@ -88,7 +90,7 @@ class HelpdeskcomplaintResource extends Resource
                                     return false;
                                 }
                                 return true;
-                                
+
                             })
                             ->live()
                             ->searchable()
@@ -112,8 +114,17 @@ class HelpdeskcomplaintResource extends Resource
                             ->searchable()
                             ->label('Technician Name'),
                         TextInput::make('priority')
+                            ->rules([function () {
+                                return function (string $attribute, $value, Closure $fail) {
+                                    if ($value < 1 || $value > 3) {
+                                        $fail('The priority field accepts 1, 2 and 3 only.');
+                                    }
+                                };
+                            },
+                            ])
                             ->numeric(),
                         DatePicker::make('due_date')
+                            ->minDate(now()->format('Y-m-d'))
                             ->rules(['date'])
                             ->placeholder('Due Date'),
                         Repeater::make('media')
@@ -145,7 +156,7 @@ class HelpdeskcomplaintResource extends Resource
                         TextInput::make('complaint')
                             ->disabled()
                             ->placeholder('Complaint'),
-                        TextInput::make('complaint_details')
+                        Textarea::make('complaint_details')
                             ->disabled()
                             ->placeholder('Complaint Details'),
                         Select::make('status')

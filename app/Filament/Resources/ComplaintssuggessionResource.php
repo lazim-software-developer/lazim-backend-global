@@ -54,6 +54,7 @@ class ComplaintssuggessionResource extends Resource
                             ->relationship('building', 'name')
                             ->reactive()
                             ->preload()
+                            ->disabled()
                             ->searchable()
                             ->placeholder('Building'),
                         Select::make('user_id')
@@ -69,18 +70,22 @@ class ComplaintssuggessionResource extends Resource
                             })
                             ->searchable()
                             ->preload()
+                            ->disabled()
                             ->required()
                             ->label('User'),
                         TextInput::make('complaint')
-                            ->placeholder('Suggestion'),
+                            ->label('Suggestion')
+                            ->disabled(),
                         TextInput::make('complaint_details')
-                            ->placeholder('Complaint Details'),
+                            ->label('Suggestion Details')
+                            ->disabled(),
                         Hidden::make('status')
                             ->default('open'),
                         Hidden::make('complaint_type')
                             ->default('suggestions'),
                         Repeater::make('media')
                             ->relationship()
+                            ->disabled()
                             ->schema([
                                 FileUpload::make('url')
                                     ->disk('s3')
@@ -89,7 +94,30 @@ class ComplaintssuggessionResource extends Resource
                                     ->openable(true)
                                     ->downloadable(true)
                                     ->label('File'),
+                            ]),
+                        Select::make('status')
+                            ->options([
+                                'open' => 'Open',
+                                'closed' => 'Closed',
                             ])
+                            ->disabled(function (Complaint $record) {
+                                return $record->status == 'closed';
+                            })
+                            ->required()
+                            ->searchable()
+                            ->live(),
+                        TextInput::make('remarks')
+                            ->rules(['max:255'])
+                            ->visible(function (callable $get) {
+                                if ($get('status') == 'closed') {
+                                    return true;
+                                }
+                                return false;
+                            })
+                            ->disabled(function (Complaint $record) {
+                                return $record->status == 'closed';
+                            })
+                            ->required(),
                     ])
             ]);
     }
@@ -113,7 +141,7 @@ class ComplaintssuggessionResource extends Resource
                 TextColumn::make('complaint_details')
                     ->toggleable()
                     ->searchable()
-                    ->label('Complaint Details'),
+                    ->label('Suggestion Details'),
                 TextColumn::make('status')
                     ->toggleable()
                     ->searchable()
@@ -127,44 +155,6 @@ class ComplaintssuggessionResource extends Resource
                     ->searchable()
                     ->label('Building')
                     ->preload()
-            ])
-            ->actions([
-                Action::make('Update Status')
-                    ->visible(fn ($record) => $record->status === 'open')
-                    ->button()
-                    ->form([
-                        Select::make('status')
-                            ->options([
-                                'open'   => 'Open',
-                                'closed' => 'Closed',
-                            ])
-                            ->searchable()
-                            ->live(),
-                        TextInput::make('remarks')
-                            ->rules(['max:255'])
-                            ->visible(function (callable $get) {
-                                if ($get('status') == 'closed') {
-                                    return true;
-                                }
-                                return false;
-                            })
-                            ->required(),
-                    ])
-                    ->fillForm(fn (Complaint $record): array => [
-                        'status' => $record->status,
-                        'remarks' => $record->remarks,
-                    ])
-                    ->action(function (Complaint $record, array $data): void {
-                        if ($data['status'] == 'closed') {
-                            $record->status = $data['status'];
-                            $record->remarks = $data['remarks'];
-                            $record->save();
-                        } else {
-                            $record->status = $data['status'];
-                            $record->save();
-                        }
-                    })
-                    ->slideOver()
             ]);
     }
 
@@ -179,7 +169,8 @@ class ComplaintssuggessionResource extends Resource
     {
         return [
             'index' => Pages\ListComplaintssuggessions::route('/'),
-            'view' => Pages\ViewComplaintssuggession::route('/{record}'),
+            // 'view' => Pages\ViewComplaintssuggession::route('/{record}'),
+            'edit' => Pages\EditComplaintssuggession::route('/{record}/edit'),
         ];
     }
 }

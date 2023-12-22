@@ -32,8 +32,8 @@ class EditGuestRegistration extends EditRecord
                         'to' => $expoPushToken,
                         'sound' => 'default',
                         'title' => 'Guest registration form Updated!',
-                        'body' => auth()->user()->first_name . ' approved your Guest registration form.',
-                        'data' => ['notificationType' => 'app_notification'],
+                        'body' => 'Your Guest registration form has been approved.',
+                        'data' => ['notificationType' => 'MyRequest'],
                     ];
                     $this->expoNotification($message);
                     DB::table('notifications')->insert([
@@ -43,11 +43,11 @@ class EditGuestRegistration extends EditRecord
                         'notifiable_id' => $this->record->user_id,
                         'data' => json_encode([
                             'actions' => [],
-                            'body' => 'Approved your guest registration form by ' . auth()->user()->first_name,
+                            'body' => 'Your Guest registration form has been approved.',
                             'duration' => 'persistent',
                             'icon' => 'heroicon-o-document-text',
                             'iconColor' => 'warning',
-                            'title' => 'Guest registration form Updated!',
+                            'title' => 'Guest registration form status',
                             'view' => 'notifications::notification',
                             'viewData' => [],
                             'format' => 'filament'
@@ -65,9 +65,9 @@ class EditGuestRegistration extends EditRecord
                     $message = [
                         'to' => $expoPushToken,
                         'sound' => 'default',
-                        'title' => 'Guest registration form Updated!',
-                        'body' => auth()->user()->first_name . ' rejected your Guest registration form.',
-                        'data' => ['notificationType' => 'app_notification'],
+                        'title' => 'Guest registration form status',
+                        'body' => 'Your Guest registration form has been rejected.',
+                        'data' => ['notificationType' => 'MyRequest'],
                     ];
                     $this->expoNotification($message);
                     DB::table('notifications')->insert([
@@ -77,11 +77,11 @@ class EditGuestRegistration extends EditRecord
                         'notifiable_id' => $this->record->user_id,
                         'data' => json_encode([
                             'actions' => [],
-                            'body' => 'Rejected your guest registration form by ' . auth()->user()->first_name,
+                            'body' => 'Your Guest registration form has been rejected.',
                             'duration' => 'persistent',
                             'icon' => 'heroicon-o-document-text',
                             'iconColor' => 'danger',
-                            'title' => 'Guest registration form Updated!',
+                            'title' => 'Guest registration form status',
                             'view' => 'notifications::notification',
                             'viewData' => [],
                             'format' => 'filament'

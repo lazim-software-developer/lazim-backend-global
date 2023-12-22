@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Building\ServiceBookingResource\Pages;
 
 use App\Filament\Resources\Building\ServiceBookingResource;
 use App\Models\ExpoPushNotification;
+use App\Models\Master\Service;
 use App\Traits\UtilsTrait;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
@@ -17,7 +18,7 @@ class EditServiceBooking extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            Actions\DeleteAction::make(),
+            // Actions\DeleteAction::make(),
         ];
     }
     protected function getRedirectUrl(): string
@@ -27,6 +28,7 @@ class EditServiceBooking extends EditRecord
 
     public function afterSave()
     {
+        $serviceName = Service::where('id', $this->record->bookable_id)->first();
         if ($this->record->approved == 1) {
             $expoPushTokens = ExpoPushNotification::where('user_id', $this->record->user_id)->pluck('token');
             if ($expoPushTokens->count() > 0) {
@@ -34,9 +36,9 @@ class EditServiceBooking extends EditRecord
                     $message = [
                         'to' => $expoPushToken,
                         'sound' => 'default',
-                        'title' => 'Facility Booking Updated!',
-                        'body' => auth()->user()->first_name . ' approved your Facility Booking form.',
-                        'data' => ['notificationType' => 'app_notification'],
+                        'title' => $serviceName->name.' Booking Status.',
+                        'body' => 'Your service booking request for '.$serviceName->name. ' is approved',
+                        'data' => ['notificationType' => 'MyBookingsService'],
                     ];
                     $this->expoNotification($message);
                     DB::table('notifications')->insert([
@@ -46,7 +48,7 @@ class EditServiceBooking extends EditRecord
                         'notifiable_id' => $this->record->user_id,
                         'data' => json_encode([
                             'actions' => [],
-                            'body' => 'Approved your service booking request by ' . auth()->user()->first_name,
+                            'body' => 'Your service booking request for '.$serviceName->name. ' is approved',
                             'duration' => 'persistent',
                             'icon' => 'heroicon-o-document-text',
                             'iconColor' => 'warning',
@@ -69,9 +71,9 @@ class EditServiceBooking extends EditRecord
                     $message = [
                         'to' => $expoPushToken,
                         'sound' => 'default',
-                        'title' => 'Facility Booking Updated!',
-                        'body' => auth()->user()->first_name . ' rejected your Facility Booking form.',
-                        'data' => ['notificationType' => 'app_notification'],
+                        'title' => $serviceName->name.' Booking Status.',
+                        'body' => 'Your service booking request for '.$serviceName->name. ' is rejected',
+                        'data' => ['notificationType' => 'MyBookingsService'],
                     ];
                     $this->expoNotification($message);
                     DB::table('notifications')->insert([
@@ -81,11 +83,11 @@ class EditServiceBooking extends EditRecord
                         'notifiable_id' => $this->record->user_id,
                         'data' => json_encode([
                             'actions' => [],
-                            'body' => 'Rejected your service booking request by ' . auth()->user()->first_name,
+                            'body' => 'Your service booking request for '.$serviceName->name. ' is rejected',
                             'duration' => 'persistent',
                             'icon' => 'heroicon-o-document-text',
-                            'iconColor' => 'warning',
-                            'title' => 'service booking form Updated!',
+                            'iconColor' => 'danger',
+                            'title' => $serviceName->name.' Booking Status.',
                             'view' => 'notifications::notification',
                             'viewData' => [],
                             'format' => 'filament'

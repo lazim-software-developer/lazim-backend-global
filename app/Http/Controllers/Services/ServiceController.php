@@ -83,7 +83,6 @@ class ServiceController extends Controller
             'file' => 'required|file|mimes:xlsx',
         ]);
 
-
         $servicesImport = new ServicesImport;
 
         Excel::import($servicesImport, $request->file('file'));

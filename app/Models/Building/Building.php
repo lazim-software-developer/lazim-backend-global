@@ -7,6 +7,7 @@ use App\Models\Accounting\Invoice;
 use App\Models\Accounting\OAMInvoice;
 use App\Models\Accounting\WDA;
 use App\Models\Asset;
+use App\Models\Community\Poll;
 use App\Models\Community\Post;
 use App\Models\CoolingAccount;
 use App\Models\Forms\AccessCard;
@@ -20,10 +21,12 @@ use App\Models\Master\City;
 use App\Models\Building\Flat;
 use App\Models\Master\Facility;
 use App\Models\Building\Document;
+use App\Models\RuleRegulation;
 use App\Models\Scopes\Searchable;
 use App\Models\Vendor\Attendance;
 use App\Models\Building\Complaint;
 use App\Models\Building\BuildingPoc;
+use App\Models\Floor;
 use App\Models\Forms\FitOutForm;
 use App\Models\Forms\MoveInOut;
 use App\Models\Vendor\Contact;
@@ -54,7 +57,8 @@ class Building extends Model
         'floors',
         'owner_association_id',
         'allow_postupload',
-        'slug'
+        'slug',
+        'cover_photo'
     ];
 
     protected $casts = [
@@ -83,6 +87,14 @@ class Building extends Model
     public function buildingPocs()
     {
         return $this->hasMany(BuildingPoc::class);
+    }
+    public function floors()
+    {
+        return $this->hasMany(Floor::class);
+    }
+    public function ruleregulations()
+    {
+        return $this->hasMany(RuleRegulation::class);
     }
     public function saleNoc()
     {
@@ -222,5 +234,10 @@ class Building extends Model
     public function coolingAccounts()
     {
         return $this->hasMany(CoolingAccount::class);
+    }
+
+    public function polls()
+    {
+        return $this->hasMany(Poll::class);
     }
 }

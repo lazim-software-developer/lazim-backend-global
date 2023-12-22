@@ -9,8 +9,8 @@ use Illuminate\Http\Request;
 
 class CommunityController extends Controller
 {
-    public function about(Building $Building)
+    public function about(Building $building)
     {
-        return new AboutCommunityResource($Building);
+        return new AboutCommunityResource($building);
     }
 }
