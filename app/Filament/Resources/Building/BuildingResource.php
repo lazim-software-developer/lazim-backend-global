@@ -25,7 +25,10 @@ use Filament\Notifications\Notification;
 use EightyNine\ExcelImport\ExcelImportAction;
 use App\Filament\Resources\Building\BuildingResource\Pages;
 use App\Filament\Resources\Building\BuildingResource\RelationManagers;
+use App\Filament\Resources\Building\BuildingResource\RelationManagers\BuildingserviceRelationManager;
 use App\Filament\Resources\Building\BuildingResource\RelationManagers\FloorsRelationManager;
+use App\Filament\Resources\Building\BuildingResource\RelationManagers\MeetingsRelationManager;
+use App\Filament\Resources\Building\BuildingResource\RelationManagers\OwnercommitteesRelationManager;
 use Filament\Forms\Components\FileUpload;
 
 class BuildingResource extends Resource
@@ -47,11 +50,13 @@ class BuildingResource extends Resource
                             TextInput::make('name')
                                 ->rules(['max:50', 'string'])
                                 ->required()
+                                ->disabled()
                                 ->placeholder('Name'),
 
                             TextInput::make('property_group_id')
                                 ->rules(['max:50', 'string'])
                                 ->required()
+                                ->disabled()
                                 ->placeholder('Property Group Id')
                                 ->unique(
                                     'buildings',
@@ -250,8 +255,10 @@ class BuildingResource extends Resource
             BuildingResource\RelationManagers\BuildingPocsRelationManager::class,
             FloorsRelationManager::class,
             RuleregulationsRelationManager::class,
+            OwnercommitteesRelationManager::class,
+            MeetingsRelationManager::class,
+            BuildingserviceRelationManager::class,
             BuildingResource\RelationManagers\ComplaintRelationManager::class,
-            BuildingResource\RelationManagers\ServicesRelationManager::class,
             BuildingResource\RelationManagers\ServiceRelationManager::class,
                 // BuildingResource\RelationManagers\DocumentsRelationManager::class,
             BuildingResource\RelationManagers\FacilitiesRelationManager::class,

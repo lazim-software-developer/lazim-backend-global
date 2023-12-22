@@ -105,6 +105,9 @@ class ComplaintscomplaintResource extends Resource
                                 $technicians = TechnicianVendor::find($technician_vendor)->where('vendor_id', $get('vendor_id'))->pluck('technician_id');
                                 return User::find($technicians)->pluck('first_name', 'id');
                             })
+                            ->disabled(function (Complaint $record) {
+                                return $record->status != 'open';
+                            })
                             ->preload()
                             ->searchable()
                             ->label('Technician Name'),
@@ -117,9 +120,15 @@ class ComplaintscomplaintResource extends Resource
                                 };
                             },
                             ])
+                            ->disabled(function (Complaint $record) {
+                                return $record->status != 'open';
+                            })
                             ->numeric(),
                         DatePicker::make('due_date')
                             ->minDate(now()->format('Y-m-d'))
+                            ->disabled(function (Complaint $record) {
+                                return $record->status != 'open';
+                            })
                             ->rules(['date'])
                             ->placeholder('Due Date'),
                         Repeater::make('media')
