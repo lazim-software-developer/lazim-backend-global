@@ -131,6 +131,12 @@ class InvoicesRelationManager extends RelationManager {
                         }
                         return $data;
                     })
+                    ->mutateRecordDataUsing(function (array $data): array {
+                        if($data['status'] = 'pending'){
+                            $data['status'] = null;
+                        }
+                        return $data;
+                    })
                 //Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
