@@ -15,4 +15,9 @@ class Media extends Model
     {
         return $this->morphTo();
     }
+
+    public function getModelNameAttribute()
+    {
+        return class_basename($this->mediaable_type);
+    }
 }
