@@ -8,6 +8,7 @@ use App\Http\Controllers\TestController;
 use App\Http\Controllers\Vendor\ContractController;
 use App\Http\Controllers\Vendor\DocumentsUploadController;
 use App\Http\Controllers\Vendor\EscalationMatrixController;
+use App\Http\Controllers\Vendor\ProposalController;
 use App\Http\Controllers\Vendor\SelectServicesController;
 use App\Http\Controllers\Vendor\SnagDashboardController;
 use App\Http\Controllers\Vendor\VendorComplaintController;
@@ -51,6 +52,7 @@ use App\Http\Controllers\Vendor\TenderController;
 use App\Http\Controllers\Vendor\WDAController;
 use App\Http\Controllers\Vendor\VendorBuildingController;
 use App\Http\Controllers\Gatekeeper\TenantsController;
+use App\Http\Controllers\Vendor\TLController;
 
 /*
 |--------------------------------------------------------------------------
@@ -303,7 +305,10 @@ Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active']
     Route::get('/move-in/{movein}', [MoveInOutController::class, 'index']);
 
     // Update API for move in and move out
-    Route::patch('/move-in/{movein}', [MoveInOutController::class, 'update']);
+    Route::post('/move-in/{movein}/update', [MoveInOutController::class, 'update']);
+
+    //Fit Out rejected API
+    Route::get('/fit-out/status/{fitout}',[FitOutFormsController::class, 'index']);
 });
 
 // API  to fetch Security for a building
@@ -391,6 +396,13 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('vendor')->group(function 
     // List all tenders
     Route::get('/tenders', [TenderController::class, 'index']);
     Route::post('/tenders/{tender}', [TenderController::class, 'store']);
+
+    // TL number 
+    Route::get('/{vendor}/trade-licenses',[TLController::class,'show']);
+    Route::post('/{vendor}/trade-licenses/update',[TLController::class,'update']);
+
+    //proposals
+    Route::get('/{vendor}/proposals', [ProposalController::class, 'index']);
 });
 
 // Technician Related APIs
