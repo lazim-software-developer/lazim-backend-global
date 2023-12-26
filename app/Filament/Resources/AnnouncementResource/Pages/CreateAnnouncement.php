@@ -22,7 +22,8 @@ class CreateAnnouncement extends CreateRecord
     public function afterCreate()
     {
         if ($this->record->status == 'published') {
-            $tenant = DB::table('flat_tenants')->whereIn('building_id',$this->data['building'])->pluck('tenant_id');
+            $tenant = DB::table('flat_tenants')->where('active',1)
+                    ->whereIn('building_id',$this->data['building'])->distinct()->pluck('tenant_id');
             foreach ($tenant as $user) {
                 $expoPushTokens = ExpoPushNotification::where('user_id', $user)->pluck('token');
                 if ($expoPushTokens->count() > 0) {
