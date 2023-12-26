@@ -141,7 +141,8 @@ Route::group(['middleware' => ["auth:sanctum", "verified"]], function () {
  * Note: These endpoints are designed to be accessed in scenarios like registration forms
  * where user authentication might not be available but controlled access is still required.
  */
-Route::middleware(['api.token'])->group(function () {
+// API for master list 'api.token' middleware
+Route::middleware([])->group(function () {
     // Get resident of a unit by mollak
     Route::get('/resident/{unitNumber}', [RegistrationController::class, 'fetchResidentDetails']);
 
