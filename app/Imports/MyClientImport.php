@@ -7,6 +7,7 @@ use App\Models\Building\Flat;
 use App\Models\Building\Building;
 use Illuminate\Support\Collection;
 use Filament\Notifications\Notification;
+use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Illuminate\Validation\ValidationException;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
@@ -33,10 +34,12 @@ class MyClientImport implements ToCollection, WithHeadingRow
         // Extract the headings from the first row
         $extractedHeadings = array_keys($rows->first()->toArray());
 
-        // Check if the headings match
-        if ($extractedHeadings !== $expectedHeadings) {
+        // Check if all expected headings are present in the extracted headings
+        $missingHeadings = array_diff($expectedHeadings, $extractedHeadings);
+
+        if (!empty($missingHeadings)) {
             Notification::make()
-                ->title("Upload valid excel file.")
+                ->title("Upload valid excel file. Missing headings: " . implode(', ', $missingHeadings))
                 ->danger()
                 ->send();
             return 'failure';
