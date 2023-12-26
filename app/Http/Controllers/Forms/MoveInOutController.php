@@ -65,7 +65,7 @@ class MoveInOutController extends Controller
         ];
 
 
-        $data = $request->all();  // Get all request data
+        $data = $request->all();
 
         foreach ($document_paths as $document) {
             if ($request->hasFile($document)) {
