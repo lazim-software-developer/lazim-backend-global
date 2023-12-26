@@ -6,6 +6,7 @@ use Filament\Tables;
 use Filament\Forms\Form;
 use App\Models\User\User;
 use Filament\Tables\Table;
+use App\Models\Master\Role;
 use Filament\Resources\Resource;
 use App\Models\Building\Building;
 use Illuminate\Support\Facades\DB;
@@ -14,13 +15,14 @@ use Filament\Tables\Actions\Action;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
+use Filament\Tables\Actions\EditAction;
 use App\Models\Building\FacilityBooking;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\TimePicker;
 use Filament\Tables\Filters\SelectFilter;
+use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\Building\FacilityBookingResource\Pages;
-use Filament\Tables\Actions\EditAction;
 
 class FacilityBookingResource extends Resource
 {
@@ -157,7 +159,13 @@ class FacilityBookingResource extends Resource
             ->defaultSort('created_at', 'desc')
             ->filters([
                 SelectFilter::make('building_id')
-                    ->relationship('building', 'name')
+                    ->relationship('building', 'name',function (Builder $query){
+                        if(Role::where('id',auth()->user()->role_id)->first()->name == 'Admin')
+                        {
+                            $query->all();
+                        }
+                        $query->where('owner_association_id',auth()->user()->owner_association_id);
+                    })
                     ->searchable()
                     ->preload()
             ])

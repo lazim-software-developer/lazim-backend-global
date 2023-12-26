@@ -50,7 +50,7 @@ class SaleNocController extends Controller
         if ($status == 'download_file') {
             return response()->json([
                 'message' => 'download_file',
-                'link' => env('APP_URL') . 'service-charge/' . $saleNoc->id . '/generate-pdf'
+                'link' => config("app.url") . "/service-charge/" . $saleNoc->id . "/generate-pdf"
             ], 200);
         } else if ($status == 'seller_uploaded') {
             return response()->json([

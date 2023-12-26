@@ -21,8 +21,8 @@ class FlatTenantResource extends Resource
     protected static ?string $model = FlatTenant::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-    protected static ?string $modelLabel = 'Tenants';
-    protected static ?string $navigationGroup = 'Flat Management';
+    protected static ?string $modelLabel = 'Residents';
+    protected static ?string $navigationGroup = 'unit Management';
 
     public static function form(Form $form): Form
     {
