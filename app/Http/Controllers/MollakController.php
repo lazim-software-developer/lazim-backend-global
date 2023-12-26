@@ -68,7 +68,7 @@ class MollakController extends Controller
     {
         $response = Http::withOptions(['verify' => false])->withHeaders([
             'content-type' => 'application/json',
-        ])->post("https://sms.rmlconnect.net/OtpApi/otpgenerate?username=LazimTrans&password=Lazim@10&msisdn=971526006235&msg=Your%20one%20time%20OTP%20is%20%25m&source=Lazim&tagname=xxxxxx&otplen=4&exptime=120");
+        ])->post("https://sms.rmlconnect.net/OtpApi/otpgenerate?username=LazimTrans&password=Lazim@10&msisdn=+971526006235&msg=Your%20one%20time%20OTP%20is1234&source=Lazim&tagname=xxxxxx&otplen=4&exptime=120");
 
         return $data = $response->json();
     }
