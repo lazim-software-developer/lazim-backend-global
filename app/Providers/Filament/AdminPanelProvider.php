@@ -82,7 +82,7 @@ class AdminPanelProvider extends PanelProvider
                                 ->sort(2),
                             NavigationItem::make('Owner Association')
                                 ->url('/admin/owner-associations')
-                                ->hidden(DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] == 'Admin' ? false : true)
+                                // ->hidden(DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] == 'Admin' ? false : true)
                                 ->icon('heroicon-s-user-group')
                                 ->activeIcon('heroicon-s-user-group')
                                 ->sort(3),

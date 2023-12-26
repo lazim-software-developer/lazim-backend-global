@@ -168,9 +168,11 @@ class PollResource extends Resource
                 TextColumn::make('options')->limit(30),
                 TextColumn::make('status')->searchable(),
                 TextColumn::make('scheduled_at')
-                    ->dateTime(),
+                    // ->dateTime()
+                    ->default('NA'),
                 TextColumn::make('ends_on')
-                    ->dateTime(),
+                    // ->dateTime()
+                    ->default('NA'),
                 TextColumn::make('building.name')
                     ->searchable()
                     ->default('NA')

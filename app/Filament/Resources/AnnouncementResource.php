@@ -142,7 +142,8 @@ class AnnouncementResource extends Resource
                     ->default('NA')
                     ->limit(50),
                 TextColumn::make('scheduled_at')
-                    ->dateTime(),
+                    // ->dateTime()
+                    ->default('NA'),
                 TextColumn::make('building.name')
                     ->searchable()
                     ->default('NA')
