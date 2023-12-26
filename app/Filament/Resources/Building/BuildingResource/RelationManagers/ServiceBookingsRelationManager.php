@@ -136,8 +136,8 @@ class ServiceBookingsRelationManager extends RelationManager
             ])
             ->actions([
                 Tables\Actions\EditAction::make()
-                ->after(function (RelationManager $livewire) {
-                    $user = FacilityBooking::where('id', $livewire->ownerRecord->id)->first();
+                ->after(function (Model $record) {
+                    $user = FacilityBooking::where('id', $record->id)->first();
                     if ($user->bookable_type ==  'App\Models\Master\Service') {
                         $serviceName = Service::where('id', $user->bookable_id)->first();
                         if($user->approved != null){
