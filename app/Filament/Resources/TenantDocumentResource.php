@@ -58,7 +58,7 @@ class TenantDocumentResource extends Resource
                             Select::make('flat_id')
                                 ->relationship('flat', 'property_number')
                                 ->preload()
-                                ->default('NA')
+                                ->placeholder('NA')
                                 ->disabled()
                                 ->searchable()
                                 ->label('Unit Number'),
