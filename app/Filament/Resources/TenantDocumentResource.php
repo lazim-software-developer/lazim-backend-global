@@ -82,8 +82,8 @@ class TenantDocumentResource extends Resource
                                 ->placeholder('Expiry Date'),
                             Select::make('status')
                                 ->options([
-                                    'approved' => 'Approved',
-                                    'rejected' => 'Rejected',
+                                    'approved' => 'Approve',
+                                    'rejected' => 'Reject',
                                 ])
                                 ->disabled(function (Document $record) {
                                     return $record->status != 'submitted';

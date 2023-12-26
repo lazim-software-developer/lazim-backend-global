@@ -22,7 +22,7 @@ class CreateAnnouncement extends CreateRecord
     public function afterCreate()
     {
         if ($this->record->status == 'published') {
-            $building = Building::whereIn('id', $this->data['building_id'])->pluck('owner_association_id');
+            $building = Building::whereIn('id', $this->data['building'])->pluck('owner_association_id');
             $allowedRoles = [1, 11];
             $users = User::whereIn('owner_association_id', $building)->whereIn('role_id', $allowedRoles)->pluck('id');
             // if ($this->record->scheduled_at == now()) {
