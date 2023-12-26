@@ -178,7 +178,7 @@ class User extends Authenticatable implements FilamentUser, HasName
     }
     public function canAccessPanel(Panel $panel): bool
     {
-        if ($this->role_id == 10 || $this->role_id == 9) {
+        if ($this->role_id == 10 && $this->active || $this->role_id == 9 && $this->active) {
             return true;
         }
         return false;

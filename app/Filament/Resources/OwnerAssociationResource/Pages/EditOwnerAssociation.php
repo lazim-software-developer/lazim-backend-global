@@ -48,6 +48,7 @@ class EditOwnerAssociation extends EditRecord
             ->update([
                 'first_name' => $this->record->name,
                 'phone'      => $this->record->phone,
+                'active'  => $this->record->active,
             ]);
 
         // If updated value of verified is true and the value is DB is false(This happens only for the first time)
@@ -70,7 +71,7 @@ class EditOwnerAssociation extends EditRecord
                     'phone'                => $this->record->phone,
                     'profile_photo'        => $this->record->profile_photo,
                     'role_id'              => Role::where('name', 'OA')->value('id'),
-                    'active'               => true,
+                    'active'               => $this->record->active,
                     'password' => Hash::make($password),
                     'owner_association_id' => $this->record->id,
                 ]);

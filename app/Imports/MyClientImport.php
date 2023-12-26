@@ -23,38 +23,56 @@ class MyClientImport implements ToCollection, WithHeadingRow
      */
     public function collection(Collection $rows)
     {
-        dd($rows[0]);
-        foreach ($rows as $row) {
-            $building = Building::find($this->buildingId)->first();
-            $createflat = Flat::firstOrCreate(
-                [
-                    'property_number' => $row['unit_number'],
-                    'mollak_property_id' => $row['mollak_id'],
+        // Define the expected headings
+        $expectedHeadings = [
+            'property_group', 'building', 'mollak_id', 'unit_number',
+            'contract_number', 'tenant_name', 'emirates_id', 'license_number',
+            'mobile', 'email', 'start_date', 'end_date', 'contract_status'
+        ];
+
+        // Extract the headings from the first row
+        $extractedHeadings = array_keys($rows->first()->toArray());
+
+        // Check if the headings match
+        if ($extractedHeadings !== $expectedHeadings) {
+            Notification::make()
+                ->title("Upload valid excel file.")
+                ->danger()
+                ->send();
+            return 'failure';
+        } else {
+            foreach ($rows as $row) {
+                $building = Building::find($this->buildingId)->first();
+                $createflat = Flat::firstOrCreate(
+                    [
+                        'property_number' => $row['unit_number'],
+                        'mollak_property_id' => $row['mollak_id'],
+                        'building_id' => $this->buildingId,
+                    ],
+                    [
+                        'property_type' => 'owner',
+                        'owner_association_id' => $building->owner_association_id,
+                    ]
+                );
+                MollakTenant::firstOrCreate([
                     'building_id' => $this->buildingId,
-                ],
-                [
-                    'property_type' => 'owner',
-                    'owner_association_id' => $building->owner_association_id,
-                ]
-            );
-            MollakTenant::firstOrCreate([
-                'building_id' => $this->buildingId,
-                'flat_id' => $createflat->id,
-                'contract_number' => $row['contract_number'],
-                'name' => $row['tenant_name'],
-                'emirates_id' => $row['emirates_id'],
-                'license_number' => $row['license_number'],
-                'mobile' => preg_replace('/0/', '+971', $row['mobile'], 1),
-                'email' => $row['email'],
-                'start_date' => $row['start_date'],
-                'end_date' => $row['end_date'],
-                'contract_status' => $row['contract_status'],
-            ]);
+                    'flat_id' => $createflat->id,
+                    'contract_number' => $row['contract_number'],
+                    'name' => $row['tenant_name'],
+                    'emirates_id' => $row['emirates_id'],
+                    'license_number' => $row['license_number'],
+                    'mobile' => preg_replace('/0/', '+971', $row['mobile'], 1),
+                    'email' => $row['email'],
+                    'start_date' => $row['start_date'],
+                    'end_date' => $row['end_date'],
+                    'contract_status' => $row['contract_status'],
+                ]);
+            }
+            Notification::make()
+                ->title("Details uploaded successfully")
+                ->success()
+                ->send();
+            return 'success';
         }
-        Notification::make()
-            ->title("Details uploaded successfully")
-            ->success()
-            ->send();
-        return 'success';
     }
 }

@@ -2,7 +2,6 @@
 
 namespace App\Filament\Resources\Building;
 
-use App\Filament\Resources\Building\BuildingResource\RelationManagers\RuleregulationsRelationManager;
 use Filament\Forms;
 use Filament\Tables;
 use Filament\Forms\Form;
@@ -22,14 +21,16 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Validation\Rules\Unique;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
+use Filament\Forms\Components\FileUpload;
 use EightyNine\ExcelImport\ExcelImportAction;
+use Filament\Forms\Components\MarkdownEditor;
 use App\Filament\Resources\Building\BuildingResource\Pages;
 use App\Filament\Resources\Building\BuildingResource\RelationManagers;
-use App\Filament\Resources\Building\BuildingResource\RelationManagers\BuildingserviceRelationManager;
 use App\Filament\Resources\Building\BuildingResource\RelationManagers\FloorsRelationManager;
 use App\Filament\Resources\Building\BuildingResource\RelationManagers\MeetingsRelationManager;
+use App\Filament\Resources\Building\BuildingResource\RelationManagers\BuildingserviceRelationManager;
 use App\Filament\Resources\Building\BuildingResource\RelationManagers\OwnercommitteesRelationManager;
-use Filament\Forms\Components\FileUpload;
+use App\Filament\Resources\Building\BuildingResource\RelationManagers\RuleregulationsRelationManager;
 
 class BuildingResource extends Resource
 {
@@ -87,6 +88,17 @@ class BuildingResource extends Resource
                             //     ->relationship('cities', 'name')
                             //     ->searchable()
                             //     ->placeholder('NA'),
+                            MarkdownEditor::make('description')
+                            ->toolbarButtons([
+                                'bold',
+                                'bulletList',
+                                'italic',
+                                'link',
+                                'orderedList',
+                                'redo',
+                                'undo',
+                            ])
+                            ->label('About'),
                             FileUpload::make('cover_photo')
                                 ->disk('s3')
                                 ->rules('file|mimes:jpeg,jpg,png|max:2048')
@@ -109,6 +121,7 @@ class BuildingResource extends Resource
 
                             Toggle::make('allow_postupload')
                                 ->rules(['boolean']),
+                            
 
                             // TextInput::make('lat')
                             //     ->rules(['numeric'])
