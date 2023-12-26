@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use Closure;
 use Filament\Tables;
 use Filament\Forms\Form;
+use App\Models\User\User;
 use Filament\Tables\Table;
 use App\Models\OwnerAssociation;
 use Filament\Resources\Resource;
@@ -59,17 +60,21 @@ class OwnerAssociationResource extends Resource
                                 if (DB::table('owner_associations')->whereNot('id',$record->id)->where('phone', $value)->count() > 0) {
                                     $fail('The phone is already taken by a OA.');
                                 }
-                                if (DB::table('users')->where('phone', $value)->exists()) {
-                                    $fail('The phone is already taken by a user.');
+                                if(DB::table('owner_associations')->where('id',$record->id)->where('verified',1)->count() > 0){
+                                    $getuserecord = User::where('owner_association_id',$record->id)->where('role_id',10)->first()->id;
+                                    if (DB::table('users')->whereNot('id',$getuserecord)->where('phone', $value)->exists()) {
+                                        $fail('The phone is already taken by a user.');
+                                    }
+                                }
+                                else{
+                                    if (DB::table('users')->where('phone', $value)->exists()) {
+                                        $fail('The phone is already taken by a user.');
+                                    }
                                 }
                             };
                         },
                         ])
                         ->required()
-                        ->unique(
-                            'users',
-                            'phone',
-                        )
                         ->live()
                         ->disabled(function (callable $get) {
                             return DB::table('owner_associations')
@@ -93,8 +98,16 @@ class OwnerAssociationResource extends Resource
                                 if (DB::table('owner_associations')->whereNot('id',$record->id)->where('email', $value)->count() > 0) {
                                     $fail('The email is already taken by a OA.');
                                 }
-                                if (DB::table('users')->where('email', $value)->exists()) {
-                                    $fail('The email is already taken by a USER.');
+                                if(DB::table('owner_associations')->where('id',$record->id)->where('verified',1)->count() > 0){
+                                    $getuserecord = User::where('owner_association_id',$record->id)->where('role_id',10)->first()->id;
+                                    if (DB::table('users')->whereNot('id',$getuserecord)->where('email', $value)->exists()) {
+                                        $fail('The email is already taken by a USER.');
+                                    }
+                                }
+                                else{
+                                    if (DB::table('users')->where('email', $value)->exists()) {
+                                        $fail('The email is already taken by a USER.');
+                                    }
                                 }
                             };
                         },])
