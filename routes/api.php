@@ -477,3 +477,6 @@ Route::get('/building/{building}', [CommunityController::class, 'about']);
 
 // Visitor form
 Route::post('/store-visitor', [GuestController::class, 'saveFlatVisitors']);
+
+// Test Send SMS
+Route::post('/send-sms', [MollakController::class, 'sendSMS']);
