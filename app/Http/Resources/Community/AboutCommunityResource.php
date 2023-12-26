@@ -34,8 +34,8 @@ class AboutCommunityResource extends JsonResource
         });
 
         return [
-            "image" => env('AWS_URL') . '/' . 'dev/images/amenity.jpg',
-            "about" => 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Officiis sint asperiores sapiente voluptatum, atque delectus facere repellendus dolor esse, temporibus nesciunt iure ratione consequuntur, fugit numquam recusandae id nulla rerum iusto. Unde delectus quos fuga ad officiis fugit facilis nam quas recusandae temporibus perferendis tempora id quibusdam illo, a aperiam praesentium totam obcaecati molestias similique exercitationem. Veritatis aliquid ipsam similique doloribus alias, saepe reiciendis quaerat expedita, modi perspiciatis, perferendis accusantium nostrum esse laborum eaque soluta quidem rerum autem magnam odit eos sint incidunt ducimus. Molestiae maxime hic tempora voluptas accusamus sed! Unde corrupti facere dolorem suscipit harum dolore, nemo illum.',
+            "image" => $this->cover_photo ?  env('AWS_URL') . '/' . $this->cover_photo : env('AWS_URL') . '/' . 'dev/images/amenity.jpg',
+            "about" => $this->description,
             "facilities" => $facilitiesData,
             "services" => $servicesData,
             "slug" => $this->slug,
