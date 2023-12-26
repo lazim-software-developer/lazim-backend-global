@@ -16,16 +16,19 @@ class InvoiceObserver
     public function created(Invoice $invoice): void
     {
         $vendor = DB::table('building_vendor')->where('building_id', $invoice->building_id)
-                    ->where('vendor_id',$invoice->vendor_id)->first();
-        $building = Building::where('id', $vendor->building_id)->first();
-        $notifyTo = User::where('owner_association_id', $building->owner_association_id)->where('role_id',10)->get();
+            ->where('vendor_id', $invoice->vendor_id)->first();
+        if ($vendor) {
+            $building = Building::where('id', $vendor->building_id)->first();
+            $notifyTo = User::where('owner_association_id', $building->owner_association_id)->where('role_id', 10)->get();
             Notification::make()
-            ->success()
-            ->title("New Invoice")
-            ->icon('heroicon-o-document-text')
-            ->iconColor('warning')
-            ->body('New Invoice submitted by  '.auth()->user()->first_name)
-            ->sendToDatabase($notifyTo);
+                ->success()
+                ->title("New Invoice")
+                ->icon('heroicon-o-document-text')
+                ->iconColor('warning')
+                ->body('New Invoice submitted by  ' . auth()->user()->first_name)
+                ->sendToDatabase($notifyTo);
+        }
+
     }
 
     /**
