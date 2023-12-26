@@ -4,6 +4,7 @@ namespace App\Filament\Resources\AnnouncementResource\Pages;
 
 use App\Filament\Resources\AnnouncementResource;
 use App\Models\Building\Building;
+use App\Models\Building\FlatTenant;
 use App\Models\ExpoPushNotification;
 use App\Models\User\User;
 use App\Traits\UtilsTrait;
@@ -22,7 +23,7 @@ class CreateAnnouncement extends CreateRecord
     public function afterCreate()
     {
         if ($this->record->status == 'published') {
-            $tenant = DB::table('flat_tenants')->where('active',1)
+            $tenant = FlatTenant::where('active',1)
                     ->whereIn('building_id',$this->data['building'])->distinct()->pluck('tenant_id');
             foreach ($tenant as $user) {
                 $expoPushTokens = ExpoPushNotification::where('user_id', $user)->pluck('token');
