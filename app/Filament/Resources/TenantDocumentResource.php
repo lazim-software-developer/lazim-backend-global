@@ -30,7 +30,7 @@ class TenantDocumentResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-user-circle';
     protected static ?string $navigationGroup = 'Master';
-    protected static ?string $navigationLabel = 'Resident Document';
+    protected static ?string $modelLabel = 'Resident Document';
 
     public static function form(Form $form): Form
     {
@@ -58,7 +58,7 @@ class TenantDocumentResource extends Resource
                             Select::make('flat_id')
                                 ->relationship('flat', 'property_number')
                                 ->preload()
-                                ->default('NA')
+                                ->placeholder('NA')
                                 ->disabled()
                                 ->searchable()
                                 ->label('Unit Number'),
@@ -80,12 +80,6 @@ class TenantDocumentResource extends Resource
                                 ->disabled()
                                 ->readonly()
                                 ->placeholder('Expiry Date'),
-                            TextInput::make('comments')
-                                ->required()
-                                ->disabled(function (Document $record) {
-                                    return $record->status != 'submitted';
-                                })
-                                ->label('Comments'),
                             Select::make('status')
                                 ->options([
                                     'approved' => 'Approved',

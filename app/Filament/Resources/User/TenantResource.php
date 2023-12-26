@@ -2,29 +2,30 @@
 
 namespace App\Filament\Resources\User;
 
-use App\Filament\Resources\User\TenantResource\Pages;
-use App\Filament\Resources\User\TenantResource\RelationManagers;
-use App\Filament\Resources\User\TenantResource\RelationManagers\UserDocumentsRelationManager;
-use App\Models\MollakTenant;
-use App\Models\User\Tenant;
-use App\Models\User\User;
 use Filament\Forms;
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\DateTimePicker;
+use Filament\Tables;
+use Filament\Forms\Form;
+use App\Models\User\User;
+use Filament\Tables\Table;
+use App\Models\User\Tenant;
+use App\Models\MollakTenant;
+use Filament\Resources\Resource;
+use App\Models\Building\Building;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
-use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\SelectFilter;
-use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\DatePicker;
+use Filament\Tables\Filters\SelectFilter;
+use Illuminate\Database\Eloquent\Builder;
+use Filament\Forms\Components\DateTimePicker;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Filament\Resources\User\TenantResource\Pages;
+use App\Filament\Resources\User\TenantResource\RelationManagers;
+use App\Filament\Resources\User\TenantResource\RelationManagers\UserDocumentsRelationManager;
 
 class TenantResource extends Resource
 {
@@ -132,7 +133,7 @@ class TenantResource extends Resource
             ->defaultSort('created_at', 'desc')
             ->filters([
                 SelectFilter::make('building_id')
-                    ->relationship('building', 'name')
+                    ->relationship('building', 'name',fn (Builder $query) => $query->where('owner_association_id',auth()->user()->owner_association_id))
                     ->searchable()
                     ->preload()
                     ->label('Building'),
