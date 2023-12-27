@@ -12,7 +12,7 @@ class EditMoveOutFormsDocument extends EditRecord
 {
     use UtilsTrait;
     protected static string $resource = MoveOutFormsDocumentResource::class;
-
+    protected static ?string $title = 'Move out';
     protected function getHeaderActions(): array
     {
         return [

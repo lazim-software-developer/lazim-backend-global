@@ -9,4 +9,5 @@ use Filament\Resources\Pages\ViewRecord;
 class ViewBudget extends ViewRecord
 {
     protected static string $resource = BudgetResource::class;
+    protected static ?string $title = 'Budget';
 }

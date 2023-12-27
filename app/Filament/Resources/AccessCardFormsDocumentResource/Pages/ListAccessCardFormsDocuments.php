@@ -11,6 +11,7 @@ use App\Filament\Resources\AccessCardFormsDocumentResource;
 class ListAccessCardFormsDocuments extends ListRecords
 {
     protected static string $resource = AccessCardFormsDocumentResource::class;
+    protected static ?string $title = 'Access card';
     protected function getTableQuery(): Builder
     {
         $buildings = Building::all()->where('owner_association_id',auth()->user()->owner_association_id)->pluck('id')->toArray();

@@ -9,6 +9,7 @@ use Filament\Resources\Pages\ListRecords;
 class ListVisitorForms extends ListRecords
 {
     protected static string $resource = VisitorFormResource::class;
+    protected static ?string $title = 'Flat visitors';
 
     protected function getHeaderActions(): array
     {

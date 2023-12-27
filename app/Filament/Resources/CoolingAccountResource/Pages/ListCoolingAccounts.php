@@ -21,11 +21,12 @@ use Maatwebsite\Excel\Facades\Excel;
 class ListCoolingAccounts extends ListRecords
 {
     protected static string $resource = CoolingAccountResource::class;
+    protected static ?string $title = 'Cooling account';
 
     protected function getHeaderActions(): array
     {
         return [
-                
+
                 Action::make('upload')
                     ->slideOver()
                     ->color("primary")
@@ -86,7 +87,7 @@ class ListCoolingAccounts extends ListRecords
 
                     // Now import using the file path
                     Excel::import(new CoolingAccountImport( $buildingId, $month ), $fullPath);
-                    
+
                 }),
         ];
     }
