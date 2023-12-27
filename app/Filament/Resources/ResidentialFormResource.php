@@ -26,6 +26,8 @@ use Filament\Forms\Components\CheckboxList;
 class ResidentialFormResource extends Resource {
     protected static ?string $model = ResidentialForm::class;
 
+    protected static ?string $title = 'Residential';
+    protected static ?string $modelLabel = 'Residential';
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     public static function form(Form $form): Form {

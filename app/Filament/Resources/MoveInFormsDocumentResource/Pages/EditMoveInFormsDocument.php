@@ -15,6 +15,7 @@ class EditMoveInFormsDocument extends EditRecord
 {
     use UtilsTrait;
     protected static string $resource = MoveInFormsDocumentResource::class;
+    protected static ?string $title = 'Move in';
 
     protected function getHeaderActions(): array
     {

@@ -36,8 +36,8 @@ class VendorLedgersResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
-    protected static ?string $modelLabel = 'Service Provider Ledgers';
-
+    protected static ?string $modelLabel = 'Service provider ledgers';
+    protected static ?string $title = 'Service provider ledgers';
     protected static ?string $navigationGroup = 'Ledgers';
 
     public static function form(Form $form): Form

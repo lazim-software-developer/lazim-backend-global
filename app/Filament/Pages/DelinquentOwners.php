@@ -24,6 +24,7 @@ class DelinquentOwners extends Page
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
 
     protected static string $view = 'filament.pages.delinquent-owners';
+    protected static ?string $title = 'Delinquent owner';
 
     protected static ?string $slug = 'delinquent-owners';
 
@@ -42,7 +43,7 @@ class DelinquentOwners extends Page
 
     function checkDueDate($flat,$year)
     {
-        
+
         $quarters = ["01-Jan-$year To 31-Mar-$year","01-Apr-$year To 30-Jun-$year","01-Jul-$year To 30-Sep-$year","01-Oct-$year To 31-Dec-$year"];
         foreach($quarters as $quarter){
             $invoiceDate =OAMInvoice::where(['flat_id' => $flat->id, 'invoice_period' => $quarter])->first()?->invoice_due_date;
@@ -61,9 +62,9 @@ class DelinquentOwners extends Page
                                                             ->where('flat_id' , $flat->id)
                                                             ->where('invoice_date', '<', $currentDate)
                                                             ->whereIn('building_id', $buildings)->sum('invoice_amount');
-                    
+
                     $yearlyReceipts = OAMReceipts::where('flat_id' , $flat->id)->where('receipt_period', 'like', '%' . $currentYear . '%')->whereIn('building_id', $buildings)->sum('receipt_amount');
-                    
+
                     if ((int)($yearlyInvoices - $yearlyReceipts) >0 || $this->checkDueDate($flat,$currentYear)) {
                         Log::info('flat'. $flat);
                         Log::info('invoice'. (int)$yearlyInvoices);
@@ -113,7 +114,7 @@ class DelinquentOwners extends Page
 
                 $quarterPeriod = $this->getQuarterPeriod($currentYear, $quarter);
                 // dd($quarterPeriod);
-    
+
                 // Fetch invoices for the quarter
                 $receipts = OAMReceipts::where('flat_id', $flat->id)
                     ->where('receipt_period', $quarterPeriod)
@@ -123,9 +124,9 @@ class DelinquentOwners extends Page
                     ->where('invoice_period', $quarterPeriod)
                     ->first()?->invoice_amount;
                 $dueAmount = $invoicesss - $receipts;
-                
+
                 $flat["Q{$quarter}_receipts"] = round($dueAmount, 2);
-    
+
             }
             $flat['invoice_file'] = $lastInvoice?->invoice_pdf_link;
         }

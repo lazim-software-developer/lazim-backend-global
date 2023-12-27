@@ -13,6 +13,8 @@ class EditResidentialForm extends EditRecord
 {
     use UtilsTrait;
     protected static string $resource = ResidentialFormResource::class;
+    protected static ?string $title = 'Residential';
+    protected static ?string $modelLabel = 'Residential';
 
     protected function getHeaderActions(): array
     {

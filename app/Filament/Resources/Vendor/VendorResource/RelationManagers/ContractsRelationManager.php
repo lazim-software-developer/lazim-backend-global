@@ -102,7 +102,7 @@ class ContractsRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('contract_type')->label('Contract Type'),
                 Tables\Columns\TextColumn::make('start_date')->label('Start Date'),
                 Tables\Columns\TextColumn::make('end_date')->label('End Date'),
-                Tables\Columns\ImageColumn::make('document_url')->square()->disk('s3')->label('Document'),
+                // Tables\Columns\ImageColumn::make('document_url')->square()->disk('s3')->label('Document'),
                 Tables\Columns\TextColumn::make('building.name')->label('Building'),
                 Tables\Columns\TextColumn::make('service.name')->label('Service'),
             ])
