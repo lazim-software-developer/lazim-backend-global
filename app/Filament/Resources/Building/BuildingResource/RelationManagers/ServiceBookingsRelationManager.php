@@ -175,7 +175,7 @@ class ServiceBookingsRelationManager extends RelationManager
                                     }
                                 }
                             }
-    
+
                             if ($user->approved == 0) {
                                 $expoPushTokens = ExpoPushNotification::where('user_id', $user->user_id)->pluck('token');
                                 if ($expoPushTokens->count() > 0) {
@@ -184,7 +184,7 @@ class ServiceBookingsRelationManager extends RelationManager
                                             'to' => $expoPushToken,
                                             'sound' => 'default',
                                             'title' => $serviceName->name . ' Booking Status.',
-                                            'body' => 'Your service booking request for '.$serviceName->name.'is rejected',
+                                            'body' => 'Your service booking request for '.$serviceName->name.' is rejected',
                                             'data' => ['notificationType' => 'MyBookingsService'],
                                         ];
                                         $this->expoNotification($message);

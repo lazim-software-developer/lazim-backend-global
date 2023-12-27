@@ -34,8 +34,8 @@ class EditMoveOutFormsDocument extends EditRecord
                     $message = [
                         'to' => $expoPushToken,
                         'sound' => 'default',
-                        'title' => 'MoveOut form status',
-                        'body' => 'Your MoveOut form has been approved.',
+                        'title' => 'Move-out form status',
+                        'body' => 'Your move-out form has been approved.',
                         'data' => ['notificationType' => 'MyRequest'],
                     ];
                     $this->expoNotification($message);
@@ -46,11 +46,11 @@ class EditMoveOutFormsDocument extends EditRecord
                         'notifiable_id' => $this->record->user_id,
                         'data' => json_encode([
                             'actions' => [],
-                            'body' => 'Your MoveOut form has been approved.',
+                            'body' => 'Your move-out form has been approved.',
                             'duration' => 'persistent',
                             'icon' => 'heroicon-o-document-text',
                             'iconColor' => 'warning',
-                            'title' => 'MoveOut form status',
+                            'title' => 'Move-out form status',
                             'view' => 'notifications::notification',
                             'viewData' => [],
                             'format' => 'filament',
@@ -70,8 +70,8 @@ class EditMoveOutFormsDocument extends EditRecord
                     $message = [
                         'to' => $expoPushToken,
                         'sound' => 'default',
-                        'title' => 'MoveOut form status',
-                        'body' => 'Your MoveOut form has been rejected.',
+                        'title' => 'Move-out form status',
+                        'body' => 'Your move-out form has been rejected.',
                         'data' => ['notificationType' => 'MyRequest'],
                     ];
                     $this->expoNotification($message);
@@ -82,11 +82,11 @@ class EditMoveOutFormsDocument extends EditRecord
                         'notifiable_id' => $this->record->user_id,
                         'data' => json_encode([
                             'actions' => [],
-                            'body' => 'Your MoveOut form has been rejected.',
+                            'body' => 'Your move-out form has been rejected.',
                             'duration' => 'persistent',
                             'icon' => 'heroicon-o-document-text',
                             'iconColor' => 'danger',
-                            'title' => 'MoveOut form status',
+                            'title' => 'Move-out form status',
                             'view' => 'notifications::notification',
                             'viewData' => [],
                             'format' => 'filament',
