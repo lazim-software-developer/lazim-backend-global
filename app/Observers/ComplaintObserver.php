@@ -66,7 +66,7 @@ class ComplaintObserver
                     'notifiable_id' => $vendor->owner_id,
                     'data' => json_encode([
                         'actions' => [],
-                        'body' => 'Complaint has been created by' . auth()->user()->first_name,
+                        'body' => 'Complaint has been created by ' . auth()->user()->first_name,
                         'duration' => 'persistent',
                         'icon' => 'heroicon-o-document-text',
                         'iconColor' => 'warning',
@@ -87,7 +87,7 @@ class ComplaintObserver
                     'notifiable_id' => $vendor->owner_id,
                     'data' => json_encode([
                         'actions' => [],
-                        'body' => 'Complaint has been created by' . auth()->user()->first_name,
+                        'body' => 'Complaint has been created by ' . auth()->user()->first_name,
                         'duration' => 'persistent',
                         'icon' => 'heroicon-o-document-text',
                         'iconColor' => 'warning',

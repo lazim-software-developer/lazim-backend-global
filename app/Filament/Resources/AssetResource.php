@@ -17,6 +17,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use App\Filament\Resources\AssetResource\Pages;
 use App\Models\Master\Service;
+use Filament\Forms\Components\Textarea;
 
 class AssetResource extends Resource
 {
@@ -49,21 +50,24 @@ class AssetResource extends Resource
                             ->label('Building Name'),
                         TextInput::make('name')
                             ->rules([
+                                'max:50',
+                                'regex:/^[a-zA-Z\s]*$/',
                                 fn (Get $get): Closure => function (string $attribute, $value, Closure $fail) use ($get) {
                                     if (Asset::where('building_id', $get('building_id'))->where('name', $value)->exists()) {
                                         $fail('The Name is already taken for this Building.');
                                     }
                                 },
                             ])
-                            ->alpha()
                             ->required()
                             ->label('Asset Name'),
                         TextInput::make('location')
-                            ->alphaDash()
+                            ->alphaNum()
                             ->required()
+                            ->rules(['max:50'])
                             ->label('Location'),
-                        TextInput::make('description')
+                        Textarea::make('description')
                             ->label('Description')
+                            ->rules(['max:100'])
                             ->alphaNum(),
                         Select::make('service_id')
                             ->relationship('service', 'name')
