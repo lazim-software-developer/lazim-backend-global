@@ -20,6 +20,7 @@ use SimpleSoftwareIO\QrCode\Facades\QrCode;
 class CreateAsset extends CreateRecord
 {
     protected static string $resource = AssetResource::class;
+    protected static ?string $title = 'Create asset';
     // public function afterCreate(): void
     // {
     //     $qrCode = QrCode::size(200)->generate('Asset Name: '.$this->record->name."\n".'Location: '.$this->record->location);
@@ -28,12 +29,12 @@ class CreateAsset extends CreateRecord
     // }
     public function afterCreate(): void
     {
-        
+
         // Fetch asset details from the database
         $asset = Asset::where('id', $this->record->id)->first();
-        // Fetch technician_asset details 
+        // Fetch technician_asset details
         $technician_asset_id = TechnicianAssets::where('asset_id',$asset)->first();
-        // Fetch Building name 
+        // Fetch Building name
         $building_name = Building::where('id',$asset->building_id)->first();
         // Fetch maintenance details from the database
         $maintenance = Assetmaintenance::where('technician_asset_id', $technician_asset_id)->first();
@@ -64,15 +65,15 @@ class CreateAsset extends CreateRecord
         $contract = Contract::where('building_id', $buildingId)->where('service_id', $serviceId)->where('end_date','>=', Carbon::now()->toDateString())->first();
         if($contract){
             $vendorId = $contract->vendor_id;
-            
+
             $asset = Asset::find($assetId);
             // dd($asset);
             $technicianVendorIds = DB::table('service_technician_vendor')
                                     ->where('service_id',$serviceId)
                                     ->pluck('technician_vendor_id');
-                                    
+
             $asset->vendors()->syncWithoutDetaching([$vendorId]);
-            
+
             $technicianIds = TechnicianVendor::whereIn('id', $technicianVendorIds)->where('vendor_id',$vendorId)->where('active', true)->pluck('technician_id');
             if ($technicianIds){
                 $assignees = User::whereIn('id',$technicianIds)
@@ -82,7 +83,7 @@ class CreateAsset extends CreateRecord
                 ->orderBy('assets_count', 'asc')
                 ->get();
                 $selectedTechnician = $assignees->first();
-                
+
                 if ($selectedTechnician) {
                     $assigned = TechnicianAssets::create([
                         'asset_id' => $asset->id,

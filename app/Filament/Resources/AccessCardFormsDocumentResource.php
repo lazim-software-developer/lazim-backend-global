@@ -21,7 +21,7 @@ use Filament\Forms\Components\CheckboxList;
 class AccessCardFormsDocumentResource extends Resource {
     protected static ?string $model = AccessCard::class;
 
-    protected static ?string $modelLabel = 'AccessCard';
+    protected static ?string $modelLabel = 'Access card';
     protected static ?string $navigationGroup = 'Forms Document';
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
     public static function form(Form $form): Form {
@@ -164,16 +164,16 @@ class AccessCardFormsDocumentResource extends Resource {
                     ->default('NA')
                     ->label('Unit Number')
                     ->limit(50),
-                ImageColumn::make('tenancy')
-                    ->label('Tenancy')
-                    ->square()
-                    ->alignCenter()
-                    ->disk('s3'),
-                ImageColumn::make('vehicle_registration')
-                    ->label('Vehicle Registration')
-                    ->square()
-                    ->alignCenter()
-                    ->disk('s3'),
+                // ImageColumn::make('tenancy')
+                //     ->label('Tenancy')
+                //     ->square()
+                //     ->alignCenter()
+                //     ->disk('s3'),
+                // ImageColumn::make('vehicle_registration')
+                //     ->label('Vehicle Registration')
+                //     ->square()
+                //     ->alignCenter()
+                //     ->disk('s3'),
                 TextColumn::make('status')
                     ->searchable()
                     ->default('NA')

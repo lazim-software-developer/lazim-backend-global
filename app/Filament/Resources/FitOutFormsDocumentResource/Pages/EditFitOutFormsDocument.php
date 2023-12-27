@@ -12,6 +12,7 @@ class EditFitOutFormsDocument extends EditRecord
 {
     use UtilsTrait;
     protected static string $resource = FitOutFormsDocumentResource::class;
+    protected static ?string $title = 'Fit out';
 
     protected function getHeaderActions(): array
     {

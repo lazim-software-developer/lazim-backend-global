@@ -16,8 +16,7 @@ use Filament\Forms\Components\ViewField;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
-use Filament\Tables\Actions\Action;
-use Filament\Tables\Columns\ImageColumn;
+use Illuminate\Support\Str;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Table;
@@ -28,7 +27,7 @@ class GuestRegistrationResource extends Resource
 {
     protected static ?string $model = Guest::class;
 
-    protected static ?string $modeLabel = "Guest Registration";
+    protected static ?string $modeLabel = "Guest registration";
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     public static function form(Form $form): Form
@@ -200,7 +199,6 @@ class GuestRegistrationResource extends Resource
                 TextColumn::make('status')
                     ->searchable()
                     ->default('NA'),
-
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([

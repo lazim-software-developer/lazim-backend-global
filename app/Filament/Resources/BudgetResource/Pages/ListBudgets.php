@@ -13,6 +13,7 @@ use EightyNine\ExcelImport\ExcelImportAction;
 class ListBudgets extends ListRecords
 {
     protected static string $resource = BudgetResource::class;
+    protected static ?string $title = 'Budgets';
     protected function getTableQuery(): Builder
     {
         $buildings = Building::all()->where('owner_association_id',auth()->user()->owner_association_id)->pluck('id')->toArray();

@@ -13,6 +13,7 @@ class EditNocForm extends EditRecord
 {
     use UtilsTrait;
     protected static string $resource = NocFormResource::class;
+    protected static ?string $title = 'Sale NOC';
 
     protected function getHeaderActions(): array
     {

@@ -33,7 +33,7 @@ class LedgersResource extends Resource
     protected static ?string $model = OAMInvoice::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-    protected static ?string $modelLabel = 'Service Charge Ledgers';
+    protected static ?string $modelLabel = 'Service charge ledgers';
     protected static ?string $navigationGroup = 'Ledgers';
 
     public static function form(Form $form): Form
@@ -79,7 +79,7 @@ class LedgersResource extends Resource
                     ->searchable()
                     ->default("NA")
                     ->label('Balance'),
-                    
+
                     ])
                     ->defaultSort('created_at', 'desc')
                     ->filters([
@@ -90,11 +90,11 @@ class LedgersResource extends Resource
                             ->query(function (Builder $query, array $data): Builder {
                                 if (isset($data['Date'])) {
                                     $dateRange = explode(' - ', $data['Date']);
-                            
+
                                     if (count($dateRange) === 2) {
                                         $from = \Carbon\Carbon::createFromFormat('d/m/Y', $dateRange[0])->format('Y-m-d');
                                         $until = \Carbon\Carbon::createFromFormat('d/m/Y', $dateRange[1])->format('Y-m-d');
-                            
+
                                         return $query
                                             ->when(
                                                 $from,
@@ -106,7 +106,7 @@ class LedgersResource extends Resource
                                             );
                                     }
                                 }
-                                
+
                                     return $query;
                                 }),
                         Filter::make('Building')
