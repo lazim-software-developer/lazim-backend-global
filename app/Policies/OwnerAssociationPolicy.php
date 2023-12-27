@@ -20,9 +20,10 @@ class OwnerAssociationPolicy
 
     public function viewAny(User $user): bool
     {
-        $role = $user->role;
+        // $role = $user->role;
 
-        return $role && $role->name == 'Admin';
+        // return $role && $role->name == 'Admin';
+        return true;
 
     }
 
@@ -31,9 +32,10 @@ class OwnerAssociationPolicy
      */
     public function view(User $user, OwnerAssociation $model): bool
     {
-        $role = $user->role;
+        // $role = $user->role;
 
-        return $role && $role->name == 'Admin';
+        // return $role && $role->name == 'Admin';
+        return true;
 
     }
 
@@ -51,9 +53,10 @@ class OwnerAssociationPolicy
      */
     public function update(User $user, OwnerAssociation $model): bool
     {
-        $role = $user->role;
+        // $role = $user->role;
 
-        return $role && $role->name == 'Admin';
+        // return $role && $role->name == 'Admin';
+        return true;
 
     }
 

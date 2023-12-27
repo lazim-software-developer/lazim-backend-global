@@ -7,6 +7,7 @@ use Filament\Tables;
 use Filament\Forms\Form;
 use App\Models\User\User;
 use Filament\Tables\Table;
+use App\Models\Master\Role;
 use App\Models\OwnerAssociation;
 use Filament\Resources\Resource;
 use Illuminate\Support\Facades\DB;
@@ -86,10 +87,14 @@ class OwnerAssociationResource extends Resource
                     TextInput::make('address')
                         ->required()
                         ->disabled(function (callable $get) {
-                            return DB::table('owner_associations')
+                            if(Role::where('id',auth()->user()->role_id)->first()->name == 'Admin')
+                            {
+                                return DB::table('owner_associations')
                                 ->where('email', $get('email'))
                                 ->where('verified', 1)
                                 ->exists();
+                            }
+                            
                         })
                         ->placeholder('Address'),
                     TextInput::make('email')
@@ -128,10 +133,14 @@ class OwnerAssociationResource extends Resource
                         ->rules('file|mimes:jpeg,jpg,png|max:2048')
                         ->label('Profile Photo')
                         ->disabled(function (callable $get) {
-                            return DB::table('owner_associations')
-                                ->where('phone', $get('phone'))
+                            if(Role::where('id',auth()->user()->role_id)->first()->name == 'Admin')
+                            {
+                                return DB::table('owner_associations')
+                                ->where('email', $get('email'))
                                 ->where('verified', 1)
                                 ->exists();
+                            }
+                            
                         })
                         ->columnSpan([
                             'sm' => 1,
@@ -145,7 +154,8 @@ class OwnerAssociationResource extends Resource
                         }),
                     Toggle::make('active')
                         ->label('Active')
-                        ->rules(['boolean']),
+                        ->rules(['boolean'])
+                        ->hidden(Role::where('id',auth()->user()->role_id)->first()->name != 'Admin'),
 
                 ]),
             ]);
