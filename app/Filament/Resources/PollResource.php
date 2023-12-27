@@ -24,6 +24,7 @@ use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\ViewField;
+use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\DateTimePicker;
 use App\Filament\Resources\PollResource\Pages;
@@ -180,7 +181,17 @@ class PollResource extends Resource
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
-                //
+                SelectFilter::make('building_id')
+                    ->relationship('building', 'name',function (Builder $query){
+                        if(Role::where('id',auth()->user()->role_id)->first()->name != 'Admin')
+                        {
+                            $query->where('owner_association_id',auth()->user()->owner_association_id);
+                        }
+                        
+                    })
+                    ->searchable()
+                    ->preload()
+                    ->label('Building'),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
