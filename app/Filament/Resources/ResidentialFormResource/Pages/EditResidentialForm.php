@@ -59,7 +59,7 @@ class EditResidentialForm extends EditRecord
                         'to' => $expoPushToken,
                         'sound' => 'default',
                         'title' => 'Residential form status',
-                        'body' => 'Your Residential form has been approved.',
+                        'body' => 'Your residential form has been approved.',
                         'data' => ['notificationType' => 'MyRequest'],
                     ];
                     $this->expoNotification($message);
@@ -70,7 +70,7 @@ class EditResidentialForm extends EditRecord
                         'notifiable_id' => $this->record->user_id,
                         'data' => json_encode([
                             'actions' => [],
-                            'body' => 'Your Residential form has been approved.',
+                            'body' => 'Your residential form has been approved.',
                             'duration' => 'persistent',
                             'icon' => 'heroicon-o-document-text',
                             'iconColor' => 'warning',
@@ -94,7 +94,7 @@ class EditResidentialForm extends EditRecord
                         'to' => $expoPushToken,
                         'sound' => 'default',
                         'title' => 'Residential form status',
-                        'body' => 'Your Residential form has been rejected.',
+                        'body' => 'Your residential form has been rejected.',
                         'data' => ['notificationType' => 'MyRequest'],
                     ];
                     $this->expoNotification($message);
@@ -105,7 +105,7 @@ class EditResidentialForm extends EditRecord
                         'notifiable_id' => $this->record->user_id,
                         'data' => json_encode([
                             'actions' => [],
-                            'body' => 'Your Residential form has been rejected.',
+                            'body' => 'Your residential form has been rejected.',
                             'duration' => 'persistent',
                             'icon' => 'heroicon-o-document-text',
                             'iconColor' => 'danger',

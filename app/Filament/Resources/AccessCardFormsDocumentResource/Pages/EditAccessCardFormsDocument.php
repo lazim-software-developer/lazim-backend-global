@@ -56,7 +56,7 @@ class EditAccessCardFormsDocument extends EditRecord {
                         'to' => $expoPushToken,
                         'sound' => 'default',
                         'title' => 'Access card form status',
-                        'body' => 'Your Access card form has been approved.',
+                        'body' => 'Your access card form has been approved.',
                         'data' => ['notificationType' => 'MyRequest'],
                     ];
                     $this->expoNotification($message);
@@ -67,7 +67,7 @@ class EditAccessCardFormsDocument extends EditRecord {
                         'notifiable_id' => $this->record->user_id,
                         'data' => json_encode([
                             'actions' => [],
-                            'body' => 'Your Access card form has been approved. ',
+                            'body' => 'Your access card form has been approved. ',
                             'duration' => 'persistent',
                             'icon' => 'heroicon-o-document-text',
                             'iconColor' => 'warning',
@@ -90,7 +90,7 @@ class EditAccessCardFormsDocument extends EditRecord {
                         'to' => $expoPushToken,
                         'sound' => 'default',
                         'title' => 'Access card form status!',
-                        'body' => 'Your Access card form has been rejected.',
+                        'body' => 'Your access card form has been rejected.',
                         'data' => ['notificationType' => 'MyRequest'],
                     ];
                     $this->expoNotification($message);
@@ -101,7 +101,7 @@ class EditAccessCardFormsDocument extends EditRecord {
                         'notifiable_id' => $this->record->user_id,
                         'data' => json_encode([
                             'actions' => [],
-                            'body' => 'Your Access card form has been rejected.',
+                            'body' => 'Your access card form has been rejected.',
                             'duration' => 'persistent',
                             'icon' => 'heroicon-o-document-text',
                             'iconColor' => 'danger',
