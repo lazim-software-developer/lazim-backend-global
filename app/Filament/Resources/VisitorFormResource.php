@@ -21,6 +21,7 @@ class VisitorFormResource extends Resource
     protected static ?string $model = FlatVisitor::class;
     protected static ?string $title = 'Flat visitor';
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $modelLabel = 'Visitors';
 
     public static function form(Form $form): Form
     {
@@ -58,12 +59,14 @@ class VisitorFormResource extends Resource
                 TextColumn::make('email'),
                 TextColumn::make('start_time')
                     ->label('Date')
-                    ->date(),
+                    // ->date()
+                    ->default('NA'),
                 TextColumn::make('time_of_viewing')
                     ->label('time')
-                    ->time(),
-                TextColumn::make('number_of_visitors'),
-                TextColumn::make('status'),
+                    // ->time()
+                    ->default('NA'),
+                TextColumn::make('number_of_visitors')->default('NA'),
+                TextColumn::make('status')->default('NA'),
 
             ])
             ->defaultSort('created_at', 'desc')

@@ -54,17 +54,19 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->darkMode(false)
             ->databaseNotifications()
-            ->databaseNotificationsPolling('30s')
+            ->databaseNotificationsPolling('5s')
             ->navigation(function (NavigationBuilder $builder): NavigationBuilder {
-                $builder->groups([
-                    NavigationGroup::make('Dashboard')
-                        ->items([
-                            NavigationItem::make('Dashboard')
-                                ->icon('heroicon-o-home')
-                                ->activeIcon('heroicon-s-home')
-                                ->url('/admin'),
-                        ]),
-                ]);
+                if (DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] != 'Admin') {
+                    $builder->groups([
+                        NavigationGroup::make('Dashboard')
+                            ->items([
+                                NavigationItem::make('Dashboard')
+                                    ->icon('heroicon-o-home')
+                                    ->activeIcon('heroicon-s-home')
+                                    ->url('/admin'),
+                            ]),
+                    ]);
+                }
 
                 $builder->groups([
                     NavigationGroup::make('Master')
@@ -82,7 +84,7 @@ class AdminPanelProvider extends PanelProvider
                                 ->sort(2),
                             NavigationItem::make('Owner association')
                                 ->url('/admin/owner-associations')
-                                ->hidden(DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] == 'Admin' ? false : true)
+                                // ->hidden(DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] == 'Admin' ? false : true)
                                 ->icon('heroicon-s-user-group')
                                 ->activeIcon('heroicon-s-user-group')
                                 ->sort(3),
@@ -295,7 +297,7 @@ class AdminPanelProvider extends PanelProvider
                                     ->icon('heroicon-m-shopping-cart')
                                     ->activeIcon('heroicon-m-shopping-cart')
                                     ->sort(5),
-                                    NavigationItem::make('Visitors')
+                                NavigationItem::make('Visitors')
                                     ->url('/admin/visitor-forms')
                                     ->hidden(DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] == 'Admin' ? true : false)
                                     ->icon('heroicon-o-users')
