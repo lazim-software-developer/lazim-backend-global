@@ -14,7 +14,7 @@ class EditGuestRegistration extends EditRecord
 {
     use UtilsTrait;
     protected static string $resource = GuestRegistrationResource::class;
-    protected static ?string $title = 'Guest registration';
+    protected static ?string $title = 'Guest';
 
     protected function getHeaderActions(): array
     {
