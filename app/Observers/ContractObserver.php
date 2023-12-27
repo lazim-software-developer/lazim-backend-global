@@ -72,11 +72,11 @@ class ContractObserver
                         'notifiable_id' => $vendor->owner_id,
                         'data' => json_encode([
                             'actions' => [],
-                            'body' => 'New contract is created.',
+                            'body' => 'Contract document has been updated.',
                             'duration' => 'persistent',
                             'icon' => 'heroicon-o-document-text',
                             'iconColor' => 'warning',
-                            'title' => 'New Contract',
+                            'title' => 'Contract document updates!',
                             'view' => 'notifications::notification',
                             'viewData' => [],
                             'format' => 'filament',

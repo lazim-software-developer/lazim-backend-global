@@ -33,7 +33,7 @@ class EditGuestRegistration extends EditRecord
                         'to' => $expoPushToken,
                         'sound' => 'default',
                         'title' => 'Guest registration form Updated!',
-                        'body' => 'Your Guest registration form has been approved.',
+                        'body' => 'Your guest registration form has been approved.',
                         'data' => ['notificationType' => 'MyRequest'],
                     ];
                     $this->expoNotification($message);
@@ -44,7 +44,7 @@ class EditGuestRegistration extends EditRecord
                         'notifiable_id' => $this->record->user_id,
                         'data' => json_encode([
                             'actions' => [],
-                            'body' => 'Your Guest registration form has been approved.',
+                            'body' => 'Your guest registration form has been approved.',
                             'duration' => 'persistent',
                             'icon' => 'heroicon-o-document-text',
                             'iconColor' => 'warning',
@@ -67,7 +67,7 @@ class EditGuestRegistration extends EditRecord
                         'to' => $expoPushToken,
                         'sound' => 'default',
                         'title' => 'Guest registration form status',
-                        'body' => 'Your Guest registration form has been rejected.',
+                        'body' => 'Your guest registration form has been rejected.',
                         'data' => ['notificationType' => 'MyRequest'],
                     ];
                     $this->expoNotification($message);
@@ -78,7 +78,7 @@ class EditGuestRegistration extends EditRecord
                         'notifiable_id' => $this->record->user_id,
                         'data' => json_encode([
                             'actions' => [],
-                            'body' => 'Your Guest registration form has been rejected.',
+                            'body' => 'Your guest registration form has been rejected.',
                             'duration' => 'persistent',
                             'icon' => 'heroicon-o-document-text',
                             'iconColor' => 'danger',
