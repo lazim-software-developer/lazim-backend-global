@@ -10,6 +10,7 @@ use Filament\Resources\Pages\EditRecord;
 class EditVendorLedgers extends EditRecord
 {
     protected static string $resource = VendorLedgersResource::class;
+    protected static ?string $title = 'Service provider ledgers';
 
     protected function getHeaderActions(): array
     {

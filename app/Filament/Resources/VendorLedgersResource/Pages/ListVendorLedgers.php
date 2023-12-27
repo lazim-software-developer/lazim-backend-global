@@ -12,6 +12,7 @@ use App\Models\Vendor\Vendor;
 class ListVendorLedgers extends ListRecords
 {
     protected static string $resource = VendorLedgersResource::class;
+    protected static ?string $title = 'Service provider ledgers';
     protected function getTableQuery(): Builder
     {
         // $vendor_id = Vendor::where('owner_association_id',auth()->user()->owner_association_id)->pluck('id')->toArray();

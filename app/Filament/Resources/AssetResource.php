@@ -3,7 +3,6 @@
 namespace App\Filament\Resources;
 
 use Closure;
-use Filament\Forms;
 use Filament\Tables;
 use App\Models\Asset;
 use Filament\Forms\Get;
@@ -12,17 +11,11 @@ use Filament\Tables\Table;
 use App\Forms\Components\QrCode;
 use Filament\Resources\Resource;
 use App\Models\Building\Building;
-use Illuminate\Support\Facades\DB;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Select;
 use Filament\Tables\Columns\TextColumn;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Validation\Rules\Unique;
 use Filament\Forms\Components\TextInput;
-use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\AssetResource\Pages;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use App\Filament\Resources\AssetResource\RelationManagers;
 use App\Models\Master\Service;
 
 class AssetResource extends Resource

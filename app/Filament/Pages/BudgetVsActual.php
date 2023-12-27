@@ -25,7 +25,7 @@ class BudgetVsActual extends Page implements HasTable
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
 
     protected static string $view = 'filament.pages.budget-vs-actual';
-
+    protected static ?string $title = 'Budget vs Actual';
     protected static ?string $slug = 'budget-vs-actual';
 
     public function table(Table $table): Table
@@ -51,14 +51,14 @@ class BudgetVsActual extends Page implements HasTable
                         ->options(array_combine(range(now()->year, 2018), range(now()->year, 2018))),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
-                        if (isset($data['year'])) {       
+                        if (isset($data['year'])) {
                                 return $query
                                     ->when(
                                         $data['year'],
                                         fn (Builder $query, $year) => $query->whereYear('budget_from', $year)->orWhereYear('budget_to', $year)
                                     );
                         }
-                        
+
                             return $query;
                         }),
                 Filter::make('Building')

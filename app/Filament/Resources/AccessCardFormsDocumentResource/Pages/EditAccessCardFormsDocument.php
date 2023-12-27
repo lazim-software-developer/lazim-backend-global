@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\DB;
 class EditAccessCardFormsDocument extends EditRecord {
     use UtilsTrait;
     protected static string $resource = AccessCardFormsDocumentResource::class;
+    protected static ?string $title = 'Access card';
     protected function getRedirectUrl(): string {
         return $this->getResource()::getUrl('index');
     }

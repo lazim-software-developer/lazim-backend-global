@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Builder;
 class ListGuestRegistrations extends ListRecords
 {
     protected static string $resource = GuestRegistrationResource::class;
-    protected static ?string $title = 'Guest Registration';
+    protected static ?string $title = 'Guest registration';
     protected function getTableQuery(): Builder
     {
         return parent::getTableQuery()->where('owner_association_id',auth()->user()->owner_association_id);

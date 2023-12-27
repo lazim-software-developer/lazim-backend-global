@@ -19,7 +19,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 class VisitorFormResource extends Resource
 {
     protected static ?string $model = FlatVisitor::class;
-
+    protected static ?string $title = 'Flat visitor';
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     public static function form(Form $form): Form
@@ -66,6 +66,7 @@ class VisitorFormResource extends Resource
                 TextColumn::make('status'),
 
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])
@@ -81,14 +82,14 @@ class VisitorFormResource extends Resource
                 // Tables\Actions\CreateAction::make(),
             ]);
     }
-    
+
     public static function getRelations(): array
     {
         return [
             //
         ];
     }
-    
+
     public static function getPages(): array
     {
         return [
@@ -96,5 +97,5 @@ class VisitorFormResource extends Resource
             // 'create' => Pages\CreateVisitorForm::route('/create'),
             'edit' => Pages\EditVisitorForm::route('/{record}/edit'),
         ];
-    }    
+    }
 }
