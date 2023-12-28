@@ -81,9 +81,8 @@ class InvoiceController extends Controller
         ]))->response()->setStatusCode(201);
     }
 
-    public function stats(Request $request, Vendor $vendor, Building $building)
+    public function stats(Request $request, Vendor $vendor)
     {
-
         // Get the date filter or use the current month and year
         $dateFilter = $request->input('date', Carbon::now()->format('F Y'));
 
@@ -91,7 +90,7 @@ class InvoiceController extends Controller
         $startDate = Carbon::createFromFormat('F Y', $dateFilter)->startOfMonth();
         $endDate = Carbon::createFromFormat('F Y', $dateFilter)->endOfMonth();
 
-        $invoiceQuery = Invoice::where(['vendor_id' => $vendor->id, 'building_id' => $building->id])
+        $invoiceQuery = Invoice::where(['vendor_id' => $vendor->id])
             ->whereBetween('date', [$startDate, $endDate])->get();
 
         if ($request->has('building_id') && !empty($request->building_id)) {
