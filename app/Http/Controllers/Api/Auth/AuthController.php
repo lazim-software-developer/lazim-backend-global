@@ -289,6 +289,15 @@ class AuthController extends Controller
     // Vendor login
     public function vendorLogin(GateKeeperLoginRequest $request) {
         $user = User::where('email', $request->email)->first();
+        
+        // cehck if user is vendor
+        if($user->role->name != 'Vendor') {
+            return (new CustomResponseResource([
+                'title' => 'Unauthorized!',
+                'message' => 'You are not authorized to login!',
+                'code' => 400,
+            ]))->response()->setStatusCode(400);
+        }
 
         // if (!$user || !Hash::check($request->password, $user->password) || $user->role->name !== $request->role) {
         if (!$user || !Hash::check($request->password, $user->password)) {
