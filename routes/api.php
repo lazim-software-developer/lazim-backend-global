@@ -383,7 +383,7 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('vendor')->group(function 
     Route::post('/invoice/{invoice}', [InvoiceController::class, 'edit']);
 
     // Invoice dashboard
-    Route::get('/dashboard-invoice-stats/{vendor}', [InvoiceController::class, 'stats']);
+    Route::get('/dashboard-invoice-stats/{vendor}/building/{building}', [InvoiceController::class, 'stats']);
 
     // Show WDA
     Route::get('/wda/{wda}', [WDAController::class, 'show']);
@@ -477,3 +477,6 @@ Route::get('/building/{building}', [CommunityController::class, 'about']);
 
 // Visitor form
 Route::post('/store-visitor', [GuestController::class, 'saveFlatVisitors']);
+
+// Test Send SMS
+Route::post('/send-sms', [MollakController::class, 'sendSMS']);
