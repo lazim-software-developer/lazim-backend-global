@@ -383,7 +383,7 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('vendor')->group(function 
     Route::post('/invoice/{invoice}', [InvoiceController::class, 'edit']);
 
     // Invoice dashboard
-    Route::get('/dashboard-invoice-stats/{vendor}', [InvoiceController::class, 'stats']);
+    Route::get('/dashboard-invoice-stats/{vendor}/building/{building}', [InvoiceController::class, 'stats']);
 
     // Show WDA
     Route::get('/wda/{wda}', [WDAController::class, 'show']);
