@@ -40,7 +40,14 @@ class GuestRegistrationResource extends Resource
                     'lg' => 2,
                 ])->schema([
                     ViewField::make('Guest Details')->view('forms.components.form.guest-registration-name'),
-                    DatePicker::make('visa_validity_date')->disabled()->label('Tourist/Visitor visa validity date'),
+                    DatePicker::make('visa_validity_date')->disabled()
+                    ->visible(function (callable $get) {
+                        if ($get('visa_validity_date') != null) {
+                            return true;
+                        }
+                        return false;
+                    })
+                    ->label('Tourist/Visitor visa validity date'),
                     TextInput::make('stay_duration')->disabled()->label('duration of stay'),
                     FileUpload::make('dtmc_license_url')
                         ->disk('s3')
@@ -48,7 +55,7 @@ class GuestRegistrationResource extends Resource
                         ->downloadable(true)
                         ->openable(true)
                         ->disabled()
-                        ->label('Dtmc License File')
+                        ->label('DTMC License File')
                         ->columnSpan([
                             'sm' => 1,
                             'md' => 1,

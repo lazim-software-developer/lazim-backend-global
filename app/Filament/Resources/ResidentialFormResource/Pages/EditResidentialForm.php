@@ -121,4 +121,31 @@ class EditResidentialForm extends EditRecord
             }
         }
     }
+
+    protected function mutateFormDataBeforeFill(array $data): array {
+        $emergencyContact = json_decode($data['emergency_contact'], true);
+        $formattedDetails = '';
+
+        if(is_array($emergencyContact)) {
+            $details = [
+                'name'=> $emergencyContact[0]['name'],
+                'phone'=>$emergencyContact[0]['phone'] = $emergencyContact[0]['country'].$emergencyContact[0]['phone']
+            ];
+            foreach($details as $key => $val) {
+                // Accumulate the formatted details with line breaks
+                $formattedDetails .= ucfirst(str_replace('_', ' ', $key)).": $val\n";
+            }
+        } else {
+            // Handle the case where emergency contact is not an array
+            $formattedDetails = "Invalid emergency contact format";
+        }
+
+        // Assign the accumulated content to $data['emergency_contact']
+        $data['emergency_contact'] = $formattedDetails;
+
+        // Your other logic for data manipulation...
+
+        return $data;
+    }
+
 }
