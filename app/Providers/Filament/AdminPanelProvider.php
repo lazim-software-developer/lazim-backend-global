@@ -76,12 +76,12 @@ class AdminPanelProvider extends PanelProvider
                                 ->icon('heroicon-o-users')
                                 ->activeIcon('heroicon-o-users')
                                 ->sort(1),
-                            NavigationItem::make('Medias')
-                                ->url('/admin/media')
-                                // ->hidden(DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] == 'Admin' ? false : true)
-                                ->icon('heroicon-m-photo')
-                                ->activeIcon('heroicon-m-photo')
-                                ->sort(2),
+                            // NavigationItem::make('Medias')
+                            //     ->url('/admin/media')
+                            //     // ->hidden(DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] == 'Admin' ? false : true)
+                            //     ->icon('heroicon-m-photo')
+                            //     ->activeIcon('heroicon-m-photo')
+                            //     ->sort(2),
                             NavigationItem::make('Owner association')
                                 ->url('/admin/owner-associations')
                                 // ->hidden(DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] == 'Admin' ? false : true)
