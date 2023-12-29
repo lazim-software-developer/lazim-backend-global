@@ -3,10 +3,9 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\CoolingAccountResource\Pages;
-use App\Filament\Resources\CoolingAccountResource\RelationManagers;
 use App\Models\Building\Building;
 use App\Models\CoolingAccount;
-use Filament\Forms;
+use Coolsam\FilamentFlatpickr\Forms\Components\Flatpickr;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -16,8 +15,7 @@ use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Malzariey\FilamentDaterangepickerFilter\Fields\DateRangePicker;
+use Illuminate\Support\Str;
 
 class CoolingAccountResource extends Resource
 {
@@ -49,51 +47,44 @@ class CoolingAccountResource extends Resource
                 TextColumn::make('receipts'),
                 TextColumn::make('closing_balance'),
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 Filter::make('date')
-                            ->form([
-                                DateRangePicker::make('Date')
-                            ])
-                            ->query(function (Builder $query, array $data): Builder {
-                                if (isset($data['Date'])) {
-                                    $dateRange = explode(' - ', $data['Date']);
-                            
-                                    if (count($dateRange) === 2) {
-                                        $from = \Carbon\Carbon::createFromFormat('d/m/Y', $dateRange[0])->format('Y-m-d');
-                                        $until = \Carbon\Carbon::createFromFormat('d/m/Y', $dateRange[1])->format('Y-m-d');
-                            
-                                        return $query
-                                            ->when(
-                                                $from,
-                                                fn (Builder $query, $date) => $query->whereDate('date', '>=', $date)
-                                            )
-                                            ->when(
-                                                $until,
-                                                fn (Builder $query, $date) => $query->whereDate('date', '<=', $date)
-                                            );
-                                    }
-                                }
-                                
-                                    return $query;
-                                }),
-                        Filter::make('Building')
-                            ->form([
-                                Select::make('building')
-                                ->searchable()
-                                ->options(function () {
-                                    $oaId = auth()->user()->owner_association_id;
-                                    return Building::where('owner_association_id', $oaId)
-                                        ->pluck('name', 'id');
-                                })
-                            ])
-                            ->query(function (Builder $query, array $data): Builder {
-                                return $query
-                                    ->when(
-                                        $data['building'],
-                                        fn (Builder $query, $building_id): Builder => $query->where('building_id', $building_id),
-                                    );
-                                }),
-                            ],layout: FiltersLayout::AboveContent)->filtersFormColumns(3)
+                    ->form([
+                        Flatpickr::make('Date')
+                            ->range(true),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        if (isset($data['Date'])) {
+                            $segments = Str::of($data['Date'])->split('/[\s,]+/');
+
+                            if (count($segments) === 3) {
+                                $from = $segments[0];
+                                $until = $segments[2];
+
+                                return $query->whereBetween('date', [$from, $until]);
+                            }
+                        }
+                        return $query;
+                    }),
+                Filter::make('Building')
+                    ->form([
+                        Select::make('building')
+                            ->searchable()
+                            ->options(function () {
+                                $oaId = auth()->user()->owner_association_id;
+                                return Building::where('owner_association_id', $oaId)
+                                    ->pluck('name', 'id');
+                            }),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['building'],
+                                fn(Builder $query, $building_id): Builder => $query->where('building_id', $building_id),
+                            );
+                    }),
+            ], layout: FiltersLayout::AboveContent)->filtersFormColumns(3)
             ->actions([
                 // Tables\Actions\ViewAction::make(),
                 // Tables\Actions\EditAction::make(),
@@ -107,14 +98,14 @@ class CoolingAccountResource extends Resource
                 // Tables\Actions\CreateAction::make(),
             ]);
     }
-    
+
     public static function getRelations(): array
     {
         return [
             //
         ];
     }
-    
+
     public static function getPages(): array
     {
         return [
@@ -123,5 +114,5 @@ class CoolingAccountResource extends Resource
             // 'view' => Pages\ViewCoolingAccount::route('/{record}'),
             // 'edit' => Pages\EditCoolingAccount::route('/{record}/edit'),
         ];
-    }    
+    }
 }

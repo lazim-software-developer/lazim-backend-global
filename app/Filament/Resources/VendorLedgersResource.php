@@ -28,6 +28,8 @@ use Filament\Tables\Columns\TextInputColumn;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\VendorLedgersResource\Pages;
 use App\Filament\Resources\VendorLedgersResource\RelationManagers;
+use Coolsam\FilamentFlatpickr\Forms\Components\Flatpickr;
+use Illuminate\Support\Str;
 use Malzariey\FilamentDaterangepickerFilter\Fields\DateRangePicker;
 
 class VendorLedgersResource extends Resource
@@ -109,28 +111,20 @@ class VendorLedgersResource extends Resource
             ->filters([
                 Filter::make('date')
                     ->form([
-                        DateRangePicker::make('Date')
+                        Flatpickr::make('Date')
+                            ->range(true),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         if (isset($data['Date'])) {
-                            $dateRange = explode(' - ', $data['Date']);
+                            $segments = Str::of($data['Date'])->split('/[\s,]+/');
 
-                            if (count($dateRange) === 2) {
-                                $from = \Carbon\Carbon::createFromFormat('d/m/Y', $dateRange[0])->format('Y-m-d');
-                                $until = \Carbon\Carbon::createFromFormat('d/m/Y', $dateRange[1])->format('Y-m-d');
+                            if (count($segments) === 3) {
+                                $from = $segments[0];
+                                $until = $segments[2];
 
-                                return $query
-                                    ->when(
-                                        $from,
-                                        fn(Builder $query, $date) => $query->whereDate('date', '>=', $date)
-                                    )
-                                    ->when(
-                                        $until,
-                                        fn(Builder $query, $date) => $query->whereDate('date', '<=', $date)
-                                    );
+                                return $query->whereBetween('date', [$from, $until]);
                             }
                         }
-
                         return $query;
                     }),
                 Filter::make('Building')
