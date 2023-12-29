@@ -2,6 +2,7 @@
 
 namespace App\Observers;
 
+use App\Models\Accounting\Proposal;
 use App\Models\Building\Building;
 use App\Models\User\User;
 use App\Models\Vendor\Contract;
@@ -18,40 +19,14 @@ class ContractObserver
     {
         $user = auth()->user();
         $building = Building::where('id', $contract->building_id)->first();
-        $notifyTo = User::where('owner_association_id', $building->owner_association_id)->where('role_id',10)->get();
-            Notification::make()
+        $notifyTo = User::where('owner_association_id', $building->owner_association_id)->where('role_id', 10)->get();
+        Notification::make()
             ->success()
             ->title("New Contract")
             ->icon('heroicon-o-document-text')
             ->iconColor('warning')
             ->body('New contract is created')
             ->sendToDatabase($notifyTo);
-
-        //contract created vendor will notify
-        if($contract->vendor_id){
-            if($user->role->name == 'OA'){
-                $vendor = Vendor::where('id', $contract->vendor_id)->first();
-                DB::table('notifications')->insert([
-                    'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
-                    'type' => 'Filament\Notifications\DatabaseNotification',
-                    'notifiable_type' => 'App\Models\User\User',
-                    'notifiable_id' => $vendor->owner_id,
-                    'data' => json_encode([
-                        'actions' => [],
-                        'body' => 'New contract is created.',
-                        'duration' => 'persistent',
-                        'icon' => 'heroicon-o-document-text',
-                        'iconColor' => 'warning',
-                        'title' => 'New Contract',
-                        'view' => 'notifications::notification',
-                        'viewData' => [],
-                        'format' => 'filament',
-                    ]),
-                    'created_at' => now()->format('Y-m-d H:i:s'),
-                    'updated_at' => now()->format('Y-m-d H:i:s'),
-                ]);
-            }
-        }
     }
 
     /**
@@ -59,33 +34,28 @@ class ContractObserver
      */
     public function updated(Contract $contract): void
     {
-        $user = auth()->user();
         //contract document updates vendor will notify
-        if($contract->vendor_id){
-            if($user->role->name == 'OA'){
-                if($contract->document_url){
-                    $vendor = Vendor::where('id', $contract->vendor_id)->first();
-                    DB::table('notifications')->insert([
-                        'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
-                        'type' => 'Filament\Notifications\DatabaseNotification',
-                        'notifiable_type' => 'App\Models\User\User',
-                        'notifiable_id' => $vendor->owner_id,
-                        'data' => json_encode([
-                            'actions' => [],
-                            'body' => 'Contract document has been updated.',
-                            'duration' => 'persistent',
-                            'icon' => 'heroicon-o-document-text',
-                            'iconColor' => 'warning',
-                            'title' => 'Contract document updates!',
-                            'view' => 'notifications::notification',
-                            'viewData' => [],
-                            'format' => 'filament',
-                        ]),
-                        'created_at' => now()->format('Y-m-d H:i:s'),
-                        'updated_at' => now()->format('Y-m-d H:i:s'),
-                    ]);
-                }
-            }
+        if ($contract->document_url) {
+            $vendor = Vendor::where('id', $contract->vendor_id)->first();
+            DB::table('notifications')->insert([
+                'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
+                'type' => 'Filament\Notifications\DatabaseNotification',
+                'notifiable_type' => 'App\Models\User\User',
+                'notifiable_id' => $vendor->owner_id,
+                'data' => json_encode([
+                    'actions' => [],
+                    'body' => 'Contract document has been updated.',
+                    'duration' => 'persistent',
+                    'icon' => 'heroicon-o-document-text',
+                    'iconColor' => 'warning',
+                    'title' => 'Contract document updates!',
+                    'view' => 'notifications::notification',
+                    'viewData' => [],
+                    'format' => 'filament',
+                ]),
+                'created_at' => now()->format('Y-m-d H:i:s'),
+                'updated_at' => now()->format('Y-m-d H:i:s'),
+            ]);
         }
     }
 

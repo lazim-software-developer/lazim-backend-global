@@ -46,6 +46,8 @@ use App\Observers\UserObserver;
 use App\Observers\WDAObserver;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
+use Filament\Tables\Enums\FiltersLayout;
+use Filament\Tables\Table;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -88,5 +90,12 @@ class AppServiceProvider extends ServiceProvider
         Invoice::observe(InvoiceObserver::class);
         Tender::observe(TenderObserver::class);
         TechnicianAssets::observe(TechnicianAssetsObserver::class);
+
+        //Global settings for Admin module (for all table per page options)
+        Table::configureUsing(function (Table $table): void {
+            $table
+                ->filtersLayout(FiltersLayout::AboveContentCollapsible)
+                ->paginationPageOptions([10, 25, 50]);
+        });
     }
 }
