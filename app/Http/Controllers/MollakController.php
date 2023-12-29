@@ -75,7 +75,7 @@ class MollakController extends Controller
 
     public function verifyOTP(Request $request)
     {
-        return $otp = $request->otp;
+        $otp = $request->otp;
         $response = Http::withOptions(['verify' => false])->withHeaders([
             'content-type' => 'application/json',
         ])->post("https://sms.rmlconnect.net/OtpApi/checkotp?username=LazimTrans&password=Lazim@10&msisdn=971526006235&otp=". $otp );
