@@ -42,7 +42,7 @@ class ProposalObserver
                     'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
                     'type' => 'Filament\Notifications\DatabaseNotification',
                     'notifiable_type' => 'App\Models\User\User',
-                    'notifiable_id' => $vendor->owner_id ,
+                    'notifiable_id' => $vendor->owner_id,
                     'data' => json_encode([
                         'actions' => [],
                         'body' => 'Your Proposal has been approved.',
@@ -50,6 +50,27 @@ class ProposalObserver
                         'icon' => 'heroicon-o-document-text',
                         'iconColor' => 'warning',
                         'title' => 'Proposal status update.',
+                        'view' => 'notifications::notification',
+                        'viewData' => [],
+                        'format' => 'filament',
+                    ]),
+                    'created_at' => now()->format('Y-m-d H:i:s'),
+                    'updated_at' => now()->format('Y-m-d H:i:s'),
+                ]);
+
+                //contract created vendor will notify
+                DB::table('notifications')->insert([
+                    'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
+                    'type' => 'Filament\Notifications\DatabaseNotification',
+                    'notifiable_type' => 'App\Models\User\User',
+                    'notifiable_id' => $vendor->owner_id,
+                    'data' => json_encode([
+                        'actions' => [],
+                        'body' => 'New contract is created.',
+                        'duration' => 'persistent',
+                        'icon' => 'heroicon-o-document-text',
+                        'iconColor' => 'warning',
+                        'title' => 'New Contract',
                         'view' => 'notifications::notification',
                         'viewData' => [],
                         'format' => 'filament',
