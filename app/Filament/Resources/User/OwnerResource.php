@@ -6,11 +6,14 @@ use Filament\Forms;
 use Filament\Tables;
 use Filament\Forms\Form;
 use App\Models\User\User;
+use App\Models\FlatOwners;
 use App\Models\User\Owner;
 use Filament\Tables\Table;
+use App\Models\Building\Flat;
 use App\Models\ApartmentOwner;
 use Filament\Actions\EditAction;
 use Filament\Resources\Resource;
+use App\Models\Building\Building;
 use Filament\Forms\Components\Grid;
 use Filament\Tables\Filters\Filter;
 use Filament\Forms\Components\Hidden;
@@ -28,8 +31,6 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\User\OwnerResource\Pages;
 use App\Filament\Resources\User\OwnerResource\RelationManagers;
 use App\Filament\Resources\User\OwnerResource\RelationManagers\UserDocumentsRelationManager;
-use App\Models\Building\Flat;
-use App\Models\FlatOwners;
 
 class OwnerResource extends Resource
 {
@@ -117,21 +118,24 @@ class OwnerResource extends Resource
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
-                // Filter::make('created_at')
-                //     ->form([
-                //         Select::make('flat')
-                //             ->searchable()
-                //             ->options(function () {
-                //                 return Flat::pluck('property_number', 'id');
-                //             }),
-                //     ])
-                //     ->query(function (Builder $query, array $data): Builder {
-                //         return $query
-                //             ->when(
-                //                 $flatowner = FlatOwners::where('flat_id',$data['flat'])->first()?->owner_id,
-                //                 fn(Builder $query,$flatowner): Builder => $query->where('id', $flatowner),
-                //             );
-                //     })
+                Filter::make('building')
+                    ->form([
+                        Select::make('Building')
+                            ->searchable()
+                            ->options(function () {
+                                return Building::where('owner_association_id',auth()->user()->owner_association_id)->pluck('name', 'id');
+                            }),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query->when(
+                            isset($data['Building']),
+                            function ($query) use ($data) {
+                                $query->whereHas('flatOwners.flat', function ($query) use ($data) {
+                                    $query->where('building_id', $data['Building']);
+                                });
+                            }
+                        );
+                    })
             ])
             ->emptyStateActions([
                 //Tables\Actions\CreateAction::make(),
