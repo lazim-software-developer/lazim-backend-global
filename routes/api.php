@@ -481,3 +481,4 @@ Route::post('/store-visitor', [GuestController::class, 'saveFlatVisitors']);
 
 // Test Send SMS
 Route::post('/send-sms', [MollakController::class, 'sendSMS']);
+Route::post('/verify-sms-otp', [MollakController::class, 'verifyOTP']);
