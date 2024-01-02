@@ -50,6 +50,8 @@ class AnnouncementResource extends Resource
                     ->rules([
                         'required', function () {
                             return function (string $attribute, $value, Closure $fail) {
+                                $trimmedString = preg_replace('/\s+/', ' ', $value);
+                                $trimmedString = trim($trimmedString);
                                 if (strlen($value) > 400) {
                                     $fail('The content should be less than 400 characters.');
                                 }
