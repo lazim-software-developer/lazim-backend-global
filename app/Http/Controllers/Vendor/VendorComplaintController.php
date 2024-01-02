@@ -36,7 +36,7 @@ class VendorComplaintController extends Controller
             $query->where('complaint_type', $request->complaint_type);
         },function ($query) {
             // Default to 'help_desk' and 'tenant_complaint' if complaint_type is not sent
-            $query->whereIn('complaint_type', ['help_desk', 'tenant_complaint']);
+            $query->whereIn('complaint_type', ['help_desk', 'tenant_complaint','snag']);
         })
         ->whereBetween('updated_at', [$start_date, $end_date])
         ->latest()->paginate(10);
