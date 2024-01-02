@@ -252,6 +252,9 @@ class NocFormResource extends Resource
                         ->disabled(function (SaleNOC $record) {
                             return $record->status != null;
                         })
+                                ->visible(function(SaleNOC $record){
+                                    return $record->submit_status == 'buyer_uploaded';
+                                })
                         ->required()
                         ->searchable()
                         ->live(),
