@@ -72,13 +72,4 @@ class MollakController extends Controller
         ])->post("https://sms.rmlconnect.net/OtpApi/otpgenerate?username=LazimTrans&password=Lazim@10&msisdn=971526006235&msg=Your%20one%20time%20OTP%20is%20%25m&source=ILAJ-LAZIM&tagname=Lazim&otplen=5&exptime=60");
         return $response;
     }
-
-    public function verifyOTP(Request $request)
-    {
-        $otp = $request->otp;
-        $response = Http::withOptions(['verify' => false])->withHeaders([
-            'content-type' => 'application/json',
-        ])->post("https://sms.rmlconnect.net/OtpApi/checkotp?username=LazimTrans&password=Lazim@10&msisdn=971526006235&otp=". $otp );
-        return $response;
-    }
 }
