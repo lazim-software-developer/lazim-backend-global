@@ -14,6 +14,7 @@ class EditVisitorForm extends EditRecord
 {
     use UtilsTrait;
     protected static string $resource = VisitorFormResource::class;
+    protected static ?string $title = 'Flat visitor';
 
     protected function getHeaderActions(): array
     {
@@ -29,9 +30,9 @@ class EditVisitorForm extends EditRecord
 
     public function afterSave()
     {
-        if ($this->record->status !== null) 
+        if ($this->record->status !== null)
         {
-            if ($this->record->status == 'approved') 
+            if ($this->record->status == 'approved')
             {
                 $security= BuildingPoc::where('building_id',$this->record->building_id)->where('active',true)->first()->user_id;
                 $expoPushTokens = ExpoPushNotification::where('user_id', $security)->pluck('token');

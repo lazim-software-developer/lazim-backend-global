@@ -4,21 +4,17 @@ namespace App\Filament\Resources\Vendor\VendorResource\RelationManagers;
 
 use App\Models\Building\Building;
 use App\Models\Master\Service;
-use Filament\Forms;
-use Filament\Tables;
-use Filament\Forms\Form;
-use Filament\Tables\Table;
-use Illuminate\Support\Facades\DB;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\FileUpload;
-use Illuminate\Database\Eloquent\Builder;
-use Filament\Forms\Components\DateTimePicker;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Tables;
+use Filament\Tables\Table;
+use Illuminate\Support\Facades\DB;
 
 class ContractsRelationManager extends RelationManager
 {
@@ -91,7 +87,7 @@ class ContractsRelationManager extends RelationManager
                             ->default(function (RelationManager $livewire) {
                                 return $livewire->ownerRecord->id;
                             }),
-                    ])
+                    ]),
             ]);
     }
 
@@ -102,7 +98,7 @@ class ContractsRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('contract_type')->label('Contract Type'),
                 Tables\Columns\TextColumn::make('start_date')->label('Start Date'),
                 Tables\Columns\TextColumn::make('end_date')->label('End Date'),
-                Tables\Columns\ImageColumn::make('document_url')->square()->disk('s3')->label('Document'),
+                // Tables\Columns\ImageColumn::make('document_url')->square()->disk('s3')->label('Document'),
                 Tables\Columns\TextColumn::make('building.name')->label('Building'),
                 Tables\Columns\TextColumn::make('service.name')->label('Service'),
             ])

@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Builder;
 class ListAssets extends ListRecords
 {
     protected static string $resource = AssetResource::class;
+    protected static ?string $title = 'Assets';
     protected function getTableQuery(): Builder
     {
         $buildingsoflogedin = Building::all()->where('owner_association_id',auth()->user()->owner_association_id)->pluck('id')->toArray();

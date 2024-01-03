@@ -42,12 +42,12 @@ class EditProfile extends BaseEditProfile
                         fn(?Model $record) => $record
                     )
                     ->placeholder('Phone'),
-                FileUpload::make('profile_photo')
-                    ->disk('s3')
-                    ->directory('dev')
-                    ->image()
-                    ->maxSize(2048)
-                    ->label('Profile Photo'),
+                // FileUpload::make('profile_photo')
+                //     ->disk('s3')
+                //     ->directory('dev')
+                //     ->image()
+                //     ->maxSize(2048)
+                //     ->label('Profile Photo'),
                 //$this->getNameFormComponent(),
                 //$this->getEmailFormComponent(),
                 $this->getPasswordFormComponent(),

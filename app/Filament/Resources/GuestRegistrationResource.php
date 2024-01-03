@@ -16,8 +16,7 @@ use Filament\Forms\Components\ViewField;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
-use Filament\Tables\Actions\Action;
-use Filament\Tables\Columns\ImageColumn;
+use Illuminate\Support\Str;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Table;
@@ -28,7 +27,7 @@ class GuestRegistrationResource extends Resource
 {
     protected static ?string $model = Guest::class;
 
-    protected static ?string $modeLabel = "Guest Registration";
+    protected static ?string $modeLabel = "Guest registration";
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     public static function form(Form $form): Form
@@ -41,7 +40,14 @@ class GuestRegistrationResource extends Resource
                     'lg' => 2,
                 ])->schema([
                     ViewField::make('Guest Details')->view('forms.components.form.guest-registration-name'),
-                    DatePicker::make('visa_validity_date')->disabled()->label('Tourist/Visitor visa validity date'),
+                    DatePicker::make('visa_validity_date')->disabled()
+                    ->visible(function (callable $get) {
+                        if ($get('visa_validity_date') != null) {
+                            return true;
+                        }
+                        return false;
+                    })
+                    ->label('Tourist/Visitor visa validity date'),
                     TextInput::make('stay_duration')->disabled()->label('duration of stay'),
                     FileUpload::make('dtmc_license_url')
                         ->disk('s3')
@@ -49,7 +55,7 @@ class GuestRegistrationResource extends Resource
                         ->downloadable(true)
                         ->openable(true)
                         ->disabled()
-                        ->label('Dtmc License File')
+                        ->label('DTMC License File')
                         ->columnSpan([
                             'sm' => 1,
                             'md' => 1,
@@ -200,7 +206,6 @@ class GuestRegistrationResource extends Resource
                 TextColumn::make('status')
                     ->searchable()
                     ->default('NA'),
-
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([

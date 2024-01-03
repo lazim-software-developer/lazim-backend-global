@@ -12,6 +12,7 @@ use App\Filament\Resources\Building\FlatTenantResource;
 class ListFlatTenants extends ListRecords
 {
     protected static string $resource = FlatTenantResource::class;
+    protected static ?string $title = 'Residents';
 
     // protected function getHeaderActions(): array
     // {
@@ -20,7 +21,7 @@ class ListFlatTenants extends ListRecords
     //     ];
     // }
     protected function getTableQuery(): Builder
-    {   
+    {
         $building = Building::all()->where('owner_association_id',auth()->user()->owner_association_id)->pluck('id')->toArray();
         if(auth()->user()->id == 1)
         {
