@@ -58,7 +58,7 @@ class AdminPanelProvider extends PanelProvider
             ->databaseNotificationsPolling('5s')
             ->sidebarCollapsibleOnDesktop()
             ->navigation(function (NavigationBuilder $builder): NavigationBuilder {
-                if (DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] != 'Admin') {
+                // if (DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] != 'Admin') {
                     $builder->groups([
                         NavigationGroup::make('Dashboard')
                             ->items([
@@ -68,7 +68,7 @@ class AdminPanelProvider extends PanelProvider
                                     ->url('/admin'),
                             ]),
                     ]);
-                }
+                // }
 
                 $builder->groups([
                     NavigationGroup::make('Master')

@@ -21,7 +21,10 @@ class EditComplaintscomplaint extends EditRecord
             // Actions\DeleteAction::make(),
         ];
     }
-
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
+    }
     public function afterSave()
     {
         $role = Role::where('id', auth()->user()->role_id)->first();

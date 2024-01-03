@@ -56,10 +56,10 @@ class PaymentController extends Controller
             }
 
             return null;
-        })->filter();
+        });
 
         $currentPageItems =
-            $unpaidInvoices->slice(($request->input('page', 1) - 1) * $perPage, $perPage)->all();
+            $unpaidInvoices->slice(($request->input('page', 1) - 1) * $perPage, $perPage)->values()->all();
 
         // Create our paginator and pass it to the view
         $paginatedItems = new LengthAwarePaginator($currentPageItems, count($unpaidInvoices), $perPage);
