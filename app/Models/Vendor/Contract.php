@@ -22,6 +22,7 @@ class Contract extends Model
         'building_id',
         'service_id',
         'vendor_id',
+        'budget_amount',
     ];
     public function vendor()
     {

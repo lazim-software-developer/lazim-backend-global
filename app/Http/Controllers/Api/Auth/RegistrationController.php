@@ -116,7 +116,7 @@ class RegistrationController extends Controller
         SendVerificationOtp::dispatch($user)->delay(now()->addSeconds(5));
     
         // Find all the flats that this user is owner of and attach them to flat_tenant table using the job
-        AssignFlatsToTenant::dispatch($request->email)->delay(now()->addSeconds(5));
+        AssignFlatsToTenant::dispatch($request->email,$request->mobile)->delay(now()->addSeconds(5));
     
         return (new CustomResponseResource([
             'title' => 'Registration successful!',
