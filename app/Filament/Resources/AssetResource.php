@@ -93,7 +93,7 @@ class AssetResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('name')->searchable()->label('Asset Name'),
-                TextColumn::make('description')->searchable()->label('Description'),
+                TextColumn::make('description')->searchable()->default('NA')->label('Description'),
                 TextColumn::make('location')->label('Location'),
                 TextColumn::make('service.name')->searchable()->label('Service'),
                 TextColumn::make('building.name')->searchable()->label('Building Name'),
@@ -103,7 +103,7 @@ class AssetResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\ViewAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -127,7 +127,9 @@ class AssetResource extends Resource
         return [
             'index' => Pages\ListAssets::route('/'),
             'create' => Pages\CreateAsset::route('/create'),
-            'edit' => Pages\EditAsset::route('/{record}/edit'),
+            'view' => Pages\ViewAsset::route('/{record}'),
+            // 'edit' => Pages\EditAsset::route('/{record}/edit'),
+
         ];
     }
 }
