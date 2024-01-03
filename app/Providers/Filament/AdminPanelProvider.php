@@ -2,21 +2,22 @@
 
 namespace App\Providers\Filament;
 
-use App\Filament\Pages\Auth\EditProfile;
-use Filament\Navigation\NavigationBuilder;
-use Filament\Navigation\NavigationGroup;
-use Filament\Navigation\NavigationItem;
 use Filament\Pages;
 use Filament\Panel;
 use Filament\Widgets;
+use Illuminate\View\View;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
+use Illuminate\Support\Facades\DB;
+use Filament\Navigation\NavigationItem;
+use App\Filament\Pages\Auth\EditProfile;
+use Filament\Navigation\NavigationGroup;
 use Filament\Http\Middleware\Authenticate;
+use Filament\Navigation\NavigationBuilder;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\AuthenticateSession;
-use Illuminate\Support\Facades\DB;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
@@ -54,17 +55,20 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->darkMode(false)
             ->databaseNotifications()
-            ->databaseNotificationsPolling('30s')
+            ->databaseNotificationsPolling('5s')
+            ->sidebarCollapsibleOnDesktop()
             ->navigation(function (NavigationBuilder $builder): NavigationBuilder {
-                $builder->groups([
-                    NavigationGroup::make('Dashboard')
-                        ->items([
-                            NavigationItem::make('Dashboard')
-                                ->icon('heroicon-o-home')
-                                ->activeIcon('heroicon-s-home')
-                                ->url('/admin'),
-                        ]),
-                ]);
+                // if (DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] != 'Admin') {
+                    $builder->groups([
+                        NavigationGroup::make('Dashboard')
+                            ->items([
+                                NavigationItem::make('Dashboard')
+                                    ->icon('heroicon-o-home')
+                                    ->activeIcon('heroicon-s-home')
+                                    ->url('/admin'),
+                            ]),
+                    ]);
+                // }
 
                 $builder->groups([
                     NavigationGroup::make('Master')
@@ -74,15 +78,15 @@ class AdminPanelProvider extends PanelProvider
                                 ->icon('heroicon-o-users')
                                 ->activeIcon('heroicon-o-users')
                                 ->sort(1),
-                            NavigationItem::make('Medias')
-                                ->url('/admin/media')
-                                // ->hidden(DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] == 'Admin' ? false : true)
-                                ->icon('heroicon-m-photo')
-                                ->activeIcon('heroicon-m-photo')
-                                ->sort(2),
-                            NavigationItem::make('Owner Association')
+                            // NavigationItem::make('Medias')
+                            //     ->url('/admin/media')
+                            //     // ->hidden(DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] == 'Admin' ? false : true)
+                            //     ->icon('heroicon-m-photo')
+                            //     ->activeIcon('heroicon-m-photo')
+                            //     ->sort(2),
+                            NavigationItem::make('Owner association')
                                 ->url('/admin/owner-associations')
-                                ->hidden(DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] == 'Admin' ? false : true)
+                                // ->hidden(DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] == 'Admin' ? false : true)
                                 ->icon('heroicon-s-user-group')
                                 ->activeIcon('heroicon-s-user-group')
                                 ->sort(3),
@@ -92,7 +96,7 @@ class AdminPanelProvider extends PanelProvider
                             //     ->icon('heroicon-m-globe-americas')
                             //     ->activeIcon('heroicon-m-globe-americas')
                             //     ->sort(4),
-                            NavigationItem::make('Resident Documents')
+                            NavigationItem::make('Resident documents')
                                 ->url('/admin/tenant-documents')
                                 ->hidden(DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] == 'Admin' ? true : false)
                                 ->icon('heroicon-o-user-circle')
@@ -110,13 +114,13 @@ class AdminPanelProvider extends PanelProvider
                                 ->icon('heroicon-s-user-group')
                                 ->activeIcon('heroicon-s-user-group')
                                 ->sort(7),
-                            NavigationItem::make('Inhouse Services')
+                            NavigationItem::make('In-house services')
                                 // ->hidden(DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] == 'Admin' ? false : true)
                                 ->url('/admin/master/services')
                                 ->icon('heroicon-m-wrench')
                                 ->activeIcon('heroicon-m-wrench')
                                 ->sort(8),
-                            NavigationItem::make('Vendor Services')
+                            NavigationItem::make('Vendor services')
                                 // ->hidden(DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] == 'Admin' ? false : true)
                                 ->url('/admin/master/vendor-services')
                                 ->icon('heroicon-m-wrench-screwdriver')
@@ -126,7 +130,7 @@ class AdminPanelProvider extends PanelProvider
                 ]);
 
                 $builder->groups([
-                    NavigationGroup::make('Property Management')
+                    NavigationGroup::make('Property management')
                         ->items([
                             NavigationItem::make('Buildings')
                                 ->url('/admin/building/buildings')
@@ -138,7 +142,7 @@ class AdminPanelProvider extends PanelProvider
                                 ->icon('heroicon-o-home')
                                 ->activeIcon('heroicon-o-home')
                                 ->sort(2),
-                            NavigationItem::make('Facility Bookings')
+                            NavigationItem::make('Facility bookings')
                                 ->url('/admin/building/facility-bookings')
                                 ->icon('heroicon-o-cube-transparent')
                                 ->activeIcon('heroicon-o-cube-transparent')
@@ -153,7 +157,7 @@ class AdminPanelProvider extends PanelProvider
 
                 if (DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] != 'Admin') {
                     $builder->groups([
-                        NavigationGroup::make('User Management')
+                        NavigationGroup::make('User management')
                             ->items([
                                 NavigationItem::make('Owners')
                                     ->url('/admin/user/owners')
@@ -171,7 +175,7 @@ class AdminPanelProvider extends PanelProvider
 
                 if (DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] != 'Admin') {
                     $builder->groups([
-                        NavigationGroup::make('Vendor Management')
+                        NavigationGroup::make('Vendor management')
                             ->items([
                                 NavigationItem::make('Vendor')
                                     ->url('/admin/vendor/vendors')
@@ -179,27 +183,33 @@ class AdminPanelProvider extends PanelProvider
                                     ->icon('heroicon-m-user-circle')
                                     ->activeIcon('heroicon-m-user-circle')
                                     ->sort(1),
+                                NavigationItem::make('Contract')
+                                    ->url('/admin/contracts')
+                                    ->hidden(DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] == 'Admin' ? true : false)
+                                    ->icon('heroicon-m-user-circle')
+                                    ->activeIcon('heroicon-m-user-circle')
+                                    ->sort(2),
                                 NavigationItem::make('Tenders')
                                     ->url('/admin/tenders')
                                     ->icon('heroicon-s-document-text')
                                     ->activeIcon('heroicon-s-document-text')
-                                    ->sort(2),
+                                    ->sort(3),
                                 NavigationItem::make('Proposals')
                                     ->url('/admin/proposals')
                                     ->icon('heroicon-s-gift-top')
                                     ->activeIcon('heroicon-s-gift-top')
-                                    ->sort(3),
-                                NavigationItem::make('TechnicianAssets')
+                                    ->sort(4),
+                                NavigationItem::make('Technician assets')
                                     ->url('/admin/technician-assets')
                                     ->hidden(DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] == 'Admin' ? true : false)
                                     ->icon('heroicon-o-users')
                                     ->activeIcon('heroicon-o-users')
-                                    ->sort(4),
+                                    ->sort(5),
                                 NavigationItem::make('Assets')
                                     ->url('/admin/assets')
                                     ->icon('heroicon-o-rectangle-stack')
                                     ->activeIcon('heroicon-o-rectangle-stack')
-                                    ->sort(5),
+                                    ->sort(6),
                             ]),
                     ]);
                 }
@@ -213,33 +223,33 @@ class AdminPanelProvider extends PanelProvider
                                     ->icon('heroicon-o-currency-dollar')
                                     ->activeIcon('heroicon-o-currency-dollar')
                                     ->sort(1),
-                                NavigationItem::make('Budget Vs Actual')
+                                NavigationItem::make('Budget vs Actual')
                                     ->url('/admin/budget-vs-actual')
                                     ->icon('heroicon-s-pencil-square')
                                     ->activeIcon('heroicon-s-pencil-square')
                                     ->sort(2),
-                                NavigationItem::make('Delinquent Owners')
+                                NavigationItem::make('Delinquent owners')
                                     ->url('/admin/delinquent-owners')
                                     ->icon('heroicon-s-bars-arrow-down')
                                     ->activeIcon('heroicon-s-bars-arrow-down')
                                     ->sort(3),
-                                NavigationItem::make('Aging Report')
+                                NavigationItem::make('Aging report')
                                     ->url('/admin/aging-report')
                                     ->icon('heroicon-o-document')
                                     ->activeIcon('heroicon-o-document')
                                     ->sort(4),
-                                    
+
                                 ]), NavigationGroup::make('Reports')
                             ->items([
-                                NavigationItem::make('Service Charge Ledgers')
+                                NavigationItem::make('Service charge ledgers')
                                     ->url('/admin/ledgers')
                                     ->icon('heroicon-m-list-bullet')
                                     ->activeIcon('heroicon-m-list-bullet'),
-                                NavigationItem::make('Service Provider Ledgers')
+                                NavigationItem::make('Service provider ledgers')
                                     ->url('/admin/vendor-ledgers')
                                     ->icon('heroicon-o-rectangle-stack')
                                     ->activeIcon('heroicon-o-rectangle-stack'),
-                                NavigationItem::make('Cooling Account')
+                                NavigationItem::make('Cooling account')
                                     ->url('/admin/cooling-accounts')
                                     ->icon('heroicon-o-cube-transparent')
                                     ->activeIcon('heroicon-o-cube-transparent')
@@ -253,31 +263,31 @@ class AdminPanelProvider extends PanelProvider
                     $builder->groups([
                         NavigationGroup::make('Forms')
                             ->items([
-                                NavigationItem::make('Guest Registration')
+                                NavigationItem::make('Guest registration')
                                     ->url('/admin/guest-registrations')
                                     ->hidden(DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] == 'Admin' ? true : false)
                                     ->icon('heroicon-m-identification')
                                     ->activeIcon('heroicon-m-identification')
                                     ->sort(1),
-                                NavigationItem::make('MoveIn')
+                                NavigationItem::make('Move in')
                                     ->url('/admin/move-in-forms-documents')
                                     ->hidden(DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] == 'Admin' ? true : false)
                                     ->icon('heroicon-s-arrow-right-circle')
                                     ->activeIcon('heroicon-s-arrow-right-circle')
                                     ->sort(2),
-                                NavigationItem::make('MoveOut')
+                                NavigationItem::make('Move out')
                                     ->url('/admin/move-out-forms-documents')
                                     ->hidden(DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] == 'Admin' ? true : false)
                                     ->icon('heroicon-s-arrow-left-circle')
                                     ->activeIcon('heroicon-s-arrow-left-circle')
                                     ->sort(3),
-                                NavigationItem::make('FitOut')
+                                NavigationItem::make('Fit out')
                                     ->url('/admin/fit-out-forms-documents')
                                     ->hidden(DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] == 'Admin' ? true : false)
                                     ->icon('heroicon-s-face-smile')
                                     ->activeIcon('heroicon-s-face-smile')
                                     ->sort(3),
-                                NavigationItem::make('Access Card')
+                                NavigationItem::make('Access card')
                                     ->url('/admin/access-card-forms-documents')
                                     ->hidden(DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] == 'Admin' ? true : false)
                                     ->icon('heroicon-s-rectangle-stack')
@@ -295,7 +305,7 @@ class AdminPanelProvider extends PanelProvider
                                     ->icon('heroicon-m-shopping-cart')
                                     ->activeIcon('heroicon-m-shopping-cart')
                                     ->sort(5),
-                                    NavigationItem::make('Visitors')
+                                NavigationItem::make('Visitors')
                                     ->url('/admin/visitor-forms')
                                     ->hidden(DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] == 'Admin' ? true : false)
                                     ->icon('heroicon-o-users')
@@ -328,7 +338,7 @@ class AdminPanelProvider extends PanelProvider
 
 
                 $builder->groups([
-                    NavigationGroup::make('Unit Management')
+                    NavigationGroup::make('Unit management')
                         ->items([
                             NavigationItem::make('Residents')
                                 ->url('/admin/building/flat-tenants')
@@ -356,7 +366,7 @@ class AdminPanelProvider extends PanelProvider
                 //             ]),
                 //     ]);
                 // }
-    
+
 
                 if (DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] != 'Admin') {
                     $builder->groups([
@@ -385,7 +395,7 @@ class AdminPanelProvider extends PanelProvider
                 }
                 if (DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] != 'Admin') {
                     $builder->groups([
-                        NavigationGroup::make('Help Desk')
+                        NavigationGroup::make('Help desk')
                             ->items([
                                 NavigationItem::make('Complaints')
                                     ->url('/admin/helpdeskcomplaints')
@@ -398,6 +408,10 @@ class AdminPanelProvider extends PanelProvider
                 }
                 return $builder;
             })
+            ->renderHook(
+                'panels::footer',
+                fn (): View => view('filament.hooks.footer'),
+            )
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,

@@ -2,34 +2,28 @@
 
 namespace App\Filament\Resources;
 
-use Closure;
-use Filament\Forms;
-use Filament\Tables;
-use Filament\Forms\Get;
-use Filament\Forms\Set;
-use Filament\Forms\Form;
-use Filament\Tables\Table;
-use App\Models\Master\Role;
-use App\Models\Community\Poll;
-use Illuminate\Support\Carbon;
-use Filament\Resources\Resource;
+use App\Filament\Resources\PollResource\Pages;
 use App\Models\Building\Building;
-use Illuminate\Support\Facades\DB;
+use App\Models\Community\Poll;
+use App\Models\Community\PollResponse;
+use App\Models\Master\Role;
+use Closure;
+use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\Select;
-use App\Models\Community\PollResponse;
 use Filament\Forms\Components\KeyValue;
-use Filament\Tables\Columns\TextColumn;
-use Illuminate\Database\Eloquent\Model;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\ViewField;
+use Filament\Forms\Form;
+use Filament\Forms\Get;
+use Filament\Forms\Set;
+use Filament\Resources\Resource;
+use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Filament\Forms\Components\DateTimePicker;
-use App\Filament\Resources\PollResource\Pages;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use App\Filament\Resources\PollResource\RelationManagers;
-use App\Filament\Resources\PollResource\RelationManagers\ResponsesRelationManager;
 
 class PollResource extends Resource
 {
@@ -52,10 +46,10 @@ class PollResource extends Resource
                                 $fail('Question must be less than 180 characters.');
                             }
                         };
-                    },])
+                    }])
                     ->required()
                     ->suffix('?')
-                    ->disabled(fn ($record) => $record?->status == 'published')
+                    ->disabled(fn($record) => $record?->status == 'published')
                     ->label('Question'),
                 KeyValue::make('options')
                     ->addActionLabel('Add Option')
@@ -95,7 +89,7 @@ class PollResource extends Resource
                     ->addable(false)
                     ->deletable(false)
                     ->editableKeys(false)
-                    ->disabled(fn ($record) => $record?->status == 'published'),
+                    ->disabled(fn($record) => $record?->status == 'published'),
                 Select::make('status')
                     ->searchable()
                     ->options([
@@ -110,7 +104,7 @@ class PollResource extends Resource
                         $set('scheduled_at', null);
                         $set('ends_on', null);
                     })
-                    ->disabled(fn ($record) => $record?->status == 'published'),
+                    ->disabled(fn($record) => $record?->status == 'published'),
                 DateTimePicker::make('scheduled_at')
                     ->rules(['date'])
                     ->displayFormat('d-M-Y h:i A')
@@ -122,7 +116,7 @@ class PollResource extends Resource
                         return false;
                     })
                     ->default(now())
-                    ->disabled(fn ($record) => $record?->status == 'published')
+                    ->disabled(fn($record) => $record?->status == 'published')
                     ->placeholder('Scheduled At'),
                 DateTimePicker::make('ends_on')
                     ->rules(['date'])
@@ -135,17 +129,17 @@ class PollResource extends Resource
                         return false;
                     })
                     ->default(now()->addDay())
-                    ->disabled(fn ($record) => $record?->status == 'published')
+                    ->disabled(fn($record) => $record?->status == 'published')
                     ->placeholder('Scheduled At'),
                 Select::make('building_id')
                     ->relationship('building', 'name')
                     ->options(function () {
-                        if(Role::where('id',auth()->user()->role_id)->first()->name == 'Admin'){
-                            return Building::all()->pluck('name','id');
+                        if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+                            return Building::all()->pluck('name', 'id');
                         }
                         return Building::where('owner_association_id', auth()->user()->owner_association_id)->pluck('name', 'id');
                     })
-                    ->disabled(fn ($record) => $record?->status == 'published')
+                    ->disabled(fn($record) => $record?->status == 'published')
                     ->searchable()
                     ->preload()
                     ->required()
@@ -153,10 +147,10 @@ class PollResource extends Resource
                 Hidden::make('created_by')
                     ->default(auth()->user()->id),
                 ViewField::make('Responses')
-                    ->visible(fn ($record) => PollResponse::where('poll_id',$record?->id)->count() > 0)
+                    ->visible(fn($record) => PollResponse::where('poll_id', $record?->id)->count() > 0)
                     ->view('forms.components.pollresponse'),
 
-            ])
+            ]),
         ]);
     }
 
@@ -168,9 +162,11 @@ class PollResource extends Resource
                 TextColumn::make('options')->limit(30),
                 TextColumn::make('status')->searchable(),
                 TextColumn::make('scheduled_at')
-                    ->dateTime(),
+                // ->dateTime()
+                    ->default('NA'),
                 TextColumn::make('ends_on')
-                    ->dateTime(),
+                // ->dateTime()
+                    ->default('NA'),
                 TextColumn::make('building.name')
                     ->searchable()
                     ->default('NA')
@@ -178,7 +174,16 @@ class PollResource extends Resource
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
-                //
+                SelectFilter::make('building_id')
+                    ->relationship('building', 'name', function (Builder $query) {
+                        if (Role::where('id', auth()->user()->role_id)->first()->name != 'Admin') {
+                            $query->where('owner_association_id', auth()->user()->owner_association_id);
+                        }
+
+                    })
+                    ->searchable()
+                    ->preload()
+                    ->label('Building'),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
@@ -186,7 +191,7 @@ class PollResource extends Resource
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    // Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ])
             ->emptyStateActions([

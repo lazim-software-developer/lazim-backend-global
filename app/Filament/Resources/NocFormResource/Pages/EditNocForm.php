@@ -13,6 +13,7 @@ class EditNocForm extends EditRecord
 {
     use UtilsTrait;
     protected static string $resource = NocFormResource::class;
+    protected static ?string $title = 'Sale NOC';
 
     protected function getHeaderActions(): array
     {
@@ -35,7 +36,7 @@ class EditNocForm extends EditRecord
                         'to' => $expoPushToken,
                         'sound' => 'default',
                         'title' => 'Sales NOC form status',
-                        'body' => 'Your Sales NOC form has been approved.',
+                        'body' => 'Your sales noc form has been approved.',
                         'data' => ['notificationType' => 'MyRequest'],
                     ];
                     $this->expoNotification($message);
@@ -46,7 +47,7 @@ class EditNocForm extends EditRecord
                         'notifiable_id' => $this->record->user_id,
                         'data' => json_encode([
                             'actions' => [],
-                            'body' => 'Your Sales NOC form has been approved.',
+                            'body' => 'Your sales noc form has been approved.',
                             'duration' => 'persistent',
                             'icon' => 'heroicon-o-document-text',
                             'iconColor' => 'warning',
@@ -70,7 +71,7 @@ class EditNocForm extends EditRecord
                         'to' => $expoPushToken,
                         'sound' => 'default',
                         'title' => 'Sales NOC form status',
-                        'body' => 'Your Sales NOC form has been rejected.',
+                        'body' => 'Your sales noc form has been rejected.',
                         'data' => ['notificationType' => 'MyRequest'],
                     ];
                     $this->expoNotification($message);
@@ -81,7 +82,7 @@ class EditNocForm extends EditRecord
                         'notifiable_id' => $this->record->user_id,
                         'data' => json_encode([
                             'actions' => [],
-                            'body' => 'Your Sales NOC form has been rejected.',
+                            'body' => 'Your sales noc form has been rejected.',
                             'duration' => 'persistent',
                             'icon' => 'heroicon-o-document-text',
                             'iconColor' => 'danger',

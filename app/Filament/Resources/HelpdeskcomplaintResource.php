@@ -3,7 +3,6 @@
 namespace App\Filament\Resources;
 
 use Closure;
-use Filament\Tables;
 use Filament\Forms\Get;
 use Filament\Forms\Form;
 use App\Models\User\User;
@@ -11,29 +10,21 @@ use Filament\Tables\Table;
 use App\Models\Vendor\Vendor;
 use App\Models\TechnicianVendor;
 use Filament\Resources\Resource;
-use App\Models\Building\Building;
 use App\Models\Building\Complaint;
 use Illuminate\Support\Facades\DB;
-use App\Models\Building\FlatTenant;
 use Filament\Forms\Components\Grid;
 use Filament\Tables\Actions\Action;
+use App\Models\Vendor\ServiceVendor;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Textarea;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Columns\ViewColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Tables\Filters\SelectFilter;
-use Illuminate\Database\Eloquent\Builder;
-use Filament\Forms\Components\CheckboxList;
-use Filament\Forms\Components\MorphToSelect;
-use Filament\Forms\Components\MorphToSelect\Type;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\HelpdeskcomplaintResource\Pages;
-use App\Filament\Resources\HelpdeskcomplaintResource\RelationManagers;
 
 class HelpdeskcomplaintResource extends Resource
 {
@@ -82,8 +73,9 @@ class HelpdeskcomplaintResource extends Resource
                             ->relationship('vendor', 'name')
                             ->preload()
                             ->required()
-                            ->options(function (Complaint $record) {
-                                return Vendor::where('owner_association_id', auth()->user()->owner_association_id)->pluck('name', 'id');
+                            ->options(function (Complaint $record, Get $get) {
+                                $serviceVendor = ServiceVendor::where('service_id',$get('service_id'))->pluck('vendor_id');
+                                return Vendor::whereIn('id',$serviceVendor)->where('owner_association_id', auth()->user()->owner_association_id)->pluck('name', 'id');
                             })
                             ->disabled(function (Complaint $record) {
                                 if ($record->vendor_id == null) {

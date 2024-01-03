@@ -90,11 +90,13 @@ Route::middleware(['active'])->group(function () {
     // Login routes for mobile app
     Route::post('/customer-login', [AuthController::class, 'customerLogin']);
 
+    // Vendor login
+    Route::post('/vendor-login', [AuthController::class, 'vendorLogin']);
+
     // Route for Refreshing the token
     Route::post('/refresh-token', [AuthController::class, 'refreshToken']);
 
     // Security login
-
     Route::post('/gatekeeper-login', [AuthController::class, 'gateKeeperLogin']);
 
     // Forgot password route

@@ -2,21 +2,23 @@
 
 namespace App\Filament\Resources\TenderResource\RelationManagers;
 
-use App\Models\TechnicianVendor;
 use Filament\Forms;
 use Filament\Tables;
+use App\Models\Asset;
 use Filament\Forms\Form;
+use App\Models\User\User;
 use Filament\Tables\Table;
 use App\Models\BuildingVendor;
+use App\Models\Vendor\Contract;
+use App\Models\TechnicianAssets;
+use App\Models\TechnicianVendor;
+use App\Models\Accounting\Tender;
 use Illuminate\Support\Facades\DB;
 use App\Models\Accounting\Proposal;
-use App\Models\Accounting\Tender;
-use App\Models\Asset;
-use App\Models\TechnicianAssets;
-use App\Models\User\User;
-use App\Models\Vendor\Contract;
 use Filament\Tables\Actions\Action;
+use Illuminate\Support\Facades\Log;
 use App\Models\Vendor\ServiceVendor;
+use App\Models\Accounting\Budgetitem;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Tables\Columns\TextColumn;
@@ -25,7 +27,6 @@ use Filament\Forms\Components\FileUpload;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Resources\RelationManagers\RelationManager;
-use Illuminate\Support\Facades\Log;
 
 class ProposalsRelationManager extends RelationManager
 {
@@ -104,7 +105,7 @@ class ProposalsRelationManager extends RelationManager
                         $buildingId = Tender::find($tenderId)->building_id;
                         $budget_from = DB::table('budgets')->where('id', $budgetId)->pluck('budget_from')[0];
                         $budget_to = DB::table('budgets')->where('id', $budgetId)->pluck('budget_to')[0];
-
+                        $budget_amount = Budgetitem::where('budget_id',$budgetId)->where('service_id',$serviceId)->first()->total;
 
                         $contract = Contract::create([
                             'start_date' => $budget_from,
@@ -114,6 +115,7 @@ class ProposalsRelationManager extends RelationManager
                             'service_id' => $serviceId,
                             'vendor_id' => $record->vendor_id,
                             'building_id' => $buildingId,
+                            'budget_amount' => $budget_amount,
                         ]);
 
                         $servicefind = ServiceVendor::all()->where('service_id',$serviceId)->where('vendor_id',$record->vendor_id)->first();

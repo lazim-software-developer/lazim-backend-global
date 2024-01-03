@@ -13,6 +13,8 @@ class EditResidentialForm extends EditRecord
 {
     use UtilsTrait;
     protected static string $resource = ResidentialFormResource::class;
+    protected static ?string $title = 'Residential';
+    protected static ?string $modelLabel = 'Residential';
 
     protected function getHeaderActions(): array
     {
@@ -57,7 +59,7 @@ class EditResidentialForm extends EditRecord
                         'to' => $expoPushToken,
                         'sound' => 'default',
                         'title' => 'Residential form status',
-                        'body' => 'Your Residential form has been approved.',
+                        'body' => 'Your residential form has been approved.',
                         'data' => ['notificationType' => 'MyRequest'],
                     ];
                     $this->expoNotification($message);
@@ -68,7 +70,7 @@ class EditResidentialForm extends EditRecord
                         'notifiable_id' => $this->record->user_id,
                         'data' => json_encode([
                             'actions' => [],
-                            'body' => 'Your Residential form has been approved.',
+                            'body' => 'Your residential form has been approved.',
                             'duration' => 'persistent',
                             'icon' => 'heroicon-o-document-text',
                             'iconColor' => 'warning',
@@ -92,7 +94,7 @@ class EditResidentialForm extends EditRecord
                         'to' => $expoPushToken,
                         'sound' => 'default',
                         'title' => 'Residential form status',
-                        'body' => 'Your Residential form has been rejected.',
+                        'body' => 'Your residential form has been rejected.',
                         'data' => ['notificationType' => 'MyRequest'],
                     ];
                     $this->expoNotification($message);
@@ -103,7 +105,7 @@ class EditResidentialForm extends EditRecord
                         'notifiable_id' => $this->record->user_id,
                         'data' => json_encode([
                             'actions' => [],
-                            'body' => 'Your Residential form has been rejected.',
+                            'body' => 'Your residential form has been rejected.',
                             'duration' => 'persistent',
                             'icon' => 'heroicon-o-document-text',
                             'iconColor' => 'danger',
@@ -119,4 +121,31 @@ class EditResidentialForm extends EditRecord
             }
         }
     }
+
+    protected function mutateFormDataBeforeFill(array $data): array {
+        $emergencyContact = json_decode($data['emergency_contact'], true);
+        $formattedDetails = '';
+
+        if(is_array($emergencyContact)) {
+            $details = [
+                'name'=> $emergencyContact[0]['name'],
+                'phone'=>$emergencyContact[0]['phone'] = $emergencyContact[0]['country'].$emergencyContact[0]['phone']
+            ];
+            foreach($details as $key => $val) {
+                // Accumulate the formatted details with line breaks
+                $formattedDetails .= ucfirst(str_replace('_', ' ', $key)).": $val\n";
+            }
+        } else {
+            // Handle the case where emergency contact is not an array
+            $formattedDetails = "Invalid emergency contact format";
+        }
+
+        // Assign the accumulated content to $data['emergency_contact']
+        $data['emergency_contact'] = $formattedDetails;
+
+        // Your other logic for data manipulation...
+
+        return $data;
+    }
+
 }

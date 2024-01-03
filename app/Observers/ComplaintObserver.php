@@ -66,7 +66,7 @@ class ComplaintObserver
                     'notifiable_id' => $vendor->owner_id,
                     'data' => json_encode([
                         'actions' => [],
-                        'body' => 'Complaint has been created by' . auth()->user()->first_name,
+                        'body' => 'Complaint has been created by ' . auth()->user()->first_name,
                         'duration' => 'persistent',
                         'icon' => 'heroicon-o-document-text',
                         'iconColor' => 'warning',
@@ -87,7 +87,7 @@ class ComplaintObserver
                     'notifiable_id' => $vendor->owner_id,
                     'data' => json_encode([
                         'actions' => [],
-                        'body' => 'Complaint has been created by' . auth()->user()->first_name,
+                        'body' => 'Complaint has been created by ' . auth()->user()->first_name,
                         'duration' => 'persistent',
                         'icon' => 'heroicon-o-document-text',
                         'iconColor' => 'warning',
@@ -147,7 +147,7 @@ class ComplaintObserver
                                 'sound' => 'default',
                                 'title' => 'New Complaint Assigned',
                                 'body' => 'A new complaint assigned to you.',
-                                'data' => ['notificationType' => 'app_notification'],
+                                'data' => ['notificationType' => 'PendingRequests'],
                             ];
                             $this->expoNotification($message);
                             DB::table('notifications')->insert([
@@ -183,7 +183,7 @@ class ComplaintObserver
                                 'sound' => 'default',
                                 'title' => 'Complaint Assignment Status',
                                 'body' => 'You have been relived from the complaint by the vendor.',
-                                'data' => ['notificationType' => 'app_notification'],
+                                'data' => ['notificationType' => 'PendingRequests'],
                             ];
                             $this->expoNotification($message);
                             DB::table('notifications')->insert([
@@ -219,7 +219,7 @@ class ComplaintObserver
                                 'sound' => 'default',
                                 'title' => 'New Complaint Assigned',
                                 'body' => 'A new complaint assigned to you.',
-                                'data' => ['notificationType' => 'app_notification'],
+                                'data' => ['notificationType' => 'PendingRequests'],
                             ];
                             $this->expoNotification($message);
                             DB::table('notifications')->insert([
@@ -288,7 +288,7 @@ class ComplaintObserver
                                     'sound' => 'default',
                                     'title' => 'Complaint status',
                                     'body' => 'A complaint has been resolved by a ' . $user->role->name . ' ' . auth()->user()->first_name,
-                                    'data' => ['notificationType' => 'HelpDeskTab'],
+                                    'data' => ['notificationType' => 'ResolvedRequests'],
                                 ];
                                 $this->expoNotification($message);
                                 DB::table('notifications')->insert([
@@ -329,7 +329,7 @@ class ComplaintObserver
                             'sound' => 'default',
                             'title' => 'Complaint Date Changes',
                             'body' => 'Due date for complaint has been changed by ' . $user->role->name . '. Check the application for the infomation.',
-                            'data' => ['notificationType' => 'app_notification'],
+                            'data' => ['notificationType' => 'PendingRequests'],
                         ];
                         $this->expoNotification($message);
                         DB::table('notifications')->insert([
@@ -393,7 +393,7 @@ class ComplaintObserver
                             'sound' => 'default',
                             'title' => 'Complaint Priority Changes',
                             'body' => 'Priority for complaint has been changed by ' . $user->role->name . '. Check the application for the infomation.',
-                            'data' => ['notificationType' => 'app_notification'],
+                            'data' => ['notificationType' => 'PendingRequests'],
                         ];
                         $this->expoNotification($message);
                         DB::table('notifications')->insert([

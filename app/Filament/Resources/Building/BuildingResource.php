@@ -121,6 +121,8 @@ class BuildingResource extends Resource
 
                             Toggle::make('allow_postupload')
                                 ->rules(['boolean']),
+                            Toggle::make('show_inhouse_services')
+                                ->rules(['boolean']),
                             
 
                             // TextInput::make('lat')
@@ -251,7 +253,7 @@ class BuildingResource extends Resource
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    // Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ])
             ->emptyStateActions([
