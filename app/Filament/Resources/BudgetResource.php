@@ -25,7 +25,7 @@ use App\Filament\Resources\BudgetResource\RelationManagers\BudgetitemsRelationMa
 class BudgetResource extends Resource
 {
     protected static ?string $model = Budget::class;
-
+    protected static ?string $title = 'Budget';
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     public static function form(Form $form): Form
@@ -36,7 +36,7 @@ class BudgetResource extends Resource
                 'sm' => 1,
                 'md' => 1,
                 'lg' => 2,
-            ])  
+            ])
             ->schema([
                 Select::make('building_id')
                     ->relationship('building', 'name')

@@ -121,6 +121,8 @@ class BuildingResource extends Resource
 
                             Toggle::make('allow_postupload')
                                 ->rules(['boolean']),
+                            Toggle::make('show_inhouse_services')
+                                ->rules(['boolean']),
                             
 
                             // TextInput::make('lat')

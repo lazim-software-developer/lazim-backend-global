@@ -16,7 +16,7 @@ use Illuminate\Support\Str;
 
 class EditOwnerAssociation extends EditRecord
 {
-    protected static string $resource =OwnerAssociationResource::class;
+    protected static string $resource = OwnerAssociationResource::class;
     protected ?string $heading = 'Owner Association';
 
     public $value;
@@ -25,7 +25,10 @@ class EditOwnerAssociation extends EditRecord
         return [
             // Actions\DeleteAction::make(),
         ];
-
+    }
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
     }
     public function beforeSave()
     {
@@ -44,15 +47,16 @@ class EditOwnerAssociation extends EditRecord
                 'active'  => $this->record->active,
                 'profile_photo' => $this->record->profile_photo,
             ]);
-        User::where('owner_association_id', $this->data['id'])->where('role_id',Role::where('name','OA')->first()->id)
+        User::where('owner_association_id', $this->data['id'])->where('role_id', Role::where('name', 'OA')->first()->id)
             ->update([
                 'first_name' => $this->record->name,
                 'phone'      => $this->record->phone,
+                'profile_photo' => $this->record->profile_photo,
                 'active'  => $this->record->active,
             ]);
 
         // If updated value of verified is true and the value is DB is false(This happens only for the first time)
-        if($this->record->verified == 'true' && DB::table('owner_associations')->where('id',$this->record->id)->value('verified_by') == null) {
+        if ($this->record->verified == 'true' && DB::table('owner_associations')->where('id', $this->record->id)->value('verified_by') == null) {
             // Update verified in owner_association table
             OwnerAssociation::where('id', $this->data['id'])
                 ->update([
@@ -61,8 +65,8 @@ class EditOwnerAssociation extends EditRecord
 
             // Create an entry in Users table
             // check if entered email and phone number is already present for other users in users table
-            $emailexists = User::where(['email' => $this->record->email, 'phone' =>$this->record->phone])->exists();
-            if(!$emailexists) {
+            $emailexists = User::where(['email' => $this->record->email, 'phone' => $this->record->phone])->exists();
+            if (!$emailexists) {
                 $password = Str::random(12);
 
                 $user = User::firstorcreate([
@@ -74,6 +78,8 @@ class EditOwnerAssociation extends EditRecord
                     'active'               => $this->record->active,
                     'password' => Hash::make($password),
                     'owner_association_id' => $this->record->id,
+                    'email_verified' => 1,
+                    'phone_verified' => 1,
                 ]);
                 // Send email with credentials
                 AccountCreationJob::dispatch($user, $password);

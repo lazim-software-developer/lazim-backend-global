@@ -11,6 +11,7 @@ use App\Filament\Resources\TechnicianAssetsResource;
 class ListTechnicianAssets extends ListRecords
 {
     protected static string $resource = TechnicianAssetsResource::class;
+    protected static ?string $title = 'Technician assets';
     protected function getTableQuery(): Builder
     {
         $buildingsoflogedin = Building::all()->where('owner_association_id',auth()->user()->owner_association_id)->pluck('id')->toArray();

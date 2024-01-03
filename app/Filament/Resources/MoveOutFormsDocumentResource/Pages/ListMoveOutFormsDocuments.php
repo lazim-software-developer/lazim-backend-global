@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Builder;
 class ListMoveOutFormsDocuments extends ListRecords
 {
     protected static string $resource = MoveOutFormsDocumentResource::class;
-    protected static ?string $title = 'MoveOut';
+    protected static ?string $title = 'Move out';
     protected function getTableQuery(): Builder
     {
         return parent::getTableQuery()->where('owner_association_id',auth()->user()->owner_association_id);
