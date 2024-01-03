@@ -1,26 +1,33 @@
 <?php
 
-namespace App\Filament\Resources\Vendor\VendorResource\RelationManagers;
+namespace App\Filament\Resources;
 
-use App\Models\Building\Building;
-use App\Models\Master\Service;
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\FileUpload;
+use Filament\Forms;
+use Filament\Tables;
+use Filament\Forms\Form;
+use Filament\Tables\Table;
+use App\Models\Vendor\Contract;
+use Filament\Resources\Resource;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Form;
-use Filament\Resources\RelationManagers\RelationManager;
-use Filament\Tables;
-use Filament\Tables\Table;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\FileUpload;
+use Illuminate\Database\Eloquent\Builder;
+use App\Filament\Resources\ContractResource\Pages;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Filament\Resources\ContractResource\RelationManagers;
 use Illuminate\Support\Facades\DB;
 
-class ContractsRelationManager extends RelationManager
+class ContractResource extends Resource
 {
-    protected static string $relationship = 'contracts';
+    protected static ?string $model = Contract::class;
 
-    public function form(Form $form): Form
+    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationGroup = 'Oam';
+
+    public static function form(Form $form): Form
     {
         return $form
             ->schema([
@@ -40,10 +47,7 @@ class ContractsRelationManager extends RelationManager
                             ->required()
                             ->label('Contract Type'),
                         Select::make('building_id')
-                            ->options(function (RelationManager $livewire) {
-                                $buildingIds = DB::table('building_vendor')->where('vendor_id', $livewire->ownerRecord->id)->pluck('building_id')->toArray();
-                                return Building::whereIn('id', $buildingIds)->pluck('name', 'id')->toArray();
-                            })
+                            ->relationship('building', 'name')
                             ->reactive()
                             ->required()
                             ->preload()
@@ -51,10 +55,7 @@ class ContractsRelationManager extends RelationManager
                             ->searchable()
                             ->placeholder('Building'),
                         Select::make('service_id')
-                            ->options(function (RelationManager $livewire) {
-                                $serviceIds = DB::table('service_vendor')->where('vendor_id', $livewire->ownerRecord->id)->pluck('service_id')->toArray();
-                                return Service::whereIn('id', $serviceIds)->pluck('name', 'id')->toArray();
-                            })
+                            ->relationship('service', 'name')
                             ->reactive()
                             ->required()
                             ->preload()
@@ -86,37 +87,38 @@ class ContractsRelationManager extends RelationManager
                             ->numeric(true)
                             ->prefix('AED')
                             ->required(),
-                        Hidden::make('vendor_id')
-                            ->default(function (RelationManager $livewire) {
-                                return $livewire->ownerRecord->id;
-                            }),
-                    ]),
+                        Select::make('vendor_id')
+                            ->relationship('vendor', 'name')
+                            ->reactive()
+                            ->required()
+                            ->preload()
+                            ->searchable()
+                            ->disabled()
+                            ->placeholder('Vendor'),
+                    ])
             ]);
     }
 
-    public function table(Table $table): Table
+    public static function table(Table $table): Table
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('contract_type')->label('Contract Type'),
+                Tables\Columns\TextColumn::make('contract_type')->label('Contract Type')->searchable(),
                 Tables\Columns\TextColumn::make('start_date')->label('Start Date'),
                 Tables\Columns\TextColumn::make('end_date')->label('End Date'),
                 Tables\Columns\TextColumn::make('amount')->label('Amount'),
                 Tables\Columns\TextColumn::make('budget_amount')->label('Budget Amount'),
                 // Tables\Columns\ImageColumn::make('document_url')->square()->disk('s3')->label('Document'),
-                Tables\Columns\TextColumn::make('building.name')->label('Building'),
-                Tables\Columns\TextColumn::make('service.name')->label('Service'),
+                Tables\Columns\TextColumn::make('building.name')->label('Building')->searchable(),
+                Tables\Columns\TextColumn::make('service.name')->label('Service')->searchable(),
+                Tables\Columns\TextColumn::make('vendor.name')->label('Vendor')->searchable(),
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])
-            ->headerActions([
-                // Tables\Actions\CreateAction::make(),
-            ])
             ->actions([
                 Tables\Actions\EditAction::make(),
-                // Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -126,5 +128,21 @@ class ContractsRelationManager extends RelationManager
             ->emptyStateActions([
                 // Tables\Actions\CreateAction::make(),
             ]);
+    }
+
+    public static function getRelations(): array
+    {
+        return [
+            //
+        ];
+    }
+
+    public static function getPages(): array
+    {
+        return [
+            'index' => Pages\ListContracts::route('/'),
+            'create' => Pages\CreateContract::route('/create'),
+            'edit' => Pages\EditContract::route('/{record}/edit'),
+        ];
     }
 }
