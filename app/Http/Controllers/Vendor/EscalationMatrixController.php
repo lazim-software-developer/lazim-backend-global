@@ -13,7 +13,7 @@ class EscalationMatrixController extends Controller
 {
     public function store(EscalationMatrixRequest $request, Vendor $vendor)
     {
-        if (VendorEscalationMatrix::where('vendor_id', $vendor->id)->where('escalation_level', $request->escalation_level)->exists()) {
+        if (VendorEscalationMatrix::where('vendor_id', $vendor->id)->where('active', 1)->where('escalation_level', $request->escalation_level)->exists()) {
             return (new CustomResponseResource([
                 'title' => 'Escalation Level exists!',
                 'message' => " Escalation Level already exists, please enter a different level",
@@ -45,7 +45,7 @@ class EscalationMatrixController extends Controller
     public function delete(VendorEscalationMatrix $escalationmatrix) {
         if($escalationmatrix->active == 0) {
             return (new CustomResponseResource([
-                'title' => 'Escalation Matrix already deelted',
+                'title' => 'Escalation Matrix already deleted',
                 'message' => "",
                 'code' => 200,
                 'status' => 'success',
