@@ -53,6 +53,7 @@ class AdminPanelProvider extends PanelProvider
                 // Widgets\AccountWidget::class,
                 //Widgets\FilamentInfoWidget::class,
             ])
+            ->favicon(asset('images/favicon.png'))
             ->darkMode(false)
             ->databaseNotifications()
             ->databaseNotificationsPolling('5s')
