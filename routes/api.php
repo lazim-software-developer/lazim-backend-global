@@ -271,6 +271,7 @@ Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active']
 
     // Access PDF link for serviceCharge
     Route::get('/{invoice}/pdf-link', [PaymentController::class, 'fetchPDF']);
+    Route::get('/{invoice}/pdf-link-2', [PaymentController::class, 'fetchPDF2']);
 });
 
 /**
@@ -482,3 +483,4 @@ Route::post('/store-visitor', [GuestController::class, 'saveFlatVisitors']);
 
 // Test Send SMS
 Route::post('/send-sms', [MollakController::class, 'sendSMS']);
+Route::post('/verify-sms-otp', [MollakController::class, 'verifyOTP']);

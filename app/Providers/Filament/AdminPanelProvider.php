@@ -184,27 +184,33 @@ class AdminPanelProvider extends PanelProvider
                                     ->icon('heroicon-m-user-circle')
                                     ->activeIcon('heroicon-m-user-circle')
                                     ->sort(1),
+                                NavigationItem::make('Contract')
+                                    ->url('/admin/contracts')
+                                    ->hidden(DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] == 'Admin' ? true : false)
+                                    ->icon('heroicon-m-user-circle')
+                                    ->activeIcon('heroicon-m-user-circle')
+                                    ->sort(2),
                                 NavigationItem::make('Tenders')
                                     ->url('/admin/tenders')
                                     ->icon('heroicon-s-document-text')
                                     ->activeIcon('heroicon-s-document-text')
-                                    ->sort(2),
+                                    ->sort(3),
                                 NavigationItem::make('Proposals')
                                     ->url('/admin/proposals')
                                     ->icon('heroicon-s-gift-top')
                                     ->activeIcon('heroicon-s-gift-top')
-                                    ->sort(3),
+                                    ->sort(4),
                                 NavigationItem::make('Technician assets')
                                     ->url('/admin/technician-assets')
                                     ->hidden(DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] == 'Admin' ? true : false)
                                     ->icon('heroicon-o-users')
                                     ->activeIcon('heroicon-o-users')
-                                    ->sort(4),
+                                    ->sort(5),
                                 NavigationItem::make('Assets')
                                     ->url('/admin/assets')
                                     ->icon('heroicon-o-rectangle-stack')
                                     ->activeIcon('heroicon-o-rectangle-stack')
-                                    ->sort(5),
+                                    ->sort(6),
                             ]),
                     ]);
                 }

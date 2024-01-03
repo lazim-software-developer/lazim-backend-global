@@ -29,7 +29,7 @@ class ContractResource extends JsonResource
             'end_date' => $endDate->format('Y-m-d'), 
             'days_remaining' => $daysRemaining,
             'status' => $status,
-            'url'   => env('AWS_URL').'/'.$this->document_url,
+            'url'   => $this->document_url ? env('AWS_URL').'/'.$this->document_url : null,
 
         ];
     }

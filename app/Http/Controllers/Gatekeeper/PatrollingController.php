@@ -33,6 +33,14 @@ class PatrollingController extends Controller
     // Start patrolling API
     public function store(Request $request, Building $building) {
         $floor = Floor::where(['floors' => $request->input('floor'), 'building_id' => $building->id])->first();
+        if(BuildingPoc::where('building_id', $building->id)->where('active',true)->first()->user_id != auth()->user()->id) {
+            return (new CustomResponseResource([
+                'title' => 'Error',
+                'message' => 'You are not authorized to Patroll this building.',
+                'code' => 400,
+                'status' => 'error',
+            ]))->response()->setStatusCode(400);
+        }
 
         $today = Carbon::today();
 
