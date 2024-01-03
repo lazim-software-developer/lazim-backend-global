@@ -12,6 +12,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class AssignFlatsToTenant implements ShouldQueue
 {
@@ -33,6 +34,10 @@ class AssignFlatsToTenant implements ShouldQueue
         $owner = ApartmentOwner::where('email', $this->email)->where('mobile',$this->mobile)->first();
 
         $user = User::where('email', $this->email)->where('phone',$this->mobile)->first();
+        Log::info($owner);
+        Log::info($user);
+        logger("Owner: " . json_encode($owner));
+        logger("User: " . json_encode($user));
 
         if (!$owner) {
             // No owner found with the given email
@@ -45,6 +50,8 @@ class AssignFlatsToTenant implements ShouldQueue
             ->selectRaw('MAX(flats.id) as flat_id')
             ->groupBy('flats.building_id', 'flats.property_number')
             ->get();
+        Log::info($flats);
+        logger("Flats: " . json_encode($flats));
 
         foreach ($flats as $flat) {
             // Add an entry in the flat_tenant table for each flat
