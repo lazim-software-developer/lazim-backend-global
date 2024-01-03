@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Http;
 use App\Http\Resources\Master\PropertyGroupResource;
 use App\Http\Resources\Master\ServicePeriodResource;
 use App\Http\Resources\Master\UnitResource;
+use Illuminate\Http\Request;
 
 class MollakController extends Controller
 {
@@ -68,8 +69,16 @@ class MollakController extends Controller
     {
         $response = Http::withOptions(['verify' => false])->withHeaders([
             'content-type' => 'application/json',
-        ])->post("https://sms.rmlconnect.net/OtpApi/otpgenerate?username=LazimTrans&password=Lazim@10&msisdn=971526006235&msg=Your%20one%20time%20OTP%20is%20%25m&source=Lazim&tagname=Lazim&otplen=5&exptime=60");
+        ])->post("https://sms.rmlconnect.net/OtpApi/otpgenerate?username=LazimTrans&password=Lazim@10&msisdn=971526006235&msg=Your%20one%20time%20OTP%20is%20%25m&source=ILAJ-LAZIM&tagname=Lazim&otplen=5&exptime=60");
+        return $response;
+    }
 
-        return $data = $response->json();
+    public function verifyOTP(Request $request)
+    {
+        $otp = $request->otp;
+        $response = Http::withOptions(['verify' => false])->withHeaders([
+            'content-type' => 'application/json',
+        ])->post("https://sms.rmlconnect.net/OtpApi/checkotp?username=LazimTrans&password=Lazim@10&msisdn=971526006235&otp=". $otp );
+        return $response;
     }
 }
