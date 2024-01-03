@@ -22,6 +22,10 @@ class EditHelpdeskcomplaint extends EditRecord
             // Actions\DeleteAction::make(),
         ];
     }
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
+    }
     public function afterSave()
     {
         $role = Role::where('id', auth()->user()->role_id)->first();
@@ -38,7 +42,7 @@ class EditHelpdeskcomplaint extends EditRecord
                         'to' => $expoPushToken,
                         'sound' => 'default',
                         'title' => 'Help Desk complaint status',
-                        'body' => 'A complaint has been resolved by a ' . $role->name.' '.auth()->user()->first_name,
+                        'body' => 'A complaint has been resolved by a ' . $role->name . ' ' . auth()->user()->first_name,
                         'data' => ['notificationType' => 'HelpDeskTab'],
                     ];
                     $this->expoNotification($message);
@@ -49,7 +53,7 @@ class EditHelpdeskcomplaint extends EditRecord
                         'notifiable_id' => $this->record->user_id,
                         'data' => json_encode([
                             'actions' => [],
-                            'body' => 'A complaint has been resolved by a '.$role->name.' '.auth()->user()->first_name,
+                            'body' => 'A complaint has been resolved by a ' . $role->name . ' ' . auth()->user()->first_name,
                             'duration' => 'persistent',
                             'icon' => 'heroicon-o-document-text',
                             'iconColor' => 'warning',

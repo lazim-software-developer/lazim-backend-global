@@ -19,17 +19,20 @@ class AssignFlatsToTenant implements ShouldQueue
 
     protected $email;
 
-    public function __construct($email)
+    protected $mobile;
+
+    public function __construct($email,$mobile)
     {
         $this->email = $email;
+        $this->mobile = $mobile;
     }
 
     public function handle()
     {
         // Fetch the owner using the provided email
-        $owner = ApartmentOwner::where('email', $this->email)->first();
+        $owner = ApartmentOwner::where('email', $this->email)->where('mobile',$this->mobile)->first();
 
-        $user = User::where('email', $this->email)->first();
+        $user = User::where('email', $this->email)->where('mobile',$this->mobile)->first();
 
         if (!$owner) {
             // No owner found with the given email
