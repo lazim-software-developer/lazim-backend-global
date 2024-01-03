@@ -10,6 +10,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Snowfire\Beautymail\Beautymail;
+use Illuminate\Support\Facades\Http;
 
 class SendVerificationOtp implements ShouldQueue
 {
@@ -37,7 +38,7 @@ class SendVerificationOtp implements ShouldQueue
         // Store OTPs in the database
         DB::table('otp_verifications')->insert([
             ['type' => 'email', 'contact_value' => $this->user->email, 'otp' => $emailOtp],
-            ['type' => 'phone', 'contact_value' => $this->user->phone, 'otp' => $phoneOtp]
+            // ['type' => 'phone', 'contact_value' => $this->user->phone, 'otp' => $phoneOtp]
         ]);
 
         // Send the email with the OTPs
@@ -52,5 +53,10 @@ class SendVerificationOtp implements ShouldQueue
                 ->to($this->user->email, $this->user->first_name)
                 ->subject('OTP Verification');
         });
+
+        // Send SMS OTP to the given phone number
+        $response = Http::withOptions(['verify' => false])->withHeaders([
+            'content-type' => 'application/json',
+        ])->post("https://sms.rmlconnect.net/OtpApi/otpgenerate?username=LazimTrans&password=Lazim@10&msisdn=" . $this->user->phone . "&msg=Your%20one%20time%20OTP%20is%20%25m&source=ILAJ-LAZIM&tagname=Lazim&otplen=5&exptime=60");
     }
 }
