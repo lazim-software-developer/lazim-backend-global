@@ -20,7 +20,7 @@ class FitOutFormsDocumentResource extends Resource
 {
     protected static ?string $model = FitOutForm::class;
 
-    protected static ?string $modelLabel = 'FitOut';
+    protected static ?string $modelLabel = 'Fit out';
     protected static ?string $navigationGroup = 'Forms Document';
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 

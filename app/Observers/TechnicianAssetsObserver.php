@@ -25,7 +25,7 @@ class TechnicianAssetsObserver
                     'sound' => 'default',
                     'title' => 'New Asset Assigned',
                     'body' => 'A new Asset '.$assetName->name.' has been added to you. ',
-                    'data' => ['notificationType' => 'app_notification'],
+                    'data' => ['notificationType' => 'AssestTab'],
                 ];
                 $this->expoNotification($message);
                 DB::table('notifications')->insert([

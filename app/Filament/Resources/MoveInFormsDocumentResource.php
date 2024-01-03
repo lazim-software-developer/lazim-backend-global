@@ -3,17 +3,14 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\MoveInFormsDocumentResource\Pages;
-use App\Filament\Resources\MoveInFormsDocumentResource\Pages\CreateMoveInFormsDocument;
 use App\Models\Forms\MoveInOut;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\KeyValue;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
-use Filament\Tables\Actions\Action;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -22,7 +19,7 @@ use Illuminate\Support\Facades\Log;
 class MoveInFormsDocumentResource extends Resource
 {
     protected static ?string $model = MoveInOut::class;
-    protected static ?string $modelLabel = 'MoveIn';
+    protected static ?string $modelLabel = 'Move in';
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
     protected static ?string $navigationGroup = 'Forms Document';
     public static function form(Form $form): Form
@@ -54,13 +51,25 @@ class MoveInFormsDocumentResource extends Resource
                     FileUpload::make('handover_acceptance')
                         ->disk('s3')
                         ->directory('dev')
-                        ->disabled()
                         ->downloadable(true)
                         ->openable(true)
+                        ->visible(function (callable $get) {
+                            if ($get('handover_acceptance') != null) {
+                                return true;
+                            }
+                            return false;
+                        })
+                        ->disabled()
                         ->label('Handover Acceptance'),
                     FileUpload::make('receipt_charges')
                         ->disk('s3')
                         ->directory('dev')
+                        ->visible(function (callable $get) {
+                            if ($get('receipt_charges') != null) {
+                                return true;
+                            }
+                            return false;
+                        })
                         ->disabled()
                         ->downloadable(true)
                         ->openable(true)
@@ -70,6 +79,12 @@ class MoveInFormsDocumentResource extends Resource
                         ->directory('dev')
                         ->downloadable(true)
                         ->disabled()
+                        ->visible(function (callable $get) {
+                            if ($get('contract') != null) {
+                                return true;
+                            }
+                            return false;
+                        })
                         ->openable(true)
                         ->label('Contract'),
                     FileUpload::make('title_deed')
@@ -85,8 +100,14 @@ class MoveInFormsDocumentResource extends Resource
                         ->disabled()
                         ->downloadable(true)
                         ->openable(true)
-                        ->label('Passport'),
+                        ->label('Passport / EID /Visa'),
                     FileUpload::make('dewa')
+                        ->visible(function (callable $get) {
+                            if ($get('dewa') != null) {
+                                return true;
+                            }
+                            return false;
+                        })
                         ->disk('s3')
                         ->directory('dev')
                         ->disabled()
@@ -94,6 +115,12 @@ class MoveInFormsDocumentResource extends Resource
                         ->openable(true)
                         ->label('Dewa'),
                     FileUpload::make('cooling_registration')
+                        ->visible(function (callable $get) {
+                            if ($get('cooling_registration') != null) {
+                                return true;
+                            }
+                            return false;
+                        })
                         ->disk('s3')
                         ->directory('dev')
                         ->disabled()
@@ -101,6 +128,12 @@ class MoveInFormsDocumentResource extends Resource
                         ->openable(true)
                         ->label('Cooling Registration'),
                     FileUpload::make('gas_registration')
+                        ->visible(function (callable $get) {
+                            if ($get('gas_registration') != null) {
+                                return true;
+                            }
+                            return false;
+                        })
                         ->disk('s3')
                         ->directory('dev')
                         ->disabled()
@@ -108,6 +141,12 @@ class MoveInFormsDocumentResource extends Resource
                         ->openable(true)
                         ->label('Gas Registration'),
                     FileUpload::make('vehicle_registration')
+                        ->visible(function (callable $get) {
+                            if ($get('vehicle_registration') != null) {
+                                return true;
+                            }
+                            return false;
+                        })
                         ->disk('s3')
                         ->directory('dev')
                         ->downloadable(true)
@@ -115,6 +154,12 @@ class MoveInFormsDocumentResource extends Resource
                         ->openable(true)
                         ->label('Vehicle Registration'),
                     FileUpload::make('movers_license')
+                        ->visible(function (callable $get) {
+                            if ($get('movers_license') != null) {
+                                return true;
+                            }
+                            return false;
+                        })
                         ->disk('s3')
                         ->directory('dev')
                         ->disabled()
@@ -122,6 +167,12 @@ class MoveInFormsDocumentResource extends Resource
                         ->openable(true)
                         ->label('Movers License'),
                     FileUpload::make('movers_liability')
+                        ->visible(function (callable $get) {
+                            if ($get('movers_liability') != null) {
+                                return true;
+                            }
+                            return false;
+                        })
                         ->disk('s3')
                         ->directory('dev')
                         ->disabled()
@@ -172,7 +223,7 @@ class MoveInFormsDocumentResource extends Resource
                                 return true;
                             }
                             return false;
-                        })
+                        }),
                 ]),
             ]);
     }
@@ -181,7 +232,7 @@ class MoveInFormsDocumentResource extends Resource
     {
         return $table
             ->poll('60s')
-            ->modifyQueryUsing(fn (Builder $query) => $query->where('type', 'move-in')->withoutGlobalScopes())
+            ->modifyQueryUsing(fn(Builder $query) => $query->where('type', 'move-in')->withoutGlobalScopes())
             ->columns([
                 TextColumn::make('name')
                     ->searchable()

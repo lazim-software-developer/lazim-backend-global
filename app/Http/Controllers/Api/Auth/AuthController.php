@@ -285,4 +285,63 @@ class AuthController extends Controller
             'user' => $user
         ], 200);
     }
+
+    // Vendor login
+    public function vendorLogin(GateKeeperLoginRequest $request) {
+        $user = User::where('email', $request->email)->first();
+        
+        // cehck if user is vendor
+        if($user->role->name != 'Vendor') {
+            return (new CustomResponseResource([
+                'title' => 'Unauthorized!',
+                'message' => 'You are not authorized to login!',
+                'code' => 400,
+            ]))->response()->setStatusCode(400);
+        }
+
+        // if (!$user || !Hash::check($request->password, $user->password) || $user->role->name !== $request->role) {
+        if (!$user || !Hash::check($request->password, $user->password)) {
+            throw ValidationException::withMessages([
+                'email' => ['The provided credentials are incorrect.'],
+            ]);
+        }
+
+        // Check if the user's email and phone number is verified
+        if (!$user->email_verified) {
+            return (new CustomResponseResource([
+                'title' => 'Email Verification Required',
+                'message' => 'Email is not verified.',
+                'code' => 403,
+                'data' => $user
+            ]))->response()->setStatusCode(403);
+        }
+
+        if (!$user->phone_verified) {
+            return (new CustomResponseResource([
+                'title' => 'Phone Verification Required',
+                'message' => 'Phone number is not verified.',
+                'code' => 403,
+                'data' => $user
+            ]))->response()->setStatusCode(403);
+        }
+
+        // Create a new access token
+        $token = $user->createToken($user->role->name)->plainTextToken;
+
+        // Create a refresh token and store it in the database (you can use a separate table for this)
+        $refreshToken = Str::random(40);
+        DB::table('refresh_tokens')->insert([
+            'user_id' => $user->id,
+            'token' => hash('sha256', $refreshToken),
+            'expires_at' => now()->addDays(30)  // Set the expiration time for the refresh token
+        ]);
+
+        $user->profile_photo = $user->profile_photo ? Storage::disk('s3')->url($user->profile_photo) : null;
+
+        return response()->json([
+            'token' => $token,
+            'refresh_token' => $refreshToken,
+            'user' => $user
+        ], 200);
+    }
 }

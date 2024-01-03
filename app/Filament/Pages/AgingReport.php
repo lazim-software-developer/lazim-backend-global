@@ -25,12 +25,12 @@ class AgingReport extends Page implements HasTable
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
 
     protected static string $view = 'filament.pages.aging-report';
-
+    protected static ?string $title = 'Aging report';
     protected static ?string $slug = 'aging-report';
 
     function checkDueDate($flat,$year)
     {
-        
+
         $quarters = ["01-Jan-$year To 31-Mar-$year","01-Apr-$year To 30-Jun-$year","01-Jul-$year To 30-Sep-$year","01-Oct-$year To 31-Dec-$year"];
         foreach($quarters as $quarter){
             $invoiceDate =OAMInvoice::where(['flat_id' => $flat->id, 'invoice_period' => $quarter])->first()?->invoice_due_date;
@@ -49,17 +49,17 @@ class AgingReport extends Page implements HasTable
         $currentDate = Carbon::now();
         //Get current year
         $currentYear = Carbon::now()->year;
-        
+
         $flats = Flat::whereIn('building_id', $buildingIds)->with('oaminvoices')->get();
-        $filteredFlats=$flats->filter(function ($flat) use ($currentYear, $currentDate, $buildingIds) 
+        $filteredFlats=$flats->filter(function ($flat) use ($currentYear, $currentDate, $buildingIds)
             {
                     $yearlyInvoices = OAMInvoice::query()->where('invoice_period', 'like', '%' . $currentYear . '%')
                                                             ->where('flat_id' , $flat->id)
                                                             ->where('invoice_date', '<', $currentDate)
                                                             ->whereIn('building_id', $buildingIds)->sum('invoice_amount');
-                    
+
                     $yearlyReceipts = OAMReceipts::where('flat_id' , $flat->id)->where('receipt_period', 'like', '%' . $currentYear . '%')->whereIn('building_id', $buildingIds)->sum('receipt_amount');
-                    
+
                     if ((int)($yearlyInvoices - $yearlyReceipts) >0 || $this->checkDueDate($flat,$currentYear)) {
                         Log::info('flat'. $flat);
                         Log::info('invoice'. (int)$yearlyInvoices);

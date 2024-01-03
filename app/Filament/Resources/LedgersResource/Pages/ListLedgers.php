@@ -11,6 +11,7 @@ use App\Filament\Resources\LedgersResource;
 class ListLedgers extends ListRecords
 {
     protected static string $resource = LedgersResource::class;
+    protected static ?string $title = 'Service charge ledgers';
 
     protected function getHeaderActions(): array
     {
