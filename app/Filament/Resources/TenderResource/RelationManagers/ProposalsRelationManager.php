@@ -15,6 +15,7 @@ use App\Models\TechnicianVendor;
 use App\Models\Accounting\Tender;
 use Illuminate\Support\Facades\DB;
 use App\Models\Accounting\Proposal;
+use Filament\Forms\Components\Grid;
 use Filament\Tables\Actions\Action;
 use Illuminate\Support\Facades\Log;
 use App\Models\Vendor\ServiceVendor;
@@ -34,16 +35,20 @@ class ProposalsRelationManager extends RelationManager
 
     public function form(Form $form): Form
     {
-        return $form
-            ->schema([
+        return $form->schema([
+            Grid::make([
+                'sm' => 1,
+                'md' => 1,
+                'lg' => 1,
+            ])->schema([
                 TextInput::make('amount')
                     ->label('Amount')
                     ->prefix('AED')
                     ->disabled(),
-                TextInput::make('submitted_by')
+                Select::make('vendor_id')
+                    ->relationship('vendor','name')
                     ->label('Vendor Name')
-                    ->disabled()
-                    ->default(1),
+                    ->disabled(),
                 TextInput::make('submitted_on')
                     ->disabled()
                     ->default(now()),
@@ -52,16 +57,9 @@ class ProposalsRelationManager extends RelationManager
                     ->directory('dev')
                     ->disabled()
                     ->label('Document'),
-                Select::make('status')
-                ->options([
-                    'approved' => 'Approved',
-                    'rejected' => 'Rejected',
-                ])
-                ->searchable()
-                ->required()
-                ->placeholder('Status'),
+                TextInput::make('status')->placeholder('NA'),
 
-
+            ])
             ]);
     }
 
@@ -83,7 +81,7 @@ class ProposalsRelationManager extends RelationManager
                 //Tables\Actions\CreateAction::make(),
             ])
             ->actions([
-                // Tables\Actions\EditAction::make(),
+                Tables\Actions\viewAction::make(),
                 Action::make('Approve')
                     ->visible(fn($record) => $record->status == null)
                     ->button()

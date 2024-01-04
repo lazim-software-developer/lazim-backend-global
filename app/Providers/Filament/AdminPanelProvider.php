@@ -11,6 +11,7 @@ use Filament\Support\Colors\Color;
 use Illuminate\Support\Facades\DB;
 use Filament\Navigation\NavigationItem;
 use App\Filament\Pages\Auth\EditProfile;
+use App\Filament\Resources\WDAResource;
 use Filament\Navigation\NavigationGroup;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Navigation\NavigationBuilder;
@@ -190,27 +191,39 @@ class AdminPanelProvider extends PanelProvider
                                     ->icon('heroicon-o-clipboard-document')
                                     ->activeIcon('heroicon-o-clipboard-document')
                                     ->sort(2),
+                                NavigationItem::make('WDA')
+                                    ->url('/admin/w-d-a-s')
+                                    ->hidden(DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] == 'Admin' ? true : false)
+                                    ->icon('heroicon-o-chart-bar-square')
+                                    ->activeIcon('heroicon-o-chart-bar-square')
+                                    ->sort(3),
+                                NavigationItem::make('Invoice')
+                                    ->url('/admin/invoices')
+                                    ->hidden(DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] == 'Admin' ? true : false)
+                                    ->icon('heroicon-o-document-arrow-up')
+                                    ->activeIcon('heroicon-o-document-arrow-up')
+                                    ->sort(4),
                                 NavigationItem::make('Tenders')
                                     ->url('/admin/tenders')
                                     ->icon('heroicon-s-document-text')
                                     ->activeIcon('heroicon-s-document-text')
-                                    ->sort(3),
+                                    ->sort(5),
                                 NavigationItem::make('Proposals')
                                     ->url('/admin/proposals')
                                     ->icon('heroicon-s-gift-top')
                                     ->activeIcon('heroicon-s-gift-top')
-                                    ->sort(4),
+                                    ->sort(6),
                                 NavigationItem::make('Technician assets')
                                     ->url('/admin/technician-assets')
                                     ->hidden(DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] == 'Admin' ? true : false)
                                     ->icon('heroicon-o-users')
                                     ->activeIcon('heroicon-o-users')
-                                    ->sort(5),
+                                    ->sort(7),
                                 NavigationItem::make('Assets')
                                     ->url('/admin/assets')
                                     ->icon('heroicon-o-rectangle-stack')
                                     ->activeIcon('heroicon-o-rectangle-stack')
-                                    ->sort(6),
+                                    ->sort(8),
                             ]),
                     ]);
                 }
