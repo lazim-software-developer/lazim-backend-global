@@ -62,11 +62,11 @@ class AssetResource extends Resource
                             ->label('Asset Name'),
                         TextInput::make('location')
                             ->required()
-                            ->rules(['max:50', 'regex:/^[a-zA-Z0-9\s]*$/'])
+                            ->rules(['max:50', 'regex:/^(?=.*[a-zA-Z])[a-zA-Z0-9\s!@#$%^&*_+\-=,.]*$/'])
                             ->label('Location'),
                         Textarea::make('description')
                             ->label('Description')
-                            ->rules(['max:100', 'regex:/^[a-zA-Z0-9\s]*$/']),
+                            ->rules(['max:100', 'regex:/^(?=.*[a-zA-Z])[a-zA-Z0-9\s!@#$%^&*_+\-=,.]*$/']),
                         Select::make('service_id')
                             ->relationship('service', 'name')
                             ->options(function () {

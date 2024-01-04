@@ -13,6 +13,7 @@ use App\Models\Vendor\Contract;
 use App\Models\TechnicianAssets;
 use App\Models\TechnicianVendor;
 use Filament\Resources\Resource;
+use App\Models\Accounting\Budget;
 use App\Models\Accounting\Tender;
 use Illuminate\Support\Facades\DB;
 use App\Models\Accounting\Proposal;
@@ -27,13 +28,13 @@ use Filament\Forms\Components\Select;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ViewColumn;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\ViewField;
+
 use Filament\Forms\Components\FileUpload;
 use Illuminate\Database\Eloquent\Builder;
-
 use App\Filament\Resources\ProposalResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\ProposalResource\RelationManagers;
-use App\Models\Accounting\Budget;
 
 class ProposalResource extends Resource
 {
@@ -67,6 +68,8 @@ class ProposalResource extends Resource
                     ->disabled()
                     ->label('Document'),
                 TextInput::make('status')->placeholder('NA'),
+                // ViewField::make('Budget amount')
+                //     ->view('forms.components.budgetamount'),
             ])
         ]);
     }
