@@ -2,19 +2,26 @@
 
 namespace App\Filament\Resources;
 
-use App\Models\TechnicianVendor;
 use Filament\Forms;
 use Filament\Tables;
+use App\Models\Asset;
 use Filament\Forms\Form;
+use App\Models\User\User;
 use Filament\Tables\Table;
 use App\Models\BuildingVendor;
 use App\Models\Vendor\Contract;
+use App\Models\TechnicianAssets;
+use App\Models\TechnicianVendor;
 use Filament\Resources\Resource;
 use App\Models\Accounting\Tender;
 use Illuminate\Support\Facades\DB;
 use App\Models\Accounting\Proposal;
+use Filament\Forms\Components\Grid;
 use Filament\Tables\Actions\Action;
+use Illuminate\Support\Facades\Log;
 use App\Models\Vendor\ServiceVendor;
+use function Laravel\Prompts\select;
+use App\Models\Accounting\Budgetitem;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Tables\Columns\TextColumn;
@@ -22,15 +29,9 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\FileUpload;
 use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\ProposalResource\Pages;
+
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\ProposalResource\RelationManagers;
-use App\Models\Accounting\Budgetitem;
-use App\Models\Asset;
-use App\Models\TechnicianAssets;
-use App\Models\User\User;
-use Illuminate\Support\Facades\Log;
-
-use function Laravel\Prompts\select;
 
 class ProposalResource extends Resource
 {
@@ -41,26 +42,31 @@ class ProposalResource extends Resource
 
     public static function form(Form $form): Form
     {
-        return $form
-            ->schema([
-                Select::make('tender_id')
-                    ->relationship('tender', 'created_by')
-                    ->preload()
-                    ->searchable()
-                    ->label('Tender Created ID'),
+        return $form->schema([
+            Grid::make([
+                'sm' => 1,
+                'md' => 1,
+                'lg' => 1,
+            ])->schema([
                 TextInput::make('amount')
-                    ->label('Amount')->prefix('AED'),
-                Hidden::make('submitted_by')
-                    ->default(1),
-                Hidden::make('submitted_on')
+                    ->label('Amount')
+                    ->prefix('AED')
+                    ->disabled(),
+                Select::make('vendor_id')
+                    ->relationship('vendor', 'name')
+                    ->label('Vendor Name')
+                    ->disabled(),
+                TextInput::make('submitted_on')
+                    ->disabled()
                     ->default(now()),
                 FileUpload::make('document')
                     ->disk('s3')
                     ->directory('dev')
-                    ->openable(true)
-                    ->downloadable(true)
+                    ->disabled()
                     ->label('Document'),
-            ]);
+                TextInput::make('status')->placeholder('NA'),
+            ])
+        ]);
     }
 
     public static function table(Table $table): Table
@@ -77,16 +83,16 @@ class ProposalResource extends Resource
                 //
             ])
             ->actions([
-                //Tables\Actions\EditAction::make(),
+                Tables\Actions\ViewAction::make(),
                 Action::make('Approve')
-                    ->visible(fn($record) => $record->status == null)
+                    ->visible(fn ($record) => $record->status == null)
                     ->button()
                     ->form([
                         TextInput::make('remarks')
                             ->rules(['max:255'])
                             ->required(),
                     ])
-                    ->fillForm(fn(Proposal $record): array => [
+                    ->fillForm(fn (Proposal $record): array => [
                         'remarks' => $record->remarks,
                     ])
                     ->action(function (Proposal $record, array $data): void {
@@ -99,12 +105,12 @@ class ProposalResource extends Resource
                         $buildingId = Tender::find($tenderId)->building_id;
                         $budget_from = DB::table('budgets')->where('id', $budgetId)->pluck('budget_from')[0];
                         $budget_to = DB::table('budgets')->where('id', $budgetId)->pluck('budget_to')[0];
-                        $budget_amount = Budgetitem::where('budget_id',$budgetId)->where('service_id',$serviceId)->first()->total;
+                        $budget_amount = Budgetitem::where('budget_id', $budgetId)->where('service_id', $serviceId)->first()->total;
                         dd($budget_amount);
 
                         $contract = Contract::create([
                             'start_date' => $budget_from,
-                            'amount'=>$tenderAmount,
+                            'amount' => $tenderAmount,
                             'end_date' => $budget_to,
                             'contract_type' => $contractType,
                             'service_id' => $serviceId,
@@ -113,14 +119,12 @@ class ProposalResource extends Resource
                             'budget_amount' => $budget_amount,
                         ]);
 
-                        $servicefind = ServiceVendor::all()->where('service_id',$serviceId)->where('vendor_id',$record->vendor_id)->first();
-                        if($servicefind->building_id == null)
-                        {
+                        $servicefind = ServiceVendor::all()->where('service_id', $serviceId)->where('vendor_id', $record->vendor_id)->first();
+                        if ($servicefind->building_id == null) {
                             $servicefind->contract_id = $contract->id;
                             $servicefind->building_id = $buildingId;
                             $servicefind->save();
-                        }
-                        else{
+                        } else {
                             $servicevendor = ServiceVendor::create([
                                 'service_id' => $serviceId,
                                 'vendor_id' => $record->vendor_id,
@@ -147,23 +151,23 @@ class ProposalResource extends Resource
                         $record->save();
 
                         $technicianVendorIds = DB::table('service_technician_vendor')
-                                 ->where('service_id',$contract->service_id)
-                                 ->pluck('technician_vendor_id');
+                            ->where('service_id', $contract->service_id)
+                            ->pluck('technician_vendor_id');
 
-                        $assets = Asset::where('building_id',$contract->building_id)->where('service_id',$contract->service_id)->get();
-                        
-                        foreach($assets as $asset){
+                        $assets = Asset::where('building_id', $contract->building_id)->where('service_id', $contract->service_id)->get();
+
+                        foreach ($assets as $asset) {
                             $asset->vendors()->syncWithoutDetaching([$contract->vendor_id]);
-                            $technicianIds = TechnicianVendor::whereIn('id', $technicianVendorIds)->where('vendor_id',$contract->vendor_id)->where('active', true)->pluck('technician_id');
-                            if ($technicianIds){
-                                $assignees = User::whereIn('id',$technicianIds)
-                                ->withCount(['assets' => function ($query) {
-                                    $query->where('active', true);
-                                }])
-                                ->orderBy('assets_count', 'asc')
-                                ->get();
+                            $technicianIds = TechnicianVendor::whereIn('id', $technicianVendorIds)->where('vendor_id', $contract->vendor_id)->where('active', true)->pluck('technician_id');
+                            if ($technicianIds) {
+                                $assignees = User::whereIn('id', $technicianIds)
+                                    ->withCount(['assets' => function ($query) {
+                                        $query->where('active', true);
+                                    }])
+                                    ->orderBy('assets_count', 'asc')
+                                    ->get();
                                 $selectedTechnician = $assignees->first();
-                                
+
                                 if ($selectedTechnician) {
                                     $assigned = TechnicianAssets::create([
                                         'asset_id' => $asset->id,
@@ -177,18 +181,17 @@ class ProposalResource extends Resource
                                 }
                             }
                         }
-
                     })
                     ->slideOver(),
                 Action::make('Reject')
-                    ->visible(fn($record) => $record->status == null)
+                    ->visible(fn ($record) => $record->status == null)
                     ->button()
                     ->form([
                         TextInput::make('remarks')
                             ->rules(['max:255'])
                             ->required(),
                     ])
-                    ->fillForm(fn(Proposal $record): array => [
+                    ->fillForm(fn (Proposal $record): array => [
                         'remarks' => $record->remarks,
                     ])
                     ->action(function (Proposal $record, array $data): void {
