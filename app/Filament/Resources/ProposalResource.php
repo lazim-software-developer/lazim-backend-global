@@ -117,7 +117,7 @@ class ProposalResource extends Resource
                             'service_id' => $serviceId,
                             'vendor_id' => $record->vendor_id,
                             'building_id' => $buildingId,
-                            'budget_amount' => $budget ?? 0,
+                            'budget_amount' => $budget ? $budget->total : 0,
                         ]);
 
                         $servicefind = ServiceVendor::all()->where('service_id', $serviceId)->where('vendor_id', $record->vendor_id)->first();
