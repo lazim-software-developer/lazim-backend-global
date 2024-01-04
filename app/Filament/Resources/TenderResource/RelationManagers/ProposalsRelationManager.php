@@ -61,8 +61,8 @@ class ProposalsRelationManager extends RelationManager
                     ->disabled()
                     ->label('Document'),
                 TextInput::make('status')->placeholder('NA'),
-                ViewField::make('Budget amount')
-                    ->view('forms.components.budgetamount'),
+                // ViewField::make('Budget amount')
+                //     ->view('forms.components.budgetamount'),
 
             ])
         ]);
@@ -74,7 +74,7 @@ class ProposalsRelationManager extends RelationManager
             ->columns([
                 // TextColumn::make('tender.created_by')->searchable()->label('Tender Created By'),
                 TextColumn::make('amount')->label('Amount'),
-                ViewColumn::make('Budget amount')->view('tables.columns.budgetamount')->alignCenter(),
+                // ViewColumn::make('Budget amount')->view('tables.columns.budgetamount')->alignCenter(),
                 TextColumn::make('submittedBy.name')->searchable()->label('Vendor Name'),
                 TextColumn::make('submitted_on')->label('Submitted On'),
                 TextColumn::make('status')->default('NA')->label('Status'),
