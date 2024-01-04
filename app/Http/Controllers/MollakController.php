@@ -83,12 +83,14 @@ class MollakController extends Controller
             'content-type' => 'application/json',
         ])->post("https://sms.rmlconnect.net/OtpApi/checkotp?username=LazimTrans&password=Lazim@10&msisdn=" . $request->phone . "&otp=" . $otp);
 
-        Log::info("RESPONSE", [$response]);
-
-        if($response) {
-            User::where('phone', $request->phone)->update(['phone_verified' => true]);
+        if ($response != 101) {
+            return response()->json([
+                'message' => 'There is some issue while verifying the OTP. Please try again!',
+                'status' => 'error'
+            ], 400);
         }
 
+        User::where('phone', $request->phone)->update(['phone_verified' => true]);
         return response()->json([
             'message' => 'Phone successfully verified.',
             'status' => 'success'
