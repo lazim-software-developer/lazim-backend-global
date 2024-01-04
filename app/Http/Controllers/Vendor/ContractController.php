@@ -33,9 +33,12 @@ class ContractController extends Controller
         return ContractResource::collection($Contracts);
     }
 
-    public function listContracts(Vendor $vendor)
+    public function listContracts(Request $request,Vendor $vendor)
     {
         $contracts = Contract::where("vendor_id", $vendor->id)->where('end_date','>=', Carbon::now()->toDateString())->get();
+        if ($request->has('building_id') && !empty($request->building_id)) {
+            $contracts = $contracts->where('building_id', $request->building_id);
+        }
 
         return WDAContractResource::collection($contracts);
     }
