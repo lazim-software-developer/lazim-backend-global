@@ -24,7 +24,7 @@ class EditTenantDocument extends EditRecord
     }
     protected function mutateFormDataBeforeFill(array $data): array
     {
-        if($data['status'] = 'submitted'){
+        if($data['status'] == 'submitted'){
             $data['status'] = null;
         }
         return $data;

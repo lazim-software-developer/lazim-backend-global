@@ -1,28 +1,33 @@
 <?php
 
-namespace App\Filament\Resources\Vendor\VendorResource\RelationManagers;
+namespace App\Filament\Resources;
 
 use Filament\Forms;
 use Filament\Tables;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
+use Filament\Resources\Resource;
 use App\Models\Accounting\Invoice;
 use Filament\Forms\Components\Grid;
-use Filament\Tables\Actions\Action;
 use Filament\Forms\Components\Select;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
-use Filament\Tables\Columns\ImageColumn;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
+use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
+use App\Filament\Resources\InvoiceResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Filament\Resources\RelationManagers\RelationManager;
+use App\Filament\Resources\InvoiceResource\RelationManagers;
 
-class InvoicesRelationManager extends RelationManager {
-    protected static string $relationship = 'invoices';
+class InvoiceResource extends Resource
+{
+    protected static ?string $model = Invoice::class;
 
-    public function form(Form $form): Form {
+    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+
+    public static function form(Form $form): Form
+    {
         return $form
             ->schema([
                 Grid::make([
@@ -82,7 +87,7 @@ class InvoicesRelationManager extends RelationManager {
                         TextInput::make('remarks')
                             ->rules(['max:255'])
                             ->visible(function (callable $get) {
-                                if($get('status') == 'rejected') {
+                                if ($get('status') == 'rejected') {
                                     return true;
                                 }
                                 return false;
@@ -95,7 +100,8 @@ class InvoicesRelationManager extends RelationManager {
             ]);
     }
 
-    public function table(Table $table): Table {
+    public static function table(Table $table): Table
+    {
         return $table
             ->columns([
                 TextColumn::make('building.name')
@@ -118,34 +124,40 @@ class InvoicesRelationManager extends RelationManager {
 
             ])
             ->filters([
-                //
-            ])
-            ->headerActions([
-                //Tables\Actions\CreateAction::make(),
+                SelectFilter::make('status')
+                    ->options([
+                        'approved' => 'Approved',
+                        'rejected' => 'Rejected',
+                        'pending' => 'Pending',
+                    ])
+                    ->searchable(),
             ])
             ->actions([
-                Tables\Actions\EditAction::make()
-                    ->mutateFormDataUsing(function (array $data): array {
-                        if($data['status'] != 'pending'){
-                            $data['status_updated_by'] = auth()->user()->id;
-                        }
-                        return $data;
-                    })
-                    ->mutateRecordDataUsing(function (array $data): array {
-                        if($data['status'] == 'pending'){
-                            $data['status'] = null;
-                        }
-                        return $data;
-                    })
-                //Tables\Actions\DeleteAction::make(),
+                Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    //Tables\Actions\DeleteBulkAction::make(),
+                    // Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ])
             ->emptyStateActions([
-                //Tables\Actions\CreateAction::make(),
+                // Tables\Actions\CreateAction::make(),
             ]);
+    }
+
+    public static function getRelations(): array
+    {
+        return [
+            //
+        ];
+    }
+
+    public static function getPages(): array
+    {
+        return [
+            'index' => Pages\ListInvoices::route('/'),
+            'create' => Pages\CreateInvoice::route('/create'),
+            'edit' => Pages\EditInvoice::route('/{record}/edit'),
+        ];
     }
 }
