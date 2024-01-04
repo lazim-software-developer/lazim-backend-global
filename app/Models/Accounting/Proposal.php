@@ -35,4 +35,8 @@ class Proposal extends Model
     {
         return $this->belongsTo(User::class,'status_updated_by');
     }
+    public function vendor()
+    {
+        return $this->belongsTo(Vendor::class);
+    }
 }
