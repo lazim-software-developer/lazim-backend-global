@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Vendor;
 use App\Http\Controllers\Controller;
 use App\Models\Accounting\Budget;
 use App\Models\Accounting\Tender;
+use App\Models\BuildingService;
 use App\Models\Master\Service;
 use App\Models\Vendor\Vendor;
 use Illuminate\Http\Request;
@@ -32,9 +33,13 @@ class MasterController extends Controller
         $existingTenderServiceIds = Tender::where('budget_id', $budget->id)->pluck('service_id');
 
         // Start building the query for available services
-        $query = Service::whereNotIn('id', $existingTenderServiceIds);
+        // Fetch all buildign service Ids
 
-        $availableServices =$query->where('subcategory_id', $subcategory)->get();
+        $buildingServices = BuildingService::where('building_id', $budget->building_id)->whereNotIn('service_id', $existingTenderServiceIds)->pluck('service_id');
+
+        $availableServices = Service::whereIn('id', $buildingServices)->where('subcategory_id', $subcategory)->get();
+
+        Log::info("HELLO SERVIE", [$availableServices]);
 
         return response()->json($availableServices);
     }
