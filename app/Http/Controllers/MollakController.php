@@ -8,6 +8,7 @@ use App\Http\Resources\Master\ServicePeriodResource;
 use App\Http\Resources\Master\UnitResource;
 use App\Models\User\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class MollakController extends Controller
 {
@@ -81,6 +82,8 @@ class MollakController extends Controller
         $response = Http::withOptions(['verify' => false])->withHeaders([
             'content-type' => 'application/json',
         ])->post("https://sms.rmlconnect.net/OtpApi/checkotp?username=LazimTrans&password=Lazim@10&msisdn=" . $request->phone . "&otp=" . $otp);
+
+        Log::info("RESPONSE", [$response]);
 
         if($response) {
             User::where('phone', $request->phone)->update(['phone_verified' => true]);
