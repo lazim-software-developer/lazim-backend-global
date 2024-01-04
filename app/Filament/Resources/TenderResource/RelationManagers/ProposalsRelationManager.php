@@ -70,7 +70,7 @@ class ProposalsRelationManager extends RelationManager
             ->columns([
                 // TextColumn::make('tender.created_by')->searchable()->label('Tender Created By'),
                 TextColumn::make('amount')->label('Amount'),
-                ViewColumn::make('Budget amount')->view('tables.columns.budgetamount'),
+                ViewColumn::make('Budget amount')->view('tables.columns.budgetamount')->alignCenter(),
                 TextColumn::make('submittedBy.name')->searchable()->label('Vendor Name'),
                 TextColumn::make('submitted_on')->label('Submitted On'),
                 TextColumn::make('status')->default('NA')->label('Status'),
