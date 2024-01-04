@@ -33,6 +33,7 @@ use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\ProposalResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\ProposalResource\RelationManagers;
+use App\Models\Accounting\Budget;
 
 class ProposalResource extends Resource
 {
@@ -75,7 +76,7 @@ class ProposalResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('amount')->label('Amount'),
-                ViewColumn::make('Budget amount')->view('tables.columns.budgetamount')->alignCenter(),
+                // ViewColumn::make('Budget amount')->view('tables.columns.budgetamount')->alignCenter(),
                 TextColumn::make('submittedBy.name')->searchable()->label('Vendor Name'),
                 TextColumn::make('submitted_on')->label('Submitted On'),
                 TextColumn::make('status')->default('NA')->label('Status'),
@@ -99,39 +100,36 @@ class ProposalResource extends Resource
                     ])
                     ->action(function (Proposal $record, array $data): void {
 
-                        $tenderId = Proposal::where('vendor_id', $record->vendor_id)->where('status', null)->first()->tender_id;
-                        $tenderAmount = Proposal::where('vendor_id', $record->vendor_id)->where('status', null)->first()->amount;
-                        $budgetId = Tender::where('id', $tenderId)->first()->budget_id;
-                        $serviceId = Tender::find($tenderId)->service_id;
-                        $contractType = Tender::find($tenderId)->tender_type;
-                        $buildingId = Tender::find($tenderId)->building_id;
-                        $budget_from = DB::table('budgets')->where('id', $budgetId)->pluck('budget_from')[0];
-                        $budget_to = DB::table('budgets')->where('id', $budgetId)->pluck('budget_to')[0];
-                        $budget = Budgetitem::where(['budget_id' => $budgetId, 'service_id' =>$serviceId])->first();
+                        $tenderId = $record->tender_id;
+                        $tenderAmount = $record->amount;
+                        $tender = Tender::find($tenderId);
+                        $budget = Budget::find($tender->budget_id);
+                        // dd($budget->budget_from);
+                        $budgetamount = Budgetitem::where(['budget_id' => $tender->budget_id, 'service_id' =>$tender->service_id])->first();
 
                         $contract = Contract::create([
-                            'start_date' => $budget_from,
+                            'start_date' => $budget->budget_from,
                             'amount' => $tenderAmount,
-                            'end_date' => $budget_to,
-                            'contract_type' => $contractType,
-                            'service_id' => $serviceId,
+                            'end_date' => $budget->budget_to,
+                            'contract_type' => $tender->tender_type,
+                            'service_id' => $tender->service_id,
                             'vendor_id' => $record->vendor_id,
-                            'building_id' => $buildingId,
-                            'budget_amount' => $budget ? $budget->total : 0,
+                            'building_id' =>$tender->building_id,
+                            'budget_amount' => $budgetamount ? $budgetamount->total : 0,
                         ]);
-
-                        $servicefind = ServiceVendor::all()->where('service_id', $serviceId)->where('vendor_id', $record->vendor_id)->first();
+                        
+                        $servicefind = ServiceVendor::all()->where('service_id', $tender->service_id)->where('vendor_id', $record->vendor_id)->first();
                         if ($servicefind->building_id == null) {
                             $servicefind->contract_id = $contract->id;
-                            $servicefind->building_id = $buildingId;
+                            $servicefind->building_id = $tender->building_id;
                             $servicefind->save();
                         } else {
                             $servicevendor = ServiceVendor::create([
-                                'service_id' => $serviceId,
+                                'service_id' => $tender->service_id,
                                 'vendor_id' => $record->vendor_id,
                                 'active' => true,
                                 'contract_id' => $contract->id,
-                                'building_id' => $buildingId,
+                                'building_id' => $tender->building_id,
                             ]);
                             $servicevendor->contract_id = $contract->id;
                             $servicevendor->save();
@@ -140,10 +138,10 @@ class ProposalResource extends Resource
                         BuildingVendor::create([
                             'vendor_id' => $record->vendor_id,
                             'active' => true,
-                            'building_id' => $buildingId,
+                            'building_id' => $tender->building_id,
                             'contract_id' => $contract->id,
-                            'start_date' => $budget_from,
-                            'end_date' => $budget_to,
+                            'start_date' => $budget->budget_from,
+                            'end_date' => $budget->budget_to,
                         ]);
                         $record->status = 'approved';
                         $record->remarks = $data['remarks'];
