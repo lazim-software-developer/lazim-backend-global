@@ -105,7 +105,7 @@ class ProposalsRelationManager extends RelationManager
                         $buildingId = Tender::find($tenderId)->building_id;
                         $budget_from = DB::table('budgets')->where('id', $budgetId)->pluck('budget_from')[0];
                         $budget_to = DB::table('budgets')->where('id', $budgetId)->pluck('budget_to')[0];
-                        $budget_amount = Budgetitem::where('budget_id',$budgetId)->where('service_id',$serviceId)->first()->total;
+                        $budget = Budgetitem::where(['budget_id' => $budgetId, 'service_id' => $serviceId])->first();
 
                         $contract = Contract::create([
                             'start_date' => $budget_from,
@@ -115,7 +115,7 @@ class ProposalsRelationManager extends RelationManager
                             'service_id' => $serviceId,
                             'vendor_id' => $record->vendor_id,
                             'building_id' => $buildingId,
-                            'budget_amount' => $budget_amount,
+                            'budget_amount' => $budget ?? 0,
                         ]);
 
                         $servicefind = ServiceVendor::all()->where('service_id',$serviceId)->where('vendor_id',$record->vendor_id)->first();
