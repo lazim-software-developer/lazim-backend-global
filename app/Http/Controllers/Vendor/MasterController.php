@@ -35,7 +35,7 @@ class MasterController extends Controller
         // Start building the query for available services
         // Fetch all buildign service Ids
 
-        $buildingServices = BuildingService::whereNotIn('service_id', $existingTenderServiceIds)->pluck('service_id');
+        $buildingServices = BuildingService::where('building_id', $budget->building_id)->whereNotIn('service_id', $existingTenderServiceIds)->pluck('service_id');
         $query = Service::whereIn('id', $buildingServices);
 
         $availableServices = $query->where('subcategory_id', $subcategory)->get();
