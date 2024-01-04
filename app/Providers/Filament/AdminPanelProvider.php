@@ -187,8 +187,8 @@ class AdminPanelProvider extends PanelProvider
                                 NavigationItem::make('Contract')
                                     ->url('/admin/contracts')
                                     ->hidden(DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] == 'Admin' ? true : false)
-                                    ->icon('heroicon-m-user-circle')
-                                    ->activeIcon('heroicon-m-user-circle')
+                                    ->icon('heroicon-o-clipboard-document')
+                                    ->activeIcon('heroicon-o-clipboard-document')
                                     ->sort(2),
                                 NavigationItem::make('Tenders')
                                     ->url('/admin/tenders')
@@ -319,7 +319,7 @@ class AdminPanelProvider extends PanelProvider
                 $builder->groups([
                     NavigationGroup::make('Community')
                         ->items([
-                            NavigationItem::make('Announcements')
+                            NavigationItem::make('Notice boards')
                                 ->url('/admin/announcements')
                                 ->icon('heroicon-o-megaphone')
                                 ->activeIcon('heroicon-o-megaphone')
@@ -403,6 +403,19 @@ class AdminPanelProvider extends PanelProvider
                                     ->hidden(DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] == 'Admin' ? true : false)
                                     ->icon('heroicon-m-clipboard-document-list')
                                     ->activeIcon('heroicon-m-clipboard-document-list')
+                                    ->sort(1),
+                            ]),
+                    ]);
+                }
+                if (DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] != 'Admin') {
+                    $builder->groups([
+                        NavigationGroup::make('Security')
+                            ->items([
+                                NavigationItem::make('Snags')
+                                    ->url('/admin/snags')
+                                    ->hidden(DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] == 'Admin' ? true : false)
+                                    ->icon('heroicon-s-swatch')
+                                    ->activeIcon('heroicon-s-swatch')
                                     ->sort(1),
                             ]),
                     ]);
