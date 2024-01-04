@@ -25,11 +25,12 @@ use App\Models\Accounting\Budgetitem;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ViewColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\FileUpload;
 use Illuminate\Database\Eloquent\Builder;
-use App\Filament\Resources\ProposalResource\Pages;
 
+use App\Filament\Resources\ProposalResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\ProposalResource\RelationManagers;
 
@@ -74,6 +75,7 @@ class ProposalResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('amount')->label('Amount'),
+                ViewColumn::make('Budget amount')->view('tables.columns.budgetamount')->alignCenter(),
                 TextColumn::make('submittedBy.name')->searchable()->label('Vendor Name'),
                 TextColumn::make('submitted_on')->label('Submitted On'),
                 TextColumn::make('status')->default('NA')->label('Status'),
