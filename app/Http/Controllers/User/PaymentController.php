@@ -91,7 +91,7 @@ class PaymentController extends Controller
 
     public function fetchServiceChargePDF(OAMInvoice $invoice)
     {
-        $pdfLink = $invoice->invoice_pdf_link;
+        $pdfLink = $invoice->invoice_detail_link;
 
         return $response = Http::withoutVerifying()->withHeaders([
             'content-type' => 'application/json',
