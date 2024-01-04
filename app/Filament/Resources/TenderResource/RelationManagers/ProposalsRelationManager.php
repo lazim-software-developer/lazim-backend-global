@@ -26,6 +26,7 @@ use Filament\Forms\Components\Select;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ViewColumn;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\ViewField;
 use Filament\Forms\Components\FileUpload;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -48,7 +49,7 @@ class ProposalsRelationManager extends RelationManager
                     ->prefix('AED')
                     ->disabled(),
                 Select::make('vendor_id')
-                    ->relationship('vendor','name')
+                    ->relationship('vendor', 'name')
                     ->label('Vendor Name')
                     ->disabled(),
                 TextInput::make('submitted_on')
@@ -60,9 +61,11 @@ class ProposalsRelationManager extends RelationManager
                     ->disabled()
                     ->label('Document'),
                 TextInput::make('status')->placeholder('NA'),
+                // ViewField::make('Budget amount')
+                //     ->view('forms.components.budgetamount'),
 
             ])
-            ]);
+        ]);
     }
 
     public function table(Table $table): Table
@@ -84,16 +87,16 @@ class ProposalsRelationManager extends RelationManager
                 //Tables\Actions\CreateAction::make(),
             ])
             ->actions([
-                Tables\Actions\viewAction::make(),
+                Tables\Actions\ViewAction::make(),
                 Action::make('Approve')
-                    ->visible(fn($record) => $record->status == null)
+                    ->visible(fn ($record) => $record->status == null)
                     ->button()
                     ->form([
                         TextInput::make('remarks')
                             ->rules(['max:255'])
                             ->required(),
                     ])
-                    ->fillForm(fn(Proposal $record): array => [
+                    ->fillForm(fn (Proposal $record): array => [
                         'remarks' => $record->remarks,
                     ])
                     ->action(function (Proposal $record, array $data): void {
@@ -103,7 +106,7 @@ class ProposalsRelationManager extends RelationManager
                         $tender = Tender::find($tenderId);
                         $budget = Budget::find($tender->budget_id);
                         // dd($budget->budget_from);
-                        $budgetamount = Budgetitem::where(['budget_id' => $tender->budget_id, 'service_id' =>$tender->service_id])->first();
+                        $budgetamount = Budgetitem::where(['budget_id' => $tender->budget_id, 'service_id' => $tender->service_id])->first();
 
                         $contract = Contract::create([
                             'start_date' => $budget->budget_from,
@@ -112,10 +115,10 @@ class ProposalsRelationManager extends RelationManager
                             'contract_type' => $tender->tender_type,
                             'service_id' => $tender->service_id,
                             'vendor_id' => $record->vendor_id,
-                            'building_id' =>$tender->building_id,
+                            'building_id' => $tender->building_id,
                             'budget_amount' => $budgetamount ? $budgetamount->total : 0,
                         ]);
-                        
+
                         $servicefind = ServiceVendor::all()->where('service_id', $tender->service_id)->where('vendor_id', $record->vendor_id)->first();
                         if ($servicefind->building_id == null) {
                             $servicefind->contract_id = $contract->id;
@@ -181,14 +184,14 @@ class ProposalsRelationManager extends RelationManager
                     })
                     ->slideOver(),
                 Action::make('Reject')
-                    ->visible(fn($record) => $record->status == null)
+                    ->visible(fn ($record) => $record->status == null)
                     ->button()
                     ->form([
                         TextInput::make('remarks')
                             ->rules(['max:255'])
                             ->required(),
                     ])
-                    ->fillForm(fn(Proposal $record): array => [
+                    ->fillForm(fn (Proposal $record): array => [
                         'remarks' => $record->remarks,
                     ])
                     ->action(function (Proposal $record, array $data): void {
