@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Building\FlatTenantResource\Pages;
 
 use Filament\Actions;
+use App\Models\Master\Role;
 use App\Models\Building\Building;
 use Illuminate\Contracts\View\View;
 use Filament\Resources\Pages\ListRecords;
@@ -23,7 +24,7 @@ class ListFlatTenants extends ListRecords
     protected function getTableQuery(): Builder
     {
         $building = Building::all()->where('owner_association_id',auth()->user()->owner_association_id)->pluck('id')->toArray();
-        if(auth()->user()->id == 1)
+        if(Role::where('id',auth()->user()->role_id)->first()->name == 'Admin')
         {
             return parent::getTableQuery();
         }
