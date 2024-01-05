@@ -73,6 +73,7 @@ class ContractsRelationManager extends RelationManager
                             ->placeholder('End Date'),
                         FileUpload::make('document_url')
                             ->required()
+                            ->acceptedFileTypes(['application/pdf'])
                             ->disk('s3')
                             ->directory('dev')
                             ->openable(true)
