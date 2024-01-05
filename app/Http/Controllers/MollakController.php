@@ -15,7 +15,7 @@ class MollakController extends Controller
     public function fetchPropertyGroups()
     {
         $oaId = auth()->user()->ownerAssociation->mollak_id;
-        
+
         $results = Http::withOptions(['verify' => false])->withHeaders([
             'content-type' => 'application/json',
             'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
@@ -50,15 +50,16 @@ class MollakController extends Controller
             'content-type' => 'application/json',
             'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
         ])->get(env("MOLLAK_API_URL") . "/sync/propertygroups/" . $propertyGroupId . "/units");
-    
+
         // Assuming the API returns a JSON response, we'll decode it
         $data = $results->json();
-    
+
         // Return the transformed data using the API resource
         return UnitResource::collection($data['response']['units']);
     }
 
-    public function test() {
+    public function test()
+    {
         $response = Http::withOptions(['verify' => false])->withHeaders([
             'content-type' => 'application/json',
             'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
@@ -71,8 +72,8 @@ class MollakController extends Controller
     {
         $response = Http::withOptions(['verify' => false])->withHeaders([
             'content-type' => 'application/json',
-        ])->post("https://sms.rmlconnect.net/OtpApi/otpgenerate?username=LazimTrans&password=Lazim@10&msisdn=" . $request->phone . "&msg=Your%20one%20time%20OTP%20is%20%25m&source=ILAJ-LAZIM&tagname=Lazim&otplen=5&exptime=60");
-        
+        ])->post(env("SMS_LINK") . "otpgenerate?username=" . env("SMS_USERNAME") . "&password=" . env("SMS_PASSWORD") . "&msisdn=" . $request->phone . "&msg=Your%20one%20time%20OTP%20is%20%25m&source=ILAJ-LAZIM&tagname=Lazim&otplen=5&exptime=60");
+
         return $response;
     }
 
@@ -81,7 +82,7 @@ class MollakController extends Controller
         $otp = $request->otp;
         $response = Http::withOptions(['verify' => false])->withHeaders([
             'content-type' => 'application/json',
-        ])->post("https://sms.rmlconnect.net/OtpApi/checkotp?username=LazimTrans&password=Lazim@10&msisdn=" . $request->phone . "&otp=" . $otp);
+        ])->post(env("SMS_LINK") . "checkotp??username=" . env("SMS_USERNAME") . "&password=" . env("SMS_PASSWORD") . "&msisdn=" . $request->phone . "&otp=" . $otp);
 
         if ($response != 101) {
             return response()->json([
