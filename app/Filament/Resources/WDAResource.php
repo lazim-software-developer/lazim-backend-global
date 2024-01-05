@@ -1,35 +1,34 @@
 <?php
 
-namespace App\Filament\Resources\Vendor\VendorResource\RelationManagers;
+namespace App\Filament\Resources;
 
-use App\Models\Accounting\WDA;
 use Filament\Forms;
 use Filament\Tables;
 use Filament\Forms\Form;
-use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use App\Models\Accounting\WDA;
+use Filament\Resources\Resource;
 use Filament\Forms\Components\Grid;
-use Filament\Tables\Actions\Action;
 use Filament\Forms\Components\Select;
 use Filament\Tables\Columns\TextColumn;
-use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
-use Filament\Tables\Columns\ImageColumn;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
+use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
+use App\Filament\Resources\WDAResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Filament\Resources\RelationManagers\RelationManager;
+use App\Filament\Resources\WDAResource\RelationManagers;
 
-class WdasRelationManager extends RelationManager {
-    protected static string $relationship = 'wdas';
+class WDAResource extends Resource
+{
+    protected static ?string $model = WDA::class;
     protected static ?string $modelLabel = 'WDA';
 
-    public static function getTitle(Model $ownerRecord, string $pageClass): string {
-        return 'WDA';
-    }
+    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
-    public function form(Form $form): Form {
+    public static function form(Form $form): Form
+    {
         return $form
             ->schema([
                 Grid::make([
@@ -94,7 +93,7 @@ class WdasRelationManager extends RelationManager {
                         TextInput::make('remarks')
                             ->rules(['max:255'])
                             ->visible(function (callable $get) {
-                                if($get('status') == 'rejected') {
+                                if ($get('status') == 'rejected') {
                                     return true;
                                 }
                                 return false;
@@ -106,7 +105,9 @@ class WdasRelationManager extends RelationManager {
                     ])
             ]);
     }
-    public function table(Table $table): Table {
+
+    public static function table(Table $table): Table
+    {
         return $table
             ->columns([
                 TextColumn::make('date')
@@ -125,40 +126,39 @@ class WdasRelationManager extends RelationManager {
             ])
             ->filters([
                 SelectFilter::make('status')
-                ->options([
-                    'approved' => 'Approved',
-                    'rejected' => 'Rejected',
-                    'pending' => 'Pending',
+                    ->options([
+                        'approved' => 'Approved',
+                        'rejected' => 'Rejected',
+                        'pending' => 'Pending',
                     ])
-                ->searchable(),    
-            ])
-            ->headerActions([
-                //Tables\Actions\CreateAction::make(),
+                    ->searchable(),
             ])
             ->actions([
-                Tables\Actions\EditAction::make()
-                    ->mutateFormDataUsing(function (array $data): array {
-                        if($data['status'] != 'pending') {
-                            $data['status_updated_by'] = auth()->user()->id;
-                        }
-                        
-                        return $data;
-                    })
-                    ->mutateRecordDataUsing(function (array $data): array {
-                        if($data['status'] == 'pending'){
-                            $data['status'] = null;
-                        }
-                        return $data;
-                    })
-                //Tables\Actions\DeleteAction::make(),
+                Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    //Tables\Actions\DeleteBulkAction::make(),
+                    // Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ])
             ->emptyStateActions([
-                //Tables\Actions\CreateAction::make(),
+                // Tables\Actions\CreateAction::make(),
             ]);
+    }
+
+    public static function getRelations(): array
+    {
+        return [
+            //
+        ];
+    }
+
+    public static function getPages(): array
+    {
+        return [
+            'index' => Pages\ListWDAS::route('/'),
+            'create' => Pages\CreateWDA::route('/create'),
+            'edit' => Pages\EditWDA::route('/{record}/edit'),
+        ];
     }
 }
