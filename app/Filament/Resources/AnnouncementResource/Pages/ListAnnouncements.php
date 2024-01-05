@@ -10,7 +10,8 @@ use Illuminate\Database\Eloquent\Builder;
 class ListAnnouncements extends ListRecords
 {
     protected static string $resource = AnnouncementResource::class;
-
+    protected static ?string $title = 'Notice board';
+    protected static ?string $modeLabel = 'Notice board';
     protected function getTableQuery(): Builder
     {
         if(auth()->user()->id != 1) 

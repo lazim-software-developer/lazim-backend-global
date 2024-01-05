@@ -113,6 +113,7 @@ class PostResource extends Resource
                                 }
                                 return Building::where('owner_association_id', auth()->user()->owner_association_id)->pluck('name', 'id');
                             })
+                            ->multiple()
                             ->searchable()
                             ->preload()
                             ->required()
