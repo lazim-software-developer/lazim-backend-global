@@ -11,6 +11,7 @@ use Filament\Support\Colors\Color;
 use Illuminate\Support\Facades\DB;
 use Filament\Navigation\NavigationItem;
 use App\Filament\Pages\Auth\EditProfile;
+use App\Filament\Resources\DelinquentOwnerResource;
 use Filament\Navigation\NavigationGroup;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Navigation\NavigationBuilder;
@@ -229,7 +230,7 @@ class AdminPanelProvider extends PanelProvider
                                     ->activeIcon('heroicon-s-pencil-square')
                                     ->sort(2),
                                 NavigationItem::make('Delinquent owners')
-                                    ->url('/admin/delinquent-owners')
+                                    ->url(DelinquentOwnerResource::getUrl('index'))
                                     ->icon('heroicon-s-bars-arrow-down')
                                     ->activeIcon('heroicon-s-bars-arrow-down')
                                     ->sort(3),
