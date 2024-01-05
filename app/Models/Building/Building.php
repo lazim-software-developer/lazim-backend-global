@@ -68,7 +68,8 @@ class Building extends Model
     ];
 
     protected $casts = [
-        'allow_postupload' => 'boolean'
+        'allow_postupload' => 'boolean',
+        'show_inhouse_services' => 'boolean'
     ];
 
     protected $searchableFields = ['*'];

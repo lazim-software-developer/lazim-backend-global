@@ -20,18 +20,6 @@ class ServiceController extends Controller
 {
     public function listServicesForBuilding(Service $service)
     {
-        // Fetch vendor IDs associated with the building
-        // $vendorIds = $building->vendors()->pluck('vendors.id');
-
-        // // Fetch services provided by those vendors along with their prices
-        // $services = Service::with(['vendors' => function ($query) use ($vendorIds) {
-        //     $query->whereIn('vendors.id', $vendorIds)->select('service_vendor.price');
-        // }])
-        // ->whereHas('vendors', function ($query) use ($vendorIds) {
-        //     $query->whereIn('vendors.id', $vendorIds);
-        // })->get();
-
-        // New code
         $result = $service->where(['active' => 1, 'type' => 'inhouse'])->get();
         return ServiceResource::collection($result);
     }
@@ -88,5 +76,16 @@ class ServiceController extends Controller
         Excel::import($servicesImport, $request->file('file'));
 
         return response()->json(['message' => 'Services imported successfully']);
+    }
+
+    /**
+     * Check if inhouse services are enabled for this building
+     *
+     * @param  Building  $building
+     * @return \Illuminate\Http\Response
+     */
+    public function checkInhouseServicePermission(Building $building)
+    {
+        return response()->json(['show' => $building->show_inhouse_services]);
     }
 }
