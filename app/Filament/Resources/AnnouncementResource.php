@@ -25,7 +25,7 @@ use Illuminate\Database\Eloquent\Builder;
 class AnnouncementResource extends Resource
 {
     protected static ?string $model = Post::class;
-    protected static ?string $modelLabel = 'Announcement';
+    protected static ?string $modelLabel = 'Notice board';
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
     protected static ?string $navigationGroup = 'Community';
 
