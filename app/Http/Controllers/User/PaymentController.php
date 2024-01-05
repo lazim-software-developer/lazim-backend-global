@@ -89,13 +89,13 @@ class PaymentController extends Controller
         ])->get("https://b2bgateway.dubailand.gov.ae/mollak/external/sync/invoices/235553/17651639/0223010004632489/detail");
     }
 
-    public function fetchPDF2(OAMInvoice $invoice)
+    public function fetchServiceChargePDF(OAMInvoice $invoice)
     {
-        $invoice->invoice_pdf_link;
+        $pdfLink = $invoice->invoice_detail_link;
 
         return $response = Http::withoutVerifying()->withHeaders([
             'content-type' => 'application/json',
             'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
-        ])->get("https://b2bgateway.dubailand.gov.ae/mollak/external/sync/invoices/235553/17651639/0223010004632489/pdf");
+        ])->get($pdfLink);
     }
 }
