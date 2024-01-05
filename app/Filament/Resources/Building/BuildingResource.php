@@ -120,9 +120,11 @@ class BuildingResource extends Resource
                                 ->label('Floor'),
 
                             Toggle::make('allow_postupload')
-                                ->rules(['boolean']),
+                                ->rules(['boolean'])
+                                ->label('Allow post-upload'),
                             Toggle::make('show_inhouse_services')
-                                ->rules(['boolean']),
+                                ->rules(['boolean'])
+                                ->label('Show in-house services'),
                             
 
                             // TextInput::make('lat')
