@@ -84,7 +84,7 @@ class VendorRelationManager extends RelationManager
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
-                Tables\Actions\DetachAction::make()->label('Remove'),
+                // Tables\Actions\DetachAction::make()->label('Remove'),
             ])
             ->headerActions([
                 Tables\Actions\AttachAction::make()
