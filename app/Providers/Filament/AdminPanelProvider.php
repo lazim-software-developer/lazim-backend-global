@@ -11,6 +11,7 @@ use Filament\Support\Colors\Color;
 use Illuminate\Support\Facades\DB;
 use Filament\Navigation\NavigationItem;
 use App\Filament\Pages\Auth\EditProfile;
+use App\Filament\Resources\BankStatementResource;
 use App\Filament\Resources\WDAResource;
 use App\Filament\Resources\DelinquentOwnerResource;
 use Filament\Navigation\NavigationGroup;
@@ -253,6 +254,11 @@ class AdminPanelProvider extends PanelProvider
                                     ->icon('heroicon-o-document')
                                     ->activeIcon('heroicon-o-document')
                                     ->sort(4),
+                                NavigationItem::make('Bank Statement')
+                                    ->url(BankStatementResource::getUrl('index'))
+                                    ->icon('heroicon-s-document-text')
+                                    ->activeIcon('heroicon-s-document-text')
+                                    ->sort(5),
 
                                 ]), NavigationGroup::make('Reports')
                             ->items([
