@@ -9,6 +9,7 @@ use App\Models\Vendor\Vendor;
 use App\Livewire\VendorRegistration;
 use App\Filament\Pages\BudgetListing;
 use App\Filament\Pages\OAM\CreateTender;
+use App\Http\Controllers\GeneralFundController;
 use App\Http\Controllers\Vendor\MasterController;
 use Filament\Pages\Page;
 
@@ -56,6 +57,8 @@ Route::post('admin/{budget}/tender/create', [CreateTender::class, 'store'])->nam
 Route::get('/budget/{budget}/available-services/{subcategory}', [MasterController::class, 'getAvailableServices']);
 
 Route::post('/get-delinquent-owners', [DelinquentController::class, 'getDelinquentOwners']);
+
+Route::post('/get-genearl-fund',[GeneralFundController::class,'getGeneralFund']);
 
 
 // Route::get('/admin/ledgers/{invoice}/receipts', function () {
