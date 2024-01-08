@@ -274,7 +274,7 @@ class BuildingResource extends Resource
             RuleregulationsRelationManager::class,
             OwnercommitteesRelationManager::class,
             MeetingsRelationManager::class,
-            // BuildingserviceRelationManager::class,
+            BuildingserviceRelationManager::class,
             BuildingResource\RelationManagers\ComplaintRelationManager::class,
             BuildingResource\RelationManagers\ServiceRelationManager::class,
                 // BuildingResource\RelationManagers\DocumentsRelationManager::class,
