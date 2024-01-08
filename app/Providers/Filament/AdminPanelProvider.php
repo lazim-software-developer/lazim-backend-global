@@ -259,6 +259,11 @@ class AdminPanelProvider extends PanelProvider
                                     ->icon('heroicon-s-document-text')
                                     ->activeIcon('heroicon-s-document-text')
                                     ->sort(5),
+                                NavigationItem::make('General Fund Statement')
+                                    ->url('/admin/general-fund-statement')
+                                    ->icon('heroicon-o-clipboard-document')
+                                    ->activeIcon('heroicon-o-clipboard-document')
+                                    ->sort(6),
 
                                 ]), NavigationGroup::make('Reports')
                             ->items([
