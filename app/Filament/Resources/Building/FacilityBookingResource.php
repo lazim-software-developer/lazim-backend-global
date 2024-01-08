@@ -78,7 +78,7 @@ class FacilityBookingResource extends Resource
                             ->required()
                             ->relationship('user', 'first_name')
                             ->options(function () {
-                                return User::whereIn('role_id', [1, 11])->pluck('first_name', 'id');
+                                return User::whereIn('role_id', [1, 11])->where('owner_association_id',auth()->user()->owner_association_id)->pluck('first_name', 'id');
                             })
                             ->preload()
                             ->disabledOn('edit')
