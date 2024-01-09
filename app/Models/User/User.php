@@ -9,6 +9,7 @@ use App\Models\Forms\Guest;
 use App\Models\Master\Role;
 use App\Models\Building\Flat;
 use App\Models\Forms\SaleNOC;
+use App\Models\ItemInventory;
 use App\Models\Vendor\Vendor;
 use App\Models\Accounting\WDA;
 use App\Models\Community\Poll;
@@ -20,12 +21,12 @@ use App\Models\Forms\FitOutForm;
 use App\Models\OwnerAssociation;
 use App\Models\TechnicianAssets;
 use App\Models\TechnicianVendor;
+use App\Models\Building\Building;
 use App\Models\Building\Document;
 use App\Models\Scopes\Searchable;
 use App\Models\Vendor\Attendance;
 use Laravel\Sanctum\HasApiTokens;
 use App\Models\Accounting\Invoice;
-use App\Models\Building\Building;
 use App\Models\Building\Complaint;
 use App\Models\Community\PostLike;
 use App\Models\Building\FlatTenant;
@@ -288,5 +289,9 @@ class User extends Authenticatable implements FilamentUser, HasName
     public function roles(): BelongsToMany
     {
         return $this->belongsToMany(Building::class,'owner_committees','building_id','user_id');
+    }
+    public function iteminventory()
+    {
+        return $this->hasMany(ItemInventory::class);
     }
 }
