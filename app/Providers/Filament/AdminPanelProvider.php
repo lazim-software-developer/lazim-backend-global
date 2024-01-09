@@ -264,6 +264,11 @@ class AdminPanelProvider extends PanelProvider
                                     ->icon('heroicon-o-clipboard-document')
                                     ->activeIcon('heroicon-o-clipboard-document')
                                     ->sort(6),
+                                NavigationItem::make('Reserve Fund Statement')
+                                    ->url('/admin/reserve-fund-statement')
+                                    ->icon('heroicon-o-clipboard-document')
+                                    ->activeIcon('heroicon-o-clipboard-document')
+                                    ->sort(7),
 
                                 ]), NavigationGroup::make('Reports')
                             ->items([
