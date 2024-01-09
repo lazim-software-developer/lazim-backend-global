@@ -1,13 +1,13 @@
 <x-filament-panels::page>
     <div class="mb-4 flex space-x-2">
-        <select id="building-dropdown" name="building" searchable onChange="loadGeneralFund()" class="bg-white border border-gray-300 rounded-md shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 mr-2">
+        <select id="building-dropdown" name="building" searchable onChange="loadReserveFund()" class="bg-white border border-gray-300 rounded-md shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 mr-2">
             <option value="">Select a Building</option>
             @foreach($buildings as $building)
                 <option value="{{ $building->id }}">{{ $building->name }}</option>
             @endforeach
         </select>
 
-        <select id="year-dropdown" name="year" onChange="loadGeneralFund()" class="bg-white border border-gray-300 rounded-md shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+        <select id="year-dropdown" name="year" onChange="loadReserveFund()" class="bg-white border border-gray-300 rounded-md shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
             
             @foreach($years as $year)
                 <option value="{{ $year }}">{{ $year }}</option>
@@ -25,7 +25,7 @@
                     <th  style="background-color: #f2f2f2; "></th>
                 </tr>
                 <tr>
-                    <td>General Fund</td>
+                    <td>Reserve Fund</td>
                     <td class="text-right">N/A</td>
                 </tr>
                 <tr style="border-top: 2px solid;">
@@ -58,7 +58,7 @@
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
     <script>
-            function loadGeneralFund() {
+            function loadReserveFund() {
                     const yearDropdown = document.getElementById('year-dropdown');
                     const buildingDropdown = document.getElementById('building-dropdown');
                     const selectedYear = yearDropdown.value;
@@ -69,7 +69,7 @@
                     if (selectedYear !== "") dataPayload.year = selectedYear;
                     if (selectedBuilding !== "") dataPayload.building_id = selectedBuilding;
 
-                    axios.post(`/get-general-fund`, dataPayload)
+                    axios.post(`/get-reserve-fund`, dataPayload)
                         .then(response => {
                             document.getElementById('table-full').innerHTML = response.data;
                         })
