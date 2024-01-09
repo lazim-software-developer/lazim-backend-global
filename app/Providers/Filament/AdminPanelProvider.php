@@ -368,6 +368,26 @@ class AdminPanelProvider extends PanelProvider
                                 ->sort(1),
                         ]),
                 ]);
+
+                if (DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] != 'Admin') {
+                    $builder->groups([
+                        NavigationGroup::make('Inventory Management')
+                            ->items([
+                                NavigationItem::make('Items')
+                                    ->url('/admin/items')
+                                    ->hidden(DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] == 'Admin' ? true : false)
+                                    ->icon('heroicon-m-rectangle-group')
+                                    ->activeIcon('heroicon-m-rectangle-group')
+                                    ->sort(1),
+                                NavigationItem::make('Item inventorys')
+                                    ->url('/admin/item-inventories')
+                                    ->hidden(DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] == 'Admin' ? true : false)
+                                    ->icon('heroicon-m-arrow-down-on-square-stack')
+                                    ->activeIcon('heroicon-m-arrow-down-on-square-stack')
+                                    ->sort(2),
+                            ]),
+                    ]);
+                }
                 // if (DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] != 'Admin') {
                 //     $builder->groups([
                 //         NavigationGroup::make('Document Management')
