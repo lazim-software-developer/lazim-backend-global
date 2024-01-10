@@ -10,6 +10,7 @@ use App\Livewire\VendorRegistration;
 use App\Filament\Pages\BudgetListing;
 use App\Filament\Pages\OAM\CreateTender;
 use App\Http\Controllers\GeneralFundController;
+use App\Http\Controllers\OwnerAssociationInvoice;
 use App\Http\Controllers\ReserveFundController;
 use App\Http\Controllers\Vendor\MasterController;
 use Filament\Pages\Page;
@@ -62,6 +63,9 @@ Route::post('/get-delinquent-owners', [DelinquentController::class, 'getDelinque
 Route::post('/get-general-fund',[GeneralFundController::class,'getGeneralFund']);
 
 Route::post('/get-reserve-fund',[ReserveFundController::class,'getReserveFund']);
+
+Route::get('invoice',[OwnerAssociationInvoice::class,'invoice'])->name('invoice');
+
 
 
 

@@ -269,6 +269,11 @@ class AdminPanelProvider extends PanelProvider
                                     ->icon('heroicon-o-clipboard-document')
                                     ->activeIcon('heroicon-o-clipboard-document')
                                     ->sort(7),
+                                NavigationItem::make('Generate Invoice')
+                                    ->url('/admin/generate-invoice')
+                                    ->icon('heroicon-o-clipboard-document')
+                                    ->activeIcon('heroicon-o-clipboard-document')
+                                    ->sort(8),
 
                                 ]), NavigationGroup::make('Reports')
                             ->items([
