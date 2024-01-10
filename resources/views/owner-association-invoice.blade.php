@@ -42,10 +42,10 @@
                     <p class="text-sm text-gray-600">TRN:</p>
                 </div>
                 <div class="text-left">
-                    <p class="text-sm text-gray-600">Invoice No: SYIN00021</p>
+                    <p class="text-sm text-gray-600">Invoice No: {{$data['invoice_id']}}</p>
                     <p class="text-sm text-gray-600">Invoice Date: {{$data['date']}}</p>
-                    <p class="text-sm text-gray-600">Invoice Due Date: {{$data['mode_of_payment']}}</p>
-                    <p class="text-sm text-gray-600">Mode/Terms of Payment: {{$data['due_date']}}</p>
+                    <p class="text-sm text-gray-600">Invoice Due Date: {{$data['due_date']}}</p>
+                    <p class="text-sm text-gray-600">Mode/Terms of Payment: {{$data['mode_of_payment']}}</p>
                     <p class="text-sm text-gray-600">Supplier's Ref.: {{$data['supplier_reference']}}</p>
                     <p class="text-sm text-gray-600">Job: {{$data['job']}}</p>
                     <p class="text-sm text-gray-600">Month: {{$data['month']}}</p>
