@@ -109,6 +109,8 @@ class OwnerAssociationInvoice extends Page implements HasForms
         try {
             $data = $this->form->getState();
             $oam = auth()->user()->ownerAssociation;
+            $invoice_id = strtoupper(substr($oam->name, 0, 4)) . date('YmdHis');
+            $data['invoice_id'] = $invoice_id;
             $building = Building::find($this->form->getState()['building_id']);
             if($this->form->getState()['to'] == 'building'){
                 $data['tax'] = 0.00;
