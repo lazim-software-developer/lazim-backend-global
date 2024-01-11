@@ -274,6 +274,11 @@ class AdminPanelProvider extends PanelProvider
                                     ->icon('heroicon-o-clipboard-document')
                                     ->activeIcon('heroicon-o-clipboard-document')
                                     ->sort(8),
+                                NavigationItem::make('Generate Receipt')
+                                    ->url('/admin/generate-receipt')
+                                    ->icon('heroicon-o-clipboard-document')
+                                    ->activeIcon('heroicon-o-clipboard-document')
+                                    ->sort(9),
 
                                 ]), NavigationGroup::make('Reports')
                             ->items([

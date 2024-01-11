@@ -1,6 +1,7 @@
 <?php
 
 use App\Filament\Resources\LedgersResource\Pages\ListReceipts;
+use App\Http\Controllers\OwnerAssociationReceipts;
 use App\Http\Controllers\Vendor\DelinquentController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
@@ -64,7 +65,9 @@ Route::post('/get-general-fund',[GeneralFundController::class,'getGeneralFund'])
 
 Route::post('/get-reserve-fund',[ReserveFundController::class,'getReserveFund']);
 
-Route::get('invoice',[OwnerAssociationInvoice::class,'invoice'])->name('invoice');
+Route::get('/invoice',[OwnerAssociationInvoice::class,'invoice'])->name('invoice');
+
+Route::get('/receipt',[OwnerAssociationReceipts::class,'receipt'])->name('receipt');
 
 
 
