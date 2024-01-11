@@ -14,6 +14,7 @@ use App\Filament\Pages\Auth\EditProfile;
 use App\Filament\Resources\BankStatementResource;
 use App\Filament\Resources\WDAResource;
 use App\Filament\Resources\DelinquentOwnerResource;
+use App\Filament\Resources\OwnerAssociationInvoiceResource;
 use Filament\Navigation\NavigationGroup;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Navigation\NavigationBuilder;
@@ -270,7 +271,7 @@ class AdminPanelProvider extends PanelProvider
                                     ->activeIcon('heroicon-o-clipboard-document')
                                     ->sort(7),
                                 NavigationItem::make('Generate Invoice')
-                                    ->url('/admin/generate-invoice')
+                                    ->url(OwnerAssociationInvoiceResource::getUrl('index'))
                                     ->icon('heroicon-o-clipboard-document')
                                     ->activeIcon('heroicon-o-clipboard-document')
                                     ->sort(8),

@@ -3,6 +3,7 @@
 namespace App\Filament\Pages;
 
 use App\Models\Building\Building;
+use App\Models\OwnerAssociationInvoice as ModelsOwnerAssociationInvoice;
 use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Grid;
@@ -12,12 +13,8 @@ use Filament\Forms\Components\ViewField;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
-use Filament\Forms\Set;
-use Filament\Pages\Concerns\InteractsWithFormActions;
 use Filament\Pages\Page;
 use Filament\Support\Exceptions\Halt;
-use Illuminate\Contracts\View\View;
-use NumberFormatter;
 
 class OwnerAssociationInvoice extends Page implements HasForms
 {
@@ -43,7 +40,7 @@ class OwnerAssociationInvoice extends Page implements HasForms
         ->schema([
             DatePicker::make('date')->required(),
             DatePicker::make('due_date')->required(),
-            Select::make('to')->required()
+            Select::make('type')->required()
             ->options([
                 "building" => "Building",
                 "other" => "Other",
@@ -54,18 +51,29 @@ class OwnerAssociationInvoice extends Page implements HasForms
                 $oaId = auth()->user()->owner_association_id;
                 return Building::where('owner_association_id', $oaId)
                     ->pluck('name', 'id');
+            })->visible(function (callable $get) {
+                if ($get('type') == 'building') {
+                    return true;
+                }
+                return false;
             })
             ->preload()
             ->live()
             ->label('Building Name'),
             TextInput::make('bill_to')->required()->visible(function (callable $get) {
-                if ($get('to') == 'other') {
+                if ($get('type') == 'other') {
+                    return true;
+                }
+                return false;
+            }),
+            TextInput::make('address')->required()->visible(function (callable $get) {
+                if ($get('type') == 'other') {
                     return true;
                 }
                 return false;
             }),
             TextInput::make('mode_of_payment'),
-            TextInput::make('supplier_reference'),
+            TextInput::make('supplier_name'),
             TextInput::make('job')->required(),
             Select::make('month')->required()
                 ->options([
@@ -84,13 +92,14 @@ class OwnerAssociationInvoice extends Page implements HasForms
                 ]),
             TextInput::make('description')->required(),
             TextInput::make('quantity')->numeric()->required(),
-            TextInput::make('unit_price')->label('Rate')->numeric()->required(),
-            TextInput::make('tax')->numeric()->inputMode('decimal')->placeholder(0)->hidden(function (callable $get) {
-                if ($get('to') == 'building') {
+            TextInput::make('rate')->numeric()->required(),
+            TextInput::make('tax')->numeric()->placeholder(0)->visible(function (callable $get) {
+                if ($get('type') == 'other') {
                     return true;
                 }
                 return false;
             })->required(),
+            TextInput::make('trn'),
         ])
     ])->statePath('data');
     }
@@ -109,19 +118,19 @@ class OwnerAssociationInvoice extends Page implements HasForms
         try {
             $data = $this->form->getState();
             $oam = auth()->user()->ownerAssociation;
+            $data['owner_association_id'] = $oam->id;
             $invoice_id = strtoupper(substr($oam->name, 0, 4)) . date('YmdHis');
-            $data['invoice_id'] = $invoice_id;
-            $building = Building::find($this->form->getState()['building_id']);
-            if($this->form->getState()['to'] == 'building'){
+            $data['invoice_number'] = $invoice_id;
+            if($data['type'] == 'building'){
                 $data['tax'] = 0.00;
             }
-            $total = ($data['quantity'] * $data['unit_price']) + (($data['quantity'] * $data['unit_price'] * $data['tax'])/100);
-            $formatter = new NumberFormatter('en', NumberFormatter::SPELLOUT);
-            $totalWords = ucwords($formatter->format($total));
-            // dd($totalWords);
+            
+            $receipt = ModelsOwnerAssociationInvoice::create($data);
             session()->forget('invoice_data');
-            session(['invoice_data' => $data,'oam' => $oam,'building' => $building,'total' => $total,'totalWords'=> $totalWords]);
+            session(['invoice_data' => $receipt->id]);
             redirect()->route('invoice') ;
+            // redirected to owner association controller
+            // route written in web.php
         } catch (Halt $exception) {
             return;
         }
