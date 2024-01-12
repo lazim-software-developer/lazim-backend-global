@@ -39,8 +39,9 @@ class MyClientImport implements ToCollection, WithHeadingRow
 
         if (!empty($missingHeadings)) {
             Notification::make()
-                ->title("Upload valid excel file. Missing headings: " . implode(', ', $missingHeadings))
+                ->title("Upload valid excel file.")
                 ->danger()
+                ->body("Missing headings: " . implode(', ', $missingHeadings))
                 ->send();
             return 'failure';
         } else {
