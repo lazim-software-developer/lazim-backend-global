@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Vendor;
 
 use App\Filament\Resources\Vendor\VendorResource\Pages;
+use App\Filament\Resources\Vendor\VendorResource\RelationManagers\BuildingvendorRelationManager;
 use App\Jobs\AccountCreationJob;
 use App\Jobs\VendorAccountCreationJob;
 use App\Jobs\VendorRejectionJob;
@@ -169,7 +170,8 @@ class VendorResource extends Resource
                 // VendorResource\RelationManagers\UsersRelationManager::class,
                 // VendorResource\RelationManagers\ContactsRelationManager::class,
             VendorResource\RelationManagers\DocumentsRelationManager::class,
-            VendorResource\RelationManagers\BuildingsRelationManager::class,
+            // VendorResource\RelationManagers\BuildingsRelationManager::class,
+            BuildingvendorRelationManager::class,
             VendorResource\RelationManagers\TechnicianVendorsRelationManager::class,
             VendorResource\RelationManagers\ManagersRelationManager::class,
             VendorResource\RelationManagers\EscalationMatrixRelationManager::class,

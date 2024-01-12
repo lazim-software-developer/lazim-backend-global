@@ -2,6 +2,7 @@
 
 namespace App\Models\Building;
 
+use App\Models\BuildingVendor;
 use App\Models\Item;
 use App\Models\Asset;
 use App\Models\Floor;
@@ -179,6 +180,10 @@ class Building extends Model
     public function vendors()
     {
         return $this->belongsToMany(Vendor::class, 'building_vendor');
+    }
+    public function buildingvendor()
+    {
+        return $this->hasMany(BuildingVendor::class);
     }
     public function moveinOut()
     {

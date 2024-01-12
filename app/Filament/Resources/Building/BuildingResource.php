@@ -29,6 +29,7 @@ use App\Filament\Resources\Building\BuildingResource\RelationManagers;
 use App\Filament\Resources\Building\BuildingResource\RelationManagers\FloorsRelationManager;
 use App\Filament\Resources\Building\BuildingResource\RelationManagers\MeetingsRelationManager;
 use App\Filament\Resources\Building\BuildingResource\RelationManagers\BuildingserviceRelationManager;
+use App\Filament\Resources\Building\BuildingResource\RelationManagers\BuildingvendorRelationManager;
 use App\Filament\Resources\Building\BuildingResource\RelationManagers\OwnercommitteesRelationManager;
 use App\Filament\Resources\Building\BuildingResource\RelationManagers\RuleregulationsRelationManager;
 
@@ -277,10 +278,11 @@ class BuildingResource extends Resource
             BuildingserviceRelationManager::class,
             BuildingResource\RelationManagers\ComplaintRelationManager::class,
             BuildingResource\RelationManagers\ServiceRelationManager::class,
-                // BuildingResource\RelationManagers\DocumentsRelationManager::class,
+            // BuildingResource\RelationManagers\DocumentsRelationManager::class,
             BuildingResource\RelationManagers\FacilitiesRelationManager::class,
             BuildingResource\RelationManagers\FlatsRelationManager::class,
-            BuildingResource\RelationManagers\VendorRelationManager::class,
+            // BuildingResource\RelationManagers\VendorRelationManager::class,
+            BuildingvendorRelationManager::class,
             BuildingResource\RelationManagers\AssetsRelationManager::class,
         ];
     }
