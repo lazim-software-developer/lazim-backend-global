@@ -37,6 +37,7 @@ class ListBudgets extends ListRecords
                         ->options(function(){
                             return Building::where('owner_association_id',auth()->user()->owner_association_id)->pluck('name','id');
                         })
+                        ->preload()
                         ->searchable()
                         ->label('Select Building'),
                     Select::make('budget_period')
