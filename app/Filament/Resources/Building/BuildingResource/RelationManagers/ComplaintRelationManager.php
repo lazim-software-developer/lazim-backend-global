@@ -49,7 +49,7 @@ class ComplaintRelationManager extends RelationManager
                             ->searchable()
                             ->placeholder('Building'),
                         Select::make('user_id')
-                            ->relationship('user', 'id')
+                            ->relationship('user', 'first_name')
                             ->options(function () {
                                 $tenants = DB::table('flat_tenants')->pluck('tenant_id');
                                 // dd($tenants);
