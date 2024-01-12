@@ -17,9 +17,9 @@ class EditBuilding extends EditRecord
     {
         return [
             // Actions\DeleteAction::make(),
-            Action::make('Inhouse services')
-                ->label('Inhouse services')
-                ->url(BuildingResource::getUrl('services'))
+            // Action::make('Inhouse services')
+            //     ->label('Inhouse services')
+            //     ->url(BuildingResource::getUrl('services'))
         ];
     }
     public function afterSave()
