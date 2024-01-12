@@ -34,6 +34,23 @@ class BudgetImport implements ToCollection, WithHeadingRow
      */
     public function collection(Collection $rows)
     {
+        // Define the expected headings
+        $expectedHeadings = [ 'servicecode', 'servicename', 'budget', 'budgetvat', 'category', 'subcategory',];
+
+        // Extract the headings from the first row
+        $extractedHeadings = array_keys($rows->first()->toArray());
+
+        // Check if all expected headings are present in the extracted headings
+        $missingHeadings = array_diff($expectedHeadings, $extractedHeadings);
+
+        if (!empty($missingHeadings)) {
+            Notification::make()
+                ->title("Upload valid excel file.")
+                ->danger()
+                ->body("Missing headings: " . implode(', ', $missingHeadings))
+                ->send();
+            return 'failure';
+        }
         [$start, $end] = explode(' - ', $this->budgetPeriod);
         $startDate = Carbon::createFromFormat('M Y', $start)->startOfMonth();
         $endDate = Carbon::createFromFormat('M Y', $end)->endOfMonth();

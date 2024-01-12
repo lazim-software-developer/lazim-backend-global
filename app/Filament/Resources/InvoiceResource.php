@@ -123,6 +123,7 @@ class InvoiceResource extends Resource
                     ->label('Invoice Amount'),
 
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 SelectFilter::make('status')
                     ->options([

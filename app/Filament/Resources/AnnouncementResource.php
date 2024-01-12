@@ -157,7 +157,12 @@ class AnnouncementResource extends Resource
             ->defaultSort('created_at', 'desc')
             ->filters([
                 SelectFilter::make('user_id')
-                    ->relationship('user', 'first_name')
+                    ->relationship('user', 'first_name',function (Builder $query) {
+                        if (Role::where('id', auth()->user()->role_id)->first()->name != 'Admin') {
+                            $query->where('owner_association_id', auth()->user()->owner_association_id)->where('role_id',Role::where('name', 'OA')->first()->id);
+                        }
+                        $query->where('role_id',Role::where('name', 'OA')->first()->id);
+                    })
                     ->searchable()
                     ->preload()
                     ->label('User'),
