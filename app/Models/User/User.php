@@ -9,6 +9,7 @@ use App\Models\Forms\Guest;
 use App\Models\Master\Role;
 use App\Models\Building\Flat;
 use App\Models\Forms\SaleNOC;
+use App\Models\ItemInventory;
 use App\Models\Vendor\Vendor;
 use App\Models\Accounting\WDA;
 use App\Models\Community\Poll;
@@ -20,12 +21,12 @@ use App\Models\Forms\FitOutForm;
 use App\Models\OwnerAssociation;
 use App\Models\TechnicianAssets;
 use App\Models\TechnicianVendor;
+use App\Models\Building\Building;
 use App\Models\Building\Document;
 use App\Models\Scopes\Searchable;
 use App\Models\Vendor\Attendance;
 use Laravel\Sanctum\HasApiTokens;
 use App\Models\Accounting\Invoice;
-use App\Models\Building\Building;
 use App\Models\Building\Complaint;
 use App\Models\Community\PostLike;
 use App\Models\Building\FlatTenant;
@@ -36,6 +37,7 @@ use App\Models\Community\PollResponse;
 use Filament\Models\Contracts\HasName;
 use Laravel\Jetstream\HasProfilePhoto;
 use App\Models\Building\FacilityBooking;
+use Filament\Models\Contracts\HasAvatar;
 use Illuminate\Notifications\Notifiable;
 use Filament\Models\Contracts\FilamentUser;
 use Laravel\Fortify\TwoFactorAuthenticatable;
@@ -43,7 +45,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
-class User extends Authenticatable implements FilamentUser, HasName
+class User extends Authenticatable implements FilamentUser, HasAvatar
 {
     use Notifiable;
     use HasFactory;
@@ -78,18 +80,20 @@ class User extends Authenticatable implements FilamentUser, HasName
         'active'         => 'boolean',
     ];
 
-    public function getFilamentName(): string
+    // public function getFilamentName(): string
+    // {
+    //     return $this->fullName;
+    // }
+    public function getFilamentAvatarUrl(): ?string
     {
-
-        return $this->fullName;
+        return env('AWS_URL').'/'.$this->profile_photo;
     }
+    // public function getFullNameAttribute(): string
+    // {
 
-    public function getFullNameAttribute(): string
-    {
+    //     return "{$this->first_name} {$this->last_name}";
+    // }
 
-        return "{$this->first_name} {$this->last_name}";
-    }
-    
     public function role()
     {
         return $this->belongsTo(Role::class);
@@ -288,5 +292,9 @@ class User extends Authenticatable implements FilamentUser, HasName
     public function roles(): BelongsToMany
     {
         return $this->belongsToMany(Building::class,'owner_committees','building_id','user_id');
+    }
+    public function iteminventory()
+    {
+        return $this->hasMany(ItemInventory::class);
     }
 }

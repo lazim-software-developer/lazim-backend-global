@@ -39,8 +39,9 @@ class MyClientImport implements ToCollection, WithHeadingRow
 
         if (!empty($missingHeadings)) {
             Notification::make()
-                ->title("Upload valid excel file. Missing headings: " . implode(', ', $missingHeadings))
+                ->title("Upload valid excel file.")
                 ->danger()
+                ->body("Missing headings: " . implode(', ', $missingHeadings))
                 ->send();
             return 'failure';
         } else {
@@ -51,12 +52,9 @@ class MyClientImport implements ToCollection, WithHeadingRow
                         'property_number' => $row['unit_number'],
                         'mollak_property_id' => $row['mollak_id'],
                         'building_id' => $this->buildingId,
-                    ],
-                    [
                         'property_type' => 'owner',
                         'owner_association_id' => $building->owner_association_id,
-                    ]
-                );
+                    ]);
                 MollakTenant::firstOrCreate([
                     'building_id' => $this->buildingId,
                     'flat_id' => $createflat->id,
@@ -64,7 +62,7 @@ class MyClientImport implements ToCollection, WithHeadingRow
                     'name' => $row['tenant_name'],
                     'emirates_id' => $row['emirates_id'],
                     'license_number' => $row['license_number'],
-                    'mobile' => preg_replace('/0/', '+971', $row['mobile'], 1),
+                    'mobile' => preg_replace('/0/', '971', $row['mobile'], 1),
                     'email' => $row['email'],
                     'start_date' => $row['start_date'],
                     'end_date' => $row['end_date'],

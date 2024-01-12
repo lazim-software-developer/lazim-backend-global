@@ -124,6 +124,7 @@ class WDAResource extends Resource
                 TextColumn::make('contract.contract_type')
                     ->label('Contract Type'),
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 SelectFilter::make('status')
                     ->options([

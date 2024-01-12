@@ -7,6 +7,7 @@ use Filament\Tables;
 use Filament\Forms\Get;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
+use App\Models\Master\Role;
 use Filament\Resources\Resource;
 use App\Models\Building\Complaint;
 use Illuminate\Support\Facades\DB;
@@ -58,7 +59,7 @@ class ComplaintssuggessionResource extends Resource
                             ->searchable()
                             ->placeholder('Building'),
                         Select::make('user_id')
-                            ->relationship('user', 'id')
+                            ->relationship('user', 'first_name')
                             ->options(function () {
                                 $tenants = DB::table('flat_tenants')->pluck('tenant_id');
                                 // dd($tenants);
@@ -151,7 +152,11 @@ class ComplaintssuggessionResource extends Resource
             ->defaultSort('created_at', 'desc')
             ->filters([
                 SelectFilter::make('building_id')
-                    ->relationship('building', 'name')
+                    ->relationship('building', 'name', function (Builder $query) {
+                        if (Role::where('id', auth()->user()->role_id)->first()->name != 'Admin') {
+                            $query->where('owner_association_id', auth()->user()->owner_association_id);
+                        }
+                    })
                     ->searchable()
                     ->label('Building')
                     ->preload()
