@@ -2,9 +2,11 @@
 
 namespace App\Filament\Resources;
 
+use Closure;
 use Filament\Forms;
 use App\Models\Item;
 use Filament\Tables;
+use Filament\Forms\Get;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use App\Models\ItemInventory;
@@ -14,6 +16,7 @@ use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Tables\Columns\TextColumn;
+use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\DateTimePicker;
@@ -40,11 +43,13 @@ class ItemInventoryResource extends Resource
                         ->relationship('item', 'name')
                         ->preload()
                         ->options(function () {
-                            return Item::whereIn('building_id', Building::where('owner_association_id', auth()->user()->owner_association_id)->pluck('id'))->pluck('name','id');
+                            return Item::whereIn('building_id', Building::where('owner_association_id', auth()->user()->owner_association_id)->pluck('id'))->pluck('name', 'id');
                         })
+                        ->required()
                         ->searchable(),
                     DateTimePicker::make('date')
                         ->rules(['date'])
+                        ->required()
                         ->minDate(now())
                         ->displayFormat('d-M-Y h:i A'),
                     Select::make('type')
@@ -52,18 +57,28 @@ class ItemInventoryResource extends Resource
                             'incoming' => 'Incoming',
                             'used' => 'Used',
                         ])
+                        ->required()
                         ->preload()
                         ->searchable(),
                     TextInput::make('quantity')
+                        ->rules([function (Get $get) {
+                                return function (string $attribute, $value, Closure $fail) use ($get) {
+                                    if ($get('type') == 'used' && Item::find($get('item_id'))->quantity < $value) {
+                                        $fail('The quantity value must be less than are equal to '.Item::find($get('item_id'))->quantity.'.');
+                                    }
+                                };
+                        },])
                         ->required()
                         ->integer()
                         ->minValue(1),
                     Textarea::make('comments')
-                        ->rules(['max:100', 'regex:/^(?=.*[a-zA-Z])[a-zA-Z0-9\s!@#$%^&*_+\-=,.]*$/']),
+                        ->rules(['max:100', 'regex:/^(?=.*[a-zA-Z])[a-zA-Z0-9\s!@#$%^&*_+\-=,.]*$/'])
+                        ->required(),
                     Select::make('user_id')
-                        ->relationship('user','first_name')
+                        ->relationship('user', 'first_name')
                         ->searchable()
-                        ->preload(),
+                        ->preload()
+                        ->required(),
 
                 ])
             ]);
@@ -84,6 +99,7 @@ class ItemInventoryResource extends Resource
                 TextColumn::make('comments')
                     ->searchable(),
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])

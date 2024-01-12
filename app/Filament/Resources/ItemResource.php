@@ -36,20 +36,26 @@ class ItemResource extends Resource
                 ])->schema([
                     TextInput::make('name')
                         ->required()
+                        ->disabledOn('edit')
                         ->rules(['regex:/^[a-zA-Z\s]*$/']),
                     TextInput::make('quantity')
                         ->required()
                         ->integer()
-                        ->minValue(1),
+                        ->disabledOn('edit')
+                        ->minValue(0),
                     Select::make('building_id')
                         ->relationship('building', 'name')
                         ->preload()
+                        ->disabledOn('edit')
+                        ->required()
                         ->options(function () {
                             return Building::where('owner_association_id', auth()->user()->owner_association_id)->pluck('name', 'id');
                         })
                         ->searchable(),
                     Textarea::make('description')
-                        ->rules(['max:100', 'regex:/^(?=.*[a-zA-Z])[a-zA-Z0-9\s!@#$%^&*_+\-=,.]*$/']),
+                        ->rules(['max:100', 'regex:/^(?=.*[a-zA-Z])[a-zA-Z0-9\s!@#$%^&*_+\-=,.]*$/'])
+                        ->required()
+                        ->disabledOn('edit'),
                 ])
             ]);
     }
@@ -67,11 +73,12 @@ class ItemResource extends Resource
                 TextColumn::make('description')
                     ->searchable(),
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\ViewAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -95,7 +102,8 @@ class ItemResource extends Resource
         return [
             'index' => Pages\ListItems::route('/'),
             'create' => Pages\CreateItem::route('/create'),
-            'edit' => Pages\EditItem::route('/{record}/edit'),
+            'view' => Pages\ViewItem::route('/{record}'),
+            // 'edit' => Pages\EditItem::route('/{record}/edit'),
         ];
     }
 }

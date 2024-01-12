@@ -37,6 +37,7 @@ use App\Models\Community\PollResponse;
 use Filament\Models\Contracts\HasName;
 use Laravel\Jetstream\HasProfilePhoto;
 use App\Models\Building\FacilityBooking;
+use Filament\Models\Contracts\HasAvatar;
 use Illuminate\Notifications\Notifiable;
 use Filament\Models\Contracts\FilamentUser;
 use Laravel\Fortify\TwoFactorAuthenticatable;
@@ -44,7 +45,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
-class User extends Authenticatable implements FilamentUser, HasName
+class User extends Authenticatable implements FilamentUser, HasAvatar
 {
     use Notifiable;
     use HasFactory;
@@ -79,18 +80,20 @@ class User extends Authenticatable implements FilamentUser, HasName
         'active'         => 'boolean',
     ];
 
-    public function getFilamentName(): string
+    // public function getFilamentName(): string
+    // {
+    //     return $this->fullName;
+    // }
+    public function getFilamentAvatarUrl(): ?string
     {
-
-        return $this->fullName;
+        return env('AWS_URL').'/'.$this->profile_photo;
     }
+    // public function getFullNameAttribute(): string
+    // {
 
-    public function getFullNameAttribute(): string
-    {
+    //     return "{$this->first_name} {$this->last_name}";
+    // }
 
-        return "{$this->first_name} {$this->last_name}";
-    }
-    
     public function role()
     {
         return $this->belongsTo(Role::class);
