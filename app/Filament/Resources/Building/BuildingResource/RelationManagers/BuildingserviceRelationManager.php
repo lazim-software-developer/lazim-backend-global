@@ -8,12 +8,16 @@ use Filament\Forms\Form;
 use Filament\Tables\Table;
 use App\Models\Master\Service;
 use App\Models\BuildingService;
+use Filament\Forms\Components\Grid;
 use Filament\Tables\Actions\Action;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Model;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\FileUpload;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -32,71 +36,69 @@ class BuildingserviceRelationManager extends RelationManager
     {
         return $form
             ->schema([
-                Select::make('service_id')
-                    ->relationship('service', 'name')
-                    ->required()
-                    ->disabled()
-                    ->preload()
-                    ->searchable()
-                    ->label('Service'),
-                Toggle::make('active')
-                    ->label('Active')
-                    ->default(1)
-                    ->rules(['boolean']),
+                Grid::make([
+                    'sm' => 1,
+                    'md' => 1,
+                    'lg' => 1,
+                ])
+                    ->schema([
+                        TextInput::make('name')
+                            ->rules(['max:50', 'string'])
+                            ->required()
+                            ->placeholder('Name'),
+                        Hidden::make('type')
+                            ->default('inhouse'),
+                        TextInput::make('code')
+                            ->alphaDash()
+                            ->required()
+                            ->placeholder('NA'),
+                        TextInput::make('payment_link')
+                            ->placeholder('NA')
+                            ->url(),
+                        TextInput::make('price')
+                            ->prefix('AED')
+                            ->numeric()
+                            ->minValue(1)
+                            ->maxValue(10000)
+                            ->placeholder('NA'),
+                        FileUpload::make('icon')
+                            ->acceptedFileTypes(['image/jpeg', 'image/png'])
+                            ->disk('s3')
+                            ->directory('dev')
+                            ->required()
+                            ->maxSize(2048),
+                        Toggle::make('active')
+                            ->label('Active')
+                            ->default(1)
+                            ->rules(['boolean']),
+
+                    ]),
             ]);
     }
 
     public function table(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn (Builder $query) => $query->whereIn('service_id', Service::where('type','inhouse')->pluck('id')))
+            ->query(Service::query()->where('type', 'inhouse'))
             ->columns([
-                TextColumn::make('service.name')->searchable(),
-                Tables\Columns\IconColumn::make('active')
+                TextColumn::make('name')->default('NA'),
+                TextColumn::make('price')->default('NA'),
+                IconColumn::make('active')
                     ->boolean()
                     ->trueIcon('heroicon-o-check-badge')
                     ->falseIcon('heroicon-o-x-mark'),
+                // TextColumn::make('payment_link')->default('NA'),
+
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])
             ->headerActions([
                 // Tables\Actions\CreateAction::make(),
-                Action::make('Add')
-                    ->button()
-                    ->form([
-                        Select::make('service_id')
-                            ->relationship('service', 'name')
-                            ->required()
-                            ->options(function (RelationManager $livewire) {
-                                $buildingId = $livewire->ownerRecord->id;
-
-                                // Get all the facilities
-                                $allServices = Service::all()->where('type', 'inhouse')->pluck('id')->toArray();
-                                $existingServices = BuildingService::where('building_id', $buildingId)->whereIn('service_id', $allServices)->pluck('service_id')->toArray();
-                                return Service::all()->whereNotIn('id', $existingServices)->where('type', 'inhouse')->pluck('name', 'id')->toArray();
-                            })
-                            ->preload()
-                            ->searchable()
-                            ->label('Service'),
-
-                        Hidden::make('building_id')
-                            ->default(function (RelationManager $livewire) {
-                                return $livewire->ownerRecord->id;
-                            }),
-                    ])
-                    ->action(function (array $data): void {
-
-                        $meeting = BuildingService::create([
-                            'building_id' => $data['building_id'],
-                            'service_id' => $data['service_id'],
-                            'active' => true,
-                        ]);
-                    })
-                    ->slideOver()
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                // Tables\Actions\EditAction::make(),
                 // Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
