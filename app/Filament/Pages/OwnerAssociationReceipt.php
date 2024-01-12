@@ -3,12 +3,16 @@
 namespace App\Filament\Pages;
 
 use App\Models\Building\Building;
+use App\Models\Building\Flat;
+use App\Models\OwnerAssociationReceipt as ModelsOwnerAssociationReceipt;
 use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
+use Filament\Forms\Set;
 use Filament\Pages\Page;
 use Filament\Support\Exceptions\Halt;
 use NumberFormatter;
@@ -35,11 +39,18 @@ class OwnerAssociationReceipt extends Page
             ])
         ->schema([
             DatePicker::make('date')->required(),
-            Select::make('to')->required()
+            Select::make('type')->required()
             ->options([
                 "building" => "Building",
                 "other" => "Other",
             ])->reactive(),
+            TextInput::make('receipt_to')->required()
+            ->visible(function (callable $get) {
+                if ($get('type') == 'other') {
+                    return true;
+                }
+                return false;
+            }),
             Select::make('building_id')
             ->required()
             ->options(function () {
@@ -47,7 +58,7 @@ class OwnerAssociationReceipt extends Page
                 return Building::where('owner_association_id', $oaId)
                     ->pluck('name', 'id');
             })->visible(function (callable $get) {
-                if ($get('to') == 'building') {
+                if ($get('type') == 'building') {
                     return true;
                 }
                 return false;
@@ -55,16 +66,46 @@ class OwnerAssociationReceipt extends Page
             ->preload()
             ->live()
             ->label('Building Name'),
-            // TextInput::make('bill_to')->required()->visible(function (callable $get) {
-            //     if ($get('to') == 'other') {
-            //         return true;
-            //     }
-            //     return false;
-            // }),
-            TextInput::make('through')->required(),
-            TextInput::make('account')->required(),
+            Select::make('flat_id')
+            ->required()
+            ->options(function (callable $get) {
+                return Flat::where('building_id', $get('building_id'))
+                    ->pluck('property_number', 'id');
+            })->visible(function (callable $get) {
+                if ($get('type') == 'building') {
+                    return true;
+                }
+                return false;
+            })
+            ->preload()
+            ->live()
+            ->label('Unit'),
+            Select::make('paid_by')->required()
+            ->options([
+                "owner" => "Owner",
+                "behalf of owner" => "Behalf of owner",
+            ]),
+            Select::make('payment_method')->required()
+            ->options([
+                "direct deposit" => "Direct Deposit",
+                "cheque" => "Cheque",
+                "cash" => "Cash",
+                "virtual account" => "Virtual Account",
+                "noqodi payment" => "Noqodi Payment",
+            ]),
+            Select::make('received_in')->required()
+            ->options([
+                "general fund" => "General Fund",
+                "reserve fund" => "Reserve Fund",
+            ]),
+            TextInput::make('payment_reference')->required(),
             TextInput::make('amount')->numeric()->required(),
-            TextInput::make('on_account_of')->required(),
+            TextInput::make('on_account_of')->required()->disabled(function (callable $get,Set $set) {
+                if ($get('type') == 'building') {
+                    $set('on_account_of','Service charge');
+                }
+            }),
+            FileUpload::make('receipt_document'),
 
 
             
@@ -85,18 +126,22 @@ class OwnerAssociationReceipt extends Page
     {
         try {
             $data = $this->form->getState();
+            // $oam = auth()->user()->ownerAssociation;
+            // $building = Building::find($this->form->getState()['building_id']);
+            // $receipt_id = strtoupper(substr($building->name, 0, 4)) . date('YmdHis');
+            // $data['receipt_id'] = $receipt_id;
+            // $formatter = new NumberFormatter('en', NumberFormatter::SPELLOUT);
+            // $words = ucwords($formatter->format($data['amount']));
+            // session(['receipt_data' => $data,'oam' => $oam,'building' => $building,'words'=> $words]);
+            // redirect()->route('receipt') ;
             $oam = auth()->user()->ownerAssociation;
-            $building = Building::find($this->form->getState()['building_id']);
-            $receipt_id = strtoupper(substr($building->name, 0, 4)) . date('YmdHis');
-            $data['receipt_id'] = $receipt_id;
-            $formatter = new NumberFormatter('en', NumberFormatter::SPELLOUT);
-            $words = ucwords($formatter->format($data['amount']));
+            $data['owner_association_id'] = $oam->id;
+            $receipt_id = strtoupper(substr($oam->name, 0, 4)) . date('YmdHis');
+            $data['receipt_number'] = $receipt_id;
             // dd($data);
-            // session()->forget('receipt_data');
-            // session()->forget('oam');
-            // session()->forget('building');            
-            // session()->forget('words');
-            session(['receipt_data' => $data,'oam' => $oam,'building' => $building,'words'=> $words]);
+            $receipt = ModelsOwnerAssociationReceipt::create($data);
+            session()->forget('receipt_data');
+            session(['receipt_data' => $receipt->id]);
             redirect()->route('receipt') ;
         } catch (Halt $exception) {
             return;

@@ -15,6 +15,7 @@ use App\Filament\Resources\BankStatementResource;
 use App\Filament\Resources\WDAResource;
 use App\Filament\Resources\DelinquentOwnerResource;
 use App\Filament\Resources\OwnerAssociationInvoiceResource;
+use App\Filament\Resources\OwnerAssociationReceiptResource;
 use Filament\Navigation\NavigationGroup;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Navigation\NavigationBuilder;
@@ -276,7 +277,7 @@ class AdminPanelProvider extends PanelProvider
                                     ->activeIcon('heroicon-o-clipboard-document')
                                     ->sort(8),
                                 NavigationItem::make('Generate Receipt')
-                                    ->url('/admin/generate-receipt')
+                                    ->url(OwnerAssociationReceiptResource::getUrl('index'))
                                     ->icon('heroicon-o-clipboard-document')
                                     ->activeIcon('heroicon-o-clipboard-document')
                                     ->sort(9),
