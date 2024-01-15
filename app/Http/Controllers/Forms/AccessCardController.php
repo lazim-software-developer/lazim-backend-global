@@ -146,7 +146,7 @@ class AccessCardController extends Controller
                 'message' => $nocMessage,
                 'payment_link' => $saleNocForm?->payment_link,
                 'order_id' => $saleNocForm?->orders[0]->id ?? null,
-                'order_status' => $saleNocForm?->orders[0]->payment_status ?? null,
+                'order_status' => $saleNocForm?->orders[0]->payment_status ?? 'pending',
             ]
         ];
     }
