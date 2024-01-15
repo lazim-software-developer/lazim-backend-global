@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Accounting\OAMInvoice;
 use App\Models\Accounting\OAMReceipts;
 use App\Models\Building\Flat;
+use App\Models\Order;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Http;
@@ -115,5 +116,29 @@ class PaymentController extends Controller
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
+    }
+
+    // Fetch payment status 
+    public function fetchPaymentStatus(Order $order)
+    {
+        Stripe::setApiKey(env('STRIPE_SECRET'));
+
+        try {
+            $paymentIntentId = $order->payment_intent_id;
+            $paymentIntent = PaymentIntent::retrieve($paymentIntentId);
+
+            $order->update([
+                'status' =>  $paymentIntent->status
+            ]);
+
+            return response()->json([
+                'status' => $paymentIntent->status,
+            ]);
+        } catch (ApiErrorException $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
     }
 }
