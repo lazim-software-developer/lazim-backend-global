@@ -92,15 +92,16 @@ class EditAccessCardFormsDocument extends EditRecord
             // Generate payment link and save it in access_cards_table
 
             try {
-                $clientSecret = createPaymentIntent(env('ACCESS_CARD_AMOUNT'));
+                $clientSecret = createPaymentIntent(env('ACCESS_CARD_AMOUNT'), 'punithprachi113@gmail.com');
+
                 if ($clientSecret) {
                     $this->record->update([
                         'payment_link' => $clientSecret
                     ]);
+                    Log::info("This email".$this->record->user->email);
                 }
             } catch (\Exception $e) {
                 Log::error($e->getMessage());
-                Log::info("Couldn't generate the payment link");
             }
         }
         if ($this->record->status == 'rejected') {
