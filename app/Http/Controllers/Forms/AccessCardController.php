@@ -88,7 +88,8 @@ class AccessCardController extends Controller
                 'status' => $accessCard ? $accessCard->status : 'not_submitted',
                 'created_at' => $accessCard ? Carbon::parse($accessCard->created_at)->diffForHumans() : null,
                 'rejected_reason' => $accessCard ? $accessCard->remarks : null,
-                'message' => null
+                'message' => null,
+                'payment_link' => $accessCard->payment_link
             ],
             [
                 'id' => $residentialForm ? $residentialForm->id : null,
@@ -96,7 +97,8 @@ class AccessCardController extends Controller
                 'status' => $residentialForm ? $residentialForm->status : 'not_submitted',
                 'created_at' => $residentialForm ? Carbon::parse($residentialForm->created_at)->diffForHumans() : null,
                 'rejected_reason' => $residentialForm ? $residentialForm->remarks : null,
-                'message' => null
+                'message' => null,
+                'payment_link' => null
             ],
             [
                 'id' => $fitOutForm ? $fitOutForm->id : null,
@@ -104,7 +106,8 @@ class AccessCardController extends Controller
                 'status' => $fitOutForm ? $fitOutForm->status : 'not_submitted',
                 'created_at' => $fitOutForm ? Carbon::parse($fitOutForm->created_at)->diffForHumans() : null,
                 'rejected_reason' => $fitOutForm ? $fitOutForm->remarks : null,
-                'message' => null
+                'message' => null,
+                'payment_link' => null
             ],
             [
                 'id' => $moveInForm ? $moveInForm->id : null,
@@ -112,7 +115,8 @@ class AccessCardController extends Controller
                 'status' => $moveInForm ? $moveInForm->status : 'not_submitted',
                 'created_at' => $moveInForm ? Carbon::parse($moveInForm->created_at)->diffForHumans() : null,
                 'rejected_reason' => $moveInForm ? $moveInForm->remarks : null,
-                'message' => null
+                'message' => null,
+                'payment_link' => null
             ],
             [
                 'id' => $moveOutForm ? $moveOutForm->id : null,
@@ -120,7 +124,8 @@ class AccessCardController extends Controller
                 'status' => $moveOutForm ? $moveOutForm->status : 'not_submitted',
                 'created_at' => $moveOutForm ? Carbon::parse($moveOutForm->created_at)->diffForHumans() : null,
                 'rejected_reason' => $moveOutForm ? $moveOutForm->remarks : null,
-                'message' => null
+                'message' => null,
+                'payment_link' => null
             ],
             [
                 'id' => $saleNocForm ? $saleNocForm->id : null,
@@ -128,7 +133,8 @@ class AccessCardController extends Controller
                 'status' => $saleNocForm ? $saleNocForm->status : 'not_submitted',
                 'created_at' => $saleNocForm ? Carbon::parse($saleNocForm->created_at)->diffForHumans() : null,
                 'rejected_reason' => $saleNocForm ? $saleNocForm->remarks : null,
-                'message' => $nocMessage
+                'message' => $nocMessage,
+                'payment_link' => null
             ]
         ];
     }
