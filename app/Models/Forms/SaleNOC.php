@@ -9,6 +9,7 @@ use App\Models\User\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Forms\NocContacts;
+use App\Models\Order;
 
 class SaleNOC extends Model
 {
@@ -43,8 +44,9 @@ class SaleNOC extends Model
         'remarks',
     ];
 
-    public function contacts() {
-        return $this->hasMany(NocContacts::class,'noc_form_id');
+    public function contacts()
+    {
+        return $this->hasMany(NocContacts::class, 'noc_form_id');
     }
     public function ownerAssociation()
     {
@@ -62,5 +64,10 @@ class SaleNOC extends Model
     public function flat()
     {
         return $this->belongsTo(Flat::class);
+    }
+    
+    public function orders()
+    {
+        return $this->morphMany(Order::class, 'orderable');
     }
 }

@@ -74,7 +74,7 @@ function createPaymentIntent($amount, $email) {
             'receipt_email' => $email,
         ]);
 
-        return $paymentIntent->client_secret;
+        return $paymentIntent;
     } catch (\Exception $e) {
         return (new CustomResponseResource([
             'title' => 'Error',
