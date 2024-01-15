@@ -1,8 +1,11 @@
 <?php
 
+use App\Http\Resources\CustomResponseResource;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Facades\Image;
 use Spatie\Pdf\Pdf as SpatiePdf;
+use Stripe\PaymentIntent;
+use Stripe\Stripe;
 
 function optimizeAndUpload($image, $path, $width = 474, $height = 622)
 {
@@ -58,5 +61,24 @@ function optimizeDocumentAndUpload($file, $path = 'dev', $width = 474, $height =
     } else {
         // No file uploaded
         return response()->json(['error' => 'No file uploaded.'], 422);
+    }
+}
+
+function createPaymentIntent($amount) {
+    Stripe::setApiKey(env('STRIPE_SECRET'));
+    
+    try {
+        $paymentIntent = PaymentIntent::create([
+            'amount' => $amount,
+            'currency' => 'aed',
+        ]);
+
+        return $paymentIntent->client_secret;
+    } catch (\Exception $e) {
+        return (new CustomResponseResource([
+            'title' => 'Error',
+            'message' => $e->getMessage(),
+            'code' => 500,
+        ]))->response()->setStatusCode(500);
     }
 }
