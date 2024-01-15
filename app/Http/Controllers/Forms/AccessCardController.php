@@ -145,8 +145,8 @@ class AccessCardController extends Controller
                 'rejected_reason' => $saleNocForm ? $saleNocForm->remarks : null,
                 'message' => $nocMessage,
                 'payment_link' => null,
-                'order_id' => null,
-                'order_status' => null
+                'order_id' => $saleNocForm?->orders[0]->id ?? null,
+                'order_status' => $saleNocForm?->orders[0]->payment_status ?? null,
             ]
         ];
     }
