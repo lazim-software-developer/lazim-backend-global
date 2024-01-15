@@ -26,7 +26,7 @@ function optimizeDocumentAndUpload($file, $path = 'dev', $width = 474, $height =
     if ($file) {
         $extension = $file->getClientOriginalExtension();
 
-        if ($extension == 'jpg' || $extension == 'png' || $extension == 'jpeg') {
+        if ($extension == 'jpg' || $extension == 'png' || $extension == 'jpeg' || $extension == 'JPG') {
             $optimizedImage = Image::make($file)
             ->resize($width, $height, function ($constraint) {
                 $constraint->aspectRatio();
