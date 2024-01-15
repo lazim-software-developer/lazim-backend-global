@@ -128,7 +128,7 @@ class PaymentController extends Controller
             $paymentIntent = PaymentIntent::retrieve($paymentIntentId);
 
             $order->update([
-                'status' =>  $paymentIntent->status
+                'payment_status' =>  $paymentIntent->status
             ]);
 
             return response()->json([
