@@ -275,6 +275,8 @@ Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active']
     // Access PDF link for serviceCharge
     Route::get('/{invoice}/pdf-link', [PaymentController::class, 'fetchPDF']);
     Route::get('/{invoice}/service-charge-pdf', [PaymentController::class, 'fetchServiceChargePDF']);
+
+    Route::post('/create-payment-intent', [PaymentController::class, 'createPaymentIntent']);
 });
 
 /**
