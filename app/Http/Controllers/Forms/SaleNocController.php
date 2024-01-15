@@ -10,7 +10,9 @@ use App\Models\Building\Building;
 use App\Models\Forms\NocContacts;
 use App\Models\Forms\NocFormSignedDocument;
 use App\Models\Forms\SaleNOC;
+use App\Models\Order;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class SaleNocController extends Controller
 {
@@ -31,7 +33,7 @@ class SaleNocController extends Controller
         $contacts = $request->get('contacts');
 
         foreach ($contacts as $index => $contact) {
-           
+
             $contact['noc_form_id'] = $saleNoc->id;
 
             NocContacts::create($contact);
@@ -85,7 +87,6 @@ class SaleNocController extends Controller
 
             // Send email to buyers attaching the document
             SendSaleNocEmail::dispatch($saleNoc, $document)->delay(5);
-
         } else if ($status == 'seller_uploaded') {
             $saleNoc->update(['submit_status' => 'buyer_uploaded']);
 
@@ -95,6 +96,28 @@ class SaleNocController extends Controller
                 'document' => $filePath,
                 'uploaded_by' => auth()->user()->id
             ]);
+
+            // generate a payment link and save it in sale_nocs table
+            try {
+                $payment = createPaymentIntent(env('ACCESS_CARD_AMOUNT'), 'punithprachi113@gmail.com');
+
+                if ($payment) {
+                    $saleNoc->update([
+                        'payment_link' => $payment->client_secret
+                    ]);
+
+                    // Create an entry in orders table with status pending
+                    Order::create([
+                        'orderable_id' => $saleNoc->id,
+                        'orderable_type' => SaleNOC::class,
+                        'payment_status' => 'pending',
+                        'amount' => env('ACCESS_CARD_AMOUNT'),
+                        'payment_intent_id' => $payment->id
+                    ]);
+                }
+            } catch (\Exception $e) {
+                Log::error($e->getMessage());
+            }
         }
 
         return (new CustomResponseResource([
@@ -106,7 +129,8 @@ class SaleNocController extends Controller
     }
 
     // Upload individual documents for NOC form
-    public function uploadNOCDocument(Request $request) {
+    public function uploadNOCDocument(Request $request)
+    {
         $path = optimizeDocumentAndUpload($request->file, 'dev');
 
         return response()->json([
