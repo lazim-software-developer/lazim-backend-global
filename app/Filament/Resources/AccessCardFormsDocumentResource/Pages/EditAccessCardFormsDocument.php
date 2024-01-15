@@ -5,6 +5,7 @@ namespace App\Filament\Resources\AccessCardFormsDocumentResource\Pages;
 use App\Filament\Resources\AccessCardFormsDocumentResource;
 use App\Models\ExpoPushNotification;
 use App\Models\Forms\AccessCard;
+use App\Models\Order;
 use App\Traits\UtilsTrait;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
@@ -92,13 +93,22 @@ class EditAccessCardFormsDocument extends EditRecord
             // Generate payment link and save it in access_cards_table
 
             try {
-                $clientSecret = createPaymentIntent(env('ACCESS_CARD_AMOUNT'), 'punithprachi113@gmail.com');
+                $payment = createPaymentIntent(env('ACCESS_CARD_AMOUNT'), 'punithprachi113@gmail.com');
 
-                if ($clientSecret) {
+                if ($payment) {
                     $this->record->update([
-                        'payment_link' => $clientSecret
+                        'payment_link' => $payment->client_secret
                     ]);
                     Log::info("This email".$this->record->user->email);
+
+                    // Create an entry in orders table with status pending
+                    Order::create([
+                        'orderable_id' => $this->record->id,
+                        'orderable_type' => AccessCard::class,
+                        'payment_status' => 'pending',
+                        'amount' => env('ACCESS_CARD_AMOUNT'),
+                        'payment_intent_id' => $payment->id
+                    ]);
                 }
             } catch (\Exception $e) {
                 Log::error($e->getMessage());
