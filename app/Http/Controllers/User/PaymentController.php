@@ -134,11 +134,10 @@ class PaymentController extends Controller
             return response()->json([
                 'status' => $paymentIntent->status,
             ]);
-        } catch (ApiErrorException $e) {
+        } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
-    }
     }
 }
