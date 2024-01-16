@@ -72,18 +72,21 @@ class MollakController extends Controller
     {
         $response = Http::withOptions(['verify' => false])->withHeaders([
             'content-type' => 'application/json',
-        ])->post("https://sms.rmlconnect.net/OtpApi/otpgenerate?username=LazimTrans&password=Lazim@10&msisdn=" . $request->phone . "&msg=Your%20one%20time%20OTP%20is%20%25m&source=ILAJ-LAZIM&tagname=Lazim&otplen=5&exptime=60");
+        ])->post(env("SMS_LINK") . "otpgenerate?username=" . env("SMS_USERNAME") . "&password=" . env("SMS_PASSWORD") . "&msisdn=" . $request->phone . "&msg=Your%20one%20time%20OTP%20is%20%25m&source=ILAJ-LAZIM&tagname=" . env("SMS_TAG") . "&otplen=5&exptime=60");
+
         return $response;
     }
 
     public function verifyOTP(Request $request)
     {
         $otp = $request->otp;
+
         $response = Http::withOptions(['verify' => false])->withHeaders([
             'content-type' => 'application/json',
-        ])->post("https://sms.rmlconnect.net/OtpApi/checkotp?username=LazimTrans&password=Lazim@10&msisdn=" . $request->phone . "&otp=" . $otp);
+        ])->post(env("SMS_LINK") . "checkotp?username=" . env("SMS_USERNAME") . "&password=" . env("SMS_PASSWORD") . "&msisdn=" . $request->phone . "&otp=" . $otp);
 
-        if($response) {
+        // TODO: ERROR HANDLING
+        if ($response) {
             User::where('phone', $request->phone)->update(['phone_verified' => true]);
         }
 
