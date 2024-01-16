@@ -126,14 +126,6 @@ class OwnerAssociationReceipt extends Page
     {
         try {
             $data = $this->form->getState();
-            // $oam = auth()->user()->ownerAssociation;
-            // $building = Building::find($this->form->getState()['building_id']);
-            // $receipt_id = strtoupper(substr($building->name, 0, 4)) . date('YmdHis');
-            // $data['receipt_id'] = $receipt_id;
-            // $formatter = new NumberFormatter('en', NumberFormatter::SPELLOUT);
-            // $words = ucwords($formatter->format($data['amount']));
-            // session(['receipt_data' => $data,'oam' => $oam,'building' => $building,'words'=> $words]);
-            // redirect()->route('receipt') ;
             $oam = auth()->user()->ownerAssociation;
             $data['owner_association_id'] = $oam->id;
             $receipt_id = strtoupper(substr($oam->name, 0, 4)) . date('YmdHis');
