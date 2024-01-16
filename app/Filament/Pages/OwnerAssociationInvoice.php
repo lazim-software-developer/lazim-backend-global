@@ -13,6 +13,7 @@ use Filament\Forms\Components\ViewField;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
+use Filament\Forms\Set;
 use Filament\Pages\Page;
 use Filament\Support\Exceptions\Halt;
 
@@ -74,7 +75,11 @@ class OwnerAssociationInvoice extends Page implements HasForms
             }),
             TextInput::make('mode_of_payment'),
             TextInput::make('supplier_name'),
-            TextInput::make('job')->required(),
+            TextInput::make('job')->required()->disabled(function (callable $get,Set $set) {
+                if ($get('type') == 'building') {
+                    $set('job','Management Fee');
+                }
+            }),
             Select::make('month')->required()
                 ->options([
                     'january' =>'January',
