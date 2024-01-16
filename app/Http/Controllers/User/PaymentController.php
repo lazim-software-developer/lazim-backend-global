@@ -6,9 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Models\Accounting\OAMInvoice;
 use App\Models\Accounting\OAMReceipts;
 use App\Models\Building\Flat;
+use App\Models\Order;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Http;
+use Stripe\PaymentIntent;
+use Stripe\Stripe;
 
 class PaymentController extends Controller
 {
@@ -97,5 +100,44 @@ class PaymentController extends Controller
             'content-type' => 'application/json',
             'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
         ])->get($pdfLink);
+    }
+
+    public function createPaymentIntent()
+    {
+        Stripe::setApiKey(env('STRIPE_SECRET'));
+
+        try {
+            $paymentIntent = PaymentIntent::create([
+                'amount' => 1000,
+                'currency' => 'aed',
+            ]);
+
+            return response()->json(['clientSecret' => $paymentIntent->client_secret]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    // Fetch payment status 
+    public function fetchPaymentStatus(Order $order)
+    {
+        Stripe::setApiKey(env('STRIPE_SECRET'));
+
+        try {
+            $paymentIntentId = $order->payment_intent_id;
+            $paymentIntent = PaymentIntent::retrieve($paymentIntentId);
+
+            $order->update([
+                'payment_status' =>  $paymentIntent->status
+            ]);
+
+            return response()->json([
+                'status' => $paymentIntent->status,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
     }
 }
