@@ -62,8 +62,8 @@ class LedgersResource extends Resource
                     ->date(),
                 TextColumn::make('invoice_pdf_link')
                     ->limit(20)
-                    ->label('Invoice Pdf Link'),
-                TextColumn::make('invoice_amount')
+                    ->label('Invoice'),
+                TextColumn::make('invoice_amount')->formatStateUsing(fn ($state) => number_format($state, 2))
                     ->label('Bill'),
                 ViewColumn::make('Paid Amount')->view('tables.columns.invoice-amount-paid'),
                 TextColumn::make('due_amount')
