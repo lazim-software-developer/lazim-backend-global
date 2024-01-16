@@ -11,5 +11,5 @@
 
 
     @endphp
-    {{ $budget - $amount }}
+    {{ number_format($budget - $amount,2) }}
 </div>

@@ -5,5 +5,6 @@
     $budget = Budgetitem::where('budget_id', $getRecord()->id)->first()->budget_excl_vat;
 
     @endphp
-    {{ $budget }}
+    
+    {{ number_format($budget,2) }}
 </div>
