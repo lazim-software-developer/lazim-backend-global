@@ -8,5 +8,5 @@
 
         $amount = Contract::where('service_id',$serviceId)->where('building_id',$buildingId)->first()?->amount;
     @endphp
-    {{$amount}}
+    {{number_format($amount,2)}}
 </div>
