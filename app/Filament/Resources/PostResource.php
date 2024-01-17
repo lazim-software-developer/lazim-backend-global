@@ -86,8 +86,8 @@ class PostResource extends Resource
                 DateTimePicker::make('scheduled_at')
                     ->rules(['date'])
                     ->displayFormat('d-M-Y h:i A')
-                    ->minDate(function ($record,$state) {
-                        if($record?->scheduled_at == null || $state != $record?->scheduled_at){
+                    ->minDate(function ($record, $state) {
+                        if ($record?->scheduled_at == null || $state != $record?->scheduled_at) {
                             return now();
                         }
                     })
@@ -151,8 +151,19 @@ class PostResource extends Resource
                         'md' => 1,
                         'lg' => 2,
                     ]),
-                Toggle::make('allow_like')->default(0),
-                Toggle::make('allow_comment')->default(0),
+                Toggle::make('allow_like')
+                    ->rules(['boolean'])
+                    ->inline(false)
+                    ->default(0),
+                Toggle::make('allow_comment')
+                    ->rules(['boolean'])
+                    ->inline(false)
+                    ->default(0),
+                Toggle::make('active')
+                    ->rules(['boolean'])
+                    ->default(true)
+                    ->inline(false)
+                    ->label('Active'),
             ])
         ]);
     }
