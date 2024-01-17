@@ -2,28 +2,29 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\PollResource\Pages;
-use App\Models\Building\Building;
-use App\Models\Community\Poll;
-use App\Models\Community\PollResponse;
-use App\Models\Master\Role;
 use Closure;
-use Filament\Forms\Components\DateTimePicker;
-use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\KeyValue;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\ViewField;
-use Filament\Forms\Form;
+use Filament\Tables;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
-use Filament\Resources\Resource;
-use Filament\Tables;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\SelectFilter;
+use Filament\Forms\Form;
 use Filament\Tables\Table;
+use App\Models\Master\Role;
+use App\Models\Community\Poll;
+use Filament\Resources\Resource;
+use App\Models\Building\Building;
+use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Toggle;
+use App\Models\Community\PollResponse;
+use Filament\Forms\Components\KeyValue;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\ViewField;
+use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Forms\Components\DateTimePicker;
+use App\Filament\Resources\PollResource\Pages;
 
 class PollResource extends Resource
 {
@@ -146,6 +147,11 @@ class PollResource extends Resource
                     ->preload()
                     ->required()
                     ->label('Building'),
+                Toggle::make('active')
+                    ->rules(['boolean'])
+                    ->default(true)
+                    ->inline(false)
+                    ->label('Active'),
                 Hidden::make('created_by')
                     ->default(auth()->user()->id),
                 ViewField::make('Responses')
