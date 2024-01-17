@@ -5,12 +5,34 @@
     <title>Invoice</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <style>
-        @media print {
-            .no-print {
-                display: none !important;
-            }
-        }
-    </style>
+    /* Adjust the width of the logo and align it to the right */
+    .company-logo {
+        width: 120px; /* Adjust the width as needed */
+        height: auto;
+        margin-left: auto;
+        display: block;
+    }
+
+    /* Style for the header to make sure everything is aligned */
+    .invoice-header {
+        padding-bottom: 1rem;
+    }
+
+    /* Style for the invoice table to make sure the width matches the layout */
+    .invoice-table {
+        width: 100%;
+        margin-top: 1rem;
+    }
+
+    /* Style for the totals table to align with the invoice table */
+    .totals-table {
+        width: auto;
+        margin-left: auto;
+    }
+
+    /* Additional responsive adjustments can go here */
+</style>
+
 </head>
 <body class="bg-gray-100">
     <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -134,9 +156,6 @@
                 **This is computer generated invoice no stamp and signature is required**
             </div>
         </div>
-    </div>
-    <div class="flex items-center justify-center py-1 ">
-        <input type="button" onclick="test()" value="download" class="no-print" style="background-color: #4F46E5; color: #fff; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;"></input>
     </div>
 </body>
     <script>
