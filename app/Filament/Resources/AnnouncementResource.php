@@ -62,9 +62,6 @@ class AnnouncementResource extends Resource
                         },
                     ])
                     ->required()
-                    ->disabled(function ($record) {
-                        return $record?->status == 'published';
-                    })
                     ->live()
                     ->columnSpan([
                         'sm' => 1,
@@ -77,9 +74,6 @@ class AnnouncementResource extends Resource
                         'published' => 'Published',
                         'draft' => 'Draft',
                     ])
-                    ->disabled(function ($record) {
-                        return $record?->status == 'published';
-                    })
                     ->reactive()
                     ->live()
                     ->afterStateUpdated(function (Set $set, Get $get) {
@@ -91,17 +85,17 @@ class AnnouncementResource extends Resource
                 DateTimePicker::make('scheduled_at')
                     ->rules(['date'])
                     ->displayFormat('d-M-Y h:i A')
-                // ->default(fn (Get $get) => $get('status') == null ? now() : dd($get('status')))
-                    ->minDate(now())
+                    ->minDate(function ($record,$state) {
+                            if($record?->scheduled_at == null || $state != $record?->scheduled_at){
+                                return now();
+                            }
+                        })
                     ->live()
                     ->required(function (callable $get) {
                         if ($get('status') == 'published') {
                             return true;
                         }
                         return false;
-                    })
-                    ->disabled(function ($record) {
-                        return $record?->status == 'published';
                     })
                     ->default(now())
                     ->placeholder('Scheduled At'),
@@ -116,9 +110,6 @@ class AnnouncementResource extends Resource
                     })
                     ->searchable()
                     ->multiple()
-                    ->disabled(function ($record) {
-                        return $record?->status == 'published';
-                    })
                     ->preload()
                     ->required(),
 
@@ -143,7 +134,6 @@ class AnnouncementResource extends Resource
                     ->default('NA')
                     ->limit(50),
                 TextColumn::make('scheduled_at')
-                // ->dateTime()
                     ->default('NA'),
                 TextColumn::make('building.name')
                     ->searchable()
