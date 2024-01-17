@@ -2,23 +2,22 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\BankStatementResource\Pages;
-use App\Filament\Resources\BankStatementResource\RelationManagers;
-use App\Models\Accounting\OAMReceipts;
+use App\Filament\Resources\OwnerAssociationReceiptResource\Pages;
+use App\Filament\Resources\OwnerAssociationReceiptResource\RelationManagers;
+use App\Models\OwnerAssociationReceipt;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Actions\Action;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-class BankStatementResource extends Resource
+class OwnerAssociationReceiptResource extends Resource
 {
-    protected static ?string $model = OAMReceipts::class;
-
-    protected static ?string $modelLabel = 'Bank Statement';
+    protected static ?string $model = OwnerAssociationReceipt::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
@@ -34,20 +33,25 @@ class BankStatementResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('flat.property_number')->label('Unit'),
                 TextColumn::make('receipt_number'),
-                TextColumn::make('receipt_date')->label('Payment Date'),
-                TextColumn::make('payment_mode')->label('Payment Mode'),
-                TextColumn::make('noqodi_info')->label('Invoice Number')->formatStateUsing(fn ($state) => json_decode($state)->invoiceNumber),
-                TextColumn::make('from_date')->label('General Fund')->formatStateUsing(fn ($record) => $record->noqodi_info ? json_decode($record->noqodi_info)->generalFundAmount : 0),
-                TextColumn::make('to_date')->label('Reserve Fund')->formatStateUsing(fn ($record) => $record->noqodi_info ? json_decode($record->noqodi_info)->reservedFundAmount : 0),
-                TextColumn::make('receipt_amount')->label('Total'),
+                TextColumn::make('date'),
+                TextColumn::make('paid_by'),
+                TextColumn::make('type'),
+                TextColumn::make('payment_method'),
+                TextColumn::make('received_in'),
+                TextColumn::make('payment_reference'),
+                TextColumn::make('on_account_of'),
+                TextColumn::make('amount'),
             ])
             ->filters([
                 //
             ])
             ->actions([
+                // Tables\Actions\ViewAction::make(),
                 // Tables\Actions\EditAction::make(),
+                Action::make('download')->url(function( OwnerAssociationReceipt $record){
+                    return route('receipt',['data' => $record]);
+                })
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -69,9 +73,10 @@ class BankStatementResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListBankStatements::route('/'),
-            // 'create' => Pages\CreateBankStatement::route('/create'),
-            // 'edit' => Pages\EditBankStatement::route('/{record}/edit'),
+            'index' => Pages\ListOwnerAssociationReceipts::route('/'),
+            // 'create' => Pages\CreateOwnerAssociationReceipt::route('/create'),
+            // 'view' => Pages\ViewOwnerAssociationReceipt::route('/{record}'),
+            // 'edit' => Pages\EditOwnerAssociationReceipt::route('/{record}/edit'),
         ];
     }    
 }

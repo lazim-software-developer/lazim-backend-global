@@ -14,6 +14,8 @@ use App\Filament\Pages\Auth\EditProfile;
 use App\Filament\Resources\BankStatementResource;
 use App\Filament\Resources\WDAResource;
 use App\Filament\Resources\DelinquentOwnerResource;
+use App\Filament\Resources\OwnerAssociationInvoiceResource;
+use App\Filament\Resources\OwnerAssociationReceiptResource;
 use Filament\Navigation\NavigationGroup;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Navigation\NavigationBuilder;
@@ -259,6 +261,26 @@ class AdminPanelProvider extends PanelProvider
                                     ->icon('heroicon-s-document-text')
                                     ->activeIcon('heroicon-s-document-text')
                                     ->sort(5),
+                                NavigationItem::make('General Fund Statement')
+                                    ->url('/admin/general-fund-statement')
+                                    ->icon('heroicon-m-clipboard-document-check')
+                                    ->activeIcon('heroicon-m-clipboard-document-check')
+                                    ->sort(6),
+                                NavigationItem::make('Reserve Fund Statement')
+                                    ->url('/admin/reserve-fund-statement')
+                                    ->icon('heroicon-m-clipboard-document-list')
+                                    ->activeIcon('heroicon-m-clipboard-document-list')
+                                    ->sort(7),
+                                NavigationItem::make('Generate Invoice')
+                                    ->url(OwnerAssociationInvoiceResource::getUrl('index'))
+                                    ->icon('heroicon-s-document-arrow-up')
+                                    ->activeIcon('heroicon-s-document-arrow-up')
+                                    ->sort(8),
+                                NavigationItem::make('Generate Receipt')
+                                    ->url(OwnerAssociationReceiptResource::getUrl('index'))
+                                    ->icon('heroicon-s-document-arrow-down')
+                                    ->activeIcon('heroicon-s-document-arrow-down')
+                                    ->sort(9),
 
                                 ]), NavigationGroup::make('Reports')
                             ->items([
