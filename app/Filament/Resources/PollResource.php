@@ -49,7 +49,6 @@ class PollResource extends Resource
                     }])
                     ->required()
                     ->suffix('?')
-                    ->disabled(fn($record) => $record?->status == 'published')
                     ->label('Question'),
                 KeyValue::make('options')
                     ->addActionLabel('Add Option')
@@ -88,8 +87,7 @@ class PollResource extends Resource
                     ->required()
                     ->addable(false)
                     ->deletable(false)
-                    ->editableKeys(false)
-                    ->disabled(fn($record) => $record?->status == 'published'),
+                    ->editableKeys(false),
                 Select::make('status')
                     ->searchable()
                     ->options([
@@ -103,12 +101,15 @@ class PollResource extends Resource
                     ->afterStateUpdated(function (Set $set, Get $get) {
                         $set('scheduled_at', null);
                         $set('ends_on', null);
-                    })
-                    ->disabled(fn($record) => $record?->status == 'published'),
+                    }),
                 DateTimePicker::make('scheduled_at')
                     ->rules(['date'])
                     ->displayFormat('d-M-Y h:i A')
-                    ->minDate(now())
+                    ->minDate(function ($record,$state) {
+                        if($record?->scheduled_at == null || $state != $record?->scheduled_at){
+                            return now();
+                        }
+                    })
                     ->required(function (callable $get) {
                         if ($get('status') == 'published') {
                             return true;
@@ -116,12 +117,15 @@ class PollResource extends Resource
                         return false;
                     })
                     ->default(now())
-                    ->disabled(fn($record) => $record?->status == 'published')
                     ->placeholder('Scheduled At'),
                 DateTimePicker::make('ends_on')
                     ->rules(['date'])
                     ->displayFormat('d-M-Y h:i A')
-                    ->minDate(now())
+                    ->minDate(function ($record,$state) {
+                        if($record?->ends_on == null || $state != $record?->ends_on){
+                            return now();
+                        }
+                    })
                     ->required(function (callable $get) {
                         if ($get('status') == 'published') {
                             return true;
@@ -129,7 +133,6 @@ class PollResource extends Resource
                         return false;
                     })
                     ->default(now()->addDay())
-                    ->disabled(fn($record) => $record?->status == 'published')
                     ->placeholder('Scheduled At'),
                 Select::make('building_id')
                     ->relationship('building', 'name')
@@ -139,7 +142,6 @@ class PollResource extends Resource
                         }
                         return Building::where('owner_association_id', auth()->user()->owner_association_id)->pluck('name', 'id');
                     })
-                    ->disabled(fn($record) => $record?->status == 'published')
                     ->searchable()
                     ->preload()
                     ->required()
@@ -162,10 +164,8 @@ class PollResource extends Resource
                 TextColumn::make('options')->limit(30),
                 TextColumn::make('status')->searchable(),
                 TextColumn::make('scheduled_at')
-                // ->dateTime()
                     ->default('NA'),
                 TextColumn::make('ends_on')
-                // ->dateTime()
                     ->default('NA'),
                 TextColumn::make('building.name')
                     ->searchable()

@@ -63,9 +63,6 @@ class PostResource extends Resource
                         'undo',
                     ])
                     ->required()
-                    ->disabled(function ($record) {
-                        return $record?->status == 'published';
-                    })
                     ->columnSpan([
                         'sm' => 1,
                         'md' => 1,
@@ -83,24 +80,22 @@ class PostResource extends Resource
                     ->afterStateUpdated(function (Set $set, Get $get) {
                         $set('scheduled_at', null);
                     })
-                    ->disabled(function ($record) {
-                        return $record?->status == 'published';
-                    })
                     ->default('published')
                     ->required(),
 
                 DateTimePicker::make('scheduled_at')
                     ->rules(['date'])
                     ->displayFormat('d-M-Y h:i A')
-                    ->minDate(now())
+                    ->minDate(function ($record,$state) {
+                        if($record?->scheduled_at == null || $state != $record?->scheduled_at){
+                            return now();
+                        }
+                    })
                     ->required(function (callable $get) {
                         if ($get('status') == 'published') {
                             return true;
                         }
                         return false;
-                    })
-                    ->disabled(function ($record) {
-                        return $record?->status == 'published';
                     })
                     ->default(now())
                     ->placeholder('Scheduled At'),
@@ -118,9 +113,6 @@ class PostResource extends Resource
                     ->preload()
                     ->required()
                     ->label('Building')
-                    ->disabled(function ($record) {
-                        return $record?->status == 'published';
-                    })
                     ->columnSpan([
                         'sm' => 1,
                         'md' => 1,
@@ -154,20 +146,13 @@ class PostResource extends Resource
                             ->label('File')
 
                     ])
-                    ->disabled(function ($record) {
-                        return $record?->status == 'published';
-                    })
                     ->columnSpan([
                         'sm' => 1,
                         'md' => 1,
                         'lg' => 2,
                     ]),
-                Toggle::make('allow_like')->default(0)->hidden(function ($record) {
-                    return $record?->status == 'published';
-                }),
-                Toggle::make('allow_comment')->default(0)->hidden(function ($record) {
-                    return $record?->status == 'published';
-                }),
+                Toggle::make('allow_like')->default(0),
+                Toggle::make('allow_comment')->default(0),
             ])
         ]);
     }
