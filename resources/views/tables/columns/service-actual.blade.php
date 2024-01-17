@@ -3,10 +3,16 @@
         use App\Models\Vendor\Contract;
         use App\Models\Accounting\Budgetitem;
 
-        $serviceId = Budgetitem::where('budget_id', $getRecord()->id)->first()->service_id;
-        $buildingId = $getRecord()->building_id;
+        $serviceId = $getRecord()->service_id;
+        $buildingId = $getRecord()->budget->building_id;
 
-        $amount = Contract::where('service_id',$serviceId)->where('building_id',$buildingId)->first()?->amount;
+        $amount = Contract::where('service_id',$serviceId)->where('building_id',$buildingId)->first()?->amount  ;
+        if($amount){
+            $amount = number_format($amount,2);
+        }
+        else{
+            $amount = 'N/A';
+        }
     @endphp
-    {{number_format($amount,2)}}
+    {{ $amount }}
 </div>
