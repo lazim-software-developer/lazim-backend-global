@@ -185,6 +185,9 @@ Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active']
     // Check if post upload is enabled for a building
     Route::get('/buildings/{building}/post-upload-permission', [PostController::class, 'checkPostUploadPermission']);
 
+    // Check if inhouse services are enabled for a building
+    Route::get('/buildings/{building}/show-inhouse-services', [ServiceController::class, 'checkInhouseServicePermission']);
+
     // Polls for a building
     //  List all polls for the buidling
     Route::get('/building/{building}/polls', [PollController::class, 'index']);
@@ -272,6 +275,10 @@ Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active']
     // Access PDF link for serviceCharge
     Route::get('/{invoice}/pdf-link', [PaymentController::class, 'fetchPDF']);
     Route::get('/{invoice}/service-charge-pdf', [PaymentController::class, 'fetchServiceChargePDF']);
+
+    Route::post('/create-payment-intent', [PaymentController::class, 'createPaymentIntent']);
+
+    Route::post('/{order}/payment-status', [PaymentController::class, 'fetchPaymentStatus']);
 });
 
 /**
