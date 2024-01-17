@@ -28,7 +28,7 @@ class ItemInventoryResource extends Resource
 {
     protected static ?string $model = ItemInventory::class;
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-    protected static ?string $modelLabel = 'Item inventorys';
+    protected static ?string $modelLabel = 'Item inventory';
     protected static ?string $navigationGroup = 'Inventory Management';
     public static function form(Form $form): Form
     {
@@ -62,11 +62,14 @@ class ItemInventoryResource extends Resource
                         ->searchable(),
                     TextInput::make('quantity')
                         ->rules([function (Get $get) {
-                                return function (string $attribute, $value, Closure $fail) use ($get) {
-                                    if ($get('type') == 'used' && Item::find($get('item_id'))->quantity < $value) {
-                                        $fail('The quantity value must be less than are equal to '.Item::find($get('item_id'))->quantity.'.');
-                                    }
-                                };
+                            return function (string $attribute, $value, Closure $fail) use ($get) {
+                                if(Item::find($get('item_id'))->quantity == 0){
+                                    $fail('You cannot use the Item '.Item::find($get('item_id'))->name . ' because the quantity is Zero.');
+                                }
+                                if ($get('type') == 'used' && Item::find($get('item_id'))->quantity < $value) {
+                                    $fail('The quantity value must be less than are equal to ' . Item::find($get('item_id'))->quantity . '.');
+                                }
+                            };
                         },])
                         ->required()
                         ->integer()
@@ -87,6 +90,7 @@ class ItemInventoryResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->defaultGroup('item.name')
             ->columns([
                 TextColumn::make('item.name')
                     ->searchable(),
@@ -104,7 +108,7 @@ class ItemInventoryResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\ViewAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -128,7 +132,8 @@ class ItemInventoryResource extends Resource
         return [
             'index' => Pages\ListItemInventories::route('/'),
             'create' => Pages\CreateItemInventory::route('/create'),
-            'edit' => Pages\EditItemInventory::route('/{record}/edit'),
+            'view' => Pages\ViewItemInventory::route('/{record}'),
+            // 'edit' => Pages\EditItemInventory::route('/{record}/edit'),
         ];
     }
 }
