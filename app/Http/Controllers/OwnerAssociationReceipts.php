@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\OwnerAssociationReceipt;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use NumberFormatter;
 
@@ -20,6 +21,8 @@ class OwnerAssociationReceipts extends Controller
         $data['totalWords'] = $totalWords;
         $data['received_in'] = ucwords($data->received_in);
         // redirected to invoice blade file
-       return view('owner-association-receipts',['data'=>$data]);
+
+        $pdf = Pdf::loadView('owner-association-receipts', compact('data'));
+        return $pdf->download('receipt.pdf');
     }
 }

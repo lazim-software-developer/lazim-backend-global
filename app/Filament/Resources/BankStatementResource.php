@@ -39,8 +39,8 @@ class BankStatementResource extends Resource
                 TextColumn::make('receipt_date')->label('Payment Date'),
                 TextColumn::make('payment_mode')->label('Payment Mode'),
                 TextColumn::make('noqodi_info')->label('Invoice Number')->formatStateUsing(fn ($state) => json_decode($state)->invoiceNumber),
-                TextColumn::make('from_date')->label('General Fund')->formatStateUsing(fn ($record) => $record->noqodi_info ? json_decode($record->noqodi_info)->generalFundAmount : 0),
-                TextColumn::make('to_date')->label('Reserve Fund')->formatStateUsing(fn ($record) => $record->noqodi_info ? json_decode($record->noqodi_info)->reservedFundAmount : 0),
+                TextColumn::make('from_date')->label('General Fund')->formatStateUsing(fn ($record) => $record->noqodi_info ? number_format(json_decode($record->noqodi_info)->generalFundAmount, 2) : 0),
+                TextColumn::make('to_date')->label('Reserve Fund')->formatStateUsing(fn ($record) => $record->noqodi_info ? number_format(json_decode($record->noqodi_info)->reservedFundAmount, 2) : 0),
                 TextColumn::make('receipt_amount')->label('Total'),
             ])
             ->filters([
