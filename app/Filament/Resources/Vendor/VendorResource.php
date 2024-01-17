@@ -20,6 +20,7 @@ use Filament\Tables\Filters\Filter;
 use Illuminate\Support\Facades\Hash;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Toggle;
 use App\Jobs\VendorAccountCreationJob;
 use Filament\Forms\Components\Repeater;
 use Filament\Tables\Columns\TextColumn;
@@ -118,6 +119,14 @@ class VendorResource extends Resource
                                     return false;
                                 })
                                 ->disabled(fn($record) => $record->status !== null ),
+                            Toggle::make('active')
+                                ->rules(['boolean'])
+                                ->required()
+                                ->inline(false)
+                                ->label('Active'),
+                            TextInput::make('remarks')
+                                ->rules(['max:150'])
+                                ->required(),
 
                         ]),
             ]);
