@@ -3,13 +3,17 @@
         use App\Models\Accounting\Budgetitem;
         use App\Models\Vendor\Contract;
 
-        $budgetItem = Budgetitem::where('budget_id', $getRecord()->id)->first();
-        $serviceId = $budgetItem->service_id;
-        $buildingId = $getRecord()->building_id;
-        $budget = $budgetItem->budget_excl_vat;
+        $serviceId = $getRecord()->service_id;
+        $buildingId = $getRecord()->budget->building_id;
+        $budget = $getRecord()->budget_excl_vat;
         $amount = Contract::where('service_id',$serviceId)->where('building_id',$buildingId)->first()?->amount;
-
+        if ($amount){
+            $balance = number_format($budget - $amount,2);
+        }
+        else{
+            $balance = '---';
+        }
 
     @endphp
-    {{ number_format($budget - $amount,2) }}
+    {{ $balance }}
 </div>
