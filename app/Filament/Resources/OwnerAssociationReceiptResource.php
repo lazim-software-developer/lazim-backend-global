@@ -6,6 +6,7 @@ use App\Filament\Resources\OwnerAssociationReceiptResource\Pages;
 use App\Filament\Resources\OwnerAssociationReceiptResource\RelationManagers;
 use App\Models\OwnerAssociationReceipt;
 use Filament\Forms;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -47,7 +48,16 @@ class OwnerAssociationReceiptResource extends Resource
                 //
             ])
             ->actions([
-                // Tables\Actions\ViewAction::make(),
+                Tables\Actions\ViewAction::make()
+                ->form([
+                    FileUpload::make('receipt_document')->disk('s3'),
+                ])->visible(
+                    function( OwnerAssociationReceipt $record){
+                        if($record->receipt_document){
+                            return true;
+                        }
+                        return false;
+                    }),
                 // Tables\Actions\EditAction::make(),
                 Action::make('download')->url(function( OwnerAssociationReceipt $record){
                     return route('receipt',['data' => $record]);
