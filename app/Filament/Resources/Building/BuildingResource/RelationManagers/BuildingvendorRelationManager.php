@@ -57,7 +57,7 @@ class BuildingvendorRelationManager extends RelationManager
     {
         return $table
             ->columns([
-                TextColumn::make('contract.amount'),
+                TextColumn::make('contract.amount')->default('NA'),
                 TextColumn::make('vendor.name'),
                 IconColumn::make('active')
                     ->boolean()
