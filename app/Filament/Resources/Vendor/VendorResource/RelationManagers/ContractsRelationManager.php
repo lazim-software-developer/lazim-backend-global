@@ -40,6 +40,7 @@ class ContractsRelationManager extends RelationManager
                             ->required()
                             ->label('Contract Type'),
                         Select::make('building_id')
+                            ->relationship('building','name')
                             ->options(function (RelationManager $livewire) {
                                 $buildingIds = DB::table('building_vendor')->where('vendor_id', $livewire->ownerRecord->id)->pluck('building_id')->toArray();
                                 return Building::whereIn('id', $buildingIds)->pluck('name', 'id')->toArray();
@@ -51,6 +52,7 @@ class ContractsRelationManager extends RelationManager
                             ->searchable()
                             ->placeholder('Building'),
                         Select::make('service_id')
+                            ->relationship('service','name')
                             ->options(function (RelationManager $livewire) {
                                 $serviceIds = DB::table('service_vendor')->where('vendor_id', $livewire->ownerRecord->id)->pluck('service_id')->toArray();
                                 return Service::whereIn('id', $serviceIds)->pluck('name', 'id')->toArray();
