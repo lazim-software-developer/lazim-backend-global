@@ -53,10 +53,10 @@ class ReserveFundStatement extends Page
                         ->label('Building Name'),
                         FileUpload::make('excel_file')
                         ->label('Reserve Fund Excel Data')
-                        // ->acceptedFileTypes([
-                        //     // 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // for .xlsx
-                        //     // 'application/vnd.ms-excel', // for .xls
-                        // ])
+                        ->acceptedFileTypes([
+                            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // for .xlsx
+                            'application/vnd.ms-excel', // for .xls
+                        ])
                         ->required(),
                         DatePicker::make('statement_date')->required(),
                     ])
@@ -64,7 +64,6 @@ class ReserveFundStatement extends Page
                     $buildingId= $data['building_id'];
                     $date = $data['statement_date'];
                     $filePath = $data['excel_file'];
-                    // dd($data); 
                     // This is likely just a file path or name
                     // Assuming the file is stored in the local disk in a 'budget_imports' directory
                     $fullPath = storage_path('app/public/' . $filePath);
