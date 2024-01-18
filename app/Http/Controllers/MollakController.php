@@ -91,10 +91,7 @@ class MollakController extends Controller
             User::where('phone', $request->phone)->update(['phone_verified' => true]);
         }
         
-        return $response;
-        return response()->json([
-            'message' => 'Phone successfully verified.',
-            'status' => 'success'
-        ], 200);
+        // return $response;
+        return response()->json( $response);
     }
 }
