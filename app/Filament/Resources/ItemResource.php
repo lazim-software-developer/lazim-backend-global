@@ -2,9 +2,11 @@
 
 namespace App\Filament\Resources;
 
+use Closure;
 use Filament\Forms;
 use App\Models\Item;
 use Filament\Tables;
+use Filament\Forms\Get;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
@@ -34,24 +36,33 @@ class ItemResource extends Resource
                     'md' => 1,
                     'lg' => 2,
                 ])->schema([
-                    TextInput::make('name')
-                        ->required()
-                        ->disabledOn('edit')
-                        ->rules(['regex:/^[a-zA-Z\s]*$/']),
-                    TextInput::make('quantity')
-                        ->required()
-                        ->integer()
-                        ->disabledOn('edit')
-                        ->minValue(0),
                     Select::make('building_id')
                         ->relationship('building', 'name')
                         ->preload()
                         ->disabledOn('edit')
                         ->required()
+                        ->live()
                         ->options(function () {
                             return Building::where('owner_association_id', auth()->user()->owner_association_id)->pluck('name', 'id');
                         })
                         ->searchable(),
+                    TextInput::make('name')
+                        ->required()
+                        ->disabledOn('edit')
+                        ->rules([
+                            'max:50',
+                            'regex:/^[a-zA-Z\s]*$/',
+                            fn (Get $get): Closure => function (string $attribute, $value, Closure $fail) use ($get) {
+                                if (Item::where('building_id', $get('building_id'))->where('name', $value)->exists()) {
+                                    $fail('The Name is already taken for this Building.');
+                                }
+                            },
+                        ]),
+                    TextInput::make('quantity')
+                        ->required()
+                        ->integer()
+                        ->disabledOn('edit')
+                        ->minValue(0),
                     Textarea::make('description')
                         ->rules(['max:100', 'regex:/^(?=.*[a-zA-Z])[a-zA-Z0-9\s!@#$%^&*_+\-=,.]*$/'])
                         ->required()

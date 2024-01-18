@@ -2,16 +2,17 @@
 
 namespace App\Imports;
 
+use Illuminate\Support\Str;
+use App\Models\Building\Flat;
 use App\Models\CoolingAccount;
 use Filament\Facades\Filament;
-use Filament\Notifications\Notification;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
+use Filament\Notifications\Notification;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
-use Illuminate\Support\Str;
 
 class CoolingAccountImport implements ToCollection, WithHeadingRow
 {
@@ -33,7 +34,10 @@ class CoolingAccountImport implements ToCollection, WithHeadingRow
         $date = Carbon::parse($this->month)->format('Y-m-d');
 
         foreach ($rows as $row) {
-            $flatId = $row['unit_no'];
+            $flatId = Flat::where(['building_id' => $this->buildingId, 'property_number' => $row['unit_no']])->first()?->id;
+            if(! $flatId) {
+                continue;
+            }
             if (CoolingAccount::where(['building_id' => $this->buildingId, 'flat_id' => $flatId])->exists()) {
                 Notification::make()
                     ->title("You have already uploaded details for the month ".Str::ucfirst($this->month))

@@ -2,25 +2,26 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\AnnouncementResource\Pages;
-use App\Models\Building\Building;
-use App\Models\Community\Post;
-use App\Models\Master\Role;
 use Closure;
-use Filament\Forms\Components\DateTimePicker;
-use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\MarkdownEditor;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Form;
+use Filament\Tables;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
+use Filament\Forms\Form;
+use Filament\Tables\Table;
+use App\Models\Master\Role;
+use App\Models\Community\Post;
 use Filament\Resources\Resource;
-use Filament\Tables;
+use App\Models\Building\Building;
+use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Toggle;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
-use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\MarkdownEditor;
+use App\Filament\Resources\AnnouncementResource\Pages;
 
 class AnnouncementResource extends Resource
 {
@@ -62,9 +63,6 @@ class AnnouncementResource extends Resource
                         },
                     ])
                     ->required()
-                    ->disabled(function ($record) {
-                        return $record?->status == 'published';
-                    })
                     ->live()
                     ->columnSpan([
                         'sm' => 1,
@@ -77,9 +75,6 @@ class AnnouncementResource extends Resource
                         'published' => 'Published',
                         'draft' => 'Draft',
                     ])
-                    ->disabled(function ($record) {
-                        return $record?->status == 'published';
-                    })
                     ->reactive()
                     ->live()
                     ->afterStateUpdated(function (Set $set, Get $get) {
@@ -91,17 +86,17 @@ class AnnouncementResource extends Resource
                 DateTimePicker::make('scheduled_at')
                     ->rules(['date'])
                     ->displayFormat('d-M-Y h:i A')
-                // ->default(fn (Get $get) => $get('status') == null ? now() : dd($get('status')))
-                    ->minDate(now())
+                    ->minDate(function ($record, $state) {
+                        if ($record?->scheduled_at == null || $state != $record?->scheduled_at) {
+                            return now();
+                        }
+                    })
                     ->live()
                     ->required(function (callable $get) {
                         if ($get('status') == 'published') {
                             return true;
                         }
                         return false;
-                    })
-                    ->disabled(function ($record) {
-                        return $record?->status == 'published';
                     })
                     ->default(now())
                     ->placeholder('Scheduled At'),
@@ -116,11 +111,13 @@ class AnnouncementResource extends Resource
                     })
                     ->searchable()
                     ->multiple()
-                    ->disabled(function ($record) {
-                        return $record?->status == 'published';
-                    })
                     ->preload()
                     ->required(),
+                Toggle::make('active')
+                    ->rules(['boolean'])
+                    ->default(true)
+                    ->inline(false)
+                    ->label('Active'),
 
                 Hidden::make('user_id')
                     ->default(auth()->user()->id),
@@ -143,7 +140,6 @@ class AnnouncementResource extends Resource
                     ->default('NA')
                     ->limit(50),
                 TextColumn::make('scheduled_at')
-                // ->dateTime()
                     ->default('NA'),
                 TextColumn::make('building.name')
                     ->searchable()
@@ -157,11 +153,11 @@ class AnnouncementResource extends Resource
             ->defaultSort('created_at', 'desc')
             ->filters([
                 SelectFilter::make('user_id')
-                    ->relationship('user', 'first_name',function (Builder $query) {
+                    ->relationship('user', 'first_name', function (Builder $query) {
                         if (Role::where('id', auth()->user()->role_id)->first()->name != 'Admin') {
-                            $query->where('owner_association_id', auth()->user()->owner_association_id)->where('role_id',Role::where('name', 'OA')->first()->id);
+                            $query->where('owner_association_id', auth()->user()->owner_association_id)->where('role_id', Role::where('name', 'OA')->first()->id);
                         }
-                        $query->where('role_id',Role::where('name', 'OA')->first()->id);
+                        $query->where('role_id', Role::where('name', 'OA')->first()->id);
                     })
                     ->searchable()
                     ->preload()
@@ -171,7 +167,6 @@ class AnnouncementResource extends Resource
                         if (Role::where('id', auth()->user()->role_id)->first()->name != 'Admin') {
                             $query->where('owner_association_id', auth()->user()->owner_association_id);
                         }
-
                     })
                     ->searchable()
                     ->preload()
