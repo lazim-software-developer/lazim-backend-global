@@ -76,13 +76,13 @@ class ContractResource extends Resource
                         DatePicker::make('start_date')
                             ->required()
                             ->rules(['date'])
-                            ->minDate(now())
+                            ->minDate(now()->format('Y-m-d'))
                             ->disabledOn('edit')
                             ->placeholder('Start Date'),
                         DatePicker::make('end_date')
                             ->required()
                             ->rules(['date'])
-                            ->minDate(now())
+                            ->minDate(now()->format('Y-m-d'))
                             ->disabledOn('edit')
                             ->placeholder('End Date'),
                         FileUpload::make('document_url')
