@@ -99,9 +99,10 @@ class MollakController extends Controller
                 'status' => 'error'
             ], 400);
         } else {
-            $value = $response->json();
-            Log::info("Error", [$value]);
-            return $value;
+            return response()->json([
+                'message' => 'We were unable to verify your phone number. Please try again!',
+                'status' => 'error'
+            ], 400);
         }
 
         // TODO: ERROR HANDLING
