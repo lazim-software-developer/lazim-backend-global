@@ -81,7 +81,7 @@ class MollakController extends Controller
     {
         $otp = $request->otp;
 
-        $response = Http::withOptions(['verify' => false])->withHeaders([
+        return $response = Http::withOptions(['verify' => false])->withHeaders([
             'content-type' => 'application/json',
         ])->post(env("SMS_LINK") . "checkotp?username=" . env("SMS_USERNAME") . "&password=" . env("SMS_PASSWORD") . "&msisdn=" . $request->phone . "&otp=" . $otp);
 
