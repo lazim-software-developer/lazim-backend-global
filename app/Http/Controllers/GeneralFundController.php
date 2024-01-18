@@ -12,12 +12,12 @@ class GeneralFundController extends Controller
 {
     public function getGeneralFund(Request $request)
     {
-        $year = $request->input('year');
+        $date = $request->input('date');
         $buildingId = $request->input('building_id');
 
         
-        $generals = GeneralFund::where('type','General Fund')->where('credited_amount','>',0)->where('building_id',$buildingId)->whereYear('statement_date', $year)->paginate();
-        $expenses = GeneralFund::where('type','General Fund')->where('debited_amount','>',0)->where('building_id',$buildingId)->whereYear('statement_date', $year)->paginate();
+        $generals = GeneralFund::where('type','General Fund')->where('credited_amount','>',0)->where('building_id',$buildingId)->where('statement_date', $date)->get();
+        $expenses = GeneralFund::where('type','General Fund')->where('debited_amount','>',0)->where('building_id',$buildingId)->where('statement_date', $date)->get();
         
 
         return view('partials.general-fund-statement', ['generals' => $generals, 'expenses' => $expenses]);
