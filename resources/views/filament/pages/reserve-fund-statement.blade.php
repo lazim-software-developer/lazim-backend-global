@@ -7,7 +7,7 @@
             @endforeach
         </select>
 
-        <input type="date" id="date-dropdown" name="date" onchange="loadGeneralFund()" class="bg-white border border-gray-300 rounded-md shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"> 
+        <input type="date" id="date-dropdown" name="date" onchange="loadReserveFund()" class="bg-white border border-gray-300 rounded-md shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"> 
   
     </div>
     <div id="table-full">
