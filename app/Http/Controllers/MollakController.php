@@ -85,7 +85,13 @@ class MollakController extends Controller
             'content-type' => 'application/json',
         ])->post(env("SMS_LINK") . "checkotp?username=" . env("SMS_USERNAME") . "&password=" . env("SMS_PASSWORD") . "&msisdn=" . $request->phone . "&otp=" . $otp);
         
-        return (int)$response;
+        if ($response->successful()) {
+            $value = $response->json();
+
+            return $value;
+        } else {
+            return $value = $response->json();
+        }
 
         // TODO: ERROR HANDLING
         // if ($response == 101) {
