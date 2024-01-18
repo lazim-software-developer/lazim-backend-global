@@ -6,6 +6,7 @@ use Filament\Forms;
 use Filament\Tables;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
+use App\Models\Master\Role;
 use Filament\Resources\Resource;
 use App\Models\Accounting\Invoice;
 use Filament\Forms\Components\Grid;
@@ -132,6 +133,15 @@ class InvoiceResource extends Resource
                         'pending' => 'Pending',
                     ])
                     ->searchable(),
+                SelectFilter::make('building_id')
+                    ->relationship('building', 'name', function (Builder $query) {
+                        if (Role::where('id', auth()->user()->role_id)->first()->name != 'Admin') {
+                            $query->where('owner_association_id', auth()->user()->owner_association_id);
+                        }
+                    })
+                    ->searchable()
+                    ->preload()
+                    ->label('Building'),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

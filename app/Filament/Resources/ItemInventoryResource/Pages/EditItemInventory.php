@@ -11,7 +11,7 @@ use App\Filament\Resources\ItemInventoryResource;
 class EditItemInventory extends EditRecord
 {
     protected static string $resource = ItemInventoryResource::class;
-    protected static ?string $title = 'Item inventorys';
+    protected static ?string $title = 'Item inventory';
 
     protected function getHeaderActions(): array
     {

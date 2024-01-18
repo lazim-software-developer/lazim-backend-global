@@ -11,7 +11,7 @@ use App\Models\ItemInventory;
 class CreateItemInventory extends CreateRecord
 {
     protected static string $resource = ItemInventoryResource::class;
-    protected static ?string $title = 'Item inventorys';
+    protected static ?string $title = 'Item inventory';
     protected function getRedirectUrl(): string
     {
         return $this->getResource()::getUrl('index');
@@ -24,7 +24,7 @@ class CreateItemInventory extends CreateRecord
             $item->quantity = $item->quantity + $record->quantity;
             $item->save();
         }
-        if ($record->type == 'used' && ($item->quantity - $record->quantity) > 0) {
+        if ($record->type == 'used') {
             $item->quantity = $item->quantity - $record->quantity;
             $item->save();
         }
