@@ -85,11 +85,13 @@ class MollakController extends Controller
             'content-type' => 'application/json',
         ])->post(env("SMS_LINK") . "checkotp?username=" . env("SMS_USERNAME") . "&password=" . env("SMS_PASSWORD") . "&msisdn=" . $request->phone . "&otp=" . $otp);
 
+        
         // TODO: ERROR HANDLING
         if ($response) {
             User::where('phone', $request->phone)->update(['phone_verified' => true]);
         }
-
+        
+        return $response;
         return response()->json([
             'message' => 'Phone successfully verified.',
             'status' => 'success'
