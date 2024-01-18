@@ -44,7 +44,4 @@
                 </tr>
             </tbody>
         </table>
-        <div class="mt-10 flex justify-center ">
-                {{ $generals->links() }}
-        </div>
     </div>
