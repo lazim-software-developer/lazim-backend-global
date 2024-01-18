@@ -2,18 +2,20 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\MoveOutFormsDocumentResource\Pages;
+use Filament\Forms\Form;
+use Filament\Tables\Table;
+use App\Models\Master\Role;
 use App\Models\Forms\MoveInOut;
-use Filament\Forms\Components\CheckboxList;
-use Filament\Forms\Components\FileUpload;
+use Filament\Resources\Resource;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Table;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\FileUpload;
+use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Forms\Components\CheckboxList;
+use App\Filament\Resources\MoveOutFormsDocumentResource\Pages;
 
 class MoveOutFormsDocumentResource extends Resource
 {
@@ -243,7 +245,16 @@ class MoveOutFormsDocumentResource extends Resource
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
-                //
+                SelectFilter::make('building_id')
+                    ->relationship('building', 'name', function (Builder $query) {
+                        if (Role::where('id', auth()->user()->role_id)->first()->name != 'Admin') {
+                            $query->where('owner_association_id', auth()->user()->owner_association_id);
+                        }
+
+                    })
+                    ->searchable()
+                    ->preload()
+                    ->label('Building'),
             ])
             ->actions([
                 //Tables\Actions\EditAction::make(),

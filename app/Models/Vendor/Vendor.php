@@ -40,6 +40,7 @@ class Vendor extends Model
         'landline_number',
         'website',
         'fax',
+        'active',
     ];
 
     protected $searchableFields = ['*'];
