@@ -2,32 +2,36 @@
 
 namespace App\Filament\Resources\Vendor;
 
-use App\Filament\Resources\Vendor\VendorResource\Pages;
-use App\Filament\Resources\Vendor\VendorResource\RelationManagers\BuildingvendorRelationManager;
-use App\Jobs\AccountCreationJob;
-use App\Jobs\VendorAccountCreationJob;
-use App\Jobs\VendorRejectionJob;
+use Filament\Tables;
+use Filament\Forms\Get;
+use Filament\Forms\Form;
 use App\Models\User\User;
+use Filament\Tables\Table;
+use Illuminate\Support\Str;
 use App\Models\Vendor\Vendor;
+use App\Jobs\AccountCreationJob;
+use App\Jobs\VendorRejectionJob;
+use Filament\Resources\Resource;
+use App\Models\Building\Building;
+use Illuminate\Support\Facades\DB;
+use Filament\Forms\Components\Grid;
+use Filament\Tables\Actions\Action;
+use Filament\Tables\Filters\Filter;
+use Illuminate\Support\Facades\Hash;
+use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Toggle;
+use App\Jobs\VendorAccountCreationJob;
+use Filament\Forms\Components\Repeater;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ViewColumn;
+use Illuminate\Database\Eloquent\Model;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\Repeater;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Form;
-use Filament\Forms\Get;
-use Filament\Resources\Resource;
-use Filament\Tables;
-use Filament\Tables\Actions\Action;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
-use Filament\Tables\Columns\ViewColumn;
+use Illuminate\Database\Eloquent\Builder;
+use App\Filament\Resources\Vendor\VendorResource\Pages;
+use App\Filament\Resources\Vendor\VendorResource\RelationManagers\BuildingvendorRelationManager;
 
 class VendorResource extends Resource
 {
@@ -115,6 +119,14 @@ class VendorResource extends Resource
                                     return false;
                                 })
                                 ->disabled(fn($record) => $record->status !== null ),
+                            Toggle::make('active')
+                                ->rules(['boolean'])
+                                ->required()
+                                ->inline(false)
+                                ->label('Active'),
+                            TextInput::make('remarks')
+                                ->rules(['max:150'])
+                                ->required(),
 
                         ]),
             ]);
@@ -148,7 +160,26 @@ class VendorResource extends Resource
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
-                //
+                Filter::make('vendorByBuilding')
+                ->form([
+                    Select::make('Building')
+                    ->searchable()
+                    ->options(function () {
+                        return Building::all()->pluck('name', 'id');
+                        // Optionally, add a condition to filter buildings based on certain criteria.
+                    }),
+                ])
+                ->query(function (Builder $query, array $data): Builder {
+                    return $query->when(
+                        isset($data['Building']),
+                        function ($query) use ($data) {
+                            $query->whereHas('buildings', function ($query) use ($data) {
+                                $query->where('buildings.id', $data['Building']);
+                            });
+                        }
+                    );
+                })
+
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

@@ -2,28 +2,29 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\PollResource\Pages;
-use App\Models\Building\Building;
-use App\Models\Community\Poll;
-use App\Models\Community\PollResponse;
-use App\Models\Master\Role;
 use Closure;
-use Filament\Forms\Components\DateTimePicker;
-use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\KeyValue;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\ViewField;
-use Filament\Forms\Form;
+use Filament\Tables;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
-use Filament\Resources\Resource;
-use Filament\Tables;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\SelectFilter;
+use Filament\Forms\Form;
 use Filament\Tables\Table;
+use App\Models\Master\Role;
+use App\Models\Community\Poll;
+use Filament\Resources\Resource;
+use App\Models\Building\Building;
+use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Toggle;
+use App\Models\Community\PollResponse;
+use Filament\Forms\Components\KeyValue;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\ViewField;
+use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Forms\Components\DateTimePicker;
+use App\Filament\Resources\PollResource\Pages;
 
 class PollResource extends Resource
 {
@@ -49,7 +50,6 @@ class PollResource extends Resource
                     }])
                     ->required()
                     ->suffix('?')
-                    ->disabled(fn($record) => $record?->status == 'published')
                     ->label('Question'),
                 KeyValue::make('options')
                     ->addActionLabel('Add Option')
@@ -88,8 +88,7 @@ class PollResource extends Resource
                     ->required()
                     ->addable(false)
                     ->deletable(false)
-                    ->editableKeys(false)
-                    ->disabled(fn($record) => $record?->status == 'published'),
+                    ->editableKeys(false),
                 Select::make('status')
                     ->searchable()
                     ->options([
@@ -103,12 +102,15 @@ class PollResource extends Resource
                     ->afterStateUpdated(function (Set $set, Get $get) {
                         $set('scheduled_at', null);
                         $set('ends_on', null);
-                    })
-                    ->disabled(fn($record) => $record?->status == 'published'),
+                    }),
                 DateTimePicker::make('scheduled_at')
                     ->rules(['date'])
                     ->displayFormat('d-M-Y h:i A')
-                    ->minDate(now())
+                    ->minDate(function ($record,$state) {
+                        if($record?->scheduled_at == null || $state != $record?->scheduled_at){
+                            return now();
+                        }
+                    })
                     ->required(function (callable $get) {
                         if ($get('status') == 'published') {
                             return true;
@@ -116,12 +118,15 @@ class PollResource extends Resource
                         return false;
                     })
                     ->default(now())
-                    ->disabled(fn($record) => $record?->status == 'published')
                     ->placeholder('Scheduled At'),
                 DateTimePicker::make('ends_on')
                     ->rules(['date'])
                     ->displayFormat('d-M-Y h:i A')
-                    ->minDate(now())
+                    ->minDate(function ($record,$state) {
+                        if($record?->ends_on == null || $state != $record?->ends_on){
+                            return now();
+                        }
+                    })
                     ->required(function (callable $get) {
                         if ($get('status') == 'published') {
                             return true;
@@ -129,7 +134,6 @@ class PollResource extends Resource
                         return false;
                     })
                     ->default(now()->addDay())
-                    ->disabled(fn($record) => $record?->status == 'published')
                     ->placeholder('Scheduled At'),
                 Select::make('building_id')
                     ->relationship('building', 'name')
@@ -139,11 +143,15 @@ class PollResource extends Resource
                         }
                         return Building::where('owner_association_id', auth()->user()->owner_association_id)->pluck('name', 'id');
                     })
-                    ->disabled(fn($record) => $record?->status == 'published')
                     ->searchable()
                     ->preload()
                     ->required()
                     ->label('Building'),
+                Toggle::make('active')
+                    ->rules(['boolean'])
+                    ->default(true)
+                    ->inline(false)
+                    ->label('Active'),
                 Hidden::make('created_by')
                     ->default(auth()->user()->id),
                 ViewField::make('Responses')
@@ -162,10 +170,8 @@ class PollResource extends Resource
                 TextColumn::make('options')->limit(30),
                 TextColumn::make('status')->searchable(),
                 TextColumn::make('scheduled_at')
-                // ->dateTime()
                     ->default('NA'),
                 TextColumn::make('ends_on')
-                // ->dateTime()
                     ->default('NA'),
                 TextColumn::make('building.name')
                     ->searchable()
