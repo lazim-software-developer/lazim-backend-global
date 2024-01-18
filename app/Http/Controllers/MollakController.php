@@ -89,6 +89,8 @@ class MollakController extends Controller
             $value = $response->json();
 
             if ($value == 101) {
+                User::where('phone', $request->phone)->update(['phone_verified' => true]);
+
                 return response()->json([
                     'message' => 'Phone successfully verified.',
                     'status' => 'success'
@@ -104,19 +106,5 @@ class MollakController extends Controller
                 'status' => 'error'
             ], 400);
         }
-
-        // TODO: ERROR HANDLING
-        // if ($response == 101) {
-        //     User::where('phone', $request->phone)->update(['phone_verified' => true]);
-
-        //     return response()->json([
-        //         'message' => 'Phone successfully verified.',
-        //         'status' => 'success'
-        //     ], 200);
-        // }
-        // return response()->json([
-        //     'message' => 'We were unable to verify your phone number. Please try again!',
-        //     'status' => 'error'
-        // ], 400);
     }
 }
