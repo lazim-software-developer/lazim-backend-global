@@ -88,9 +88,12 @@ class MollakController extends Controller
         if ($response->successful()) {
             $value = $response->json();
 
+            Log::info("success", [$value]);
             return $value;
         } else {
-            return $value = $response->json();
+            $value = $response->json();
+            Log::info("Error", [$value]);
+            return $value;
         }
 
         // TODO: ERROR HANDLING
