@@ -84,12 +84,20 @@ class MollakController extends Controller
         $response = Http::withOptions(['verify' => false])->withHeaders([
             'content-type' => 'application/json',
         ])->post(env("SMS_LINK") . "checkotp?username=" . env("SMS_USERNAME") . "&password=" . env("SMS_PASSWORD") . "&msisdn=" . $request->phone . "&otp=" . $otp);
-        
+
         if ($response->successful()) {
             $value = $response->json();
 
-            Log::info("success", [$value]);
-            return $value;
+            if ($value == 101) {
+                return response()->json([
+                    'message' => 'Phone successfully verified.',
+                    'status' => 'success'
+                ], 200);
+            }
+            return response()->json([
+                'message' => 'We were unable to verify your phone number. Please try again!',
+                'status' => 'error'
+            ], 400);
         } else {
             $value = $response->json();
             Log::info("Error", [$value]);
