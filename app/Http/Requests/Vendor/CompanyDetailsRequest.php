@@ -33,6 +33,7 @@ class CompanyDetailsRequest extends FormRequest
             'tl_number'       =>    'required|string|unique:vendors,tl_number',
             'tl_expiry'       =>    'required|date',
             'owner_association_id' => 'required|integer|exists:owner_associations,id',
+            'risk_policy_expiry' => 'required|date',
         ];
     }
 }
