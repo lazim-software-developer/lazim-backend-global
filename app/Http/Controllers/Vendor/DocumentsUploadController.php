@@ -9,6 +9,7 @@ use App\Http\Resources\Vendor\VendorDocumentResource;
 use App\Models\Building\Document;
 use App\Models\Master\DocumentLibrary;
 use App\Models\Vendor\Vendor;
+use Illuminate\Http\Request;
 
 class DocumentsUploadController extends Controller
 {
@@ -49,5 +50,32 @@ class DocumentsUploadController extends Controller
         $documents = Document::where('documentable_id', $vendor->id)->get();
 
         return VendorDocumentResource::collection($documents);
+    }
+
+    public function showRiskPolicy(Vendor $vendor)
+    {
+        $document = Document::where('documentable_id',$vendor->id)->where('name','risk_policy')->latest()->first();
+        return [
+            'risk_policy_expiry' => $document?->expiry_date,
+            'risk_policy_document' => env('AWS_URL').'/'.$document?->url,
+        ];
+    }
+
+    public function updateRiskPolicy(Request $request,Vendor $vendor){
+
+        $document = Document::where('documentable_id',$vendor->id)->where('name','risk_policy')->latest()->first();
+        $document->update([
+            'url' => optimizeDocumentAndUpload($request->file('risk_policy_document')),
+            'expiry_date' => $request->risk_policy_expiry,
+            'status' => 'pending'
+        ]);
+
+        return (new CustomResponseResource([
+            'title' => 'Success',
+            'message' => 'Risk Policy Details updated!',
+            'code' => 200,
+            'status' => 'success',
+        ]))->response()->setStatusCode(200);
+
     }
 }
