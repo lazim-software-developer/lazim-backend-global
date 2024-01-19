@@ -4,17 +4,20 @@
             <tbody class="bg-white">
                 <!-- Income Section -->
                 <tr>
-                    <th class="py-3 text-sm font-semibold text-gray-900 w-full"  style="background-color: #f2f2f2; ">INCOME</th>
+                    <th class="py-3 text-sm font-semibold text-gray-900 "  style="background-color: #f2f2f2; ">INCOME</th>
+                    <th  style="background-color: #f2f2f2; "></th>
                     <th  style="background-color: #f2f2f2; "></th>
                 </tr>
                 @foreach($reserves as $reserve)
                 <tr>
+                    <td>{{$reserve?->date}}</td>
                     <td>{{$reserve?->description}}</td>
                     <td class="text-right">{{number_format($reserve?->credited_amount,2)}}</td>
                 </tr>
                 @endforeach
                 <tr style="border-top: 2px solid;">
                     <td class="font-semibold text-gray-900">Total Income:</td>
+                    <td></td>
                     <td class="text-right font-semibold text-gray-900">{{$reserves->sum('credited_amount')}}</td>
                 </tr>
                 <tr>
@@ -24,15 +27,18 @@
                 <tr>
                     <th class="pt-4 font-semibold text-gray-900" style="background-color: #f2f2f2;">EXPENSE</th>
                     <th  style="background-color: #f2f2f2; "></th>
+                    <th  style="background-color: #f2f2f2; "></th>
                 </tr>
                 @foreach($expenses as $expence)
                 <tr>
-                <td>{{$expence?->description}}</td>
+                    <td>{{$expence?->date}}</td>
+                    <td>{{$expence?->description}}</td>
                     <td class="text-right">{{number_format($expence?->debited_amount,2)}}</td>
                 </tr>
                 @endforeach
                 <tr style="border-top: 2px solid;">
                     <td class="font-semibold text-gray-900">Total Expense:</td>
+                    <td></td>
                     <td class="text-right font-semibold text-gray-900">{{$expenses->sum('debited_amount')}}</td>
                 </tr>
                 <tr>
@@ -40,6 +46,7 @@
                 </tr>
                 <tr style="border-top: 2px solid;">
                     <td class="font-semibold text-gray-900">Surplus/(Deficit)</td>
+                    <td></td>
                     <td class="text-right font-semibold text-gray-900">{{$reserves->sum('credited_amount') - $expenses->sum('debited_amount')}}</td>
                 </tr>
             </tbody>
