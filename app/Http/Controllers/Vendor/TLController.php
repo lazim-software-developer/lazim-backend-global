@@ -23,6 +23,8 @@ class TLController extends Controller
         $document = Document::where('documentable_id',$vendor->id)->where('name','tl_document')->latest()->first();
         $document->update([
             'url' => optimizeDocumentAndUpload($request->file('tl_document')),
+            'expiry_date' => $request->tl_expiry,
+            "status" => 'pending'
         ]);
 
         return (new CustomResponseResource([
