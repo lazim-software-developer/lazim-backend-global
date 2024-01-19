@@ -18,6 +18,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('budget:clean-imports')->daily();
         $schedule->command('app:contract-renewal-mail')->daily();
         $schedule->command('app:trade-licence-expiry-mail')->daily();
+        $schedule->command('app:risk-policy-expiry-mail')->daily();
         $schedule->command('app:update-delinquent-owners')->dailyAt('01:00');
         $schedule->command('app:update-delinquent-owners-receipts')->dailyAt('02:00');
     }
