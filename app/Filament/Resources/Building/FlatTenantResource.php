@@ -2,19 +2,21 @@
 
 namespace App\Filament\Resources\Building;
 
-use App\Filament\Resources\Building\FlatTenantResource\Pages;
+use Filament\Tables;
+use Filament\Forms\Form;
+use Filament\Tables\Table;
+use App\Models\Master\Role;
+use Filament\Resources\Resource;
 use App\Models\Building\FlatTenant;
-use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
-use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\DatePicker;
 use Filament\Tables\Filters\SelectFilter;
-use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use App\Filament\Resources\Building\FlatTenantResource\Pages;
 
 class FlatTenantResource extends Resource
 {
@@ -31,7 +33,8 @@ class FlatTenantResource extends Resource
                 Grid::make([
                     'sm' => 1,
                     'md' => 1,
-                    'lg' => 2])
+                    'lg' => 2
+                ])
                     ->schema([
                         Select::make('flat_id')
                             ->rules(['exists:flats,id'])
@@ -102,7 +105,11 @@ class FlatTenantResource extends Resource
             ->defaultSort('created_at', 'desc')
             ->filters([
                 SelectFilter::make('building_id')
-                    ->relationship('building', 'name')
+                    ->relationship('building', 'name', function (Builder $query) {
+                        if (Role::where('id', auth()->user()->role_id)->first()->name != 'Admin') {
+                            $query->where('owner_association_id', auth()->user()->owner_association_id);
+                        }
+                    })
                     ->searchable()
                     ->label('Building')
                     ->preload()
