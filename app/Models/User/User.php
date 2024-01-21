@@ -182,7 +182,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
     }
     public function canAccessPanel(Panel $panel): bool
     {
-        if ($this->role_id == 10 && $this->active || $this->role_id == 9 && $this->active) {
+        if ($this->role_id == 10 && $this->active || $this->role_id == 9 && $this->active || $this->role_id == 14 && $this->active || $this->role_id == 15 && $this->active) {
             return true;
         }
         return false;
