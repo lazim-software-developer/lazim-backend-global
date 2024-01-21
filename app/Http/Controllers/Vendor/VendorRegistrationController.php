@@ -12,6 +12,7 @@ use App\Http\Resources\Vendor\VendorManagerResource;
 use App\Http\Resources\Vendor\VendorResource;
 use App\Jobs\SendVerificationOtp;
 use App\Models\Building\Document;
+use App\Models\Master\DocumentLibrary;
 use App\Models\Master\Role;
 use App\Models\OwnerAssociation;
 use App\Models\User\User;
@@ -152,6 +153,16 @@ class VendorRegistrationController extends Controller
         ]);
 
         $vendor = Vendor::create($request->all());
+
+        $doc = Document::create([
+            "name" => "risk_policy",
+            "document_library_id" => DocumentLibrary::where('name','Risk policy')->first()->id,
+            "owner_association_id" => $request->owner_association_id,
+            "status" => 'pending',
+            "documentable_id" => $vendor->id,
+            "expiry_date" => $request->risk_policy_expiry,
+            "documentable_type" => Vendor::class,
+        ]);
 
         return (new CustomResponseResource([
             'title' => 'Company Details entered successful!',

@@ -34,8 +34,6 @@ class OwnercommitteesRelationManager extends RelationManager
     {
         return $form
             ->schema([
-                Toggle::make('active')
-                    ->required(),
                 Select::make('user_id')
                     ->rules(['exists:users,id'])
                     ->relationship('user', 'first_name')
@@ -48,30 +46,32 @@ class OwnercommitteesRelationManager extends RelationManager
                     ->disabled()
                     ->searchable()
                     ->label('Name'),
-                Select::make('user_id')
+                Select::make('user')
                     ->rules(['exists:users,id'])
                     ->relationship('user', 'email')
                     ->preload()
                     ->options(function (RelationManager $livewire) {
                         $alreadyExits = OwnerCommittee::where('building_id', $livewire->ownerRecord->id)->pluck('user_id');
                         $tenantId = FlatTenant::where('building_id', $livewire->ownerRecord->id)->whereNotIn('tenant_id', $alreadyExits)->pluck('tenant_id');
-                        return User::whereIn('id', $tenantId)->pluck('first_name', 'id');
+                        return User::whereIn('id', $tenantId)->pluck('email', 'id');
                     })
                     ->disabled()
                     ->searchable()
                     ->label('Email'),
-                Select::make('user_id')
+                Select::make('userphno')
                     ->rules(['exists:users,id'])
                     ->relationship('user', 'phone')
                     ->preload()
                     ->options(function (RelationManager $livewire) {
                         $alreadyExits = OwnerCommittee::where('building_id', $livewire->ownerRecord->id)->pluck('user_id');
                         $tenantId = FlatTenant::where('building_id', $livewire->ownerRecord->id)->whereNotIn('tenant_id', $alreadyExits)->pluck('tenant_id');
-                        return User::whereIn('id', $tenantId)->pluck('first_name', 'id');
+                        return User::whereIn('id', $tenantId)->pluck('phone', 'id');
                     })
                     ->disabled()
                     ->searchable()
                     ->label('phone'),
+                Toggle::make('active')
+                    ->required(),
             ]);
     }
 

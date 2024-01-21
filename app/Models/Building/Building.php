@@ -2,8 +2,11 @@
 
 namespace App\Models\Building;
 
+use App\Models\BuildingVendor;
+use App\Models\Item;
 use App\Models\Asset;
 use App\Models\Floor;
+use App\Models\Meeting;
 use App\Models\User\User;
 use App\Models\Vendor\PPM;
 use App\Models\Forms\Guest;
@@ -19,8 +22,10 @@ use App\Models\Community\Poll;
 use App\Models\Community\Post;
 use App\Models\CoolingAccount;
 use App\Models\Master\Service;
+use App\Models\OwnerCommittee;
 use App\Models\RuleRegulation;
 use App\Models\Vendor\Contact;
+use App\Models\BuildingService;
 use App\Models\Forms\MoveInOut;
 use App\Models\Master\Facility;
 use App\Models\Vendor\Contract;
@@ -37,9 +42,6 @@ use App\Models\Building\Complaint;
 use App\Models\Visitor\FlatVisitor;
 use App\Models\Building\BuildingPoc;
 use App\Models\Accounting\OAMInvoice;
-use App\Models\BuildingService;
-use App\Models\Meeting;
-use App\Models\OwnerCommittee;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Visitor\FlatDomesticHelp;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -180,6 +182,10 @@ class Building extends Model
     {
         return $this->belongsToMany(Vendor::class, 'building_vendor');
     }
+    public function buildingvendor()
+    {
+        return $this->hasMany(BuildingVendor::class);
+    }
     public function moveinOut()
     {
         return $this->hasMany(MoveInOut::class);
@@ -262,5 +268,9 @@ class Building extends Model
     public function users(): BelongsToMany
     {
         return $this->belongsToMany(User::class);
+    }
+    public function items()
+    {
+        return $this->hasMany(Item::class);
     }
 }

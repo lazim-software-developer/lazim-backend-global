@@ -5,6 +5,7 @@ namespace App\Models\Vendor;
 use App\Models\Accounting\Invoice;
 use App\Models\Accounting\WDA;
 use App\Models\Asset;
+use App\Models\BuildingVendor;
 use App\Models\OaUserRegistration;
 use App\Models\OwnerAssociation;
 use App\Models\TechnicianVendor;
@@ -39,6 +40,7 @@ class Vendor extends Model
         'landline_number',
         'website',
         'fax',
+        'active',
     ];
 
     protected $searchableFields = ['*'];
@@ -90,6 +92,10 @@ class Vendor extends Model
     {
         return $this->belongsToMany(Building::class, 'building_vendor', 'vendor_id','building_id')
                 ->withPivot(['contract_id', 'active','start_date','end_date']);
+    }
+    public function buildingvendor()
+    {
+        return $this->hasMany(BuildingVendor::class);
     }
     public function oaUserRegistration()
     {

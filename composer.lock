@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4fbb9350435ddb9b03bf35b9949ad6fc",
+    "content-hash": "ea9dcfaeb35bd02c457913118d01bc23",
     "packages": [
         {
             "name": "alymosul/exponent-server-sdk-php",
@@ -7145,16 +7145,16 @@
         },
         {
             "name": "psr/simple-cache",
-            "version": "3.0.0",
+            "version": "2.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-fig/simple-cache.git",
-                "reference": "764e0b3939f5ca87cb904f570ef9be2d78a07865"
+                "reference": "8707bf3cea6f710bf6ef05491234e3ab06f6432a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-fig/simple-cache/zipball/764e0b3939f5ca87cb904f570ef9be2d78a07865",
-                "reference": "764e0b3939f5ca87cb904f570ef9be2d78a07865",
+                "url": "https://api.github.com/repos/php-fig/simple-cache/zipball/8707bf3cea6f710bf6ef05491234e3ab06f6432a",
+                "reference": "8707bf3cea6f710bf6ef05491234e3ab06f6432a",
                 "shasum": ""
             },
             "require": {
@@ -7163,7 +7163,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "3.0.x-dev"
+                    "dev-master": "2.0.x-dev"
                 }
             },
             "autoload": {
@@ -7190,9 +7190,9 @@
                 "simple-cache"
             ],
             "support": {
-                "source": "https://github.com/php-fig/simple-cache/tree/3.0.0"
+                "source": "https://github.com/php-fig/simple-cache/tree/2.0.0"
             },
-            "time": "2021-10-29T13:26:27+00:00"
+            "time": "2021-10-29T13:22:09+00:00"
         },
         {
             "name": "psy/psysh",
@@ -7276,16 +7276,16 @@
         },
         {
             "name": "pxlrbt/filament-excel",
-            "version": "v2.2.3",
+            "version": "v2.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/pxlrbt/filament-excel.git",
-                "reference": "4c8abacce0eb8f13e2010669b3616aea4ad6fab1"
+                "reference": "83f6598169c8c3f5b961d32c165cb1a44dd5f024"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/pxlrbt/filament-excel/zipball/4c8abacce0eb8f13e2010669b3616aea4ad6fab1",
-                "reference": "4c8abacce0eb8f13e2010669b3616aea4ad6fab1",
+                "url": "https://api.github.com/repos/pxlrbt/filament-excel/zipball/83f6598169c8c3f5b961d32c165cb1a44dd5f024",
+                "reference": "83f6598169c8c3f5b961d32c165cb1a44dd5f024",
                 "shasum": ""
             },
             "require": {
@@ -7331,7 +7331,7 @@
             ],
             "support": {
                 "issues": "https://github.com/pxlrbt/filament-excel/issues",
-                "source": "https://github.com/pxlrbt/filament-excel/tree/v2.2.3"
+                "source": "https://github.com/pxlrbt/filament-excel/tree/v2.3.0"
             },
             "funding": [
                 {
@@ -7339,7 +7339,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2023-12-21T07:31:22+00:00"
+            "time": "2024-01-05T13:47:29+00:00"
         },
         {
             "name": "railsware/mailtrap-php",

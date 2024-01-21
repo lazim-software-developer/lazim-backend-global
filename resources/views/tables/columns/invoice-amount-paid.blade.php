@@ -10,5 +10,5 @@
 
         $sumOfReceipts = array_sum($receipts);
     @endphp
-    {{ $sumOfReceipts}}
+    {{ number_format($sumOfReceipts,2) }}
 </div>

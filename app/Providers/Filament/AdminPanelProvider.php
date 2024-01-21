@@ -11,8 +11,13 @@ use Filament\Support\Colors\Color;
 use Illuminate\Support\Facades\DB;
 use Filament\Navigation\NavigationItem;
 use App\Filament\Pages\Auth\EditProfile;
+use App\Filament\Resources\AgingReportResource;
+use App\Filament\Resources\BankStatementResource;
 use App\Filament\Resources\WDAResource;
 use App\Filament\Resources\DelinquentOwnerResource;
+use App\Filament\Resources\OwnerAssociationInvoiceResource;
+use App\Filament\Resources\OwnerAssociationReceiptResource;
+use App\Models\AgingReport;
 use Filament\Navigation\NavigationGroup;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Navigation\NavigationBuilder;
@@ -249,10 +254,35 @@ class AdminPanelProvider extends PanelProvider
                                     ->activeIcon('heroicon-s-bars-arrow-down')
                                     ->sort(3),
                                 NavigationItem::make('Aging report')
-                                    ->url('/admin/aging-report')
+                                    ->url(AgingReportResource::getUrl('index'))
                                     ->icon('heroicon-o-document')
                                     ->activeIcon('heroicon-o-document')
                                     ->sort(4),
+                                NavigationItem::make('Bank Statement')
+                                    ->url(BankStatementResource::getUrl('index'))
+                                    ->icon('heroicon-s-document-text')
+                                    ->activeIcon('heroicon-s-document-text')
+                                    ->sort(5),
+                                NavigationItem::make('General Fund Statement')
+                                    ->url('/admin/general-fund-statement')
+                                    ->icon('heroicon-m-clipboard-document-check')
+                                    ->activeIcon('heroicon-m-clipboard-document-check')
+                                    ->sort(6),
+                                NavigationItem::make('Reserve Fund Statement')
+                                    ->url('/admin/reserve-fund-statement')
+                                    ->icon('heroicon-m-clipboard-document-list')
+                                    ->activeIcon('heroicon-m-clipboard-document-list')
+                                    ->sort(7),
+                                NavigationItem::make('Generate Invoice')
+                                    ->url(OwnerAssociationInvoiceResource::getUrl('index'))
+                                    ->icon('heroicon-s-document-arrow-up')
+                                    ->activeIcon('heroicon-s-document-arrow-up')
+                                    ->sort(8),
+                                NavigationItem::make('Generate Receipt')
+                                    ->url(OwnerAssociationReceiptResource::getUrl('index'))
+                                    ->icon('heroicon-s-document-arrow-down')
+                                    ->activeIcon('heroicon-s-document-arrow-down')
+                                    ->sort(9),
 
                                 ]), NavigationGroup::make('Reports')
                             ->items([
@@ -362,6 +392,26 @@ class AdminPanelProvider extends PanelProvider
                                 ->sort(1),
                         ]),
                 ]);
+
+                if (DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] != 'Admin') {
+                    $builder->groups([
+                        NavigationGroup::make('Inventory Management')
+                            ->items([
+                                NavigationItem::make('Items')
+                                    ->url('/admin/items')
+                                    ->hidden(DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] == 'Admin' ? true : false)
+                                    ->icon('heroicon-m-rectangle-group')
+                                    ->activeIcon('heroicon-m-rectangle-group')
+                                    ->sort(1),
+                                NavigationItem::make('Item inventory')
+                                    ->url('/admin/item-inventories')
+                                    ->hidden(DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] == 'Admin' ? true : false)
+                                    ->icon('heroicon-m-arrow-down-on-square-stack')
+                                    ->activeIcon('heroicon-m-arrow-down-on-square-stack')
+                                    ->sort(2),
+                            ]),
+                    ]);
+                }
                 // if (DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] != 'Admin') {
                 //     $builder->groups([
                 //         NavigationGroup::make('Document Management')

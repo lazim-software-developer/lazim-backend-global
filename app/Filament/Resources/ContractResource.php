@@ -6,19 +6,24 @@ use Filament\Forms;
 use Filament\Tables;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
+use App\Models\Master\Role;
+use App\Models\Vendor\Vendor;
+use App\Models\Master\Service;
 use App\Models\Vendor\Contract;
 use Filament\Resources\Resource;
+use App\Models\Building\Building;
+use Illuminate\Support\Facades\DB;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
+use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\ContractResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\ContractResource\RelationManagers;
-use Illuminate\Support\Facades\DB;
 
 class ContractResource extends Resource
 {
@@ -42,35 +47,43 @@ class ContractResource extends Resource
                                 'annual maintenance contract' => 'Annual Maintenance Contract',
                                 'onetime' => 'OneTime',
                             ])
-                            ->disabled()
+                            ->disabledOn('edit')
                             ->searchable()
                             ->required()
                             ->label('Contract Type'),
                         Select::make('building_id')
                             ->relationship('building', 'name')
+                            ->options(function(){
+                                return Building::where('owner_association_id',auth()->user()->owner_association_id)->pluck('name','id');
+                            })
                             ->reactive()
                             ->required()
                             ->preload()
-                            ->disabled()
+                            ->disabledOn('edit')
                             ->searchable()
                             ->placeholder('Building'),
                         Select::make('service_id')
                             ->relationship('service', 'name')
+                            ->options(function(){
+                                return Service::where('type','vendor_service')->pluck('name','id');
+                            })
                             ->reactive()
                             ->required()
                             ->preload()
                             ->searchable()
-                            ->disabled()
+                            ->disabledOn('edit')
                             ->placeholder('Service'),
                         DatePicker::make('start_date')
                             ->required()
                             ->rules(['date'])
-                            ->disabled()
+                            ->minDate(now())
+                            ->disabledOn('edit')
                             ->placeholder('Start Date'),
                         DatePicker::make('end_date')
                             ->required()
                             ->rules(['date'])
-                            ->disabled()
+                            ->minDate(now())
+                            ->disabledOn('edit')
                             ->placeholder('End Date'),
                         FileUpload::make('document_url')
                             ->required()
@@ -82,19 +95,24 @@ class ContractResource extends Resource
                             ->label('Document'),
                         TextInput::make('amount')
                             ->numeric(true)
+                            ->minValue(1)
                             ->prefix('AED')
                             ->required(),
                         TextInput::make('budget_amount')
                             ->numeric(true)
+                            ->minValue(1)
                             ->prefix('AED')
                             ->required(),
                         Select::make('vendor_id')
                             ->relationship('vendor', 'name')
+                            ->options(function(){
+                                return Vendor::where('owner_association_id',auth()->user()->owner_association_id)->pluck('name','id');
+                            })
                             ->reactive()
                             ->required()
                             ->preload()
                             ->searchable()
-                            ->disabled()
+                            ->disabledOn('edit')
                             ->placeholder('Vendor'),
                     ])
             ]);
@@ -116,7 +134,16 @@ class ContractResource extends Resource
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
-                //
+                SelectFilter::make('building_id')
+                    ->relationship('building', 'name', function (Builder $query) {
+                        if (Role::where('id', auth()->user()->role_id)->first()->name != 'Admin') {
+                            $query->where('owner_association_id', auth()->user()->owner_association_id);
+                        }
+
+                    })
+                    ->searchable()
+                    ->preload()
+                    ->label('Building'),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
