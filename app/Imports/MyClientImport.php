@@ -64,7 +64,7 @@ class MyClientImport implements ToCollection, WithHeadingRow
                     'name' => $row['tenant_name'],
                     'emirates_id' => $row['emirates_id'],
                     'license_number' => $row['license_number'],
-                    'mobile' => preg_replace('/0/', '+971', $row['mobile'], 1),
+                    'mobile' => preg_replace('/0/', '971', $row['mobile'], 1),
                     'email' => $row['email'],
                     'start_date' => $row['start_date'],
                     'end_date' => $row['end_date'],
