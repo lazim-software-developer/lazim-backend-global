@@ -24,11 +24,32 @@ class RegistrationController extends Controller
         
         $userData = User::where(['email' => $request->get('email'), 'phone' => $request->get('mobile')]);
         
-        if($userData->exists() && ($userData->first()->email_verified == 0 || $userData->first()->phone_verified == 0)) {
+        // if($userData->exists() && ($userData->first()->email_verified == 0 || $userData->first()->phone_verified == 0)) {
+        //     return (new CustomResponseResource([
+        //         'title' => 'account_present',
+        //         'message' => "Your account is not verified. You'll be redirected account verification page",
+        //         'code' => 403,
+        //         'type' => 'email'
+        //     ]))->response()->setStatusCode(403);
+        // }
+
+        // If email is verified,
+        if($userData->exists() && ($userData->first()->email_verified == 1 && $userData->first()->phone_verified == 0)) {
             return (new CustomResponseResource([
                 'title' => 'account_present',
                 'message' => "Your account is not verified. You'll be redirected account verification page",
-                'code' => 403, 
+                'code' => 403,
+                'type' => 'phone'
+            ]))->response()->setStatusCode(403);
+        }
+
+        // If phone is verified,
+        if($userData->exists() && ($userData->first()->email_verified == 0 && $userData->first()->phone_verified == 1)) {
+            return (new CustomResponseResource([
+                'title' => 'account_present',
+                'message' => "Your account is not verified. You'll be redirected account verification page",
+                'code' => 403,
+                'type' => 'email'
             ]))->response()->setStatusCode(403);
         }
 
@@ -49,7 +70,7 @@ class RegistrationController extends Controller
             return (new CustomResponseResource([
                 'title' => 'Error',
                 'message' => 'Flat selected by you doesnot exists',
-                'code' => 400, 
+                'code' => 400,
             ]))->response()->setStatusCode(400);
         }
 
