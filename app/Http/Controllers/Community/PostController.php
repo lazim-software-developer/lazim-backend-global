@@ -37,9 +37,9 @@ class PostController extends Controller
         if ($request->has('type')) {
             $type = $request->input('type');
             if ($type === 'announcement') {
-                $query->where('is_announcement', true);
+                $query->where(['is_announcement'=> true,'active'=>true]);
             } elseif ($type === 'post') {
-                $query->where('is_announcement', false);
+                $query->where(['is_announcement'=> false,'active'=>true]);
             }
         }
 
