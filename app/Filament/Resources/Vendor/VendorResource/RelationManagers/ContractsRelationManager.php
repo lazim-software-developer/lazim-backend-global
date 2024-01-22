@@ -66,12 +66,22 @@ class ContractsRelationManager extends RelationManager
                         DatePicker::make('start_date')
                             ->required()
                             ->rules(['date'])
-                            ->disabled()
+                            ->minDate(function ($record, $state) {
+                                if ($record?->start_date == null || $state != $record?->start_date) {
+                                    return now()->format('Y-m-d');
+                                }
+                            })
+                            // ->disabled()
                             ->placeholder('Start Date'),
                         DatePicker::make('end_date')
                             ->required()
                             ->rules(['date'])
-                            ->disabled()
+                            ->minDate(function ($record, $state) {
+                                if ($record?->end_date == null || $state != $record?->end_date) {
+                                    return now()->format('Y-m-d');
+                                }
+                            })
+                            // ->disabled()
                             ->placeholder('End Date'),
                         FileUpload::make('document_url')
                             ->required()
@@ -83,10 +93,14 @@ class ContractsRelationManager extends RelationManager
                             ->label('Document'),
                         TextInput::make('amount')
                             ->numeric(true)
+                            ->minValue(1)
+                            ->maxValue(1000000)
                             ->prefix('AED')
                             ->required(),
                         TextInput::make('budget_amount')
                             ->numeric(true)
+                            ->minValue(1)
+                            ->maxValue(1000000)
                             ->prefix('AED')
                             ->required(),
                         Hidden::make('vendor_id')
