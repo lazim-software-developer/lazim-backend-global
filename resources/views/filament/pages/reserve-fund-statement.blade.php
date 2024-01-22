@@ -7,12 +7,8 @@
             @endforeach
         </select>
 
-        <select id="year-dropdown" name="year" onChange="loadReserveFund()" class="bg-white border border-gray-300 rounded-md shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-            
-            @foreach($years as $year)
-                <option value="{{ $year }}">{{ $year }}</option>
-            @endforeach
-        </select>    
+        <input type="date" id="date-dropdown" name="date" onchange="loadReserveFund()" class="bg-white border border-gray-300 rounded-md shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"> 
+  
     </div>
     <div id="table-full">
         <h3>{{$message}}</h3>
@@ -59,14 +55,14 @@
 
     <script>
             function loadReserveFund() {
-                    const yearDropdown = document.getElementById('year-dropdown');
+                const dateDropdown = document.getElementById('date-dropdown');
                     const buildingDropdown = document.getElementById('building-dropdown');
-                    const selectedYear = yearDropdown.value;
+                    const selectedDate = dateDropdown.value;
                     const selectedBuilding = buildingDropdown.value;
 
                     // Construct the data payload based on what is selected
                     let dataPayload = {};
-                    if (selectedYear !== "") dataPayload.year = selectedYear;
+                    if (selectedDate !== "") dataPayload.date = selectedDate;
                     if (selectedBuilding !== "") dataPayload.building_id = selectedBuilding;
 
                     axios.post(`/get-reserve-fund`, dataPayload)

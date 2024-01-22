@@ -412,6 +412,9 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('vendor')->group(function 
     Route::get('/{vendor}/trade-licenses',[TLController::class,'show']);
     Route::post('/{vendor}/trade-licenses/update',[TLController::class,'update']);
 
+    Route::get('/{vendor}/risk-policy',[DocumentsUploadController::class,'showRiskPolicy']);
+    Route::post('/{vendor}/risk-policy/update',[DocumentsUploadController::class,'updateRiskPolicy']);
+
     //proposals
     Route::get('/{vendor}/proposals', [ProposalController::class, 'index']);
 });

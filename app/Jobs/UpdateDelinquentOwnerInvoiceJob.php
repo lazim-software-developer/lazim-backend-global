@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Models\Accounting\OAMInvoice;
 use App\Models\Accounting\OAMReceipts;
+use App\Models\AgingReport;
 use App\Models\DelinquentOwner;
 use App\Models\FlatOwners;
 use Carbon\Carbon;
@@ -41,11 +42,12 @@ class UpdateDelinquentOwnerInvoiceJob implements ShouldQueue
                 Log::info('year'.$year);
                 $flatId= $this->invoice->flat_id;
                 $ownerId = FlatOwners::where('flat_id', $flatId)->where('active', 1)->first()?->owner_id;
-                $lastReceipt = OAMReceipts::where(['flat_id' => $flatId])
+                $lastReceipt = OAMReceipts::where(['flat_id' => $flatId])->where('receipt_period', 'like', '%' . $year . '%')
                 ->latest('receipt_date')
                 ->first(['receipt_date', 'receipt_amount']);
                 Log::info('last'.$lastReceipt);
                 $lastInvoice = OAMInvoice::where(['flat_id' => $flatId])
+                                    ->where('invoice_period', 'like', '%' . $year . '%')
                                     ->latest('invoice_date')
                                     ->first();
                 $dueAmount = 0;
@@ -78,6 +80,37 @@ class UpdateDelinquentOwnerInvoiceJob implements ShouldQueue
                     $receipts->save();
                 }
             }
+
+            $aging = AgingReport::updateOrCreate([
+                        'year'=> $year,
+                        'building_id'=>$this->invoice->building_id,
+                        'flat_id'=>$flatId
+                    ],
+                    [
+                        'owner_id'=>$ownerId,
+                        'outstanding_balance' => $lastInvoice->due_amount,
+                    ]);
+            $balances = ['balance_1', 'balance_2', 'balance_3', 'balance_4', 'over_balance'];
+            $multiplier = 0;
+            
+            foreach ($balances as $balance) {
+                if ($balance == 'over_balance') {
+                    // Special case for over_balance
+                    if (($lastInvoice->due_amount - (4 * $lastInvoice->invoice_amount)) >= $lastInvoice->invoice_amount) {
+                        $aging->over_balance = $lastInvoice->due_amount;
+                    } else {
+                        $aging->over_balance = max($lastInvoice->due_amount - (4 * $lastInvoice->invoice_amount), 0);
+                    }
+                } else {
+                    // General case for balance_1, balance_2, balance_3, balance_4
+                    $difference = $lastInvoice->due_amount - ($multiplier * $lastInvoice->invoice_amount);
+                    $aging->$balance = $difference >= $lastInvoice->invoice_amount ? $lastInvoice->invoice_amount : max($difference, 0);
+                }
+                $aging->save();
+                $multiplier++;
+            }
+                    
+
             if($this->invoice->invoice_due_date < Carbon::now()->toDateString()){
                 $this->invoice->processed = true;
                 $this->invoice->save();

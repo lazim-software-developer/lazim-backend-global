@@ -2,18 +2,31 @@
 
 namespace App\Models;
 
+use App\Models\Accounting\Budget;
 use App\Models\Forms\SaleNOC;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Sluggable\HasSlug;
+use Spatie\Sluggable\SlugOptions;
 
 class OwnerAssociation extends Model
 {
-    use HasFactory;
+    use HasFactory, HasSlug;
 
     protected $fillable = [
         'name', 'phone', 'email', 'trn_number',
-        'address', 'mollak_id', 'verified', 'verified_by', 'active','profile_photo'
+        'address', 'mollak_id', 'verified', 'verified_by', 'active', 'profile_photo'
     ];
+
+    /**
+     * Get the options for generating the slug.
+     */
+    public function getSlugOptions(): SlugOptions
+    {
+        return SlugOptions::create()
+            ->generateSlugsFrom('name')
+            ->saveSlugsTo('slug');
+    }
 
     public function users()
     {
