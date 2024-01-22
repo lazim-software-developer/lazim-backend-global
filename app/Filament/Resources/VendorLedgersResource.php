@@ -71,8 +71,9 @@ class VendorLedgersResource extends Resource
                 TextInput::make('invoice_number')->disabled(),
                 TextInput::make('opening_balance')->prefix('AED')->disabled()->live(),
                 TextInput::make('invoice_amount')->prefix('AED')->disabled()->live(),
-                TextInput::make('payment')->prefix('AED')->live(),
+                TextInput::make('payment')->prefix('AED')->numeric()->disabled()->minValue(1)->maxValue(1000000)->live(),
                 TextInput::make('balance')->prefix('AED')->disabled()->live(),
+
                 FileUpload::make('document')
                     ->disk('s3')
                     ->directory('dev')

@@ -26,6 +26,8 @@ class RoleSeeder extends Seeder
             ['id' => 11, 'name' => 'Tenant'],
             ['id' => 12, 'name' => 'Security'],
             ['id' => 13, 'name' => 'Technician'],
+            ['id' => 14, 'name' => 'Accounts Manager'],
+            ['id' => 15, 'name' => 'MD'],
         ];
         Role::insert($roles);
     }
