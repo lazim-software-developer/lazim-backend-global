@@ -5,11 +5,15 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\BankStatementResource\Pages;
 use App\Filament\Resources\BankStatementResource\RelationManagers;
 use App\Models\Accounting\OAMReceipts;
+use App\Models\Building\Building;
 use Filament\Forms;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Enums\FiltersLayout;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -44,8 +48,43 @@ class BankStatementResource extends Resource
                 TextColumn::make('receipt_amount')->label('Total'),
             ])
             ->filters([
-                //
-            ])
+                Filter::make('invoice_date')
+                    ->form([
+                        Select::make('year')
+                        ->searchable()
+                        ->placeholder('Select Year')
+                        ->options(array_combine(range(now()->year, 2018), range(now()->year, 2018))),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        if (isset($data['year'])) {
+                                return $query
+                                    ->when(
+                                        $data['year'],
+                                        fn (Builder $query, $year) => $query->whereYear('receipt_date', $year)
+                                    );
+                        }
+
+                            return $query;
+                        }),
+                Filter::make('Building')
+                    ->form([
+                        Select::make('building')
+                        ->searchable()
+                        ->options(function () {
+                            $oaId = auth()->user()->owner_association_id;
+                            return Building::where('owner_association_id', $oaId)
+                                ->pluck('name', 'id');
+                        })
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['building'],
+                                fn (Builder $query, $building_id): Builder => $query->where('building_id', $building_id),
+                            );
+                        }),
+                    ],layout: FiltersLayout::AboveContent)->filtersFormColumns(3)
+            
             ->actions([
                 // Tables\Actions\EditAction::make(),
             ])

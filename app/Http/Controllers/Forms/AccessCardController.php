@@ -22,6 +22,8 @@ class AccessCardController extends Controller
         $document_paths = [
             'tenancy',
             'vehicle_registration',
+            'title_deed',
+            'passport'
         ];
         
         $data = $request->all();
