@@ -19,7 +19,7 @@ class TrialBalance extends Page
     {
         return [
             'buildings' => Building::where('owner_association_id', auth()->user()->owner_association_id)->get(),
-            "message" => "Please Select a building and Year",
+            "message" => "Please Select a building and date",
         ];
     }
 }
