@@ -76,14 +76,24 @@ class ContractResource extends Resource
                         DatePicker::make('start_date')
                             ->required()
                             ->rules(['date'])
-                            ->minDate(now()->format('Y-m-d'))
-                            ->disabledOn('edit')
+                            // ->minDate(now()->format('Y-m-d'))
+                            ->minDate(function ($record, $state) {
+                                if ($record?->start_date == null || $state != $record?->start_date) {
+                                    return now()->format('Y-m-d');
+                                }
+                            })
+                            // ->disabledOn('edit')
                             ->placeholder('Start Date'),
                         DatePicker::make('end_date')
                             ->required()
                             ->rules(['date'])
-                            ->minDate(now()->format('Y-m-d'))
-                            ->disabledOn('edit')
+                            // ->minDate(now()->format('Y-m-d'))
+                            ->minDate(function ($record, $state) {
+                                if ($record?->end_date == null || $state != $record?->end_date) {
+                                    return now()->format('Y-m-d');
+                                }
+                            })
+                            // ->disabledOn('edit')
                             ->placeholder('End Date'),
                         FileUpload::make('document_url')
                             ->required()
@@ -96,17 +106,19 @@ class ContractResource extends Resource
                         TextInput::make('amount')
                             ->numeric(true)
                             ->minValue(1)
+                            ->maxValue(1000000)
                             ->prefix('AED')
                             ->required(),
                         TextInput::make('budget_amount')
                             ->numeric(true)
                             ->minValue(1)
+                            ->maxValue(1000000)
                             ->prefix('AED')
                             ->required(),
                         Select::make('vendor_id')
                             ->relationship('vendor', 'name')
                             ->options(function(){
-                                return Vendor::where('owner_association_id',auth()->user()->owner_association_id)->pluck('name','id');
+                                return Vendor::where('owner_association_id',auth()->user()->owner_association_id)->where('status','approved')->pluck('name','id');
                             })
                             ->reactive()
                             ->required()
