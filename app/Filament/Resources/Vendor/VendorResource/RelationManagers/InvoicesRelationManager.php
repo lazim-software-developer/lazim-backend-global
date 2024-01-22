@@ -2,10 +2,14 @@
 
 namespace App\Filament\Resources\Vendor\VendorResource\RelationManagers;
 
+use Closure;
 use Filament\Forms;
 use Filament\Tables;
+use Filament\Forms\Get;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
+use App\Models\Master\Role;
+use App\Models\InvoiceApproval;
 use App\Models\Accounting\Invoice;
 use Filament\Forms\Components\Grid;
 use Filament\Tables\Actions\Action;
@@ -19,10 +23,12 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Resources\RelationManagers\RelationManager;
 
-class InvoicesRelationManager extends RelationManager {
+class InvoicesRelationManager extends RelationManager
+{
     protected static string $relationship = 'invoices';
 
-    public function form(Form $form): Form {
+    public function form(Form $form): Form
+    {
         return $form
             ->schema([
                 Grid::make([
@@ -43,6 +49,12 @@ class InvoicesRelationManager extends RelationManager {
                             ->disabled()
                             ->searchable()
                             ->label('Contract Type'),
+                        Select::make('vendor_id')
+                            ->relationship('vendor', 'name')
+                            ->preload()
+                            ->disabled()
+                            ->searchable()
+                            ->label('Vendor Name'),
                         TextInput::make('invoice_number')
                             ->required()
                             ->disabled()
@@ -64,38 +76,87 @@ class InvoicesRelationManager extends RelationManager {
                             ->disabled()
                             ->openable(true)
                             ->downloadable(true)
-                            ->label('Document'),
+                            ->label('Document')
+                            ->columnSpan([
+                                'sm' => 1,
+                                'md' => 1,
+                                'lg' => 2,
+                            ]),
+                        TextInput::make('opening_balance')
+                            ->prefix('AED')
+                            ->disabled()
+                            ->live(),
+                        TextInput::make('payment')
+                            ->prefix('AED')
+                            ->numeric()
+                            ->minValue(1)
+                            ->maxValue(function (Get $get) {
+                                return $get('invoice_amount');
+                            })
+                            ->live(),
+                        TextInput::make('balance')
+                            ->prefix('AED')
+                            ->disabled()
+                            ->live(),
                         TextInput::make('invoice_amount')
                             ->label('Invoice Amount')
                             ->disabled()
                             ->prefix('AED'),
                         Select::make('status')
+                            ->rules([function () {
+                                return function (string $attribute, $value, Closure $fail) {
+                                    if (Role::where('id', auth()->user()->role_id)->first()->name == 'OA' && !in_array($value, ['approved by oa', 'rejected'])) {
+                                        $fail('You can Approve as OA Only.');
+                                    }
+                                    if (Role::where('id', auth()->user()->role_id)->first()->name == 'Accounts Manager' && !in_array($value, ['approved by account manager', 'rejected'])) {
+                                        $fail('You can Approve as Accounts Manager Only.');
+                                    }
+                                    if (Role::where('id', auth()->user()->role_id)->first()->name == 'MD' && !in_array($value, ['approved by md', 'rejected'])) {
+                                        $fail('You can Approve as MD Only.');
+                                    }
+                                };
+                            },])
+                            ->required()
                             ->options([
-                                'approved' => 'Approved',
+                                'approved by oa' => 'Approved By Oa',
+                                'approved by account manager' => 'Approved By Account Manager',
+                                'approved by md' => 'Approved By MD',
                                 'rejected' => 'Rejected',
                             ])
                             ->disabled(function (Invoice $record) {
-                                return $record->status != 'pending';
+                                if (Role::where('id', auth()->user()->role_id)->first()->name == 'OA') {
+                                    return in_array($record->status, ['approved by oa', 'rejected']);
+                                }
+                                if (Role::where('id', auth()->user()->role_id)->first()->name == 'Accounts Manager') {
+                                    return in_array($record->status, ['approved by account manager', 'rejected']);
+                                }
+                                if (Role::where('id', auth()->user()->role_id)->first()->name == 'MD') {
+                                    return in_array($record->status, ['approved by md', 'rejected']);
+                                }
                             })
                             ->searchable()
                             ->live(),
                         TextInput::make('remarks')
-                            ->rules(['max:255'])
+                            ->rules(['max:155'])
                             ->visible(function (callable $get) {
-                                if($get('status') == 'rejected') {
+                                if ($get('status') == 'rejected') {
                                     return true;
                                 }
                                 return false;
                             })
                             ->disabled(function (Invoice $record) {
-                                return $record->status != 'pending';
+                                if (in_array($record->status, ['rejected', 'approved by oa', 'approved by account manager', 'approved by md']) && Role::where('id', auth()->user()->role_id)->first()->name == 'OA') {
+                                    return true;
+                                }
+                                return false;
                             })
                             ->required(),
                     ])
             ]);
     }
 
-    public function table(Table $table): Table {
+    public function table(Table $table): Table
+    {
         return $table
             ->columns([
                 TextColumn::make('building.name')
@@ -125,14 +186,34 @@ class InvoicesRelationManager extends RelationManager {
             ])
             ->actions([
                 Tables\Actions\EditAction::make()
-                    ->mutateFormDataUsing(function (array $data): array {
-                        if($data['status'] != 'pending'){
-                            $data['status_updated_by'] = auth()->user()->id;
+                    ->after(function ($record) {
+                        if(!InvoiceApproval::where('invoice_id',$record->id)->exists()){
+                            if ($record->status == 'approved by oa') {
+                                InvoiceApproval::create([
+                                    'invoice_id' => $record->id,
+                                    'status' => $record->status,
+                                    'updated_by' => auth()->user()->id,
+                                    'remarks' => 'approved by oa',
+                                ]);
+                            } else {
+                                InvoiceApproval::create([
+                                    'invoice_id' => $record->id,
+                                    'status' => $record->status,
+                                    'updated_by' => auth()->user()->id,
+                                    'remarks' => $record->remarks,
+                                ]);
+                            }
                         }
-                        return $data;
+                        Invoice::where('id', $record->id)
+                            ->update([
+                                'opening_balance' => $record->invoice_amount - $record->payment,
+                                'balance' => $record->invoice_amount - $record->payment,
+                                'payment' => $record->payment,
+                                'status_updated_by' => auth()->user()->id,
+                            ]);
                     })
                     ->mutateRecordDataUsing(function (array $data): array {
-                        if($data['status'] == 'pending'){
+                        if ($data['status'] == 'pending') {
                             $data['status'] = null;
                         }
                         return $data;

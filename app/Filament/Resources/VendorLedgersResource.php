@@ -71,7 +71,9 @@ class VendorLedgersResource extends Resource
                 TextInput::make('invoice_number')->disabled(),
                 TextInput::make('opening_balance')->prefix('AED')->disabled()->live(),
                 TextInput::make('invoice_amount')->prefix('AED')->disabled()->live(),
-                TextInput::make('payment')->prefix('AED')->numeric()->disabled()->minValue(1)->maxValue(1000000)->live(),
+                TextInput::make('payment')->prefix('AED')->numeric()->disabled()->minValue(1)->maxValue(function (Get $get) {
+                    return $get('invoice_amount');
+                })->live(),
                 TextInput::make('balance')->prefix('AED')->disabled()->live(),
 
                 FileUpload::make('document')
@@ -142,7 +144,7 @@ class VendorLedgersResource extends Resource
                         return $query
                             ->when(
                                 $data['building'],
-                                fn(Builder $query, $building_id): Builder => $query->where('building_id', $building_id),
+                                fn (Builder $query, $building_id): Builder => $query->where('building_id', $building_id),
                             );
                     }),
             ], layout: FiltersLayout::AboveContent)->filtersFormColumns(3)
