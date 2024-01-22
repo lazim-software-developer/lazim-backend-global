@@ -305,8 +305,8 @@ class AdminPanelProvider extends PanelProvider
                                     ->sort(9),
                                 NavigationItem::make('Trial Balance')
                                     ->url('/admin/trial-balance')
-                                    ->icon('heroicon-s-document-arrow-down')
-                                    ->activeIcon('heroicon-s-document-arrow-down')
+                                    ->icon('heroicon-s-clipboard-document')
+                                    ->activeIcon('heroicon-s-clipboard-document')
                                     ->sort(10),
 
                                 ]), NavigationGroup::make('Reports')

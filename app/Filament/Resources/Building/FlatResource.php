@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Building;
 
 use App\Filament\Resources\Building\FlatResource\Pages;
 use App\Filament\Resources\Building\FlatResource\RelationManagers;
+use App\Filament\Resources\FlatResource\Pages\ViewFlat;
 use App\Models\Building\Flat;
 use Filament\Forms;
 use Filament\Forms\Components\Grid;
@@ -12,6 +13,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -35,7 +37,7 @@ class FlatResource extends Resource
                     'md' => 1,
                     'lg' => 2,])
                     ->schema([
-                    TextInput::make('property_number')
+                    TextInput::make('property_number')->label('Unit')
                         ->rules(['numeric'])
                         ->required()
                         ->numeric()
@@ -47,6 +49,20 @@ class FlatResource extends Resource
                         ->preload()
                         ->searchable()
                         ->placeholder('Building'),
+                    TextInput::make('suit_area')
+                        ->default('NA')->placeholder('NA'),
+                    TextInput::make('actual_area')
+                        ->default('NA')->placeholder('NA'),
+                    TextInput::make('balcony_area')
+                        ->default('NA')->placeholder('NA'),
+                    TextInput::make('applicable_area')
+                        ->default('NA')->placeholder('NA'),
+                    TextInput::make('virtual_account_number')
+                        ->default('NA')->placeholder('NA'),
+                    TextInput::make('parking_count')
+                        ->default('NA')->placeholder('NA'),
+                    TextInput::make('plot_number')
+                        ->default('NA')->placeholder('NA'),
                 ]),
             ]);
     }
@@ -56,11 +72,39 @@ class FlatResource extends Resource
         return $table
             ->poll('60s')
             ->columns([
-                Tables\Columns\TextColumn::make('property_number')
+                TextColumn::make('property_number')
                     ->default('NA')
                     ->searchable()
                     ->label('Unit Number'),
-                Tables\Columns\TextColumn::make('building.name')
+                TextColumn::make('building.name')
+                    ->default('NA')
+                    ->searchable()
+                    ->limit(50),
+                TextColumn::make('suit_area')
+                    ->default('NA')
+                    ->searchable()
+                    ->limit(50),
+                TextColumn::make('actual_area')
+                    ->default('NA')
+                    ->searchable()
+                    ->limit(50),
+                TextColumn::make('balcony_area')
+                    ->default('NA')
+                    ->searchable()
+                    ->limit(50),
+                TextColumn::make('applicable_area')
+                    ->default('NA')
+                    ->searchable()
+                    ->limit(50),
+                TextColumn::make('virtual_account_number')
+                    ->default('NA')
+                    ->searchable()
+                    ->limit(50),
+                TextColumn::make('parking_count')
+                    ->default('NA')
+                    ->searchable()
+                    ->limit(50),
+                TextColumn::make('plot_number')
                     ->default('NA')
                     ->searchable()
                     ->limit(50),
@@ -74,7 +118,7 @@ class FlatResource extends Resource
                     ->preload()
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                // Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -100,8 +144,9 @@ class FlatResource extends Resource
     {
         return [
             'index' => Pages\ListFlats::route('/'),
+            'view' => ViewFlat::route('/{record}')
             //'create' => Pages\CreateFlat::route('/create'),
-            'edit' => Pages\EditFlat::route('/{record}/edit'),
+            // 'edit' => Pages\EditFlat::route('/{record}/edit'),
         ];
     }
 }

@@ -57,8 +57,40 @@ class FlatsRelationManager extends RelationManager
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('property_number'),
-                Tables\Columns\TextColumn::make('building.name')->limit(50),
+                TextColumn::make('property_number')
+                    ->default('NA')
+                    ->searchable()
+                    ->label('Unit Number'),
+                TextColumn::make('building.name')
+                    ->limit(50),
+                TextColumn::make('suit_area')
+                    ->default('NA')
+                    ->searchable()
+                    ->limit(50),
+                TextColumn::make('actual_area')
+                    ->default('NA')
+                    ->searchable()
+                    ->limit(50),
+                TextColumn::make('balcony_area')
+                    ->default('NA')
+                    ->searchable()
+                    ->limit(50),
+                TextColumn::make('applicable_area')
+                    ->default('NA')
+                    ->searchable()
+                    ->limit(50),
+                TextColumn::make('virtual_account_number')
+                    ->default('NA')
+                    ->searchable()
+                    ->limit(50),
+                TextColumn::make('parking_count')
+                    ->default('NA')
+                    ->searchable()
+                    ->limit(50),
+                TextColumn::make('plot_number')
+                    ->default('NA')
+                    ->searchable()
+                    ->limit(50),
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
@@ -91,7 +123,54 @@ class FlatsRelationManager extends RelationManager
                             ->default('NA')
                             ->preload()
                             ->searchable()
-                            ->placeholder('Building'),
+                            ->placeholder('Building')
+                            ->columnSpan([
+                                'default' => 12,
+                                'md' => 12,
+                                'lg' => 12,
+                            ]),
+                        TextInput::make('suit_area')
+                            ->placeholder('NA')->columnSpan([
+                            'default' => 12,
+                            'md' => 12,
+                            'lg' => 12,
+                            ]),
+                        TextInput::make('actual_area')
+                            ->placeholder('NA')->columnSpan([
+                            'default' => 12,
+                            'md' => 12,
+                            'lg' => 12,
+                            ]),
+                        TextInput::make('balcony_area')
+                            ->placeholder('NA')->columnSpan([
+                            'default' => 12,
+                            'md' => 12,
+                            'lg' => 12,
+                            ]),
+                        TextInput::make('applicable_area')
+                            ->placeholder('NA')->columnSpan([
+                            'default' => 12,
+                            'md' => 12,
+                            'lg' => 12,
+                            ]),
+                        TextInput::make('virtual_account_number')
+                            ->placeholder('NA')->columnSpan([
+                            'default' => 12,
+                            'md' => 12,
+                            'lg' => 12,
+                            ]),
+                        TextInput::make('parking_count')
+                            ->placeholder('NA')->columnSpan([
+                            'default' => 12,
+                            'md' => 12,
+                            'lg' => 12,
+                            ]),
+                        TextInput::make('plot_number')
+                            ->placeholder('NA')->columnSpan([
+                            'default' => 12,
+                            'md' => 12,
+                            'lg' => 12,
+                            ]),
                 ])
                 ->fillForm(fn (Flat $record): array => [
                     'property_number' => $record->property_number,
