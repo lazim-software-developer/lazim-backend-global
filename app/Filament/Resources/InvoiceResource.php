@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use Closure;
 use Filament\Forms;
 use Filament\Tables;
+use Filament\Forms\Get;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use App\Models\Master\Role;
@@ -91,7 +92,9 @@ class InvoiceResource extends Resource
                             ->prefix('AED')
                             ->numeric()
                             ->minValue(1)
-                            ->maxValue(1000000)
+                            ->maxValue(function(Get $get){
+                                return $get('invoice_amount');
+                            })
                             ->live(),
                         TextInput::make('balance')
                             ->prefix('AED')
@@ -115,6 +118,7 @@ class InvoiceResource extends Resource
                                     }
                                 };
                             },])
+                            ->required()
                             ->options([
                                 'approved by oa' => 'Approved By Oa',
                                 'approved by account manager' => 'Approved By Account Manager',

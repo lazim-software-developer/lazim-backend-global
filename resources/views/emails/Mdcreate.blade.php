@@ -43,7 +43,14 @@
         <tr>
 			<td width="100%" height="25"></td>
 		</tr>
-
+		<tr>
+            <td class="paragraph">
+                To access your account and use our platform, click on <a href="https://lazim-dev.zysk.tech/">this link</a>
+			</td>
+		</tr>
+        <tr>
+			<td width="100%" height="25"></td>
+		</tr>
         <tr>
             <td class="paragraph">
             Thank you for choosing Lazim. We're confident that you'll find great value in our platform, and we look forward to serving you.
