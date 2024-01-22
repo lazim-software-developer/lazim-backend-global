@@ -11,11 +11,13 @@ use Filament\Support\Colors\Color;
 use Illuminate\Support\Facades\DB;
 use Filament\Navigation\NavigationItem;
 use App\Filament\Pages\Auth\EditProfile;
+use App\Filament\Resources\AgingReportResource;
 use App\Filament\Resources\BankStatementResource;
 use App\Filament\Resources\WDAResource;
 use App\Filament\Resources\DelinquentOwnerResource;
 use App\Filament\Resources\OwnerAssociationInvoiceResource;
 use App\Filament\Resources\OwnerAssociationReceiptResource;
+use App\Models\AgingReport;
 use App\Models\Master\Role;
 use Filament\Navigation\NavigationGroup;
 use Filament\Http\Middleware\Authenticate;
@@ -272,7 +274,7 @@ class AdminPanelProvider extends PanelProvider
                                     ->activeIcon('heroicon-s-bars-arrow-down')
                                     ->sort(3),
                                 NavigationItem::make('Aging report')
-                                    ->url('/admin/aging-report')
+                                    ->url(AgingReportResource::getUrl('index'))
                                     ->icon('heroicon-o-document')
                                     ->activeIcon('heroicon-o-document')
                                     ->sort(4),
