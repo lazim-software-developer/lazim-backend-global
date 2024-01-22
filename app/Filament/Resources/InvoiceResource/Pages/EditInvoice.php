@@ -39,7 +39,7 @@ class EditInvoice extends EditRecord
     protected function afterSave(): void
     {
         $invoiceApproval = InvoiceApproval::where('invoice_id',$this->record->id)->first();
-        if(Role::where('id', auth()->user()->role_id)->first()->name == 'OA'){
+        if(Role::where('id', auth()->user()->role_id)->first()->name == 'OA' && !InvoiceApproval::where('invoice_id',$this->record->id)->exists()){
             if($this->record->status == 'approved by oa'){
                 InvoiceApproval::create([
                     'invoice_id' => $this->record->id,
