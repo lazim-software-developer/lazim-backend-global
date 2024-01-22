@@ -83,6 +83,20 @@ class InvoiceResource extends Resource
                                 'md' => 1,
                                 'lg' => 2,
                             ]),
+                        TextInput::make('opening_balance')
+                            ->prefix('AED')
+                            ->disabled()
+                            ->live(),
+                        TextInput::make('payment')
+                            ->prefix('AED')
+                            ->numeric()
+                            ->minValue(1)
+                            ->maxValue(1000000)
+                            ->live(),
+                        TextInput::make('balance')
+                            ->prefix('AED')
+                            ->disabled()
+                            ->live(),
                         TextInput::make('invoice_amount')
                             ->label('Invoice Amount')
                             ->disabled()
