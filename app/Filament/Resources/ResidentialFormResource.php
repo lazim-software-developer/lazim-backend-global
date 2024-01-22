@@ -42,6 +42,10 @@ class ResidentialFormResource extends Resource
                         ->label('Passport Number')
                         ->disabled()
                         ->placeholder('Passport Number'),
+                    TextInput::make('name')
+                        ->label('Name of Resident')
+                        ->disabled()
+                        ->placeholder('Name of Resident'),
                     TextInput::make('number_of_children')
                         ->label('Number Of Children')
                         ->disabled()
