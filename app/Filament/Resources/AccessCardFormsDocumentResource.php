@@ -93,6 +93,12 @@ class AccessCardFormsDocumentResource extends Resource
                         ->disabled()
                         ->downloadable(true)
                         ->openable(true)
+                        ->visible(function (callable $get) {
+                            if ($get('vehicle_registration') != null) {
+                                return true;
+                            }
+                            return false;
+                        })
                         ->label('Vehicle Registration'),
                     FileUpload::make('title_deed')
                         ->visible(function (callable $get) {
