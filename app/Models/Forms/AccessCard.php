@@ -28,7 +28,9 @@ class AccessCard extends Model
         'status',
         'remarks',
         'rejected_fields',
-        'payment_link'
+        'payment_link',
+        'passport',
+        'title_deed'
     ];
 
     protected $searchableFields = ['*'];
