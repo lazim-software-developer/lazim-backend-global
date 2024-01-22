@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use Closure;
 use Filament\Forms;
 use App\Models\Item;
+use Filament\Forms\Components\Hidden;
 use Filament\Tables;
 use Filament\Forms\Get;
 use Filament\Forms\Form;
@@ -63,7 +64,7 @@ class ItemInventoryResource extends Resource
                     TextInput::make('quantity')
                         ->rules([function (Get $get) {
                             return function (string $attribute, $value, Closure $fail) use ($get) {
-                                if(Item::find($get('item_id'))->quantity == 0){
+                                if($get('type') == 'used' && Item::find($get('item_id'))->quantity == 0){
                                     $fail('You cannot use the Item '.Item::find($get('item_id'))->name . ' because the quantity is Zero.');
                                 }
                                 if ($get('type') == 'used' && Item::find($get('item_id'))->quantity < $value) {
@@ -77,11 +78,8 @@ class ItemInventoryResource extends Resource
                     Textarea::make('comments')
                         ->rules(['max:100', 'regex:/^(?=.*[a-zA-Z])[a-zA-Z0-9\s!@#$%^&*_+\-=,.]*$/'])
                         ->required(),
-                    Select::make('user_id')
-                        ->relationship('user', 'first_name')
-                        ->searchable()
-                        ->preload()
-                        ->required(),
+                    Hidden::make('user_id')
+                        ->default(auth()->user()->id),
 
                 ])
             ]);
