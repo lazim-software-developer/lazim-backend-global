@@ -18,7 +18,7 @@ class ListVendorLedgers extends ListRecords
         // $vendor_id = Vendor::where('owner_association_id',auth()->user()->owner_association_id)->pluck('id')->toArray();
         // return parent::getTableQuery()->where('status','approved')->whereIn('vendor_id', $vendor_id);
         $buildings = Building::where('owner_association_id',auth()->user()->owner_association_id)->pluck('id');
-        return parent::getTableQuery()->where('status','approved')->whereIn('building_id', $buildings);
+        return parent::getTableQuery()->where('status','approved by md')->whereIn('building_id', $buildings);
     }
     protected function getHeaderActions(): array
     {

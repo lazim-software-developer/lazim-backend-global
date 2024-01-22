@@ -25,6 +25,9 @@ class EditVendor extends EditRecord
     }
     public function afterSave()
     {
+        $userId = User::find($this->record->owner_id);
+        $userId->active = $this->record->active;
+        $userId->save();
         if($this->record->active){
             VendorRemarks::firstorcreate([
                 'vendor_id'  => $this->record->id,
