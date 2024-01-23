@@ -100,6 +100,7 @@ class TenantResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->defaultGroup('name')
             ->columns([
                 Tables\Columns\TextColumn::make('name')
                     ->searchable()

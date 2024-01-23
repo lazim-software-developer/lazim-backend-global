@@ -2,21 +2,24 @@
 
 namespace App\Filament\Resources\CoolingAccountResource\Pages;
 
-use App\Filament\Resources\CoolingAccountResource;
-use App\Imports\CoolingAccountImport;
-use App\Models\Building\Building;
-use Coolsam\FilamentFlatpickr\Forms\Components\Flatpickr;
-use EightyNine\ExcelImport\ExcelImportAction;
 use Filament\Actions;
 use Filament\Actions\Action;
+use App\Models\Building\Building;
 use Filament\Actions\SelectAction;
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Select;
-use Filament\Notifications\Notification;
-use Filament\Resources\Pages\ListRecords;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
+use App\Imports\CoolingAccountImport;
+use Filament\Forms\Components\Select;
+use Filament\Notifications\Notification;
+use pxlrbt\FilamentExcel\Columns\Column;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\FileUpload;
+use Filament\Resources\Pages\ListRecords;
+use EightyNine\ExcelImport\ExcelImportAction;
+use pxlrbt\FilamentExcel\Exports\ExcelExport;
+use App\Filament\Resources\CoolingAccountResource;
+use pxlrbt\FilamentExcel\Actions\Pages\ExportAction;
+use Coolsam\FilamentFlatpickr\Forms\Components\Flatpickr;
 
 class ListCoolingAccounts extends ListRecords
 {
@@ -89,6 +92,21 @@ class ListCoolingAccounts extends ListRecords
                     Excel::import(new CoolingAccountImport( $buildingId, $month ), $fullPath);
 
                 }),
+
+                ExportAction::make()->exports([
+                    ExcelExport::make()->withColumns([
+                        Column::make('flat_id')->heading('Unit No'),
+                        Column::make('opening_balance')->heading('Opening balance : receivable/ (advance)'),
+                        Column::make('consumption')->heading('In-unit consumption'),
+                        Column::make('demand_charge')->heading('In-unit demand charge'),
+                        Column::make('security_deposit')->heading('In-unit security deposit'),
+                        Column::make('billing_charges')->heading('In-unit billing charges'),
+                        Column::make('other_charges')->heading('In-unit other charges'),
+                        Column::make('receipts')->heading('Receipts'),
+                        Column::make('closing_balance')->heading('Closing balance'),
+                    ])
+                    ->modifyQueryUsing(fn ($query) => $query->where('id', 0)),
+                ])->label('Download sample file')
         ];
     }
 }

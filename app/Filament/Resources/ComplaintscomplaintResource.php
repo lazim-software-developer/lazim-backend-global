@@ -9,6 +9,7 @@ use Filament\Forms\Get;
 use Filament\Forms\Form;
 use App\Models\User\User;
 use Filament\Tables\Table;
+use App\Models\Master\Role;
 use App\Models\Vendor\Vendor;
 use App\Models\TechnicianVendor;
 use Filament\Resources\Resource;
@@ -59,7 +60,7 @@ class ComplaintscomplaintResource extends Resource
                             ->searchable()
                             ->placeholder('Building'),
                         Select::make('user_id')
-                            ->relationship('user', 'id')
+                            ->relationship('user', 'first_name')
                             ->options(function () {
                                 $tenants = DB::table('flat_tenants')->pluck('tenant_id');
                                 // dd($tenants);
@@ -79,15 +80,14 @@ class ComplaintscomplaintResource extends Resource
                             ->preload()
                             ->required()
                             ->options(function (Complaint $record, Get $get) {
-                                $serviceVendor = ServiceVendor::where('service_id',$get('service_id'))->pluck('vendor_id');
-                                return Vendor::whereIn('id',$serviceVendor)->where('owner_association_id', auth()->user()->owner_association_id)->pluck('name', 'id');
+                                $serviceVendor = ServiceVendor::where('service_id', $get('service_id'))->pluck('vendor_id');
+                                return Vendor::whereIn('id', $serviceVendor)->where('owner_association_id', auth()->user()->owner_association_id)->pluck('name', 'id');
                             })
                             ->disabled(function (Complaint $record) {
                                 if ($record->vendor_id == null) {
                                     return false;
                                 }
                                 return true;
-
                             })
                             ->live()
                             ->searchable()
@@ -114,13 +114,14 @@ class ComplaintscomplaintResource extends Resource
                             ->searchable()
                             ->label('Technician Name'),
                         TextInput::make('priority')
-                            ->rules([function () {
-                                return function (string $attribute, $value, Closure $fail) {
-                                    if ($value < 1 || $value > 3) {
-                                        $fail('The priority field accepts 1, 2 and 3 only.');
-                                    }
-                                };
-                            },
+                            ->rules([
+                                function () {
+                                    return function (string $attribute, $value, Closure $fail) {
+                                        if ($value < 1 || $value > 3) {
+                                            $fail('The priority field accepts 1, 2 and 3 only.');
+                                        }
+                                    };
+                                },
                             ])
                             ->disabled(function (Complaint $record) {
                                 return $record->status != 'open';
@@ -224,14 +225,16 @@ class ComplaintscomplaintResource extends Resource
             ->defaultSort('created_at', 'desc')
             ->filters([
                 SelectFilter::make('building_id')
-                    ->relationship('building', 'name')
+                    ->relationship('building', 'name', function (Builder $query) {
+                        if (Role::where('id', auth()->user()->role_id)->first()->name != 'Admin') {
+                            $query->where('owner_association_id', auth()->user()->owner_association_id);
+                        }
+                    })
                     ->searchable()
                     ->label('Building')
                     ->preload()
             ])
-            ->actions([
-
-            ]);
+            ->actions([]);
     }
 
     public static function getRelations(): array

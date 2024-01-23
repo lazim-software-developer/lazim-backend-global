@@ -52,123 +52,119 @@ class PostResource extends Resource
                 'md' => 1,
                 'lg' => 2,
             ])->schema([
-                        MarkdownEditor::make('content')
-                            ->toolbarButtons([
-                                'bold',
-                                'bulletList',
-                                'italic',
-                                'link',
-                                'orderedList',
-                                'redo',
-                                'undo',
-                            ])
-                            ->required()
-                            ->disabled(function ($record) {
-                                return $record?->status == 'published';
-                            })
-                            ->columnSpan([
-                                'sm' => 1,
-                                'md' => 1,
-                                'lg' => 2,
-                            ]),
-
-                        Select::make('status')
-                            ->searchable()
-                            ->options([
-                                'published' => 'Published',
-                                'draft' => 'Draft',
-                            ])
-                            ->reactive()
-                            ->live()
-                            ->afterStateUpdated(function (Set $set, Get $get) {
-                                $set('scheduled_at',null);
-                            })
-                            ->disabled(function ($record) {
-                                return $record?->status == 'published';
-                            })
-                            ->default('published')
-                            ->required(),
-
-                        DateTimePicker::make('scheduled_at')
-                            ->rules(['date'])
-                            ->displayFormat('d-M-Y h:i A')
-                            ->minDate(now())
-                            ->required(function (callable $get) {
-                                if ($get('status') == 'published') {
-                                    return true;
-                                }
-                                return false;
-                            })
-                            ->disabled(function ($record) {
-                                return $record?->status == 'published';
-                            })
-                            ->default(now())
-                            ->placeholder('Scheduled At'),
-
-                        Select::make('building')
-                            ->relationship('building', 'name')
-                            ->options(function () {
-                                if(Role::where('id',auth()->user()->role_id)->first()->name == 'Admin'){
-                                    return Building::all()->pluck('name','id');
-                                }
-                                return Building::where('owner_association_id', auth()->user()->owner_association_id)->pluck('name', 'id');
-                            })
-                            ->multiple()
-                            ->searchable()
-                            ->preload()
-                            ->required()
-                            ->label('Building')
-                            ->disabled(function ($record) {
-                                return $record?->status == 'published';
-                            })
-                            ->columnSpan([
-                                'sm' => 1,
-                                'md' => 1,
-                                'lg' => 2,
-                            ]),
-
-                        Hidden::make('user_id')
-                            ->default(auth()->user()->id),
-
-                        Hidden::make('owner_association_id')
-                            ->default(auth()->user()->owner_association_id),
-
-                        Hidden::make('is_announcement')
-                            ->default(false),
-                        Repeater::make('media')
-                            ->relationship('media')
-                            ->schema([
-                                TextInput::make('name')
-                                    ->rules(['max:30', 'regex:/^[a-zA-Z\s]*$/'])
-                                    ->required()
-                                    ->placeholder('Name'),
-                                FileUpload::make('url')
-                                    ->disk('s3')
-                                    ->rules('file|mimes:jpeg,jpg,png|max:2048')
-                                    ->directory('dev')
-                                    ->openable(true)
-                                    ->downloadable(true)
-                                    ->image()
-                                    ->maxSize(2048)
-                                    ->required()
-                                    ->label('File')
-
-                            ])
-                            ->disabled(function ($record) {
-                                return $record?->status == 'published';
-                            })
-                            ->columnSpan([
-                                'sm' => 1,
-                                'md' => 1,
-                                'lg' => 2,
-                            ]),
-                        Toggle::make('allow_like')->default(0)->hidden(function ($record) {
-                            return $record?->status == 'published';
-                        }),
-                        Toggle::make('allow_comment')->default(0)->hidden(function ($record) {
-                            return $record?->status == 'published';
-                        }),
+                MarkdownEditor::make('content')
+                    ->toolbarButtons([
+                        'bold',
+                        'bulletList',
+                        'italic',
+                        'link',
+                        'orderedList',
+                        'redo',
+                        'undo',
                     ])
+                    ->required()
+                    ->columnSpan([
+                        'sm' => 1,
+                        'md' => 1,
+                        'lg' => 2,
+                    ]),
+
+                Select::make('status')
+                    ->searchable()
+                    ->options([
+                        'published' => 'Published',
+                        'draft' => 'Draft',
+                    ])
+                    ->reactive()
+                    ->live()
+                    ->afterStateUpdated(function (Set $set, Get $get) {
+                        $set('scheduled_at', null);
+                    })
+                    ->default('published')
+                    ->required(),
+
+                DateTimePicker::make('scheduled_at')
+                    ->rules(['date'])
+                    ->displayFormat('d-M-Y h:i A')
+                    ->minDate(function ($record, $state) {
+                        if ($record?->scheduled_at == null || $state != $record?->scheduled_at) {
+                            return now();
+                        }
+                    })
+                    ->required(function (callable $get) {
+                        if ($get('status') == 'published') {
+                            return true;
+                        }
+                        return false;
+                    })
+                    ->default(now())
+                    ->placeholder('Scheduled At'),
+
+                Select::make('building')
+                    ->relationship('building', 'name')
+                    ->options(function () {
+                        if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+                            return Building::all()->pluck('name', 'id');
+                        }
+                        return Building::where('owner_association_id', auth()->user()->owner_association_id)->pluck('name', 'id');
+                    })
+                    ->multiple()
+                    ->searchable()
+                    ->preload()
+                    ->required()
+                    ->label('Building')
+                    ->columnSpan([
+                        'sm' => 1,
+                        'md' => 1,
+                        'lg' => 2,
+                    ]),
+
+                Hidden::make('user_id')
+                    ->default(auth()->user()->id),
+
+                Hidden::make('owner_association_id')
+                    ->default(auth()->user()->owner_association_id),
+
+                Hidden::make('is_announcement')
+                    ->default(false),
+                Repeater::make('media')
+                    ->relationship('media')
+                    ->schema([
+                        TextInput::make('name')
+                            ->rules(['max:30', 'regex:/^[a-zA-Z\s]*$/'])
+                            ->required()
+                            ->placeholder('Name'),
+                        FileUpload::make('url')
+                            ->disk('s3')
+                            ->rules('file|mimes:jpeg,jpg,png|max:2048')
+                            ->directory('dev')
+                            ->openable(true)
+                            ->downloadable(true)
+                            ->image()
+                            ->maxSize(2048)
+                            ->required()
+                            ->label('File')
+
+                    ])
+                    ->columnSpan([
+                        'sm' => 1,
+                        'md' => 1,
+                        'lg' => 2,
+                    ]),
+                Toggle::make('allow_like')
+                    ->rules(['boolean'])
+                    ->inline(false)
+                    ->default(0),
+                Toggle::make('allow_comment')
+                    ->rules(['boolean'])
+                    ->inline(false)
+                    ->default(0),
+                Toggle::make('active')
+                    ->rules(['boolean'])
+                    ->default(true)
+                    ->inline(false)
+                    ->label('Active'),
+            ])
         ]);
     }
 
@@ -195,17 +191,20 @@ class PostResource extends Resource
             ->defaultSort('created_at', 'desc')
             ->filters([
                 SelectFilter::make('user_id')
-                    ->relationship('user', 'first_name')
+                    ->relationship('user', 'first_name', function (Builder $query) {
+                        if (Role::where('id', auth()->user()->role_id)->first()->name != 'Admin') {
+                            $query->where('owner_association_id', auth()->user()->owner_association_id)->where('role_id', Role::where('name', 'OA')->first()->id);
+                        }
+                        $query->where('role_id', Role::where('name', 'OA')->first()->id);
+                    })
                     ->searchable()
                     ->preload()
                     ->label('User'),
                 SelectFilter::make('building_id')
-                    ->relationship('building', 'name',function (Builder $query){
-                        if(Role::where('id',auth()->user()->role_id)->first()->name != 'Admin')
-                        {
-                            $query->where('owner_association_id',auth()->user()->owner_association_id);
+                    ->relationship('building', 'name', function (Builder $query) {
+                        if (Role::where('id', auth()->user()->role_id)->first()->name != 'Admin') {
+                            $query->where('owner_association_id', auth()->user()->owner_association_id);
                         }
-                        
                     })
                     ->searchable()
                     ->preload()

@@ -4,6 +4,7 @@ namespace App\Models\Forms;
 
 use App\Models\Building\Building;
 use App\Models\Building\Flat;
+use App\Models\Order;
 use App\Models\User\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -26,7 +27,10 @@ class AccessCard extends Model
         'owner_association_id',
         'status',
         'remarks',
-        'rejected_fields'
+        'rejected_fields',
+        'payment_link',
+        'passport',
+        'title_deed'
     ];
 
     protected $searchableFields = ['*'];
@@ -42,5 +46,10 @@ class AccessCard extends Model
     public function building()
     {
         return $this->belongsTo(Building::class);
+    }
+
+    public function orders()
+    {
+        return $this->morphMany(Order::class, 'orderable');
     }
 }

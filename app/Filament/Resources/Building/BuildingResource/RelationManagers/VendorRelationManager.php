@@ -76,7 +76,7 @@ class VendorRelationManager extends RelationManager
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')->limit(50),
-                Tables\Columns\TextColumn::make('user.first_name')->label('owner')->limit(50),
+                Tables\Columns\TextColumn::make('user.first_name')->label('Manager')->limit(50),
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
@@ -84,7 +84,7 @@ class VendorRelationManager extends RelationManager
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
-                Tables\Actions\DetachAction::make()->label('Remove'),
+                // Tables\Actions\DetachAction::make()->label('Remove'),
             ])
             ->headerActions([
                 Tables\Actions\AttachAction::make()
@@ -97,7 +97,7 @@ class VendorRelationManager extends RelationManager
                         $existingVendors =  DB::table('building_vendor')
                             ->where('building_id', $buildingId)
                             ->whereIn('vendor_id', $allVendors)->pluck('vendor_id')->toArray();
-                        $notSelectedVendors = Vendor::all()->whereNotIn('id', $existingVendors)->pluck('name', 'id')->toArray();
+                        $notSelectedVendors = Vendor::all()->where('owner_association_id',auth()->user()->owner_association_id)->whereNotIn('id', $existingVendors)->pluck('name', 'id')->toArray();
                         return Select::make('recordId')
                             ->label('Vendors')
                             ->options($notSelectedVendors)

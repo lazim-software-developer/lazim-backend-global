@@ -14,7 +14,7 @@ class Poll extends Model
 
     protected $table = 'polls';
 
-    protected $fillable = ['question', 'options', 'status', 'scheduled_at', 'ends_on', 'building_id', 'created_by'];
+    protected $fillable = ['question', 'options', 'status', 'scheduled_at', 'ends_on', 'building_id', 'created_by', 'active'];
 
     protected $casts = ['options' => 'array'];
 

@@ -1,6 +1,8 @@
 <?php
 
 use App\Filament\Resources\LedgersResource\Pages\ListReceipts;
+use App\Http\Controllers\OwnerAssociationReceipts;
+use App\Http\Controllers\TrialBalanceController;
 use App\Http\Controllers\Vendor\DelinquentController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
@@ -9,6 +11,9 @@ use App\Models\Vendor\Vendor;
 use App\Livewire\VendorRegistration;
 use App\Filament\Pages\BudgetListing;
 use App\Filament\Pages\OAM\CreateTender;
+use App\Http\Controllers\GeneralFundController;
+use App\Http\Controllers\OwnerAssociationInvoice;
+use App\Http\Controllers\ReserveFundController;
 use App\Http\Controllers\Vendor\MasterController;
 use Filament\Pages\Page;
 
@@ -56,6 +61,18 @@ Route::post('admin/{budget}/tender/create', [CreateTender::class, 'store'])->nam
 Route::get('/budget/{budget}/available-services/{subcategory}', [MasterController::class, 'getAvailableServices']);
 
 Route::post('/get-delinquent-owners', [DelinquentController::class, 'getDelinquentOwners']);
+
+Route::post('/get-general-fund',[GeneralFundController::class,'getGeneralFund']);
+
+Route::post('/get-reserve-fund',[ReserveFundController::class,'getReserveFund']);
+
+Route::post('/get-trial-balance',[TrialBalanceController::class,'getTrialBalance']);
+
+Route::get('/invoice',[OwnerAssociationInvoice::class,'invoice'])->name('invoice');
+
+Route::get('/receipt',[OwnerAssociationReceipts::class,'receipt'])->name('receipt');
+
+
 
 
 // Route::get('/admin/ledgers/{invoice}/receipts', function () {

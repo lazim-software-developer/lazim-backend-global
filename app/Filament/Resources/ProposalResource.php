@@ -8,6 +8,7 @@ use App\Models\Asset;
 use Filament\Forms\Form;
 use App\Models\User\User;
 use Filament\Tables\Table;
+use App\Models\Master\Role;
 use App\Models\BuildingVendor;
 use App\Models\Vendor\Contract;
 use App\Models\TechnicianAssets;
@@ -28,9 +29,10 @@ use Filament\Forms\Components\Select;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ViewColumn;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\ViewField;
 
+use Filament\Forms\Components\ViewField;
 use Filament\Forms\Components\FileUpload;
+use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\ProposalResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -68,8 +70,8 @@ class ProposalResource extends Resource
                     ->disabled()
                     ->label('Document'),
                 TextInput::make('status')->placeholder('NA'),
-                // ViewField::make('Budget amount')
-                //     ->view('forms.components.budgetamount'),
+                ViewField::make('Budget amount')
+                    ->view('forms.components.budgetamount'),
             ])
         ]);
     }
@@ -79,14 +81,23 @@ class ProposalResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('amount')->label('Amount'),
-                // ViewColumn::make('Budget amount')->view('tables.columns.budgetamount')->alignCenter(),
+                ViewColumn::make('Budget amount')->view('tables.columns.budgetamount')->alignCenter(),
                 TextColumn::make('submittedBy.name')->searchable()->label('Vendor Name'),
                 TextColumn::make('submitted_on')->label('Submitted On'),
                 TextColumn::make('status')->default('NA')->label('Status'),
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
-                //
+                SelectFilter::make('vendor_id')
+                    ->relationship('vendor', 'name', function (Builder $query) {
+                        if (Role::where('id', auth()->user()->role_id)->first()->name != 'Admin') {
+                            $query->where('owner_association_id', auth()->user()->owner_association_id);
+                        }
+
+                    })
+                    ->searchable()
+                    ->preload()
+                    ->label('Vendor'),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),

@@ -3,6 +3,7 @@
 namespace App\Models\Visitor;
 
 use App\Models\Building\Building;
+use App\Models\Building\Document;
 use App\Models\Building\Flat;
 use App\Models\Forms\Guest;
 use App\Models\OaUserRegistration;
@@ -68,5 +69,9 @@ class FlatVisitor extends Model
     public function oaUserRegistration()
     {
         return $this->belongsTo(OaUserRegistration::class);
+    }
+
+    public function guestDocuments(){
+        return $this->hasMany(Document::class,'documentable_id');
     }
 }

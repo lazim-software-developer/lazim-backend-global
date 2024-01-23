@@ -26,7 +26,22 @@ class Flat extends Model
     use HasFactory;
     use Searchable;
 
-    protected $fillable = ['property_number', 'floor', 'building_id', 'description', 'mollak_property_id', 'property_type', 'owner_association_id'];
+    protected $fillable = [
+        'property_number',
+        'floor',
+        'building_id',
+        'description',
+        'mollak_property_id',
+        'property_type',
+        'owner_association_id',
+        'suit_area',
+        'actual_area',
+        'balcony_area',
+        'applicable_area',
+        'virtual_account_number',
+        'parking_count',
+        'plot_number'
+    ];
 
     protected $searchableFields = ['*'];
 

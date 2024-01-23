@@ -22,9 +22,13 @@ class EditTenantDocument extends EditRecord
             // Actions\DeleteAction::make(),
         ];
     }
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
+    }
     protected function mutateFormDataBeforeFill(array $data): array
     {
-        if($data['status'] == 'submitted'){
+        if ($data['status'] == 'submitted') {
             $data['status'] = null;
         }
         return $data;
@@ -81,7 +85,7 @@ class EditTenantDocument extends EditRecord
                         'to' => $expoPushToken,
                         'sound' => 'default',
                         'title' => $this->record->name . ' Submission Status',
-                        'body' => 'The document ' . $this->record->name .' submitted by you has been ' . $this->record->status . ' by OA admin.',
+                        'body' => 'The document ' . $this->record->name . ' submitted by you has been ' . $this->record->status . ' by OA admin.',
                         'data' => ['notificationType' => 'MyDocuments'],
                     ];
                     $this->expoNotification($message);

@@ -40,6 +40,7 @@ class ContractsRelationManager extends RelationManager
                             ->required()
                             ->label('Contract Type'),
                         Select::make('building_id')
+                            ->relationship('building','name')
                             ->options(function (RelationManager $livewire) {
                                 $buildingIds = DB::table('building_vendor')->where('vendor_id', $livewire->ownerRecord->id)->pluck('building_id')->toArray();
                                 return Building::whereIn('id', $buildingIds)->pluck('name', 'id')->toArray();
@@ -51,6 +52,7 @@ class ContractsRelationManager extends RelationManager
                             ->searchable()
                             ->placeholder('Building'),
                         Select::make('service_id')
+                            ->relationship('service','name')
                             ->options(function (RelationManager $livewire) {
                                 $serviceIds = DB::table('service_vendor')->where('vendor_id', $livewire->ownerRecord->id)->pluck('service_id')->toArray();
                                 return Service::whereIn('id', $serviceIds)->pluck('name', 'id')->toArray();
@@ -64,15 +66,26 @@ class ContractsRelationManager extends RelationManager
                         DatePicker::make('start_date')
                             ->required()
                             ->rules(['date'])
-                            ->disabled()
+                            ->minDate(function ($record, $state) {
+                                if ($record?->start_date == null || $state != $record?->start_date) {
+                                    return now()->format('Y-m-d');
+                                }
+                            })
+                            // ->disabled()
                             ->placeholder('Start Date'),
                         DatePicker::make('end_date')
                             ->required()
                             ->rules(['date'])
-                            ->disabled()
+                            ->minDate(function ($record, $state) {
+                                if ($record?->end_date == null || $state != $record?->end_date) {
+                                    return now()->format('Y-m-d');
+                                }
+                            })
+                            // ->disabled()
                             ->placeholder('End Date'),
                         FileUpload::make('document_url')
                             ->required()
+                            ->acceptedFileTypes(['application/pdf'])
                             ->disk('s3')
                             ->directory('dev')
                             ->openable(true)
@@ -80,10 +93,14 @@ class ContractsRelationManager extends RelationManager
                             ->label('Document'),
                         TextInput::make('amount')
                             ->numeric(true)
+                            ->minValue(1)
+                            ->maxValue(1000000)
                             ->prefix('AED')
                             ->required(),
                         TextInput::make('budget_amount')
                             ->numeric(true)
+                            ->minValue(1)
+                            ->maxValue(1000000)
                             ->prefix('AED')
                             ->required(),
                         Hidden::make('vendor_id')

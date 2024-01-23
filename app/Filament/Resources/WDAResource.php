@@ -6,6 +6,7 @@ use Filament\Forms;
 use Filament\Tables;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
+use App\Models\Master\Role;
 use App\Models\Accounting\WDA;
 use Filament\Resources\Resource;
 use Filament\Forms\Components\Grid;
@@ -124,6 +125,7 @@ class WDAResource extends Resource
                 TextColumn::make('contract.contract_type')
                     ->label('Contract Type'),
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 SelectFilter::make('status')
                     ->options([
@@ -132,6 +134,15 @@ class WDAResource extends Resource
                         'pending' => 'Pending',
                     ])
                     ->searchable(),
+                SelectFilter::make('building_id')
+                    ->relationship('building', 'name', function (Builder $query) {
+                        if (Role::where('id', auth()->user()->role_id)->first()->name != 'Admin') {
+                            $query->where('owner_association_id', auth()->user()->owner_association_id);
+                        }
+                    })
+                    ->searchable()
+                    ->preload()
+                    ->label('Building'),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

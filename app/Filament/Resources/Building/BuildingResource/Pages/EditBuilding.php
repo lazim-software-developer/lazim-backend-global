@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Building\BuildingResource\Pages;
 
 use App\Models\Floor;
 use Filament\Actions;
+use Filament\Actions\Action;
 use Filament\Resources\Pages\EditRecord;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use App\Filament\Resources\Building\BuildingResource;
@@ -16,15 +17,16 @@ class EditBuilding extends EditRecord
     {
         return [
             // Actions\DeleteAction::make(),
+            // Action::make('Inhouse services')
+            //     ->label('Inhouse services')
+            //     ->url(BuildingResource::getUrl('services'))
         ];
     }
     public function afterSave()
     {
-        if ($this->record->floors != null && Floor::where('building_id',$this->record->id)->count() === 0) 
-        {
+        if ($this->record->floors != null && Floor::where('building_id', $this->record->id)->count() === 0) {
             $countfloor = $this->record->floors;
-            while ($countfloor > 0) 
-            {
+            while ($countfloor > 0) {
                 // Build an object with the required properties
                 $qrCodeContent = [
                     'floors' => $countfloor,
@@ -39,8 +41,6 @@ class EditBuilding extends EditRecord
                 ]);
                 $countfloor = $countfloor - 1;
             }
-
-
         }
     }
 }

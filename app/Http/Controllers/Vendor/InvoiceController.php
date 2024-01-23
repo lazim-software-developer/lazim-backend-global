@@ -13,6 +13,7 @@ use App\Models\Accounting\Invoice;
 use App\Models\Accounting\InvoiceAudit;
 use App\Models\Accounting\WDA;
 use App\Models\Building\Building;
+use App\Models\InvoiceApproval;
 use App\Models\Vendor\Vendor;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -127,6 +128,10 @@ class InvoiceController extends Controller
         ]);
 
         $invoice->update($request->all());
+        $invoiceapproval = InvoiceApproval::where('invoice_id',$invoice->id)->get();
+        $invoiceapproval->map(function($item){
+            $item->update(['active'=>false]);
+        });
 
         return (new CustomResponseResource([
             'title' => 'Success',
