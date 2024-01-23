@@ -15,14 +15,14 @@ class ListAccountsManagers extends ListRecords
     protected static ?string $title = 'Accounts Manager';
     protected function getHeaderActions(): array
     {
-        $Accountmanager = User::where(['owner_association_id'=> auth()->user()->owner_association_id, 'role_id' => Role::where('name', 'Accounts Manager')->first()->id])->exists();
-        if (!$Accountmanager) {
-            return [
-                Actions\CreateAction::make(),
-            ];
-        }
+        // $Accountmanager = User::where(['owner_association_id'=> auth()->user()->owner_association_id, 'role_id' => Role::where('name', 'Accounts Manager')->first()->id])->exists();
+        // if (!$Accountmanager) {
+        //     return [
+        //         Actions\CreateAction::make(),
+        //     ];
+        // }
         return [
-            // Actions\CreateAction::make(),
+            Actions\CreateAction::make(),
         ];
     }
     protected function getTableQuery(): Builder
