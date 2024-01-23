@@ -9,7 +9,7 @@
             $images = $getRecord()->flatVisitor->guestDocuments->where('documentable_type','App\Models\Visitor\FlatVisitor')->pluck('url');
             @endphp
             @foreach($images as $image)
-                <a href="https://lazim-dev.s3.ap-south-1.amazonaws.com/{{$image}}" style="color:blue;">View Passport</a><br>
+                <a href="https://lazim-dev.s3.ap-south-1.amazonaws.com/{{$image}}" target="_blank" style="color:blue;">View Passport</a><br>
             @endforeach
         </div>
     </div>
