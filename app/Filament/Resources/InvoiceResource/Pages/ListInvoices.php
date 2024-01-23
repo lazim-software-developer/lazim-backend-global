@@ -27,12 +27,12 @@ class ListInvoices extends ListRecords
         if (Role::where('id', auth()->user()->role_id)->first()->name == 'OA') {
             return parent::getTableQuery()->whereIn('vendor_id', Vendor::where('owner_association_id', auth()->user()->owner_association_id)->pluck('id'));
         } elseif (Role::where('id', auth()->user()->role_id)->first()->name == 'Accounts Manager') {
-            $invoiceapproval = InvoiceApproval::whereIn('updated_by',User::where('owner_association_id',auth()->user()->owner_association_id)->whereIn('role_id',Role::whereIn('name',['Accounts Manager','MD'])->pluck('id'))->pluck('id'))->whereIn('status',['approved','rejected'])->pluck('invoice_id');
-            $invoiceapprovaloa = InvoiceApproval::whereIn('updated_by',User::where('owner_association_id',auth()->user()->owner_association_id)->whereIn('role_id',Role::whereIn('name',['OA'])->pluck('id'))->pluck('id'))->where('status','approved')->pluck('invoice_id');
+            $invoiceapproval = InvoiceApproval::whereIn('updated_by',User::where('owner_association_id',auth()->user()->owner_association_id)->whereIn('role_id',Role::whereIn('name',['Accounts Manager','MD'])->pluck('id'))->pluck('id'))->where('active',true)->whereIn('status',['approved','rejected'])->pluck('invoice_id');
+            $invoiceapprovaloa = InvoiceApproval::whereIn('updated_by',User::where('owner_association_id',auth()->user()->owner_association_id)->whereIn('role_id',Role::whereIn('name',['OA'])->pluck('id'))->pluck('id'))->where('active',true)->where('status','approved')->pluck('invoice_id');
             return parent::getTableQuery()->whereIn('vendor_id', Vendor::where('owner_association_id', auth()->user()->owner_association_id)->pluck('id'))->whereIn('id',$invoiceapproval->merge($invoiceapprovaloa));
         } elseif (Role::where('id', auth()->user()->role_id)->first()->name == 'MD') {
-            $invoiceapproval = InvoiceApproval::whereIn('updated_by',User::where('owner_association_id',auth()->user()->owner_association_id)->whereIn('role_id',Role::whereIn('name',['MD'])->pluck('id'))->pluck('id'))->whereIn('status',['approved','rejected'])->pluck('invoice_id');
-            $invoiceapprovaloa = InvoiceApproval::whereIn('updated_by',User::where('owner_association_id',auth()->user()->owner_association_id)->whereIn('role_id',Role::whereIn('name',['Accounts Manager'])->pluck('id'))->pluck('id'))->where('status','approved')->pluck('invoice_id');
+            $invoiceapproval = InvoiceApproval::whereIn('updated_by',User::where('owner_association_id',auth()->user()->owner_association_id)->whereIn('role_id',Role::whereIn('name',['MD'])->pluck('id'))->pluck('id'))->where('active',true)->whereIn('status',['approved','rejected'])->pluck('invoice_id');
+            $invoiceapprovaloa = InvoiceApproval::whereIn('updated_by',User::where('owner_association_id',auth()->user()->owner_association_id)->whereIn('role_id',Role::whereIn('name',['Accounts Manager'])->pluck('id'))->pluck('id'))->where('active',true)->where('status','approved')->pluck('invoice_id');
             return parent::getTableQuery()->whereIn('vendor_id', Vendor::where('owner_association_id', auth()->user()->owner_association_id)->pluck('id'))->whereIn('id',$invoiceapproval->merge($invoiceapprovaloa));
         }
         return parent::getTableQuery();
