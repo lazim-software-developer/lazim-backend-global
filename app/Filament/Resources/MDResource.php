@@ -12,7 +12,9 @@ use Filament\Tables\Table;
 use Filament\Resources\Resource;
 use Illuminate\Support\Facades\DB;
 use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Toggle;
+use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\FileUpload;
@@ -20,7 +22,6 @@ use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\MDResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\MDResource\RelationManagers;
-use Filament\Tables\Columns\TextColumn;
 
 class MDResource extends Resource
 {
@@ -61,6 +62,7 @@ class MDResource extends Resource
                                 }
                             };
                         },])
+                        ->prefix('971')
                         ->required()
                         ->maxLength(255),
                     FileUpload::make('profile_photo')
@@ -68,9 +70,11 @@ class MDResource extends Resource
                         ->directory('dev')
                         ->image()
                         ->label('Profile Photo'),
-                    Toggle::make('active')
-                        ->rules(['boolean'])
-                        ->default(true),
+                    // Toggle::make('active')
+                    //     ->rules(['boolean'])
+                    //     ->default(true),
+                    Hidden::make('active')
+                        ->default(true)
                 ])
             ]);
     }
