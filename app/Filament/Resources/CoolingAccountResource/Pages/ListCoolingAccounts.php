@@ -106,7 +106,7 @@ class ListCoolingAccounts extends ListRecords
                         Column::make('closing_balance')->heading('Closing balance'),
                     ])
                     ->modifyQueryUsing(fn ($query) => $query->where('id', 0)),
-                ])
+                ])->label('Download sample file')
         ];
     }
 }
