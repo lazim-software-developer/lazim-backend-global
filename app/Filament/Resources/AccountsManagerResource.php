@@ -21,6 +21,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\AccountsManagerResource\Pages;
 use App\Filament\Resources\AccountsManagerResource\RelationManagers;
+use Filament\Forms\Components\Hidden;
 
 class AccountsManagerResource extends Resource
 {
@@ -60,6 +61,7 @@ class AccountsManagerResource extends Resource
                                 }
                             };
                         },])
+                        ->prefix('971')
                         ->required()
                         ->maxLength(255),
                     FileUpload::make('profile_photo')
@@ -67,9 +69,11 @@ class AccountsManagerResource extends Resource
                         ->directory('dev')
                         ->image()
                         ->label('Profile Photo'),
-                    Toggle::make('active')
-                        ->rules(['boolean'])
-                        ->default(true),
+                    // Toggle::make('active')
+                    //     ->rules(['boolean'])
+                    //     ->default(true),
+                    Hidden::make('active')
+                        ->default(true)
                 ])
             ]);
     }
