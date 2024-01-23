@@ -149,7 +149,7 @@ class MoveOutFormsDocumentResource extends Resource
                         ->disabled()
                         ->downloadable(true)
                         ->openable(true)
-                        ->label('Movers License'),
+                        ->label("Movers ID's and Company License"),
                     FileUpload::make('movers_liability')
                         ->visible(function (callable $get) {
                             if ($get('movers_liability') != null) {
@@ -162,7 +162,7 @@ class MoveOutFormsDocumentResource extends Resource
                         ->disabled()
                         ->downloadable(true)
                         ->openable(true)
-                        ->label('Movers Liability'),
+                        ->label('Movers Third Party Liability/Security Deposit'),
                     Select::make('status')
                         ->options([
                             'approved' => 'Approved',
