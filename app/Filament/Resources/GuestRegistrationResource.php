@@ -47,6 +47,8 @@ class GuestRegistrationResource extends Resource
                     'lg' => 2,
                 ])->schema([
                     ViewField::make('Guest Details')->view('forms.components.form.guest-registration-name'),
+                    ViewField::make('Guest Passports')->label('Guest Passports')
+                        ->view('forms.components.fieldbuilding'),
                     DatePicker::make('visa_validity_date')->disabled()
                         ->visible(function (callable $get) {
                             if ($get('visa_validity_date') != null) {
@@ -171,8 +173,6 @@ class GuestRegistrationResource extends Resource
                             return $record->status != null;
                         })
                         ->required(),
-                    ViewField::make('Guest Passports')->label('Guest Passports')
-                        ->view('forms.components.fieldbuilding'),
                     // If the form is rejected, we need to capture which fields are rejected
                     CheckboxList::make('rejected_fields')
                         ->label('Please select rejected fields')
