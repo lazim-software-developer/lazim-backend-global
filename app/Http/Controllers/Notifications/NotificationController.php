@@ -15,7 +15,7 @@ class NotificationController extends Controller
     public function index(Request $request)
     {
         $count = request('count', 10);
-        $notification = DB::table('notifications')->where('notifiable_id',auth()->user()->id)->paginate($count);
+        $notification = DB::table('notifications')->where('notifiable_id',auth()->user()->id)->orderBy('created_at', 'desc')->paginate($count);
         return NotificationsResource::collection($notification);
     }
 

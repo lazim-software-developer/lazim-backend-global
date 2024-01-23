@@ -2,19 +2,21 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\MoveInFormsDocumentResource\Pages;
-use App\Models\Forms\MoveInOut;
-use Filament\Forms\Components\CheckboxList;
-use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
-use Filament\Resources\Resource;
-use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
+use App\Models\Master\Role;
+use App\Models\Forms\MoveInOut;
+use Filament\Resources\Resource;
+use Filament\Forms\Components\Grid;
 use Illuminate\Support\Facades\Log;
+use Filament\Forms\Components\Select;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\FileUpload;
+use Filament\Tables\Filters\SelectFilter;
+use Illuminate\Database\Eloquent\Builder;
+use Filament\Forms\Components\CheckboxList;
+use App\Filament\Resources\MoveInFormsDocumentResource\Pages;
 
 class MoveInFormsDocumentResource extends Resource
 {
@@ -73,7 +75,7 @@ class MoveInFormsDocumentResource extends Resource
                         ->disabled()
                         ->downloadable(true)
                         ->openable(true)
-                        ->label('Receipt Charges'),
+                        ->label('Paid Receipt of Service Charges'),
                     FileUpload::make('contract')
                         ->disk('s3')
                         ->directory('dev')
@@ -100,7 +102,7 @@ class MoveInFormsDocumentResource extends Resource
                         ->disabled()
                         ->downloadable(true)
                         ->openable(true)
-                        ->label('Passport / EID /Visa'),
+                        ->label('Passport / EID / Visa'),
                     FileUpload::make('dewa')
                         ->visible(function (callable $get) {
                             if ($get('dewa') != null) {
@@ -113,7 +115,7 @@ class MoveInFormsDocumentResource extends Resource
                         ->disabled()
                         ->downloadable(true)
                         ->openable(true)
-                        ->label('Dewa'),
+                        ->label('Dewa Application'),
                     FileUpload::make('cooling_registration')
                         ->visible(function (callable $get) {
                             if ($get('cooling_registration') != null) {
@@ -152,7 +154,7 @@ class MoveInFormsDocumentResource extends Resource
                         ->downloadable(true)
                         ->disabled()
                         ->openable(true)
-                        ->label('Vehicle Registration'),
+                        ->label('Vehicle Registration / Mulkiya'),
                     FileUpload::make('movers_license')
                         ->visible(function (callable $get) {
                             if ($get('movers_license') != null) {
@@ -165,7 +167,7 @@ class MoveInFormsDocumentResource extends Resource
                         ->disabled()
                         ->downloadable(true)
                         ->openable(true)
-                        ->label('Movers License'),
+                        ->label("Movers ID's and Company License"),
                     FileUpload::make('movers_liability')
                         ->visible(function (callable $get) {
                             if ($get('movers_liability') != null) {
@@ -178,7 +180,7 @@ class MoveInFormsDocumentResource extends Resource
                         ->disabled()
                         ->downloadable(true)
                         ->openable(true)
-                        ->label('Movers Liability'),
+                        ->label('Movers Third Party Liability/Security Deposit'),
                     Select::make('status')
                         ->options([
                             'approved' => 'Approved',
@@ -258,7 +260,16 @@ class MoveInFormsDocumentResource extends Resource
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
-                //
+                SelectFilter::make('building_id')
+                    ->relationship('building', 'name', function (Builder $query) {
+                        if (Role::where('id', auth()->user()->role_id)->first()->name != 'Admin') {
+                            $query->where('owner_association_id', auth()->user()->owner_association_id);
+                        }
+
+                    })
+                    ->searchable()
+                    ->preload()
+                    ->label('Building'),
             ])
             ->actions([
                 //Tables\Actions\EditAction::make(),

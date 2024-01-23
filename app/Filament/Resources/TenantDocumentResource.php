@@ -134,14 +134,14 @@ class TenantDocumentResource extends Resource
                     ->limit(50),
                 TextColumn::make('documentUsers.first_name')
                     ->searchable()
-                    ->label('Tenant Name')
+                    ->label('Name')
                     ->default('NA'),
-                ViewColumn::make('Role')->view('tables.columns.role')
+                ViewColumn::make('Role')->view('tables.columns.role')->alignCenter()
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
                 SelectFilter::make('documentable_id')
-                    ->relationship('documentUsers', 'first_name', fn (Builder $query) => $query->where('role_id',Role::where('name','Tenant')->first()->id))
+                    ->relationship('documentUsers', 'first_name', fn (Builder $query) => $query->where(['role_id' =>Role::whereIn('name',['Owner','Tenant'])->first()->id, 'owner_association_id' =>auth()->user()->owner_association_id]))
                     ->searchable()
                     ->preload()
                     ->label('Resident'),

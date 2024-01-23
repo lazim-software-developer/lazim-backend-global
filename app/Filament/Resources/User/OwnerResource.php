@@ -113,8 +113,8 @@ class OwnerResource extends Resource
                     ->default('NA')
                     ->label('Email')
                     ->limit(50),
-                ViewColumn::make('Flat')->view('tables.columns.apartment-ownerflat'),
-                ViewColumn::make('Building')->view('tables.columns.apartment-ownerbuilding')
+                ViewColumn::make('Flat')->view('tables.columns.apartment-ownerflat')->alignCenter(),
+                ViewColumn::make('Building')->view('tables.columns.apartment-ownerbuilding')->alignCenter(),
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([

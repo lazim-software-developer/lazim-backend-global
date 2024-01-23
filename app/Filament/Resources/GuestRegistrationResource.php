@@ -2,25 +2,32 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\GuestRegistrationResource\Pages;
+use Filament\Tables;
+use Filament\Forms\Form;
+use Filament\Tables\Table;
 use App\Models\Forms\Guest;
-use Filament\Forms\Components\CheckboxList;
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\FileUpload;
+use App\Models\Master\Role;
+use Illuminate\Support\Str;
+use Filament\Resources\Resource;
+use App\Models\Building\Building;
+use App\Models\Visitor\FlatVisitor;
 use Filament\Forms\Components\Grid;
+use Filament\Tables\Filters\Filter;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
-use Filament\Forms\Components\ViewField;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
-use Filament\Tables;
-use Illuminate\Support\Str;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ViewColumn;
-use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\ViewField;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\FileUpload;
+use Filament\Tables\Filters\SelectFilter;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Query\JoinClause;
+use Filament\Forms\Components\CheckboxList;
+use App\Filament\Resources\GuestRegistrationResource\Pages;
 
 
 class GuestRegistrationResource extends Resource
@@ -40,15 +47,17 @@ class GuestRegistrationResource extends Resource
                     'lg' => 2,
                 ])->schema([
                     ViewField::make('Guest Details')->view('forms.components.form.guest-registration-name'),
+                    ViewField::make('Guest Passports')->label('Guest Passports')
+                        ->view('forms.components.fieldbuilding'),
                     DatePicker::make('visa_validity_date')->disabled()
-                    ->visible(function (callable $get) {
-                        if ($get('visa_validity_date') != null) {
-                            return true;
-                        }
-                        return false;
-                    })
-                    ->label('Tourist/Visitor visa validity date'),
-                    TextInput::make('stay_duration')->disabled()->label('duration of stay'),
+                        ->visible(function (callable $get) {
+                            if ($get('visa_validity_date') != null) {
+                                return true;
+                            }
+                            return false;
+                        })
+                        ->label('Tourist/Visitor visa validity date'),
+                    TextInput::make('stay_duration')->disabled()->label('Duration of stay'),
                     FileUpload::make('dtmc_license_url')
                         ->disk('s3')
                         ->directory('dev')
@@ -61,8 +70,6 @@ class GuestRegistrationResource extends Resource
                             'md' => 1,
                             'lg' => 2,
                         ]),
-                    // ViewField::make('Building')
-                    //     ->view('forms.components.fieldbuilding'),
                     select::make('flat_visitor_id')
                         ->relationship('flatVisitor', 'name')
                         // ->createOptionForm([
@@ -89,6 +96,12 @@ class GuestRegistrationResource extends Resource
                         //         ->label('To Date'),
                         //     TextInput::make('number_of_visitors'),
                         // ])
+                        ->options(function (callable $get) {
+                            $name = FlatVisitor::find($get('flat_visitor_id'));
+                            return [
+                                $get('flat_visitor_id') => $name->name,
+                            ];
+                        })->helperText('Click on the icon to view more details.')
                         ->editOptionForm([
                             Select::make('building_id')
                                 ->relationship('building', 'name')
@@ -131,8 +144,8 @@ class GuestRegistrationResource extends Resource
                                 ->placeholder('Guest Departure Date'),
                             TextInput::make('number_of_visitors')
                                 ->disabled(),
-                        ])
-                        ->disabled()
+                        ])->searchable()
+                        ->selectablePlaceholder(false)
                         ->label('Flat Visitor'),
                     Toggle::make('access_card_holder')->disabled(),
                     Toggle::make('original_passport')->disabled(),
@@ -209,17 +222,29 @@ class GuestRegistrationResource extends Resource
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
-                // SelectFilter::make('flat_visitor_id')
-                // ->relationship('flatVisitor','name')
-                // ->options(function () {
-                //     return FlatVisitor::join('buildings', function (JoinClause $join) {
-                //             $join->on('flat_visitors.building_id', '=', 'buildings.id');
-                //         })
-                //         ->select('flat_visitors.id', 'buildings.name')
-                //         ->pluck('name', 'id')
-                //         ->toArray();
-                // })
-                // ->label('Building'),
+                Filter::make('building')
+                    ->form([
+                        Select::make('Building')
+                            ->searchable()
+                            ->options(function () {
+                                if(Role::where('id', auth()->user()->role_id)->first()->name != 'Admin'){
+                                    return Building::where('owner_association_id',auth()->user()->owner_association_id)->pluck('name', 'id');
+                                }
+                                return Building::all()->pluck('name', 'id');
+                            }),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query->when(
+                            isset($data['Building']),
+                            function ($query) use ($data) {
+                                $query->whereHas('flatVisitor', function ($query) use ($data) {
+                                    $query->whereHas('building', function ($query) use ($data) {
+                                        $query->where('id', $data['Building']);
+                                    });
+                                });
+                            }
+                        );
+                    })
             ])
             ->actions([
                 //Tables\Actions\EditAction::make(),

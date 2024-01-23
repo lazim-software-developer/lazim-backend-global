@@ -9,8 +9,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Http;
 use App\Models\Building\Flat;
-use App\Models\ApartmentOwner;
-use Illuminate\Support\Facades\Log;
+use App\Jobs\FetchOwnersForFlat;
 
 class FetchFlatsAndOwnersForBuilding implements ShouldQueue
 {
@@ -28,53 +27,34 @@ class FetchFlatsAndOwnersForBuilding implements ShouldQueue
         $response = Http::withOptions(['verify' => false])->withHeaders([
             'content-type' => 'application/json',
             'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
-        ])->get(env("MOLLAK_API_URL") . "/sync/owners/" . $this->building->property_group_id);
+        ])->get(env("MOLLAK_API_URL") . "/sync/propertygroups/" . $this->building->property_group_id . "/units");
 
         $data = $response->json();
 
         if ($data['response'] != null) {
-            foreach ($data['response']['properties'] as $property) {
-                $flat = Flat::firstOrCreate(
+            foreach ($data['response']['units'] as $property) {
+                $flat = Flat::updateOrCreate(
                     [
-                        'property_number' => $property['propertyNumber'],
+                        'property_number' => $property['unitNumber'],
                         'mollak_property_id' => $property['mollakPropertyId'],
                         'building_id' => $this->building->id,
                         'owner_association_id' => $this->building->owner_association_id,
                     ],
                     [
-                        'property_type' => $property['propertyType'],
+                        'plot_number' => $property['plotNumber'],
+                        'suit_area' => $property['suitArea'],
+                        'actual_area' => $property['actualArea'],
+                        'balcony_area' => $property['balconyArea'],
+                        'applicable_area' => $property['applicableArea'],
+                        'virtual_account_number' => $property['virtualAccountNumber'],
+                        'parking_count' => $property['parkingCount'],
+                        'property_type' => 'NA'
                     ]
                 );
 
-                foreach ($property['owners'] as $ownerData) {
-                    $phone = $this->cleanPhoneNumber($ownerData['mobile']);
-                    
-                    $owner = ApartmentOwner::firstOrCreate([
-                        'owner_number' => $ownerData['ownerNumber'],
-                        'email' => $ownerData['email'],
-                        'mobile' => $phone,
-                    ], [
-                        'name' => $ownerData['name']['englishName'],
-                        'passport' => $ownerData['passport'],
-                        'emirates_id' => $ownerData['emiratesId'],
-                        'trade_license' => $ownerData['tradeLicence'],
-                    ]);
-
-                    // Attach the owner to the flat
-                    $flat->owners()->sync($owner->id);
-                }
+                // Dispatch job to fetch owners for the flat
+                FetchOwnersForFlat::dispatch($flat);
             }
         }
-    }
-
-    function cleanPhoneNumber($phoneNumber)
-    {
-        // Remove -, +, and | characters
-        $cleaned = preg_replace('/[-+|]/', '', $phoneNumber);
-
-        // Remove leading zeros
-        $cleaned = ltrim($cleaned, '0');
-
-        return $cleaned;
     }
 }

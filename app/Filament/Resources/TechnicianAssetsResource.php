@@ -4,10 +4,12 @@ namespace App\Filament\Resources;
 
 use Filament\Forms;
 use Filament\Tables;
+use App\Models\Asset;
 use Filament\Forms\Get;
 use Filament\Forms\Form;
 use App\Models\User\User;
 use Filament\Tables\Table;
+use App\Models\Master\Role;
 use App\Models\Vendor\Vendor;
 use App\Models\TechnicianAssets;
 use Filament\Resources\Resource;
@@ -17,11 +19,11 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\TechnicianAssetsResource\Pages;
 use App\Filament\Resources\TechnicianAssetsResource\RelationManagers;
-use App\Models\Asset;
 
 class TechnicianAssetsResource extends Resource
 {
@@ -68,8 +70,8 @@ class TechnicianAssetsResource extends Resource
                     ->relationship('vendor', 'name')
                     ->options(function (Get $get) {
                         $ServiceList = DB::table('building_service')->where('building_id', $get('building_id'))->pluck('service_id')->toArray();
-                        $VendorList = DB::table('service_vendor')->whereIn('service_id',$ServiceList)->pluck('vendor_id')->toArray();
-                        return Vendor::whereIn('id',$VendorList)
+                        $VendorList = DB::table('service_vendor')->whereIn('service_id', $ServiceList)->pluck('vendor_id')->toArray();
+                        return Vendor::whereIn('id', $VendorList)
                             ->select('id', 'name')
                             ->pluck('name', 'id')
                             ->toArray();
@@ -99,7 +101,24 @@ class TechnicianAssetsResource extends Resource
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
-                //
+                SelectFilter::make('building_id')
+                    ->relationship('building', 'name', function (Builder $query) {
+                        if (Role::where('id', auth()->user()->role_id)->first()->name != 'Admin') {
+                            $query->where('owner_association_id', auth()->user()->owner_association_id);
+                        }
+                    })
+                    ->searchable()
+                    ->preload()
+                    ->label('Building'),
+                SelectFilter::make('vendor_id')
+                    ->relationship('vendor', 'name', function (Builder $query) {
+                        if (Role::where('id', auth()->user()->role_id)->first()->name != 'Admin') {
+                            $query->where('owner_association_id', auth()->user()->owner_association_id);
+                        }
+                    })
+                    ->searchable()
+                    ->preload()
+                    ->label('Vendor'),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

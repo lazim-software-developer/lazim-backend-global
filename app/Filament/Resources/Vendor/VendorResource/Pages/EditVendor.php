@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Hash;
 use App\Jobs\VendorAccountCreationJob;
 use Filament\Resources\Pages\EditRecord;
 use App\Filament\Resources\Vendor\VendorResource;
+use App\Models\VendorRemarks;
 
 class EditVendor extends EditRecord
 {
@@ -24,6 +25,25 @@ class EditVendor extends EditRecord
     }
     public function afterSave()
     {
+        $userId = User::find($this->record->owner_id);
+        $userId->active = $this->record->active;
+        $userId->save();
+        if($this->record->active){
+            VendorRemarks::firstorcreate([
+                'vendor_id'  => $this->record->id,
+                'status'     => 'active',
+                'remarks'    => $this->record->remarks,
+                'user_id'    => auth()->user()->id,
+            ]);
+        }
+        else{
+            VendorRemarks::firstorcreate([
+                'vendor_id'  => $this->record->id,
+                'status'     => 'inactive',
+                'remarks'    => $this->record->remarks,
+                'user_id'    => auth()->user()->id,
+            ]);
+        }
         if ($this->record->status !== null) 
         {
             if ($this->record->status == 'rejected') {
