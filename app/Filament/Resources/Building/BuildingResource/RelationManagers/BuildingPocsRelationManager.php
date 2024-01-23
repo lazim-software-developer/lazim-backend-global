@@ -50,64 +50,64 @@ class BuildingPocsRelationManager extends RelationManager
                     'lg' => 1,
                 ])->schema([
 
-                            Select::make('user_id')
-                                ->rules(['exists:users,id'])
-                                ->relationship('user', 'first_name')
-                                ->reactive()
-                                ->unique(
-                                    'building_pocs',
-                                    'user_id',
-                                )
-                                ->options(function () {
-                                    return User::where('role_id', 12)
-                                        ->select('id', 'first_name')
-                                        ->pluck('first_name', 'id')
-                                        ->toArray();
-                                })
-                                ->createOptionForm([
-                                    TextInput::make('first_name')
-                                        ->required(),
-                                    TextInput::make('last_name')
-                                        ->label('Last Name'),
-                                    TextInput::make('email')
-                                        ->rules(['min:6', 'max:30', 'regex:/^[a-z0-9.]+@[a-z]+\.[a-z]{2,}$/'])
-                                        ->required()
-                                        ->maxLength(255),
-                                    TextInput::make('phone')
-                                        ->rules(['regex:/^(\+971)(50|51|52|55|56|58|02|03|04|06|07|09)\d{7}$/'])
-                                        ->required()
-                                        ->maxLength(255),
-                                    FileUpload::make('profile_photo')
-                                        ->disk('s3')
-                                        ->directory('dev')
-                                        ->image()
-                                        ->label('Profile Photo'),
-                                    Toggle::make('active')
-                                        ->rules(['boolean'])
-                                        ->default(true),
-                                    Hidden::make('role_id')
-                                        ->default(12),
-                                    Hidden::make('owner_association_id')
-                                        ->default(auth()->user()->owner_association_id),
-
-                                ])
+                    Select::make('user_id')
+                        ->rules(['exists:users,id'])
+                        ->relationship('user', 'first_name')
+                        ->reactive()
+                        ->unique(
+                            'building_pocs',
+                            'user_id',
+                        )
+                        ->options(function () {
+                            return User::where('role_id', 12)
+                                ->select('id', 'first_name')
+                                ->pluck('first_name', 'id')
+                                ->toArray();
+                        })
+                        ->createOptionForm([
+                            TextInput::make('first_name')
+                                ->required(),
+                            TextInput::make('last_name')
+                                ->label('Last Name'),
+                            TextInput::make('email')
+                                ->rules(['min:6', 'max:30', 'regex:/^[a-z0-9.]+@[a-z]+\.[a-z]{2,}$/'])
                                 ->required()
-                                ->preload()
-                                ->searchable()
-                                ->placeholder('User'),
-                            Hidden::make('role_name')
-                                ->default('security'),
-                            Hidden::make('escalation_level')
-                                ->default('1'),
-                            Hidden::make('active')
-                                ->default(true),
-                            Hidden::make('building_id')
-                                ->default(function (RelationManager $livewire) {
-                                    return $livewire->ownerRecord->id;
-                                }),
-                            Toggle::make('emergency_contact')
+                                ->maxLength(255),
+                            TextInput::make('phone')
+                                ->rules(['regex:/^(\+971)(50|51|52|55|56|58|02|03|04|06|07|09)\d{7}$/'])
+                                ->required()
+                                ->maxLength(255),
+                            FileUpload::make('profile_photo')
+                                ->disk('s3')
+                                ->directory('dev')
+                                ->image()
+                                ->label('Profile Photo'),
+                            Toggle::make('active')
                                 ->rules(['boolean'])
-                        ]),
+                                ->default(true),
+                            Hidden::make('role_id')
+                                ->default(12),
+                            Hidden::make('owner_association_id')
+                                ->default(auth()->user()->owner_association_id),
+
+                        ])
+                        ->required()
+                        ->preload()
+                        ->searchable()
+                        ->placeholder('User'),
+                    Hidden::make('role_name')
+                        ->default('security'),
+                    Hidden::make('escalation_level')
+                        ->default('1'),
+                    Hidden::make('active')
+                        ->default(true),
+                    Hidden::make('building_id')
+                        ->default(function (RelationManager $livewire) {
+                            return $livewire->ownerRecord->id;
+                        }),
+                    Toggle::make('emergency_contact')
+                        ->rules(['boolean'])
+                ]),
             ]);
     }
 
@@ -133,7 +133,7 @@ class BuildingPocsRelationManager extends RelationManager
             ])
             ->headerActions([
                 Action::make('New Security')
-                    ->visible(fn(RelationManager $livewire) => BuildingPoc::where('building_id', $livewire->ownerRecord->id)->where('active', 1)->count() == 0)
+                    ->visible(fn (RelationManager $livewire) => BuildingPoc::where('building_id', $livewire->ownerRecord->id)->where('active', 1)->count() == 0)
                     ->button()
                     ->form([
                         TextInput::make('first_name')
@@ -151,13 +151,14 @@ class BuildingPocsRelationManager extends RelationManager
                             ->required()
                             ->maxLength(255),
                         TextInput::make('phone')
-                            ->rules(['regex:/^(\+971)(50|51|52|55|56|58|02|03|04|06|07|09)\d{7}$/', function () {
+                            ->rules(['regex:/^(50|51|52|55|56|58|02|03|04|06|07|09)\d{7}$/', function () {
                                 return function (string $attribute, $value, Closure $fail) {
-                                    if (DB::table('users')->where('phone', $value)->count() > 0) {
+                                    if (DB::table('users')->where('phone', '971' . $value)->count() > 0) {
                                         $fail('The phone is already taken by a User.');
                                     }
                                 };
                             },])
+                            ->prefix('971')
                             ->required()
                             ->maxLength(255),
                         FileUpload::make('profile_photo')
@@ -180,7 +181,7 @@ class BuildingPocsRelationManager extends RelationManager
                             'first_name' => $data['first_name'],
                             'last_name' => $data['last_name'],
                             'email' => $data['email'],
-                            'phone' => $data['phone'],
+                            'phone' => '971'.$data['phone'],
                             'profile_photo' => $data['profile_photo'],
                             'active' => $data['active'],
                             'role_id' => 12,
@@ -205,7 +206,6 @@ class BuildingPocsRelationManager extends RelationManager
                             $user->save();
                             BuildingSecurity::dispatch($user, $password);
                         }
-
                     })
                     ->slideOver()
             ])
@@ -229,13 +229,14 @@ class BuildingPocsRelationManager extends RelationManager
                             ->required()
                             ->maxLength(255),
                         TextInput::make('phone')
-                            ->rules(['regex:/^(\+971)(50|51|52|55|56|58|02|03|04|06|07|09)\d{7}$/', function (Model $record) {
+                            ->rules(['regex:/^(50|51|52|55|56|58|02|03|04|06|07|09)\d{7}$/', function (Model $record) {
                                 return function (string $attribute, $value, Closure $fail) use ($record) {
-                                    if (DB::table('users')->whereNot('id', $record->user_id)->where('phone', $value)->count() > 0) {
+                                    if (DB::table('users')->whereNot('id', $record->user_id)->where('phone', '971'.$value)->count() > 0) {
                                         $fail('The phone is already taken by a User.');
                                     }
                                 };
                             },])
+                            ->prefix('971')
                             ->required()
                             ->maxLength(255),
                         FileUpload::make('profile_photo')
@@ -244,10 +245,10 @@ class BuildingPocsRelationManager extends RelationManager
                             ->image()
                             ->label('Profile Photo'),
                         Toggle::make('active')
-                            ->rules(['boolean',function (Model $record) {
+                            ->rules(['boolean', function (Model $record) {
                                 return function (string $attribute, $value, Closure $fail) use ($record) {
-                                    if(!$record->active){
-                                        if (BuildingPoc::where('building_id',$record->building_id)->where('active',true)->exists()) {
+                                    if (!$record->active) {
+                                        if (BuildingPoc::where('building_id', $record->building_id)->where('active', true)->exists()) {
                                             $fail('A Active Security already exists for this building.');
                                         }
                                     }
@@ -260,12 +261,12 @@ class BuildingPocsRelationManager extends RelationManager
                                 return $livewire->ownerRecord->id;
                             }),
                     ])
-                    ->fillForm(fn(BuildingPoc $userId): array => [
+                    ->fillForm(fn (BuildingPoc $userId): array => [
                         $record = User::where('id', $userId->user_id)->first(),
                         'first_name' => $record->first_name,
                         'last_name' => $record->last_name,
                         'email' => $record->email,
-                        'phone' => $record->phone,
+                        'phone' => substr($record->phone, 3),
                         'profile_photo' => $record->profile_photo,
                         'active' => $userId->active, //Active fiil from buildingPoc
                     ])
@@ -280,12 +281,11 @@ class BuildingPocsRelationManager extends RelationManager
                         $record->first_name = $data['first_name'];
                         $record->last_name = $data['last_name'];
                         $record->email = $data['email'];
-                        $record->phone = $data['phone'];
+                        $record->phone = '971'.$data['phone'];
                         $record->profile_photo = $data['profile_photo'];
                         $record->save();
                         //active of this BuildingPoc
-                        if (BuildingPoc::where('building_id', $data['building_id'])->where('active',true)->exists()) {
-
+                        if (BuildingPoc::where('building_id', $data['building_id'])->where('active', true)->exists()) {
                         }
                         $userId->active = $data['active'];
                         $userId->save();
