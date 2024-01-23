@@ -44,7 +44,7 @@ class FitOutFormsDocumentResource extends Resource
                                 ->disabled()
                                 ->placeholder('Email'),
                             TextInput::make('phone')
-                                ->label('Phone Number')
+                                ->label('Contractor Phone Number')
                                 ->disabled()
                                 ->placeholder('Phone Number'),
                             Select::make('building_id')
