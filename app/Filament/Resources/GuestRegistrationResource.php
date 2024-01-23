@@ -55,7 +55,7 @@ class GuestRegistrationResource extends Resource
                             return false;
                         })
                         ->label('Tourist/Visitor visa validity date'),
-                    TextInput::make('stay_duration')->disabled()->label('duration of stay'),
+                    TextInput::make('stay_duration')->disabled()->label('Duration of stay'),
                     FileUpload::make('dtmc_license_url')
                         ->disk('s3')
                         ->directory('dev')
@@ -68,8 +68,6 @@ class GuestRegistrationResource extends Resource
                             'md' => 1,
                             'lg' => 2,
                         ]),
-                    // ViewField::make('Building')
-                    //     ->view('forms.components.fieldbuilding'),
                     select::make('flat_visitor_id')
                         ->relationship('flatVisitor', 'name')
                         // ->createOptionForm([
@@ -96,6 +94,12 @@ class GuestRegistrationResource extends Resource
                         //         ->label('To Date'),
                         //     TextInput::make('number_of_visitors'),
                         // ])
+                        ->options(function (callable $get) {
+                            $name = FlatVisitor::find($get('flat_visitor_id'));
+                            return [
+                                $get('flat_visitor_id') => $name->name,
+                            ];
+                        })->helperText('Click on the icon to view more details.')
                         ->editOptionForm([
                             Select::make('building_id')
                                 ->relationship('building', 'name')
@@ -138,8 +142,8 @@ class GuestRegistrationResource extends Resource
                                 ->placeholder('Guest Departure Date'),
                             TextInput::make('number_of_visitors')
                                 ->disabled(),
-                        ])
-                        ->disabled()
+                        ])->searchable()
+                        ->selectablePlaceholder(false)
                         ->label('Flat Visitor'),
                     Toggle::make('access_card_holder')->disabled(),
                     Toggle::make('original_passport')->disabled(),
@@ -167,6 +171,8 @@ class GuestRegistrationResource extends Resource
                             return $record->status != null;
                         })
                         ->required(),
+                    ViewField::make('Guest Passports')->label('Guest Passports')
+                        ->view('forms.components.fieldbuilding'),
                     // If the form is rejected, we need to capture which fields are rejected
                     CheckboxList::make('rejected_fields')
                         ->label('Please select rejected fields')

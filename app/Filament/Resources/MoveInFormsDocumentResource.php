@@ -75,7 +75,7 @@ class MoveInFormsDocumentResource extends Resource
                         ->disabled()
                         ->downloadable(true)
                         ->openable(true)
-                        ->label('Receipt Charges'),
+                        ->label('Paid Receipt of Service Charges'),
                     FileUpload::make('contract')
                         ->disk('s3')
                         ->directory('dev')
@@ -102,7 +102,7 @@ class MoveInFormsDocumentResource extends Resource
                         ->disabled()
                         ->downloadable(true)
                         ->openable(true)
-                        ->label('Passport / EID /Visa'),
+                        ->label('Passport / EID / Visa'),
                     FileUpload::make('dewa')
                         ->visible(function (callable $get) {
                             if ($get('dewa') != null) {
@@ -115,7 +115,7 @@ class MoveInFormsDocumentResource extends Resource
                         ->disabled()
                         ->downloadable(true)
                         ->openable(true)
-                        ->label('Dewa'),
+                        ->label('Dewa Application'),
                     FileUpload::make('cooling_registration')
                         ->visible(function (callable $get) {
                             if ($get('cooling_registration') != null) {
@@ -154,7 +154,7 @@ class MoveInFormsDocumentResource extends Resource
                         ->downloadable(true)
                         ->disabled()
                         ->openable(true)
-                        ->label('Vehicle Registration'),
+                        ->label('Vehicle Registration / Mulkiya'),
                     FileUpload::make('movers_license')
                         ->visible(function (callable $get) {
                             if ($get('movers_license') != null) {
@@ -167,7 +167,7 @@ class MoveInFormsDocumentResource extends Resource
                         ->disabled()
                         ->downloadable(true)
                         ->openable(true)
-                        ->label('Movers License'),
+                        ->label("Movers ID's and Company License"),
                     FileUpload::make('movers_liability')
                         ->visible(function (callable $get) {
                             if ($get('movers_liability') != null) {
@@ -180,7 +180,7 @@ class MoveInFormsDocumentResource extends Resource
                         ->disabled()
                         ->downloadable(true)
                         ->openable(true)
-                        ->label('Movers Liability'),
+                        ->label('Movers Third Party Liability/Security Deposit'),
                     Select::make('status')
                         ->options([
                             'approved' => 'Approved',
