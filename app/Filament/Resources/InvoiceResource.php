@@ -99,19 +99,27 @@ class InvoiceResource extends Resource
                             })
                             ->disabled(function (Invoice $record) {
                                 if (Role::where('id', auth()->user()->role_id)->first()->name == 'OA') {
-                                    $invoiceapproval = InvoiceApproval::where('invoice_id',$record->id)->whereIn('updated_by',User::where('owner_association_id',auth()->user()->owner_association_id)->whereIn('role_id',Role::whereIn('name',['OA','Accounts Manager','MD'])->pluck('id'))->pluck('id'))->exists();
-                                    return $invoiceapproval;
+                                    return true;
                                 }
                                 if (Role::where('id', auth()->user()->role_id)->first()->name == 'Accounts Manager') {
                                     $invoiceapproval = InvoiceApproval::where('invoice_id',$record->id)->whereIn('updated_by',User::where('owner_association_id',auth()->user()->owner_association_id)->whereIn('role_id',Role::whereIn('name',['Accounts Manager','MD'])->pluck('id'))->pluck('id'))->exists();
                                     return $invoiceapproval;
                                 }
                                 if (Role::where('id', auth()->user()->role_id)->first()->name == 'MD') {
-                                    $invoiceapproval = InvoiceApproval::where('invoice_id',$record->id)->whereIn('updated_by',User::where('owner_association_id',auth()->user()->owner_association_id)->whereIn('role_id',Role::whereIn('name',['MD'])->pluck('id'))->pluck('id'))->exists();
-                                    return $invoiceapproval;
+                                    return true;
                                 }
                             })
-                            ->required()
+                            ->required(function (Invoice $record) {
+                                if (Role::where('id', auth()->user()->role_id)->first()->name == 'OA') {
+                                    return false;
+                                }
+                                if (Role::where('id', auth()->user()->role_id)->first()->name == 'Accounts Manager') {
+                                    return true;
+                                }
+                                if (Role::where('id', auth()->user()->role_id)->first()->name == 'MD') {
+                                    return false;
+                                }
+                            })
                             ->live(),
                         TextInput::make('balance')
                             ->prefix('AED')
