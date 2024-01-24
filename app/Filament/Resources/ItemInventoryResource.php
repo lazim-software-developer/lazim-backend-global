@@ -68,13 +68,14 @@ class ItemInventoryResource extends Resource
                                     $fail('You cannot use the Item '.Item::find($get('item_id'))->name . ' because the quantity is Zero.');
                                 }
                                 if ($get('type') == 'used' && Item::find($get('item_id'))->quantity < $value) {
-                                    $fail('The quantity value must be less than are equal to ' . Item::find($get('item_id'))->quantity . '.');
+                                    $fail('The quantity value must be less than are equal to available quantity:' . Item::find($get('item_id'))->quantity . '.');
                                 }
                             };
                         },])
                         ->required()
                         ->integer()
-                        ->minValue(1),
+                        ->minValue(1)
+                        ->maxValue(100000),
                     Textarea::make('comments')
                         ->rules(['max:100', 'regex:/^(?=.*[a-zA-Z])[a-zA-Z0-9\s!@#$%^&*_+\-=,.]*$/'])
                         ->required(),
