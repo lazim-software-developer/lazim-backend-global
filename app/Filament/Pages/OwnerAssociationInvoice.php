@@ -42,7 +42,7 @@ class OwnerAssociationInvoice extends Page implements HasForms
             ])
         ->schema([
             DatePicker::make('date')->required(),
-            DatePicker::make('due_date')->required(),
+            DatePicker::make('due_date')->minDate(now())->required(),
             Select::make('type')->required()
             ->options([
                 "building" => "Building",
@@ -63,21 +63,23 @@ class OwnerAssociationInvoice extends Page implements HasForms
             ->preload()
             ->live()
             ->label('Building Name'),
-            TextInput::make('bill_to')->required()->visible(function (callable $get) {
+            TextInput::make('bill_to')->required()
+                ->rules(['max:15'])
+                ->visible(function (callable $get) {
+                    if ($get('type') == 'other') {
+                        return true;
+                    }
+                    return false;
+                }),
+            TextInput::make('address')->rules(['max:30'])->required()->visible(function (callable $get) {
                 if ($get('type') == 'other') {
                     return true;
                 }
                 return false;
             }),
-            TextInput::make('address')->required()->visible(function (callable $get) {
-                if ($get('type') == 'other') {
-                    return true;
-                }
-                return false;
-            }),
-            TextInput::make('mode_of_payment'),
-            TextInput::make('supplier_name'),
-            TextInput::make('job')->required()->disabled(function (callable $get,Set $set) {
+            TextInput::make('mode_of_payment')->rules(['max:15']),
+            TextInput::make('supplier_name')->rules(['max:15']),
+            TextInput::make('job')->rules(['max:15'])->required()->disabled(function (callable $get,Set $set) {
                 if ($get('type') == 'building') {
                     $set('job','Management Fee');
                 }
@@ -97,7 +99,7 @@ class OwnerAssociationInvoice extends Page implements HasForms
                     'november' =>'November',
                     'december' =>'December'
                 ]),
-            TextInput::make('description')->required(),
+            TextInput::make('description')->rules(['max:15'])->required(),
             TextInput::make('quantity')->numeric()->required(),
             TextInput::make('rate')->numeric()->required(),
             TextInput::make('tax')->numeric()->placeholder(0)->visible(function (callable $get) {
