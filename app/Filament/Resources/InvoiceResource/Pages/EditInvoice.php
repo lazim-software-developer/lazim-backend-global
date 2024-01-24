@@ -38,7 +38,7 @@ class EditInvoice extends EditRecord
     }
     protected function afterSave(): void
     {
-        if(Role::where('id', auth()->user()->role_id)->first()->name == 'OA' && !InvoiceApproval::where('invoice_id',$this->record->id)->exists()){
+        if(Role::where('id', auth()->user()->role_id)->first()->name == 'OA' && !InvoiceApproval::where('invoice_id',$this->record->id)->where('active',true)->exists()){
             
             if($this->record->status == 'approved'){
                 InvoiceApproval::firstOrCreate([
@@ -46,6 +46,7 @@ class EditInvoice extends EditRecord
                     'status' => $this->record->status,
                     'updated_by' => auth()->user()->id,
                     'remarks' => 'approved by oa',
+                    'active' => true,
                 ]);
             }
             else{
@@ -54,6 +55,7 @@ class EditInvoice extends EditRecord
                     'status' => $this->record->status,
                     'updated_by' => auth()->user()->id,
                     'remarks' => $this->record->remarks,
+                    'active' => true,
                 ]);
                 $user = User::find($this->record->created_by);
                 $invoice = Invoice::find($this->record->id);
@@ -68,6 +70,7 @@ class EditInvoice extends EditRecord
                     'status' => $this->record->status,
                     'updated_by' => auth()->user()->id,
                     'remarks' => 'approved by Account Manager',
+                    'active' => true,
                 ]);
             }
             else{
@@ -76,6 +79,7 @@ class EditInvoice extends EditRecord
                     'status' => $this->record->status,
                     'updated_by' => auth()->user()->id,
                     'remarks' => $this->record->remarks,
+                    'active' => true
                 ]);
                 $notify = User::where(['owner_association_id'=>auth()->user()->owner_association_id,'role_id'=>Role::where('name','OA')->first()->id])->first();
                 Notification::make()
@@ -97,6 +101,7 @@ class EditInvoice extends EditRecord
                     'status' => $this->record->status,
                     'updated_by' => auth()->user()->id,
                     'remarks' => 'approved by md',
+                    'active' => true,
                 ]);
             }
             else{
@@ -105,6 +110,7 @@ class EditInvoice extends EditRecord
                     'status' => $this->record->status,
                     'updated_by' => auth()->user()->id,
                     'remarks' => $this->record->remarks,
+                    'active' => true,
                 ]);
                 $notifyoa = User::where(['owner_association_id'=>auth()->user()->owner_association_id,'role_id'=>Role::where('name','OA')->first()->id])->first();
                 $notifyacc = User::where(['owner_association_id'=>auth()->user()->owner_association_id,'role_id'=>Role::where('name','Accounts Manager')->first()->id])->get();
