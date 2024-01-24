@@ -255,6 +255,9 @@ Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active']
 
     // List all family members of logged in user
     Route::get('/family-members/{building}', [UserController::class, 'getFamilyMembers']);
+
+    //user delete
+    Route::patch('/user-delete', [UserController::class, 'deleteUser']);
 });
 
 /**
@@ -487,6 +490,9 @@ Route::post('/import-services', [ServiceController::class, 'import']);
 
 // about Community
 Route::get('/building/{building}', [CommunityController::class, 'about']);
+
+// rules and regulations
+Route::get('/rules-regulations/{building}',[CommunityController::class, 'rules']);
 
 // Visitor form
 Route::post('/store-visitor', [GuestController::class, 'saveFlatVisitors']);
