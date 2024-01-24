@@ -13,6 +13,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Forms\Set;
+use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Support\Exceptions\Halt;
 use NumberFormatter;
@@ -132,6 +133,10 @@ class OwnerAssociationReceipt extends Page
             $data['receipt_number'] = $receipt_id;
             // dd($data);
             $receipt = ModelsOwnerAssociationReceipt::create($data);
+            Notification::make()
+                ->title("Receipt created successfully")
+                ->success()
+                ->send();
             session()->forget('receipt_data');
             session(['receipt_data' => $receipt->id]);
             redirect()->route('receipt') ;
