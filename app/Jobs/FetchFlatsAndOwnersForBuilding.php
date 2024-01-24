@@ -10,6 +10,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Http;
 use App\Models\Building\Flat;
 use App\Jobs\FetchOwnersForFlat;
+use Illuminate\Support\Facades\Log;
 
 class FetchFlatsAndOwnersForBuilding implements ShouldQueue
 {
@@ -33,6 +34,7 @@ class FetchFlatsAndOwnersForBuilding implements ShouldQueue
 
         if ($data['response'] != null) {
             foreach ($data['response']['units'] as $property) {
+                Log::info("Data", [$property]);
                 $flat = Flat::updateOrCreate(
                     [
                         'property_number' => $property['unitNumber'],
