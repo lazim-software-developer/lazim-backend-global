@@ -1,4 +1,8 @@
 <x-filament-panels::page>
+<x-filament::breadcrumbs :breadcrumbs="[
+    '/admin/owner-association-receipts' => 'Back',
+    ' ' => 'Generate Receipt'
+]" />
     <x-filament-panels::form wire:submit="save">
         {{ $this->form }}
         <div>
