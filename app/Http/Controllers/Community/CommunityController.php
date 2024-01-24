@@ -17,7 +17,7 @@ class CommunityController extends Controller
     public function rules(Building $building)
     {
         return [
-            "data" =>  $building->ruleregulations->first(),
+            "rules" =>  $building->ruleregulations->value('rule_regulation'),
         ];
     }
 }
