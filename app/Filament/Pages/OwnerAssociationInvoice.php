@@ -2,6 +2,7 @@
 
 namespace App\Filament\Pages;
 
+
 use App\Models\Building\Building;
 use App\Models\OwnerAssociationInvoice as ModelsOwnerAssociationInvoice;
 use Filament\Actions\Action;
@@ -14,6 +15,7 @@ use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
 use Filament\Forms\Set;
+use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Support\Exceptions\Halt;
 
@@ -131,9 +133,13 @@ class OwnerAssociationInvoice extends Page implements HasForms
             }
             
             $receipt = ModelsOwnerAssociationInvoice::create($data);
+            Notification::make()
+                ->title("Invoice created successfully")
+                ->success()
+                ->send();
             session()->forget('invoice_data');
             session(['invoice_data' => $receipt->id]);
-            redirect()->route('invoice') ;
+            redirect()->route('invoice');
             // redirected to owner association controller
             // route written in web.php
         } catch (Halt $exception) {
