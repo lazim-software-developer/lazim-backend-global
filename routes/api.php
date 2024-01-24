@@ -488,6 +488,8 @@ Route::post('/import-services', [ServiceController::class, 'import']);
 // about Community
 Route::get('/building/{building}', [CommunityController::class, 'about']);
 
+Route::get('/rules-regulations/{building}',[CommunityController::class, 'rules']);
+
 // Visitor form
 Route::post('/store-visitor', [GuestController::class, 'saveFlatVisitors']);
 
