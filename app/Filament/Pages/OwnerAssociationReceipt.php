@@ -45,7 +45,7 @@ class OwnerAssociationReceipt extends Page
                 "building" => "Building",
                 "other" => "Other",
             ])->reactive(),
-            TextInput::make('receipt_to')->required()
+            TextInput::make('receipt_to')->rules(['max:15'])->required()
             ->visible(function (callable $get) {
                 if ($get('type') == 'other') {
                     return true;
@@ -99,9 +99,9 @@ class OwnerAssociationReceipt extends Page
                 "general fund" => "General Fund",
                 "reserve fund" => "Reserve Fund",
             ]),
-            TextInput::make('payment_reference')->required(),
+            TextInput::make('payment_reference')->rules(['max:15'])->required(),
             TextInput::make('amount')->numeric()->required(),
-            TextInput::make('on_account_of')->required()->disabled(function (callable $get,Set $set) {
+            TextInput::make('on_account_of')->rules(['max:15'])->required()->disabled(function (callable $get,Set $set) {
                 if ($get('type') == 'building') {
                     $set('on_account_of','Service charge');
                 }
