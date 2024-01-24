@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use Filament\Forms;
+use Filament\Notifications\Notification;
 use Filament\Tables;
 use App\Models\Asset;
 use Filament\Forms\Form;
@@ -208,6 +209,14 @@ class ProposalResource extends Resource
                         'remarks' => $record->remarks,
                     ])
                     ->action(function (Proposal $record, array $data): void {
+                        $user = User::find($record->vendor->owner_id);
+                        Notification::make()
+                            ->success()
+                            ->title("Invoice Rejection")
+                            ->icon('heroicon-o-document-text')
+                            ->iconColor('warning')
+                            ->body('We regret to inform that Proposal for '.$record->tender->service->name)
+                            ->sendToDatabase($user);
                         $record->status = 'rejected';
                         $record->remarks = $data['remarks'];
                         $record->status_updated_by = auth()->user()->id;
