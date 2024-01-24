@@ -132,8 +132,8 @@ class InvoiceResource extends Resource
                         Select::make('status')
                             ->required()
                             ->options([
-                                'approved' => 'Approved',
-                                'rejected' => 'Rejected',
+                                'approved' => 'Approve',
+                                'rejected' => 'Reject',
                             ])
                             ->disabled(function (Invoice $record) {
                                 if (Role::where('id', auth()->user()->role_id)->first()->name == 'OA') {
@@ -209,8 +209,8 @@ class InvoiceResource extends Resource
             ->filters([
                 SelectFilter::make('status')
                     ->options([
-                        'approved' => 'Approved',
-                        'rejected' => 'Rejected',
+                        'approved' => 'Approve',
+                        'rejected' => 'Reject',
                     ])
                     ->searchable(),
                 SelectFilter::make('building_id')
