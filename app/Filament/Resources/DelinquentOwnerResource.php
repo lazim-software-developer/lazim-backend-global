@@ -2,21 +2,27 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\DelinquentOwnerResource\Pages;
-use App\Filament\Resources\DelinquentOwnerResource\RelationManagers;
-use App\Models\Building\Building;
-use App\Models\DelinquentOwner;
 use Filament\Forms;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Forms\Form;
+use App\Models\FlatOwners;
+use Filament\Tables\Table;
+use App\Models\ApartmentOwner;
+use App\Models\DelinquentOwner;
+use Filament\Resources\Resource;
+use App\Models\Building\Building;
+use App\Jobs\OAM\InvoiceDueMailJob;
+use Filament\Tables\Filters\Filter;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Tables\Actions\BulkAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\FiltersLayout;
-use Filament\Tables\Filters\Filter;
-use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Filament\Resources\DelinquentOwnerResource\Pages;
+use App\Filament\Resources\DelinquentOwnerResource\RelationManagers;
 
 class DelinquentOwnerResource extends Resource
 {
@@ -92,6 +98,26 @@ class DelinquentOwnerResource extends Resource
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     // Tables\Actions\DeleteBulkAction::make(),
+                    BulkAction::make('Remind')
+                        ->form([
+                            Textarea::make('content')
+                                ->maxLength(1024)
+                                ->rows(10)
+                                ->label('Content of email'),
+                        ])
+                        ->fillForm(fn(DelinquentOwner $record): array => [
+                            'content' => 'Your payment is Due, please make the payment ASAP.'
+                        ])
+                        ->action(function (Collection $records, array $data): void {
+                            foreach ($records as $record) {
+                                // Access the owner_id of each selected record
+                                
+                                $owner = ApartmentOwner::find($record->owner_id);
+                                $content = $data['content'];
+                                InvoiceDueMailJob::dispatch($owner, $content);
+                            }
+                        })
+                        ->slideOver()
                 ]),
             ])
             ->emptyStateActions([
