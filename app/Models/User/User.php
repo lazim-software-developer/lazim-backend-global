@@ -86,7 +86,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
     // }
     public function getFilamentAvatarUrl(): ?string
     {
-        return env('AWS_URL').'/'.$this->profile_photo;
+        return $this->profile_photo?env('AWS_URL').'/'.$this->profile_photo:env('DEFAULT_AVATAR');
     }
     // public function getFullNameAttribute(): string
     // {
