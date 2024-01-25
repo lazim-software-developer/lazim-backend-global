@@ -44,17 +44,20 @@ class EditVendor extends EditRecord
                 'user_id'    => auth()->user()->id,
             ]);
         }
-        if ($this->record->status !== null) 
+    }
+    protected function beforeSave(): void
+    {
+        if ($this->record->status == null) 
         {
-            if ($this->record->status == 'rejected') {
-                $vendor=Vendor::where('id',$this->record->id)->first();
+            if ($this->data['status'] == 'rejected') {
+                $vendor=Vendor::where('id',$this->data['id'])->first();
                 $user = User::find($vendor->owner_id);
-                $remarks= $this->record->remarks;
+                $remarks= $this->data['remarks'];
                 VendorRejectionJob::dispatch($user,$remarks);
             }
-            if ($this->record->status == 'approved') 
+            if ($this->data['status'] == 'approved') 
             {
-                $vendor=Vendor::where('id',$this->record->id)->first();
+                $vendor=Vendor::where('id',$this->data['id'])->first();
                 $user = User::find($vendor->owner_id);
                 $password = Str::random(12);
                 $user->password = Hash::make($password);
