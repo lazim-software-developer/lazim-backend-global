@@ -36,7 +36,7 @@ class InvoiceDueMailJob implements ShouldQueue
         $beautymail->send('emails.payment_due', ['owner' => $this->owner, 'content' => $this->content], function($message) {
             $message
                 ->to($this->owner->email, $this->owner->name)
-                ->subject('Welcome to Lazim!');
+                ->subject('Reminder: Outstanding Balance');
         });
     }
 }
