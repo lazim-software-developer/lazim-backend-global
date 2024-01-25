@@ -38,9 +38,7 @@ class FlatResource extends Resource
                     'lg' => 2,])
                     ->schema([
                     TextInput::make('property_number')->label('Unit')
-                        ->rules(['numeric'])
                         ->required()
-                        ->numeric()
                         ->placeholder('Unit Number'),
                     Select::make('building_id')
                         ->rules(['exists:buildings,id'])

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Pages;
 
+
 use App\Models\Building\Building;
 use App\Models\OwnerAssociationInvoice as ModelsOwnerAssociationInvoice;
 use Filament\Actions\Action;
@@ -14,6 +15,7 @@ use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
 use Filament\Forms\Set;
+use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Support\Exceptions\Halt;
 
@@ -40,7 +42,7 @@ class OwnerAssociationInvoice extends Page implements HasForms
             ])
         ->schema([
             DatePicker::make('date')->required(),
-            DatePicker::make('due_date')->required(),
+            DatePicker::make('due_date')->minDate(now())->required(),
             Select::make('type')->required()
             ->options([
                 "building" => "Building",
@@ -61,21 +63,23 @@ class OwnerAssociationInvoice extends Page implements HasForms
             ->preload()
             ->live()
             ->label('Building Name'),
-            TextInput::make('bill_to')->required()->visible(function (callable $get) {
+            TextInput::make('bill_to')->required()
+                ->rules(['max:15'])
+                ->visible(function (callable $get) {
+                    if ($get('type') == 'other') {
+                        return true;
+                    }
+                    return false;
+                }),
+            TextInput::make('address')->rules(['max:30'])->required()->visible(function (callable $get) {
                 if ($get('type') == 'other') {
                     return true;
                 }
                 return false;
             }),
-            TextInput::make('address')->required()->visible(function (callable $get) {
-                if ($get('type') == 'other') {
-                    return true;
-                }
-                return false;
-            }),
-            TextInput::make('mode_of_payment'),
-            TextInput::make('supplier_name'),
-            TextInput::make('job')->required()->disabled(function (callable $get,Set $set) {
+            TextInput::make('mode_of_payment')->rules(['max:15']),
+            TextInput::make('supplier_name')->rules(['max:15']),
+            TextInput::make('job')->rules(['max:15'])->required()->disabled(function (callable $get,Set $set) {
                 if ($get('type') == 'building') {
                     $set('job','Management Fee');
                 }
@@ -95,7 +99,7 @@ class OwnerAssociationInvoice extends Page implements HasForms
                     'november' =>'November',
                     'december' =>'December'
                 ]),
-            TextInput::make('description')->required(),
+            TextInput::make('description')->rules(['max:15'])->required(),
             TextInput::make('quantity')->numeric()->required(),
             TextInput::make('rate')->numeric()->required(),
             TextInput::make('tax')->numeric()->placeholder(0)->visible(function (callable $get) {
@@ -131,9 +135,13 @@ class OwnerAssociationInvoice extends Page implements HasForms
             }
             
             $receipt = ModelsOwnerAssociationInvoice::create($data);
+            Notification::make()
+                ->title("Invoice created successfully")
+                ->success()
+                ->send();
             session()->forget('invoice_data');
             session(['invoice_data' => $receipt->id]);
-            redirect()->route('invoice') ;
+            redirect()->route('invoice');
             // redirected to owner association controller
             // route written in web.php
         } catch (Halt $exception) {

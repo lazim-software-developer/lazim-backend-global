@@ -36,6 +36,9 @@ class EditAccessCardFormsDocument extends EditRecord
             // Handle the case where parking_details is not an array
             $formattedDetails = "Invalid parking details format";
         }
+        if($parkingDetails == [] ){
+            $formattedDetails = "Invalid parking details format";
+        }
 
         // Assign the accumulated content to $data['parking_details']
         $data['parking_details'] = $formattedDetails;

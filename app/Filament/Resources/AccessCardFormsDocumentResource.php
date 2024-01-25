@@ -66,7 +66,7 @@ class AccessCardFormsDocumentResource extends Resource
                         ->label('User'),
                     Textarea::make('parking_details')
                         ->visible(function (callable $get) {
-                            if ($get('parking_details') != null) {
+                            if ($get('parking_details') != "Invalid parking details format" ) {
                                 return true;
                             }
                             return false;
