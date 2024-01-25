@@ -122,10 +122,12 @@ class VendorResource extends Resource
                             Toggle::make('active')
                                 ->rules(['boolean'])
                                 ->required()
+                                ->visible(fn($record) => $record->status === 'approved')
                                 ->inline(false)
                                 ->label('Active'),
                             TextInput::make('remarks')
                                 ->rules(['max:150'])
+                                ->visible(fn($record) => $record->status === 'approved')
                                 ->required(),
 
                         ]),
