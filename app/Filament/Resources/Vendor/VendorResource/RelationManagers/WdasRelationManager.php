@@ -83,8 +83,8 @@ class WdasRelationManager extends RelationManager {
                             ->label('vendor Name'),
                         Select::make('status')
                             ->options([
-                                'approved' => 'Approved',
-                                'rejected' => 'Rejected',
+                                'approved' => 'Approve',
+                                'rejected' => 'Reject',
                             ])
                             ->disabled(function (WDA $record) {
                                 return $record->status != 'pending';
@@ -126,8 +126,8 @@ class WdasRelationManager extends RelationManager {
             ->filters([
                 SelectFilter::make('status')
                 ->options([
-                    'approved' => 'Approved',
-                    'rejected' => 'Rejected',
+                    'approved' => 'Approve',
+                    'rejected' => 'Reject',
                     'pending' => 'Pending',
                     ])
                 ->searchable(),    

@@ -154,8 +154,8 @@ class ResidentialFormResource extends Resource
                         }),
                     Select::make('status')
                         ->options([
-                            'approved' => 'Approved',
-                            'rejected' => 'Rejected',
+                            'approved' => 'Approve',
+                            'rejected' => 'Reject',
                         ])
                         ->disabled(function (ResidentialForm $record) {
                             return $record->status != null;
