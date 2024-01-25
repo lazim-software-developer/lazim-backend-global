@@ -94,7 +94,7 @@ class ItemInventoryResource extends Resource
                 TextColumn::make('item.name')
                     ->searchable(),
                 TextColumn::make('date'),
-                TextColumn::make('type')->searchable(),
+                TextColumn::make('type')->searchable()->formatStateUsing(fn ($state) => ucfirst($state)),
                 TextColumn::make('quantity')
                     ->searchable(),
                 TextColumn::make('user.first_name')
