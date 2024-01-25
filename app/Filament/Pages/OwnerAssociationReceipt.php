@@ -5,6 +5,7 @@ namespace App\Filament\Pages;
 use App\Models\Building\Building;
 use App\Models\Building\Flat;
 use App\Models\OwnerAssociationReceipt as ModelsOwnerAssociationReceipt;
+use Closure;
 use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
@@ -12,6 +13,7 @@ use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
+use Filament\Forms\Get;
 use Filament\Forms\Set;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
@@ -100,9 +102,15 @@ class OwnerAssociationReceipt extends Page
                 "reserve fund" => "Reserve Fund",
             ]),
             TextInput::make('payment_reference')->rules(['max:15'])->required(),
-            TextInput::make('amount')->numeric()->required(),
-            TextInput::make('on_account_of')->rules(['max:15'])->required()->disabled(function (callable $get,Set $set) {
-                if ($get('type') == 'building') {
+            TextInput::make('amount')->numeric()->rules([
+                fn (Get $get): Closure => function (string $attribute, $value, Closure $fail) use ($get) {
+                    if ($value > 99999999) {
+                        $fail('The quantity must not be greater than 8 digits.');
+                    }
+                },
+            ])->required(),
+            TextInput::make('on_account_of')->rules(['max:15'])->reactive()->required()->disabled(function (callable $get,Set $set) {
+                if ($get('type') == 'building' && $get('on_account_of') == '') {
                     $set('on_account_of','Service charge');
                 }
             }),
