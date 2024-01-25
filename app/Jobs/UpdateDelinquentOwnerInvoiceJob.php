@@ -36,9 +36,9 @@ class UpdateDelinquentOwnerInvoiceJob implements ShouldQueue
         Log::info($this->invoice);
             $receipts = OAMReceipts::where(['flat_id' => $this->invoice->flat_id,'receipt_period' => $this->invoice->invoice_period])->first();
             Log::info('receipts'.$receipts);
+            preg_match('/(\d{4})/', $this->invoice->invoice_quarter, $matches);
+            $year = $matches[1];
             if(!$receipts || $this->invoice->invoice_due_date < Carbon::parse($receipts?->receipt_date)->toDateString()){
-                preg_match('/(\d{4})/', $this->invoice->invoice_quarter, $matches);
-                $year = $matches[1];
                 Log::info('year'.$year);
                 $flatId= $this->invoice->flat_id;
                 $ownerId = FlatOwners::where('flat_id', $flatId)->where('active', 1)->first()?->owner_id;
