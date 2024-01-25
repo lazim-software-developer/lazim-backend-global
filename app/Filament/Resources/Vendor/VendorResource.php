@@ -103,8 +103,8 @@ class VendorResource extends Resource
                                 ->label('Fax'),
                             Select::make('status')
                                 ->options([
-                                    'approved' => 'Approved',
-                                    'rejected' => 'Rejected',
+                                    'approved' => 'Approve',
+                                    'rejected' => 'Reject',
                                 ])
                                 ->visible(fn($record) => $record->status === null && $record->documents()->count() > 0 && $record->services()->count() > 0 && $record->managers()->count() > 0)
                                 ->searchable()

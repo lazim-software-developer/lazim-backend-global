@@ -36,8 +36,8 @@ class VisitorFormResource extends Resource
                 TextInput::make('number_of_visitors')->disabled(),
                 Select::make('status')
                                 ->options([
-                                    'approved' => 'Approved',
-                                    'rejected' => 'Rejected',
+                                    'approved' => 'Approve',
+                                    'rejected' => 'Reject',
                                 ])
                                 ->disabled(function(FlatVisitor $record){
                                     return $record->status != null;

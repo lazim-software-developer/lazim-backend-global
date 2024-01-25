@@ -152,8 +152,8 @@ class GuestRegistrationResource extends Resource
                     Toggle::make('guest_registration')->disabled(),
                     Select::make('status')
                         ->options([
-                            'approved' => 'Approved',
-                            'rejected' => 'Rejected',
+                            'approved' => 'Approve',
+                            'rejected' => 'Reject',
                         ])
                         ->disabled(function (Guest $record) {
                             return $record->status != null;

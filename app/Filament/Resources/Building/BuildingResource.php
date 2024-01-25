@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Building;
 
+use Closure;
 use Filament\Forms;
 use Filament\Tables;
 use Filament\Forms\Form;
@@ -28,8 +29,8 @@ use App\Filament\Resources\Building\BuildingResource\Pages;
 use App\Filament\Resources\Building\BuildingResource\RelationManagers;
 use App\Filament\Resources\Building\BuildingResource\RelationManagers\FloorsRelationManager;
 use App\Filament\Resources\Building\BuildingResource\RelationManagers\MeetingsRelationManager;
-use App\Filament\Resources\Building\BuildingResource\RelationManagers\BuildingserviceRelationManager;
 use App\Filament\Resources\Building\BuildingResource\RelationManagers\BuildingvendorRelationManager;
+use App\Filament\Resources\Building\BuildingResource\RelationManagers\BuildingserviceRelationManager;
 use App\Filament\Resources\Building\BuildingResource\RelationManagers\OwnercommitteesRelationManager;
 use App\Filament\Resources\Building\BuildingResource\RelationManagers\RuleregulationsRelationManager;
 
@@ -102,7 +103,13 @@ class BuildingResource extends Resource
                             ->label('About'),
                             FileUpload::make('cover_photo')
                                 ->disk('s3')
-                                ->rules('file|mimes:jpeg,jpg,png|max:2048')
+                                ->rules(['file','mimes:jpeg,jpg,png',function () {
+                                    return function (string $attribute, $value, Closure $fail) {
+                                        if($value->getSize()/ 1024 > 2048){
+                                            $fail('The cover Photo field must not be greater than 2MB.');
+                                        }
+                                    };
+                                },])
                                 ->directory('dev')
                                 ->image()
                                 ->maxSize(2048)
