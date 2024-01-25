@@ -85,7 +85,7 @@ class OwnerAssociationInvoice extends Page implements HasForms
             TextInput::make('mode_of_payment')->rules(['max:15']),
             TextInput::make('supplier_name')->rules(['max:15']),
             TextInput::make('job')->rules(['max:15'])->required()->reactive()->disabled(function (callable $get,Set $set) {
-                if ($get('type') == 'building' && $get('job') == '' ) {
+                if ($get('type') == 'building' && $get('job') == ' ' ) {
                     $set('job','Management Fee');
                 }
             }),
