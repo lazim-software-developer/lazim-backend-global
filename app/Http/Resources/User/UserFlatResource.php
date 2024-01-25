@@ -23,7 +23,7 @@ class UserFlatResource extends JsonResource
             'building_slug' => $this->building->slug,
             'building_id' => $this->building->id,
             'role' => $flat->role,
-            'oa_logo' => $this->building->ownerAssociation->profile_photo,
+            'oa_logo' => env('AWS_URL').'/'.$this->building->ownerAssociation?->profile_photo,
         ];
     }
 }
