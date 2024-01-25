@@ -74,12 +74,20 @@ class HelpdeskcomplaintResource extends Resource
                         Select::make('vendor_id')
                             ->relationship('vendor', 'name')
                             ->preload()
-                            ->required()
+                            ->required(function(Get $get){
+                                if($get('category')=='Security Services'){
+                                    return false;
+                                }
+                                return true;
+                            })
                             ->options(function (Complaint $record, Get $get) {
                                 $serviceVendor = ServiceVendor::where('service_id', $get('service_id'))->pluck('vendor_id');
                                 return Vendor::whereIn('id', $serviceVendor)->where('owner_association_id', auth()->user()->owner_association_id)->pluck('name', 'id');
                             })
                             ->disabled(function (Complaint $record) {
+                                if ($record->category=='Security Services') {
+                                    return true;
+                                }
                                 if ($record->vendor_id == null) {
                                     return false;
                                 }
