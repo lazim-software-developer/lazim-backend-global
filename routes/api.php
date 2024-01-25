@@ -282,6 +282,8 @@ Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active']
     Route::post('/create-payment-intent', [PaymentController::class, 'createPaymentIntent']);
 
     Route::post('/{order}/payment-status', [PaymentController::class, 'fetchPaymentStatus']);
+
+    Route::get('/{flat}/invoice-balance',[PaymentController::class,'fecthInvoiceDetails']);
 });
 
 /**
