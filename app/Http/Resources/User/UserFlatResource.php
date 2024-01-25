@@ -15,14 +15,15 @@ class UserFlatResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $role = FlatTenant::where(['flat_id' => $this->id, 'tenant_id' => auth()->user()->id])->value('role');
+        $flat = FlatTenant::where(['flat_id' => $this->id, 'tenant_id' => auth()->user()->id])->first();
         return [
             'flat_name' => $this->property_number,
             'flat_id' => $this->id,
             'building_name' => $this->building->name,
             'building_slug' => $this->building->slug,
             'building_id' => $this->building->id,
-            'role' => $role
+            'role' => $flat->role,
+            'virtual_account_number' => $flat->flat->virtual_account_number,
         ];;
     }
 }

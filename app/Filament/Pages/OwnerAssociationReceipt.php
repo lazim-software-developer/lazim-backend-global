@@ -13,6 +13,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Forms\Set;
+use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Support\Exceptions\Halt;
 use NumberFormatter;
@@ -44,7 +45,7 @@ class OwnerAssociationReceipt extends Page
                 "building" => "Building",
                 "other" => "Other",
             ])->reactive(),
-            TextInput::make('receipt_to')->required()
+            TextInput::make('receipt_to')->rules(['max:15'])->required()
             ->visible(function (callable $get) {
                 if ($get('type') == 'other') {
                     return true;
@@ -98,9 +99,9 @@ class OwnerAssociationReceipt extends Page
                 "general fund" => "General Fund",
                 "reserve fund" => "Reserve Fund",
             ]),
-            TextInput::make('payment_reference')->required(),
+            TextInput::make('payment_reference')->rules(['max:15'])->required(),
             TextInput::make('amount')->numeric()->required(),
-            TextInput::make('on_account_of')->required()->disabled(function (callable $get,Set $set) {
+            TextInput::make('on_account_of')->rules(['max:15'])->required()->disabled(function (callable $get,Set $set) {
                 if ($get('type') == 'building') {
                     $set('on_account_of','Service charge');
                 }
@@ -132,6 +133,10 @@ class OwnerAssociationReceipt extends Page
             $data['receipt_number'] = $receipt_id;
             // dd($data);
             $receipt = ModelsOwnerAssociationReceipt::create($data);
+            Notification::make()
+                ->title("Receipt created successfully")
+                ->success()
+                ->send();
             session()->forget('receipt_data');
             session(['receipt_data' => $receipt->id]);
             redirect()->route('receipt') ;
