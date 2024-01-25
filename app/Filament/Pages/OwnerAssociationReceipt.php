@@ -110,7 +110,7 @@ class OwnerAssociationReceipt extends Page
                 },
             ])->required(),
             TextInput::make('on_account_of')->rules(['max:15'])->reactive()->required()->disabled(function (callable $get,Set $set) {
-                if ($get('type') == 'building' && $get('on_account_of') == '') {
+                if ($get('type') == 'building' && $get('on_account_of') == ' ') {
                     $set('on_account_of','Service charge');
                 }
             }),
