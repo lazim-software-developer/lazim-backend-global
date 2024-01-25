@@ -16,15 +16,18 @@ use Filament\Resources\Resource;
 use App\Models\Building\Building;
 use Filament\Forms\Components\Grid;
 use Filament\Tables\Filters\Filter;
+use Illuminate\Support\Facades\Log;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\Repeater;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ViewColumn;
 use Illuminate\Database\Eloquent\Model;
 use App\Filament\Filters\buildingFilter;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\ViewField;
+use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -113,7 +116,7 @@ class OwnerResource extends Resource
                     ->default('NA')
                     ->label('Email')
                     ->limit(50),
-                ViewColumn::make('Flat')->view('tables.columns.apartment-ownerflat')->alignCenter(),
+                ViewColumn::make('Unit')->view('tables.columns.apartment-ownerflat')->alignCenter(),
                 ViewColumn::make('Building')->view('tables.columns.apartment-ownerbuilding')->alignCenter(),
             ])
             ->defaultSort('created_at', 'desc')
@@ -123,8 +126,9 @@ class OwnerResource extends Resource
                         Select::make('Building')
                             ->searchable()
                             ->options(function () {
-                                return Building::where('owner_association_id',auth()->user()->owner_association_id)->pluck('name', 'id');
-                            }),
+                                return Building::where('owner_association_id', auth()->user()->owner_association_id)->pluck('name', 'id');
+                            })
+                            ->placeholder('Select Building'),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         return $query->when(
@@ -135,8 +139,21 @@ class OwnerResource extends Resource
                                 });
                             }
                         );
+                    }),
+                    Filter::make('Property Number')
+                    ->form([
+                        TextInput::make('property_number')
+                            ->placeholder('Search Unit Number')->label('Unit')
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        if (!empty($data['property_number'])) {
+                            $query->whereHas('flatOwners.flat', function ($query) use ($data) {
+                                $query->where('property_number', 'like', '%' . $data['property_number'] . '%');
+                            });
+                        }
+                        return $query;
                     })
-            ])
+                ],layout: FiltersLayout::AboveContent)->filtersFormColumns(2)
             ->emptyStateActions([
                 //Tables\Actions\CreateAction::make(),
             ]);
