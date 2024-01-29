@@ -66,6 +66,10 @@ Route::post('/get-general-fund',[GeneralFundController::class,'getGeneralFund'])
 
 Route::post('/get-reserve-fund',[ReserveFundController::class,'getReserveFund']);
 
+Route::post('/get-general-fund-mollak',[GeneralFundController::class,'getGeneralFundMollak']);
+
+Route::post('/get-reserve-fund-mollak',[ReserveFundController::class,'getReserveFundMollak']);
+
 Route::post('/get-trial-balance',[TrialBalanceController::class,'getTrialBalance']);
 
 Route::get('/invoice',[OwnerAssociationInvoice::class,'invoice'])->name('invoice');
