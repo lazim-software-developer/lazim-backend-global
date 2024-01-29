@@ -1,15 +1,15 @@
 <?php
 
-namespace App\Filament\Resources\AccountsManagerResource\Pages;
+namespace App\Filament\Resources\LegalOfficerResource\Pages;
 
-use App\Filament\Resources\AccountsManagerResource;
+use App\Filament\Resources\LegalOfficerResource;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 
-class EditAccountsManager extends EditRecord
+class EditLegalOfficer extends EditRecord
 {
-    protected static string $resource = AccountsManagerResource::class;
-    protected static ?string $title = 'Accounts Manager';
+    protected static string $resource = LegalOfficerResource::class;
+
     protected function getHeaderActions(): array
     {
         return [
