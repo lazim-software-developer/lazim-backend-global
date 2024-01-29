@@ -86,7 +86,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
     // }
     public function getFilamentAvatarUrl(): ?string
     {
-        return $this->profile_photo?env('AWS_URL').'/'.$this->profile_photo:env('DEFAULT_AVATAR');
+        return $this->profile_photo ? env('AWS_URL') . '/' . $this->profile_photo : env('DEFAULT_AVATAR');
     }
     // public function getFullNameAttribute(): string
     // {
@@ -182,7 +182,11 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
     }
     public function canAccessPanel(Panel $panel): bool
     {
-        if ($this->role_id == 10 && $this->active || $this->role_id == 9 && $this->active || $this->role_id == 14 && $this->active || $this->role_id == 15 && $this->active) {
+        $allowedRoles = ['OA','Admin','Building Engineer','Accounts Manager','MD','Complaint Officer','Legal Officer'];
+
+        // Retrieve the role name using the provided method
+        $userRoleName = Role::find($this->role_id)->name;
+        if (in_array($userRoleName, $allowedRoles) && $this->active) {
             return true;
         }
         return false;
@@ -291,7 +295,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
     }
     public function roles(): BelongsToMany
     {
-        return $this->belongsToMany(Building::class,'owner_committees','building_id','user_id');
+        return $this->belongsToMany(Building::class, 'owner_committees', 'building_id', 'user_id');
     }
     public function iteminventory()
     {
