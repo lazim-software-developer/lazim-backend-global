@@ -255,6 +255,9 @@ Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active']
 
     // List all family members of logged in user
     Route::get('/family-members/{building}', [UserController::class, 'getFamilyMembers']);
+
+    //user delete
+    Route::patch('/user-delete', [UserController::class, 'deleteUser']);
 });
 
 /**
@@ -279,6 +282,8 @@ Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active']
     Route::post('/create-payment-intent', [PaymentController::class, 'createPaymentIntent']);
 
     Route::post('/{order}/payment-status', [PaymentController::class, 'fetchPaymentStatus']);
+
+    Route::get('/{flat}/invoice-balance',[PaymentController::class,'fecthInvoiceDetails']);
 });
 
 /**
