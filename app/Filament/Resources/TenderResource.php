@@ -40,27 +40,33 @@ class TenderResource extends Resource
                     ->relationship('building', 'name')
                     ->preload()
                     ->searchable()
+                    ->disabled()
                     ->label('Building Name'),
                 Select::make('budget_id')
                     ->relationship('budget', 'budget_period')
                     ->preload()
                     ->searchable()
+                    ->disabled()
                     ->label('Budget Period'),
                 Select::make('service_id')
                     ->relationship('service','name')
                     ->preload()
                     ->searchable()
+                    ->disabled()
                     ->label('Service'),
                 TextInput::make('tender_type')
                     ->placeholder('NA')
+                    ->disabled()
                     ->label('Contract Type'),
                 DatePicker::make('date')
                     ->rules(['date'])
                     ->required()
+                    ->disabled()
                     ->placeholder('Date'),
                 DatePicker::make('end_date')
                     ->rules(['date'])
                     ->required()
+                    ->disabled()
                     ->placeholder('End Date'),
 
             ]);
@@ -97,7 +103,7 @@ class TenderResource extends Resource
                 //
             ])
             ->actions([
-                // Tables\Actions\EditAction::make(),
+                Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -121,6 +127,7 @@ class TenderResource extends Resource
         return [
             'index' => Pages\ListTenders::route('/'),
             'view' => Pages\ViewTender::route('/{record}'),
+            'edit' => Pages\EditTender::route('/{record}/edit'),
         ];
     }
 }
