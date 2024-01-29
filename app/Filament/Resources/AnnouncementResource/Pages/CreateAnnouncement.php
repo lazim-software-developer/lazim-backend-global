@@ -20,46 +20,46 @@ class CreateAnnouncement extends CreateRecord
         return $this->getResource()::getUrl('index');
     }
 
-    public function afterCreate()
-    {
-        if ($this->record->status == 'published') {
-            $tenant = FlatTenant::where('active',1)
-                    ->whereIn('building_id',$this->data['building'])->distinct()->pluck('tenant_id');
-            foreach ($tenant as $user) {
-                $expoPushTokens = ExpoPushNotification::where('user_id', $user)->pluck('token');
-                if ($expoPushTokens->count() > 0) {
-                    foreach ($expoPushTokens as $expoPushToken) {
-                        $message = [
-                            'to' => $expoPushToken,
-                            'sound' => 'default',
-                            'url' => 'ComunityPostTab',
-                            'title' => 'New Announcement!',
-                            'body' => $this->record->content,
-                            'data' => ['notificationType' => 'ComunityPostTabNotice'],
-                        ];
-                        $this->expoNotification($message);
-                        DB::table('notifications')->insert([
-                            'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
-                            'type' => 'Filament\Notifications\DatabaseNotification',
-                            'notifiable_type' => 'App\Models\User\User',
-                            'notifiable_id' => $user,
-                            'data' => json_encode([
-                                'actions' => [],
-                                'body' => $this->record->content,
-                                'duration' => 'persistent',
-                                'icon' => 'heroicon-o-document-text',
-                                'iconColor' => 'warning',
-                                'title' => 'New Announcement!',
-                                'view' => 'notifications::notification',
-                                'viewData' => [],
-                                'format' => 'filament',
-                            ]),
-                            'created_at' => now()->format('Y-m-d H:i:s'),
-                            'updated_at' => now()->format('Y-m-d H:i:s'),
-                        ]);
-                    }
-                }
-            }
-        }
-    }
+    // public function afterCreate()
+    // {
+    //     if ($this->record->status == 'published') {
+    //         $tenant = FlatTenant::where('active',1)
+    //                 ->whereIn('building_id',$this->data['building'])->distinct()->pluck('tenant_id');
+    //         foreach ($tenant as $user) {
+    //             $expoPushTokens = ExpoPushNotification::where('user_id', $user)->pluck('token');
+    //             if ($expoPushTokens->count() > 0) {
+    //                 foreach ($expoPushTokens as $expoPushToken) {
+    //                     $message = [
+    //                         'to' => $expoPushToken,
+    //                         'sound' => 'default',
+    //                         'url' => 'ComunityPostTab',
+    //                         'title' => 'New Announcement!',
+    //                         'body' => $this->record->content,
+    //                         'data' => ['notificationType' => 'ComunityPostTabNotice'],
+    //                     ];
+    //                     $this->expoNotification($message);
+    //                     DB::table('notifications')->insert([
+    //                         'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
+    //                         'type' => 'Filament\Notifications\DatabaseNotification',
+    //                         'notifiable_type' => 'App\Models\User\User',
+    //                         'notifiable_id' => $user,
+    //                         'data' => json_encode([
+    //                             'actions' => [],
+    //                             'body' => $this->record->content,
+    //                             'duration' => 'persistent',
+    //                             'icon' => 'heroicon-o-document-text',
+    //                             'iconColor' => 'warning',
+    //                             'title' => 'New Announcement!',
+    //                             'view' => 'notifications::notification',
+    //                             'viewData' => [],
+    //                             'format' => 'filament',
+    //                         ]),
+    //                         'created_at' => now()->format('Y-m-d H:i:s'),
+    //                         'updated_at' => now()->format('Y-m-d H:i:s'),
+    //                     ]);
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }
 }
