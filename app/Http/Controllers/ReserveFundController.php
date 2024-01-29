@@ -23,10 +23,10 @@ class ReserveFundController extends Controller
 
     public function getReserveFundMollak(Request $request)
     {
-        $year = $request->input('year');
+        $date = $request->input('date');
         $buildingId = $request->input('building_id');
 
-        $receipts= OAMReceipts::where(['building_id'=>$buildingId,'payment_mode'=>'Noqodi Payment'])->whereYear('receipt_date', $year)->get()
+        $receipts= OAMReceipts::where(['building_id'=>$buildingId,'payment_mode'=>'Noqodi Payment'])->whereDate('receipt_date', $date)->get()
                                                                 ->sum(function ($receipt) {
                                                                     $noqodiInfo = json_decode($receipt->noqodi_info, true);
                                                                     return $noqodiInfo['reservedFundAmount'] ?? 0;

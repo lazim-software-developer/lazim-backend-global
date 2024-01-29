@@ -28,8 +28,8 @@ class GeneralFundController extends Controller
         $date = $request->input('date');
         $buildingId = $request->input('building_id');
 
-        $virtualReceipts= OAMReceipts::where(['building_id'=>$buildingId,'payment_mode'=>'Virtual Account Transfer'])->where('receipt_date', $date)->sum('receipt_amount');
-        $otherReceipts= OAMReceipts::where(['building_id'=>$buildingId,'payment_mode'=>'Noqodi Payment'])->where('receipt_date', $date)->get()
+        $virtualReceipts= OAMReceipts::where(['building_id'=>$buildingId,'payment_mode'=>'Virtual Account Transfer'])->whereDate('receipt_date', $date)->sum('receipt_amount');
+        $otherReceipts= OAMReceipts::where(['building_id'=>$buildingId,'payment_mode'=>'Noqodi Payment'])->whereDate('receipt_date', $date)->get()
                                                                 ->sum(function ($receipt) {
                                                                     $noqodiInfo = json_decode($receipt->noqodi_info, true);
                                                                     return $noqodiInfo['generalFundAmount'] ?? 0;
