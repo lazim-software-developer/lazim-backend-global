@@ -1,15 +1,15 @@
 <?php
 
-namespace App\Filament\Resources\AccountsManagerResource\Pages;
+namespace App\Filament\Resources\BuildingEngineerResource\Pages;
 
-use App\Filament\Resources\AccountsManagerResource;
+use App\Filament\Resources\BuildingEngineerResource;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 
-class EditAccountsManager extends EditRecord
+class EditBuildingEngineer extends EditRecord
 {
-    protected static string $resource = AccountsManagerResource::class;
-    protected static ?string $title = 'Accounts Manager';
+    protected static string $resource = BuildingEngineerResource::class;
+
     protected function getHeaderActions(): array
     {
         return [

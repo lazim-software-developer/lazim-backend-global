@@ -17,6 +17,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Tables\Actions\BulkAction;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Notifications\Notification;
 use Filament\Tables\Enums\FiltersLayout;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -51,38 +52,38 @@ class DelinquentOwnerResource extends Resource
                 TextColumn::make('quarter_2_balance'),
                 TextColumn::make('quarter_3_balance')->default('NA'),
                 TextColumn::make('quarter_4_balance')->default('NA'),
-                TextColumn::make('invoice_pdf_link')->label('invoice_file')->formatStateUsing(fn ($state) => '<a href="'. $state .'" target="_blank">LINK</a>')
-                ->html(),
-                
+                TextColumn::make('invoice_pdf_link')->label('invoice_file')->formatStateUsing(fn ($state) => '<a href="' . $state . '" target="_blank">LINK</a>')
+                    ->html(),
+
             ])
             ->filters([
                 Filter::make('invoice_date')
                     ->form([
                         Select::make('year')
-                        ->searchable()
-                        ->placeholder('Select Year')
-                        ->options(array_combine(range(now()->year, 2018), range(now()->year, 2018))),
+                            ->searchable()
+                            ->placeholder('Select Year')
+                            ->options(array_combine(range(now()->year, 2018), range(now()->year, 2018))),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         if (isset($data['year'])) {
-                                return $query
-                                    ->when(
-                                        $data['year'],
-                                        fn (Builder $query, $year) => $query->where('year', $year)
-                                    );
+                            return $query
+                                ->when(
+                                    $data['year'],
+                                    fn (Builder $query, $year) => $query->where('year', $year)
+                                );
                         }
 
-                            return $query;
-                        }),
+                        return $query;
+                    }),
                 Filter::make('Building')
                     ->form([
                         Select::make('building')
-                        ->searchable()
-                        ->options(function () {
-                            $oaId = auth()->user()->owner_association_id;
-                            return Building::where('owner_association_id', $oaId)
-                                ->pluck('name', 'id');
-                        })
+                            ->searchable()
+                            ->options(function () {
+                                $oaId = auth()->user()->owner_association_id;
+                                return Building::where('owner_association_id', $oaId)
+                                    ->pluck('name', 'id');
+                            })
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         return $query
@@ -90,8 +91,8 @@ class DelinquentOwnerResource extends Resource
                                 $data['building'],
                                 fn (Builder $query, $building_id): Builder => $query->where('building_id', $building_id),
                             );
-                        }),
-                    ],layout: FiltersLayout::AboveContent)->filtersFormColumns(3)
+                    }),
+            ], layout: FiltersLayout::AboveContent)->filtersFormColumns(3)
             ->actions([
                 // Tables\Actions\EditAction::make(),
             ])
@@ -101,21 +102,27 @@ class DelinquentOwnerResource extends Resource
                     BulkAction::make('Remind')
                         ->form([
                             Textarea::make('content')
-                                ->maxLength(1024)
+                                ->maxLength(500)
                                 ->rows(10)
-                                ->label('Content of email'),
+                                ->label('Content of email')
+                                ->helperText('Enter content with values less than 500 characters.'),
                         ])
-                        ->fillForm(fn(DelinquentOwner $record): array => [
+                        ->fillForm(fn (DelinquentOwner $record): array => [
                             'content' => 'Your payment is Due, please make the payment ASAP.'
                         ])
                         ->action(function (Collection $records, array $data): void {
                             foreach ($records as $record) {
                                 // Access the owner_id of each selected record
-                                
+
                                 $owner = ApartmentOwner::find($record->owner_id);
                                 $content = $data['content'];
                                 InvoiceDueMailJob::dispatch($owner, $content);
                             }
+                            Notification::make()
+                                ->title("Notification: Outstanding Balance")
+                                ->danger()
+                                ->body("Reminder sent regarding Outstanding Balance.")
+                                ->send();
                         })
                         ->slideOver()
                 ]),
@@ -124,14 +131,14 @@ class DelinquentOwnerResource extends Resource
                 // Tables\Actions\CreateAction::make(),
             ]);
     }
-    
+
     public static function getRelations(): array
     {
         return [
             //
         ];
     }
-    
+
     public static function getPages(): array
     {
         return [
@@ -139,5 +146,5 @@ class DelinquentOwnerResource extends Resource
             // 'create' => Pages\CreateDelinquentOwner::route('/create'),
             // 'edit' => Pages\EditDelinquentOwner::route('/{record}/edit'),
         ];
-    }    
+    }
 }
