@@ -21,7 +21,7 @@ class PollController extends Controller
             ->where('status', 'published')
             ->where('active',true)
             ->where(function ($query) {
-                $query->where('ends_on', '>', now())
+                $query->where('scheduled_at', '<', now())->where('ends_on', '>', now())
                     ->orWhereNull('ends_on');
             })->latest()->paginate($count);
 
