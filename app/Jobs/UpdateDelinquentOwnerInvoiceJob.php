@@ -38,18 +38,19 @@ class UpdateDelinquentOwnerInvoiceJob implements ShouldQueue
             Log::info('receipts'.$receipts);
             preg_match('/(\d{4})/', $this->invoice->invoice_quarter, $matches);
             $year = $matches[1];
+            $flatId= $this->invoice->flat_id;
+            $ownerId = FlatOwners::where('flat_id', $flatId)->where('active', 1)->first()?->owner_id;
+            $lastReceipt = OAMReceipts::where(['flat_id' => $flatId])->where('receipt_period', 'like', '%' . $year . '%')
+            ->latest('receipt_date')
+            ->first(['receipt_date', 'receipt_amount']);
+            Log::info('last'.$lastReceipt);
+            $lastInvoice = OAMInvoice::where(['flat_id' => $flatId])
+                                ->where('invoice_period', 'like', '%' . $year . '%')
+                                ->latest('invoice_date')
+                                ->first();
             if(!$receipts || $this->invoice->invoice_due_date < Carbon::parse($receipts?->receipt_date)->toDateString()){
                 Log::info('year'.$year);
-                $flatId= $this->invoice->flat_id;
-                $ownerId = FlatOwners::where('flat_id', $flatId)->where('active', 1)->first()?->owner_id;
-                $lastReceipt = OAMReceipts::where(['flat_id' => $flatId])->where('receipt_period', 'like', '%' . $year . '%')
-                ->latest('receipt_date')
-                ->first(['receipt_date', 'receipt_amount']);
-                Log::info('last'.$lastReceipt);
-                $lastInvoice = OAMInvoice::where(['flat_id' => $flatId])
-                                    ->where('invoice_period', 'like', '%' . $year . '%')
-                                    ->latest('invoice_date')
-                                    ->first();
+                
                 $dueAmount = 0;
                 if($lastInvoice?->invoice_due_date && $lastReceipt?->receipt_date && Carbon::parse($lastReceipt?->receipt_date)->greaterThan(Carbon::parse($lastInvoice?->invoice_due_date)))
                     {
