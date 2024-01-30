@@ -53,7 +53,7 @@ class AnnouncementNotifications extends Command
                             'url' => 'ComunityPostTab',
                             'title' => 'New '. $post->is_announcement ? 'Announcement!' : 'Post!',
                             'body' => $post->content,
-                            'data' => ['notificationType' => 'ComunityPostTabNotice'],
+                            'data' => ['notificationType' => $post->is_announcement ? 'ComunityPostTabNotice' : 'ComunityPostTabPost'],
                         ];
                         $this->expoNotification($message);
                         DB::table('notifications')->insert([
