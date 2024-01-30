@@ -10,7 +10,9 @@ use App\Models\Building\Complaint;
 use App\Models\Community\Comment;
 use App\Models\Community\Post;
 use App\Models\ExpoPushNotification;
+use App\Models\User\User;
 use App\Traits\UtilsTrait;
+use Filament\Notifications\Notification;
 
 class CommentController extends Controller
 {
@@ -32,6 +34,14 @@ class CommentController extends Controller
         $comment->commentable()->associate($post);
         $comment->user_id = auth()->user()->id;
         $comment->save();
+        $notifyTo = User::where('id',$post->user_id)->get();
+        Notification::make()
+            ->success()
+            ->title("comments")
+            ->icon('heroicon-o-document-text')
+            ->iconColor('warning')
+            ->body(auth()->user()->first_name . ' commented on the post!')
+            ->sendToDatabase($notifyTo);
 
         return (new CustomResponseResource([
             'title' => 'Success',
