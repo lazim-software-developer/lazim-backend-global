@@ -11,6 +11,7 @@ use App\Models\Building\Building;
 use App\Models\Building\BuildingPoc;
 use App\Models\Building\Complaint;
 use App\Models\Building\FlatTenant;
+use App\Models\ExpoPushNotification;
 use App\Models\Master\Service;
 use App\Models\Media;
 use App\Models\TechnicianVendor;
@@ -189,6 +190,37 @@ class ComplaintController extends Controller
             if ($selectedTechnician) {
                 $complaint->technician_id = $selectedTechnician->id;
                 $complaint->save();
+
+                $expoPushToken = ExpoPushNotification::where('user_id', $selectedTechnician->id)->first()?->token;
+                if ($expoPushToken) {
+                    $message = [
+                        'to' => $expoPushToken,
+                        'sound' => 'default',
+                        'title' => 'Task Assigned',
+                        'body' => 'Task has been assigned',
+                        'data' => ['notificationType' => 'PendingRequests'],
+                    ];
+                    $this->expoNotification($message);
+                    DB::table('notifications')->insert([
+                        'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
+                        'type' => 'Filament\Notifications\DatabaseNotification',
+                        'notifiable_type' => 'App\Models\User\User',
+                        'notifiable_id' => $selectedTechnician->id,
+                        'data' => json_encode([
+                            'actions' => [],
+                            'body' => 'Task has been assigned',
+                            'duration' => 'persistent',
+                            'icon' => 'heroicon-o-document-text',
+                            'iconColor' => 'warning',
+                            'title' => 'Task Assigned',
+                            'view' => 'notifications::notification',
+                            'viewData' => [],
+                            'format' => 'filament'
+                        ]),
+                        'created_at' => now()->format('Y-m-d H:i:s'),
+                        'updated_at' => now()->format('Y-m-d H:i:s'),
+                    ]);
+                }
             } else {
                 Log::info("No technicians to add", []);
             }
