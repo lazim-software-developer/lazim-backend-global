@@ -39,7 +39,7 @@ class EditGuestRegistration extends EditRecord
                         'sound' => 'default',
                         'title' => 'Guest registration form Updated!',
                         'body' => 'Your guest registration form has been approved.',
-                        // 'data' => ['notificationType' => 'MyRequest'],
+                        'data' => ['notificationType' => 'InAppNotficationScreen'],
                     ];
                     $this->expoNotification($message);
                     DB::table('notifications')->insert([
@@ -73,7 +73,7 @@ class EditGuestRegistration extends EditRecord
                         'sound' => 'default',
                         'title' => 'Guest registration form status',
                         'body' => 'Your guest registration form has been rejected.',
-                        // 'data' => ['notificationType' => 'MyRequest'],
+                        'data' => ['notificationType' => 'InAppNotficationScreen'],
                     ];
                     $this->expoNotification($message);
                     DB::table('notifications')->insert([
