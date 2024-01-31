@@ -24,11 +24,11 @@ class CommentObserver
             if (in_array($user->role->name, $allowedRoles)) {
                 $complaint = Complaint::where('id', $comment->commentable_id)->first();
                 if ($complaint->technician_id) {
-                    $expoPushTokens = ExpoPushNotification::whereIn('user_id', [function($complaint,$comment) {
-                        if ($complaint->user_id != $comment->user_id){
-                            return $complaint->user_id;
-                        }
-                    },$complaint->technician_id])->pluck('token');
+                    $userId = [$complaint->technician_id];
+                    if ($complaint->user_id != $comment->user_id){
+                        $userId= [$complaint->user_id, $complaint->technician_id];
+                    }
+                    $expoPushTokens = ExpoPushNotification::whereIn('user_id', $userId)->pluck('token');
                     if ($expoPushTokens->count() > 0) {
                         foreach ($expoPushTokens as $expoPushToken) {
                             $message = [
@@ -69,12 +69,23 @@ class CommentObserver
                 $expoPushTokens = ExpoPushNotification::where('user_id', $complaint->user_id)->pluck('token');
                 if ($expoPushTokens->count() > 0) {
                     foreach ($expoPushTokens as $expoPushToken) {
+                        if ($complaint->complaint_type == 'help_desk'){
+                            if ($complaint->status == 'open'){
+                                $notificationType = 'HelpDeskTabPending';
+                            }
+                            else{
+                                $notificationType = 'HelpDeskTabResolved';
+                            }
+                        }
+                        else{
+                            $notificationType = 'InAppNotficationScreen';
+                        }
                         $message = [
                             'to' => $expoPushToken,
                             'sound' => 'default',
                             'title' => 'New Comment',
                             'body' => 'Comment made by '.$user->role->name.' '.$user->first_name.' on your complaint. Check the application for the infomation.',
-                            'data' => ['notificationType' => 'PendingRequests'],
+                            'data' => ['notificationType' => $notificationType],
                         ];
                         $this->expoNotification($message);
                         DB::table('notifications')->insert([
