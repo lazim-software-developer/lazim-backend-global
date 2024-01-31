@@ -46,7 +46,7 @@ class EditVisitorForm extends EditRecord
                         'to' => $expoPushToken,
                         'sound' => 'default',
                         'title' => 'Visitors',
-                        'body' => "Visitors for $date at $time,\n No. of visitors: $visitorCount,\n Unit:$unit ",
+                        'body' => "Flat Visitor form has been approved \nVisitors for $date at $time\n No. of visitors: $visitorCount\n Unit:$unit ",
                         'data' => ['notificationType' => 'MyRequest'],
                     ];
                     $this->expoNotification($message);
@@ -57,7 +57,7 @@ class EditVisitorForm extends EditRecord
                         'notifiable_id' => $security,
                         'data' => json_encode([
                             'actions' => [],
-                            'body' => "Visitors for $date at $time,\n No. of visitors: $visitorCount,\n Unit:$unit ",
+                            'body' => "Flat Visitor form has been approved \nVisitors for $date at $time\n No. of visitors: $visitorCount\n Unit:$unit ",
                             'duration' => 'persistent',
                             'icon' => 'heroicon-o-document-text',
                             'iconColor' => 'warning',
