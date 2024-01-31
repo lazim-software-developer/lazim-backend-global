@@ -36,7 +36,7 @@ class ListTenants extends ListRecords
                 ])
                 ->action(function (array $data) {
                     $buildingname = Building::find($data['building_id'])->name;
-                    $residents = MollakTenant::where('building_id', $data['building_id'])->select('name', 'email')->distinct()->limit(1)->get();
+                    $residents = MollakTenant::where('building_id', $data['building_id'])->select('name', 'email')->distinct()->get();
                     if ($residents->first() == null) {
                         Notification::make()
                             ->title("No Data for Building in MollakTenant")
