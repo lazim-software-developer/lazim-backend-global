@@ -268,8 +268,8 @@ class ComplaintController extends Controller
                         $message = [
                             'to' => $expoPushToken,
                             'sound' => 'default',
-                            'title' => 'Happiness complaint status',
-                            'body' => 'Your happiness complaint has been resolved by : '.auth()->user()->role->name.' '.auth()->user()->first_name,
+                            'title' => 'Complaint status',
+                            'body' => 'Your complaint has been resolved by : '.auth()->user()->role->name.' '.auth()->user()->first_name,
                             'data' => ['notificationType' => $complaint->complaint_type == 'help_desk'? 'HelpDeskTabResolved':'InAppNotficationScreen'],
                         ];
                         $this->expoNotification($message);
@@ -280,11 +280,11 @@ class ComplaintController extends Controller
                             'notifiable_id' => $complaint->user_id,
                             'data' => json_encode([
                                 'actions' => [],
-                                'body' => 'Your happiness complaint has been resolved by : '.auth()->user()->role->name.' '.auth()->user()->first_name,
+                                'body' => 'Your complaint has been resolved by : '.auth()->user()->role->name.' '.auth()->user()->first_name,
                                 'duration' => 'persistent',
                                 'icon' => 'heroicon-o-document-text',
                                 'iconColor' => 'warning',
-                                'title' => 'Happiness complaint status',
+                                'title' => 'Complaint status',
                                 'view' => 'notifications::notification',
                                 'viewData' => [],
                                 'format' => 'filament'
@@ -301,7 +301,7 @@ class ComplaintController extends Controller
                         $message = [
                             'to' => $expoPushToken,
                             'sound' => 'default',
-                            'title' => 'complaint status',
+                            'title' => 'Complaint status',
                             'body' => 'A complaint has been resolved by : '.auth()->user()->role->name.' '.auth()->user()->first_name,
                             'data' => ['notificationType' => 'ResolvedRequests'],
                         ];
@@ -317,7 +317,7 @@ class ComplaintController extends Controller
                                 'duration' => 'persistent',
                                 'icon' => 'heroicon-o-document-text',
                                 'iconColor' => 'warning',
-                                'title' => 'complaint status',
+                                'title' => 'Complaint status',
                                 'view' => 'notifications::notification',
                                 'viewData' => [],
                                 'format' => 'filament'
