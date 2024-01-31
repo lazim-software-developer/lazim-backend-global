@@ -74,7 +74,7 @@ class PaymentController extends Controller
 
         // return response()->json($paginatedItems);
 
-        $invoices = OAMInvoice::where('invoice_due_date','<',Carbon::now()->todateString())->where('flat_id',$flat->id)->get();
+        $invoices = OAMInvoice::where('flat_id',$flat->id)->latest()->get();
         $invoices->filter(function($invoice) {
             $receipt = OAMReceipts::where('flat_id', $invoice->flat_id)->where('receipt_period', $invoice->invoice_period);
             if ($receipt){
