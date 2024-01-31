@@ -54,7 +54,7 @@ class CommentObserver
                                 'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
                                 'type' => 'Filament\Notifications\DatabaseNotification',
                                 'notifiable_type' => 'App\Models\User\User',
-                                'notifiable_id' => $complaint->technician_id,
+                                'notifiable_id' => $userId,
                                 'data' => json_encode([
                                     'actions' => [],
                                     'body' => 'Comment made by '.$user->role->name.' '.$user->first_name.' on your complaint. Check the application for the infomation.',
