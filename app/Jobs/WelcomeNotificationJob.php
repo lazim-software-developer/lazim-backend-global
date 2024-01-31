@@ -19,10 +19,12 @@ class WelcomeNotificationJob implements ShouldQueue
      */
     public $email;
     public $name;
-    public function __construct($email,$name)
+    public $building;
+    public function __construct($email,$name,$building)
     {
         $this->email = $email;
         $this->name = $name;
+        $this->building = $building;
     }
 
     /**
@@ -31,7 +33,7 @@ class WelcomeNotificationJob implements ShouldQueue
     public function handle(): void
     {
         $beautymail = app()->make(Beautymail::class);
-        $beautymail->send('emails.Welcomenotification', ['name' => $this->name], function ($message) {
+        $beautymail->send('emails.Welcomenotification', ['building' => $this->building,'name' => $this->name], function ($message) {
             $message
                 ->to($this->email, $this->name)
                 ->subject('Welcome to Lazim! 🎉 Download Our App Now!');
