@@ -32,7 +32,7 @@ class CommentObserver
                                 'sound' => 'default',
                                 'title' => 'New Comment',
                                 'body' => 'Comment made by '.$user->role->name.' '.$user->first_name.' on your complaint. Check the application for the infomation.',
-                                'data' => ['notificationType' => 'PendingRequests'],
+                                'data' => ['notificationType' => 'InAppNotfication'],
                             ];
                             $this->expoNotification($message);
                             DB::table('notifications')->insert([
@@ -70,7 +70,7 @@ class CommentObserver
                             'sound' => 'default',
                             'title' => 'New Comment',
                             'body' => 'Comment made by '.$user->role->name.' '.$user->first_name.' on your complaint. Check the application for the infomation.',
-                            'data' => ['notificationType' => 'HelpDeskTab'],
+                            'data' => ['notificationType' => 'PendingRequests'],
                         ];
                         $this->expoNotification($message);
                         DB::table('notifications')->insert([
