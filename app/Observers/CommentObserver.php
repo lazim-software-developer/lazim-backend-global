@@ -31,12 +31,23 @@ class CommentObserver
                     $expoPushTokens = ExpoPushNotification::whereIn('user_id', $userId)->pluck('token');
                     if ($expoPushTokens->count() > 0) {
                         foreach ($expoPushTokens as $expoPushToken) {
+                            if ($complaint->complaint_type == 'help_desk'){
+                                if ($complaint->status == 'open'){
+                                    $notificationType = 'HelpDeskTabPending';
+                                }
+                                else{
+                                    $notificationType = 'HelpDeskTabResolved';
+                                }
+                            }
+                            else{
+                                $notificationType = 'InAppNotficationScreen';
+                            }
                             $message = [
                                 'to' => $expoPushToken,
                                 'sound' => 'default',
                                 'title' => 'New Comment',
                                 'body' => 'Comment made by '.$user->role->name.' '.$user->first_name.' on your complaint. Check the application for the infomation.',
-                                'data' => ['notificationType' => 'InAppNotfication'],
+                                'data' => ['notificationType' => $notificationType],
                             ];
                             $this->expoNotification($message);
                             DB::table('notifications')->insert([
