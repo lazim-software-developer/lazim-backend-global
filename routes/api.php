@@ -341,6 +341,7 @@ Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active']
 Route::middleware([])->group(function () {
     Route::get('/sub-categories/{subcategory}/services', [SelectServicesController::class, 'listServices']);
     Route::get('/sub-categories', [SelectServicesController::class, 'listSubCategories']);
+    Route::get('/categories', [SelectServicesController::class, 'listCategories']);
 });
 
 // Vendor APIs 'api.token' middleware

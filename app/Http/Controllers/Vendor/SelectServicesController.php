@@ -93,4 +93,10 @@ public function listServices(SubCategory $subcategory)
         $categories = SubCategory::all();
         return SubCategoryResource::collection($categories);
     }
+
+    public function listCategories()
+    {
+        $categories = SubCategory::whereIn('id', [1, 5, 13, 7,41])->get();
+        return SubCategoryResource::collection($categories);
+    }
 }
