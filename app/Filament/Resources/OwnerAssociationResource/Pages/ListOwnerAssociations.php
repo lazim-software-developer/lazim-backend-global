@@ -21,20 +21,7 @@ class ListOwnerAssociations extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make(),
-            Action::make('Notify Residents')
-                ->visible(OwnerAssociation::find(auth()->user()->owner_association_id)->welcome_notification == true ? false : true)
-                ->button()
-                ->action(function (){
-                    $residentsemail = ApartmentOwner::get();
-                    foreach ($residentsemail as $value) {
-                        WelcomeNotificationJob::dispatch($value->email, $value->name);
-                    }
-                    $ownerassociation = OwnerAssociation::find(auth()->user()->owner_association_id);
-                    $ownerassociation->welcome_notification = true;
-                    $ownerassociation->save();
-                    return redirect()->to(OwnerAssociationResource::getUrl('index'));
-                })
+            // Actions\CreateAction::make(),
         ];
     }
     protected function getTableQuery(): Builder
