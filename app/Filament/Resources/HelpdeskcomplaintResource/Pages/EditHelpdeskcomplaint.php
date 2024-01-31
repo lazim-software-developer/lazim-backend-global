@@ -43,7 +43,7 @@ class EditHelpdeskcomplaint extends EditRecord
                         'sound' => 'default',
                         'title' => 'Help Desk complaint status',
                         'body' => 'A complaint has been resolved by a ' . $role->name . ' ' . auth()->user()->first_name,
-                        'data' => ['notificationType' => 'HelpDeskTab'],
+                        'data' => ['notificationType' => $this->record->complaint_type == 'help_desk'? 'HelpDeskTabResolved':'InAppNotficationScreen'],
                     ];
                     $this->expoNotification($message);
                     DB::table('notifications')->insert([

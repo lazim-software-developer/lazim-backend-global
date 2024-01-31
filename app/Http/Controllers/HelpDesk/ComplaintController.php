@@ -11,12 +11,14 @@ use App\Models\Building\Building;
 use App\Models\Building\BuildingPoc;
 use App\Models\Building\Complaint;
 use App\Models\Building\FlatTenant;
+use App\Models\ExpoPushNotification;
 use App\Models\Master\Service;
 use App\Models\Media;
 use App\Models\TechnicianVendor;
 use App\Models\User\User;
 use App\Models\Vendor\Contract;
 use App\Models\Vendor\ServiceVendor;
+use App\Traits\UtilsTrait;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -24,6 +26,8 @@ use Illuminate\Support\Facades\Log;
 
 class ComplaintController extends Controller
 {
+    use UtilsTrait;
+
     /**
      * Display a listing of the complaints.
      *
@@ -189,6 +193,37 @@ class ComplaintController extends Controller
             if ($selectedTechnician) {
                 $complaint->technician_id = $selectedTechnician->id;
                 $complaint->save();
+
+                $expoPushToken = ExpoPushNotification::where('user_id', $selectedTechnician->id)->first()?->token;
+                if ($expoPushToken) {
+                    $message = [
+                        'to' => $expoPushToken,
+                        'sound' => 'default',
+                        'title' => 'Task Assigned',
+                        'body' => 'Task has been assigned',
+                        'data' => ['notificationType' => 'PendingRequests'],
+                    ];
+                    $this->expoNotification($message);
+                    DB::table('notifications')->insert([
+                        'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
+                        'type' => 'Filament\Notifications\DatabaseNotification',
+                        'notifiable_type' => 'App\Models\User\User',
+                        'notifiable_id' => $selectedTechnician->id,
+                        'data' => json_encode([
+                            'actions' => [],
+                            'body' => 'Task has been assigned',
+                            'duration' => 'persistent',
+                            'icon' => 'heroicon-o-document-text',
+                            'iconColor' => 'warning',
+                            'title' => 'Task Assigned',
+                            'view' => 'notifications::notification',
+                            'viewData' => [],
+                            'format' => 'filament'
+                        ]),
+                        'created_at' => now()->format('Y-m-d H:i:s'),
+                        'updated_at' => now()->format('Y-m-d H:i:s'),
+                    ]);
+                }
             } else {
                 Log::info("No technicians to add", []);
             }
@@ -224,6 +259,74 @@ class ComplaintController extends Controller
                 // Attach the media to the post
                 $complaint->media()->save($media);
             }
+        }
+
+        if($complaint->user_id != auth()->user()->id){
+
+            $expoPushToken = ExpoPushNotification::where('user_id', $complaint->user_id)->pluck('token');
+                if ($expoPushToken) {
+                        $message = [
+                            'to' => $expoPushToken,
+                            'sound' => 'default',
+                            'title' => 'Happiness complaint status',
+                            'body' => 'Your happiness complaint has been resolved by : '.auth()->user()->role->name.' '.auth()->user()->first_name,
+                            'data' => ['notificationType' => $complaint->complaint_type == 'help_desk'? 'HelpDeskTabResolved':'InAppNotficationScreen'],
+                        ];
+                        $this->expoNotification($message);
+                        DB::table('notifications')->insert([
+                            'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
+                            'type' => 'Filament\Notifications\DatabaseNotification',
+                            'notifiable_type' => 'App\Models\User\User',
+                            'notifiable_id' => $complaint->user_id,
+                            'data' => json_encode([
+                                'actions' => [],
+                                'body' => 'Your happiness complaint has been resolved by : '.auth()->user()->role->name.' '.auth()->user()->first_name,
+                                'duration' => 'persistent',
+                                'icon' => 'heroicon-o-document-text',
+                                'iconColor' => 'warning',
+                                'title' => 'Happiness complaint status',
+                                'view' => 'notifications::notification',
+                                'viewData' => [],
+                                'format' => 'filament'
+                            ]),
+                            'created_at' => now()->format('Y-m-d H:i:s'),
+                            'updated_at' => now()->format('Y-m-d H:i:s'),
+                        ]);
+                    
+                }
+        }
+        else{
+            $expoPushToken = ExpoPushNotification::where('user_id', $complaint->technician_id)->pluck('token');
+                if ($expoPushToken) {
+                        $message = [
+                            'to' => $expoPushToken,
+                            'sound' => 'default',
+                            'title' => 'complaint status',
+                            'body' => 'A complaint has been resolved by : '.auth()->user()->role->name.' '.auth()->user()->first_name,
+                            'data' => ['notificationType' => 'ResolvedRequests'],
+                        ];
+                        $this->expoNotification($message);
+                        DB::table('notifications')->insert([
+                            'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
+                            'type' => 'Filament\Notifications\DatabaseNotification',
+                            'notifiable_type' => 'App\Models\User\User',
+                            'notifiable_id' => $complaint->technician_id,
+                            'data' => json_encode([
+                                'actions' => [],
+                                'body' => 'A complaint has been resolved by : '.auth()->user()->role->name.' '.auth()->user()->first_name,
+                                'duration' => 'persistent',
+                                'icon' => 'heroicon-o-document-text',
+                                'iconColor' => 'warning',
+                                'title' => 'complaint status',
+                                'view' => 'notifications::notification',
+                                'viewData' => [],
+                                'format' => 'filament'
+                            ]),
+                            'created_at' => now()->format('Y-m-d H:i:s'),
+                            'updated_at' => now()->format('Y-m-d H:i:s'),
+                        ]);
+                    
+                }
         }
 
         return new CustomResponseResource([

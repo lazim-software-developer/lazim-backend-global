@@ -24,7 +24,7 @@ class ComplaintUpdateRequest extends FormRequest
         return [
             "priority" => "integer|min:1|max:3|required",
             "due_date" => "date|required",
-            "technician_id" => "integer|exists:users,id|required",
+            "technician_id" => "integer|exists:technician_vendors,id|required",
         ];
     }
 

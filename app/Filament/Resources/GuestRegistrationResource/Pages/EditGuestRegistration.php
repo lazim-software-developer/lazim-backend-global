@@ -23,10 +23,15 @@ class EditGuestRegistration extends EditRecord
         ];
     }
 
+    protected function getRedirectUrl(): string
+    {
+            return $this->getResource()::getUrl('index');
+    }
+
     public function afterSave()
     {
         if ($this->record->status == 'approved') {
-            $expoPushTokens = ExpoPushNotification::where('user_id', $this->record->user_id)->pluck('token');
+            $expoPushTokens = ExpoPushNotification::where('user_id', $this->record->flatVisitor->initiated_by)->pluck('token');
             if ($expoPushTokens->count() > 0) {
                 foreach ($expoPushTokens as $expoPushToken) {
                     $message = [
@@ -34,14 +39,14 @@ class EditGuestRegistration extends EditRecord
                         'sound' => 'default',
                         'title' => 'Guest registration form Updated!',
                         'body' => 'Your guest registration form has been approved.',
-                        'data' => ['notificationType' => 'MyRequest'],
+                        'data' => ['notificationType' => 'InAppNotficationScreen'],
                     ];
                     $this->expoNotification($message);
                     DB::table('notifications')->insert([
                         'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
                         'type' => 'Filament\Notifications\DatabaseNotification',
                         'notifiable_type' => 'App\Models\User\User',
-                        'notifiable_id' => $this->record->user_id,
+                        'notifiable_id' => $this->record->flatVisitor->initiated_by,
                         'data' => json_encode([
                             'actions' => [],
                             'body' => 'Your guest registration form has been approved.',
@@ -60,7 +65,7 @@ class EditGuestRegistration extends EditRecord
             }
         }
         if ($this->record->status == 'rejected') {
-            $expoPushTokens = ExpoPushNotification::where('user_id', $this->record->user_id)->pluck('token');
+            $expoPushTokens = ExpoPushNotification::where('user_id', $this->record->flatVisitor->initiated_by)->pluck('token');
             if ($expoPushTokens->count() > 0) {
                 foreach ($expoPushTokens as $expoPushToken) {
                     $message = [
@@ -68,14 +73,14 @@ class EditGuestRegistration extends EditRecord
                         'sound' => 'default',
                         'title' => 'Guest registration form status',
                         'body' => 'Your guest registration form has been rejected.',
-                        'data' => ['notificationType' => 'MyRequest'],
+                        'data' => ['notificationType' => 'InAppNotficationScreen'],
                     ];
                     $this->expoNotification($message);
                     DB::table('notifications')->insert([
                         'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
                         'type' => 'Filament\Notifications\DatabaseNotification',
                         'notifiable_type' => 'App\Models\User\User',
-                        'notifiable_id' => $this->record->user_id,
+                        'notifiable_id' => $this->record->flatVisitor->initiated_by,
                         'data' => json_encode([
                             'actions' => [],
                             'body' => 'Your guest registration form has been rejected.',

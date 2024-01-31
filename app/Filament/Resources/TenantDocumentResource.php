@@ -141,7 +141,7 @@ class TenantDocumentResource extends Resource
             ->defaultSort('created_at', 'desc')
             ->filters([
                 SelectFilter::make('documentable_id')
-                    ->relationship('documentUsers', 'first_name', fn (Builder $query) => $query->where(['role_id' =>Role::whereIn('name',['Owner','Tenant'])->first()->id, 'owner_association_id' =>auth()->user()->owner_association_id]))
+                    ->relationship('documentUsers', 'first_name', fn (Builder $query) => $query->whereIn('role_id' ,Role::whereIn('name',['Owner','Tenant'])->pluck('id'))->where('owner_association_id' ,auth()->user()->owner_association_id))
                     ->searchable()
                     ->preload()
                     ->label('Resident'),

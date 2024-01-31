@@ -21,6 +21,9 @@ class Kernel extends ConsoleKernel
         $schedule->command('app:risk-policy-expiry-mail')->daily();
         $schedule->command('app:update-delinquent-owners')->dailyAt('01:00');
         $schedule->command('app:update-delinquent-owners-receipts')->dailyAt('02:00');
+        $schedule->command('app:announcement-notifications')->everyMinute();
+        $schedule->command('app:poll-notifications')->everyMinute();
+
     }
 
     /**

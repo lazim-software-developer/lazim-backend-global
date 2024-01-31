@@ -83,8 +83,8 @@ class WDAResource extends Resource
                             ->label('vendor Name'),
                         Select::make('status')
                             ->options([
-                                'approved' => 'Approved',
-                                'rejected' => 'Rejected',
+                                'approved' => 'Approve',
+                                'rejected' => 'Reject',
                             ])
                             ->disabled(function (WDA $record) {
                                 return $record->status != 'pending';
@@ -129,8 +129,8 @@ class WDAResource extends Resource
             ->filters([
                 SelectFilter::make('status')
                     ->options([
-                        'approved' => 'Approved',
-                        'rejected' => 'Rejected',
+                        'approved' => 'Approve',
+                        'rejected' => 'Reject',
                         'pending' => 'Pending',
                     ])
                     ->searchable(),
