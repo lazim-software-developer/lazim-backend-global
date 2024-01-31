@@ -51,7 +51,7 @@ class AnnouncementNotifications extends Command
                             'to' => $expoPushToken,
                             'sound' => 'default',
                             'url' => 'ComunityPostTab',
-                            'title' => 'New '. $post->is_announcement ? 'Announcement!' : 'Post!',
+                            'title' => $post->is_announcement ? 'New Announcement!' : 'New Post!',
                             'body' => $post->content,
                             'data' => ['notificationType' => $post->is_announcement ? 'ComunityPostTabNotice' : 'ComunityPostTabPost'],
                         ];
@@ -67,7 +67,7 @@ class AnnouncementNotifications extends Command
                                 'duration' => 'persistent',
                                 'icon' => 'heroicon-o-document-text',
                                 'iconColor' => 'warning',
-                                'title' => 'New '. $post->is_announcement ? 'Announcement!' : 'Post!',
+                                'title' => $post->is_announcement ? 'New Announcement!' : 'New Post!',
                                 'view' => 'notifications::notification',
                                 'viewData' => [],
                                 'format' => 'filament',
