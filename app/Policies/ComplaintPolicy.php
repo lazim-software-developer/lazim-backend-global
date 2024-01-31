@@ -15,11 +15,12 @@ class ComplaintPolicy
      */
     public function viewAny(User $user): bool
     {
-        $allowedRoles = ['OA', 'Admin'];
+        // $allowedRoles = ['OA', 'Admin'];
 
-        if (in_array($user->role->name, $allowedRoles)) {
-            return true;
-        }
+        // if (in_array($user->role->name, $allowedRoles)) {
+        //     return true;
+        // }
+        return true;
     }
 
     /**
@@ -27,11 +28,11 @@ class ComplaintPolicy
      */
     public function view(User $user, Complaint $model): bool
     {
-        $allowedRoles = ['OA', 'Admin'];
+        // $allowedRoles = ['OA', 'Admin'];
 
-        if (in_array($user->role->name, $allowedRoles)) {
-            return true;
-        }
+        // if (in_array($user->role->name, $allowedRoles)) {
+        //     return true;
+        // }
 
         return true;
     }
@@ -41,11 +42,11 @@ class ComplaintPolicy
      */
     public function create(User $user): bool
     {
-        $allowedRoles = ['OA', 'Admin'];
+        // $allowedRoles = ['OA', 'Admin'];
 
-        if (in_array($user->role->name, $allowedRoles)) {
+        // if (in_array($user->role->name, $allowedRoles)) {
             return true;
-        }
+        // }
     }
 
     /**
@@ -53,11 +54,11 @@ class ComplaintPolicy
      */
     public function update(User $user, Complaint $model): bool
     {
-        $allowedRoles = ['OA', 'Admin'];
+        // $allowedRoles = ['OA', 'Admin'];
 
-        if (in_array($user->role->name, $allowedRoles)) {
-            return true;
-        }
+        // if (in_array($user->role->name, $allowedRoles)) {
+            // return true;
+        // }
 
         return true;
     }

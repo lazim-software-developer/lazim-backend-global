@@ -32,7 +32,7 @@ class OwnerAssociationReceiptResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return $table
+        return $table->modifyQueryUsing(fn (Builder $query) => $query->orderByDesc('created_at'))
             ->columns([
                 TextColumn::make('receipt_number'),
                 TextColumn::make('date'),

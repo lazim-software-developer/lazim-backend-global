@@ -56,7 +56,7 @@ class AnnouncementResource extends Resource
                                 if (strlen($value) > 400) {
                                     $fail('The content should be less than 400 characters.');
                                 }
-                                if (strlen($value) < 30) {
+                                if (strlen($value) < 10) {
                                     $fail('The content should be greater than 30 characters.');
                                 }
                             };

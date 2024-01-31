@@ -13,4 +13,11 @@ class CommunityController extends Controller
     {
         return new AboutCommunityResource($building);
     }
+
+    public function rules(Building $building)
+    {
+        return [
+            "rules" =>  $building->ruleregulations->value('rule_regulation'),
+        ];
+    }
 }

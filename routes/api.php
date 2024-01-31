@@ -341,6 +341,7 @@ Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active']
 Route::middleware([])->group(function () {
     Route::get('/sub-categories/{subcategory}/services', [SelectServicesController::class, 'listServices']);
     Route::get('/sub-categories', [SelectServicesController::class, 'listSubCategories']);
+    Route::get('/categories', [SelectServicesController::class, 'listCategories']);
 });
 
 // Vendor APIs 'api.token' middleware
@@ -493,9 +494,15 @@ Route::post('/import-services', [ServiceController::class, 'import']);
 // about Community
 Route::get('/building/{building}', [CommunityController::class, 'about']);
 
+// rules and regulations
+Route::get('/rules-regulations/{building}',[CommunityController::class, 'rules']);
+
 // Visitor form
 Route::post('/store-visitor', [GuestController::class, 'saveFlatVisitors']);
 
 // Test Send SMS
 Route::post('/send-sms', [MollakController::class, 'sendSMS']);
 Route::post('/verify-sms-otp', [MollakController::class, 'verifyOTP']);
+
+//Webhooks
+Route::post('/budget-budget_items',[MollakController::class, 'fetchbudget']);

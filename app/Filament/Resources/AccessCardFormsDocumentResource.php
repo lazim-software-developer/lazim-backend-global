@@ -128,8 +128,8 @@ class AccessCardFormsDocumentResource extends Resource
                         ->label('Passport / EID'),
                     Select::make('status')
                         ->options([
-                            'approved' => 'Approved',
-                            'rejected' => 'Rejected',
+                            'approved' => 'Approve',
+                            'rejected' => 'Reject',
                         ])
                         ->disabled(function (AccessCard $record) {
                             return $record->status != null;

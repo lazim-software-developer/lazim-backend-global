@@ -36,9 +36,9 @@ class EditComplaintscomplaint extends EditRecord
                     $message = [
                         'to' => $expoPushToken,
                         'sound' => 'default',
-                        'title' => 'Happiness complaint status',
-                        'body' => 'Your happiness complaint has been resolved by '.$role->name.' : '.auth()->user()->first_name,
-                        'data' => ['notificationType' => 'HelpDeskTab'],
+                        'title' => 'Complaint status',
+                        'body' => 'Your complaint has been resolved by '.$role->name.' : '.auth()->user()->first_name,
+                        'data' => ['notificationType' => 'InAppNotficationScreen'],
                     ];
                     $this->expoNotification($message);
                     DB::table('notifications')->insert([
@@ -48,11 +48,11 @@ class EditComplaintscomplaint extends EditRecord
                         'notifiable_id' => $this->record->user_id,
                         'data' => json_encode([
                             'actions' => [],
-                            'body' => 'Your happiness complaint has been resolved by '.$role->name.' : '.auth()->user()->first_name,
+                            'body' => 'Your complaint has been resolved by '.$role->name.' : '.auth()->user()->first_name,
                             'duration' => 'persistent',
                             'icon' => 'heroicon-o-document-text',
                             'iconColor' => 'warning',
-                            'title' => 'Happiness complaint status',
+                            'title' => 'Complaint status',
                             'view' => 'notifications::notification',
                             'viewData' => [],
                             'format' => 'filament'
@@ -60,6 +60,41 @@ class EditComplaintscomplaint extends EditRecord
                         'created_at' => now()->format('Y-m-d H:i:s'),
                         'updated_at' => now()->format('Y-m-d H:i:s'),
                     ]);
+                }
+            }
+
+            if($this->record->technician_id){
+                $expoPushTokens = ExpoPushNotification::where('user_id', $this->record->technician_id)->pluck('token');
+                if ($expoPushTokens->count() > 0) {
+                    foreach ($expoPushTokens as $expoPushToken) {
+                        $message = [
+                            'to' => $expoPushToken,
+                            'sound' => 'default',
+                            'title' => 'Complaint status',
+                            'body' => 'A complain has been resolved by '.$role->name.' : '.auth()->user()->first_name,
+                            'data' => ['notificationType' => 'ResolvedRequests'],
+                        ];
+                        $this->expoNotification($message);
+                        DB::table('notifications')->insert([
+                            'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
+                            'type' => 'Filament\Notifications\DatabaseNotification',
+                            'notifiable_type' => 'App\Models\User\User',
+                            'notifiable_id' => $this->record->technician_id,
+                            'data' => json_encode([
+                                'actions' => [],
+                                'body' => 'A complain has been resolved by '.$role->name.' : '.auth()->user()->first_name,
+                                'duration' => 'persistent',
+                                'icon' => 'heroicon-o-document-text',
+                                'iconColor' => 'warning',
+                                'title' => 'Complaint status',
+                                'view' => 'notifications::notification',
+                                'viewData' => [],
+                                'format' => 'filament'
+                            ]),
+                            'created_at' => now()->format('Y-m-d H:i:s'),
+                            'updated_at' => now()->format('Y-m-d H:i:s'),
+                        ]);
+                    }
                 }
             }
         }

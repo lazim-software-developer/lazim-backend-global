@@ -25,6 +25,7 @@ use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ViewColumn;
+use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\ViewField;
 use Filament\Forms\Components\FileUpload;
@@ -42,7 +43,7 @@ class ProposalsRelationManager extends RelationManager
             Grid::make([
                 'sm' => 1,
                 'md' => 1,
-                'lg' => 1,
+                'lg' => 2,
             ])->schema([
                 TextInput::make('amount')
                     ->label('Amount')
@@ -55,14 +56,41 @@ class ProposalsRelationManager extends RelationManager
                 TextInput::make('submitted_on')
                     ->disabled()
                     ->default(now()),
+                ViewField::make('Budget amount')
+                    ->view('forms.components.budgetamount'),
                 FileUpload::make('document')
                     ->disk('s3')
                     ->directory('dev')
                     ->disabled()
-                    ->label('Document'),
-                TextInput::make('status')->placeholder('NA'),
-                ViewField::make('Budget amount')
-                    ->view('forms.components.budgetamount'),
+                    ->label('Document')
+                    ->columnSpan([
+                        'sm' => 1,
+                        'md' => 1,
+                        'lg' => 2,
+                    ]),
+                Select::make('status')
+                    ->options([
+                        'approved' => 'Approve',
+                        'rejected' => 'Reject',
+                    ])
+                    ->disabled(function (Proposal $record) {
+                        return $record->status != null;
+                    })
+                    ->required()
+                    ->searchable()
+                    ->live(),
+                TextInput::make('remarks')
+                    ->rules(['max:55'])
+                    ->visible(function (callable $get) {
+                        if ($get('status') == 'rejected') {
+                            return true;
+                        }
+                        return false;
+                    })
+                    ->disabled(function (Proposal $record) {
+                        return $record->status != null;
+                    })
+                    ->required(),
 
             ])
         ]);
@@ -87,121 +115,94 @@ class ProposalsRelationManager extends RelationManager
                 //Tables\Actions\CreateAction::make(),
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
-                Action::make('Approve')
-                    ->visible(fn ($record) => $record->status == null)
-                    ->button()
-                    ->form([
-                        TextInput::make('remarks')
-                            ->rules(['max:255'])
-                            ->required(),
-                    ])
-                    ->fillForm(fn (Proposal $record): array => [
-                        'remarks' => $record->remarks,
-                    ])
-                    ->action(function (Proposal $record, array $data): void {
+                Tables\Actions\EditAction::make()
+                    ->after(function (Model $record) {
+                        if ($record->status == 'approved') {
+                            $tenderId = $record->tender_id;
+                            $tenderAmount = $record->amount;
+                            $tender = Tender::find($tenderId);
+                            $budget = Budget::find($tender->budget_id);
+                            // dd($budget->budget_from);
+                            $budgetamount = Budgetitem::where(['budget_id' => $tender->budget_id, 'service_id' => $tender->service_id])->first();
 
-                        $tenderId = $record->tender_id;
-                        $tenderAmount = $record->amount;
-                        $tender = Tender::find($tenderId);
-                        $budget = Budget::find($tender->budget_id);
-                        // dd($budget->budget_from);
-                        $budgetamount = Budgetitem::where(['budget_id' => $tender->budget_id, 'service_id' => $tender->service_id])->first();
-
-                        $contract = Contract::create([
-                            'start_date' => $budget->budget_from,
-                            'amount' => $tenderAmount,
-                            'end_date' => $budget->budget_to,
-                            'contract_type' => $tender->tender_type,
-                            'service_id' => $tender->service_id,
-                            'vendor_id' => $record->vendor_id,
-                            'building_id' => $tender->building_id,
-                            'budget_amount' => $budgetamount ? $budgetamount->total : 0,
-                        ]);
-
-                        $servicefind = ServiceVendor::all()->where('service_id', $tender->service_id)->where('vendor_id', $record->vendor_id)->first();
-                        if ($servicefind->building_id == null) {
-                            $servicefind->contract_id = $contract->id;
-                            $servicefind->building_id = $tender->building_id;
-                            $servicefind->save();
-                        } else {
-                            $servicevendor = ServiceVendor::create([
+                            $contract = Contract::create([
+                                'start_date' => $budget->budget_from,
+                                'amount' => $tenderAmount,
+                                'end_date' => $budget->budget_to,
+                                'contract_type' => $tender->tender_type,
                                 'service_id' => $tender->service_id,
                                 'vendor_id' => $record->vendor_id,
-                                'active' => true,
-                                'contract_id' => $contract->id,
                                 'building_id' => $tender->building_id,
+                                'budget_amount' => $budgetamount ? $budgetamount->total : 0,
                             ]);
-                            $servicevendor->contract_id = $contract->id;
-                            $servicevendor->save();
-                        }
 
-                        BuildingVendor::create([
-                            'vendor_id' => $record->vendor_id,
-                            'active' => true,
-                            'building_id' => $tender->building_id,
-                            'contract_id' => $contract->id,
-                            'start_date' => $budget->budget_from,
-                            'end_date' => $budget->budget_to,
-                        ]);
-                        $record->status = 'approved';
-                        $record->remarks = $data['remarks'];
-                        $record->status_updated_by = auth()->user()->id;
-                        $record->status_updated_on = now();
-                        $record->save();
+                            $servicefind = ServiceVendor::all()->where('service_id', $tender->service_id)->where('vendor_id', $record->vendor_id)->first();
+                            if ($servicefind->building_id == null) {
+                                $servicefind->contract_id = $contract->id;
+                                $servicefind->building_id = $tender->building_id;
+                                $servicefind->save();
+                            } else {
+                                $servicevendor = ServiceVendor::create([
+                                    'service_id' => $tender->service_id,
+                                    'vendor_id' => $record->vendor_id,
+                                    'active' => true,
+                                    'contract_id' => $contract->id,
+                                    'building_id' => $tender->building_id,
+                                ]);
+                                $servicevendor->contract_id = $contract->id;
+                                $servicevendor->save();
+                            }
 
-                        $technicianVendorIds = DB::table('service_technician_vendor')
-                            ->where('service_id', $contract->service_id)
-                            ->pluck('technician_vendor_id');
+                            BuildingVendor::create([
+                                'vendor_id' => $record->vendor_id,
+                                'active' => true,
+                                'building_id' => $tender->building_id,
+                                'contract_id' => $contract->id,
+                                'start_date' => $budget->budget_from,
+                                'end_date' => $budget->budget_to,
+                            ]);
+                            $record->status_updated_by = auth()->user()->id;
+                            $record->status_updated_on = now();
+                            $record->save();
 
-                        $assets = Asset::where('building_id', $contract->building_id)->where('service_id', $contract->service_id)->get();
+                            $technicianVendorIds = DB::table('service_technician_vendor')
+                                ->where('service_id', $contract->service_id)
+                                ->pluck('technician_vendor_id');
 
-                        foreach ($assets as $asset) {
-                            $asset->vendors()->syncWithoutDetaching([$contract->vendor_id]);
-                            $technicianIds = TechnicianVendor::whereIn('id', $technicianVendorIds)->where('vendor_id', $contract->vendor_id)->where('active', true)->pluck('technician_id');
-                            if ($technicianIds) {
-                                $assignees = User::whereIn('id', $technicianIds)
-                                    ->withCount(['assets' => function ($query) {
-                                        $query->where('active', true);
-                                    }])
-                                    ->orderBy('assets_count', 'asc')
-                                    ->get();
-                                $selectedTechnician = $assignees->first();
+                            $assets = Asset::where('building_id', $contract->building_id)->where('service_id', $contract->service_id)->get();
 
-                                if ($selectedTechnician) {
-                                    $assigned = TechnicianAssets::create([
-                                        'asset_id' => $asset->id,
-                                        'technician_id' => $selectedTechnician->id,
-                                        'vendor_id' => $contract->vendor_id,
-                                        'building_id' => $asset->building_id,
-                                        'active' => 1,
-                                    ]);
-                                } else {
-                                    Log::info("No technicians to add", []);
+                            foreach ($assets as $asset) {
+                                $asset->vendors()->syncWithoutDetaching([$contract->vendor_id]);
+                                $technicianIds = TechnicianVendor::whereIn('id', $technicianVendorIds)->where('vendor_id', $contract->vendor_id)->where('active', true)->pluck('technician_id');
+                                if ($technicianIds) {
+                                    $assignees = User::whereIn('id', $technicianIds)
+                                        ->withCount(['assets' => function ($query) {
+                                            $query->where('active', true);
+                                        }])
+                                        ->orderBy('assets_count', 'asc')
+                                        ->get();
+                                    $selectedTechnician = $assignees->first();
+
+                                    if ($selectedTechnician) {
+                                        $assigned = TechnicianAssets::create([
+                                            'asset_id' => $asset->id,
+                                            'technician_id' => $selectedTechnician->id,
+                                            'vendor_id' => $contract->vendor_id,
+                                            'building_id' => $asset->building_id,
+                                            'active' => 1,
+                                        ]);
+                                    } else {
+                                        Log::info("No technicians to add", []);
+                                    }
                                 }
                             }
                         }
-                    })
-                    ->slideOver(),
-                Action::make('Reject')
-                    ->visible(fn ($record) => $record->status == null)
-                    ->button()
-                    ->form([
-                        TextInput::make('remarks')
-                            ->rules(['max:255'])
-                            ->required(),
-                    ])
-                    ->fillForm(fn (Proposal $record): array => [
-                        'remarks' => $record->remarks,
-                    ])
-                    ->action(function (Proposal $record, array $data): void {
-                        $record->status = 'rejected';
-                        $record->remarks = $data['remarks'];
-                        $record->status_updated_by = auth()->user()->id;
-                        $record->status_updated_on = now();
-                        $record->save();
-                    })
-                    ->slideOver()
+                        if ($record->status == 'rejected') {
+                            $record->status_updated_by = auth()->user()->id;
+                            $record->status_updated_on = now();
+                            $record->save();
+                        }
+                    }),
             ]);
     }
 }
