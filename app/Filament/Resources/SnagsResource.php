@@ -92,7 +92,6 @@ class SnagsResource extends Resource
                             ->label('vendor Name'),
                         Select::make('flat_id')
                             ->rules(['exists:flats,id'])
-                            ->required()
                             ->disabled()
                             ->relationship('flat', 'property_number')
                             ->searchable()
