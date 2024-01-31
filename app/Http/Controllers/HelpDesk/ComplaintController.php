@@ -261,6 +261,38 @@ class ComplaintController extends Controller
             }
         }
 
+        $expoPushToken = ExpoPushNotification::where('user_id', $complaint->user_id)->pluck('token');
+            if ($expoPushToken) {
+                    $message = [
+                        'to' => $expoPushToken,
+                        'sound' => 'default',
+                        'title' => 'Happiness complaint status',
+                        'body' => 'Your complaint has been resolved by : '.auth()->user()->first_name,
+                        'data' => ['notificationType' => 'InAppNotficationScreen'],
+                    ];
+                    $this->expoNotification($message);
+                    DB::table('notifications')->insert([
+                        'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
+                        'type' => 'Filament\Notifications\DatabaseNotification',
+                        'notifiable_type' => 'App\Models\User\User',
+                        'notifiable_id' => $complaint->user_id,
+                        'data' => json_encode([
+                            'actions' => [],
+                            'body' => 'Your happiness complaint has been resolved by : '.auth()->user()->first_name,
+                            'duration' => 'persistent',
+                            'icon' => 'heroicon-o-document-text',
+                            'iconColor' => 'warning',
+                            'title' => 'Happiness complaint status',
+                            'view' => 'notifications::notification',
+                            'viewData' => [],
+                            'format' => 'filament'
+                        ]),
+                        'created_at' => now()->format('Y-m-d H:i:s'),
+                        'updated_at' => now()->format('Y-m-d H:i:s'),
+                    ]);
+                
+            }
+
         return new CustomResponseResource([
             'title' => 'Complaint Resolved',
             'message' => 'The complaint has been marked as resolved.',
