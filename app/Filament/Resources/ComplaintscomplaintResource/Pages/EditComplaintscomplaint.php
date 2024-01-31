@@ -38,7 +38,7 @@ class EditComplaintscomplaint extends EditRecord
                         'sound' => 'default',
                         'title' => 'Happiness complaint status',
                         'body' => 'Your happiness complaint has been resolved by '.$role->name.' : '.auth()->user()->first_name,
-                        'data' => ['notificationType' => 'HelpDeskTab'],
+                        'data' => ['notificationType' => 'InAppNotficationScreen'],
                     ];
                     $this->expoNotification($message);
                     DB::table('notifications')->insert([
