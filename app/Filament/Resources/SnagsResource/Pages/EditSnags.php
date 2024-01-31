@@ -5,12 +5,14 @@ namespace App\Filament\Resources\SnagsResource\Pages;
 use App\Filament\Resources\SnagsResource;
 use App\Models\ExpoPushNotification;
 use App\Models\Master\Role;
+use App\Traits\UtilsTrait;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Support\Facades\DB;
 
 class EditSnags extends EditRecord
 {
+    use UtilsTrait;
     protected static string $resource = SnagsResource::class;
 
     protected function getHeaderActions(): array
