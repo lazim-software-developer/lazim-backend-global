@@ -263,7 +263,7 @@ class ComplaintController extends Controller
 
         if($complaint->user_id != auth()->user()->id){
 
-            $expoPushToken = ExpoPushNotification::where('user_id', $complaint->user_id)->pluck('token');
+            $expoPushToken = ExpoPushNotification::where('user_id', $complaint->user_id)->first()?->token;
                 if ($expoPushToken) {
                         $message = [
                             'to' => $expoPushToken,
@@ -296,7 +296,7 @@ class ComplaintController extends Controller
                 }
         }
         else{
-            $expoPushToken = ExpoPushNotification::where('user_id', $complaint->technician_id)->pluck('token');
+            $expoPushToken = ExpoPushNotification::where('user_id', $complaint->technician_id)->first()?->token;
                 if ($expoPushToken) {
                         $message = [
                             'to' => $expoPushToken,
