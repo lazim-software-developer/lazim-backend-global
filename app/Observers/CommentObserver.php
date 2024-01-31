@@ -24,7 +24,11 @@ class CommentObserver
             if (in_array($user->role->name, $allowedRoles)) {
                 $complaint = Complaint::where('id', $comment->commentable_id)->first();
                 if ($complaint->technician_id) {
-                    $expoPushTokens = ExpoPushNotification::whereIn('user_id', [$complaint->user_id,$complaint->technician_id])->pluck('token');
+                    $expoPushTokens = ExpoPushNotification::whereIn('user_id', [function($complaint,$comment) {
+                        if ($complaint->user_id != $comment->user_id){
+                            return $complaint->user_id;
+                        }
+                    },$complaint->technician_id])->pluck('token');
                     if ($expoPushTokens->count() > 0) {
                         foreach ($expoPushTokens as $expoPushToken) {
                             $message = [
