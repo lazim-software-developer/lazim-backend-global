@@ -268,7 +268,7 @@ class ComplaintController extends Controller
                         'sound' => 'default',
                         'title' => 'Happiness complaint status',
                         'body' => 'Your complaint has been resolved by : '.auth()->user()->role->name.' '.auth()->user()->first_name,
-                        'data' => ['notificationType' => 'InAppNotficationScreen'],
+                        'data' => ['notificationType' => $complaint->complaint_type == 'help_desk'? 'HelpDeskTabResolved':'InAppNotficationScreen'],
                     ];
                     $this->expoNotification($message);
                     DB::table('notifications')->insert([
