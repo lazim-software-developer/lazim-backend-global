@@ -267,8 +267,8 @@ class ComplaintController extends Controller
                         'to' => $expoPushToken,
                         'sound' => 'default',
                         'title' => 'Happiness complaint status',
-                        'body' => 'Your complaint has been resolved by : '.auth()->user()->first_name,
-                        'data' => ['notificationType' => 'InAppNotficationScreen'],
+                        'body' => 'Your complaint has been resolved by : '.auth()->user()->role->name.' '.auth()->user()->first_name,
+                        'data' => ['notificationType' => $complaint->complaint_type == 'help_desk'? 'HelpDeskTabResolved':'InAppNotficationScreen'],
                     ];
                     $this->expoNotification($message);
                     DB::table('notifications')->insert([
@@ -278,7 +278,7 @@ class ComplaintController extends Controller
                         'notifiable_id' => $complaint->user_id,
                         'data' => json_encode([
                             'actions' => [],
-                            'body' => 'Your happiness complaint has been resolved by : '.auth()->user()->first_name,
+                            'body' => 'Your happiness complaint has been resolved by : '.auth()->user()->role->name.' '.auth()->user()->first_name,
                             'duration' => 'persistent',
                             'icon' => 'heroicon-o-document-text',
                             'iconColor' => 'warning',
