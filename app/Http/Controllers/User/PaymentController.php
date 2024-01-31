@@ -74,14 +74,12 @@ class PaymentController extends Controller
 
         // return response()->json($paginatedItems);
 
-        $invoices = OAMInvoice::where('flat_id',$flat->id)->latest()->get();
-        $invoices->filter(function($invoice) {
-            $receipt = OAMReceipts::where('flat_id', $invoice->flat_id)->where('receipt_period', $invoice->invoice_period);
-            if ($receipt){
-                return $invoice;
-            }
-        });
-        return ServiceChargeResource::collection($invoices);
+        $invoice = OAMInvoice::where('flat_id',$flat->id)->latest()->first();
+        $receipt = OAMReceipts::where('flat_id', $invoice->flat_id)->where('receipt_period', $invoice->invoice_period);
+        if ($receipt){
+            return ['data' => [new ServiceChargeResource($invoice)]];
+        }
+        return ['data' => []];
     }
 
     public static function parseDateRange($dateRange)
