@@ -2,13 +2,20 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\Http;
-use App\Http\Resources\Master\PropertyGroupResource;
-use App\Http\Resources\Master\ServicePeriodResource;
-use App\Http\Resources\Master\UnitResource;
+use Carbon\Carbon;
 use App\Models\User\User;
 use Illuminate\Http\Request;
+use App\Models\Master\Service;
+use App\Models\Accounting\Budget;
+use App\Models\Building\Building;
+use App\Models\Accounting\Category;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Http;
+use App\Models\Accounting\Budgetitem;
+use App\Models\Accounting\SubCategory;
+use App\Http\Resources\Master\UnitResource;
+use App\Http\Resources\Master\PropertyGroupResource;
+use App\Http\Resources\Master\ServicePeriodResource;
 
 class MollakController extends Controller
 {
@@ -106,5 +113,109 @@ class MollakController extends Controller
                 'status' => 'error'
             ], 400);
         }
+    }
+    public function fetchbudget(Request $request)
+    {
+        $propertygroupId = $request->propertyGroupId;
+        $dateRange = "JAN" . date("Y") . "-DEC" . date("Y");
+        $building = Building::where('property_group_id', $propertygroupId)->first();
+        //validate building exists or not
+        if ($building == null) {
+            Log::info('No building data available for the propertyGroupId');
+            return response()->json(['message' => 'No building data available for the propertyGroupId'], 400);
+        }
+        //validate if a budget already exists for building
+        [$start, $end] = explode('-', $dateRange);
+        $startDate = Carbon::createFromFormat('M Y', $start)->startOfMonth();
+        $endDate = Carbon::createFromFormat('M Y', $end)->endOfMonth();
+        // Check if budget exists for the given period
+        $existingBudget = Budget::where('building_id', $building->id)
+            ->where('budget_from', $startDate->toDateString())
+            ->where('budget_to', $endDate->toDateString())
+            ->first();
+
+        if ($existingBudget) {
+            Log::error('A budget for the specified period and building already exists.');
+            return response()->json(['message' => 'A budget for the specified period and building already exists.'], 400);
+        }
+
+        $results = Http::withOptions(['verify' => false])->withHeaders([
+            'content-type' => 'application/json',
+            'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
+        ])->get(env("MOLLAK_API_URL") . "/sync/budgets/" . $propertygroupId . "/all" . "/" . $dateRange);
+
+        $data = $results->json(); // Decode the API response
+
+        // Error handling for unexpected structure
+        if (!isset($data['response']['serviceChargeGroups'])) {
+            Log::error('Unexpected API response structure');
+            return response()->json(['error' => 'Unexpected API response structure'], 400);
+        }
+
+        // Check if serviceChargeGroups is empty
+        if (empty($data['response']['serviceChargeGroups'])) {
+            Log::info('No data available for the current budget period year');
+            return response()->json(['message' => 'No data available for the current budget period year'], 400);
+        }
+
+        $serviceChargeGroups = $data['response']['serviceChargeGroups'];
+
+        foreach ($serviceChargeGroups as $serviceChargeGroup) {
+            // Accessing the budget period details
+            $budgetPeriodCode = $serviceChargeGroup['budgetPeriodCode'];
+            $budgetPeriodFrom = $serviceChargeGroup['budgetPeriodFrom'];
+            $budgetPeriodTo = $serviceChargeGroup['budgetPeriodTo'];
+
+
+            $budget = Budget::firstOrCreate([
+                'building_id' => $building->id,
+                'owner_association_id' => $building->owner_association_id,
+                'budget_period' => $budgetPeriodCode,
+                'budget_from' => $budgetPeriodFrom,
+                'budget_to' => $budgetPeriodTo,
+            ]);
+            Log::info('Budget created:-' . $budget);
+
+            // Accessing the budget items
+            $budgetItems = $serviceChargeGroup['budgetItems'];
+
+            foreach ($budgetItems as $item) {
+                $category = Category::firstOrCreate([
+                    'name' => $item['categoryName']['englishName'],
+                    'code' => $item['categoryCode'],
+                ]);
+                Log::info('category:-' . $category);
+
+                $subcategory = SubCategory::firstOrCreate([
+                    'name' => $item['subCategoryName']['englishName'],
+                    'code' => $item['subCategoryCode'],
+                    'category_id' => $category->id,
+                ]);
+                Log::info('subcategory:-' . $subcategory);
+
+                $service = Service::firstOrCreate([
+                    'name' => $item['serviceName']['englishName'],
+                    'type' => 'vendor_service',
+                    'code' => $item['serviceCode'],
+                    'active' => true,
+                    'subcategory_id' => $subcategory->id,
+                ]);
+                Log::info('service:-' . $service);
+
+                if ($service) {
+                    $budgetitem = Budgetitem::create([
+                        'budget_id' => $budget->id,
+                        'service_id' => $service->id,
+                        'budget_excl_vat' => $item['totalCost'],
+                        'vat_rate' => 0.05,
+                        'vat_amount' => $item['vatAmount'],
+                        'total' => $item['totalCost'] + $item['vatAmount'],
+                    ]);
+                }
+                Log::info('budgetitem:-' . $budgetitem);
+            }
+        }
+
+        return response()->json(['message' => 'Budgets processed successfully'],200);
     }
 }
