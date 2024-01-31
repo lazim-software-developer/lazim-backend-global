@@ -10,27 +10,31 @@ use App\Models\User\User;
 use Filament\Tables\Table;
 use App\Models\Master\Role;
 use App\Models\BuildingVendor;
+use App\Models\Master\Service;
 use App\Models\Vendor\Contract;
 use App\Models\TechnicianAssets;
 use App\Models\TechnicianVendor;
 use Filament\Resources\Resource;
 use App\Models\Accounting\Budget;
 use App\Models\Accounting\Tender;
+use App\Models\Building\Building;
 use Illuminate\Support\Facades\DB;
 use App\Models\Accounting\Proposal;
 use Filament\Forms\Components\Grid;
 use Filament\Tables\Actions\Action;
+use Filament\Tables\Filters\Filter;
 use Illuminate\Support\Facades\Log;
 use App\Models\Vendor\ServiceVendor;
 use function Laravel\Prompts\select;
 use App\Models\Accounting\Budgetitem;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
+
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ViewColumn;
 use Filament\Forms\Components\TextInput;
-
 use Filament\Forms\Components\ViewField;
+use Filament\Tables\Enums\FiltersLayout;
 use Filament\Forms\Components\FileUpload;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
@@ -51,7 +55,7 @@ class ProposalResource extends Resource
             Grid::make([
                 'sm' => 1,
                 'md' => 1,
-                'lg' => 1,
+                'lg' => 2,
             ])->schema([
                 TextInput::make('amount')
                     ->label('Amount')
@@ -64,14 +68,41 @@ class ProposalResource extends Resource
                 TextInput::make('submitted_on')
                     ->disabled()
                     ->default(now()),
+                ViewField::make('Budget amount')
+                        ->view('forms.components.budgetamount'),
                 FileUpload::make('document')
                     ->disk('s3')
                     ->directory('dev')
                     ->disabled()
-                    ->label('Document'),
-                TextInput::make('status')->placeholder('NA'),
-                ViewField::make('Budget amount')
-                    ->view('forms.components.budgetamount'),
+                    ->label('Document')
+                    ->columnSpan([
+                        'sm' => 1,
+                        'md' => 1,
+                        'lg' => 2,
+                    ]),
+                Select::make('status')
+                    ->options([
+                        'approved' => 'Approve',
+                        'rejected' => 'Reject',
+                    ])
+                    ->disabled(function (Proposal $record) {
+                        return $record->status != null;
+                    })
+                    ->required()
+                    ->searchable()
+                    ->live(),
+                TextInput::make('remarks')
+                    ->rules(['max:55'])
+                    ->visible(function (callable $get) {
+                        if ($get('status') == 'rejected') {
+                            return true;
+                        }
+                        return false;
+                    })
+                    ->disabled(function (Proposal $record) {
+                        return $record->status != null;
+                    })
+                    ->required(),
             ])
         ]);
     }
@@ -80,141 +111,89 @@ class ProposalResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('amount')->label('Amount'),
+                TextColumn::make('amount')->searchable()->label('Amount'),
                 ViewColumn::make('Budget amount')->view('tables.columns.budgetamount')->alignCenter(),
                 TextColumn::make('submittedBy.name')->searchable()->label('Vendor Name'),
                 TextColumn::make('submitted_on')->label('Submitted On'),
-                TextColumn::make('status')->default('NA')->label('Status'),
+                TextColumn::make('status')->default('NA')->searchable()->label('Status'),
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
                 SelectFilter::make('vendor_id')
                     ->relationship('vendor', 'name', function (Builder $query) {
                         if (Role::where('id', auth()->user()->role_id)->first()->name != 'Admin') {
-                            $query->where('owner_association_id', auth()->user()->owner_association_id);
+                            $query->where('owner_association_id', auth()->user()->owner_association_id)->where('status', 'approved');
                         }
-
                     })
                     ->searchable()
                     ->preload()
-                    ->label('Vendor'),
-            ])
-            ->actions([
-                Tables\Actions\ViewAction::make(),
-                Action::make('Approve')
-                    ->visible(fn ($record) => $record->status == null)
-                    ->button()
+                    ->label('Vendor')
+                    ->placeholder('Select Vendor'),
+                Filter::make('Building')
                     ->form([
-                        TextInput::make('remarks')
-                            ->rules(['max:255'])
-                            ->required(),
+                        Select::make('building')
+                            ->searchable()
+                            ->options(function () {
+                                $oaId = auth()->user()->owner_association_id;
+                                return Building::where('owner_association_id', $oaId)
+                                    ->pluck('name', 'id');
+                            })
+                            ->preload()
+                            ->placeholder('Select Building'),
                     ])
-                    ->fillForm(fn (Proposal $record): array => [
-                        'remarks' => $record->remarks,
-                    ])
-                    ->action(function (Proposal $record, array $data): void {
-
-                        $tenderId = $record->tender_id;
-                        $tenderAmount = $record->amount;
-                        $tender = Tender::find($tenderId);
-                        $budget = Budget::find($tender->budget_id);
-                        // dd($budget->budget_from);
-                        $budgetamount = Budgetitem::where(['budget_id' => $tender->budget_id, 'service_id' =>$tender->service_id])->first();
-
-                        $contract = Contract::create([
-                            'start_date' => $budget->budget_from,
-                            'amount' => $tenderAmount,
-                            'end_date' => $budget->budget_to,
-                            'contract_type' => $tender->tender_type,
-                            'service_id' => $tender->service_id,
-                            'vendor_id' => $record->vendor_id,
-                            'building_id' =>$tender->building_id,
-                            'budget_amount' => $budgetamount ? $budgetamount->total : 0,
-                        ]);
-                        
-                        $servicefind = ServiceVendor::all()->where('service_id', $tender->service_id)->where('vendor_id', $record->vendor_id)->first();
-                        if ($servicefind->building_id == null) {
-                            $servicefind->contract_id = $contract->id;
-                            $servicefind->building_id = $tender->building_id;
-                            $servicefind->save();
-                        } else {
-                            $servicevendor = ServiceVendor::create([
-                                'service_id' => $tender->service_id,
-                                'vendor_id' => $record->vendor_id,
-                                'active' => true,
-                                'contract_id' => $contract->id,
-                                'building_id' => $tender->building_id,
-                            ]);
-                            $servicevendor->contract_id = $contract->id;
-                            $servicevendor->save();
-                        }
-
-                        BuildingVendor::create([
-                            'vendor_id' => $record->vendor_id,
-                            'active' => true,
-                            'building_id' => $tender->building_id,
-                            'contract_id' => $contract->id,
-                            'start_date' => $budget->budget_from,
-                            'end_date' => $budget->budget_to,
-                        ]);
-                        $record->status = 'approved';
-                        $record->remarks = $data['remarks'];
-                        $record->status_updated_by = auth()->user()->id;
-                        $record->status_updated_on = now();
-                        $record->save();
-
-                        $technicianVendorIds = DB::table('service_technician_vendor')
-                            ->where('service_id', $contract->service_id)
-                            ->pluck('technician_vendor_id');
-
-                        $assets = Asset::where('building_id', $contract->building_id)->where('service_id', $contract->service_id)->get();
-
-                        foreach ($assets as $asset) {
-                            $asset->vendors()->syncWithoutDetaching([$contract->vendor_id]);
-                            $technicianIds = TechnicianVendor::whereIn('id', $technicianVendorIds)->where('vendor_id', $contract->vendor_id)->where('active', true)->pluck('technician_id');
-                            if ($technicianIds) {
-                                $assignees = User::whereIn('id', $technicianIds)
-                                    ->withCount(['assets' => function ($query) {
-                                        $query->where('active', true);
-                                    }])
-                                    ->orderBy('assets_count', 'asc')
-                                    ->get();
-                                $selectedTechnician = $assignees->first();
-
-                                if ($selectedTechnician) {
-                                    $assigned = TechnicianAssets::create([
-                                        'asset_id' => $asset->id,
-                                        'technician_id' => $selectedTechnician->id,
-                                        'vendor_id' => $contract->vendor_id,
-                                        'building_id' => $asset->building_id,
-                                        'active' => 1,
-                                    ]);
-                                } else {
-                                    Log::info("No technicians to add", []);
-                                }
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query->when(
+                            isset($data['building']) && $data['building'], // Ensure 'building' is set and not null
+                            function (Builder $query) use ($data) {
+                                return $query->whereHas('tender', function ($query) use ($data) {
+                                    // Adjust the relationship and field names according to your actual database structure
+                                    $query->where('building_id', $data['building']);
+                                });
                             }
-                        }
-                    })
-                    ->slideOver(),
-                Action::make('Reject')
-                    ->visible(fn ($record) => $record->status == null)
-                    ->button()
+                        );
+                    }),
+                Filter::make('Service')
                     ->form([
-                        TextInput::make('remarks')
-                            ->rules(['max:255'])
-                            ->required(),
+                        Select::make('service_id')
+                            ->searchable()
+                            ->options(Service::where('type', 'vendor_service')->pluck('name', 'id'))
+                            ->preload()
+                            ->placeholder('Select Service')
+                            ->label('Service')
+                            ->optionsLimit(300),
                     ])
-                    ->fillForm(fn (Proposal $record): array => [
-                        'remarks' => $record->remarks,
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query->when(
+                            isset($data['service_id']) && $data['service_id'],
+                            function (Builder $query) use ($data) {
+                                $query->whereHas('tender', function ($query) use ($data) {
+                                    $query->where('service_id', $data['service_id']);
+                                });
+                            }
+                        );
+                    }),
+                Filter::make('Year')
+                    ->form([
+                        Select::make('year')
+                            ->options(function () {
+                                $years = range(date('Y'), date('Y') - 5);
+                                return array_combine($years, $years);
+                            })
+                            ->searchable()
+                            ->placeholder('Select Year')
+                            ->label('Year'),
                     ])
-                    ->action(function (Proposal $record, array $data): void {
-                        $record->status = 'rejected';
-                        $record->remarks = $data['remarks'];
-                        $record->status_updated_by = auth()->user()->id;
-                        $record->status_updated_on = now();
-                        $record->save();
-                    })
-                    ->slideOver()
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query->when(
+                            isset($data['year']) && $data['year'],
+                            function (Builder $query) use ($data) {
+                                $query->whereYear('submitted_on', $data['year']);
+                            }
+                        );
+                    }),
+            ],layout: FiltersLayout::AboveContent)->filtersFormColumns(4)
+            ->actions([
+                Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -238,7 +217,7 @@ class ProposalResource extends Resource
         return [
             'index' => Pages\ListProposals::route('/'),
             'create' => Pages\CreateProposal::route('/create'),
-            //'edit' => Pages\EditProposal::route('/{record}/edit'),
+            'edit' => Pages\EditProposal::route('/{record}/edit'),
         ];
     }
 }

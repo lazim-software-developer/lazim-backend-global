@@ -193,9 +193,9 @@ class PostResource extends Resource
                 SelectFilter::make('user_id')
                     ->relationship('user', 'first_name', function (Builder $query) {
                         if (Role::where('id', auth()->user()->role_id)->first()->name != 'Admin') {
-                            $query->where('owner_association_id', auth()->user()->owner_association_id)->where('role_id', Role::where('name', 'OA')->first()->id);
+                            $query->where('owner_association_id', auth()->user()->owner_association_id)->whereIn('role_id', Role::whereIn('name',['OA','Owner','Tenant'])->pluck('id'));
                         }
-                        $query->where('role_id', Role::where('name', 'OA')->first()->id);
+                        $query->whereIn('role_id', Role::whereIn('name',['OA','Owner','Tenant'])->pluck('id'));
                     })
                     ->searchable()
                     ->preload()

@@ -38,6 +38,14 @@ class BudgetImport implements ToCollection, WithHeadingRow
         $expectedHeadings = [ 'servicecode', 'servicename', 'budget', 'budgetvat', 'category', 'subcategory',];
 
         // Extract the headings from the first row
+        if($rows->first() == null){
+            Notification::make()
+                ->title("Upload valid excel file.")
+                ->danger()
+                ->body("You have uploaded an empty file")
+                ->send();
+            return 'failure';
+        }
         $extractedHeadings = array_keys($rows->first()->toArray());
 
         // Check if all expected headings are present in the extracted headings
@@ -77,7 +85,7 @@ class BudgetImport implements ToCollection, WithHeadingRow
 
         $budget = Budget::create([
             'building_id' => $this->buildingId,
-            'owner_association_id' => auth()->user()->owner_association_id,
+            'owner_association_id' => $building->owner_association_id,
             'budget_period' => $this->budgetPeriod,
             'budget_from' => $startDate->toDateString(),
             'budget_to' => $endDate->toDateString(),

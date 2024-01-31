@@ -195,18 +195,17 @@ class AuthController extends Controller
     public function expo(Request $request)
     {
         if ($request->has('status') && $request->status == 'login') {
-            $expo = ExpoPushNotification::where('token', $request->token)->first();
+            // $expo = ExpoPushNotification::where('user_id' , auth()->user()->id)->first();
 
-            if (!$expo) {
-                ExpoPushNotification::create([
-                    'user_id' => auth()->user()->id,
-                    'token'   => $request->token,
-                ]);
+            ExpoPushNotification::updateOrCreate([
+                'user_id' => auth()->user()->id],
+                [
+                'token'   => $request->token,
+            ]);
 
                 return response()->json([
                     'message' => 'Token saved successfully.',
                 ]);
-            }
         }
 
         if ($request->has('status') && $request->status == 'logout') {

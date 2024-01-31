@@ -282,6 +282,8 @@ Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active']
     Route::post('/create-payment-intent', [PaymentController::class, 'createPaymentIntent']);
 
     Route::post('/{order}/payment-status', [PaymentController::class, 'fetchPaymentStatus']);
+
+    Route::get('/{flat}/invoice-balance',[PaymentController::class,'fecthInvoiceDetails']);
 });
 
 /**
@@ -500,3 +502,6 @@ Route::post('/store-visitor', [GuestController::class, 'saveFlatVisitors']);
 // Test Send SMS
 Route::post('/send-sms', [MollakController::class, 'sendSMS']);
 Route::post('/verify-sms-otp', [MollakController::class, 'verifyOTP']);
+
+//Webhooks
+Route::post('/budget-budget_items',[MollakController::class, 'fetchbudget']);
