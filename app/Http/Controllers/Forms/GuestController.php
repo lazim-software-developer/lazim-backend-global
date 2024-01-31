@@ -230,7 +230,7 @@ class GuestController extends Controller
                         'sound' => 'default',
                         'title' => 'Visitors',
                         'body' => "Allow Visitors of flat $unit",
-                        'data' => ['notificationType' => 'MyRequest'],
+                        'data' => ['notificationType' => 'InAppNotfication'],
                     ];
                     $this->expoNotification($message);
                     DB::table('notifications')->insert([
@@ -266,7 +266,7 @@ class GuestController extends Controller
                         'sound' => 'default',
                         'title' => 'Visitors',
                         'body' => "Don't allow Visitors of flat $unit",
-                        'data' => ['notificationType' => 'MyRequest'],
+                        'data' => ['notificationType' => 'InAppNotfication'],
                     ];
                     $this->expoNotification($message);
                     DB::table('notifications')->insert([

@@ -62,7 +62,8 @@ class ItemResource extends Resource
                         ->required()
                         ->integer()
                         ->disabledOn('edit')
-                        ->minValue(0),
+                        ->minValue(0)
+                        ->maxValue(100000),
                     Textarea::make('description')
                         ->rules(['max:100', 'regex:/^(?=.*[a-zA-Z])[a-zA-Z0-9\s!@#$%^&*_+\-=,.]*$/'])
                         ->required()

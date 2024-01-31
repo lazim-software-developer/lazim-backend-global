@@ -183,8 +183,8 @@ class MoveInFormsDocumentResource extends Resource
                         ->label('Movers Third Party Liability/Security Deposit'),
                     Select::make('status')
                         ->options([
-                            'approved' => 'Approved',
-                            'rejected' => 'Rejected',
+                            'approved' => 'Approve',
+                            'rejected' => 'Reject',
                         ])
                         ->disabled(function (MoveInOut $record) {
                             return $record->status != null;

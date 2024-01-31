@@ -36,15 +36,15 @@ class UserController extends Controller
         return auth()->user()->residentialForm()->where('building_id', $building->id)->where('status', 'approved')->get(['id', 'name']);
     }
 
-    public function deleteUser()
+    public function deleteUser() 
     {
         $user = User::find(auth()->user()->id);
         $user->update(['active' => false]);
- 
+
         return (new CustomResponseResource([
             'title' => 'Success',
             'message' => 'User deleted successfully!',
             'code' => 200,
-        ]))->response()->setStatusCode(200);
+        ]))->response()->setStatusCode(200); 
     }
 }

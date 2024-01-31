@@ -70,8 +70,8 @@ class FitOutFormsDocumentResource extends Resource
                             Toggle::make('undertaking_of_waterproofing')->disabled(),
                             Select::make('status')
                                 ->options([
-                                    'approved' => 'Approved',
-                                    'rejected' => 'Rejected',
+                                    'approved' => 'Approve',
+                                    'rejected' => 'Reject',
                                 ])
                                 ->disabled(function(FitOutForm $record){
                                     return $record->status != null;
