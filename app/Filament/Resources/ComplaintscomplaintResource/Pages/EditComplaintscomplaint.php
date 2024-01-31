@@ -36,8 +36,8 @@ class EditComplaintscomplaint extends EditRecord
                     $message = [
                         'to' => $expoPushToken,
                         'sound' => 'default',
-                        'title' => 'Happiness complaint status',
-                        'body' => 'Your happiness complaint has been resolved by '.$role->name.' : '.auth()->user()->first_name,
+                        'title' => 'Complaint status',
+                        'body' => 'Your complaint has been resolved by '.$role->name.' : '.auth()->user()->first_name,
                         'data' => ['notificationType' => 'InAppNotficationScreen'],
                     ];
                     $this->expoNotification($message);
@@ -48,11 +48,11 @@ class EditComplaintscomplaint extends EditRecord
                         'notifiable_id' => $this->record->user_id,
                         'data' => json_encode([
                             'actions' => [],
-                            'body' => 'Your happiness complaint has been resolved by '.$role->name.' : '.auth()->user()->first_name,
+                            'body' => 'Your complaint has been resolved by '.$role->name.' : '.auth()->user()->first_name,
                             'duration' => 'persistent',
                             'icon' => 'heroicon-o-document-text',
                             'iconColor' => 'warning',
-                            'title' => 'Happiness complaint status',
+                            'title' => 'Complaint status',
                             'view' => 'notifications::notification',
                             'viewData' => [],
                             'format' => 'filament'
@@ -70,8 +70,8 @@ class EditComplaintscomplaint extends EditRecord
                         $message = [
                             'to' => $expoPushToken,
                             'sound' => 'default',
-                            'title' => 'Happiness complaint status',
-                            'body' => 'Happiness complain has been resolved by '.$role->name.' : '.auth()->user()->first_name,
+                            'title' => 'Complaint status',
+                            'body' => 'A complain has been resolved by '.$role->name.' : '.auth()->user()->first_name,
                             'data' => ['notificationType' => 'ResolvedRequests'],
                         ];
                         $this->expoNotification($message);
@@ -82,11 +82,11 @@ class EditComplaintscomplaint extends EditRecord
                             'notifiable_id' => $this->record->technician_id,
                             'data' => json_encode([
                                 'actions' => [],
-                                'body' => 'Happiness complain has been resolved by '.$role->name.' : '.auth()->user()->first_name,
+                                'body' => 'A complain has been resolved by '.$role->name.' : '.auth()->user()->first_name,
                                 'duration' => 'persistent',
                                 'icon' => 'heroicon-o-document-text',
                                 'iconColor' => 'warning',
-                                'title' => 'Happiness complaint status',
+                                'title' => 'Complaint status',
                                 'view' => 'notifications::notification',
                                 'viewData' => [],
                                 'format' => 'filament'
