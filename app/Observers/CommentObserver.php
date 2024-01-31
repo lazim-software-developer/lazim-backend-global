@@ -24,7 +24,7 @@ class CommentObserver
             if (in_array($user->role->name, $allowedRoles)) {
                 $complaint = Complaint::where('id', $comment->commentable_id)->first();
                 if ($complaint->technician_id) {
-                    $expoPushTokens = ExpoPushNotification::where('user_id', $complaint->technician_id)->pluck('token');
+                    $expoPushTokens = ExpoPushNotification::whereIn('user_id', [$complaint->user_id,$complaint->technician_id])->pluck('token');
                     if ($expoPushTokens->count() > 0) {
                         foreach ($expoPushTokens as $expoPushToken) {
                             $message = [
@@ -32,7 +32,7 @@ class CommentObserver
                                 'sound' => 'default',
                                 'title' => 'New Comment',
                                 'body' => 'Comment made by '.$user->role->name.' '.$user->first_name.' on your complaint. Check the application for the infomation.',
-                                'data' => ['notificationType' => 'PendingRequests'],
+                                'data' => ['notificationType' => 'InAppNotfication'],
                             ];
                             $this->expoNotification($message);
                             DB::table('notifications')->insert([
@@ -70,7 +70,7 @@ class CommentObserver
                             'sound' => 'default',
                             'title' => 'New Comment',
                             'body' => 'Comment made by '.$user->role->name.' '.$user->first_name.' on your complaint. Check the application for the infomation.',
-                            'data' => ['notificationType' => 'HelpDeskTab'],
+                            'data' => ['notificationType' => 'PendingRequests'],
                         ];
                         $this->expoNotification($message);
                         DB::table('notifications')->insert([
