@@ -18,6 +18,7 @@ use App\Models\TechnicianVendor;
 use App\Models\User\User;
 use App\Models\Vendor\Contract;
 use App\Models\Vendor\ServiceVendor;
+use App\Traits\UtilsTrait;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -25,6 +26,8 @@ use Illuminate\Support\Facades\Log;
 
 class ComplaintController extends Controller
 {
+    use UtilsTrait;
+
     /**
      * Display a listing of the complaints.
      *
