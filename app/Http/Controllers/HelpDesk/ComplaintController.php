@@ -298,12 +298,16 @@ class ComplaintController extends Controller
         else{
             $expoPushToken = ExpoPushNotification::where('user_id', $complaint->technician_id)->first()?->token;
                 if ($expoPushToken) {
+                        $notificationType = 'ResolvedRequests';
+                        if ($complaint->complaint_type == 'snag'){        
+                            $notificationType = 'MyComplaints';
+                        }
                         $message = [
                             'to' => $expoPushToken,
                             'sound' => 'default',
                             'title' => 'Complaint status',
                             'body' => 'A complaint has been resolved by : '.auth()->user()->role->name.' '.auth()->user()->first_name,
-                            'data' => ['notificationType' => 'ResolvedRequests'],
+                            'data' => ['notificationType' => $notificationType],
                         ];
                         $this->expoNotification($message);
                         DB::table('notifications')->insert([
