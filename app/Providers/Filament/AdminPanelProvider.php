@@ -343,35 +343,43 @@ class AdminPanelProvider extends PanelProvider
                                     ->sort(10),
                                 NavigationItem::make('General Fund Statement Mollak')
                                     ->url('/admin/general-fund-statement-mollak')
+                                    ->hidden(!in_array(Role::where('id', auth()->user()->role_id)->first()->name, ['OA']))
                                     ->icon('heroicon-m-clipboard-document-check')
                                     ->activeIcon('heroicon-m-clipboard-document-check')
                                     ->sort(11),
                                 NavigationItem::make('Reserve Fund Statement Mollak')
                                     ->url('/admin/reserve-fund-statement-mollak')
+                                    ->hidden(!in_array(Role::where('id', auth()->user()->role_id)->first()->name, ['OA']))
                                     ->icon('heroicon-m-clipboard-document-list')
                                     ->activeIcon('heroicon-m-clipboard-document-list')
                                     ->sort(12),
 
-                                ]), NavigationGroup::make('Reports')
+                                ]), 
+                    ]);
+                }
+                if (DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] != 'Admin' && Role::where('id', auth()->user()->role_id)->first()->name != 'Accounts Manager' && Role::where('id', auth()->user()->role_id)->first()->name != 'MD' && Role::where('id', auth()->user()->role_id)->first()->name != 'Building Engineer'&& Role::where('id', auth()->user()->role_id)->first()->name != 'Complaint Officer'&&Role::where('id', auth()->user()->role_id)->first()->name != 'Legal Officer') {
+                    $builder->groups([
+                        NavigationGroup::make('Reports')
                             ->items([
                                 NavigationItem::make('Service charge ledgers')
                                     ->url('/admin/ledgers')
                                     ->hidden(!in_array(Role::where('id', auth()->user()->role_id)->first()->name, ['OA']))
                                     ->icon('heroicon-m-list-bullet')
-                                    ->activeIcon('heroicon-m-list-bullet'),
+                                    ->activeIcon('heroicon-m-list-bullet')
+                                    ->sort(1),
                                 NavigationItem::make('Service provider ledgers')
                                     ->url('/admin/vendor-ledgers')
                                     ->icon('heroicon-o-rectangle-stack')
                                     ->hidden(!in_array(Role::where('id', auth()->user()->role_id)->first()->name, ['OA']))
-                                    ->activeIcon('heroicon-o-rectangle-stack'),
+                                    ->activeIcon('heroicon-o-rectangle-stack')
+                                    ->sort(2),
                                 NavigationItem::make('Cooling account')
                                     ->url('/admin/cooling-accounts')
                                     ->hidden(!in_array(Role::where('id', auth()->user()->role_id)->first()->name, ['OA']))
                                     ->icon('heroicon-o-cube-transparent')
                                     ->activeIcon('heroicon-o-cube-transparent')
-                                    ->sort(4),
+                                    ->sort(3),
                             ]),
-
                     ]);
                 }
 
