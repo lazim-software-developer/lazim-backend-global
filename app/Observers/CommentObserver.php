@@ -44,10 +44,10 @@ class CommentObserver
                     $expoPushTokens = ExpoPushNotification::where('user_id', $complaint->technician_id)->pluck('token');
                     if ($complaint->complaint_type == 'help_desk'){
                         if ($complaint->status == 'open'){
-                            $notificationType = 'HelpDeskTabPending';
+                            $notificationType = 'PendingRequests';
                         }
                         else{
-                            $notificationType = 'HelpDeskTabResolved';
+                            $notificationType = 'ResolvedRequests';
                         }
                     }
                     else{
