@@ -34,6 +34,10 @@ class CommentObserver
                 else{
                     $notificationType = 'InAppNotficationScreen';
                 }
+                if ($complaint->complaint_type == 'snag'){
+                            
+                    $notificationType = 'MyComplaints';
+                }
                 if ($complaint->technician_id) {
                     $expoPushTokens = ExpoPushNotification::where('user_id', $complaint->technician_id)->pluck('token');
                     if ($expoPushTokens->count() > 0) {
@@ -120,6 +124,10 @@ class CommentObserver
                         }
                         else{
                             $notificationType = 'InAppNotficationScreen';
+                        }
+                        if ($complaint->complaint_type == 'snag'){
+                            
+                                $notificationType = 'MyComplaints';
                         }
                         $message = [
                             'to' => $expoPushToken,
