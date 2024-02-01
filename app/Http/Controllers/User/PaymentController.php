@@ -75,8 +75,7 @@ class PaymentController extends Controller
         // return response()->json($paginatedItems);
 
         $invoice = OAMInvoice::where('flat_id',$flat->id)->latest()->first();
-        $receipt = OAMReceipts::where('flat_id', $invoice->flat_id)->where('receipt_period', $invoice->invoice_period);
-        if ($receipt){
+        if ($invoice){
             return ['data' => [new ServiceChargeResource($invoice)]];
         }
         return ['data' => []];
