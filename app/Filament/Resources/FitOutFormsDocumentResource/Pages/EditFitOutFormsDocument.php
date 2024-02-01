@@ -39,6 +39,8 @@ class EditFitOutFormsDocument extends EditRecord
                         'data' => ['notificationType' => 'MyRequest'],
                     ];
                     $this->expoNotification($message);
+                }
+            }
                     DB::table('notifications')->insert([
                         'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
                         'type' => 'Filament\Notifications\DatabaseNotification',
@@ -59,8 +61,8 @@ class EditFitOutFormsDocument extends EditRecord
                         'created_at' => now()->format('Y-m-d H:i:s'),
                         'updated_at' => now()->format('Y-m-d H:i:s'),
                     ]);
-                }
-            }
+                
+            
         }
         if ($this->record->status == 'rejected') {
             $expoPushTokens = ExpoPushNotification::where('user_id', $this->record->user_id)->pluck('token');
@@ -74,7 +76,8 @@ class EditFitOutFormsDocument extends EditRecord
                         'data' => ['notificationType' => 'MyRequest'],
                     ];
                     $this->expoNotification($message);
-
+                }
+            }
                     DB::table('notifications')->insert([
                         'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
                         'type' => 'Filament\Notifications\DatabaseNotification',
@@ -95,8 +98,8 @@ class EditFitOutFormsDocument extends EditRecord
                         'created_at' => now()->format('Y-m-d H:i:s'),
                         'updated_at' => now()->format('Y-m-d H:i:s'),
                     ]);
-                }
-            }
+                
+            
         }
         if ($this->record->rejected_fields){
             $rejectedFieldsJson = json_encode(['rejected_fields' => $this->record->rejected_fields]);

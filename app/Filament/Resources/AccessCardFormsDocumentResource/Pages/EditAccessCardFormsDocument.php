@@ -70,6 +70,8 @@ class EditAccessCardFormsDocument extends EditRecord
                     ];
 
                     $this->expoNotification($message);
+                }
+            }
 
                     DB::table('notifications')->insert([
                         'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
@@ -91,9 +93,6 @@ class EditAccessCardFormsDocument extends EditRecord
                         'created_at' => now()->format('Y-m-d H:i:s'),
                         'updated_at' => now()->format('Y-m-d H:i:s'),
                     ]);
-                }
-            }
-
             // Generate payment link and save it in access_cards_table
 
             try {
@@ -130,6 +129,8 @@ class EditAccessCardFormsDocument extends EditRecord
                         'data' => ['notificationType' => 'MyRequest'],
                     ];
                     $this->expoNotification($message);
+                }
+            }
                     DB::table('notifications')->insert([
                         'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
                         'type' => 'Filament\Notifications\DatabaseNotification',
@@ -149,9 +150,7 @@ class EditAccessCardFormsDocument extends EditRecord
                         ]),
                         'created_at' => now()->format('Y-m-d H:i:s'),
                         'updated_at' => now()->format('Y-m-d H:i:s'),
-                    ]);
-                }
-            }
+                    ]);  
         }
     }
 }
