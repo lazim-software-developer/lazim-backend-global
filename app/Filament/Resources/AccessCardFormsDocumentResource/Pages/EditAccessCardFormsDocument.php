@@ -85,7 +85,8 @@ class EditAccessCardFormsDocument extends EditRecord
                             'title' => 'Access card form status',
                             'view' => 'notifications::notification',
                             'viewData' => [],
-                            'format' => 'filament'
+                            'format' => 'filament',
+                            'url' => 'MyRequest',
                         ]),
                         'created_at' => now()->format('Y-m-d H:i:s'),
                         'updated_at' => now()->format('Y-m-d H:i:s'),
@@ -143,7 +144,8 @@ class EditAccessCardFormsDocument extends EditRecord
                             'title' => 'Access card form status!',
                             'view' => 'notifications::notification',
                             'viewData' => [],
-                            'format' => 'filament'
+                            'format' => 'filament',
+                            'url' => 'MyRequest',
                         ]),
                         'created_at' => now()->format('Y-m-d H:i:s'),
                         'updated_at' => now()->format('Y-m-d H:i:s'),
