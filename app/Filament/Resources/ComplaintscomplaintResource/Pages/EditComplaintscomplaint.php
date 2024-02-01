@@ -41,6 +41,8 @@ class EditComplaintscomplaint extends EditRecord
                         'data' => ['notificationType' => 'InAppNotficationScreen'],
                     ];
                     $this->expoNotification($message);
+                }
+            }
                     DB::table('notifications')->insert([
                         'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
                         'type' => 'Filament\Notifications\DatabaseNotification',
@@ -55,13 +57,12 @@ class EditComplaintscomplaint extends EditRecord
                             'title' => 'Complaint status',
                             'view' => 'notifications::notification',
                             'viewData' => [],
-                            'format' => 'filament'
+                            'format' => 'filament',
+                            'url' => 'HelpDeskTab',
                         ]),
                         'created_at' => now()->format('Y-m-d H:i:s'),
                         'updated_at' => now()->format('Y-m-d H:i:s'),
                     ]);
-                }
-            }
 
             if($this->record->technician_id){
                 $expoPushTokens = ExpoPushNotification::where('user_id', $this->record->technician_id)->pluck('token');
@@ -75,6 +76,8 @@ class EditComplaintscomplaint extends EditRecord
                             'data' => ['notificationType' => 'ResolvedRequests'],
                         ];
                         $this->expoNotification($message);
+                    }
+                }
                         DB::table('notifications')->insert([
                             'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
                             'type' => 'Filament\Notifications\DatabaseNotification',
@@ -89,13 +92,12 @@ class EditComplaintscomplaint extends EditRecord
                                 'title' => 'Complaint status',
                                 'view' => 'notifications::notification',
                                 'viewData' => [],
-                                'format' => 'filament'
+                                'format' => 'filament',
+                                'url' => 'HelpDeskTab',
                             ]),
                             'created_at' => now()->format('Y-m-d H:i:s'),
                             'updated_at' => now()->format('Y-m-d H:i:s'),
                         ]);
-                    }
-                }
             }
         }
     }
