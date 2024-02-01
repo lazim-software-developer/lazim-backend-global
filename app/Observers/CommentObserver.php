@@ -45,7 +45,12 @@ class CommentObserver
                         }
                     }
                     elseif ($complaint->complaint_type == 'help_desk'){
+                        if ($complaint->status == 'open'){
+                            $notificationType = 'PendingRequests';
+                        }
+                        else{
                             $notificationType = 'ResolvedRequests';
+                        }
                     }
                     $expoPushTokens = ExpoPushNotification::where('user_id', $complaint->technician_id)->pluck('token');
                     if ($expoPushTokens->count() > 0) {
