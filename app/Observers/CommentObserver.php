@@ -35,6 +35,15 @@ class CommentObserver
                     $notificationType = 'InAppNotficationScreen';
                 }
                 if ($complaint->technician_id) {
+                    if ($complaint->complaint_type == 'snag'){
+                            
+                        if ($complaint->status == 'open'){
+                            $notificationType = 'PendingRequests';
+                        }
+                        else{
+                            $notificationType = 'ResolvedRequests';
+                        }
+                    }
                     $expoPushTokens = ExpoPushNotification::where('user_id', $complaint->technician_id)->pluck('token');
                     if ($expoPushTokens->count() > 0) {
                         foreach ($expoPushTokens as $expoPushToken) {
@@ -69,6 +78,10 @@ class CommentObserver
                     }
                 }
                 if($complaint->user_id != $comment->user_id){
+                    if ($complaint->complaint_type == 'snag'){
+                                
+                        $notificationType = 'MyComplaints';
+                    }
                     $expoPushTokens = ExpoPushNotification::where('user_id',  $complaint->user_id)->pluck('token');
                         if ($expoPushTokens->count() > 0) {
                             foreach ($expoPushTokens as $expoPushToken) {
@@ -120,6 +133,10 @@ class CommentObserver
                         }
                         else{
                             $notificationType = 'InAppNotficationScreen';
+                        }
+                        if ($complaint->complaint_type == 'snag'){
+                            
+                                $notificationType = 'MyComplaints';
                         }
                         $message = [
                             'to' => $expoPushToken,
