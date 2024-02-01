@@ -24,7 +24,7 @@ class ListTenants extends ListRecords
     {
         return [
             //Actions\CreateAction::make(),
-            Action::make('Notify Owners')
+            Action::make('Notify Tenants')
                 ->button()
                 ->form([
                     Select::make('building_id')
@@ -43,6 +43,7 @@ class ListTenants extends ListRecords
                             ->danger()
                             ->body("There are no tenants for the building.")
                             ->send();
+                        return;
                     }
                     foreach ($residents as $value) {
                         WelcomeNotificationJob::dispatch($value->email, $value->name, $buildingname);
