@@ -48,11 +48,13 @@
 			top: -20px;
 			/* Adjust this value to change where the split occurs */
 		}
+
 		.icon-circle {
 			border-radius: 50%;
 			background-color: #FFFFFF;
 			display: inline-block;
-			padding: 10px; /* Adjust padding as needed to control the size of the circle */
+			padding: 10px;
+			/* Adjust padding as needed to control the size of the circle */
 		}
 
 		.header-image::after {
@@ -82,13 +84,16 @@
 		<div class="bottom-half">
 			<!-- The bottom half of the image will appear to continue here -->
 			<h3>Welcome to {{$building}}!</h3>
-			<p>We're excited to have you on board. To stay connected and informed, download our community app:</p>
-			<a href="https://apps.apple.com/us/app/lazim/id6475393837" class="icon-circle">
+			<p>We're excited to have you on board. To stay connected and informed, download our community app from here:</p>
+			<div style="text-align: center;">
+				<a style="display: inline-block; background-color: #FFFFFF; width: 20%;text-decoration: none;" href="https://onelink.to/vb5j7p">Lazim</a>
+			</div>
+			<!-- <a href="https://apps.apple.com/us/app/lazim/id6475393837" class="icon-circle">
 				<img src="{{ asset('images/ios.png') }}" alt="Download on the App Store" style="height: 40px;">
 			</a>
 			<a href="https://play.google.com/store/apps/details?id=com.punithgoud.lazim" class="icon-circle">
 				<img src="{{ asset('images/google.png') }}" alt="Get it on Google Play" style="height: 40px;">
-			</a>
+			</a> -->
 			<p>Explore features like Services & Facilities, Community, and more!</p>
 			<p>Get started today for a seamless community experience.</p>
 			<p>Best, Lazim</p>
