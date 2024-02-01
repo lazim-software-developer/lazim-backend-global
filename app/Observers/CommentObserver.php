@@ -24,6 +24,7 @@ class CommentObserver
             if (in_array($user->role->name, $allowedRoles)) {
                 $complaint = Complaint::where('id', $comment->commentable_id)->first();
                 if ($complaint->technician_id) {
+                    $expoPushTokens = ExpoPushNotification::where('user_id', $complaint->technician_id)->pluck('token');
                     if ($complaint->complaint_type == 'snag'){
                             
                         if ($complaint->status == 'open'){
@@ -41,18 +42,10 @@ class CommentObserver
                             $notificationType = 'ResolvedRequests';
                         }
                     }
-                    $expoPushTokens = ExpoPushNotification::where('user_id', $complaint->technician_id)->pluck('token');
-                    if ($complaint->complaint_type == 'help_desk'){
-                        if ($complaint->status == 'open'){
-                            $notificationType = 'HelpDeskTabPending';
-                        }
-                        else{
-                            $notificationType = 'HelpDeskTabResolved';
-                        }
-                    }
                     else{
                         $notificationType = 'InAppNotficationScreen';
                     }
+                    
                     if ($expoPushTokens->count() > 0) {
                         foreach ($expoPushTokens as $expoPushToken) {
                             $message = [
