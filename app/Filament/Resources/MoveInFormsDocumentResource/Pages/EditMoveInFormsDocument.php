@@ -59,6 +59,7 @@ class EditMoveInFormsDocument extends EditRecord
                             'view' => 'notifications::notification',
                             'viewData' => [],
                             'format' => 'filament',
+                            'url' => 'MyRequest',
                         ]),
                         'created_at' => now()->format('Y-m-d H:i:s'),
                         'updated_at' => now()->format('Y-m-d H:i:s'),
@@ -95,6 +96,7 @@ class EditMoveInFormsDocument extends EditRecord
                             'view' => 'notifications::notification',
                             'viewData' => [],
                             'format' => 'filament',
+                            'url' => 'MyRequest'
                         ]),
                         'created_at' => now()->format('Y-m-d H:i:s'),
                         'updated_at' => now()->format('Y-m-d H:i:s'),
