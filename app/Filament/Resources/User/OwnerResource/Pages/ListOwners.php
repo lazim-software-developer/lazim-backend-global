@@ -48,6 +48,7 @@ class ListOwners extends ListRecords
                                 ->danger()
                                 ->body("There are no flats for the building.")
                                 ->send();
+                            return;
                     }
                     $flatowners = FlatOwners::whereIn('flat_id',$flats)->pluck('owner_id');
                     if($flatowners->first() == null){
@@ -56,6 +57,7 @@ class ListOwners extends ListRecords
                                 ->danger()
                                 ->body("There are no flatowners for the flats.")
                                 ->send();
+                            return;
                     }
                     $residentsemail = ApartmentOwner::whereIn('id',$flatowners)->select('name','email')->distinct()->get();
                     if($residentsemail->first() == null){
@@ -64,6 +66,7 @@ class ListOwners extends ListRecords
                                 ->danger()
                                 ->body("There are no owners for the flatowners.")
                                 ->send();
+                            return;
                     }
                     foreach ($residentsemail as $value) {
                         WelcomeNotificationJob::dispatch($value->email, $value->name,$buildingname);
