@@ -44,6 +44,9 @@ class CommentObserver
                             $notificationType = 'ResolvedRequests';
                         }
                     }
+                    elseif ($complaint->complaint_type == 'help_desk'){
+                            $notificationType = 'ResolvedRequests';
+                    }
                     $expoPushTokens = ExpoPushNotification::where('user_id', $complaint->technician_id)->pluck('token');
                     if ($expoPushTokens->count() > 0) {
                         foreach ($expoPushTokens as $expoPushToken) {
