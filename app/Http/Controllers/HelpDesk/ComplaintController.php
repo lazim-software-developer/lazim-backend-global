@@ -218,7 +218,8 @@ class ComplaintController extends Controller
                             'title' => 'Task Assigned',
                             'view' => 'notifications::notification',
                             'viewData' => [],
-                            'format' => 'filament'
+                            'format' => 'filament',
+                            'url' => '',
                         ]),
                         'created_at' => now()->format('Y-m-d H:i:s'),
                         'updated_at' => now()->format('Y-m-d H:i:s'),
@@ -297,7 +298,8 @@ class ComplaintController extends Controller
                                 'title' => 'Complaint status',
                                 'view' => 'notifications::notification',
                                 'viewData' => [],
-                                'format' => 'filament'
+                                'format' => 'filament',
+                                'url' => '',
                             ]),
                             'created_at' => now()->format('Y-m-d H:i:s'),
                             'updated_at' => now()->format('Y-m-d H:i:s'),
@@ -331,7 +333,8 @@ class ComplaintController extends Controller
                                 'title' => 'Complaint status',
                                 'view' => 'notifications::notification',
                                 'viewData' => [],
-                                'format' => 'filament'
+                                'format' => 'filament',
+                                'url' => '',
                             ]),
                             'created_at' => now()->format('Y-m-d H:i:s'),
                             'updated_at' => now()->format('Y-m-d H:i:s'),

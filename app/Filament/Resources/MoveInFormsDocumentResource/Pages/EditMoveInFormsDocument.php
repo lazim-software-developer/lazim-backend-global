@@ -44,6 +44,8 @@ class EditMoveInFormsDocument extends EditRecord
                         'data' => ['notificationType' => 'MyRequest'],
                     ];
                     $this->expoNotification($message);
+                }
+            }
                     DB::table('notifications')->insert([
                         'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
                         'type' => 'Filament\Notifications\DatabaseNotification',
@@ -59,12 +61,11 @@ class EditMoveInFormsDocument extends EditRecord
                             'view' => 'notifications::notification',
                             'viewData' => [],
                             'format' => 'filament',
+                            'url' => 'MyRequest',
                         ]),
                         'created_at' => now()->format('Y-m-d H:i:s'),
                         'updated_at' => now()->format('Y-m-d H:i:s'),
                     ]);
-                }
-            }
         }
 
         if ($this->record->status == 'rejected') {
@@ -80,6 +81,8 @@ class EditMoveInFormsDocument extends EditRecord
                         'data' => ['notificationType' => 'MyRequest'],
                     ];
                     $this->expoNotification($message);
+                }
+            }
                     DB::table('notifications')->insert([
                         'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
                         'type' => 'Filament\Notifications\DatabaseNotification',
@@ -95,12 +98,11 @@ class EditMoveInFormsDocument extends EditRecord
                             'view' => 'notifications::notification',
                             'viewData' => [],
                             'format' => 'filament',
+                            'url' => 'MyRequest',
                         ]),
                         'created_at' => now()->format('Y-m-d H:i:s'),
                         'updated_at' => now()->format('Y-m-d H:i:s'),
                     ]);
-                }
-            }
         }
 
         $selectedCheckboxes = $this->form->getState('rejected_fields');
