@@ -41,6 +41,8 @@ class EditFacilityBooking extends EditRecord
                         'data' => ['notificationType' => 'MyBookingsFacility'],
                     ];
                     $this->expoNotification($message);
+                }
+            }
                     DB::table('notifications')->insert([
                         'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
                         'type' => 'Filament\Notifications\DatabaseNotification',
@@ -55,13 +57,12 @@ class EditFacilityBooking extends EditRecord
                             'title' =>  $facilityName->name.' Booking Status.',
                             'view' => 'notifications::notification',
                             'viewData' => [],
-                            'format' => 'filament'
+                            'format' => 'filament',
+                            'url' => 'MyBookingsFacility',
                         ]),
                         'created_at' => now()->format('Y-m-d H:i:s'),
                         'updated_at' => now()->format('Y-m-d H:i:s'),
                     ]);
-                }
-            }
         }
 
         if ($this->record->approved == 0) {
@@ -76,6 +77,8 @@ class EditFacilityBooking extends EditRecord
                         'data' => ['notificationType' => 'MyBookingsFacility'],
                     ];
                     $this->expoNotification($message);
+                }
+            }
                     DB::table('notifications')->insert([
                         'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
                         'type' => 'Filament\Notifications\DatabaseNotification',
@@ -90,13 +93,12 @@ class EditFacilityBooking extends EditRecord
                             'title' =>  $facilityName->name.' Booking Status.',
                             'view' => 'notifications::notification',
                             'viewData' => [],
-                            'format' => 'filament'
+                            'format' => 'filament',
+                            'url' => 'MyBookingsFacility',
                         ]),
                         'created_at' => now()->format('Y-m-d H:i:s'),
                         'updated_at' => now()->format('Y-m-d H:i:s'),
                     ]);
-                }
-            }
         }
     }
 }
