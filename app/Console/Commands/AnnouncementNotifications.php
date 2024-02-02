@@ -71,6 +71,7 @@ class AnnouncementNotifications extends Command
                                 'view' => 'notifications::notification',
                                 'viewData' => [],
                                 'format' => 'filament',
+                                'url' => $post->is_announcement ? 'ComunityPostTabNotice' : 'ComunityPostTabPost',
                             ]),
                             'created_at' => now()->format('Y-m-d H:i:s'),
                             'updated_at' => now()->format('Y-m-d H:i:s'),
