@@ -80,6 +80,17 @@ class CommentObserver
                     }
                 }
                 if($complaint->user_id != $comment->user_id){
+                    if ($complaint->complaint_type == 'help_desk'){
+                        if ($complaint->status == 'open'){
+                            $notificationType = 'HelpDeskTabPending';
+                        }
+                        else{
+                            $notificationType = 'HelpDeskTabResolved';
+                        }
+                    }
+                    else{
+                        $notificationType = 'InAppNotficationScreen';
+                    }
                     if ($complaint->complaint_type == 'snag'){
                                 
                         $notificationType = 'MyComplaints';
