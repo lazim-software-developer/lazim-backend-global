@@ -36,7 +36,7 @@ class AgingReportResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('flat.property_number')->label('Unit'),
+                TextColumn::make('flat.property_number')->label('Unit')->searchable(),
                 TextColumn::make('owner.name')->label('Owner')->limit(20),
                 TextColumn::make('outstanding_balance')->label('Outstanding Balance'),
                 TextColumn::make('balance_1')->label("Aged Balance 0-90"),
