@@ -24,6 +24,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\TechnicianAssetsResource\Pages;
 use App\Filament\Resources\TechnicianAssetsResource\RelationManagers;
+use App\Filament\Resources\TechnicianAssetsResource\RelationManagers\AssetMaintenancesRelationManager;
 
 class TechnicianAssetsResource extends Resource
 {
@@ -121,7 +122,7 @@ class TechnicianAssetsResource extends Resource
                     ->label('Vendor'),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\ViewAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -136,7 +137,7 @@ class TechnicianAssetsResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            AssetMaintenancesRelationManager::class,
         ];
     }
 
@@ -145,7 +146,8 @@ class TechnicianAssetsResource extends Resource
         return [
             'index' => Pages\ListTechnicianAssets::route('/'),
             // 'create' => Pages\CreateTechnicianAssets::route('/create'),
-            'edit' => Pages\EditTechnicianAssets::route('/{record}/edit'),
+            'view' => Pages\ViewTechnicianAssets::route('/{record}'),
+            // 'edit' => Pages\EditTechnicianAssets::route('/{record}/edit'),
         ];
     }
 }

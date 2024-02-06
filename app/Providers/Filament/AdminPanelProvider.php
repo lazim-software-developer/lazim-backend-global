@@ -342,13 +342,13 @@ class AdminPanelProvider extends PanelProvider
                                     ->activeIcon('heroicon-s-clipboard-document')
                                     ->sort(10),
                                 NavigationItem::make('General Fund Statement Mollak')
-                                    ->url('/admin/general-fund-statement-mollak')
+                                    ->url('/admin/mollak-general-fund-statement')
                                     ->hidden(!in_array(Role::where('id', auth()->user()->role_id)->first()->name, ['OA']))
                                     ->icon('heroicon-m-clipboard-document-check')
                                     ->activeIcon('heroicon-m-clipboard-document-check')
                                     ->sort(11),
                                 NavigationItem::make('Reserve Fund Statement Mollak')
-                                    ->url('/admin/reserve-fund-statement-mollak')
+                                    ->url('/admin/mollak-reserve-fund-statement')
                                     ->hidden(!in_array(Role::where('id', auth()->user()->role_id)->first()->name, ['OA']))
                                     ->icon('heroicon-m-clipboard-document-list')
                                     ->activeIcon('heroicon-m-clipboard-document-list')

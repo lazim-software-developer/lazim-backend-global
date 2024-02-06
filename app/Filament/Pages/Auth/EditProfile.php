@@ -8,6 +8,7 @@ use Filament\Forms\Form;
 use App\Models\User\User;
 use App\Models\Master\Role;
 use App\Models\OwnerAssociation;
+use Illuminate\Support\Facades\DB;
 use Filament\Support\Exceptions\Halt;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
@@ -41,20 +42,23 @@ class EditProfile extends BaseEditProfile
                     ->placeholder('Email'),
 
                 TextInput::make('phone')
-                    ->rules(['regex:/^(\+971)(50|51|52|55|56|58|02|03|04|06|07|09)\d{7}$/'])
+                    ->rules(['regex:/^(50|51|52|55|56|58|02|03|04|06|07|09)\d{7}$/', function (Model $record) {
+                        return function (string $attribute, $value, Closure $fail) use ($record) {
+                            if (DB::table('users')->whereNot('id', $record->id)->where('phone', '971'.$value)->count() > 0) {
+                                $fail('The phone is already taken by a User.');
+                            }
+                        };
+                    },])
+                    ->formatStateUsing(fn (string $state): string => substr($state,3))
                     ->required()
-                    ->unique(
-                        'users',
-                        'phone',
-                        fn (?Model $record) => $record
-                    )
+                    ->prefix('971')
                     ->placeholder('Phone'),
                 TextInput::make('password')
                     ->rules([function (Get $get) {
                         return function (string $attribute, $value, Closure $fail) use ($get) {
                             // Check if the value satisfies the regex
                             if (!preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]*$/', $value)) {
-                                $fail('The field must contain at least one lowercase, one uppercase, and one digit.');
+                                $fail('The field must contain at least one lowercase, one uppercase, one digit and no special character.');
                             }
                         };
                     },])
@@ -65,7 +69,7 @@ class EditProfile extends BaseEditProfile
                         return function (string $attribute, $value, Closure $fail) use ($get) {
                             // Check if the value satisfies the regex
                             if (!preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]*$/', $value)) {
-                                $fail('The ' . $attribute . ' must contain at least one lowercase letter, one uppercase letter, and one digit.');
+                                $fail('The ' . $attribute . ' must contain at least one lowercase letter, one uppercase letter, one digit and no special character.');
                             }
                             if ($value != $get('password')) {
                                 $fail('The Confirm password field must match new password.');
@@ -89,7 +93,8 @@ class EditProfile extends BaseEditProfile
     {
         try {
             $data = $this->form->getState();
-            if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+            $roleName = Role::where('id', auth()->user()->role_id)->first()->name;
+            if (in_array($roleName, ['Admin', 'Building Engineer', 'Accounts Manager', 'MD', 'Complaint Officer', 'Legal Officer'])) {
                 $user = User::find(auth()->user()->id);
                 if($data['password']!=null){
                     $user->Update([
@@ -98,14 +103,14 @@ class EditProfile extends BaseEditProfile
                 }
                 $user->Update([
                     'first_name'    => $data['first_name'],
-                    'phone'   => $data['phone'],
+                    'phone'   => '971'.$data['phone'],
                     'profile_photo'   => $data['profile_photo'],
                 ]);
             } else {
                 $ownerassociation = OwnerAssociation::find(auth()->user()->owner_association_id);
                 $ownerassociation->Update([
                     'name'    => $data['first_name'],
-                    'phone'   => $data['phone'],
+                    'phone'   => '971'.$data['phone'],
                     'profile_photo'   => $data['profile_photo'],
                 ]);
                 $user = User::find(auth()->user()->id);
@@ -116,7 +121,7 @@ class EditProfile extends BaseEditProfile
                 }
                 $user->Update([
                     'first_name'    => $data['first_name'],
-                    'phone'   => $data['phone'],
+                    'phone'   => '971'.$data['phone'],
                     'profile_photo'   => $data['profile_photo'],
                 ]);
             }
