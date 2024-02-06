@@ -22,11 +22,14 @@ class RegisterWithEmiratesOrPassportRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'passport' => 'required_without:emirates_id|string',
-            'emirates_id' => 'required_without:passport|string',
+            'name' => 'required|string',
+            'document' => 'required|file|max:2048',
             'flat_id' => 'required|exists:flats,id',
             'building_id' => 'required|exists:buildings,id',
             'type' => 'required|in:Owner,Tenant',
+            'owner_id' => 'nullable|integer',
+            'email' => 'required|email',
+            'mobile' => 'required|string',
         ];
     }
 }
