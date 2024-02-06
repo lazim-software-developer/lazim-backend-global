@@ -22,7 +22,7 @@ class RegisterRequest extends FormRequest
             'building_id' => 'required|integer',
             'flat_id' => 'required|integer',
             'type' =>'required',
-            'owner_id' => 'required|integer',
+            'owner_id' => 'nullable|integer',
         ];
     }
 
