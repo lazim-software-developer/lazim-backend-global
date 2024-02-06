@@ -4,6 +4,7 @@ namespace App\Models;
 
 
 use App\Models\FlatOwners;
+use App\Models\User\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -21,5 +22,9 @@ class ApartmentOwner extends Model
     
     public function flats() {
         return $this->hasMany(FlatOwners::class, 'flat_id');
+    }
+
+    public function users(){
+        return $this->hasMany(User::class,'owner_id');
     }
 }
