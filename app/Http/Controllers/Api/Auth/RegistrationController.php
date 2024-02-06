@@ -19,7 +19,7 @@ use App\Models\Master\Role;
 use App\Models\MollakTenant;
 use App\Models\User\User;
 use App\Models\UserApproval;
-use Illuminate\Http\Client\Request;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class RegistrationController extends Controller
@@ -344,6 +344,14 @@ class RegistrationController extends Controller
             'email' => $owner->email,
             'phone' => $owner->mobile
         ]];
+    }
+
+    public function allOwners(Request $request){
+        
+        $users = User::where('email',$request->email)->pluck('owner_id');
+        $owners = ApartmentOwner::whereIn('id',$users)->get();
+
+        return RegisterOwnersList::collection($owners);
     }
 
 }
