@@ -25,7 +25,10 @@ class RegistrationController extends Controller
 {
     public function registerWithEmailPhone(RegisterRequest $request) {
         
-        $userData = User::where(['email' => $request->get('email'), 'phone' => $request->get('mobile'),'owner_id' => $request->get('owner_id')]);
+        $userData = User::where(['email' => $request->get('email'), 'phone' => $request->get('mobile')]);
+        if ($request->type == 'Owner'){
+            $userData->where('owner_id' , $request->get('owner_id'));
+        }
         
         if($userData->exists() && ($userData->first()->email_verified == 0 )) {
             return (new CustomResponseResource([
@@ -131,7 +134,7 @@ class RegistrationController extends Controller
             'role_id' => $role,
             'active' => 1,
             'owner_association_id' => $building->owner_association_id,
-            'owner_id' => $request->owner_id,
+            'owner_id' => $request->owner_id?: null,
         ]);
     
         // Store details to Flat tenants table
@@ -161,8 +164,10 @@ class RegistrationController extends Controller
     }
     
     public function registerWithEmiratesOrPassport(RegisterWithEmiratesOrPassportRequest $request) {
-        // $userData = User::where(['email' => $request->get('email'), 'phone' => $request->get('mobile'),'owner_id' => $request->get('owner_id')]);
-
+        // $userData = User::where(['email' => $request->get('email'), 'phone' => $request->get('mobile')]);
+        // if ($request->type == 'Owner'){
+        //     $userData->where('owner_id' , $request->get('owner_id'));
+        // }
 
         // if($userData->exists() && ($userData->first()->email_verified == 0 || $userData->first()->phone_verified == 0)) {
         //     return (new CustomResponseResource([
