@@ -27,7 +27,10 @@ class ResetPasswordController extends Controller
      */
     public function forgotPassword(ForgotPasswordRequest $request)
     {
-        $user = User::where('email', $request->email)->first();
+        $user = User::where('email', $request->email)
+        ->when($request->has('owner_id'), function ($query) use ($request) {
+            return $query->where('owner_id', $request->owner_id);
+        })->first();
 
         if (!$user) {
             return response()->json(['message' => 'The provided email address is not registered in our system.'], 404);
@@ -43,6 +46,7 @@ class ResetPasswordController extends Controller
 
         // Store the OTP in the password_reset_tokens table
         $passwordReset->insert([
+            'user_id' => $user->id,
             'email' => $user->email,
             'token' => $otp,
             'created_at' => Carbon::now()
@@ -81,7 +85,9 @@ class ResetPasswordController extends Controller
             return response()->json(['message' => 'OTP has expired.'], 400);
         }
 
-        $user = User::where('email', $otpEntry->email)->first();
+        $user = User::where('email', $otpEntry->email)->when($request->has('owner_id'), function ($query) use ($request) {
+            return $query->where('owner_id', $request->owner_id);
+        })->first();
         $user->password = Hash::make($request->password);
         $user->save();
 
