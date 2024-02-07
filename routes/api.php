@@ -87,6 +87,7 @@ Route::post('/set-password', [AuthController::class, 'setPassword']);
 Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active'])->group(function () {
     Route::post('/expo', [AuthController::class, 'expo']);
     Route::get('/app-notification', [NotificationController::class, 'index']);
+    Route::get('/clear-notifications', [NotificationController::class, 'clearNotifications']);
 });
 
 
