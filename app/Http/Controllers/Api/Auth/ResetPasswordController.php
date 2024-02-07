@@ -85,9 +85,7 @@ class ResetPasswordController extends Controller
             return response()->json(['message' => 'OTP has expired.'], 400);
         }
 
-        $user = User::where('email', $otpEntry->email)->when($request->has('owner_id'), function ($query) use ($request) {
-            return $query->where('owner_id', $request->owner_id);
-        })->first();
+        $user = User::find($otpEntry->user_id);
         $user->password = Hash::make($request->password);
         $user->save();
 
