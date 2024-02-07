@@ -145,7 +145,7 @@ class RegistrationController extends Controller
             'tenant_id' => $user->id,
             'primary' => true,
             'building_id' => $request->building_id,
-            'start_date' => $type === 'Tenant' ? $queryModel->value('start_date') : null,
+            'start_date' =>  null,
             'end_date' => $type === 'Tenant' ? $queryModel->value('end_date') : null,
             'active' => 1,
             'role' => $type
@@ -213,20 +213,6 @@ class RegistrationController extends Controller
     
         // Determine the type (tenant or owner)
         $type = $request->input('type', 'Owner');
-        $queryModel = null;
-        if($request->type == 'Tenant'){
-            
-            $queryModel = MollakTenant::where(['building_id' => $request->building_id, 'flat_id' => $request->flat_id]);
-            
-            if (!$queryModel || !$queryModel->exists()) {
-                    return (new CustomResponseResource([
-                        'title' => 'Error',
-                        'message' => "Your details are not matching with Mollak data. Please enter valid details.",
-                        'code' => 400,
-                    ]))->response()->setStatusCode(400);
-                }
-        }
-
 
     
         // Identify role based on the type
@@ -259,8 +245,8 @@ class RegistrationController extends Controller
             'tenant_id' => $user->id,
             'primary' => true,
             'building_id' => $request->building_id,
-            'start_date' => $type === 'Tenant' ? $queryModel->value('start_date') : null,
-            'end_date' => $type === 'Tenant' ? $queryModel->value('end_date') : null,
+            'start_date' =>  null,
+            'end_date' => null,
             'active' => 1,
             'role' => $type
         ]);
