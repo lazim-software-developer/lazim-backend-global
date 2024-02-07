@@ -114,6 +114,7 @@ class RegistrationController extends Controller
                 return (new CustomResponseResource([
                     'title' => 'Error',
                     'message' => "Your details are not matching with Mollak data. Please use your Ejari document instead",
+                    'status' => 'detailsNotMatching',
                     'code' => 400,
                 ]))->response()->setStatusCode(400);
             }
