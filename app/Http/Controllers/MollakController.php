@@ -88,31 +88,42 @@ class MollakController extends Controller
     {
         $otp = $request->otp;
 
-        $response = Http::withOptions(['verify' => false])->withHeaders([
-            'content-type' => 'application/json',
-        ])->post(env("SMS_LINK") . "checkotp?username=" . env("SMS_USERNAME") . "&password=" . env("SMS_PASSWORD") . "&msisdn=" . $request->phone . "&otp=" . $otp);
+        if(env('APP_ENV') == 'production' ){
 
-        if ($response->successful()) {
-            $value = $response->json();
-
-            if ($value == 101) {
-                User::where('phone', $request->phone)->update(['phone_verified' => true]);
-
+            $response = Http::withOptions(['verify' => false])->withHeaders([
+                'content-type' => 'application/json',
+            ])->post(env("SMS_LINK") . "checkotp?username=" . env("SMS_USERNAME") . "&password=" . env("SMS_PASSWORD") . "&msisdn=" . $request->phone . "&otp=" . $otp);
+    
+            if ($response->successful()) {
+                $value = $response->json();
+    
+                if ($value == 101) {
+                    User::where('phone', $request->phone)->update(['phone_verified' => true]);
+    
+                    return response()->json([
+                        'message' => 'Phone successfully verified.',
+                        'status' => 'success'
+                    ], 200);
+                }
                 return response()->json([
-                    'message' => 'Phone successfully verified.',
-                    'status' => 'success'
-                ], 200);
+                    'message' => 'We were unable to verify your phone number. Please try again!',
+                    'status' => 'error'
+                ], 400);
+            } else {
+                return response()->json([
+                    'message' => 'We were unable to verify your phone number. Please try again!',
+                    'status' => 'error'
+                ], 400);
             }
-            return response()->json([
-                'message' => 'We were unable to verify your phone number. Please try again!',
-                'status' => 'error'
-            ], 400);
-        } else {
-            return response()->json([
-                'message' => 'We were unable to verify your phone number. Please try again!',
-                'status' => 'error'
-            ], 400);
         }
+        else{
+            User::where('phone', $request->phone)->update(['phone_verified' => true]);
+            return response()->json([
+                'message' => 'Phone successfully verified.',
+                'status' => 'success'
+            ], 200);
+        }
+
     }
     public function fetchbudget(Request $request)
     {
