@@ -73,6 +73,7 @@ Route::post('/register', [RegistrationController::class, 'registerWithEmailPhone
 Route::post('/register-with-document', [RegistrationController::class, 'registerWithDocument']);
 // owner list
 Route::get('/owner-list/{flat}', [RegistrationController::class,'ownerList']);
+Route::get('/all-owners', [RegistrationController::class, 'allOwners']);
 //owner details
 Route::get('/owner-details/{owner}', [RegistrationController::class,'ownerDetails']);
 
