@@ -292,6 +292,14 @@ class AuthController extends Controller
     // Vendor login
     public function vendorLogin(GateKeeperLoginRequest $request) {
         $user = User::where('email', $request->email)->first();
+
+        if(!$user->active){
+            return (new CustomResponseResource([
+                'title' => 'Inactive!',
+                'message' => 'Account is inactive, Please contact the admin for help',
+                'code' => 400,
+            ]))->response()->setStatusCode(400);
+        }
         
         // cehck if user is vendor
         if($user->role->name != 'Vendor') {
