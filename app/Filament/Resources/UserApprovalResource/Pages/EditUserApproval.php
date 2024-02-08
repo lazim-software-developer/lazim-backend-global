@@ -28,17 +28,13 @@ class EditUserApproval extends EditRecord
         $user = User::find($this->record->user_id);
         if ($this->data['status'] == 'approved' && $this->record->status == null) {
 
-            $password = Str::random(12);
-            $user->password = Hash::make($password);
-            $user->email_verified = true;
-            $user->phone_verified = true;
             $user->active = true;
             $user->save();
-            Residentapproval::dispatch($user, $password);
+            Residentapproval::dispatch($user);
             Notification::make()
                 ->title("Resident Approved")
                 ->success()
-                ->body("Resident approved successfully and passwoed sent to mail")
+                ->body("Resident approved successfully")
                 ->send();
         }
         if ($this->data['status'] == 'rejected' && $this->record->status == null) {

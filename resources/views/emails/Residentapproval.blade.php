@@ -36,12 +36,8 @@
 		</tr>
         <tr>
             <td class="paragraph">
-                <strong>Password: </strong> {{$password}}
-                <!-- (We recommend changing this password upon your first login for security reasons.) -->
+                Your account has been approved!
 			</td>
-		</tr>
-        <tr>
-			<td width="100%" height="25"></td>
 		</tr>
         <tr>
             <td class="paragraph">
