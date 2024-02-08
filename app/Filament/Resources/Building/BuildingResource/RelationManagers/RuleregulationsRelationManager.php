@@ -9,6 +9,7 @@ use Filament\Forms\Form;
 use Filament\Tables\Table;
 use Filament\Tables\Actions\Action;
 use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Textarea;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
@@ -22,7 +23,7 @@ class RuleregulationsRelationManager extends RelationManager
 
     public static function getTitle(Model $ownerRecord, string $pageClass): string
     {
-        return 'Rule and Regulations';
+        return 'Rules and Regulations';
     }
 
     public function form(Form $form): Form
@@ -33,9 +34,8 @@ class RuleregulationsRelationManager extends RelationManager
                     ->default(function (RelationManager $livewire) {
                         return $livewire->ownerRecord->id;
                     }),
-                Textarea::make('rule_regulation')
+                RichEditor::make('rule_regulation')
                     ->required()
-                    ->autosize()
                     ->columnSpanFull(),
             ]);
     }
@@ -44,7 +44,7 @@ class RuleregulationsRelationManager extends RelationManager
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('rule_regulation')->wrap(),
+                Tables\Columns\TextColumn::make('rule_regulation')->label('Content')->html()->wrap(),
             ])
             ->filters([
                 //
@@ -58,9 +58,9 @@ class RuleregulationsRelationManager extends RelationManager
                             ->default(function (RelationManager $livewire) {
                                 return $livewire->ownerRecord->id;
                             }),
-                        Textarea::make('rule_regulation')
+                        RichEditor::make('rule_regulation')
                             ->required()
-                            ->autosize()
+    
                             ->columnSpanFull(),
                     ])
                     ->action(function (array $data): void {
@@ -82,9 +82,9 @@ class RuleregulationsRelationManager extends RelationManager
                             ->default(function (RelationManager $livewire) {
                                 return $livewire->ownerRecord->id;
                             }),
-                        Textarea::make('rule_regulation')
+                        RichEditor::make('rule_regulation')
                             ->required()
-                            ->autosize()
+    
                             ->columnSpanFull(),
                     ])
                     ->fillForm(fn(RuleRegulation $record): array => [
