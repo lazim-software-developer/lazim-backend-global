@@ -231,12 +231,16 @@ class RegistrationController extends Controller
         ]);
 
         $imagePath = optimizeAndUpload($request->document, 'dev');
+        $emirates = optimizeAndUpload($request->emirates_document, 'dev');
+        $passport = optimizeAndUpload($request->passport_document, 'dev');
 
 
         $userApproval = UserApproval::create([
             'user_id' => $user->id,
             'document' => $imagePath,
-            'document_type' => $request->type == 'Owner'? 'title_deed': 'ejari'
+            'document_type' => $request->type == 'Owner'? 'title_deed': 'ejari',
+            'emirates_document' => $emirates,
+            'passport' => $passport
         ]);
 
         // Store details to Flat tenants table
