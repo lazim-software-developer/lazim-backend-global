@@ -27,7 +27,7 @@ class ComplaintStoreRequest extends FormRequest
             'complaint' => 'required|min:5|max:150',
             'complaint_type' => 'required|in:help_desk,tenant_complaint,suggestions,enquiries,snag',
             'complaint_details' => [
-                'required_if:complaint_type,tenant_complaint,suggestions,enquiries',
+                // 'required_if:complaint_type,tenant_complaint,suggestions,enquiries',
                 'string','max:1000','min:20'
             ],
             'flat_id' => 'required_if:complaint_type,tenant_complaint,suggestions,enquiries,help_desk'
