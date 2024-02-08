@@ -33,9 +33,8 @@ class UpdateDelinquentOwnerInvoiceJob implements ShouldQueue
      */
     public function handle(): void
     {
-            Log::info($this->invoice);
+            
             $receipts = OAMReceipts::where(['flat_id' => $this->invoice->flat_id,'receipt_period' => $this->invoice->invoice_period])->first();
-            Log::info('receipts'.$receipts);
             preg_match('/(\d{4})/', $this->invoice->invoice_quarter, $matches);
             $year = $matches[1];
             $flatId= $this->invoice->flat_id;
@@ -43,14 +42,12 @@ class UpdateDelinquentOwnerInvoiceJob implements ShouldQueue
             $lastReceipt = OAMReceipts::where(['flat_id' => $flatId])->where('receipt_period', 'like', '%' . $year . '%')
             ->latest('receipt_date')
             ->first(['receipt_date', 'receipt_amount']);
-            Log::info('last'.$lastReceipt);
             $lastInvoice = OAMInvoice::where(['flat_id' => $flatId])
                                 ->where('invoice_period', 'like', '%' . $year . '%')
                                 ->latest('invoice_date')
                                 ->first();
             $dueAmount = $lastInvoice->due_amount;
             if(!$receipts || $this->invoice->invoice_due_date < Carbon::parse($receipts?->receipt_date)->toDateString()){
-                Log::info('year'.$year);
                 
                 if($lastInvoice?->invoice_due_date && $lastReceipt?->receipt_date && Carbon::parse($lastReceipt?->receipt_date)->greaterThan(Carbon::parse($lastInvoice?->invoice_due_date)))
                     {
@@ -69,7 +66,6 @@ class UpdateDelinquentOwnerInvoiceJob implements ShouldQueue
                         'outstanding_balance' => $dueAmount ,
                         'invoice_pdf_link' => $lastInvoice->invoice_pdf_link,
                     ]);
-                Log::info('delinquent'.$delinquent);
                 $invoiceQuarter = $this->invoice->invoice_quarter;
                 $quarterNumber = substr($invoiceQuarter, 1, 1);
                 $balanceFieldName = 'quarter_' . $quarterNumber . '_balance';

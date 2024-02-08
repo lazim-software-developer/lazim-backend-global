@@ -33,7 +33,6 @@ class UpdateDelinquentOwnerReceiptJob implements ShouldQueue
     public function handle(): void
     {
         $invoice = OAMInvoice::where(['flat_id' => $this->receipt->flat_id, 'building_id' => $this->receipt->building_id, 'invoice_period' => $this->receipt->receipt_period])->first();
-            Log::info($invoice);
             if($invoice && Carbon::parse($this->receipt->receipt_date)->greaterThan(Carbon::parse($invoice->invoice_due_date))){
                 preg_match('/(\d{4})/', $invoice->invoice_quarter, $matches);
                 $year = $matches[1];
@@ -49,7 +48,6 @@ class UpdateDelinquentOwnerReceiptJob implements ShouldQueue
                 $lastReceipt = OAMReceipts::where(['flat_id' => $flatId])
                 ->latest('receipt_date')
                 ->first(['receipt_date', 'receipt_amount']);
-                Log::info('last'.$lastReceipt);
                 $lastInvoice = OAMInvoice::where(['flat_id' => $flatId])
                                     ->latest('invoice_date')
                                     ->first();
@@ -80,6 +78,5 @@ class UpdateDelinquentOwnerReceiptJob implements ShouldQueue
             }
             $this->receipt->processed = true;
             $this->receipt->save();
-            Log::info('success');
     }
 }
