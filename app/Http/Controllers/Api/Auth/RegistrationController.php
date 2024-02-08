@@ -259,7 +259,7 @@ class RegistrationController extends Controller
             'title' => 'Registration successful!',
             'message' => "Registration was successful. We'll get back to you soon.",
             'code' => 201,
-            'status' => 'success'
+            'status' => 'verificationPending'
         ]))->response()->setStatusCode(201);
     }    
 
