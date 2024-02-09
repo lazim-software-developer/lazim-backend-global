@@ -230,9 +230,9 @@ class RegistrationController extends Controller
             'owner_association_id' => $building->owner_association_id,
         ]);
 
-        $imagePath = optimizeAndUpload($request->document, 'dev');
-        $emirates = optimizeAndUpload($request->emirates_document, 'dev');
-        $passport = optimizeAndUpload($request->passport_document, 'dev');
+        $imagePath = optimizeDocumentAndUpload($request->document, 'dev');
+        $emirates = optimizeDocumentAndUpload($request->emirates_document, 'dev');
+        $passport = optimizeDocumentAndUpload($request->passport_document, 'dev');
 
 
         $userApproval = UserApproval::create([
