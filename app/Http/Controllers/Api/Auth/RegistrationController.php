@@ -255,6 +255,9 @@ class RegistrationController extends Controller
             'role' => $type
         ]);
 
+        // Send email after 5 seconds
+        SendVerificationOtp::dispatch($user)->delay(now()->addSeconds(5));
+
         return (new CustomResponseResource([
             'title' => 'Registration successful!',
             'message' => "Registration was successful. We'll get back to you soon.",
