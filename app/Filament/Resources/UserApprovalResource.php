@@ -49,6 +49,9 @@ class UserApprovalResource extends Resource
                         'approved' => 'Approve',
                         'rejected' => 'Reject',
                     ])
+                    ->disabled(function (UserApproval $record) {
+                        return $record->status != null;
+                    })
                     ->searchable()
                     ->live()
                     ->required(),
