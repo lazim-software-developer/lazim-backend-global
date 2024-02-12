@@ -278,9 +278,13 @@ class RegistrationController extends Controller
         $otp = rand(1000, 9999);
 
         if($type == 'email') {
-            $user = user::where('email', $contactValue)->first();
+            $user = user::where('email', $contactValue)->when($request->has('owner_id'), function ($query) use ($request) {
+                return $query->where('owner_id', $request->owner_id);
+            })->first();
         } else {
-            $user = user::where('phone', $contactValue)->first();
+            $user = user::where('phone', $contactValue)->when($request->has('owner_id'), function ($query) use ($request) {
+                return $query->where('owner_id', $request->owner_id);
+            })->first();
         }
 
         if($user) {
