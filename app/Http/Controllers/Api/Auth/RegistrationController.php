@@ -174,7 +174,7 @@ class RegistrationController extends Controller
         if($userData->exists() && ($userData->first()->email_verified == 0 || $userData->first()->phone_verified == 0)) {
             return (new CustomResponseResource([
                 'title' => 'account_present',
-                'message' => "Your account is not verified. You'll be redirected account verification page",
+                'message' => "Your account is not verified. You'll be redirected to account verification page",
                 'code' => 403, 
             ]))->response()->setStatusCode(403);
         }
@@ -260,7 +260,7 @@ class RegistrationController extends Controller
 
         return (new CustomResponseResource([
             'title' => 'Registration successful!',
-            'message' => "Registration was successful. We'll get back to you soon.",
+            'message' => "We've sent verification code to your email Id and phone. Please verify to continue using the application",
             'code' => 201,
             'status' => 'verificationPending'
         ]))->response()->setStatusCode(201);
