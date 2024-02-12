@@ -33,10 +33,30 @@ class UserApprovalResource extends Resource
                     ->required()
                     ->disabled(),
                 TextInput::make('document_type')
+                    ->live()
                     ->required()
                     ->disabled()
                     ->maxLength(191),
                 FileUpload::make('document')
+                    ->label(function (Get $get) {
+                            return $get('document_type');
+                    })
+                    ->disk('s3')
+                    ->directory('dev')
+                    ->openable(true)
+                    ->downloadable(true)
+                    ->required()
+                    ->disabled()
+                    ->columnSpanFull(),
+                FileUpload::make('emirates_document')
+                    ->disk('s3')
+                    ->directory('dev')
+                    ->openable(true)
+                    ->downloadable(true)
+                    ->required()
+                    ->disabled()
+                    ->columnSpanFull(),
+                FileUpload::make('passport')
                     ->disk('s3')
                     ->directory('dev')
                     ->openable(true)
@@ -75,9 +95,6 @@ class UserApprovalResource extends Resource
                     ->numeric()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('status')
-                    ->searchable()
-                    ->default('NA'),
-                Tables\Columns\TextColumn::make('remarks')
                     ->searchable()
                     ->default('NA'),
                 Tables\Columns\TextColumn::make('document_type')
