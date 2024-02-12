@@ -32,13 +32,11 @@ class UserApprovalResource extends Resource
                     ->relationship('user', 'first_name')
                     ->required()
                     ->disabled(),
-                TextInput::make('document_type')
-                    ->live()
-                    ->required()
-                    ->disabled()
-                    ->maxLength(191),
                 FileUpload::make('document')
                     ->label(function (Get $get) {
+                        if($get('document_type') == 'Ejari'){
+                            return 'Tenancy Contract / Ejari';
+                        }
                             return $get('document_type');
                     })
                     ->disk('s3')
@@ -97,8 +95,6 @@ class UserApprovalResource extends Resource
                 Tables\Columns\TextColumn::make('status')
                     ->searchable()
                     ->default('NA'),
-                Tables\Columns\TextColumn::make('document_type')
-                    ->searchable(),
             ])
             ->filters([
                 //
