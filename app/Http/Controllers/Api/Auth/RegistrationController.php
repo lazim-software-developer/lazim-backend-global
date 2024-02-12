@@ -34,7 +34,7 @@ class RegistrationController extends Controller
         if($userData->exists() && ($userData->first()->email_verified == 0 )) {
             return (new CustomResponseResource([
                 'title' => 'account_present',
-                'message' => "Your account is not verified. You'll be redirected account verification page",
+                'message' => "Your account is not verified. You'll be redirected to account verification page",
                 'code' => 403,
                 'type' => 'email'
             ]))->response()->setStatusCode(403);
@@ -44,21 +44,11 @@ class RegistrationController extends Controller
         if($userData->exists() && ( $userData->first()->phone_verified == 0)) {
             return (new CustomResponseResource([
                 'title' => 'account_present',
-                'message' => "Your account is not verified. You'll be redirected account verification page",
+                'message' => "Your account is not verified. You'll be redirected to account verification page",
                 'code' => 403,
                 'type' => 'phone'
             ]))->response()->setStatusCode(403);
         }
-
-        // // If phone is verified,
-        // if($userData->exists() && ($userData->first()->email_verified == 0 && $userData->first()->phone_verified == 1)) {
-        //     return (new CustomResponseResource([
-        //         'title' => 'account_present',
-        //         'message' => "Your account is not verified. You'll be redirected account verification page",
-        //         'code' => 403,
-        //         'type' => 'email'
-        //     ]))->response()->setStatusCode(403);
-        // }
 
         // Check if user exists in our DB
         if (User::where(['email' => $request->email, 'phone' => $request->mobile, 'email_verified' => 1, 'phone_verified' => 1, 'owner_id' => $request->owner_id])->exists()) {
@@ -171,11 +161,23 @@ class RegistrationController extends Controller
             $userData->where('owner_id' , $request->get('owner_id'));
         }
 
-        if($userData->exists() && ($userData->first()->email_verified == 0 || $userData->first()->phone_verified == 0)) {
+        
+        if($userData->exists() && ($userData->first()->email_verified == 0 )) {
             return (new CustomResponseResource([
                 'title' => 'account_present',
                 'message' => "Your account is not verified. You'll be redirected to account verification page",
-                'code' => 403, 
+                'code' => 403,
+                'type' => 'email'
+            ]))->response()->setStatusCode(403);
+        }
+
+        // If email is verified,
+        if($userData->exists() && ( $userData->first()->phone_verified == 0)) {
+            return (new CustomResponseResource([
+                'title' => 'account_present',
+                'message' => "Your account is not verified. You'll be redirected to account verification page",
+                'code' => 403,
+                'type' => 'phone'
             ]))->response()->setStatusCode(403);
         }
 
