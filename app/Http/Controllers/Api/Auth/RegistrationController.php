@@ -55,8 +55,8 @@ class RegistrationController extends Controller
             return (new CustomResponseResource([
                 'title' => 'account_present',
                 'message' => 'Your email is already registered in our application. Please try login instead!',
-                'code' => 403,
-            ]))->response()->setStatusCode(403);
+                'code' => 409,
+            ]))->response()->setStatusCode(409);
         }
 
         // Fetch the flat using the provided flat_id
@@ -186,8 +186,8 @@ class RegistrationController extends Controller
             return (new CustomResponseResource([
                 'title' => 'account_present',
                 'message' => 'Your email is already registered in our application. Please try login instead!',
-                'code' => 403,
-            ]))->response()->setStatusCode(403);
+                'code' => 409,
+            ]))->response()->setStatusCode(409);
         }
 
         // Fetch the flat using the provided flat_id
