@@ -32,7 +32,7 @@ class EditVendor extends EditRecord
             VendorRemarks::firstorcreate([
                 'vendor_id'  => $this->record->id,
                 'status'     => 'active',
-                'remarks'    => $this->record->remarks,
+                'remarks'    => $this->record->remarks ?? 'Approved',
                 'user_id'    => auth()->user()->id,
             ]);
         }
@@ -40,7 +40,7 @@ class EditVendor extends EditRecord
             VendorRemarks::firstorcreate([
                 'vendor_id'  => $this->record->id,
                 'status'     => 'inactive',
-                'remarks'    => $this->record->remarks,
+                'remarks'    => $this->record->remarks ?? 'Approved',
                 'user_id'    => auth()->user()->id,
             ]);
         }
