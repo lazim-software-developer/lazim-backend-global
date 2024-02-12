@@ -11,6 +11,7 @@ use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
 use App\Filament\Resources\UserApprovalResource;
 use App\Jobs\Residentapproval;
+use App\Models\UserApproval;
 
 class EditUserApproval extends EditRecord
 {
@@ -25,9 +26,11 @@ class EditUserApproval extends EditRecord
     }
     protected function beforeSave(): void
     {
+        UserApproval::find($this->data['id'])->update([
+            'updated_by'  => auth()->user()->id,
+        ]);
         $user = User::find($this->record->user_id);
         if ($this->data['status'] == 'approved' && $this->record->status == null) {
-
             $user->active = true;
             $user->save();
             Residentapproval::dispatch($user);

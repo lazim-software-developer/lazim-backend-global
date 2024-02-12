@@ -240,7 +240,7 @@ class RegistrationController extends Controller
         $userApproval = UserApproval::create([
             'user_id' => $user->id,
             'document' => $imagePath,
-            'document_type' => $request->type == 'Owner'? 'title_deed': 'ejari',
+            'document_type' => $request->type == 'Owner'? 'Title Deed': 'Ejari',
             'emirates_document' => $emirates,
             'passport' => $passport
         ]);
