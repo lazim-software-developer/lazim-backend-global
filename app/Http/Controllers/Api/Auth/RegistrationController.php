@@ -324,7 +324,7 @@ class RegistrationController extends Controller
         $owners =$flat->owners()->get();
 
         $owners = $owners->filter(function($owner){
-            if(!$owner->users()->where('active',1)->exists()){
+            if(!$owner->users()->exists()){
                 return $owner;
             };
         });
