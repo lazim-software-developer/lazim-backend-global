@@ -28,7 +28,7 @@ class CompanyDetailsRequest extends FormRequest
             'address_line_1'  =>    'required|string',
             'address_line_2'  =>    'nullable|string',
             'landline_number' =>    'required|string|unique:vendors,landline_number',
-            'website'         =>    'nullable|url',
+            'website'         =>    'nullable',
             'fax'             =>    'nullable|string|unique:vendors,fax',
             'tl_number'       =>    'required|string|unique:vendors,tl_number',
             'tl_expiry'       =>    'required|date',
