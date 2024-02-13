@@ -125,6 +125,20 @@ class OwnerAssociationResource extends Resource
                                 ->exists();
                         })
                         ->placeholder('Email'),
+                    TextInput::make('bank_account_number')
+                        ->label('Bank Account Number')
+                        ->numeric()
+                        ->disabled(function (callable $get) {
+                            if(Role::where('id',auth()->user()->role_id)->first()->name == 'Admin')
+                            {
+                                return DB::table('owner_associations')
+                                ->where('email', $get('email'))
+                                ->where('verified', 1)
+                                ->exists();
+                            }
+                            
+                        })
+                        ->placeholder('account number'),
                     FileUpload::make('profile_photo')
                         ->disk('s3')
                         ->directory('dev')
@@ -144,9 +158,69 @@ class OwnerAssociationResource extends Resource
                         })
                         ->columnSpan([
                             'sm' => 1,
-                            'md' => 1,
+                            'md' => 2,
                             'lg' => 2,
                         ]),
+                    FileUpload::make('trn_certificate')
+                        ->disk('s3')
+                        ->directory('dev')
+                        ->maxSize(2048)
+                        ->label('TRN Certificate')
+                        ->disabled(function (callable $get) {
+                            if(Role::where('id',auth()->user()->role_id)->first()->name == 'Admin')
+                            {
+                                return DB::table('owner_associations')
+                                ->where('email', $get('email'))
+                                ->where('verified', 1)
+                                ->exists();
+                            }
+                            
+                        }),
+                    FileUpload::make('trade_license')
+                        ->disk('s3')
+                        ->directory('dev')
+                        ->maxSize(2048)
+                        ->label('Trade License')
+                        ->disabled(function (callable $get) {
+                            if(Role::where('id',auth()->user()->role_id)->first()->name == 'Admin')
+                            {
+                                return DB::table('owner_associations')
+                                ->where('email', $get('email'))
+                                ->where('verified', 1)
+                                ->exists();
+                            }
+                            
+                        }),
+                    FileUpload::make('dubai_chamber_document')
+                        ->disk('s3')
+                        ->directory('dev')
+                        ->maxSize(2048)
+                        ->label('Dubai Chamber Document')
+                        ->disabled(function (callable $get) {
+                            if(Role::where('id',auth()->user()->role_id)->first()->name == 'Admin')
+                            {
+                                return DB::table('owner_associations')
+                                ->where('email', $get('email'))
+                                ->where('verified', 1)
+                                ->exists();
+                            }
+                            
+                        }),
+                    FileUpload::make('memorandum_of_association')
+                        ->disk('s3')
+                        ->directory('dev')
+                        ->maxSize(2048)
+                        ->label('Memorandum of Association')
+                        ->disabled(function (callable $get) {
+                            if(Role::where('id',auth()->user()->role_id)->first()->name == 'Admin')
+                            {
+                                return DB::table('owner_associations')
+                                ->where('email', $get('email'))
+                                ->where('verified', 1)
+                                ->exists();
+                            }
+                            
+                        }),
                     Toggle::make('verified')
                         ->rules(['boolean'])
                         ->hidden(function ($record) {
