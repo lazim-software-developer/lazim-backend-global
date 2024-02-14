@@ -20,6 +20,7 @@ use App\Filament\Resources\DelinquentOwnerResource;
 use App\Filament\Resources\LegalOfficerResource;
 use App\Filament\Resources\OwnerAssociationInvoiceResource;
 use App\Filament\Resources\OwnerAssociationReceiptResource;
+use App\Filament\Resources\UserApprovalResource;
 use App\Models\AgingReport;
 use App\Models\Master\Role;
 use Filament\Navigation\NavigationGroup;
@@ -92,36 +93,42 @@ class AdminPanelProvider extends PanelProvider
                                 ->icon('heroicon-o-users')
                                 ->activeIcon('heroicon-o-users')
                                 ->sort(1),
+                            NavigationItem::make('Resident Approval')
+                                ->url(UserApprovalResource::getUrl('index'))
+                                ->hidden(!in_array(Role::where('id', auth()->user()->role_id)->first()->name, ['OA']))
+                                ->icon('heroicon-o-users')
+                                ->activeIcon('heroicon-o-users')
+                                ->sort(2),
                             NavigationItem::make('MD')
                                 ->url('/admin/m-d-s')
                                 ->hidden(!in_array(Role::where('id', auth()->user()->role_id)->first()->name, ['OA']))
                                 ->icon('heroicon-o-users')
                                 ->activeIcon('heroicon-o-users')
-                                ->sort(2),
+                                ->sort(3),
                             NavigationItem::make('Accounts Manager')
                                 ->url('/admin/accounts-managers')
                                 ->hidden(!in_array(Role::where('id', auth()->user()->role_id)->first()->name, ['OA']))
                                 ->icon('heroicon-o-users')
                                 ->activeIcon('heroicon-o-users')
-                                ->sort(3),
+                                ->sort(4),
                             NavigationItem::make('Building Engineer')
                                 ->url(BuildingEngineerResource::getUrl('index'))
                                 ->hidden(!in_array(Role::where('id', auth()->user()->role_id)->first()->name, ['OA','MD']))
                                 ->icon('heroicon-o-users')
                                 ->activeIcon('heroicon-o-users')
-                                ->sort(4),
+                                ->sort(5),
                             NavigationItem::make('Complaint Officer')
                                 ->url(ComplaintOfficerResource::getUrl('index'))
                                 ->hidden(!in_array(Role::where('id', auth()->user()->role_id)->first()->name, ['OA','MD']))
                                 ->icon('heroicon-o-users')
                                 ->activeIcon('heroicon-o-users')
-                                ->sort(5),
+                                ->sort(6),
                             NavigationItem::make('Legal Officer')
                                 ->url(LegalOfficerResource::getUrl('index'))
                                 ->hidden(!in_array(Role::where('id', auth()->user()->role_id)->first()->name, ['OA','MD']))
                                 ->icon('heroicon-o-users')
                                 ->activeIcon('heroicon-o-users')
-                                ->sort(6),
+                                ->sort(7),
                             // NavigationItem::make('Medias')
                             //     ->url('/admin/media')
                             //     // ->hidden(DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] == 'Admin' ? false : true)
@@ -133,7 +140,7 @@ class AdminPanelProvider extends PanelProvider
                                 ->hidden(!in_array(Role::where('id', auth()->user()->role_id)->first()->name, ['Admin','OA']))
                                 ->icon('heroicon-s-user-group')
                                 ->activeIcon('heroicon-s-user-group')
-                                ->sort(7),
+                                ->sort(8),
                             // NavigationItem::make('Cities')
                             //     // ->hidden(DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] == 'Admin' ? false : true)
                             //     ->url('/admin/master/cities')
@@ -145,31 +152,31 @@ class AdminPanelProvider extends PanelProvider
                                 ->hidden(!in_array(Role::where('id', auth()->user()->role_id)->first()->name, ['OA','Admin']))
                                 ->icon('heroicon-o-user-circle')
                                 ->activeIcon('heroicon-o-user-circle')
-                                ->sort(8),
+                                ->sort(9),
                             NavigationItem::make('Facilities')
                                 ->hidden(!in_array(Role::where('id', auth()->user()->role_id)->first()->name, ['OA','Admin']))
                                 ->url('/admin/master/facilities')
                                 ->icon('heroicon-o-cube-transparent')
                                 ->activeIcon('heroicon-o-cube-transparent')
-                                ->sort(9),
+                                ->sort(10),
                             NavigationItem::make('Roles')
                                 ->hidden(!in_array(Role::where('id', auth()->user()->role_id)->first()->name, ['OA','Admin']))
                                 ->url('/admin/master/roles')
                                 ->icon('heroicon-s-user-group')
                                 ->activeIcon('heroicon-s-user-group')
-                                ->sort(10),
+                                ->sort(11),
                             NavigationItem::make('In-house services')
                                 ->hidden(!in_array(Role::where('id', auth()->user()->role_id)->first()->name, ['OA','Admin']))
                                 ->url('/admin/master/services')
                                 ->icon('heroicon-m-wrench')
                                 ->activeIcon('heroicon-m-wrench')
-                                ->sort(11),
+                                ->sort(12),
                             NavigationItem::make('Vendor services')
                                 ->hidden(!in_array(Role::where('id', auth()->user()->role_id)->first()->name, ['OA','Admin']))
                                 ->url('/admin/master/vendor-services')
                                 ->icon('heroicon-m-wrench-screwdriver')
                                 ->activeIcon('heroicon-m-wrench-screwdriver')
-                                ->sort(12),
+                                ->sort(13),
                         ]),
                 ]);
             }
@@ -342,13 +349,13 @@ class AdminPanelProvider extends PanelProvider
                                     ->activeIcon('heroicon-s-clipboard-document')
                                     ->sort(10),
                                 NavigationItem::make('General Fund Statement Mollak')
-                                    ->url('/admin/general-fund-statement-mollak')
+                                    ->url('/admin/mollak-general-fund-statement')
                                     ->hidden(!in_array(Role::where('id', auth()->user()->role_id)->first()->name, ['OA']))
                                     ->icon('heroicon-m-clipboard-document-check')
                                     ->activeIcon('heroicon-m-clipboard-document-check')
                                     ->sort(11),
                                 NavigationItem::make('Reserve Fund Statement Mollak')
-                                    ->url('/admin/reserve-fund-statement-mollak')
+                                    ->url('/admin/mollak-reserve-fund-statement')
                                     ->hidden(!in_array(Role::where('id', auth()->user()->role_id)->first()->name, ['OA']))
                                     ->icon('heroicon-m-clipboard-document-list')
                                     ->activeIcon('heroicon-m-clipboard-document-list')

@@ -63,6 +63,8 @@ class EditResidentialForm extends EditRecord
                         'data' => ['notificationType' => 'MyRequest'],
                     ];
                     $this->expoNotification($message);
+                }
+            }
                     DB::table('notifications')->insert([
                         'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
                         'type' => 'Filament\Notifications\DatabaseNotification',
@@ -77,13 +79,12 @@ class EditResidentialForm extends EditRecord
                             'title' => 'Residential form status',
                             'view' => 'notifications::notification',
                             'viewData' => [],
-                            'format' => 'filament'
+                            'format' => 'filament',
+                            'url' => 'MyRequest',
                         ]),
                         'created_at' => now()->format('Y-m-d H:i:s'),
                         'updated_at' => now()->format('Y-m-d H:i:s'),
                     ]);
-                }
-            }
         }
 
         if ($this->record->status == 'rejected') {
@@ -98,6 +99,8 @@ class EditResidentialForm extends EditRecord
                         'data' => ['notificationType' => 'MyRequest'],
                     ];
                     $this->expoNotification($message);
+                }
+            }
                     DB::table('notifications')->insert([
                         'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
                         'type' => 'Filament\Notifications\DatabaseNotification',
@@ -112,13 +115,12 @@ class EditResidentialForm extends EditRecord
                             'title' => 'Residential form status',
                             'view' => 'notifications::notification',
                             'viewData' => [],
-                            'format' => 'filament'
+                            'format' => 'filament',
+                            'url' => 'MyRequest',
                         ]),
                         'created_at' => now()->format('Y-m-d H:i:s'),
                         'updated_at' => now()->format('Y-m-d H:i:s'),
                     ]);
-                }
-            }
         }
     }
 

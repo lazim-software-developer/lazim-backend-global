@@ -187,7 +187,7 @@ class ComplaintRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn(Builder $query) => $query->whereIn('complaint_type', ['help_desk', 'tenant_complaint']))
+            ->modifyQueryUsing(fn(Builder $query) => $query->whereIn('complaint_type', ['help_desk', 'tenant_complaint'])->where('status','closed'))
             ->columns([
                 TextColumn::make('building.name')
                     ->default('NA')

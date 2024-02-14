@@ -18,22 +18,18 @@ class AssignFlatsToTenant implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected $email;
 
-    protected $mobile;
-
-    public function __construct($email,$mobile)
+    public function __construct(protected $email, protected $mobile, protected $owner_id)
     {
-        $this->email = $email;
-        $this->mobile = $mobile;
+
     }
 
     public function handle()
     {
         // Fetch the owner using the provided email
-        $owner = ApartmentOwner::where('email', $this->email)->where('mobile',$this->mobile)->first();
+        $owner = ApartmentOwner::where('id', $this->owner_id)->first();
 
-        $user = User::where('email', $this->email)->where('phone',$this->mobile)->first();
+        $user = User::where('email', $this->email)->where('phone',$this->mobile)->where('owner_id', $this->owner_id)->first();
         Log::info($owner);
         Log::info($user);
         logger("Owner: " . json_encode($owner));
