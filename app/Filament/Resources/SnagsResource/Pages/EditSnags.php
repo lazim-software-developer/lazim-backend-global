@@ -52,7 +52,8 @@ class EditSnags extends EditRecord
                             'title' => 'Snags status',
                             'view' => 'notifications::notification',
                             'viewData' => [],
-                            'format' => 'filament'
+                            'format' => 'filament',
+                            'url' => 'MyComplaints',
                         ]),
                         'created_at' => now()->format('Y-m-d H:i:s'),
                         'updated_at' => now()->format('Y-m-d H:i:s'),
@@ -85,7 +86,8 @@ class EditSnags extends EditRecord
                                 'title' => 'Snags status',
                                 'view' => 'notifications::notification',
                                 'viewData' => [],
-                                'format' => 'filament'
+                                'format' => 'filament',
+                                'url' => 'ResolvedRequests',
                             ]),
                             'created_at' => now()->format('Y-m-d H:i:s'),
                             'updated_at' => now()->format('Y-m-d H:i:s'),

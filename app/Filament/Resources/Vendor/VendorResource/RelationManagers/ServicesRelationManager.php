@@ -57,7 +57,7 @@ class ServicesRelationManager extends RelationManager
                 //
             ])
             ->actions([
-                Tables\Actions\DetachAction::make() ->label('Remove'),
+                // Tables\Actions\DetachAction::make() ->label('Remove'),
             ])
             ->headerActions([
                 Tables\Actions\AttachAction::make()

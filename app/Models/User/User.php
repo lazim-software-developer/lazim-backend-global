@@ -67,7 +67,8 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
         'role_id',
         'building_id',
         'owner_association_id',
-        'profile_photo'
+        'profile_photo',
+        'owner_id'
     ];
 
     protected $searchableFields = ['*'];

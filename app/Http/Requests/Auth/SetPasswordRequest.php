@@ -24,6 +24,7 @@ class SetPasswordRequest extends FormRequest
         return [
             'email' => 'required|email|exists:users,email',
             'password' => 'required|min:6|confirmed',
+            'owner_id' => 'nullable|integer',
         ];
     }
 
