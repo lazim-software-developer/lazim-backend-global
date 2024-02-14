@@ -74,6 +74,8 @@ class MollakController extends Controller
             'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
         ])->get(env("MOLLAK_API_URL") . '/sync/managementcompany');
 
+        LOG::info("MOLLA ". $response);
+
         return $data = $response->json();
     }
 
