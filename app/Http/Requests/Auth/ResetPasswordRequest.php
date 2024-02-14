@@ -17,6 +17,7 @@ class ResetPasswordRequest extends FormRequest
             'otp' => 'required|digits:4',
             'password' => 'required|min:8|confirmed',
             'password_confirmation' => 'required|min:8',
+            'owner_id' => 'nullable|integer'
         ];
     }
 }

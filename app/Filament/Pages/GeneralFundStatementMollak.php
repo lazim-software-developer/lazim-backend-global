@@ -14,7 +14,7 @@ class GeneralFundStatementMollak extends Page
 
     protected static ?string $title = 'General Fund Statement Mollak';
 
-    protected static ?string $slug = 'general-fund-statement-mollak';
+    protected static ?string $slug = 'mollak-general-fund-statement';
 
     public function getViewData(): array
     {

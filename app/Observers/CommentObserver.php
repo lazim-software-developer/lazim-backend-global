@@ -23,19 +23,29 @@ class CommentObserver
             $user = auth()->user();
             if (in_array($user->role->name, $allowedRoles)) {
                 $complaint = Complaint::where('id', $comment->commentable_id)->first();
-                if ($complaint->complaint_type == 'help_desk'){
-                    if ($complaint->status == 'open'){
-                        $notificationType = 'HelpDeskTabPending';
-                    }
-                    else{
-                        $notificationType = 'HelpDeskTabResolved';
-                    }
-                }
-                else{
-                    $notificationType = 'InAppNotficationScreen';
-                }
                 if ($complaint->technician_id) {
                     $expoPushTokens = ExpoPushNotification::where('user_id', $complaint->technician_id)->pluck('token');
+                    if ($complaint->complaint_type == 'snag'){
+                            
+                        if ($complaint->status == 'open'){
+                            $notificationType = 'PendingRequests';
+                        }
+                        else{
+                            $notificationType = 'ResolvedRequests';
+                        }
+                    }
+                    elseif ($complaint->complaint_type == 'help_desk'){
+                        if ($complaint->status == 'open'){
+                            $notificationType = 'PendingRequests';
+                        }
+                        else{
+                            $notificationType = 'ResolvedRequests';
+                        }
+                    }
+                    else{
+                        $notificationType = 'InAppNotficationScreen';
+                    }
+                    
                     if ($expoPushTokens->count() > 0) {
                         foreach ($expoPushTokens as $expoPushToken) {
                             $message = [
@@ -61,6 +71,7 @@ class CommentObserver
                                     'view' => 'notifications::notification',
                                     'viewData' => [],
                                     'format' => 'filament',
+                                    'url' => $notificationType,
                                 ]),
                                 'created_at' => now()->format('Y-m-d H:i:s'),
                                 'updated_at' => now()->format('Y-m-d H:i:s'),
@@ -69,6 +80,21 @@ class CommentObserver
                     }
                 }
                 if($complaint->user_id != $comment->user_id){
+                    if ($complaint->complaint_type == 'help_desk'){
+                        if ($complaint->status == 'open'){
+                            $notificationType = 'HelpDeskTabPending';
+                        }
+                        else{
+                            $notificationType = 'HelpDeskTabResolved';
+                        }
+                    }
+                    else{
+                        $notificationType = 'InAppNotficationScreen';
+                    }
+                    if ($complaint->complaint_type == 'snag'){
+                                
+                        $notificationType = 'MyComplaints';
+                    }
                     $expoPushTokens = ExpoPushNotification::where('user_id',  $complaint->user_id)->pluck('token');
                         if ($expoPushTokens->count() > 0) {
                             foreach ($expoPushTokens as $expoPushToken) {
@@ -95,6 +121,7 @@ class CommentObserver
                                         'view' => 'notifications::notification',
                                         'viewData' => [],
                                         'format' => 'filament',
+                                        'url' => $notificationType,
                                     ]),
                                     'created_at' => now()->format('Y-m-d H:i:s'),
                                     'updated_at' => now()->format('Y-m-d H:i:s'),
@@ -121,6 +148,10 @@ class CommentObserver
                         else{
                             $notificationType = 'InAppNotficationScreen';
                         }
+                        if ($complaint->complaint_type == 'snag'){
+                            
+                                $notificationType = 'MyComplaints';
+                        }
                         $message = [
                             'to' => $expoPushToken,
                             'sound' => 'default',
@@ -144,6 +175,7 @@ class CommentObserver
                                 'view' => 'notifications::notification',
                                 'viewData' => [],
                                 'format' => 'filament',
+                                'url' => $notificationType,
                             ]),
                             'created_at' => now()->format('Y-m-d H:i:s'),
                             'updated_at' => now()->format('Y-m-d H:i:s'),
