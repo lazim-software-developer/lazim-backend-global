@@ -63,7 +63,7 @@ class EditHelpdeskcomplaint extends EditRecord
                             'view' => 'notifications::notification',
                             'viewData' => [],
                             'format' => 'filament',
-                            'url' => 'HelpDeskTab',
+                            'url' => 'HelpDeskTabResolved',
                         ]),
                         'created_at' => now()->format('Y-m-d H:i:s'),
                         'updated_at' => now()->format('Y-m-d H:i:s'),

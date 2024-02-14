@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Notifications;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\CustomResponseResource;
 use App\Http\Resources\Notifications\NotificationsResource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -17,6 +18,15 @@ class NotificationController extends Controller
         $count = request('count', 10);
         $notification = DB::table('notifications')->where('notifiable_id',auth()->user()->id)->orderBy('created_at', 'desc')->paginate($count);
         return NotificationsResource::collection($notification);
+    }
+
+    public function clearNotifications(){
+        DB::table('notifications')->where('notifiable_id',auth()->user()->id)->delete();
+        return (new CustomResponseResource([
+            'title' => 'Success',
+            'message' => 'Notifications cleared!',
+            'code' => 200,
+        ]))->response()->setStatusCode(200);
     }
 
     /**

@@ -21,7 +21,8 @@ class RegisterRequest extends FormRequest
             'mobile' => 'required|string',
             'building_id' => 'required|integer',
             'flat_id' => 'required|integer',
-            'type' =>'required'
+            'type' =>'required',
+            'owner_id' => 'nullable|integer',
         ];
     }
 

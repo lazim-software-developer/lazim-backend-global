@@ -103,7 +103,11 @@ class AuthController extends Controller
      */
     public function customerLogin(LoginRequest $request)
     {
-        $user = User::where('email', $request->email)->first();
+        $user = User::where('email', $request->email)
+            ->when($request->has('owner_id'), function ($query) use ($request) {
+                return $query->where('owner_id', $request->owner_id);
+            })
+            ->first();
 
         // if (!$user || !Hash::check($request->password, $user->password) || $user->role->name !== $request->role) {
         if (!$user || !Hash::check($request->password, $user->password)) {
@@ -178,7 +182,9 @@ class AuthController extends Controller
     public function setPassword(SetPasswordRequest $request)
     {
         // Fetch the user by email
-        $user = User::where('email', $request->email)->first();
+        $user = User::where('email', $request->email)->when($request->has('owner_id'), function ($query) use ($request) {
+            return $query->where('owner_id', $request->owner_id);
+        })->first();
 
         // Set the new password
         $user->password = Hash::make($request->password);
