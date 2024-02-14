@@ -120,7 +120,7 @@ class DelinquentOwnerResource extends Resource
                             }
                             Notification::make()
                                 ->title("Notification: Outstanding Balance")
-                                ->danger()
+                                ->success()
                                 ->body("Reminder sent regarding Outstanding Balance.")
                                 ->send();
                         })

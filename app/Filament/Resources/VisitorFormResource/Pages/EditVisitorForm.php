@@ -47,7 +47,7 @@ class EditVisitorForm extends EditRecord
                         'sound' => 'default',
                         'title' => 'Visitors',
                         'body' => "Flat Visitor form has been approved \nVisitors for $date at $time\n No. of visitors: $visitorCount\n Unit:$unit ",
-                        'data' => ['notificationType' => 'MyRequest'],
+                        'data' => ['notificationType' => 'InAppNotfication'],
                     ];
                     $this->expoNotification($message);
                     DB::table('notifications')->insert([
@@ -64,7 +64,8 @@ class EditVisitorForm extends EditRecord
                             'title' => 'Visitors',
                             'view' => 'notifications::notification',
                             'viewData' => [],
-                            'format' => 'filament'
+                            'format' => 'filament',
+                            'url' => '',
                         ]),
                         'created_at' => now()->format('Y-m-d H:i:s'),
                         'updated_at' => now()->format('Y-m-d H:i:s'),

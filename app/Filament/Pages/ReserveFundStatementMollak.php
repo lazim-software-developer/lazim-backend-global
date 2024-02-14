@@ -13,7 +13,7 @@ class ReserveFundStatementMollak extends Page
 
     protected static ?string $title = 'Reserve Fund Statement Mollak';
 
-    protected static ?string $slug = 'reserve-fund-statement-mollak';
+    protected static ?string $slug = 'mollak-reserve-fund-statement';
 
     public function getViewData(): array
     {
