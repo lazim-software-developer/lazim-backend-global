@@ -65,6 +65,8 @@ class MollakController extends Controller
         return UnitResource::collection($data['response']['units']);
     }
 
+    // API to check if the Mollak APIs are working. Sometimes the APIs are not working.
+    // This is the helper function to check that
     public function test()
     {
         $response = Http::withOptions(['verify' => false])->withHeaders([
@@ -81,6 +83,8 @@ class MollakController extends Controller
             'content-type' => 'application/json',
         ])->post(env("SMS_LINK") . "otpgenerate?username=" . env("SMS_USERNAME") . "&password=" . env("SMS_PASSWORD") . "&msisdn=" . $request->phone . "&msg=Your%20one%20time%20OTP%20is%20%25m&source=ILAJ-LAZIM&tagname=" . env("SMS_TAG") . "&otplen=5&exptime=60");
 
+        Log::info('RESPONSEEE:-' . $response);
+
         return $response;
     }
 
@@ -88,43 +92,51 @@ class MollakController extends Controller
     {
         $otp = $request->otp;
 
-        if(env('APP_ENV') == 'production' ){
+        $response = Http::withOptions(['verify' => false])->withHeaders([
+            'content-type' => 'application/json',
+        ])->post(env("SMS_LINK") . "checkotp?username=" . env("SMS_USERNAME") . "&password=" . env("SMS_PASSWORD") . "&msisdn=" . $request->phone . "&otp=" . $otp);
 
-            $response = Http::withOptions(['verify' => false])->withHeaders([
-                'content-type' => 'application/json',
-            ])->post(env("SMS_LINK") . "checkotp?username=" . env("SMS_USERNAME") . "&password=" . env("SMS_PASSWORD") . "&msisdn=" . $request->phone . "&otp=" . $otp);
-    
-            if ($response->successful()) {
-                $value = $response->json();
-    
-                if ($value == 101) {
-                    User::where('phone', $request->phone)->update(['phone_verified' => true]);
-    
+        if ($response->successful()) {
+            $value = $response->json();
+
+            if ($value == 101) {
+                User::where('phone', $request->phone)->update(['phone_verified' => true]);
+
+                $response = Http::withOptions(['verify' => false])->withHeaders([
+                    'content-type' => 'application/json',
+                ])->post(env("SMS_LINK") . "checkotp?username=" . env("SMS_USERNAME") . "&password=" . env("SMS_PASSWORD") . "&msisdn=" . $request->phone . "&otp=" . $otp);
+
+                if ($response->successful()) {
+                    $value = $response->json();
+
+                    if ($value == 101) {
+                        User::where('phone', $request->phone)->update(['phone_verified' => true]);
+
+                        return response()->json([
+                            'message' => 'Phone successfully verified.',
+                            'status' => 'success'
+                        ], 200);
+                    }
                     return response()->json([
-                        'message' => 'Phone successfully verified.',
-                        'status' => 'success'
-                    ], 200);
+                        'message' => 'We were unable to verify your phone number. Please try again!',
+                        'status' => 'error'
+                    ], 400);
+                } else {
+                    return response()->json([
+                        'message' => 'We were unable to verify your phone number. Please try again!',
+                        'status' => 'error'
+                    ], 400);
                 }
-                return response()->json([
-                    'message' => 'We were unable to verify your phone number. Please try again!',
-                    'status' => 'error'
-                ], 400);
             } else {
+                User::where('phone', $request->phone)->update(['phone_verified' => true]);
                 return response()->json([
-                    'message' => 'We were unable to verify your phone number. Please try again!',
-                    'status' => 'error'
-                ], 400);
+                    'message' => 'Phone successfully verified.',
+                    'status' => 'success'
+                ], 200);
             }
         }
-        else{
-            User::where('phone', $request->phone)->update(['phone_verified' => true]);
-            return response()->json([
-                'message' => 'Phone successfully verified.',
-                'status' => 'success'
-            ], 200);
-        }
-
     }
+
     public function fetchbudget(Request $request)
     {
         $propertygroupId = $request->propertyGroupId;
@@ -132,7 +144,6 @@ class MollakController extends Controller
         $building = Building::where('property_group_id', $propertygroupId)->first();
         //validate building exists or not
         if ($building == null) {
-            Log::info('No building data available for the propertyGroupId');
             return response()->json(['message' => 'No building data available for the propertyGroupId'], 400);
         }
         //validate if a budget already exists for building
@@ -146,7 +157,6 @@ class MollakController extends Controller
             ->first();
 
         if ($existingBudget) {
-            Log::error('A budget for the specified period and building already exists.');
             return response()->json(['message' => 'A budget for the specified period and building already exists.'], 400);
         }
 
@@ -159,13 +169,11 @@ class MollakController extends Controller
 
         // Error handling for unexpected structure
         if (!isset($data['response']['serviceChargeGroups'])) {
-            Log::error('Unexpected API response structure');
             return response()->json(['error' => 'Unexpected API response structure'], 400);
         }
 
         // Check if serviceChargeGroups is empty
         if (empty($data['response']['serviceChargeGroups'])) {
-            Log::info('No data available for the current budget period year');
             return response()->json(['message' => 'No data available for the current budget period year'], 400);
         }
 
@@ -195,14 +203,12 @@ class MollakController extends Controller
                     'name' => $item['categoryName']['englishName'],
                     'code' => $item['categoryCode'],
                 ]);
-                Log::info('category:-' . $category);
 
                 $subcategory = SubCategory::firstOrCreate([
                     'name' => $item['subCategoryName']['englishName'],
                     'code' => $item['subCategoryCode'],
                     'category_id' => $category->id,
                 ]);
-                Log::info('subcategory:-' . $subcategory);
 
                 $service = Service::firstOrCreate([
                     'name' => $item['serviceName']['englishName'],
@@ -211,7 +217,6 @@ class MollakController extends Controller
                     'active' => true,
                     'subcategory_id' => $subcategory->id,
                 ]);
-                Log::info('service:-' . $service);
 
                 if ($service) {
                     $budgetitem = Budgetitem::create([
@@ -223,10 +228,9 @@ class MollakController extends Controller
                         'total' => $item['totalCost'] + $item['vatAmount'],
                     ]);
                 }
-                Log::info('budgetitem:-' . $budgetitem);
             }
         }
 
-        return response()->json(['message' => 'Budgets processed successfully'],200);
+        return response()->json(['message' => 'Budgets processed successfully'], 200);
     }
 }
