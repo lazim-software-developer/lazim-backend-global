@@ -69,10 +69,10 @@ class MollakController extends Controller
     // This is the helper function to check that
     public function test()
     {
-        $response = Http::withOptions(['verify' => false])->withHeaders([
+        $response = Http::withoutVerifying()->withHeaders([
             'content-type' => 'application/json',
             'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
-        ])->get(env("MOLLAK_API_URL") . "/sync/owners/235553");
+        ])->get(env("MOLLAK_API_URL") . '/sync/managementcompany');
 
         return $data = $response->json();
     }
