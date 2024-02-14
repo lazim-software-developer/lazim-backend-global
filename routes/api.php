@@ -70,7 +70,12 @@ Route::post('/login', [AuthController::class, 'login'])->name('api.login');
 // Resident registeration with email and phone
 Route::post('/register', [RegistrationController::class, 'registerWithEmailPhone']);
 // Resident registeration with Passport/Emirates id
-Route::post('/register-with-passport', [RegistrationController::class, 'registerWithEmiratesOrPassport']);
+Route::post('/register-with-document', [RegistrationController::class, 'registerWithDocument']);
+// owner list
+Route::get('/owner-list/{flat}', [RegistrationController::class,'ownerList']);
+Route::get('/all-owners', [RegistrationController::class, 'allOwners']);
+//owner details
+Route::get('/owner-details/{owner}', [RegistrationController::class,'ownerDetails']);
 
 // Verify email
 Route::post('/verify-otp', [VerificationController::class, 'verify']);
@@ -82,6 +87,7 @@ Route::post('/set-password', [AuthController::class, 'setPassword']);
 Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active'])->group(function () {
     Route::post('/expo', [AuthController::class, 'expo']);
     Route::get('/app-notification', [NotificationController::class, 'index']);
+    Route::get('/clear-notifications', [NotificationController::class, 'clearNotifications']);
 });
 
 
