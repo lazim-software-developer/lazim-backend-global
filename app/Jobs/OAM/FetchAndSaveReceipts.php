@@ -36,7 +36,7 @@ class FetchAndSaveReceipts implements ShouldQueue
             $response = Http::withoutVerifying()->withHeaders([
                 'content-type' => 'application/json',
                 'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
-            ])->get(env("MOLLAK_API_URL") . '/sync/receipts/' . $propertyGroupId . '/01-Oct-2023/31-Dec-2023');
+            ])->get(env("MOLLAK_API_URL") . '/sync/receipts/' . $propertyGroupId . '/01-Jan-2023/31-Dec-2023');
             // ])->get(env("MOLLAK_API_URL") . '/sync/receipts/' . $propertyGroupId . '/' . $dateRange);
             
             $properties = $response->json()['response']['properties'];
