@@ -16,10 +16,14 @@
 		Welcome to Lazim, and thank you for joining our community!
 		<!-- We're excited to have you on board with Lazim! Your account has been successfully created, and we're thrilled to welcome you to our community. -->
 	</td>
-
+</tr>
+<tr>
 	<td>We're excited to have you on board. To get started, fill all the required information related to your Owner association.</td>
+</tr>
+<tr>
 	<td>If you have any questions or need assistance, our support team is just an email away at info@lazim.ae</td>
-
+</tr>
+<tr>
 	<td>Remember, you can always manage your email preferences by visiting your account settings.</td>
 </tr>
 <tr>
