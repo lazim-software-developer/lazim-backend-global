@@ -512,3 +512,5 @@ Route::post('/verify-sms-otp', [MollakController::class, 'verifyOTP']);
 
 //Webhooks
 Route::post('/budget-budget_items',[MollakController::class, 'fetchbudget']);
+
+Route::get('/testing',[MollakController::class, 'test']);
