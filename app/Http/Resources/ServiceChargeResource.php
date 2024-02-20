@@ -19,7 +19,6 @@ class ServiceChargeResource extends JsonResource
             "invoice_number" => $this->invoice_number,
             "invoice_date" => $this->invoice_date,
             "invoice_quarter" => $this->invoice_quarter,
-            "payment_url" => $this->payment_url
         ];
     }
 }
