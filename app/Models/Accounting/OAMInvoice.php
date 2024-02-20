@@ -38,6 +38,7 @@ class OAMInvoice extends Model
         'service_charge_group_id',
         'invoice_amount',
         'amount_paid',
+        'payment_url',
     ];
 
     // Save data to invoice audit table before updating the entry
