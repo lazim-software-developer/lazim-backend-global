@@ -182,7 +182,7 @@ class AdminPanelProvider extends PanelProvider
             }
               
 
-                if(Role::where('id', auth()->user()->role_id)->first()->name != 'Accounts Manager' ){
+                // if(Role::where('id', auth()->user()->role_id)->first()->name != 'Accounts Manager' ){
                     $builder->groups([
                         NavigationGroup::make('Property management')
                             ->items([
@@ -208,9 +208,9 @@ class AdminPanelProvider extends PanelProvider
                                 //     ->sort(4),
                             ]),
                     ]);
-                }
+                // }
 
-                if (Role::where('id', auth()->user()->role_id)->first()->name != 'Admin' && Role::where('id', auth()->user()->role_id)->first()->name != 'Accounts Manager' ) {
+                if (Role::where('id', auth()->user()->role_id)->first()->name != 'Admin' ) {
                     $builder->groups([
                         NavigationGroup::make('User management')
                             ->items([
@@ -234,19 +234,19 @@ class AdminPanelProvider extends PanelProvider
                             ->items([
                                 NavigationItem::make('Vendor')
                                     ->url('/admin/vendor/vendors')
-                                    ->hidden(!in_array(Role::where('id', auth()->user()->role_id)->first()->name, ['OA','Building Engineer','MD']))
+                                    ->hidden(!in_array(Role::where('id', auth()->user()->role_id)->first()->name, ['OA','Building Engineer','MD','Accounts Manager']))
                                     ->icon('heroicon-m-user-circle')
                                     ->activeIcon('heroicon-m-user-circle')
                                     ->sort(1),
                                 NavigationItem::make('Contract')
                                     ->url('/admin/contracts')
-                                    ->hidden(!in_array(Role::where('id', auth()->user()->role_id)->first()->name, ['OA','Building Engineer','MD']))
+                                    ->hidden(!in_array(Role::where('id', auth()->user()->role_id)->first()->name, ['OA','Building Engineer','MD','Accounts Manager']))
                                     ->icon('heroicon-o-clipboard-document')
                                     ->activeIcon('heroicon-o-clipboard-document')
                                     ->sort(2),
                                 NavigationItem::make('WDA')
                                     ->url('/admin/w-d-a-s')
-                                    ->hidden(!in_array(Role::where('id', auth()->user()->role_id)->first()->name, ['OA','Building Engineer','MD']))
+                                    ->hidden(!in_array(Role::where('id', auth()->user()->role_id)->first()->name, ['OA','Building Engineer','MD','Accounts Manager']))
                                     ->icon('heroicon-o-chart-bar-square')
                                     ->activeIcon('heroicon-o-chart-bar-square')
                                     ->sort(3),
@@ -258,25 +258,25 @@ class AdminPanelProvider extends PanelProvider
                                     ->sort(4),
                                 NavigationItem::make('Tenders')
                                     ->url('/admin/tenders')
-                                    ->hidden(!in_array(Role::where('id', auth()->user()->role_id)->first()->name, ['OA','Building Engineer','MD']))
+                                    ->hidden(!in_array(Role::where('id', auth()->user()->role_id)->first()->name, ['OA','Building Engineer','MD','Accounts Manager']))
                                     ->icon('heroicon-s-document-text')
                                     ->activeIcon('heroicon-s-document-text')
                                     ->sort(5),
                                 NavigationItem::make('Proposals')
                                     ->url('/admin/proposals')
-                                    ->hidden(!in_array(Role::where('id', auth()->user()->role_id)->first()->name, ['OA','Building Engineer','MD']))
+                                    ->hidden(!in_array(Role::where('id', auth()->user()->role_id)->first()->name, ['OA','Building Engineer','MD','Accounts Manager']))
                                     ->icon('heroicon-s-gift-top')
                                     ->activeIcon('heroicon-s-gift-top')
                                     ->sort(6),
                                 NavigationItem::make('Technician assets')
                                     ->url('/admin/technician-assets')
-                                    ->hidden(!in_array(Role::where('id', auth()->user()->role_id)->first()->name, ['OA','Building Engineer','MD']))
+                                    ->hidden(!in_array(Role::where('id', auth()->user()->role_id)->first()->name, ['OA','Building Engineer','MD','Accounts Manager']))
                                     ->icon('heroicon-o-users')
                                     ->activeIcon('heroicon-o-users')
                                     ->sort(7),
                                 NavigationItem::make('Assets')
                                     ->url('/admin/assets')
-                                    ->hidden(!in_array(Role::where('id', auth()->user()->role_id)->first()->name, ['OA','Building Engineer','MD']))
+                                    ->hidden(!in_array(Role::where('id', auth()->user()->role_id)->first()->name, ['OA','Building Engineer','MD','Accounts Manager']))
                                     ->icon('heroicon-o-rectangle-stack')
                                     ->activeIcon('heroicon-o-rectangle-stack')
                                     ->sort(8),
@@ -284,79 +284,79 @@ class AdminPanelProvider extends PanelProvider
                     ]);
                 }
 
-                if (DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] != 'Admin' && Role::where('id', auth()->user()->role_id)->first()->name != 'Accounts Manager' && Role::where('id', auth()->user()->role_id)->first()->name != 'MD' && Role::where('id', auth()->user()->role_id)->first()->name != 'Building Engineer'&& Role::where('id', auth()->user()->role_id)->first()->name != 'Complaint Officer') {
+                if (DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] != 'Admin' && Role::where('id', auth()->user()->role_id)->first()->name != 'MD' && Role::where('id', auth()->user()->role_id)->first()->name != 'Building Engineer'&& Role::where('id', auth()->user()->role_id)->first()->name != 'Complaint Officer') {
                     $builder->groups([
                         NavigationGroup::make('Accounting')
                             ->items([
                                 NavigationItem::make('Budget')
                                     ->url('/admin/budgets')
-                                    ->hidden(!in_array(Role::where('id', auth()->user()->role_id)->first()->name, ['OA','MD']))
+                                    ->hidden(!in_array(Role::where('id', auth()->user()->role_id)->first()->name, ['OA','MD','Accounts Manager']))
                                     ->icon('heroicon-o-currency-dollar')
                                     ->activeIcon('heroicon-o-currency-dollar')
                                     ->sort(1),
                                 NavigationItem::make('Budget vs Actual')
                                     ->url('/admin/budget-vs-actual')
-                                    ->hidden(!in_array(Role::where('id', auth()->user()->role_id)->first()->name, ['OA','MD']))
+                                    ->hidden(!in_array(Role::where('id', auth()->user()->role_id)->first()->name, ['OA','MD','Accounts Manager']))
                                     ->icon('heroicon-s-pencil-square')
                                     ->activeIcon('heroicon-s-pencil-square')
                                     ->sort(2),
                                 NavigationItem::make('Delinquent owners')
                                     ->url(DelinquentOwnerResource::getUrl('index'))
-                                    ->hidden(!in_array(Role::where('id', auth()->user()->role_id)->first()->name, ['OA','Legal Officer','MD']))
+                                    ->hidden(!in_array(Role::where('id', auth()->user()->role_id)->first()->name, ['OA','Legal Officer','MD','Accounts Manager']))
                                     ->icon('heroicon-s-bars-arrow-down')
                                     ->activeIcon('heroicon-s-bars-arrow-down')
                                     ->sort(3),
                                 NavigationItem::make('Aging report')
                                     ->url(AgingReportResource::getUrl('index'))
-                                    ->hidden(!in_array(Role::where('id', auth()->user()->role_id)->first()->name, ['OA','MD']))
+                                    ->hidden(!in_array(Role::where('id', auth()->user()->role_id)->first()->name, ['OA','MD','Accounts Manager']))
                                     ->icon('heroicon-o-document')
                                     ->activeIcon('heroicon-o-document')
                                     ->sort(4),
                                 NavigationItem::make('Bank Statement')
                                     ->url(BankStatementResource::getUrl('index'))
-                                    ->hidden(!in_array(Role::where('id', auth()->user()->role_id)->first()->name, ['OA','MD']))
+                                    ->hidden(!in_array(Role::where('id', auth()->user()->role_id)->first()->name, ['OA','MD','Accounts Manager']))
                                     ->icon('heroicon-s-document-text')
                                     ->activeIcon('heroicon-s-document-text')
                                     ->sort(5),
                                 NavigationItem::make('General Fund Statement')
                                     ->url('/admin/general-fund-statement')
-                                    ->hidden(!in_array(Role::where('id', auth()->user()->role_id)->first()->name, ['OA','MD']))
+                                    ->hidden(!in_array(Role::where('id', auth()->user()->role_id)->first()->name, ['OA','MD','Accounts Manager']))
                                     ->icon('heroicon-m-clipboard-document-check')
                                     ->activeIcon('heroicon-m-clipboard-document-check')
                                     ->sort(6),
                                 NavigationItem::make('Reserve Fund Statement')
                                     ->url('/admin/reserve-fund-statement')
-                                    ->hidden(!in_array(Role::where('id', auth()->user()->role_id)->first()->name, ['OA','MD']))
+                                    ->hidden(!in_array(Role::where('id', auth()->user()->role_id)->first()->name, ['OA','MD','Accounts Manager']))
                                     ->icon('heroicon-m-clipboard-document-list')
                                     ->activeIcon('heroicon-m-clipboard-document-list')
                                     ->sort(7),
                                 NavigationItem::make('Generate Invoice')
                                     ->url(OwnerAssociationInvoiceResource::getUrl('index'))
-                                    ->hidden(!in_array(Role::where('id', auth()->user()->role_id)->first()->name, ['OA','MD']))
+                                    ->hidden(!in_array(Role::where('id', auth()->user()->role_id)->first()->name, ['OA','MD','Accounts Manager']))
                                     ->icon('heroicon-s-document-arrow-up')
                                     ->activeIcon('heroicon-s-document-arrow-up')
                                     ->sort(8),
                                 NavigationItem::make('Generate Receipt')
                                     ->url(OwnerAssociationReceiptResource::getUrl('index'))
-                                    ->hidden(!in_array(Role::where('id', auth()->user()->role_id)->first()->name, ['OA','MD']))
+                                    ->hidden(!in_array(Role::where('id', auth()->user()->role_id)->first()->name, ['OA','MD','Accounts Manager']))
                                     ->icon('heroicon-s-document-arrow-down')
                                     ->activeIcon('heroicon-s-document-arrow-down')
                                     ->sort(9),
                                 NavigationItem::make('Trial Balance')
                                     ->url('/admin/trial-balance')
-                                    ->hidden(!in_array(Role::where('id', auth()->user()->role_id)->first()->name, ['OA','MD']))
+                                    ->hidden(!in_array(Role::where('id', auth()->user()->role_id)->first()->name, ['OA','MD','Accounts Manager']))
                                     ->icon('heroicon-s-clipboard-document')
                                     ->activeIcon('heroicon-s-clipboard-document')
                                     ->sort(10),
                                 NavigationItem::make('General Fund Statement Mollak')
                                     ->url('/admin/mollak-general-fund-statement')
-                                    ->hidden(!in_array(Role::where('id', auth()->user()->role_id)->first()->name, ['OA','MD']))
+                                    ->hidden(!in_array(Role::where('id', auth()->user()->role_id)->first()->name, ['OA','MD','Accounts Manager']))
                                     ->icon('heroicon-m-clipboard-document-check')
                                     ->activeIcon('heroicon-m-clipboard-document-check')
                                     ->sort(11),
                                 NavigationItem::make('Reserve Fund Statement Mollak')
                                     ->url('/admin/mollak-reserve-fund-statement')
-                                    ->hidden(!in_array(Role::where('id', auth()->user()->role_id)->first()->name, ['OA','MD']))
+                                    ->hidden(!in_array(Role::where('id', auth()->user()->role_id)->first()->name, ['OA','MD','Accounts Manager']))
                                     ->icon('heroicon-m-clipboard-document-list')
                                     ->activeIcon('heroicon-m-clipboard-document-list')
                                     ->sort(12),
@@ -364,25 +364,25 @@ class AdminPanelProvider extends PanelProvider
                                 ]), 
                     ]);
                 }
-                if (DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] != 'Admin' && Role::where('id', auth()->user()->role_id)->first()->name != 'Accounts Manager' && Role::where('id', auth()->user()->role_id)->first()->name != 'Building Engineer'&& Role::where('id', auth()->user()->role_id)->first()->name != 'Complaint Officer'&&Role::where('id', auth()->user()->role_id)->first()->name != 'Legal Officer') {
+                if (DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] != 'Admin' && Role::where('id', auth()->user()->role_id)->first()->name != 'Building Engineer'&& Role::where('id', auth()->user()->role_id)->first()->name != 'Complaint Officer'&&Role::where('id', auth()->user()->role_id)->first()->name != 'Legal Officer') {
                     $builder->groups([
                         NavigationGroup::make('Reports')
                             ->items([
                                 NavigationItem::make('Service charge ledgers')
                                     ->url('/admin/ledgers')
-                                    ->hidden(!in_array(Role::where('id', auth()->user()->role_id)->first()->name, ['OA','MD']))
+                                    ->hidden(!in_array(Role::where('id', auth()->user()->role_id)->first()->name, ['OA','MD','Accounts Manager']))
                                     ->icon('heroicon-m-list-bullet')
                                     ->activeIcon('heroicon-m-list-bullet')
                                     ->sort(1),
                                 NavigationItem::make('Service provider ledgers')
                                     ->url('/admin/vendor-ledgers')
                                     ->icon('heroicon-o-rectangle-stack')
-                                    ->hidden(!in_array(Role::where('id', auth()->user()->role_id)->first()->name, ['OA','MD']))
+                                    ->hidden(!in_array(Role::where('id', auth()->user()->role_id)->first()->name, ['OA','MD','Accounts Manager']))
                                     ->activeIcon('heroicon-o-rectangle-stack')
                                     ->sort(2),
                                 NavigationItem::make('Cooling account')
                                     ->url('/admin/cooling-accounts')
-                                    ->hidden(!in_array(Role::where('id', auth()->user()->role_id)->first()->name, ['OA','MD']))
+                                    ->hidden(!in_array(Role::where('id', auth()->user()->role_id)->first()->name, ['OA','MD','Accounts Manager']))
                                     ->icon('heroicon-o-cube-transparent')
                                     ->activeIcon('heroicon-o-cube-transparent')
                                     ->sort(3),
