@@ -79,18 +79,22 @@ class FlatResource extends Resource
                     ->searchable()
                     ->limit(50),
                 TextColumn::make('suit_area')
+                    ->formatStateUsing(fn ($record) => number_format($record->suit_area, 2))
                     ->default('NA')
                     ->searchable()
                     ->limit(50),
                 TextColumn::make('actual_area')
+                    ->formatStateUsing(fn ($record) => number_format($record->actual_area, 2))
                     ->default('NA')
                     ->searchable()
                     ->limit(50),
                 TextColumn::make('balcony_area')
+                    ->formatStateUsing(fn ($record) => number_format($record->balcony_area, 2))
                     ->default('NA')
                     ->searchable()
                     ->limit(50),
                 TextColumn::make('applicable_area')
+                    ->formatStateUsing(fn ($record) => number_format($record->applicable_area, 2))
                     ->default('NA')
                     ->searchable()
                     ->limit(50),
