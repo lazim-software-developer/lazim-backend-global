@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\DB;
 use Filament\Navigation\NavigationItem;
 use App\Filament\Pages\Auth\EditProfile;
 use App\Filament\Resources\AgingReportResource;
+use App\Filament\Resources\AssetMaintenanceResource;
 use App\Filament\Resources\BankStatementResource;
 use App\Filament\Resources\BuildingEngineerResource;
 use App\Filament\Resources\ComplaintOfficerResource;
@@ -282,6 +283,12 @@ class AdminPanelProvider extends PanelProvider
                                     ->sort(7),
                                 NavigationItem::make('Assets')
                                     ->url('/admin/assets')
+                                    ->hidden(!in_array(Role::where('id', auth()->user()->role_id)->first()->name, ['OA','Building Engineer','MD','Accounts Manager']))
+                                    ->icon('heroicon-o-rectangle-stack')
+                                    ->activeIcon('heroicon-o-rectangle-stack')
+                                    ->sort(8),
+                                NavigationItem::make('Assets Maintenance')
+                                    ->url(AssetMaintenanceResource::getUrl('index'))
                                     ->hidden(!in_array(Role::where('id', auth()->user()->role_id)->first()->name, ['OA','Building Engineer','MD','Accounts Manager']))
                                     ->icon('heroicon-o-rectangle-stack')
                                     ->activeIcon('heroicon-o-rectangle-stack')
