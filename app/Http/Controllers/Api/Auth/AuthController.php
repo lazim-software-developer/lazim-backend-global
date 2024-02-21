@@ -13,6 +13,7 @@ use App\Http\Requests\Auth\SetPasswordRequest;
 use App\Http\Resources\CustomResponseResource;
 use App\Models\Building\BuildingPoc;
 use App\Models\ExpoPushNotification;
+use Illuminate\Validation\Rules\NotIn;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Str;
 use Illuminate\Support\Carbon;
@@ -110,7 +111,7 @@ class AuthController extends Controller
             ->first();
 
         // if (!$user || !Hash::check($request->password, $user->password) || $user->role->name !== $request->role) {
-        if (!$user || !Hash::check($request->password, $user->password)) {
+        if (!$user || !Hash::check($request->password, $user->password) || !in_array($user->role->name, ['Owner', 'Tenant'])) {
             throw ValidationException::withMessages([
                 'email' => ['The provided credentials are incorrect.'],
             ]);
