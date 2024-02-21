@@ -290,8 +290,8 @@ class AdminPanelProvider extends PanelProvider
                                 NavigationItem::make('Assets Maintenance')
                                     ->url(AssetMaintenanceResource::getUrl('index'))
                                     ->hidden(!in_array(Role::where('id', auth()->user()->role_id)->first()->name, ['OA','Building Engineer','MD','Accounts Manager']))
-                                    ->icon('heroicon-o-rectangle-stack')
-                                    ->activeIcon('heroicon-o-rectangle-stack')
+                                    ->icon('heroicon-s-document-magnifying-glass')
+                                    ->activeIcon('heroicon-s-document-magnifying-glass')
                                     ->sort(8),
                             ]),
                     ]);
