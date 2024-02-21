@@ -40,7 +40,7 @@ class FetchAndSaveInvoices implements ShouldQueue
         $currentQuarter = ceil($currentDate->format('n') / 3);
 
         // $quarter = $currentQuarter . "-JAN" . $currentYear . "-DEC" . $currentYear;
-        $quarter = "Q1-JAN2024-DEC2024";
+        $quarter = "Q1-JAN2023-DEC2023";
 
         try {
             $response = Http::withoutVerifying()->withHeaders([
@@ -109,6 +109,7 @@ class FetchAndSaveInvoices implements ShouldQueue
                                 'amount_paid' => 0,
                                 'updated_by' => User::first()->id,
                                 'type' => 'service_charge',
+                                'payment_url' => $property['paymentUrl']
                             ]
                         );
                     }
