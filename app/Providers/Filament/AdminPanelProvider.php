@@ -20,6 +20,7 @@ use App\Filament\Resources\DelinquentOwnerResource;
 use App\Filament\Resources\LegalOfficerResource;
 use App\Filament\Resources\OwnerAssociationInvoiceResource;
 use App\Filament\Resources\OwnerAssociationReceiptResource;
+use App\Filament\Resources\PatrollingResource;
 use App\Filament\Resources\UserApprovalResource;
 use App\Models\AgingReport;
 use App\Models\Master\Role;
@@ -201,6 +202,11 @@ class AdminPanelProvider extends PanelProvider
                                     ->icon('heroicon-o-cube-transparent')
                                     ->activeIcon('heroicon-o-cube-transparent')
                                     ->sort(3),
+                                NavigationItem::make('Patrollings')
+                                    ->url(PatrollingResource::getUrl('index'))
+                                    ->icon('heroicon-o-magnifying-glass-circle')
+                                    ->activeIcon('heroicon-o-magnifying-glass-circle')
+                                    ->sort(4),
                                 // NavigationItem::make('Service Bookings')
                                 //     ->url('/admin/building/service-bookings')
                                 //     ->icon('heroicon-m-wrench')
