@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\AssetMaintenanceResource\Pages;
 use App\Filament\Resources\AssetMaintenanceResource\RelationManagers;
 use App\Models\AssetMaintenance;
+use App\Models\Building\Building;
 use Filament\Forms;
 use Filament\Forms\Components\ViewField;
 use Filament\Forms\Form;
@@ -36,7 +37,9 @@ class AssetMaintenanceResource extends Resource
 
     public static function table(Table $table): Table
     {
+        $buildings = Building::where('owner_association_id',auth()->user()->owner_association_id)->pluck('id');
         return $table
+            ->modifyQueryUsing(fn(Builder $query) => $query->whereIn('building_id', $buildings)->orderBy('maintenance_date','desc')->withoutGlobalScopes())
             ->columns([
                 TextColumn::make('building.name'),
                 TextColumn::make('maintenance_date'),
