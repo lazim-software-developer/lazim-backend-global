@@ -19,7 +19,7 @@ class PDFController extends Controller
             'email' => $saleNOC->signing_authority_email,
             'phone' => $saleNOC->signing_authority_phone,
             'flat' => $flat->property_number,
-            'building' => $flat->building->value('name'),
+            'building' => $saleNOC->building->value('name'),
             'ownerAssociation' => $ownerAssociation ?? 'NA'
         ];
 
