@@ -36,4 +36,11 @@ class CompanyDetailsRequest extends FormRequest
             'risk_policy_expiry' => 'required|date',
         ];
     }
+
+    public function messages()
+    {
+        return [
+            'address_line_1.required' => 'Company address is required.',
+        ];
+    }
 }
