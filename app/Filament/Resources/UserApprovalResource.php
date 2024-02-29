@@ -28,10 +28,21 @@ class UserApprovalResource extends Resource
     {
         return $form
             ->schema([
-                Select::make('user_id')
-                    ->relationship('user', 'first_name')
-                    ->required()
-                    ->disabled(),
+                // Select::make('user_id')
+                //     ->relationship('user', 'first_name')
+                //     ->required()
+                //     ->disabled(),
+                // Select::make('user_id')->label('email')
+                // ->relationship('user', 'email')
+                //     ->required()
+                //     ->disabled(),
+                // Select::make('user_id')->label('phone')
+                // ->relationship('user', 'phone')
+                //     ->required()
+                //     ->disabled(),
+                TextInput::make('user'),
+                TextInput::make('email'),
+                TextInput::make('phone'),
                 FileUpload::make('document')
                     ->label(function (Get $get) {
                         if($get('document_type') == 'Ejari'){
