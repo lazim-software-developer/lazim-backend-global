@@ -23,6 +23,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
+use Snowfire\Beautymail\Beautymail;
 use \stdClass;
 
 class TestController extends Controller
@@ -338,4 +339,13 @@ class TestController extends Controller
         return new OaServiceRequestResource($oaService);
     }
 
+    public function sendMail(){
+
+        $beautymail = app()->make(Beautymail::class);
+        $beautymail->send('emails.testmail', function ($message) {
+            $message
+                ->to('prashanth@zysk.tech', 'Prashanth')
+                ->subject('Welcome to Lazim! 🎉 Download Our App Now!');
+        });
+    }
 }
