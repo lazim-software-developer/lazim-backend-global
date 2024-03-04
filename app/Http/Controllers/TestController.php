@@ -344,7 +344,7 @@ class TestController extends Controller
         $beautymail = app()->make(Beautymail::class);
         $beautymail->send('emails.testmail',[], function ($message) {
             $message
-                ->to('prashanth@zysk.tech', 'Prashanth')
+                ->to('prashanth.c@zysk.tech', 'Prashanth')
                 ->subject('Welcome to Lazim! 🎉 Download Our App Now!');
         });
     }
