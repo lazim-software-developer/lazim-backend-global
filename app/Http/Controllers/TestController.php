@@ -347,5 +347,6 @@ class TestController extends Controller
     //             ->to('prashanth@zysk.tech', 'Prashanth')
     //             ->subject('Welcome to Lazim! 🎉 Download Our App Now!');
     //     });
-    // }
+    // } 
+    
 }
