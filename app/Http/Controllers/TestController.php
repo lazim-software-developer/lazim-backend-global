@@ -339,13 +339,13 @@ class TestController extends Controller
         return new OaServiceRequestResource($oaService);
     }
 
-    public function sendMail(){
+    // public function sendMail(){
 
-        $beautymail = app()->make(Beautymail::class);
-        $beautymail->send('emails.testmail', function ($message) {
-            $message
-                ->to('prashanth@zysk.tech', 'Prashanth')
-                ->subject('Welcome to Lazim! 🎉 Download Our App Now!');
-        });
-    }
+    //     $beautymail = app()->make(Beautymail::class);
+    //     $beautymail->send('emails.testmail', function ($message) {
+    //         $message
+    //             ->to('prashanth@zysk.tech', 'Prashanth')
+    //             ->subject('Welcome to Lazim! 🎉 Download Our App Now!');
+    //     });
+    // }
 }
