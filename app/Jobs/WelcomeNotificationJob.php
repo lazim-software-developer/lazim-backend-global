@@ -36,7 +36,7 @@ class WelcomeNotificationJob implements ShouldQueue
         $beautymail->send('emails.Welcomenotification', ['building' => $this->building,'name' => $this->name], function ($message) {
             $message
                 ->to($this->email, $this->name)
-                ->subject('Welcome to Lazim! 🎉 Download Our App Now!');
+                ->subject('Symbiosis Owner Association Management Services- Welcome to Lazim!');
         });
     }
 }
