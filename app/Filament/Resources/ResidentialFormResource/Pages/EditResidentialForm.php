@@ -130,8 +130,8 @@ class EditResidentialForm extends EditRecord
 
         if(is_array($emergencyContact)) {
             $details = [
-                'name'=> $emergencyContact[0]['name'],
-                'phone'=>$emergencyContact[0]['phone'] = $emergencyContact[0]['country'].$emergencyContact[0]['phone']
+                'name'=> $emergencyContact['name'],
+                'phone'=>$emergencyContact['phone'] = $emergencyContact['country'].$emergencyContact['phone']
             ];
             foreach($details as $key => $val) {
                 // Accumulate the formatted details with line breaks
