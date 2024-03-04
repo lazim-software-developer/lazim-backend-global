@@ -7,6 +7,9 @@ use App\Filament\Resources\AssetMaintenanceResource\RelationManagers;
 use App\Models\AssetMaintenance;
 use App\Models\Building\Building;
 use Filament\Forms;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\ViewField;
 use Filament\Forms\Form;
 use Filament\Infolists\Components\ImageEntry;
@@ -31,7 +34,19 @@ class AssetMaintenanceResource extends Resource
     {
         return $form
             ->schema([
-                //
+                DatePicker::make('maintenance_date')
+                    ->required(),
+                Select::make('building_id')
+                    ->relationship('building','name'),
+                // TextInput::make('building'),
+                TextInput::make('maintained_by'),
+                TextInput::make('status'),
+                TextInput::make('asset'),
+                TextInput::make('technician'),
+                TextInput::make('vendor'),
+                ViewField::make('Service history')
+                    ->view('forms.components.comments')
+                    ->columnSpanFull(),
             ]);
     }
 
@@ -70,35 +85,35 @@ class AssetMaintenanceResource extends Resource
         ];
     }
 
-    public static function infolist(Infolist $infolist): Infolist
-{
-    return $infolist
-        ->schema([
-            Section::make()->columns([
-                'sm' => 2,
-                'xl' => 3,
-                '2xl' => 3,
-            ])->schema([
-                TextEntry::make('building.name'),
-                TextEntry::make('maintenance_date'),
-                TextEntry::make('user.first_name')->label('Maintained by'),
-                TextEntry::make('status'),
-                TextEntry::make('technicianAsset.asset')->formatStateUsing(fn ($state) => json_decode($state)->name)->label('Asset'),
-                TextEntry::make('technicianAsset.user')->formatStateUsing(fn ($state) => json_decode($state)->first_name)->label('Technician'),
-                TextEntry::make('technicianAsset.vendor')->formatStateUsing(fn ($state) => json_decode($state)->name)->label('Vendor'),
-                ViewEntry::make('media')->view('infolists.components.asset-maintenance-media')
+//     public static function infolist(Infolist $infolist): Infolist
+// {
+//     return $infolist
+//         ->schema([
+//             Section::make()->columns([
+//                 'sm' => 2,
+//                 'xl' => 3,
+//                 '2xl' => 3,
+//             ])->schema([
+//                 TextEntry::make('building.name'),
+//                 TextEntry::make('maintenance_date'),
+//                 TextEntry::make('user.first_name')->label('Maintained by'),
+//                 TextEntry::make('status'),
+//                 TextEntry::make('technicianAsset.asset')->formatStateUsing(fn ($state) => json_decode($state)->name)->label('Asset'),
+//                 TextEntry::make('technicianAsset.user')->formatStateUsing(fn ($state) => json_decode($state)->first_name)->label('Technician'),
+//                 TextEntry::make('technicianAsset.vendor')->formatStateUsing(fn ($state) => json_decode($state)->name)->label('Vendor'),
+//                 ViewEntry::make('media')->view('infolists.components.asset-maintenance-media')
 
-                ])
-        ]);
-}
+//                 ])
+//         ]);
+// }
     
     public static function getPages(): array
     {
         return [
             'index' => Pages\ListAssetMaintenances::route('/'),
-            'create' => Pages\CreateAssetMaintenance::route('/create'),
+            // 'create' => Pages\CreateAssetMaintenance::route('/create'),
             'view' => Pages\ViewAssetMaintenance::route('/{record}'),
-            'edit' => Pages\EditAssetMaintenance::route('/{record}/edit'),
+            // 'edit' => Pages\EditAssetMaintenance::route('/{record}/edit'),
         ];
     }    
 }
