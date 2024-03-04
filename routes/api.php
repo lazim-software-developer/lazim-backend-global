@@ -514,5 +514,3 @@ Route::post('/verify-sms-otp', [MollakController::class, 'verifyOTP']);
 Route::post('/budget-budget_items',[MollakController::class, 'fetchbudget']);
 
 Route::get('/testing',[MollakController::class, 'test']);
-
-Route::get('/sendmail',[TestController::class, 'sendMail']);
