@@ -108,10 +108,9 @@ class MollakController extends Controller
                 'content-type' => 'application/json',
             ])->post(env("SMS_LINK") . "checkotp?username=" . env("SMS_USERNAME") . "&password=" . env("SMS_PASSWORD") . "&msisdn=" . $request->phone . "&otp=" . $otp);
     
-            Log::info('response-'.$response->json());
                 if ($response->successful()) {
                         $value = $response->json();
-                        Log::info('code--'.$value);
+    
                         if ($value == 101) {
                             User::where('phone', $request->phone)->update(['phone_verified' => true]);
     
@@ -125,11 +124,16 @@ class MollakController extends Controller
                             'status' => 'error'
                         ], 400);
                 } else {
+                } else {
                         return response()->json([
                             'message' => 'We were unable to verify your phone number. Please try again!',
                             'status' => 'error'
                         ], 400);
                     }
+        }
+        else{
+            User::where('phone', $request->phone)->update(['phone_verified' => true]);
+            return response()->json([
         }
         else{
             User::where('phone', $request->phone)->update(['phone_verified' => true]);

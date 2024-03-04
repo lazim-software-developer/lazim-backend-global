@@ -7,6 +7,7 @@ use App\Http\Requests\Forms\CreateAccessCardFormsRequest;
 use App\Http\Resources\CustomResponseResource;
 use App\Models\Building\Building;
 use App\Models\Forms\AccessCard;
+use App\Models\Forms\Guest;
 use Carbon\Carbon;
 
 class AccessCardController extends Controller
@@ -74,6 +75,12 @@ class AccessCardController extends Controller
         $saleNocForm = auth()->user()->saleNoc()->latest()->where('building_id', $building->id)->first();
 
         $saleNocFormStatus = $saleNocForm ?? "Not submitted";
+
+        $guestRegistration = auth()->user()->flatVisitorInitates()->where('type', 'guest')->latest()->where('building_id', $building->id)->first();
+
+        $guest = Guest::where('flat_visitor_id',$guestRegistration->id)->latest()->first();
+
+        $guestRegistrationStatus =  $guestRegistration ?? "Not submitted";
 
         $nocMessage = null;
 
@@ -149,6 +156,17 @@ class AccessCardController extends Controller
                 'payment_link' => $saleNocForm?->payment_link,
                 'order_id' => $saleNocForm?->orders[0]->id ?? null,
                 'order_status' => $saleNocForm?->orders[0]->payment_status ?? 'pending',
+            ],
+            [
+                'id' => $guestRegistration ? $guestRegistration->id : null,
+                'name' => 'Guest Registration Form',
+                'status' => $guest ? $guest->status : 'not_submitted',
+                'created_at' => $guestRegistration ? Carbon::parse($guestRegistration->created_at)->diffForHumans() : null,
+                'rejected_reason' => $guest ? $guest->remarks : null,
+                'message' => null,
+                'payment_link' => null,
+                'order_id' => null,
+                'order_status' => null,
             ]
         ];
     }
