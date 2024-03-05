@@ -57,8 +57,8 @@ class EditProfile extends BaseEditProfile
                     ->rules([function (Get $get) {
                         return function (string $attribute, $value, Closure $fail) use ($get) {
                             // Check if the value satisfies the regex
-                            if (!preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]*$/', $value)) {
-                                $fail('The field must contain at least one lowercase, one uppercase, one digit and no special character.');
+                            if (!preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\w\s])[a-zA-Z\d\W]*$/', $value)) {
+                                $fail('The field must contain at least one lowercase letter, one uppercase letter, one digit and one special character.');
                             }
                         };
                     },])
@@ -68,8 +68,8 @@ class EditProfile extends BaseEditProfile
                     ->rules([function (Get $get) {
                         return function (string $attribute, $value, Closure $fail) use ($get) {
                             // Check if the value satisfies the regex
-                            if (!preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]*$/', $value)) {
-                                $fail('The ' . $attribute . ' must contain at least one lowercase letter, one uppercase letter, one digit and no special character.');
+                            if (!preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\w\s])[a-zA-Z\d\W]*$/', $value)) {
+                                $fail('The field must contain at least one lowercase letter, one uppercase letter, one digit and one special character.');
                             }
                             if ($value != $get('password')) {
                                 $fail('The Confirm password field must match new password.');
