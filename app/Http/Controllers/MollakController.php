@@ -123,17 +123,13 @@ class MollakController extends Controller
                             'message' => 'We were unable to verify your phone number. Please try again!',
                             'status' => 'error'
                         ], 400);
-                } else {
+                
                 } else {
                         return response()->json([
                             'message' => 'We were unable to verify your phone number. Please try again!',
                             'status' => 'error'
                         ], 400);
                     }
-        }
-        else{
-            User::where('phone', $request->phone)->update(['phone_verified' => true]);
-            return response()->json([
         }
         else{
             User::where('phone', $request->phone)->update(['phone_verified' => true]);
