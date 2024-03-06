@@ -77,9 +77,8 @@
 		<div class="top-half">
 			<h3>Dear {{$name}},</h3>
 			<br>
-			<br>
 			<!-- Image appears here with the top half gray -->
-			<img src="{{ asset('images/favicon.png') }}" alt="Logo" class="header-image">
+			<img src="{{ asset('images\Lazim horizontl.png') }}" alt="Logo" class="header-image">
 		</div>
 		<div class="bottom-half">
 			<!-- The bottom half of the image will appear to continue here -->
