@@ -55,7 +55,7 @@
 
         <tr>
             <td class="paragraph">
-                To access your account and use our platform, click on <a href="https://lazim-frontend-git-feature-vendor-zysktech.vercel.app/login">this link</a>
+                To access your account and use our platform, click on <a href="https://vendor.lazim.ae/login">this link</a>
 			</td>
 		</tr>
         <tr>
