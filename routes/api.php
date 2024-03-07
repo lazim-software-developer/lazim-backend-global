@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AppController;
 use App\Http\Controllers\Assets\PPMController;
 use App\Http\Controllers\Community\CommunityController;
 use App\Http\Controllers\MollakController;
@@ -170,7 +171,8 @@ Route::middleware([])->group(function () {
 /**
  * Community related APIs
  */
-Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active'])->group(function () {
+//, 'phone.verified'
+Route::middleware(['auth:sanctum', 'email.verified', 'active'])->group(function () {
     //  List all posts for the buidling
     Route::get('/building/{building}/posts', [PostController::class, 'index']);
 
@@ -207,7 +209,8 @@ Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active']
 /**
  * Facility related APIs
  */
-Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active'])->group(function () {
+//, 'phone.verified'
+Route::middleware(['auth:sanctum', 'email.verified', 'active'])->group(function () {
     Route::get('buildings/{building}/facilities', [FacilityController::class, 'index']);
 
     // Book a facility
@@ -220,7 +223,8 @@ Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active']
 /**
  * Help desk and happiness center related APIs
  */
-Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active'])->group(function () {
+//, 'phone.verified'
+Route::middleware(['auth:sanctum', 'email.verified', 'active'])->group(function () {
     // Create complaint
     Route::post('building/{building}/complaints', [ComplaintController::class, 'create']);
 
@@ -246,7 +250,8 @@ Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active']
 /**
  * Profile related APIs
  */
-Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active'])->group(function () {
+//, 'phone.verified'
+Route::middleware(['auth:sanctum', 'email.verified', 'active'])->group(function () {
     // Details of user
     Route::get('/profile', [ProfileController::class, 'show']);
 
@@ -269,7 +274,8 @@ Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active']
 /**
  * Services related APIs
  */
-Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active'])->group(function () {
+//, 'phone.verified'
+Route::middleware(['auth:sanctum', 'email.verified', 'active'])->group(function () {
     Route::get('/buildings/{building}/services', [ServiceController::class, 'listServicesForBuilding']);
     Route::post('buildings/{building}/book/service', [ServiceController::class, 'bookService']);
 });
@@ -295,7 +301,8 @@ Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active']
 /**
  * Documents related APIs
  */
-Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active'])->group(function () {
+//, 'phone.verified'
+Route::middleware(['auth:sanctum', 'email.verified', 'active'])->group(function () {
     Route::get('/documents', [DocumentsController::class, 'index']);
     Route::post('/document-upload', [DocumentsController::class, 'create']);
     Route::get('/fetch-other-documents', [DocumentsController::class, 'fetchOtherDocuments']);
@@ -514,3 +521,6 @@ Route::post('/verify-sms-otp', [MollakController::class, 'verifyOTP']);
 Route::post('/budget-budget_items',[MollakController::class, 'fetchbudget']);
 
 Route::get('/testing',[MollakController::class, 'test']);
+
+//App Versions
+Route::get('/app-version',[AppController::class, 'version']);
