@@ -55,13 +55,13 @@ class AuthController extends Controller
             ]))->response()->setStatusCode(403);
         }
 
-        if (!$user->phone_verified) {
-            return (new CustomResponseResource([
-                'title' => 'Phone Verification Required',
-                'message' => 'Phone number is not verified.',
-                'code' => 403,
-            ]))->response()->setStatusCode(403);
-        }
+        // if (!$user->phone_verified) {
+        //     return (new CustomResponseResource([
+        //         'title' => 'Phone Verification Required',
+        //         'message' => 'Phone number is not verified.',
+        //         'code' => 403,
+        //     ]))->response()->setStatusCode(403);
+        // }
 
         if ($user) {
             if (in_array($user->role->name, $allowedRoles)) {
@@ -322,14 +322,14 @@ class AuthController extends Controller
             ]))->response()->setStatusCode(403);
         }
 
-        if (!$user->phone_verified) {
-            return (new CustomResponseResource([
-                'title' => 'Phone Verification Required',
-                'message' => 'Phone number is not verified.',
-                'code' => 403,
-                'data' => $user
-            ]))->response()->setStatusCode(403);
-        }
+        // if (!$user->phone_verified) {
+        //     return (new CustomResponseResource([
+        //         'title' => 'Phone Verification Required',
+        //         'message' => 'Phone number is not verified.',
+        //         'code' => 403,
+        //         'data' => $user
+        //     ]))->response()->setStatusCode(403);
+        // }
 
         // Create a new access token
         $token = $user->createToken($user->role->name)->plainTextToken;
