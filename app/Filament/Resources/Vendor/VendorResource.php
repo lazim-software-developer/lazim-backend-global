@@ -64,7 +64,7 @@ class VendorResource extends Resource
                                 ->getSearchResultsUsing(fn(string $search): array => User::where('role_id', 2, "%{$search}%")->limit(50)->pluck('first_name', 'id')->toArray())
                                 ->getOptionLabelUsing(fn($value): ?string => User::find($value)?->first_name)
                                 ->placeholder('Vendor Name'),
-                            TextInput::make('tl_number')->label('Trade Lisence Number')
+                            TextInput::make('tl_number')->label('Trade License Number')
                                 ->rules(['max:50', 'string'])
                                 ->disabled()
                                 ->required()
@@ -73,14 +73,14 @@ class VendorResource extends Resource
                                     'tl_number',
                                     fn(?Model $record) => $record
                                 )
-                                ->placeholder('Trade Lisence Number'),
+                                ->placeholder('Trade License Number'),
 
                             DatePicker::make('tl_expiry')
-                                ->label('Trade Licence Expiry')
+                                ->label('Trade License Expiry')
                                 ->rules(['date'])
                                 ->disabled()
                                 ->required()
-                                ->placeholder('Trade Lisence Expiry'),
+                                ->placeholder('Trade License Expiry'),
                             TextInput::make('address_line_1')
                                 ->placeholder('NA')
                                 ->disabled()
