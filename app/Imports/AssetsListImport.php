@@ -1,0 +1,168 @@
+<?php
+
+namespace App\Imports;
+
+use App\Models\Asset;
+use App\Models\Building\Building;
+use App\Models\TechnicianAssets;
+use App\Models\TechnicianVendor;
+use App\Models\User\User;
+use App\Models\Vendor\Contract;
+use Carbon\Carbon;
+use Filament\Notifications\Notification;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Maatwebsite\Excel\Concerns\ToCollection;
+use Maatwebsite\Excel\Concerns\WithHeadingRow;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use Vinkla\Hashids\Facades\Hashids;
+
+class AssetsListImport implements ToCollection, WithHeadingRow
+{
+
+    protected $buildingId;
+    protected $serviceId;
+
+    public function __construct($buildingId, $serviceId)
+    {
+
+        $this->buildingId = $buildingId;
+        $this->serviceId = $serviceId;
+    }
+    /**
+    * @param Collection $collection
+    */
+    public function collection(Collection $rows)
+    {
+        // dd($rows);
+        $expectedHeadings = [
+            'asset_name',
+            'location',
+            'floor',
+            'division',
+            'discipline',
+            'frequency_of_service',
+            'description',
+           ];
+
+        if($rows->first() == null){
+            Notification::make()
+                ->title("Upload valid excel file.")
+                ->danger()
+                ->body("You have uploaded an empty file")
+                ->send();
+            return 'failure';
+        }
+   
+           // Extract the headings from the first row
+           $extractedHeadings = array_keys($rows->first()->toArray());
+   
+           // Check if all expected headings are present in the extracted headings
+           $missingHeadings = array_diff($expectedHeadings, $extractedHeadings);
+   
+           if (!empty($missingHeadings)) {
+               Notification::make()
+                   ->title("Upload valid excel file.")
+                   ->danger()
+                   ->body("Missing headings: " . implode(', ', $missingHeadings))
+                   ->send();
+               return 'failure';
+           } else {
+
+            foreach ($rows as $row) {
+                $buildingId = $this->buildingId;
+                $serviceId = $this->serviceId;
+
+                $asset = Asset::firstOrCreate(
+                    [
+                        'building_id'           => $buildingId,
+                        'name'               => $row['asset_name'],
+                        'service_id'         => $serviceId,
+                        'floor'           => $row['floor'],
+                        'location'       => $row['location'],
+                    ],
+                    [
+                        'division'         => $row['division'],
+                        'discipline'      => $row['discipline'],
+                        'frequency_of_service' => $row['frequency_of_service'],
+                        'description'         => $row['description'],
+                    ]
+                );
+
+        // Fetch Building name
+        $building_name = Building::where('id',$asset->building_id)->first();
+        $assetCode = strtoupper(substr(auth()->user()->ownerAssociation->name, 0, 2)).'-'. Hashids::encode($asset->id);
+        // dd($assetCode);
+
+        // Build an object with the required properties
+        $qrCodeContent = [
+            'id' => $asset->id,
+            'asset_code' => $assetCode,
+            'asset_id' => $asset->id,
+            'asset_name' => $asset->name,
+            'maintenance_status' => 'not-started',
+            'building_name' => $building_name->name,
+            'building_id' => $asset->building_id,
+            'floor'           => $asset->floor,
+            'location' => $asset->location,
+            'division' => $asset->division,
+            'discipline' => $asset->discipline,
+            'frequency_of_service' => $asset->frequency_of_service,
+            'description' => $asset->description,
+            // 'last_service_on' => $maintenance->maintenance_date,
+        ];
+
+        // Generate a QR code using the QrCode library
+        $qrCode = QrCode::format('svg')->size(200)->generate(json_encode($qrCodeContent));
+
+        // Update the newly created asset record with the generated QR code
+        Asset::where('id', $asset->id)->update(['qr_code' => $qrCode,'asset_code' => $assetCode]);
+
+        $buildingId = $asset->building_id;
+        $serviceId = $asset->service_id;
+        $assetId = $asset->id;
+        $contract = Contract::where('building_id', $buildingId)->where('service_id', $serviceId)->where('end_date','>=', Carbon::now()->toDateString())->first();
+        if($contract){
+            $vendorId = $contract->vendor_id;
+
+            $asset = Asset::find($assetId);
+            // dd($asset);
+            $technicianVendorIds = DB::table('service_technician_vendor')
+                                    ->where('service_id',$serviceId)
+                                    ->pluck('technician_vendor_id');
+
+            $asset->vendors()->syncWithoutDetaching([$vendorId]);
+
+            $technicianIds = TechnicianVendor::whereIn('id', $technicianVendorIds)->where('vendor_id',$vendorId)->where('active', true)->pluck('technician_id');
+            if ($technicianIds){
+                $assignees = User::whereIn('id',$technicianIds)
+                ->withCount(['assets' => function ($query) {
+                    $query->where('active', true);
+                }])
+                ->orderBy('assets_count', 'asc')
+                ->get();
+                $selectedTechnician = $assignees->first();
+
+                if ($selectedTechnician) {
+                    $assigned = TechnicianAssets::create([
+                        'asset_id' => $asset->id,
+                        'technician_id' => $selectedTechnician->id,
+                        'vendor_id' => $contract->vendor_id,
+                        'building_id' => $asset->building_id,
+                        'active' => 1,
+                    ]);
+                } else {
+                    Log::info("No technicians to add", []);
+                }
+            }
+        }
+            }
+            Notification::make()
+                ->title("Details uploaded successfully")
+                ->success()
+                ->send();
+            return 'success';
+        }
+    }
+}
