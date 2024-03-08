@@ -20,6 +20,11 @@ class Asset extends Model
         'description',
         'service_id',
         'qr_code',
+        'asset_code',
+        'floor',
+        'division',
+        'discipline',
+        'frequency_of_service'
     ];
 
     public function building()

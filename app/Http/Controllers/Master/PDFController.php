@@ -26,4 +26,10 @@ class PDFController extends Controller
         $pdf = Pdf::loadView('pdf.service-charge', compact('data'));
         return $pdf->download('service-charge.pdf');
     }
+
+    public function qrCode(){
+        $data = session('data');
+        $pdf= Pdf::loadView('pdf.qr-code', compact('data'));
+        return $pdf->download('Qr-Code-'.$data['asset_code'].'.pdf');
+    }
 }
