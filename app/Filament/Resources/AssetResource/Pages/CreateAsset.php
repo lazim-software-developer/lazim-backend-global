@@ -14,8 +14,11 @@ use Carbon\Carbon;
 use Filament\Actions;
 use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use Vinkla\Hashids\Facades\Hashids;
 
 class CreateAsset extends CreateRecord
 {
@@ -32,17 +35,15 @@ class CreateAsset extends CreateRecord
 
         // Fetch asset details from the database
         $asset = Asset::where('id', $this->record->id)->first();
-        // Fetch technician_asset details
-        $technician_asset_id = TechnicianAssets::where('asset_id',$asset)->first();
         // Fetch Building name
         $building_name = Building::where('id',$asset->building_id)->first();
-        // Fetch maintenance details from the database
-        $maintenance = Assetmaintenance::where('technician_asset_id', $technician_asset_id)->first();
+        $assetCode = strtoupper(substr(auth()->user()->ownerAssociation->name, 0, 2)).'-'. Hashids::encode($this->record->id);
+        // dd($assetCode);
 
         // Build an object with the required properties
         $qrCodeContent = [
             'id' => $this->record->id,
-            'technician_asset_id' => $technician_asset_id,
+            'asset_code' => $assetCode,
             'asset_id' => $this->record->id,
             'asset_name' => $asset->name,
             'maintenance_status' => 'not-started',
@@ -54,10 +55,20 @@ class CreateAsset extends CreateRecord
         ];
 
         // Generate a QR code using the QrCode library
-        $qrCode = QrCode::size(200)->generate(json_encode($qrCodeContent));
+        $qrCode = QrCode::format('svg')->size(200)->generate(json_encode($qrCodeContent));
+
+        //     $filename = uniqid() . '.' . 'svg';
+        //     $fullPath = 'dev' . '/' . $filename;
+
+        //     // Read the file's content
+        //     $pdfContent = asset('images/qrcode.svg');
+
+        //     // Store the file on S3
+        //     Storage::disk('s3')->put($fullPath, $pdfContent, 'public');
+        // $qrCode = $fullPath;
 
         // Update the newly created asset record with the generated QR code
-        Asset::where('id', $this->record->id)->update(['qr_code' => $qrCode]);
+        Asset::where('id', $this->record->id)->update(['qr_code' => $qrCode,'asset_code' => $assetCode]);
 
         $buildingId = $this->record->building_id;
         $serviceId = $this->record->service_id;
