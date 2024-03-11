@@ -21,6 +21,7 @@ use App\Filament\Resources\ItemResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\ItemResource\RelationManagers;
 use App\Models\Vendor\Vendor;
+use Filament\Notifications\Notification;
 use Filament\Tables\Actions\BulkAction;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Log;
@@ -108,7 +109,7 @@ class ItemResource extends Resource
                         ->relationship('vendors', 'name')
                         ->options(function () {
                             $oaId = auth()->user()->owner_association_id;
-                            return Vendor::where('owner_association_id', $oaId)
+                            return Vendor::where('owner_association_id', $oaId)->where('status', 'approved')
                                 ->pluck('name', 'id');
                         })
                         ])
@@ -119,6 +120,10 @@ class ItemResource extends Resource
                                 // dd($record->vendors()->syncWithoutDetaching([$vendorId]));
                                 $record->vendors()->sync([$vendorId]);
                             }
+                            Notification::make()
+                            ->title("Vendor attached successfully")
+                            ->success()
+                            ->send();
                         })->label('Attach Vendor')
                 ]),
             ])

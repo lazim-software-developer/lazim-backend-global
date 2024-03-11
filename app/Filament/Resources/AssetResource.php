@@ -161,7 +161,7 @@ class AssetResource extends Resource
                         ->relationship('vendors', 'name')
                         ->options(function () {
                             $oaId = auth()->user()->owner_association_id;
-                            return Vendor::where('owner_association_id', $oaId)
+                            return Vendor::where('owner_association_id', $oaId)->where('status', 'approved')
                                 ->pluck('name', 'id');
                         })
                         ])
