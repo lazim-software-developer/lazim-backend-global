@@ -54,4 +54,8 @@ class ItemsController extends Controller
             'data' => $inventory,
         ]))->response()->setStatusCode(201);
     }
+
+    public function viewItem(Item $item){
+        return new ItemsResource($item);
+     }
 }
