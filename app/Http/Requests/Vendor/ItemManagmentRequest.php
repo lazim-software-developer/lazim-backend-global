@@ -25,7 +25,14 @@ class ItemManagmentRequest extends FormRequest
             'date' => 'required|date',
             'type' => 'required|in:incoming,used',
             'quantity' => 'required|integer|min:1',
-            'comment' => 'required|string',
+            'comment' => 'required|string|max:150',
+        ];
+    }
+
+    public function messages(){
+
+        return [
+            'quantity.integer' => 'The quantity field must be a number.',
         ];
     }
 }
