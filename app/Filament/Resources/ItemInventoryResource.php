@@ -51,7 +51,7 @@ class ItemInventoryResource extends Resource
                     DateTimePicker::make('date')
                         ->rules(['date'])
                         ->required()
-                        ->minDate(now())
+                        // ->minDate(now())
                         ->displayFormat('d-M-Y h:i A'),
                     Select::make('type')
                         ->options([

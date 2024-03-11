@@ -14,6 +14,7 @@ use App\Models\Master\Service;
 use App\Models\Vendor\Contact;
 use App\Models\Building\Building;
 use App\Models\Building\Document;
+use App\Models\Item;
 use App\Models\Scopes\Searchable;
 use App\Models\Vendor\Contract;
 use App\Models\Vendor\VendorEscalationMatrix;
@@ -136,5 +137,10 @@ class Vendor extends Model
     public function OA()
     {
         return $this->belongsTo(OwnerAssociation::class,'owner_association_id');
+    }
+
+    public function items()
+    {
+        return $this->belongsToMany(Item::class);
     }
 }
