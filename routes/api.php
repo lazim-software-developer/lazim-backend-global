@@ -441,6 +441,7 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('vendor')->group(function 
     //Items APIs
     Route::get('/{vendor}/items', [ItemsController::class, 'index']);
     Route::post('/{item}/item_management', [ItemsController::class,'updateItems']);
+    Route::get('/{item}/view-item', [ItemsController::class,'viewItem']);
 });
 
 // Technician Related APIs
