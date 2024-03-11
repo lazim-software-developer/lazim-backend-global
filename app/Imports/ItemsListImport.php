@@ -51,6 +51,25 @@ class ItemsListImport implements ToCollection, WithHeadingRow
                    ->send();
                return 'failure';
            } else {
+
+            $missingFieldsRows = [];
+
+            foreach ($rows as $index => $row) {
+                // Check if any of the required fields are null
+                if (empty($row['item_name']) || empty($row['quantity']) || empty($row['description'])) {
+                    $missingFieldsRows[] = $index + 1; // Add the row number to the array
+                }
+            }
+
+            if (!empty($missingFieldsRows)) {
+                // If there are rows with missing fields, show an error message with the row numbers
+                Notification::make()
+                    ->title("Upload valid excel file.")
+                    ->danger()
+                    ->body("Required fields are missing in the following row(s): " . implode(', ', $missingFieldsRows))
+                    ->send();
+                return 'failure';
+            }
             foreach ($rows as $row) {
                 $buildingId = $this->buildingId;
 
