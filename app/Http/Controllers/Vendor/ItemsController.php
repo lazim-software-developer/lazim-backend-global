@@ -13,9 +13,9 @@ use Illuminate\Http\Request;
 
 class ItemsController extends Controller
 {
-    public function index(Vendor $vendor){
-       $items=$vendor->items()->get();
-       return ItemsResource::collection($items);
+    public function index(Request $request,Vendor $vendor){
+       $items=$vendor->items();
+       return ItemsResource::collection($items->paginate($request->query('page', 10)));
     }
 
     public function updateItems(ItemManagmentRequest $request,Item $item){
