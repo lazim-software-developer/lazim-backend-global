@@ -69,10 +69,10 @@ class ListAssets extends ListRecords
                             ->searchable()
                             ->label('Service'),
                         FileUpload::make('excel_file')
-                        ->label('Cooling Accounts Excel Data')
+                        ->label('Assets Excel Data')
                         // ->acceptedFileTypes([
-                        //     // 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // for .xlsx
-                        //     // 'application/vnd.ms-excel', // for .xls
+                        //     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // for .xlsx
+                        //     'application/vnd.ms-excel', // for .xls
                         // ])
                         ->required(),
                     ])

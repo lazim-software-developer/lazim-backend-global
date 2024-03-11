@@ -22,6 +22,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\AssetResource\Pages;
 use App\Models\Vendor\Vendor;
+use Filament\Notifications\Notification;
 use Filament\Tables\Actions\BulkAction;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Log;
@@ -127,7 +128,7 @@ class AssetResource extends Resource
                 TextColumn::make('service.name')->searchable()->label('Service'),
                 TextColumn::make('building.name')->searchable()->label('Building Name'),
                 TextColumn::make('asset_code'),
-                TextColumn::make('vendors.name')
+                TextColumn::make('vendors.name')->default('NA')
                     ->searchable()->label('Vendor'),
             ])
             ->defaultSort('created_at', 'desc')
@@ -171,6 +172,10 @@ class AssetResource extends Resource
                                 // dd($record->vendors()->syncWithoutDetaching([$vendorId]));
                                 $record->vendors()->sync([$vendorId]);
                             }
+                            Notification::make()
+                                ->title("Vendor attached successfully")
+                                ->success()
+                                ->send();
                         })->label('Attach Vendor')
                 ]),
             ])

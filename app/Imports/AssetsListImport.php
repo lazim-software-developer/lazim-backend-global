@@ -70,10 +70,32 @@ class AssetsListImport implements ToCollection, WithHeadingRow
                return 'failure';
            } else {
 
+            $missingFieldsRows = [];
+
+            foreach ($rows as $index => $row) {
+                // Check if any of the required fields are null
+                if (empty($row['asset_name']) || empty($row['floor']) || empty($row['location']) || empty($row['division']) || empty($row['discipline']) || empty($row['frequency_of_service'])) {
+                    $missingFieldsRows[] = $index + 1; // Add the row number to the array
+                }
+            }
+
+            if (!empty($missingFieldsRows)) {
+                // If there are rows with missing fields, show an error message with the row numbers
+                Notification::make()
+                    ->title("Upload valid excel file.")
+                    ->danger()
+                    ->body("Required fields are missing in the following row(s): " . implode(', ', $missingFieldsRows))
+                    ->send();
+                return 'failure';
+            }
+
             foreach ($rows as $row) {
                 $buildingId = $this->buildingId;
                 $serviceId = $this->serviceId;
 
+                if($row['asset_name'] && $row['floor'] && $row['location'] && $row['division'] && $row['discipline'] && $row['frequency_of_service']){
+
+                }
                 $asset = Asset::firstOrCreate(
                     [
                         'building_id'           => $buildingId,
