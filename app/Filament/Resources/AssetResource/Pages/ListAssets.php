@@ -70,10 +70,10 @@ class ListAssets extends ListRecords
                             ->label('Service'),
                         FileUpload::make('excel_file')
                         ->label('Assets Excel Data')
-                        // ->acceptedFileTypes([
-                        //     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // for .xlsx
-                        //     'application/vnd.ms-excel', // for .xls
-                        // ])
+                        ->acceptedFileTypes([
+                            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // for .xlsx
+                            'application/vnd.ms-excel', // for .xls
+                        ])
                         ->required(),
                     ])
                     ->action(function (array $data) {
