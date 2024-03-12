@@ -2,9 +2,11 @@
 
 namespace App\Observers;
 
+use App\Filament\Resources\PostResource;
 use App\Models\Community\Post;
 use App\Models\Community\PostLike;
 use App\Models\User\User;
+use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 
 class PostLikeObserver
@@ -22,6 +24,11 @@ class PostLikeObserver
             ->icon('heroicon-o-document-text')
             ->iconColor('warning')
             ->body(auth()->user()->first_name . ' liked the post!')
+            ->actions([
+                Action::make('view')
+                    ->button()
+                    ->url(fn () => PostResource::getUrl('view', [$post])),
+            ])
             ->sendToDatabase($notifyTo);
     }
 
