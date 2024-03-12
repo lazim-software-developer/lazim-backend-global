@@ -25,7 +25,7 @@ class UserObserver
             ->actions([
                 Action::make('view')
                     ->button()
-                    ->url(fn () => VendorResource::getUrl('view', [$user])),
+                    ->url(fn () => VendorResource::getUrl('edit', [$user])),
             ])
             ->sendToDatabase($notifyTo);
         }

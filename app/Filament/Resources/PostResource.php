@@ -164,6 +164,9 @@ class PostResource extends Resource
                     ->default(true)
                     ->inline(false)
                     ->label('Active'),
+                TextInput::make('likes_count')
+                    ->disabled()
+                    ->hiddenOn('create')
             ])
         ]);
     }
