@@ -4,6 +4,7 @@ namespace App\Observers;
 
 use App\Filament\Resources\Vendor\VendorResource;
 use App\Models\User\User;
+use App\Models\Vendor\Vendor;
 use Filament\Notifications\Actions\Action;
 use Filament\Notifications\Notification;
 
@@ -14,6 +15,7 @@ class UserObserver
      */
     public function created(User $user): void
     {
+        $vendor = Vendor::where('owner_id', $user->id)->first();
         if($user->role_id == 2){
             $notifyTo = User::where('owner_association_id', $user->owner_association_id)->where('role_id',10)->get();
             Notification::make()
@@ -25,7 +27,7 @@ class UserObserver
             ->actions([
                 Action::make('view')
                     ->button()
-                    ->url(fn () => VendorResource::getUrl('edit', [$user])),
+                    ->url(fn () => VendorResource::getUrl('edit', [$vendor])),
             ])
             ->sendToDatabase($notifyTo);
         }
