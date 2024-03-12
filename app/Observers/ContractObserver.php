@@ -2,11 +2,13 @@
 
 namespace App\Observers;
 
+use App\Filament\Resources\ContractResource;
 use App\Models\Accounting\Proposal;
 use App\Models\Building\Building;
 use App\Models\User\User;
 use App\Models\Vendor\Contract;
 use App\Models\Vendor\Vendor;
+use Filament\Notifications\Actions\Action;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\DB;
 
@@ -26,6 +28,11 @@ class ContractObserver
             ->icon('heroicon-o-document-text')
             ->iconColor('warning')
             ->body('New contract is created')
+            ->actions([
+                Action::make('view')
+                    ->button()
+                    ->url(fn () => ContractResource::getUrl('edit', [$contract])),
+            ])
             ->sendToDatabase($notifyTo);
     }
 

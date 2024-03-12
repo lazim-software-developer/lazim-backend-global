@@ -2,9 +2,11 @@
 
 namespace App\Observers;
 
+use App\Filament\Resources\ResidentialFormResource;
 use App\Models\Building\Building;
 use App\Models\ResidentialForm;
 use App\Models\User\User;
+use Filament\Notifications\Actions\Action;
 use Filament\Notifications\Notification;
 
 class ResidentialFormObserver
@@ -21,6 +23,11 @@ class ResidentialFormObserver
         ->icon('heroicon-o-document-text')
         ->iconColor('warning')
         ->body('New form submission by'.auth()->user()->first_name)
+        ->actions([
+            Action::make('view')
+                ->button()
+                ->url(fn () => ResidentialFormResource::getUrl('edit', [$residentialForm])),
+        ])
         ->sendToDatabase($notifyTo);
     }
 
