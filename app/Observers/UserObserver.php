@@ -13,21 +13,24 @@ class UserObserver
     /**
      * Handle the User "created" event.
      */
-    public function created(Vendor $vendor): void
+    public function created(User $user): void
     {
-            $notifyTo = User::where('owner_association_id', $vendor->owner_association_id)->where('role_id',10)->get();
-            Notification::make()
-            ->success()
-            ->title("New Vendor")
-            ->icon('heroicon-o-document-text')
-            ->iconColor('warning')
-            ->body('New vendor created '.$vendor->name)
-            ->actions([
-                Action::make('view')
-                    ->button()
-                    ->url(fn () => VendorResource::getUrl('edit', [$vendor])),
-            ])
-            ->sendToDatabase($notifyTo);
+        // $vendor = Vendor::where('owner_id', $user->id)->first();
+        // if($user->role_id == 2){
+        //     $notifyTo = User::where('owner_association_id', $user->owner_association_id)->where('role_id',10)->get();
+        //     Notification::make()
+        //     ->success()
+        //     ->title("New Vendor")
+        //     ->icon('heroicon-o-document-text')
+        //     ->iconColor('warning')
+        //     ->body('New vendor created '.$user->first_name)
+        //     ->actions([
+        //         Action::make('view')
+        //             ->button()
+        //             ->url(fn () => VendorResource::getUrl('edit', [$vendor])),
+        //     ])
+        //     ->sendToDatabase($notifyTo);
+        // }
     }
 
     /**
