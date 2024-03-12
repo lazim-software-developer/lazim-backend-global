@@ -2,9 +2,11 @@
 
 namespace App\Observers;
 
+use App\Filament\Resources\WDAResource;
 use App\Models\Accounting\WDA;
 use App\Models\Building\Building;
 use App\Models\User\User;
+use Filament\Notifications\Actions\Action;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\DB;
 
@@ -13,10 +15,10 @@ class WDAObserver
     /**
      * Handle the WDA "created" event.
      */
-    public function created(WDA $wDA): void
+    public function created(WDA $WDA): void
     {
-        $vendor = DB::table('building_vendor')->where('building_id', $wDA->building_id)
-            ->where('vendor_id', $wDA->vendor_id)->first();
+        $vendor = DB::table('building_vendor')->where('building_id', $WDA->building_id)
+            ->where('vendor_id', $WDA->vendor_id)->first();
         if ($vendor) {
             $building = Building::where('id', $vendor->building_id)->first();
             $notifyTo = User::where('owner_association_id', $building->owner_association_id)->where('role_id', 10)->get();
@@ -26,6 +28,11 @@ class WDAObserver
                 ->icon('heroicon-o-document-text')
                 ->iconColor('warning')
                 ->body('New WDA form submitted by  ' . auth()->user()->first_name)
+                ->actions([
+                    Action::make('view')
+                        ->button()
+                        ->url(fn () => WDAResource::getUrl('edit', [$WDA])),
+                ])
                 ->sendToDatabase($notifyTo);
         }
 
