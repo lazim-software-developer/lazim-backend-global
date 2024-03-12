@@ -2,7 +2,9 @@
 
 namespace App\Observers;
 
+use App\Filament\Resources\Vendor\VendorResource;
 use App\Models\User\User;
+use Filament\Notifications\Actions\Action;
 use Filament\Notifications\Notification;
 
 class UserObserver
@@ -20,6 +22,11 @@ class UserObserver
             ->icon('heroicon-o-document-text')
             ->iconColor('warning')
             ->body('New vendor created '.$user->first_name)
+            ->actions([
+                Action::make('view')
+                    ->button()
+                    ->url(fn () => VendorResource::getUrl('view', [$user])),
+            ])
             ->sendToDatabase($notifyTo);
         }
     }
