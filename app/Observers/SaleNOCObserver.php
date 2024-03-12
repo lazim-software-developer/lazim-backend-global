@@ -2,9 +2,11 @@
 
 namespace App\Observers;
 
+use App\Filament\Resources\NocFormResource;
 use App\Models\Building\Building;
 use App\Models\Forms\SaleNOC;
 use App\Models\User\User;
+use Filament\Notifications\Actions\Action;
 use Filament\Notifications\Notification;
 
 
@@ -22,6 +24,11 @@ class SaleNOCObserver
         ->icon('heroicon-o-document-text')
         ->iconColor('warning')
         ->body('New form submission by '.auth()->user()->first_name)
+        ->actions([
+            Action::make('view')
+                ->button()
+                ->url(fn () => NocFormResource::getUrl('edit', [$saleNOC])),
+        ])
         ->sendToDatabase($notifyTo);
     }
 
