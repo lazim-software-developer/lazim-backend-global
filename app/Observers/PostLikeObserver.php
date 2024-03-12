@@ -27,7 +27,7 @@ class PostLikeObserver
             ->actions([
                 Action::make('view')
                     ->button()
-                    ->url(fn () => PostResource::getUrl('index')),
+                    ->url(fn () => PostResource::getUrl('edit',[$post])),
             ])
             ->sendToDatabase($notifyTo);
     }
