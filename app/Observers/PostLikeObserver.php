@@ -6,7 +6,7 @@ use App\Filament\Resources\PostResource;
 use App\Models\Community\Post;
 use App\Models\Community\PostLike;
 use App\Models\User\User;
-use Filament\Actions\Action;
+use Filament\Notifications\Actions\Action;
 use Filament\Notifications\Notification;
 
 class PostLikeObserver
