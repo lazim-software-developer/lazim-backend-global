@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\User\User;
+use App\Observers\VendorObserver;
 use Illuminate\View\View;
 use App\Models\Forms\Guest;
 use App\Models\Forms\SaleNOC;
@@ -43,6 +44,7 @@ use Illuminate\Support\Facades\Schema;
 use App\Observers\AnnouncementObserver;
 use Illuminate\Support\ServiceProvider;
 use App\Models\Building\FacilityBooking;
+use App\Models\Vendor\Vendor;
 use App\Observers\ResidentialFormObserver;
 use Filament\Support\Facades\FilamentView;
 use App\Observers\OwnerAssociationObserver;
@@ -96,6 +98,7 @@ class AppServiceProvider extends ServiceProvider
         Invoice::observe(InvoiceObserver::class);
         Tender::observe(TenderObserver::class);
         TechnicianAssets::observe(TechnicianAssetsObserver::class);
+        Vendor::observe(VendorObserver::class);
 
         //Global settings for Admin module (for all table per page options)
         Table::configureUsing(function (Table $table): void {
