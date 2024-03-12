@@ -2,9 +2,11 @@
 
 namespace App\Observers;
 
+use App\Filament\Resources\InvoiceResource;
 use App\Models\Accounting\Invoice;
 use App\Models\Building\Building;
 use App\Models\User\User;
+use Filament\Notifications\Actions\Action;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\DB;
 
@@ -26,6 +28,11 @@ class InvoiceObserver
                 ->icon('heroicon-o-document-text')
                 ->iconColor('warning')
                 ->body('New Invoice submitted by  ' . auth()->user()->first_name)
+                ->actions([
+                    Action::make('view')
+                        ->button()
+                        ->url(fn () => InvoiceResource::getUrl('edit', [$invoice])),
+                ])
                 ->sendToDatabase($notifyTo);
         }
 

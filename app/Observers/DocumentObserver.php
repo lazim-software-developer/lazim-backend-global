@@ -2,9 +2,11 @@
 
 namespace App\Observers;
 
+use App\Filament\Resources\TenantDocumentResource;
 use App\Models\Building\Building;
 use App\Models\Building\Document;
 use App\Models\User\User;
+use Filament\Notifications\Actions\Action;
 use Filament\Notifications\Notification;
 
 class DocumentObserver
@@ -26,6 +28,11 @@ class DocumentObserver
                         ->icon('heroicon-o-document-text')
                         ->iconColor('warning')
                         ->body('A new document received from  '.auth()->user()->first_name)
+                        ->actions([
+                            Action::make('view')
+                                ->button()
+                                ->url(fn () => TenantDocumentResource::getUrl('edit', [$document])),
+                        ])
                         ->sendToDatabase($notifyTo);
                 }
             }

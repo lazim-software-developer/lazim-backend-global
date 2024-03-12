@@ -2,6 +2,10 @@
 
 namespace App\Observers;
 
+use App\Filament\Resources\ComplaintscomplaintResource;
+use App\Filament\Resources\ComplaintsenquiryResource;
+use App\Filament\Resources\ComplaintssuggessionResource;
+use App\Filament\Resources\HelpdeskcomplaintResource;
 use App\Models\Building\Building;
 use App\Models\Building\Complaint;
 use App\Models\ExpoPushNotification;
@@ -9,6 +13,7 @@ use App\Models\Master\Role;
 use App\Models\User\User;
 use App\Models\Vendor\Vendor;
 use App\Traits\UtilsTrait;
+use Filament\Notifications\Actions\Action;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\DB;
 
@@ -28,6 +33,11 @@ class ComplaintObserver
                 ->icon('heroicon-o-document-text')
                 ->iconColor('warning')
                 ->body('Complaint has been created by' . auth()->user()->first_name)
+                ->actions([
+                    Action::make('view')
+                        ->button()
+                        ->url(fn () => ComplaintscomplaintResource::getUrl('edit', [$complaint])),
+                ])
                 ->sendToDatabase($notifyTo);
         } elseif ($complaint->complaint_type == 'enquiries') {
             Notification::make()
@@ -36,6 +46,11 @@ class ComplaintObserver
                 ->icon('heroicon-o-document-text')
                 ->iconColor('warning')
                 ->body('A enquiry has been received raised by ' . auth()->user()->first_name)
+                ->actions([
+                    Action::make('view')
+                        ->button()
+                        ->url(fn () => ComplaintsenquiryResource::getUrl('edit', [$complaint])),
+                ])
                 ->sendToDatabase($notifyTo);
         } elseif ($complaint->complaint_type == 'suggestions') {
             Notification::make()
@@ -44,6 +59,11 @@ class ComplaintObserver
                 ->icon('heroicon-o-document-text')
                 ->iconColor('warning')
                 ->body('A suggestion made by ' . auth()->user()->first_name)
+                ->actions([
+                    Action::make('view')
+                        ->button()
+                        ->url(fn () => ComplaintssuggessionResource::getUrl('edit', [$complaint])),
+                ])
                 ->sendToDatabase($notifyTo);
         } else {
             Notification::make()
@@ -52,6 +72,11 @@ class ComplaintObserver
                 ->icon('heroicon-o-document-text')
                 ->iconColor('warning')
                 ->body('A new Ticket is raised by ' . auth()->user()->first_name)
+                ->actions([
+                    Action::make('view')
+                        ->button()
+                        ->url(fn () => HelpdeskcomplaintResource::getUrl('edit', [$complaint])),
+                ])
                 ->sendToDatabase($notifyTo);
         }
 
@@ -124,6 +149,11 @@ class ComplaintObserver
                     ->icon('heroicon-o-document-text')
                     ->iconColor('warning')
                     ->body('Complaint has been resolved by a ' . $user->role->name . ' ' . auth()->user()->first_name)
+                    ->actions([
+                        Action::make('view')
+                            ->button()
+                            ->url(fn () => HelpdeskcomplaintResource::getUrl('edit', [$complaint])),
+                    ])
                     ->sendToDatabase($notifyTo);
             } else {
                 Notification::make()
