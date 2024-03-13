@@ -90,9 +90,7 @@ public function listServices(SubCategory $subcategory)
 
     public function listSubCategories()
     {
-        $categories = SubCategory::all()->reject(function ($category) {
-            return $category->name == 'Security Services';
-        });
+        $categories = SubCategory::all();
         return SubCategoryResource::collection($categories);
     }
 
