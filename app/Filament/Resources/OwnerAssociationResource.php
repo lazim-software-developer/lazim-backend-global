@@ -98,7 +98,7 @@ class OwnerAssociationResource extends Resource
                         })
                         ->placeholder('Address'),
                     TextInput::make('email')
-                        ->rules(['min:6', 'max:30', 'regex:/^[a-z0-9.]+@[a-z]+\.[a-z]{2,}$/', function (Model $record) {
+                        ->rules(['min:6', 'max:30', 'regex:/^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/', function (Model $record) {
                             return function (string $attribute, $value, Closure $fail) use($record) {
                                 if (DB::table('owner_associations')->whereNot('id',$record->id)->where('email', $value)->count() > 0) {
                                     $fail('The email is already taken by a OA.');

@@ -26,7 +26,7 @@ class CreateFitOutFormsRequest extends FormRequest
             'flat_id' => 'required|integer',
             'contractor_name' => 'required|string',
             'phone' => 'required|string',
-            'email' => 'required|regex:/^[a-zA-Z0-9_.-]+@[a-zA-Z]+\.[a-zA-Z]+$/',
+            'email' => 'required|regex:/^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/',
             'no_objection'=>'required|integer',
             'undertaking_of_waterproofing'=>'required|integer',
         ];
