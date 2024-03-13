@@ -21,6 +21,11 @@ use Filament\Forms\Components\TextInput;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\AssetResource\Pages;
+use App\Models\Vendor\Vendor;
+use Filament\Notifications\Notification;
+use Filament\Tables\Actions\BulkAction;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Log;
 
 class AssetResource extends Resource
 {
@@ -52,29 +57,44 @@ class AssetResource extends Resource
                             ->live()
                             ->label('Building Name'),
                         TextInput::make('name')
-                            ->rules([
-                                'max:50',
-                                'regex:/^[a-zA-Z\s]*$/',
-                                fn (Get $get): Closure => function (string $attribute, $value, Closure $fail) use ($get) {
-                                    if (Asset::where('building_id', $get('building_id'))->where('name', $value)->exists()) {
-                                        $fail('The Name is already taken for this Building.');
-                                    }
-                                },
-                            ])
+                            // ->rules([
+                            //     'max:50',
+                            //     'regex:/^[a-zA-Z\s]*$/',
+                            //     fn (Get $get): Closure => function (string $attribute, $value, Closure $fail) use ($get) {
+                            //         if (Asset::where('building_id', $get('building_id'))->where('name', $value)->exists()) {
+                            //             $fail('The Name is already taken for this Building.');
+                            //         }
+                            //     },
+                            // ])
+                            ->maxLength(50)
                             ->required()
                             ->label('Asset Name'),
+                        TextInput::make('floor')
+                            ->required()
+                            ->rules(['max:50']),
                         TextInput::make('location')
                             ->required()
                             ->rules(['max:50', 'regex:/^(?=.*[a-zA-Z])[a-zA-Z0-9\s!@#$%^&*_+\-=,.]*$/'])
-                            ->label('Location'),
+                            ->label('Spot'),
+                        TextInput::make('division')
+                            ->required()
+                            ->rules(['max:50']),
+                        TextInput::make('discipline')
+                            ->required()
+                            ->rules(['max:50']),
+                        TextInput::make('frequency_of_service')
+                                ->required()
+                                ->rules(['max:50']),
                         Textarea::make('description')
                             ->label('Description')
                             ->rules(['max:100', 'regex:/^(?=.*[a-zA-Z])[a-zA-Z0-9\s!@#$%^&*_+\-=,.]*$/']),
                         Select::make('service_id')
                             ->relationship('service', 'name')
                             ->options(function () {
-                                return Service::where('type', 'vendor_service')->where('active', 1)->pluck('name', 'id');
+                                return Service::all()->where('type', 'vendor_service')->where('active', 1)->pluck('name', 'id');
                             })
+                            // ->default(Service::where('name', 'MEP Services')->where('active', 1)->first()->id)
+                            // ->disabled()
                             ->required()
                             ->preload()
                             ->searchable()
@@ -87,6 +107,13 @@ class AssetResource extends Resource
                         'md' => 2,
                         'lg' => 2,
                     ]),
+                TextInput::make('asset_code')
+                ->visible(function (callable $get) {
+                    if ($get('asset_code') != null) {
+                        return true;
+                    }
+                    return false;
+                })
 
             ]);
     }
@@ -100,6 +127,9 @@ class AssetResource extends Resource
                 TextColumn::make('location')->label('Location'),
                 TextColumn::make('service.name')->searchable()->label('Service'),
                 TextColumn::make('building.name')->searchable()->label('Building Name'),
+                TextColumn::make('asset_code'),
+                TextColumn::make('vendors.name')->default('NA')
+                    ->searchable()->label('Vendor'),
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
@@ -124,6 +154,29 @@ class AssetResource extends Resource
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     // Tables\Actions\DeleteBulkAction::make(),
+                    BulkAction::make('attach')
+                    ->form([
+                        Select::make('vendor_id')
+                        ->required()
+                        ->relationship('vendors', 'name')
+                        ->options(function () {
+                            $oaId = auth()->user()->owner_association_id;
+                            return Vendor::where('owner_association_id', $oaId)->where('status', 'approved')
+                                ->pluck('name', 'id');
+                        })
+                        ])
+                        ->action(function (Collection $records,array $data){
+                            $vendorId= $data['vendor_id'];
+                            // dd($records,$vendorId);
+                            foreach($records as $record){
+                                // dd($record->vendors()->syncWithoutDetaching([$vendorId]));
+                                $record->vendors()->sync([$vendorId]);
+                            }
+                            Notification::make()
+                                ->title("Vendor attached successfully")
+                                ->success()
+                                ->send();
+                        })->label('Attach Vendor')
                 ]),
             ])
             ->emptyStateActions([
@@ -148,4 +201,5 @@ class AssetResource extends Resource
 
         ];
     }
+
 }

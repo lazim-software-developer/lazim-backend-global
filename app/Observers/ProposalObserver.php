@@ -2,11 +2,13 @@
 
 namespace App\Observers;
 
+use App\Filament\Resources\ProposalResource;
 use App\Models\Accounting\Proposal;
 use App\Models\Accounting\Tender;
 use App\Models\Building\Building;
 use App\Models\User\User;
 use App\Models\Vendor\Vendor;
+use Filament\Notifications\Actions\Action;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\DB;
 
@@ -26,6 +28,11 @@ class ProposalObserver
             ->icon('heroicon-o-document-text')
             ->iconColor('warning')
             ->body('New proposal by ' . auth()->user()->first_name)
+            ->actions([
+                Action::make('view')
+                    ->button()
+                    ->url(fn () => ProposalResource::getUrl('edit', [$proposal])),
+            ])
             ->sendToDatabase($notifyTo);
     }
 

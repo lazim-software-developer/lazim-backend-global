@@ -2,9 +2,11 @@
 
 namespace App\Observers;
 
+use App\Filament\Resources\AccessCardFormsDocumentResource;
 use App\Models\Building\Building;
 use App\Models\Forms\AccessCard;
 use App\Models\User\User;
+use Filament\Notifications\Actions\Action;
 use Filament\Notifications\Notification;
 
 class AccessCardObserver
@@ -21,6 +23,11 @@ class AccessCardObserver
                 ->icon('heroicon-o-document-text')
                 ->iconColor('warning')
                 ->body('New form submission by ' . auth()->user()->first_name)
+                ->actions([
+                    Action::make('view')
+                        ->button()
+                        ->url(fn () => AccessCardFormsDocumentResource::getUrl('edit', [$accessCard])),
+                ])
                 ->sendToDatabase($notifyTo);
     }
 

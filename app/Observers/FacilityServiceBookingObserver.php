@@ -2,11 +2,16 @@
 
 namespace App\Observers;
 
+use App\Filament\Resources\Building\BuildingResource;
+use App\Filament\Resources\Building\BuildingResource\RelationManagers\ServiceBookingsRelationManager;
+use App\Filament\Resources\Building\FacilityBookingResource;
+use App\Filament\Resources\Building\ServiceBookingResource;
 use App\Models\Building\Building;
 use App\Models\Building\FacilityBooking;
 use App\Models\Master\Facility;
 use App\Models\Master\Service;
 use App\Models\User\User;
+use Filament\Notifications\Actions\Action;
 use Filament\Notifications\Notification;
 
 class FacilityServiceBookingObserver
@@ -26,6 +31,11 @@ class FacilityServiceBookingObserver
             ->icon('heroicon-o-document-text')
             ->iconColor('warning')
             ->body('A new '. $facilityName->name.' booking by '.auth()->user()->first_name)
+            ->actions([
+                Action::make('view')
+                    ->button()
+                    ->url(fn () => FacilityBookingResource::getUrl('edit', [$facilityBooking])),
+            ])
             ->sendToDatabase($notifyTo);
         }
         else{
@@ -36,6 +46,11 @@ class FacilityServiceBookingObserver
             ->icon('heroicon-o-document-text')
             ->iconColor('warning')
             ->body('A new '. $serviceName->name.' booking by '.auth()->user()->first_name)
+            ->actions([
+                Action::make('view')
+                    ->button()
+                    ->url( fn () => ServiceBookingResource::getUrl('edit',[$facilityBooking])),
+            ])
             ->sendToDatabase($notifyTo);
         }
     }

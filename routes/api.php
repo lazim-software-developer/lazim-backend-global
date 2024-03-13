@@ -53,6 +53,7 @@ use App\Http\Controllers\Vendor\TenderController;
 use App\Http\Controllers\Vendor\WDAController;
 use App\Http\Controllers\Vendor\VendorBuildingController;
 use App\Http\Controllers\Gatekeeper\TenantsController;
+use App\Http\Controllers\Vendor\ItemsController;
 use App\Http\Controllers\Vendor\TLController;
 
 /*
@@ -436,6 +437,11 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('vendor')->group(function 
 
     //proposals
     Route::get('/{vendor}/proposals', [ProposalController::class, 'index']);
+
+    //Items APIs
+    Route::get('/{vendor}/items', [ItemsController::class, 'index']);
+    Route::post('/{item}/item_management', [ItemsController::class,'updateItems']);
+    Route::get('/{item}/view-item', [ItemsController::class,'viewItem']);
 });
 
 // Technician Related APIs

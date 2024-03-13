@@ -16,6 +16,7 @@ use App\Http\Controllers\OwnerAssociationInvoice;
 use App\Http\Controllers\ReserveFundController;
 use App\Http\Controllers\Vendor\MasterController;
 use Filament\Pages\Page;
+use Illuminate\Support\Facades\Session;
 
 /*
 |--------------------------------------------------------------------------
@@ -76,7 +77,12 @@ Route::get('/invoice',[OwnerAssociationInvoice::class,'invoice'])->name('invoice
 
 Route::get('/receipt',[OwnerAssociationReceipts::class,'receipt'])->name('receipt');
 
-
+// Route::get('/test',[PDFController::class,'qrCode']);
+Route::get('/qr_code',function(){
+    $data = Session::get('data');
+    // Now you can use $data in your view or wherever you need it
+    return view('pdf.qr-code', ['data' => $data]);
+});
 
 
 // Route::get('/admin/ledgers/{invoice}/receipts', function () {

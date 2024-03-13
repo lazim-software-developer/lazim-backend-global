@@ -20,6 +20,11 @@ use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\ItemResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\ItemResource\RelationManagers;
+use App\Models\Vendor\Vendor;
+use Filament\Notifications\Notification;
+use Filament\Tables\Actions\BulkAction;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Log;
 
 class ItemResource extends Resource
 {
@@ -82,6 +87,8 @@ class ItemResource extends Resource
                     ->searchable(),
                 TextColumn::make('building.name')
                     ->searchable(),
+                TextColumn::make('vendors.name')
+                    ->searchable(),
                 TextColumn::make('description')
                     ->searchable(),
             ])
@@ -95,6 +102,29 @@ class ItemResource extends Resource
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     // Tables\Actions\DeleteBulkAction::make(),
+                    BulkAction::make('attach')
+                    ->form([
+                        Select::make('vendor_id')
+                        ->required()
+                        ->relationship('vendors', 'name')
+                        ->options(function () {
+                            $oaId = auth()->user()->owner_association_id;
+                            return Vendor::where('owner_association_id', $oaId)->where('status', 'approved')
+                                ->pluck('name', 'id');
+                        })
+                        ])
+                        ->action(function (Collection $records,array $data){
+                            $vendorId= $data['vendor_id'];
+                            // dd($records,$vendorId);
+                            foreach($records as $record){
+                                // dd($record->vendors()->syncWithoutDetaching([$vendorId]));
+                                $record->vendors()->sync([$vendorId]);
+                            }
+                            Notification::make()
+                            ->title("Vendor attached successfully")
+                            ->success()
+                            ->send();
+                        })->label('Attach Vendor')
                 ]),
             ])
             ->emptyStateActions([

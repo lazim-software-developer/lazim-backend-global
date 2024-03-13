@@ -70,7 +70,7 @@ class BuildingPocsRelationManager extends RelationManager
                             TextInput::make('last_name')
                                 ->label('Last Name'),
                             TextInput::make('email')
-                                ->rules(['min:6', 'max:30', 'regex:/^[a-z0-9.]+@[a-z]+\.[a-z]{2,}$/'])
+                                ->rules(['min:6', 'max:30', 'regex:/^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/'])
                                 ->required()
                                 ->maxLength(255),
                             TextInput::make('phone')
@@ -141,7 +141,7 @@ class BuildingPocsRelationManager extends RelationManager
                         TextInput::make('last_name')
                             ->label('Last Name'),
                         TextInput::make('email')
-                            ->rules(['min:6', 'max:30', 'regex:/^[a-z0-9.]+@[a-z]+\.[a-z]{2,}$/', function () {
+                            ->rules(['min:6', 'max:30', 'regex:/^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/', function () {
                                 return function (string $attribute, $value, Closure $fail) {
                                     if (DB::table('users')->where('email', $value)->count() > 0) {
                                         $fail('The email is already taken by a User.');
@@ -219,7 +219,7 @@ class BuildingPocsRelationManager extends RelationManager
                         TextInput::make('last_name')
                             ->label('Last Name'),
                         TextInput::make('email')
-                            ->rules(['min:6', 'max:30', 'regex:/^[a-z0-9.]+@[a-z]+\.[a-z]{2,}$/', function (Model $record) {
+                            ->rules(['min:6', 'max:30', 'regex:/^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/', function (Model $record) {
                                 return function (string $attribute, $value, Closure $fail) use ($record) {
                                     if (DB::table('users')->whereNot('id', $record->user_id)->where('email', $value)->count() > 0) {
                                         $fail('The email is already taken by a User.');
