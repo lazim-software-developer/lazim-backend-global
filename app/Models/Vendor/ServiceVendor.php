@@ -12,7 +12,7 @@ class ServiceVendor extends Model
     public $timestamps = false;
     protected $table = 'service_vendor';
 
-    protected $fillable = ['service_id', 'vendor_id', 'price', 'start_date', 'end_date', 'active', 'building_id'];
+    protected $fillable = ['service_id', 'vendor_id', 'price', 'start_date', 'end_date', 'active', 'building_id','contract_id'];
 
     public function building()
     {
