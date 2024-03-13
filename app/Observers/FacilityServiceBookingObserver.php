@@ -5,6 +5,7 @@ namespace App\Observers;
 use App\Filament\Resources\Building\BuildingResource;
 use App\Filament\Resources\Building\BuildingResource\RelationManagers\ServiceBookingsRelationManager;
 use App\Filament\Resources\Building\FacilityBookingResource;
+use App\Filament\Resources\Building\ServiceBookingResource;
 use App\Models\Building\Building;
 use App\Models\Building\FacilityBooking;
 use App\Models\Master\Facility;
@@ -48,7 +49,7 @@ class FacilityServiceBookingObserver
             ->actions([
                 Action::make('view')
                     ->button()
-                    ->url( fn () => BuildingResource::getUrl('edit',[$building])),
+                    ->url( fn () => ServiceBookingResource::getUrl('edit',[$facilityBooking])),
             ])
             ->sendToDatabase($notifyTo);
         }
