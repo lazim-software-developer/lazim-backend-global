@@ -203,16 +203,16 @@ class AdminPanelProvider extends PanelProvider
                                     ->icon('heroicon-o-cube-transparent')
                                     ->activeIcon('heroicon-o-cube-transparent')
                                     ->sort(3),
+                                NavigationItem::make('Service Bookings')
+                                    ->url('/admin/building/service-bookings')
+                                    ->icon('heroicon-m-wrench')
+                                    ->activeIcon('heroicon-m-wrench')
+                                    ->sort(4),
                                 NavigationItem::make('Patrollings')
                                     ->url(PatrollingResource::getUrl('index'))
                                     ->icon('heroicon-o-magnifying-glass-circle')
                                     ->activeIcon('heroicon-o-magnifying-glass-circle')
-                                    ->sort(4),
-                                // NavigationItem::make('Service Bookings')
-                                //     ->url('/admin/building/service-bookings')
-                                //     ->icon('heroicon-m-wrench')
-                                //     ->activeIcon('heroicon-m-wrench')
-                                //     ->sort(4),
+                                    ->sort(5),
                             ]),
                     ]);
                 // }
