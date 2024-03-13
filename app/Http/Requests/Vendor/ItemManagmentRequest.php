@@ -4,7 +4,7 @@ namespace App\Http\Requests\Vendor;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class ManagerDetailsRequest extends FormRequest
+class ItemManagmentRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,9 +22,17 @@ class ManagerDetailsRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name'          =>  'required|string|min:3|max:50',
-            'email'         =>  'required|unique:vendor_managers,email|regex:/^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/',
-            'phone'         =>  'required|string|unique:vendor_managers,phone',
+            'date' => 'required|date',
+            'type' => 'required|in:incoming,used',
+            'quantity' => 'required|integer|min:1',
+            'comment' => 'required|string|max:150',
+        ];
+    }
+
+    public function messages(){
+
+        return [
+            'quantity.integer' => 'The quantity field must be a number.',
         ];
     }
 }

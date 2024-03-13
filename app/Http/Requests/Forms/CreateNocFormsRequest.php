@@ -31,7 +31,7 @@ class CreateNocFormRequest extends FormRequest
             'moving_time'=> 'required',
             'document_library_id'=> 'required',
             'preference'=> 'required',
-            'email' => 'required|regex:/^[a-zA-Z0-9_.-]+@[a-zA-Z]+\.[a-zA-Z]+$/',
+            'email' => 'required|regex:/^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/',
             // 'file' => 'required|file |max:2048'
         ];
     }

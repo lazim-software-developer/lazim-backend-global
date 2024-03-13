@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Community;
 
+use App\Filament\Resources\PostResource;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Community\StoreCommentRequest;
 use App\Http\Resources\Community\CommentResource;
@@ -12,6 +13,7 @@ use App\Models\Community\Post;
 use App\Models\ExpoPushNotification;
 use App\Models\User\User;
 use App\Traits\UtilsTrait;
+use Filament\Notifications\Actions\Action;
 use Filament\Notifications\Notification;
 
 class CommentController extends Controller
@@ -41,6 +43,11 @@ class CommentController extends Controller
             ->icon('heroicon-o-document-text')
             ->iconColor('warning')
             ->body(auth()->user()->first_name . ' commented on the post!')
+            ->actions([
+                Action::make('view')
+                    ->button()
+                    ->url(fn () => PostResource::getUrl('edit', [$post])),
+            ])
             ->sendToDatabase($notifyTo);
 
         return (new CustomResponseResource([

@@ -65,7 +65,7 @@ class OwnerResource extends Resource
                         ->nullable()
                         ->placeholder('Mobile'),
                     TextInput::make('email')
-                        ->rules(['min:6', 'max:30', 'regex:/^[a-z0-9.]+@[a-z]+\.[a-z]{2,}$/'])
+                        ->rules(['min:6', 'max:30', 'regex:/^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/'])
                         ->required()
                         ->placeholder('Email'),
                     TextInput::make('passport')

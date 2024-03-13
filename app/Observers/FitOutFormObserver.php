@@ -2,9 +2,11 @@
 
 namespace App\Observers;
 
+use App\Filament\Resources\FitOutFormsDocumentResource;
 use App\Models\Building\Building;
 use App\Models\Forms\FitOutForm;
 use App\Models\User\User;
+use Filament\Notifications\Actions\Action;
 use Filament\Notifications\Notification;
 
 
@@ -22,6 +24,11 @@ class FitOutFormObserver
         ->icon('heroicon-o-document-text')
         ->iconColor('warning')
         ->body('New form submission by '.auth()->user()->first_name)
+        ->actions([
+            Action::make('view')
+                ->button()
+                ->url(fn () => FitOutFormsDocumentResource::getUrl('edit', [$fitOutForm])),
+        ])
         ->sendToDatabase($notifyTo);
     }
 

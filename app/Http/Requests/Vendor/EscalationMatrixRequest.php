@@ -23,7 +23,7 @@ class EscalationMatrixRequest extends FormRequest
     {
         return [
             'name'              =>  'required|string|max:100',
-            'email'             =>  'required|unique:vendor_escalation_matrix,email|regex:/^[a-zA-Z0-9_.-]+@[a-zA-Z]+\.[a-zA-Z]+$/',
+            'email'             =>  'required|unique:vendor_escalation_matrix,email|regex:/^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/',
             'phone'             =>  'required|string|unique:vendor_escalation_matrix,phone',
             'position'          =>  'required|string|max:100',
             'escalation_level'  =>  'required|integer',
