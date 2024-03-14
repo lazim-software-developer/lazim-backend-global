@@ -44,8 +44,8 @@ class ContractResource extends Resource
                     ->schema([
                         Select::make('contract_type')
                             ->options([
-                                'annual maintenance contract' => 'Annual Maintenance Contract',
-                                'onetime' => 'OneTime',
+                                'AMC' => 'AMC',
+                                'One time' => 'One Time',
                             ])
                             ->disabledOn('edit')
                             ->searchable()

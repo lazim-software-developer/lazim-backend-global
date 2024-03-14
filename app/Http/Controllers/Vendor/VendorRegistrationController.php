@@ -30,7 +30,8 @@ class VendorRegistrationController extends Controller
         if ($userData->exists()) {
 
             // If not verified, redirect to verification page
-            if ($userData->first()->email_verified == 0 || $userData->first()->phone_verified == 0) {
+            //|| $userData->first()->phone_verified == 0
+            if ($userData->first()->email_verified == 0 ) {
                 return (new CustomResponseResource([
                     'title' => 'redirect_verification',
                     'message' => "Your account is not verified. You'll be redirected to account verification page",
@@ -39,7 +40,8 @@ class VendorRegistrationController extends Controller
                 ]))->response()->setStatusCode(403);
             }
 
-            if ($userData->first()->email_verified && $userData->first()->phone_verified) {
+            //&& $userData->first()->phone_verified
+            if ($userData->first()->email_verified ) {
                 return (new CustomResponseResource([
                     'title' => 'account_present',
                     'message' => 'Your details is already registered in our application. Please try login instead!',
@@ -111,21 +113,23 @@ class VendorRegistrationController extends Controller
                 }
             }
 
+            //->phone_verified
             if ($existingPhone) {
-                if ($existingPhone->phone_verified) {
+                if ($existingPhone) {
                     return (new CustomResponseResource([
                         'title' => 'account_present',
                         'message' => 'Your phone is already registered in our application.',
                         'code' => 400,
                     ]))->response()->setStatusCode(400);
-                } else {
-                    return (new CustomResponseResource([
-                        'title' => 'redirect_verification',
-                        'message' => "Your phone is not verified. You'll be redirected to account verification page",
-                        'code' => 403,
-                        'data' => $existingEmail,
-                    ]))->response()->setStatusCode(403);
-                }
+                } 
+                // else {
+                //     return (new CustomResponseResource([
+                //         'title' => 'redirect_verification',
+                //         'message' => "Your phone is not verified. You'll be redirected to account verification page",
+                //         'code' => 403,
+                //         'data' => $existingEmail,
+                //     ]))->response()->setStatusCode(403);
+                // }
             }
         }
 
