@@ -32,8 +32,8 @@ class ContractsRelationManager extends RelationManager
                     ->schema([
                         Select::make('contract_type')
                             ->options([
-                                'annual maintenance contract' => 'Annual Maintenance Contract',
-                                'onetime' => 'OneTime',
+                                'AMC' => 'AMC',
+                                'One time' => 'One Time',
                             ])
                             ->disabled()
                             ->searchable()
