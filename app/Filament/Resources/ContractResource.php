@@ -77,22 +77,22 @@ class ContractResource extends Resource
                             ->required()
                             ->rules(['date'])
                             // ->minDate(now()->format('Y-m-d'))
-                            ->minDate(function ($record, $state) {
-                                if ($record?->start_date == null || $state != $record?->start_date) {
-                                    return now()->format('Y-m-d');
-                                }
-                            })
+                            // ->minDate(function ($record, $state) {
+                            //     if ($record?->start_date == null || $state != $record?->start_date) {
+                            //         return now()->format('Y-m-d');
+                            //     }
+                            // })
                             // ->disabledOn('edit')
                             ->placeholder('Start Date'),
                         DatePicker::make('end_date')
                             ->required()
                             ->rules(['date'])
                             // ->minDate(now()->format('Y-m-d'))
-                            ->minDate(function ($record, $state) {
-                                if ($record?->end_date == null || $state != $record?->end_date) {
-                                    return now()->format('Y-m-d');
-                                }
-                            })
+                            // ->minDate(function ($record, $state) {
+                            //     if ($record?->end_date == null || $state != $record?->end_date) {
+                            //         return now()->format('Y-m-d');
+                            //     }
+                            // })
                             // ->disabledOn('edit')
                             ->placeholder('End Date'),
                         FileUpload::make('document_url')
