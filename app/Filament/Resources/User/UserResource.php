@@ -62,25 +62,28 @@ class UserResource extends Resource
                         )
                         ->placeholder('Phone'),
 
-                    TextInput::make('lazim_id')
-                        ->rules(['max:50', 'string'])
-                        ->required()
-                        ->unique(
-                            'users',
-                            'lazim_id',
-                            fn (?Model $record) => $record
-                        )
-                        ->placeholder('Lazim Id'),
+                    // TextInput::make('lazim_id')
+                    //     ->rules(['max:50', 'string'])
+                    //     ->required()
+                    //     ->unique(
+                    //         'users',
+                    //         'lazim_id',
+                    //         fn (?Model $record) => $record
+                    //     )
+                    //     ->placeholder('Lazim Id'),
 
                     Select::make('role_id')
                         ->rules(['exists:roles,id'])
                         ->required()
                         ->relationship('role', 'name')
-                        ->searchable()
+                        ->searchable()->preload()
                         ->placeholder('Role'),
-                    Toggle::make('phone_verified')
+                    // Toggle::make('phone_verified')
+                    //     ->rules(['boolean'])
+                    //     ->hidden()
+                    //     ->nullable(),
+                    Toggle::make('active')
                         ->rules(['boolean'])
-                        ->hidden()
                         ->nullable(),
 
                 ]),
@@ -112,10 +115,10 @@ class UserResource extends Resource
                 Tables\Columns\IconColumn::make('active')
                     ->toggleable()
                     ->boolean(),
-                Tables\Columns\TextColumn::make('lazim_id')
-                    ->toggleable()
-                    ->searchable()
-                    ->limit(50),
+                // Tables\Columns\TextColumn::make('lazim_id')
+                //     ->toggleable()
+                //     ->searchable()
+                //     ->limit(50),
                 Tables\Columns\TextColumn::make('role.name')
                     ->toggleable()
                     ->limit(50),

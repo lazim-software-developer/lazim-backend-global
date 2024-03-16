@@ -22,9 +22,11 @@ use App\Filament\Resources\LegalOfficerResource;
 use App\Filament\Resources\OwnerAssociationInvoiceResource;
 use App\Filament\Resources\OwnerAssociationReceiptResource;
 use App\Filament\Resources\PatrollingResource;
+use App\Filament\Resources\User\UserResource;
 use App\Filament\Resources\UserApprovalResource;
 use App\Models\AgingReport;
 use App\Models\Master\Role;
+use App\Models\User\User;
 use Filament\Navigation\NavigationGroup;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Navigation\NavigationBuilder;
@@ -179,6 +181,12 @@ class AdminPanelProvider extends PanelProvider
                                 ->icon('heroicon-m-wrench-screwdriver')
                                 ->activeIcon('heroicon-m-wrench-screwdriver')
                                 ->sort(13),
+                            NavigationItem::make('Users')
+                                ->hidden(!in_array(Role::where('id', auth()->user()->role_id)->first()->name, ['OA','Admin','MD']))
+                                ->url(UserResource::getUrl('index'))
+                                ->icon('heroicon-s-user-group')
+                                ->activeIcon('heroicon-s-user-group')
+                                ->sort(14),
                         ]),
                 ]);
             }
