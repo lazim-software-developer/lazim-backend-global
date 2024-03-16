@@ -331,6 +331,14 @@ class AuthController extends Controller
         //     ]))->response()->setStatusCode(403);
         // }
 
+        if($user && $user->vendor->status == 'rejected'){
+            return (new CustomResponseResource([
+                        'title' => 'Documents rejected',
+                        'message' => 'Documents are rejected, you will be redirected to documents upload page.',
+                        'code' => 403,
+                        'data' => ''
+                    ]))->response()->setStatusCode(403);
+        }
         // Create a new access token
         $token = $user->createToken($user->role->name)->plainTextToken;
 
