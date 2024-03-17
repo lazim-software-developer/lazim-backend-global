@@ -106,7 +106,7 @@ class VendorResource extends Resource
                                     'approved' => 'Approve',
                                     'rejected' => 'Reject',
                                 ])
-                                ->visible(fn($record) => $record->status === null && $record->documents()->count() > 0 && $record->services()->count() > 0 && $record->managers()->count() > 0)
+                                // ->visible(fn($record) => $record->status === null && $record->documents()->count() > 0 && $record->services()->count() > 0 && $record->managers()->count() > 0)
                                 ->searchable()
                                 ->live(),
                             TextInput::make('remarks')
