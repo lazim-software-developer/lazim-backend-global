@@ -331,7 +331,7 @@ class AuthController extends Controller
         //     ]))->response()->setStatusCode(403);
         // }
 
-        if($user && $user->vendor->status == 'rejected'){
+        if($user && $user->vendors->first()->status == 'rejected'){
             return (new CustomResponseResource([
                         'title' => 'Documents rejected',
                         'message' => 'Documents are rejected, you will be redirected to documents upload page.',
