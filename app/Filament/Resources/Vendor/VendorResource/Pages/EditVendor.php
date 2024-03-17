@@ -52,8 +52,11 @@ class EditVendor extends EditRecord
             if ($this->data['status'] == 'rejected') {
                 $vendor=Vendor::where('id',$this->data['id'])->first();
                 $user = User::find($vendor->owner_id);
+                $password = Str::random(12);
+                $user->password = Hash::make($password);
+                $user->save();
                 $remarks= $this->data['remarks'];
-                VendorRejectionJob::dispatch($user,$remarks);
+                VendorRejectionJob::dispatch($user,$remarks,$password);
             }
             if ($this->data['status'] == 'approved') 
             {

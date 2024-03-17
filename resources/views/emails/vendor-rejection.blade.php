@@ -27,8 +27,32 @@
 			<td width="100%" height="25"></td>
 		</tr>
         <tr>
+			<td class="paragraph">
+            To reupload your documents, try loging in. <a href="https://vendor.lazim.ae/login">link</a>
+			</td>
+		</tr>
+		<tr>
+			<td width="100%" height="25"></td>
+		</tr>
+        <tr>
+			<td class="title">
+            Your Account Details:
+			</td>
+		</tr>
+
+		<tr>
+			<td width="100%" height="10"></td>
+		</tr>
+
+        <tr>
             <td class="paragraph">
                 <strong>Email: </strong> {{$user->email}}
+			</td>
+		</tr>
+        <tr>
+            <td class="paragraph">
+                <strong>Password: </strong> {{$password}}
+                <!-- (We recommend changing this password upon your first login for security reasons.) -->
 			</td>
 		</tr>
 		<tr>
