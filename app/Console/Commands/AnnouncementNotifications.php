@@ -34,19 +34,19 @@ class AnnouncementNotifications extends Command
     {
         $scheduledAt = Post::whereRaw("DATE_FORMAT(scheduled_at, '%Y-%m-%d %H:%i') = ?", [now()->format('Y-m-d H:i')])
         ->where('status','published')->get();
-        Log::info($scheduledAt);
+        
         foreach($scheduledAt as $post){
             $buildings = $post->building->pluck('id');
-            Log::info($buildings);
+            
             $tenant = FlatTenant::where('active',1)
                     ->whereIn('building_id',$buildings)->distinct()->pluck('tenant_id');
-                    Log::info($tenant);
+                    
             foreach ($tenant as $user) {
                 $expoPushTokens = ExpoPushNotification::where('user_id', $user)->pluck('token');
-                Log::info($expoPushTokens);
+                
                 if ($expoPushTokens->count() > 0) {
                     foreach ($expoPushTokens as $expoPushToken) {
-                        Log::info($expoPushToken);
+                        
                         $message = [
                             'to' => $expoPushToken,
                             'sound' => 'default',

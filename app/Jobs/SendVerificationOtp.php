@@ -25,7 +25,6 @@ class SendVerificationOtp implements ShouldQueue
     public function handle()
     {
         // Generate OTPs
-        Log::info("Executed", []);
         $emailOtp = rand(1000, 9999);
         $phoneOtp = rand(1000, 9999);
 

@@ -48,7 +48,6 @@ class FetchAndSaveInvoices implements ShouldQueue
                 'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
             ])->get(env("MOLLAK_API_URL") . '/sync/invoices/' . $propertyGroupId . '/all/' . $quarter);
 
-            Log::info("QUARTER DATA", [$response->json()['response']]);
                 $invoicesData = $response->json()['response']['serviceChargeGroups'];
 
                 foreach ($invoicesData as $data) {

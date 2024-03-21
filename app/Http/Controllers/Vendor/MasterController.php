@@ -39,7 +39,6 @@ class MasterController extends Controller
 
         $availableServices = Service::whereIn('id', $buildingServices)->where('subcategory_id', $subcategory)->get();
 
-        Log::info("HELLO SERVIE", [$availableServices]);
 
         return response()->json($availableServices);
     }

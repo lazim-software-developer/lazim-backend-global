@@ -285,7 +285,7 @@ class MoveInFormsDocumentResource extends Resource
 
     protected function getRejectedFields($livewire)
     {
-        Log::info("SHILPA");
+        
         $record = $livewire->record; // Get the current record
         if ($record && $record->rejected_fields) {
             return json_decode($record->rejected_fields, true);
