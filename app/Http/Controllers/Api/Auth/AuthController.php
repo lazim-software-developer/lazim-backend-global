@@ -295,7 +295,6 @@ class AuthController extends Controller
     // Vendor login
     public function vendorLogin(GateKeeperLoginRequest $request) {
         $user = User::where('email', $request->email)->first();
-        
         // cehck if user is vendor
         if($user->role->name != 'Vendor') {
             return (new CustomResponseResource([
@@ -336,7 +335,7 @@ class AuthController extends Controller
                         'title' => 'Documents rejected',
                         'message' => 'Documents are rejected, you will be redirected to documents upload page.',
                         'code' => 403,
-                        'data' => ''
+                        'data' => $user->vendors->first()
                     ]))->response()->setStatusCode(403);
         }
         // Create a new access token
