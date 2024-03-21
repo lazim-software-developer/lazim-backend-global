@@ -102,7 +102,6 @@ class EditAccessCardFormsDocument extends EditRecord
                     $this->record->update([
                         'payment_link' => $payment->client_secret
                     ]);
-                    Log::info("This email".$this->record->user->email);
 
                     // Create an entry in orders table with status pending
                     Order::create([

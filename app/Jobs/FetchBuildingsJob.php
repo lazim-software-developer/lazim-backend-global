@@ -31,7 +31,6 @@ class FetchBuildingsJob implements ShouldQueue
      */
     public function handle(): void
     {
-        Log::info("FetchBuildingsJob executed", []);
         $response = Http::withOptions(['verify' => false])->withHeaders([
             'content-type' => 'application/json',
             'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
