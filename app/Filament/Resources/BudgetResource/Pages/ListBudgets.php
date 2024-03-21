@@ -68,7 +68,6 @@ class ListBudgets extends ListRecords
                     $budgetPeriod = $data['budget_period'];
                     $filePath = $data['excel_file'];
                     $fullPath = storage_path('app/' . $filePath);
-                    Log::info("Full path: ", [$fullPath]);
 
                     if (!file_exists($fullPath)) {
                         Log::error("File not found at path: ", [$fullPath]);

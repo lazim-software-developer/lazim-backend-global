@@ -29,7 +29,7 @@ class SyncOwnerAssociations extends Command
      */
     public function handle()
     {
-        Log::info("SyncOwnerAssociations executed", []);
+        
 
         $response = Http::withoutVerifying()->withHeaders([
             'content-type' => 'application/json',
