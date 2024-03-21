@@ -42,7 +42,7 @@ class PollNotifications extends Command
                 $expoPushTokens = ExpoPushNotification::where('user_id', $user)->pluck('token');
                 if ($expoPushTokens->count() > 0) {
                     foreach ($expoPushTokens as $expoPushToken) {
-                        Log::info($expoPushToken);
+                        
                         $message = [
                             'to' => $expoPushToken,
                             'sound' => 'default',
