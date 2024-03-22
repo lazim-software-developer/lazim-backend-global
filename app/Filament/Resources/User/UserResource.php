@@ -14,6 +14,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 class UserResource extends Resource
@@ -76,6 +77,7 @@ class UserResource extends Resource
                     //     ->placeholder('Lazim Id'),
 
                     Select::make('role_id')
+                    ->label('role')
                         ->rules(['exists:roles,id'])
                         ->required()->disabledOn('edit')
                         ->options(function () {
@@ -99,7 +101,9 @@ class UserResource extends Resource
 
     public static function table(Table $table): Table
     {
+        $roles = Role::whereNotIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'OA', 'Owner', 'Managing Director', 'Vendor'])->pluck('id');
         return $table
+            ->modifyQueryUsing(fn(Builder $query) => $query->whereIn('role_id',$roles))
             ->poll('60s')
             ->columns([
                 Tables\Columns\TextColumn::make('first_name')
