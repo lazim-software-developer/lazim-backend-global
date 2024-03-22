@@ -58,7 +58,7 @@ class AssignTechnicianToComplaint implements ShouldQueue
             $this->complaint->technician_id = $selectedTechnician->technician_id;
             $this->complaint->save();
         } else {
-            Log::info("No technicians to add", []);
+            //
         }
     }
 }

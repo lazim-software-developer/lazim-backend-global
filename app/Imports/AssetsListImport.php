@@ -175,7 +175,7 @@ class AssetsListImport implements ToCollection, WithHeadingRow
                         'active' => 1,
                     ]);
                 } else {
-                    Log::info("No technicians to add", []);
+                    //
                 }
             }
         }

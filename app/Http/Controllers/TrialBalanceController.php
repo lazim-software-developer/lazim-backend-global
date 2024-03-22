@@ -13,7 +13,6 @@ class TrialBalanceController extends Controller
 {
     public function getTrialBalance(Request $request)
     {
-        Log::info('here');
         $date = $request->input('date');
         $buildingId = $request->input('building_id');
 

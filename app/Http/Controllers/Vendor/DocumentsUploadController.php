@@ -15,6 +15,7 @@ class DocumentsUploadController extends Controller
 {
     public function documentsUpload(DocumentsUploadRequest $request, Vendor $vendor)
     {
+        $status = 0;
         foreach($request->docs as $key => $value) {
             $path = optimizeDocumentAndUpload($value);
             $request->merge([
@@ -33,8 +34,11 @@ class DocumentsUploadController extends Controller
             }
             else{
                 $docs->update(['url' => $path]);
+                $status = 1;
             }
-
+        }
+        if ($status == 1){
+            $vendor->update(['status' => null]);
         }
 
         return (new CustomResponseResource([

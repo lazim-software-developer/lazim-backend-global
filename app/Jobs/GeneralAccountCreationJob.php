@@ -10,31 +10,29 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Snowfire\Beautymail\Beautymail;
 
-class VendorRejectionJob implements ShouldQueue
+class GeneralAccountCreationJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-
-    public $user;
-    public $remarks;
-    public $password;
     /**
      * Create a new job instance.
      */
-    public function __construct($user,$remarks, $password)
+    public $user;
+    public $password;
+
+    public function __construct($user, $password)
     {
         $this->user     = $user;
-        $this->remarks = $remarks;
         $this->password = $password;
     }
 
     /**
      * Execute the job.
      */
-    public function handle(): void
+    public function handle()
     {
         $beautymail = app()->make(Beautymail::class);
-        $beautymail->send('emails.vendor-rejection', ['user' => $this->user,'remarks' => $this->remarks,'password' => $this->password], function($message) {
+        $beautymail->send('emails.oa-user_registration', ['user' => $this->user, 'password' => $this->password], function($message) {
             $message
                 ->to($this->user->email, $this->user->first_name)
                 ->subject('Welcome to Lazim!');

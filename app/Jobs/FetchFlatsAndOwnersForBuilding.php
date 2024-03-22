@@ -32,11 +32,9 @@ class FetchFlatsAndOwnersForBuilding implements ShouldQueue
 
         $data = $response->json();
         
-        Log::info("Flats executed", [$data]);
 
         if ($data['response'] != null) {
             foreach ($data['response']['units'] as $property) {
-                Log::info("Data", [$property]);
                 $flat = Flat::firstOrCreate(
                     [
                         'property_number' => $property['unitNumber'],
