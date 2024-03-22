@@ -61,9 +61,7 @@ class AgingReport extends Page implements HasTable
                     $yearlyReceipts = OAMReceipts::where('flat_id' , $flat->id)->where('receipt_period', 'like', '%' . $currentYear . '%')->whereIn('building_id', $buildingIds)->sum('receipt_amount');
 
                     if ((int)($yearlyInvoices - $yearlyReceipts) >0 || $this->checkDueDate($flat,$currentYear)) {
-                        Log::info('flat'. $flat);
-                        Log::info('invoice'. (int)$yearlyInvoices);
-                        Log::info('recipts'.(int)$yearlyReceipts);
+                        
                         return $flat;
                     } else {
                         Log::info('invoice'. (int)$yearlyInvoices);

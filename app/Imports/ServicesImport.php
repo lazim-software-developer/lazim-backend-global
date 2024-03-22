@@ -22,7 +22,6 @@ class ServicesImport implements ToCollection, WithHeadingRow
         {
             if ($row['subcategory_name'] && $row['subcategory_name'] !== '' && $row['name'] !== '' && $row['code'] !== '') {
                 $subCategory = SubCategory::firstWhere('name', $row['subcategory_name']);
-                Log::info('Here', [$row]);
                 if ($subCategory) {
                     Service::Create([
                         'subcategory_id' => $subCategory->id,

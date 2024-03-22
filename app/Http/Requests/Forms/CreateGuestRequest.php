@@ -37,8 +37,9 @@ class CreateGuestRequest extends FormRequest
             'holiday_home_name' => 'nullable',
             'emergency_contact' => 'nullable',
             'end_date' => 'required|date', //|after:start_date
-            'image' => 'required|file|max:2048',
-            // 'files'=> 'file|mimes:pdf,jpg,jpeg,png,doc,docx|max:2048'
+            'image' => 'required|file|mimes:pdf,jpg,jpeg,png,doc|max:2048',
+            'files' => 'nullable|array',
+            'files.*' => 'file|mimes:pdf,jpg,jpeg,png,doc|max:2048'
         ];
     }
 
@@ -46,6 +47,7 @@ class CreateGuestRequest extends FormRequest
     {
         return [
             'image.max' => 'The uploaded image must be less than 2MB.',
+            'files.*' => 'Invalid file type. Allowed file types are: pdf, jpg, jpeg, png, doc.',
             // 'files.max' => 'The uploaded image must be less than 2MB.',
         ];
     }

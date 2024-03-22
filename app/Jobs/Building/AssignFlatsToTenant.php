@@ -30,10 +30,6 @@ class AssignFlatsToTenant implements ShouldQueue
         $owner = ApartmentOwner::where('id', $this->owner_id)->first();
 
         $user = User::where('email', $this->email)->where('phone',$this->mobile)->where('owner_id', $this->owner_id)->first();
-        Log::info($owner);
-        Log::info($user);
-        logger("Owner: " . json_encode($owner));
-        logger("User: " . json_encode($user));
 
         if (!$owner) {
             // No owner found with the given email
@@ -46,8 +42,6 @@ class AssignFlatsToTenant implements ShouldQueue
             ->selectRaw('MAX(flats.id) as flat_id')
             ->groupBy('flats.building_id', 'flats.property_number')
             ->get();
-        Log::info($flats);
-        logger("Flats: " . json_encode($flats));
 
         foreach ($flats as $flat) {
             // Add an entry in the flat_tenant table for each flat

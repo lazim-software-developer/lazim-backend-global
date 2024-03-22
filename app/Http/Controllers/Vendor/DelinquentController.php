@@ -53,9 +53,7 @@ class DelinquentController extends Controller
                     $yearlyReceipts = OAMReceipts::where('flat_id' , $flat->id)->where('receipt_period', 'like', '%' . $currentYear . '%')->whereIn('building_id', $buildings)->sum('receipt_amount');
                     
                     if ((int)$yearlyInvoices - (int)$yearlyReceipts >0 || $this->checkDueDate($flat,$currentYear)) {
-                        Log::info('flat'. $flat);
-                        Log::info('invoice'. (int)$yearlyInvoices);
-                        Log::info('recipts'.(int)$yearlyReceipts);
+                        
                         return $flat;
                     } else {
                         Log::info('invoice'. (int)$yearlyInvoices);

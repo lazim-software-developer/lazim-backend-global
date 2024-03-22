@@ -13,28 +13,13 @@
 		</tr>
 		<tr>
 			<td class="paragraph">
-            We regret to inform you that your account application with Lazim has been declined. We appreciate your interest, but after careful review, we have decided not to proceed with your account at this time.
+            We're excited to have you on board with Lazim! Your account has been successfully created, and we're thrilled to welcome you to our community.
 			</td>
 		</tr>
 		<tr>
 			<td width="100%" height="25"></td>
 		</tr>
-
 		<tr>
-			<td class="paragraph"><strong>Reason :</strong> {{$remarks}}</td>
-		</tr>
-		<tr>
-			<td width="100%" height="25"></td>
-		</tr>
-        <tr>
-			<td class="paragraph">
-            To reupload your documents, try loging in. <a href="https://vendor.lazim.ae/login">link</a>
-			</td>
-		</tr>
-		<tr>
-			<td width="100%" height="25"></td>
-		</tr>
-        <tr>
 			<td class="title">
             Your Account Details:
 			</td>
@@ -55,22 +40,12 @@
                 <!-- (We recommend changing this password upon your first login for security reasons.) -->
 			</td>
 		</tr>
-		<tr>
+        <tr>
 			<td width="100%" height="25"></td>
 		</tr>
         <tr>
             <td class="paragraph">
-			If you have any questions or would like further clarification, please feel free to reach out to our support team.
-                <!-- (We recommend changing this password upon your first login for security reasons.) -->
-			</td>
-		</tr>
-        <tr>
-			<td width="100%" height="25"></td>
-		</tr>
-
-        <tr>
-            <td class="paragraph">
-            Thank you for considering Lazim.
+            Thank you for choosing Lazim. We're confident that you'll find great value in our platform, and we look forward to serving you.
 			</td>
 		</tr>
         <tr>
@@ -79,7 +54,7 @@
 
         <tr>
 			<td class="paragraph">
-			Best regards,
+               Warm regards,
             </td>
 		</tr>
 		<tr>
