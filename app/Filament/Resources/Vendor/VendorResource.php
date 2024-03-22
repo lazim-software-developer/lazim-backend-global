@@ -110,7 +110,7 @@ class VendorResource extends Resource
                                 ->searchable()
                                 ->live(),
                             TextInput::make('remarks')
-                                ->rules(['max:255'])
+                                ->rules(['max:150'])
                                 ->required()
                                 ->visible(function (callable $get) {
                                     if ($get('status') == 'rejected') {
@@ -118,17 +118,17 @@ class VendorResource extends Resource
                                     }
                                     return false;
                                 })
-                                ->disabled(fn($record) => $record->status !== null ),
+                                ->disabled(fn ($record) => $record->status !== null ),
                             Toggle::make('active')
                                 ->rules(['boolean'])
                                 ->required()
                                 ->visible(fn($record) => $record->status === 'approved')
                                 ->inline(false)
                                 ->label('Active'),
-                            TextInput::make('remarks')
-                                ->rules(['max:150'])
-                                ->visible(fn($record) => $record->status === 'approved')
-                                ->required(),
+                            // TextInput::make('remarks')
+                            //     ->rules(['max:150'])
+                            //     ->visible(fn($record) => $record->status === 'approved')
+                            //     ->required(),
 
                         ]),
             ]);

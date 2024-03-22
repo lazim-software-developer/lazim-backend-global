@@ -49,6 +49,7 @@ class CreateUser extends CreateRecord
         $password = Str::random(12);
         $user->email_verified = 1;
         $user->phone_verified = 1;
+        $user->owner_association_id = auth()->user()->owner_association_id;
         $user->password = Hash::make($password);
         $user->save();
         
