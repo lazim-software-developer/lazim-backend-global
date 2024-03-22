@@ -26,23 +26,23 @@ class CreateUser extends CreateRecord
         $user = User::find($this->record->id);
 
         $roleJobMap = [
-            'Vendor' => VendorAccountCreationJob::class,
+            // 'Vendor' => VendorAccountCreationJob::class,
             'Building Engineer' => AccountsManagerJob::class,
-            'OA' => AccountCreationJob::class,
-            'Security' => BuildingSecurity::class,
-            'Technician' => TechnicianAccountCreationJob::class,
+            // 'OA' => AccountCreationJob::class,
+            // 'Security' => BuildingSecurity::class,
+            // 'Technician' => TechnicianAccountCreationJob::class,
             'Accounts Manager' => AccountsManagerJob::class,
             'MD' => MdCreateJob::class,
             'Complaint Officer' => AccountsManagerJob::class,
             'Legal Officer' => AccountsManagerJob::class,
-            'Managing Director' => GeneralAccountCreationJob::class,
-            'Financial Manager' => GeneralAccountCreationJob::class,
-            'Operations Engineer' => GeneralAccountCreationJob::class,
-            'Owner' => GeneralAccountCreationJob::class,
-            'Tenant' => GeneralAccountCreationJob::class,
-            'Operations Manager' => GeneralAccountCreationJob::class,
-            'Staff' => GeneralAccountCreationJob::class,
-            'Admin' => GeneralAccountCreationJob::class,
+            // 'Managing Director' => GeneralAccountCreationJob::class,
+            // 'Financial Manager' => GeneralAccountCreationJob::class,
+            // 'Operations Engineer' => GeneralAccountCreationJob::class,
+            // 'Owner' => GeneralAccountCreationJob::class,
+            // 'Tenant' => GeneralAccountCreationJob::class,
+            // 'Operations Manager' => GeneralAccountCreationJob::class,
+            // 'Staff' => GeneralAccountCreationJob::class,
+            // 'Admin' => GeneralAccountCreationJob::class,
         ];
         
         // Generate and set the password
