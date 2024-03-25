@@ -22,6 +22,7 @@ class DocumentLibraryResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'status' => $document?->status,
+            'remarks' => $document?->remarks,
             'url' => $document !== null ? Storage::disk('s3')->url($document?->url) : null
         ];
     }
