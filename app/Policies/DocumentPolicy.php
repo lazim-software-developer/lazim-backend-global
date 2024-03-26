@@ -15,11 +15,12 @@ class DocumentPolicy
      */
     public function viewAny(User $user): bool
     {
-        $allowedRoles = ['OA','Admin'];
+        // $allowedRoles = ['OA','Admin'];
 
-        if (in_array($user->role->name, $allowedRoles)) {
+        // if (in_array($user->role->name, $allowedRoles)) {
+        // return true;
+        // }
         return true;
-        }
 
     }
 
@@ -28,11 +29,12 @@ class DocumentPolicy
      */
     public function view(User $user, Document $model): bool
     {
-        $allowedRoles = ['OA','Admin'];
+        // $allowedRoles = ['OA','Admin'];
 
-        if (in_array($user->role->name, $allowedRoles)) {
+        // if (in_array($user->role->name, $allowedRoles)) {
+        // return true;
+        // }
         return true;
-        }
 
     }
 
@@ -41,11 +43,12 @@ class DocumentPolicy
      */
     public function create(User $user): bool
     {
-        $allowedRoles = ['OA','Admin'];
+        // $allowedRoles = ['OA','Admin'];
 
-        if (in_array($user->role->name, $allowedRoles)) {
+        // if (in_array($user->role->name, $allowedRoles)) {
+        // return true;
+        // }
         return true;
-        }
 
     }
 
@@ -54,11 +57,12 @@ class DocumentPolicy
      */
     public function update(User $user, Document $model): bool
     {
-        $allowedRoles = ['OA','Admin'];
+        // $allowedRoles = ['OA','Admin'];
 
-        if (in_array($user->role->name, $allowedRoles)) {
+        // if (in_array($user->role->name, $allowedRoles)) {
+        // return true;
+        // }
         return true;
-        }
 
     }
 
