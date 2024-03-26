@@ -24,6 +24,16 @@ class EditUserApproval extends EditRecord
             // Actions\DeleteAction::make(),
         ];
     }
+
+    protected function mutateFormDataBeforeFill(array $data): array
+    {
+        $user = User::find($data['user_id']);
+        $data['user'] = $user->first_name;
+        $data['email'] = $user->email;
+        $data['phone'] = $user->phone;
+    
+        return $data;
+    }
     protected function beforeSave(): void
     {
         UserApproval::find($this->data['id'])->update([
