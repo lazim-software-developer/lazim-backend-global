@@ -40,9 +40,9 @@ class UserApprovalResource extends Resource
                 // ->relationship('user', 'phone')
                 //     ->required()
                 //     ->disabled(),
-                TextInput::make('user'),
-                TextInput::make('email'),
-                TextInput::make('phone'),
+                TextInput::make('user')->disabledOn('edit'),
+                TextInput::make('email')->disabledOn('edit'),
+                TextInput::make('phone')->disabledOn('edit'),
                 FileUpload::make('document')
                     ->label(function (Get $get) {
                         if($get('document_type') == 'Ejari'){
