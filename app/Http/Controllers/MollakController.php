@@ -85,7 +85,7 @@ class MollakController extends Controller
         $response = Http::withoutVerifying()->withHeaders([
                 'content-type' => 'application/json',
                 'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
-            ])->get("https://qagate.dubailand.gov.ae/mollak/external/sync/receipts/235553/1-Jan-2020/20-Feb-2023");
+            ])->get("https://qagate.dubailand.gov.ae/mollak/external/sync/ownership_changed/235553");
 
         // LOG::info("MOLLA ". $response);
 
