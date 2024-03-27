@@ -82,10 +82,22 @@ class MollakController extends Controller
         //     'content-type' => 'application/json',
         //     'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
         // ])->get(env("MOLLAK_API_URL") . '/sync/invoices/' . "235553" . '/all/' . "Q1-JAN2023-DEC2023");
+        // $response = Http::withoutVerifying()->withHeaders([
+        //         'content-type' => 'application/json',
+        //         'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
+        //     ])->get("https://qagate.dubailand.gov.ae/mollak/external/sync/owners/235553");
         $response = Http::withoutVerifying()->withHeaders([
-                'content-type' => 'application/json',
-                'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
-            ])->get("https://qagate.dubailand.gov.ae/mollak/external/sync/ownership_changed/235553");
+            'Content-Type' => 'application/json',
+            'consumer-id' => env("MOLLAK_CONSUMER_ID"),
+        ])->post("https://qagate.dubailand.gov.ae/mollak/external/sync/owners/235553", [
+            'timeStamp' => '2019-07-25T17:11:38.036044+04:00',
+            'syncType' => 'ownership_changed',
+            'parameters' => [
+                ['key' => 'managementCompanyId', 'value' => 101010],
+                ['key' => 'propertyGroupId', 'value' => 235553],
+                ['key' => 'mollakPropertyId', 'value' => 5001],
+            ],
+        ]);
 
         // LOG::info("MOLLA ". $response);
 
