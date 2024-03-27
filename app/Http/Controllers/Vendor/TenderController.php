@@ -36,6 +36,14 @@ class TenderController extends Controller
 
         $proposalExists = Proposal::where(['tender_id' => $tender->id, 'vendor_id' => $vendor->id])->exists();
 
+        if($tender->end_date < now()->toDateString()){
+            return (new CustomResponseResource([
+                'title' => 'Error',
+                'message' => 'Tender has expired!',
+                'code' => 400,
+            ]))->response()->setStatusCode(400);
+        }
+
         if ($proposalExists) {
             return (new CustomResponseResource([
                 'title' => 'Error',
