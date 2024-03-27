@@ -89,13 +89,11 @@ class MollakController extends Controller
         $response = Http::withoutVerifying()->withHeaders([
             'Content-Type' => 'application/json',
             'consumer-id' => env("MOLLAK_CONSUMER_ID"),
-        ])->post("https://qagate.dubailand.gov.ae/mollak/external/sync/owners/235553", [
+        ])->post("https://qagate.dubailand.gov.ae/mollak/external/sync", [
             'timeStamp' => '2019-07-25T17:11:38.036044+04:00',
             'syncType' => 'ownership_changed',
             'parameters' => [
-                ['key' => 'managementCompanyId', 'value' => 101010],
                 ['key' => 'propertyGroupId', 'value' => 235553],
-                ['key' => 'mollakPropertyId', 'value' => 5001],
             ],
         ]);
 
