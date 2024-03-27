@@ -78,10 +78,14 @@ class MollakController extends Controller
         //     'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
         // ])->get(env("MOLLAK_API_URL") . "/sync/propertygroups/" . "235553" . "/units");
 
+        // $response = Http::withoutVerifying()->withHeaders([
+        //     'content-type' => 'application/json',
+        //     'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
+        // ])->get(env("MOLLAK_API_URL") . '/sync/invoices/' . "235553" . '/all/' . "Q1-JAN2023-DEC2023");
         $response = Http::withoutVerifying()->withHeaders([
-            'content-type' => 'application/json',
-            'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
-        ])->get(env("MOLLAK_API_URL") . '/sync/invoices/' . "235553" . '/all/' . "Q1-JAN2023-DEC2023");
+                'content-type' => 'application/json',
+                'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
+            ])->get("https://qagate.dubailand.gov.ae/mollak/external/sync/managementcompany/235553/propertygroups");
 
         // LOG::info("MOLLA ". $response);
 
