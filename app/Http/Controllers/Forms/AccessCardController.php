@@ -78,7 +78,7 @@ class AccessCardController extends Controller
 
         $guestRegistration = auth()->user()->flatVisitorInitates()->where('type', 'guest')->latest()->where('building_id', $building->id)->first();
 
-        $guest = Guest::where('flat_visitor_id',$guestRegistration->id)->latest()->first();
+        $guest = Guest::where('flat_visitor_id',$guestRegistration?->id)->latest()->first();
 
         $guestRegistrationStatus =  $guestRegistration ?? "Not submitted";
 
