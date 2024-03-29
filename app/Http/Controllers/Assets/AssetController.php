@@ -22,13 +22,11 @@ class AssetController extends Controller
     public function index()
     {
         $technicianId = auth()->user()->id;
-        $currentQuarterStart = Carbon::now()->firstOfQuarter();
-        $currentQuarterEnd = Carbon::now()->lastOfQuarter();
+        // $currentQuarterStart = Carbon::now()->firstOfQuarter();
+        // $currentQuarterEnd = Carbon::now()->lastOfQuarter();
 
         // Paginate the query results before mapping
-        $assignedAssets = TechnicianAssets::with(['asset', 'assetMaintenances' => function ($query) use ($currentQuarterStart, $currentQuarterEnd) {
-            $query->whereBetween('maintenance_date', [$currentQuarterStart, $currentQuarterEnd]);
-        }])
+        $assignedAssets = TechnicianAssets::with(['asset', 'assetMaintenances'])
             ->where('technician_id', $technicianId)
             ->paginate(10); // Set the number of items per page
 
@@ -39,7 +37,7 @@ class AssetController extends Controller
             $id = null;
             $last_date =  null;
 
-            if ($latestMaintenance) {
+            if ($latestMaintenance && Carbon::parse($latestMaintenance->maintenance_date)->addDays($technicianAsset->asset->frequency_of_service) > now()->toDateString()) {
                 $status = $latestMaintenance->status;
                 $id = $latestMaintenance->id;
                 $last_date = $latestMaintenance->maintenance_date;
