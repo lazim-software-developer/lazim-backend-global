@@ -83,7 +83,7 @@ class AssetResource extends Resource
                             ->required()
                             ->rules(['max:50']),
                         TextInput::make('frequency_of_service')
-                                ->required()
+                                ->required()->integer()->suffix('days')
                                 ->rules(['max:50']),
                         Textarea::make('description')
                             ->label('Description')
