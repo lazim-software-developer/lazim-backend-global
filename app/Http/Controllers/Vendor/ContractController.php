@@ -20,8 +20,8 @@ class ContractController extends Controller
         }
         $Contracts = Contract::where("vendor_id", $vendor->id)
         ->where(function ($query) use ($year) {
-            $query->whereYear('start_date', $year)
-                ->orWhereYear('end_date', $year);
+            $query->whereYear('start_date', '<=', $year)
+            ->whereYear('end_date', '>=', $year);
         })->get();
         if ($request->has('building_id') && !empty($request->building_id)) {
             $Contracts = $Contracts->where('building_id', $request->building_id);
