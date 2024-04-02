@@ -294,6 +294,15 @@ class AuthController extends Controller
 
     // Vendor login
     public function vendorLogin(GateKeeperLoginRequest $request) {
+
+        $credentials = $request->validate([
+            'email'    => 'required|email',
+            'password' => 'required',
+        ]);
+
+        if (!auth()->attempt($credentials)) {
+            return response(['message' => 'Invalid credentials'], 403);
+        }
         $user = User::where('email', $request->email)->first();
         // cehck if user is vendor
         if($user->role->name != 'Vendor') {
