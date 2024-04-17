@@ -14,6 +14,7 @@ use App\Filament\Pages\OAM\CreateTender;
 use App\Http\Controllers\GeneralFundController;
 use App\Http\Controllers\OwnerAssociationInvoice;
 use App\Http\Controllers\ReserveFundController;
+use App\Http\Controllers\TestController;
 use App\Http\Controllers\Vendor\MasterController;
 use Filament\Pages\Page;
 use Illuminate\Support\Facades\Session;
@@ -84,7 +85,9 @@ Route::get('/qr_code',function(){
     return view('pdf.qr-code', ['data' => $data]);
 });
 
+Route::post('/download', [TestController::class, 'download'])->name('download');
 
+Route::post('/upload',[TestController::class, 'uploadAll'])->name('uploadAll');
 // Route::get('/admin/ledgers/{invoice}/receipts', function () {
 //     return redirect()->to('/admin/ledgers/{invoice}/receipts');
 // })->name('admin.ledgers.receipts');

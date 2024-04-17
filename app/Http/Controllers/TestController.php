@@ -19,17 +19,22 @@ use App\Imports\UtilityExpensesImport;
 use App\Imports\WorkOrdersImport;
 use App\Models\OaServiceRequest;
 use App\Models\ServiceParameter;
+use Aws\Exception\AwsException;
+use Aws\S3\S3Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
 use Snowfire\Beautymail\Beautymail;
 use \stdClass;
+use ZipArchive;
 
 class TestController extends Controller
 {
     public function uploadAll(Request $request)
     {
+        // dd($request->file('e_services'));
         $parameters = ServiceParameter::all();
 
         $folderPath = now()->timestamp;
@@ -296,8 +301,8 @@ class TestController extends Controller
         $response = Http::withoutVerifying()->withHeaders([
             'content-type' => 'application/json',
             'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
-        ])->post(env("MOLLAK_API_URL") . '/managementreport/submit', $data);
-
+        ])->post('https://qagate.dubailand.gov.ae/mollak/external/managementreport/submit', $data);
+//env("MOLLAK_API_URL") . 
         $response = json_decode($response->body());
 
         $oaData = OaServiceRequest::create([
@@ -348,5 +353,77 @@ class TestController extends Controller
     //             ->subject('Welcome to Lazim! 🎉 Download Our App Now!');
     //     });
     // } 
+
+    public function download(Request $request)
+    {
+        $templateMap = [
+            'e_services' => 'templates/Services-Requests.xlsx',
+            'happiness_center' => 'templates/Happiness-Center.xlsx',
+            'balance_sheet' => 'templates/Balance-Sheet.xlsx',
+            'general_fund_statement'=> 'templates/General-Fund-Statement.xlsx',
+            'reserve_fund'=> 'templates/Reserve-Fund-Statement.xlsx',
+            'budget_vs_actual'=> 'templates/Budget-Vs-Actual.xlsx',
+            'accounts_payables'=> 'templates/Accounts-Payables.xlsx',
+            'delinquents'=> 'templates/Delinquent-Owners.xlsx',
+            'collections'=> 'templates/Collection-Report.xlsx',
+            'bank_balance'=> 'templates/Bank-Balance.xlsx',
+            'utility_expenses'=> 'templates/Utility-Expenses.xlsx',
+            'work_orders'=> 'templates/Work-Orders.xlsx',
+            'asset_list_and_expenses'=> 'templates/Asset-Lists-and-Expenses.xlsx',
+        ];
+        $template = $request->input('template');
+
+        $s3Client = new S3Client([
+            'version'     => 'latest',
+            'region'      => 'ap-south-1',
+            'credentials' => [
+                'key'    => env('AWS_ACCESS_KEY_ID'),
+                'secret' => env('AWS_SECRET_ACCESS_KEY'),
+            ],
+            'http'        => [
+                'verify' => false
+            ]
+        ]);
+        
+        // The file you want to retrieve the mime type for
+        $bucket = 'lazim-dev';
+        if ($template == 'all') {
+            $zip = new ZipArchive();
+            $zipFileName = 'all_templates.zip';
+            if ($zip->open($zipFileName, ZipArchive::CREATE) === TRUE) {
+                foreach ($templateMap as $name => $key) {
+                    try {
+                        $result = $s3Client->getObject([
+                            'Bucket' => $bucket,
+                            'Key'    => $key
+                        ]);
+                        $fileContent = $result['Body']->getContents();
+                        $zip->addFromString(basename($key), $fileContent);
+                    } catch (AwsException $e) {
+                        return response()->json(['error' => $e->getMessage()], 500);
+                    }
+                }
+                $zip->close();
+    
+                return response()->download($zipFileName)->deleteFileAfterSend(true);
+            }
+        } else {
+            $key = $templateMap[$template];
+            try {
+                $result = $s3Client->getObject([
+                    'Bucket' => $bucket,
+                    'Key'    => $key
+                ]);
+                $content = $result['Body']->getContents();
+                $mimeType = $result['ContentType'];
+                return Response::make($content, 200, [
+                    'Content-Type' => $mimeType,
+                    'Content-Disposition' => 'attachment; filename="' . $template . '.xlsx' . '"',
+                ]);
+            } catch (AwsException $e) {
+                return response()->json(['error' => $e->getMessage()], 500);
+            }
+        }
+    }
     
 }
