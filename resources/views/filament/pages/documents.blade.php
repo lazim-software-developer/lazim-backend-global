@@ -46,11 +46,8 @@
                         <label for="propertyGroupSelect" class="form-label">Select Property Group *</label>
                         <select required class="form-select" id="propertyGroupSelect" name="property_group" style="min-height: 38px; display: block; width: 100%; margin-bottom: 10px;">
                         @foreach($propertyGroups as $propertyGroup)
-                            <!-- <option value="{{ $propertyGroup->id }}">{{ $propertyGroup->name }}</option> -->
                         @endforeach
                         </select>
-                        <div>{{$propertyGroups}}</div>
-                        <!-- <input type="hidden" name="property_name" value="{{ $propertyGroup['name'] }}"> -->
                     </div>
 
                     <!-- Service Period Dropdown -->
@@ -60,11 +57,8 @@
                         <select required class="form-select" id="servicePeriodSelect" name="service_period" style="min-height: 38px; display: block; width: 100%; margin-bottom: 10px;">
                             <!-- Options will be populated based on Property Group selection -->
                             @foreach($propertyPeriods as $propertyPeriod)
-                                <!-- <option value="{{ $propertyPeriod['name'] }}">{{ $propertyPeriod['name'] }}</option> -->
                             @endforeach
                         </select>
-                        <!-- <input type="hidden" name="from_date" id="service_period_from" value="{{ $propertyPeriod['from'] }}">
-                        <input type="hidden" name="to_date" id="service_period_to" value="{{ $propertyPeriod['to'] }}"> -->
                     </div>
 
                     <!-- Service Files Upload -->
