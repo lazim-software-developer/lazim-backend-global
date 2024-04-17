@@ -93,10 +93,10 @@ class MollakController extends Controller
             ])->get(env("MOLLAK_API_URL") . "/sync/managementcompany/" . 235553 . "/propertygroups");
     
             // Decode the API response
-            $data = $results->json();
+            return $data = $results->json();
     
             // Return the transformed data using the API resource
-            return PropertyGroupResource::collection($data['response']['propertyGroups']);
+            // return PropertyGroupResource::collection($data['response']['propertyGroups']);
 
         // $response = Http::withoutVerifying()->withHeaders([
         //     'Content-Type' => 'application/json',
