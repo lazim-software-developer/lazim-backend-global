@@ -109,9 +109,9 @@ class MollakController extends Controller
         //     ],
         // ]);
 
-        LOG::info("MOLLA ". $response);
+        // LOG::info("MOLLA ". $response);
 
-        return $data = $response->json();
+        // return $data = $response->json();
     }
 
     public function sendSMS(Request $request)
