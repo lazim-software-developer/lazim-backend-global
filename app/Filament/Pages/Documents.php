@@ -80,7 +80,7 @@ class Documents extends Page implements HasTable
             //     dd($data);
             //     Log::info(json_decode($data));
             // }
-            dd($data['response']['propertyGroups']);
+            // dd($data['response']['propertyGroups']);
         return [
             'services' => ServiceParameterResource::collection(ServiceParameter::all()),
             'propertyGroups' => $data['response']['propertyGroups'],
