@@ -48,9 +48,12 @@
                         
                         @foreach($propertyGroups as $propertyGroup)
                         <div>
-                            {{ $propertyGroup->name}}
+                            {{ $propertyGroup['name']}}
                         </div>
                         @endforeach
+                        <div>
+                            hi
+                        </div>
                         </select>
                     </div>
 
