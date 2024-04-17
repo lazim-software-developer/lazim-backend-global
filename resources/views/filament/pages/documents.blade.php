@@ -46,7 +46,7 @@
                         <label for="propertyGroupSelect" class="form-label">Select Property Group *</label>
                         <select required class="form-select" id="propertyGroupSelect" name="property_group" style="min-height: 38px; display: block; width: 100%; margin-bottom: 10px;">
                         @foreach($propertyGroups as $propertyGroup)
-                            <option value="{{ $propertyGroup['id'] }}">{{ $propertyGroup['name'] }}</option>
+                            <option value="{{ $propertyGroup->id }}">{{ $propertyGroup->name }}</option>
                         @endforeach
                         </select>
                         <input type="hidden" name="property_name" value="{{ $propertyGroup['name'] }}">
