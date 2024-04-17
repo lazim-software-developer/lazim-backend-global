@@ -34,13 +34,13 @@ class Documents extends Page implements HasTable
         // Decode the API response
         $data = $propertyResults->json();
         
-        $chargePeriodResults = Http::withOptions(['verify' => false])->withHeaders([
-            'content-type' => 'application/json',
-            'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
-        ])->get("https://qagate.dubailand.gov.ae/mollak/external/sync/invoices/" . 235553 . "/servicechargeperiods");
+        // $chargePeriodResults = Http::withOptions(['verify' => false])->withHeaders([
+        //     'content-type' => 'application/json',
+        //     'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
+        // ])->get("https://qagate.dubailand.gov.ae/mollak/external/sync/invoices/" . 235553 . "/servicechargeperiods");
 
-        // Decode the API response
-        $data1 = $chargePeriodResults->json();
+        // // Decode the API response
+        // $data1 = $chargePeriodResults->json();
         // Return the transformed data using the API resource
         // return PropertyGroupResource::collection($data['response']['propertyGroups']);
 
@@ -83,7 +83,7 @@ class Documents extends Page implements HasTable
         return [
             'services' => ServiceParameterResource::collection(ServiceParameter::all()),
             'propertyGroups' => PropertyGroupResource::collection($data['response']['propertyGroups']),
-            'propertyPeriods' => ServicePeriodResource::collection($data1['response']['serviceChargePeriod']),
+            // 'propertyPeriods' => ServicePeriodResource::collection($data1['response']['serviceChargePeriod']),
             // 'propertyGroups' => $hardcodedPropertyGroups,
             // 'propertyPeriods' => $hardcodedData
             
