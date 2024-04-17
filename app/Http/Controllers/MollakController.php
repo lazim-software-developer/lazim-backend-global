@@ -87,16 +87,22 @@ class MollakController extends Controller
         //         'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
         //     ])->get("https://qagate.dubailand.gov.ae/mollak/external/sync/owners/235553");
 
+        // $results = Http::withOptions(['verify' => false])->withHeaders([
+        //         'content-type' => 'application/json',
+        //         'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
+        //     ])->get("https://qagate.dubailand.gov.ae/mollak/external/sync/managementcompany/" . 54713 . "/propertygroups");
+
         $results = Http::withOptions(['verify' => false])->withHeaders([
                 'content-type' => 'application/json',
                 'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
-            ])->get("https://qagate.dubailand.gov.ae/mollak/external/sync/managementcompany/" . 54713 . "/propertygroups");
+            ])->get("https://qagate.dubailand.gov.ae/mollak/external/sync/invoices/" . 235553 . "/servicechargeperiods");
     
             // Decode the API response
             $data = $results->json();
     
             // Return the transformed data using the API resource
-            return PropertyGroupResource::collection($data['response']['propertyGroups']);
+            // return PropertyGroupResource::collection($data['response']['propertyGroups']);
+            return ServicePeriodResource::collection($data['response']['serviceChargePeriod']);
 
         // $response = Http::withoutVerifying()->withHeaders([
         //     'Content-Type' => 'application/json',
