@@ -83,7 +83,7 @@ class Documents extends Page implements HasTable
             dd($data['response']['propertyGroups']);
         return [
             'services' => ServiceParameterResource::collection(ServiceParameter::all()),
-            'propertyGroups' => PropertyGroupResource::collection($data['response']['propertyGroups']),
+            'propertyGroups' => $data['response']['propertyGroups'],
             // 'propertyPeriods' => ServicePeriodResource::collection($data1['response']['serviceChargePeriod']),
             // 'propertyGroups' => $hardcodedPropertyGroups,
             // 'propertyPeriods' => $hardcodedData
