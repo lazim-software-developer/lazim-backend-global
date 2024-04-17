@@ -51,6 +51,9 @@
                         {{$propertyGroup['propertyGroupId']}}
                         </div>
                         @endforeach
+                        <div>
+                        {{$propertyGroup['propertyGroupId']}}
+                        </div>
                         </select>
                     </div>
 
@@ -60,8 +63,6 @@
                         
                         <select required class="form-select" id="servicePeriodSelect" name="service_period" style="min-height: 38px; display: block; width: 100%; margin-bottom: 10px;">
                             <!-- Options will be populated based on Property Group selection -->
-                            @foreach($propertyPeriods as $propertyPeriod)
-                            @endforeach
                         </select>
                     </div>
 
