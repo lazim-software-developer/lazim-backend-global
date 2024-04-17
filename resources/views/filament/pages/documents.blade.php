@@ -110,7 +110,8 @@ document.getElementById('propertyGroupSelect').addEventListener('change', functi
     servicePeriodSelect.innerHTML = '';
 
     // Make the API call with increased timeout
-    axios.get("https://qagate.dubailand.gov.ae/mollak/external/sync/invoices/235553/servicechargeperiods", {
+    fetch("https://qagate.dubailand.gov.ae/mollak/external/sync/invoices/235553/servicechargeperiods", {
+        method: 'GET',
         headers: {
             'Content-Type': 'application/json',
             'Consumer-ID': '{{ env("MOLLAK_CONSUMER_ID") }}'
