@@ -47,14 +47,12 @@
                         <select required class="form-select" id="propertyGroupSelect" name="property_group" style="min-height: 38px; display: block; width: 100%; margin-bottom: 10px;">
                         
                         @foreach($propertyGroups as $propertyGroup)
-                        <div>
-                        {{$propertyGroup['propertyGroupId']}}
-                        </div>
+                        {{$propertyGroup}}
                         @endforeach
-                        <div>
-                        {{$propertyGroup['propertyGroupId']}}
-                        </div>
                         </select>
+                        @foreach($propertyGroups as $propertyGroup)
+                        {{$propertyGroup}}
+                        @endforeach
                     </div>
 
                     <!-- Service Period Dropdown -->
