@@ -74,8 +74,9 @@ class Documents extends Page implements HasTable
         //     ['id' => 453522143, 'name' => '1-Jan-2022 To 31-Dec-2022', 'from' => '2022-01-01T20:00:00', 'to' => '2022-12-31T20:00:00'],
         //     ['id' => 604334600, 'name' => '1-Jan-2023 To 31-Dec-2023', 'from' => '2023-01-01T20:00:00', 'to' => '2023-12-31T20:00:00']
         // ];
-            dd(PropertyGroupResource::collection($data['response']['propertyGroups']));
-            Log::info('property->>>>>'.PropertyGroupResource::collection($data['response']['propertyGroups']));
+            $datas = PropertyGroupResource::collection($data['response']['propertyGroups']);
+            // Log::info(json_decode($datas));
+            dd($datas);
         return [
             'services' => ServiceParameterResource::collection(ServiceParameter::all()),
             'propertyGroups' => PropertyGroupResource::collection($data['response']['propertyGroups']),
