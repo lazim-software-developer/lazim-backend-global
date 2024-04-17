@@ -47,12 +47,11 @@
                         <select required class="form-select" id="propertyGroupSelect" name="property_group" style="min-height: 38px; display: block; width: 100%; margin-bottom: 10px;">
                         
                         @foreach($propertyGroups as $propertyGroup)
-                        
+                            <option value="{{ $propertyGroup['propertyGroupId'] }}">{{ $propertyGroup['propertyGroupName']['englishName'] }}</option>
                         @endforeach
                         </select>
-                        @foreach($propertyGroups as $propertyGroup)
-                        {{$propertyGroup['propertyGroupId']}}
-                        @endforeach
+                        <input type="hidden" name="property_name" value="{{ $propertyGroup['propertyGroupName']['englishName'] }}">
+
                     </div>
 
                     <!-- Service Period Dropdown -->
@@ -118,6 +117,7 @@ document.getElementById('propertyGroupSelect').addEventListener('change', functi
             }
         })
         .then(function(response) {
+            console.log(response);
             // Populate the dropdown with new options
             response.data.forEach(function(period) {
                 const option = document.createElement('option');
