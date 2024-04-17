@@ -82,14 +82,42 @@ class MollakController extends Controller
         //     'content-type' => 'application/json',
         //     'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
         // ])->get(env("MOLLAK_API_URL") . '/sync/invoices/' . "235553" . '/all/' . "Q1-JAN2023-DEC2023");
-        $response = Http::withoutVerifying()->withHeaders([
+        // $response = Http::withoutVerifying()->withHeaders([
+        //         'content-type' => 'application/json',
+        //         'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
+        //     ])->get("https://qagate.dubailand.gov.ae/mollak/external/sync/owners/235553");
+
+        // $results = Http::withOptions(['verify' => false])->withHeaders([
+        //         'content-type' => 'application/json',
+        //         'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
+        //     ])->get("https://qagate.dubailand.gov.ae/mollak/external/sync/managementcompany/" . 54713 . "/propertygroups");
+
+        $results = Http::withOptions(['verify' => false])->withHeaders([
                 'content-type' => 'application/json',
                 'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
-            ])->get("https://qagate.dubailand.gov.ae/mollak/external/sync/managementcompany/235553/propertygroups");
+            ])->get("https://qagate.dubailand.gov.ae/mollak/external/sync/invoices/" . 235553 . "/servicechargeperiods");
+    
+            // Decode the API response
+            $data = $results->json();
+    
+            // Return the transformed data using the API resource
+            // return PropertyGroupResource::collection($data['response']['propertyGroups']);
+            return ServicePeriodResource::collection($data['response']['serviceChargePeriod']);
+
+        // $response = Http::withoutVerifying()->withHeaders([
+        //     'Content-Type' => 'application/json',
+        //     'consumer-id' => env("MOLLAK_CONSUMER_ID"),
+        // ])->post("https://qagate.dubailand.gov.ae/mollak/external/sync", [
+        //     'timeStamp' => '2019-07-25T17:11:38.036044+04:00',
+        //     'syncType' => 'ownership_changed',
+        //     'parameters' => [
+        //         ['key' => 'propertyGroupId', 'value' => 235553],
+        //     ],
+        // ]);
 
         // LOG::info("MOLLA ". $response);
 
-        return $data = $response->json();
+        // return $data = $response->json();
     }
 
     public function sendSMS(Request $request)
@@ -127,7 +155,6 @@ class MollakController extends Controller
                             'message' => 'We were unable to verify your phone number. Please try again!',
                             'status' => 'error'
                         ], 400);
-                
                 } else {
                         return response()->json([
                             'message' => 'We were unable to verify your phone number. Please try again!',
