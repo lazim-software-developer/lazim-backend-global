@@ -48,11 +48,9 @@
                         
                         @foreach($propertyGroups as $propertyGroup)
                         <div>
+                        {{$propertyGroup['propertyGroupId']}}
                         </div>
                         @endforeach
-                        <pre>
-                            {{ json_encode($propertyGroups) }}
-                        </pre>
                         </select>
                     </div>
 
