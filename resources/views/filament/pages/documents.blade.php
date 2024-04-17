@@ -45,9 +45,10 @@
                     <div class="mb-3">
                         <label for="propertyGroupSelect" class="form-label">Select Property Group *</label>
                         <select required class="form-select" id="propertyGroupSelect" name="property_group" style="min-height: 38px; display: block; width: 100%; margin-bottom: 10px;">
-                        @dd($propertyGroups)
-                        @foreach($propertyGroups as $propertyGroup)
+                        
+                        @foreach($propertyGroups->data as $propertyGroup)
                         <div>
+                            {{ $propertyGroup['name']}}
                         </div>
                         @endforeach
                         </select>
