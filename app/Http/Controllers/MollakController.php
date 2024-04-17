@@ -93,10 +93,10 @@ class MollakController extends Controller
             ])->get("https://qagate.dubailand.gov.ae/mollak/external/sync/managementcompany/" . 54713 . "/propertygroups");
     
             // Decode the API response
-            return $data = $results->json();
+            $data = $results->json();
     
             // Return the transformed data using the API resource
-            // return PropertyGroupResource::collection($data['response']['propertyGroups']);
+            return PropertyGroupResource::collection($data['response']['propertyGroups']);
 
         // $response = Http::withoutVerifying()->withHeaders([
         //     'Content-Type' => 'application/json',
