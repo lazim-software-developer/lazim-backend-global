@@ -102,41 +102,53 @@
         
 });
 
-document.getElementById('propertyGroupSelect').addEventListener('change', function() {
-    const propertyId = this.value;
-    const servicePeriodSelect = document.getElementById('servicePeriodSelect');
+// document.getElementById('propertyGroupSelect').addEventListener('change', function() {
+//     const propertyId = this.value;
+//     const servicePeriodSelect = document.getElementById('servicePeriodSelect');
 
-    // Clear existing options in service period dropdown
-    servicePeriodSelect.innerHTML = '';
+//     // Clear existing options in service period dropdown
+//     servicePeriodSelect.innerHTML = '';
 
-    // Make the API call with increased timeout
-    fetch("https://qagate.dubailand.gov.ae/mollak/external/sync/invoices/235553/servicechargeperiods", {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-            'Consumer-ID': '{{ env("MOLLAK_CONSUMER_ID") }}'
-        },
-        timeout: 10000  // Increase timeout to 10 seconds
+//     // Make the API call with increased timeout
+//     fetch("https://qagate.dubailand.gov.ae/mollak/external/sync/invoices/235553/servicechargeperiods", {
+//         method: 'GET',
+//         headers: {
+//             'Content-Type': 'application/json',
+//             'Consumer-ID': '{{ env("MOLLAK_CONSUMER_ID") }}'
+//         },
+//         timeout: 10000  // Increase timeout to 10 seconds
+//     })
+//     .then(function(response) {
+//         console.log(response);
+//         // Populate the dropdown with new options
+//         // response.data.forEach(function(period) {
+//         //     const option = document.createElement('option');
+//         //     option.value = period.name;
+//         //     option.textContent = period.name;
+//         //     servicePeriodSelect.appendChild(option);
+//         // });
+
+//         // Enable the submit button once data is loaded
+//         document.getElementById('submitUpload').disabled = false;
+//     })
+//     .catch(function(error) {
+//         console.log('Error fetching service periods:', error);
+//         servicePeriodSelect.innerHTML = '<option>Error loading data</option>';
+//         document.getElementById('submitUpload').disabled = true;
+//     });
+// });
+
+const apiUrl = 'https://qagate.dubailand.gov.ae/mollak/external/sync/invoices/235553/servicechargeperiods';
+const controller = new AbortController();
+const timeoutId = setTimeout(() => controller.abort(), 10000); // Timeout after 10000 ms
+
+fetch(apiUrl, { signal: controller.signal })
+    .then(response => response.json())
+    .then(data => {
+        clearTimeout(timeoutId);
+        console.log(data);
     })
-    .then(function(response) {
-        console.log(response);
-        // Populate the dropdown with new options
-        response.data.forEach(function(period) {
-            const option = document.createElement('option');
-            option.value = period.name;
-            option.textContent = period.name;
-            servicePeriodSelect.appendChild(option);
-        });
-
-        // Enable the submit button once data is loaded
-        document.getElementById('submitUpload').disabled = false;
-    })
-    .catch(function(error) {
-        console.log('Error fetching service periods:', error);
-        servicePeriodSelect.innerHTML = '<option>Error loading data</option>';
-        document.getElementById('submitUpload').disabled = true;
-    });
-});
+    .catch(error => console.error('Failed to fetch data:', error));
 
 
 </script>
