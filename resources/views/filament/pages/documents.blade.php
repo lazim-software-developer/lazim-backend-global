@@ -47,12 +47,9 @@
                         <select required class="form-select" id="propertyGroupSelect" name="property_group" style="min-height: 38px; display: block; width: 100%; margin-bottom: 10px;">
                         @foreach($propertyGroups as $propertyGroup)
                         <div>
-                        {{ $propertyGroup }}
+                        {{ $propertyGroup->name }}
                         </div>
                         @endforeach
-                        <div>
-                        {{ $propertyGroups }}
-                        </div>
                         </select>
                     </div>
 
