@@ -51,7 +51,7 @@
                         @endforeach
                         </select>
                         @foreach($propertyGroups as $propertyGroup)
-                        {{$propertyGroup}}
+                        {{$propertyGroup['propertyGroupId']}}
                         @endforeach
                     </div>
 
