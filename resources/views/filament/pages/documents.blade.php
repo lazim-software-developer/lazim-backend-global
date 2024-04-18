@@ -103,6 +103,7 @@
 });
 
 document.getElementById('propertyGroupSelect').addEventListener('change', function() {
+    console.log(this.value);
     const propertyId = this.value;
     const servicePeriodSelect = document.getElementById('servicePeriodSelect');
 
@@ -110,35 +111,21 @@ document.getElementById('propertyGroupSelect').addEventListener('change', functi
     servicePeriodSelect.innerHTML = '';
 
     // Make the API call with increased timeout
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000); // Timeout after 10 seconds
-
-    // Make the API call with increased timeout
-    fetch("https://qagate.dubailand.gov.ae/mollak/external/sync/invoices/" + propertyId + "/servicechargeperiods", {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-            'Consumer-ID': '{{ env("MOLLAK_CONSUMER_ID") }}'
-        },
-        signal: controller.signal
-    })
-    .then(response => {
-        clearTimeout(timeoutId);
-        if (!response.ok) throw new Error('Network response was not ok');
-        return response.json();
-    })
-    .then(data => {
-        console.log(data);
-        data.forEach(period => {
+    axios.get(`/api/service-charge-period/${propertyId}`)
+    .then(function(response) {
+        console.log(response);
+        // Populate the dropdown with new options
+        response.data.forEach(function(period) {
             const option = document.createElement('option');
-            option.value = period.name; // Assuming 'name' is the correct key
+            option.value = period.name;
             option.textContent = period.name;
             servicePeriodSelect.appendChild(option);
         });
+
         // Enable the submit button once data is loaded
         document.getElementById('submitUpload').disabled = false;
     })
-    .catch(error => {
+    .catch(function(error) {
         console.log('Error fetching service periods:', error);
         servicePeriodSelect.innerHTML = '<option>Error loading data</option>';
         document.getElementById('submitUpload').disabled = true;
