@@ -34,14 +34,18 @@ class PollNotifications extends Command
     {
         $scheduledAt = Poll::whereRaw("DATE_FORMAT(scheduled_at, '%Y-%m-%d %H:%i') = ?", [now()->format('Y-m-d H:i')])
         ->where('status','published')->where('active',true)->get();
+        Log::info('polls-------'.$scheduledAt);
+
         foreach($scheduledAt as $poll){
             $buildings = $poll->building->pluck('id');
+            Log::info('buildings-------'.$buildings);
             $tenant = FlatTenant::where('active',1)
                     ->whereIn('building_id',$buildings)->distinct()->pluck('tenant_id');
+                    Log::info('tenants-------'.$tenant);
             foreach ($tenant as $user) {
-                $expoPushTokens = ExpoPushNotification::where('user_id', $user)->pluck('token');
-                if ($expoPushTokens->count() > 0) {
-                    foreach ($expoPushTokens as $expoPushToken) {
+                $expoPushToken = ExpoPushNotification::where('user_id', $user)->first()->token;
+                if ($expoPushToken) {
+                    // foreach ($expoPushTokens as $expoPushToken) {
                         
                         $message = [
                             'to' => $expoPushToken,
@@ -72,7 +76,7 @@ class PollNotifications extends Command
                             'created_at' => now()->format('Y-m-d H:i:s'),
                             'updated_at' => now()->format('Y-m-d H:i:s'),
                         ]);
-                    }
+                    // }
                 }
             }
         }
