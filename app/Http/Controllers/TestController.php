@@ -24,6 +24,7 @@ use Aws\S3\S3Client;
 use Filament\Notifications\Notification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
@@ -300,11 +301,12 @@ class TestController extends Controller
         $data->Collection      = $collection;
 
         // return $data;
-        $response = Http::withoutVerifying()->withHeaders([
+        $response = Http::withOptions(['verify' => false])->withHeaders([
             'content-type' => 'application/json',
             'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
         ])->post('https://qagate.dubailand.gov.ae/mollak/external/managementreport/submit', $data);
 //env("MOLLAK_API_URL") . 
+        Log::info($response);
         return json_decode($response);
         return $response = json_decode($response->body());
 
