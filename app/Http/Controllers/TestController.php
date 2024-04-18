@@ -21,6 +21,7 @@ use App\Models\OaServiceRequest;
 use App\Models\ServiceParameter;
 use Aws\Exception\AwsException;
 use Aws\S3\S3Client;
+use Filament\Notifications\Notification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Response;
@@ -303,7 +304,7 @@ class TestController extends Controller
             'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
         ])->post('https://qagate.dubailand.gov.ae/mollak/external/managementreport/submit', $data);
 //env("MOLLAK_API_URL") . 
-        $response = json_decode($response->body());
+        return $response = json_decode($response->body());
 
         $oaData = OaServiceRequest::create([
             'service_parameter_id' => 1,
@@ -321,10 +322,19 @@ class TestController extends Controller
         
         if ($response->responseCode === 200) {
             $oaData->update(['status' => "Success", 'mollak_id' => $response->response->id]);
-            return response()->json(['status' => 'success', 'message' => "Uploaded successfully!"]);
+            Notification::make()
+                ->title("Upload successfully")
+                ->success()
+                ->send();
+            // return response()->json(['status' => 'success', 'message' => "Uploaded successfully!"]);
         } else {
             $oaData->update(['status' => "Failed"]);
-            return response()->json(['status' => 'error', 'message' => "There seems to be some issue with the files you are uploading. Please check and try again!"]);
+            Notification::make()
+                ->title("Upload failed")
+                ->danger()
+                ->body("There seems to be some issue with the files you are uploading. Please check and try again!")
+                ->send();
+            // return response()->json(['status' => 'error', 'message' => "There seems to be some issue with the files you are uploading. Please check and try again!"]);
         }
 
     }
