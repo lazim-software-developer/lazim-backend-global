@@ -284,8 +284,8 @@ class TestController extends Controller
         $data = new stdClass();
 
         $data->PropertyGroupId = 236899; //$request->property_group;
-        $data->FromDate        = 2018-01-01; // $request->from_date;
-        $data->ToDate          = 2018-12-31; //$request->to_date;
+        $data->FromDate        = "2018-01-01"; // $request->from_date;
+        $data->ToDate          = "2018-12-31"; //$request->to_date;
         $data->Delinquents     = $delinquents;
         $data->Eservices       = $e_services;
         $data->HappinessCenter = $happiness_center;
