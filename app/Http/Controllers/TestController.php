@@ -282,29 +282,30 @@ class TestController extends Controller
 
         $data = new stdClass();
 
-        $data->propertyGroupId = $request->property_group;
-        $data->fromDate        = $request->from_date;
-        $data->toDate          = $request->to_date;
-        $data->delinquents     = $delinquents;
-        $data->eservices       = $e_services;
-        $data->happinessCenter = $happiness_center;
-        $data->balanceSheet    = $balance_sheet;
-        $data->accountsPayable = $accounts_payables;
-        $data->workOrders      = $work_orders;
-        $data->assets          = $assets;
-        $data->bankBalance     = $bankBalance;
-        $data->utilityExpenses = $utility;
-        $data->budgetVsActual  = $budget_vs_actual;
-        $data->generalFund     = $general_fund_statement;
-        $data->reservedFund    = $reserve_fund;
-        $data->collection      = $collection;
+        $data->PropertyGroupId = $request->property_group;
+        $data->FromDate        = $request->from_date;
+        $data->ToDate          = $request->to_date;
+        $data->Delinquents     = $delinquents;
+        $data->Eservices       = $e_services;
+        $data->HappinessCenter = $happiness_center;
+        $data->BalanceSheet    = $balance_sheet;
+        $data->AccountsPayable = $accounts_payables;
+        $data->WorkOrders      = $work_orders;
+        $data->Assets          = $assets;
+        $data->BankBalance     = $bankBalance;
+        $data->UtilityExpenses = $utility;
+        $data->BudgetVsActual  = $budget_vs_actual;
+        $data->GeneralFund     = $general_fund_statement;
+        $data->ReservedFund    = $reserve_fund;
+        $data->Collection      = $collection;
 
-        return $data;
+        // return $data;
         $response = Http::withoutVerifying()->withHeaders([
             'content-type' => 'application/json',
             'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
         ])->post('https://qagate.dubailand.gov.ae/mollak/external/managementreport/submit', $data);
 //env("MOLLAK_API_URL") . 
+        return json_decode($response);
         return $response = json_decode($response->body());
 
         $oaData = OaServiceRequest::create([
