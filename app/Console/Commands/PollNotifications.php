@@ -36,22 +36,14 @@ class PollNotifications extends Command
             now()->subMinute()->startOfMinute(),
             now()->startOfMinute()
         ])
-        ->where('status','published')->where('active',true)->distinct()->lockForUpdate()->get();
-        Log::info('poll------'.$scheduledAt);
+        ->where('status','published')->where('active',true)->distinct()->get();
         $buildings=$scheduledAt->pluck('building_id');
-        // foreach($scheduledAt as $poll){
-            // $buildings = $poll->building;
-            // $buildings = $buildings->pluck('id');
-            Log::info('building------'.$buildings);
             $tenant = FlatTenant::where('active',1)
                     ->whereIn('building_id',$buildings)->distinct()->pluck('tenant_id');
-            Log::info('tenant------'.$tenant);
                 
             foreach ($tenant as $user) {
                 $expoPushToken = ExpoPushNotification::where('user_id', $user)->first()?->token;
-                if ($expoPushToken) {
-                    // foreach ($expoPushTokens as $expoPushToken) {
-                        
+                if ($expoPushToken) {                       
                         $message = [
                             'to' => $expoPushToken,
                             'sound' => 'default',
@@ -81,8 +73,6 @@ class PollNotifications extends Command
                             'created_at' => now()->format('Y-m-d H:i:s'),
                             'updated_at' => now()->format('Y-m-d H:i:s'),
                         ]);
-                    // }
-                // }
             }
         }
     }
