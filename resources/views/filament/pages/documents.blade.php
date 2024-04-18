@@ -61,6 +61,8 @@
                         <select required class="form-select" id="servicePeriodSelect" name="service_period" style="min-height: 38px; display: block; width: 100%; margin-bottom: 10px;">
                             <!-- Options will be populated based on Property Group selection -->
                         </select>
+                        <input type="hidden" name="from_date" id="service_period_from">
+                        <input type="hidden" name="to_date" id="service_period_to">
                     </div>
 
                     <!-- Service Files Upload -->
@@ -106,6 +108,8 @@ document.getElementById('propertyGroupSelect').addEventListener('change', functi
     console.log(this.value);
     const propertyId = this.value;
     const servicePeriodSelect = document.getElementById('servicePeriodSelect');
+    const fromDateInput = document.getElementById('service_period_from');
+    const toDateInput = document.getElementById('service_period_to');
 
     // Clear existing options in service period dropdown
     servicePeriodSelect.innerHTML = '';
@@ -115,15 +119,30 @@ document.getElementById('propertyGroupSelect').addEventListener('change', functi
     .then(function(response) {
         console.log(response);
         // Populate the dropdown with new options
-        response.data.forEach(function(period) {
+        response.data.data.forEach(function(period) {
             const option = document.createElement('option');
             option.value = period.name;
             option.textContent = period.name;
+            option.dataset.from = period.from;  // Assuming 'from' is the correct key
+            option.dataset.to = period.to;
             servicePeriodSelect.appendChild(option);
         });
 
         // Enable the submit button once data is loaded
         document.getElementById('submitUpload').disabled = false;
+        // Update hidden inputs when the dropdown changes
+        servicePeriodSelect.addEventListener('change', function() {
+            if (this.selectedIndex >= 0) {
+                const selectedOption = this.options[this.selectedIndex];
+                fromDateInput.value = selectedOption.dataset.from;
+                toDateInput.value = selectedOption.dataset.to;
+            }
+        });
+
+        // Manually trigger the change event to update inputs for the initial selection
+        if (servicePeriodSelect.options.length > 0) {
+            servicePeriodSelect.dispatchEvent(new Event('change'));
+        }
     })
     .catch(function(error) {
         console.log('Error fetching service periods:', error);
