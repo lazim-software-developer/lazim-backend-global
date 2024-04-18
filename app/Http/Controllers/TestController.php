@@ -132,42 +132,42 @@ class TestController extends Controller
             $delinquents = [];
         }
 
-        // // Work orders
-        // if ($request->has('work_orders')) {
-        //     $workordersimport = new WorkOrdersImport;
+        // Work orders
+        if ($request->has('work_orders')) {
+            $workordersimport = new WorkOrdersImport;
 
-        //     Excel::import($workordersimport, $request->file('work_orders'));
-        //     $work_orders = $workordersimport->data;
+            Excel::import($workordersimport, $request->file('work_orders'));
+            $work_orders = $workordersimport->data;
 
-        //     $document = $request->work_orders;
+            $document = $request->work_orders;
 
-        //     $fileName = 'work_orders';
+            $fileName = 'work_orders';
 
-        //     Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
-        //         file_get_contents($document));
-        // } else {
+            Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
+                file_get_contents($document));
+        } else {
             $work_orders = [];
-        // }
+        }
 
-        // if ($request->has('reserve_fund')) {
+        if ($request->has('reserve_fund')) {
 
-        //     $ReserveFundImport = new ReserveFundImport;
+            $ReserveFundImport = new ReserveFundImport;
 
-        //     Excel::import($ReserveFundImport, $request->file('reserve_fund'));
-        //     $reserve_fund = $ReserveFundImport->data;
+            Excel::import($ReserveFundImport, $request->file('reserve_fund'));
+            $reserve_fund = $ReserveFundImport->data;
 
-        //     $document = $request->reserve_fund;
+            $document = $request->reserve_fund;
 
-        //     $fileName = 'reserve_fund';
+            $fileName = 'reserve_fund';
 
-        //     Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
-        //         file_get_contents($document));
-        // } else {
+            Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
+                file_get_contents($document));
+        } else {
             $reserve_fund = new stdClass;
 
             $reserve_fund->income  = [];
             $reserve_fund->expense = [];
-        // }
+        }
 
         // if ($request->has('budget_vs_actual')) {
 
