@@ -303,7 +303,7 @@ class TestController extends Controller
         $response = Http::withoutVerifying()->withHeaders([
             'content-type' => 'application/json',
             'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
-        ])->post('https://qagate.dubailand.gov.ae/mollak/external/managementreport/submit', $data);
+        ])->post('https://qagate.dubailand.gov.ae/mollak/external/managementreport/submit', [$data]);
 //env("MOLLAK_API_URL") . 
         return json_decode($response);
         return $response = json_decode($response->body());
