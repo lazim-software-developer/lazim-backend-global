@@ -33,7 +33,7 @@ class PollNotifications extends Command
     public function handle()
     {
         $scheduledAt = Poll::whereRaw("DATE_FORMAT(scheduled_at, '%Y-%m-%d %H:%i') = ?", [now()->format('Y-m-d H:i')])
-        ->where('status','published')->where('active',true)->distinct()->get();
+        ->where('status','published')->where('active',true)->distinct()->lockForUpdate()->get();
         Log::info('poll------'.$scheduledAt);
         $buildings=$scheduledAt->pluck('building_id');
         // foreach($scheduledAt as $poll){
