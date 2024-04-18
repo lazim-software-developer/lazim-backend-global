@@ -34,7 +34,7 @@ class TestController extends Controller
 {
     public function uploadAll(Request $request)
     {
-        // dd($request->file('e_services'));
+        dd($request);
         $parameters = ServiceParameter::all();
 
         $folderPath = now()->timestamp;
