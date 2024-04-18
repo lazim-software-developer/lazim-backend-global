@@ -262,7 +262,7 @@ class TestController extends Controller
         //         file_get_contents($document));
         // } else {
             $assets = [];
-        }
+        // }
 
         // if ($request->has('utility_expenses')) {
         //     $uaImport = new UtilityExpensesImport;
