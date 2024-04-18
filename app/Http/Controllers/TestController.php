@@ -169,116 +169,116 @@ class TestController extends Controller
             $reserve_fund->expense = [];
         }
 
-        // if ($request->has('budget_vs_actual')) {
+        if ($request->has('budget_vs_actual')) {
 
-        //     $budgetvsactual = new BudgetVsActualImport;
+            $budgetvsactual = new BudgetVsActualImport;
 
-        //     Excel::import($budgetvsactual, $request->file('budget_vs_actual'));
-        //     $budget_vs_actual = $budgetvsactual->data;
+            Excel::import($budgetvsactual, $request->file('budget_vs_actual'));
+            $budget_vs_actual = $budgetvsactual->data;
 
-        //     $document = $request->budget_vs_actual;
+            $document = $request->budget_vs_actual;
 
-        //     $fileName = 'budget_vs_actual';
+            $fileName = 'budget_vs_actual';
 
-        //     Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
-        //         file_get_contents($document));
-        // } else {
+            Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
+                file_get_contents($document));
+        } else {
             $budget_vs_actual                   = new stdClass;
             $budget_vs_actual->expense_accounts = [];
             $budget_vs_actual->income_accounts  = [];
-        // }
+        }
 
-        // if ($request->has('general_fund_statement')) {
+        if ($request->has('general_fund_statement')) {
 
-        //     $CentralFundStatementImport = new CentralFundStatementImport;
+            $CentralFundStatementImport = new CentralFundStatementImport;
 
-        //     Excel::import($CentralFundStatementImport, $request->file('general_fund_statement'));
-        //     $general_fund_statement = $CentralFundStatementImport->data;
+            Excel::import($CentralFundStatementImport, $request->file('general_fund_statement'));
+            $general_fund_statement = $CentralFundStatementImport->data;
 
-        //     $document = $request->general_fund_statement;
+            $document = $request->general_fund_statement;
 
-        //     $fileName = 'general_fund_statement';
+            $fileName = 'general_fund_statement';
 
-        //     Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
-        //         file_get_contents($document));
-        // } else {
+            Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
+                file_get_contents($document));
+        } else {
             $general_fund_statement = new stdClass;
 
             $general_fund_statement->income  = [];
             $general_fund_statement->expense = [];
-        // }
+        }
 
-        // if ($request->has('collections')) {
+        if ($request->has('collections')) {
 
-        //     $collectionImport = new CollectionImport;
+            $collectionImport = new CollectionImport;
 
-        //     Excel::import($collectionImport, $request->file('collections'));
+            Excel::import($collectionImport, $request->file('collections'));
 
-        //     $collection = $collectionImport->data;
+            $collection = $collectionImport->data;
 
-        //     $document = $request->collections;
+            $document = $request->collections;
 
-        //     $fileName = 'collections';
+            $fileName = 'collections';
 
-        //     Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
-        //         file_get_contents($document));
-        // } else {
+            Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
+                file_get_contents($document));
+        } else {
             $collection = new stdClass;
 
             $collection->by_method = [];
             $collection->recovery  = new stdClass;
-        // }
+        }
 
-        // if ($request->has('bank_balance')) {
-        //     $bankBalanceimport = new BankBalanceImport;
+        if ($request->has('bank_balance')) {
+            $bankBalanceimport = new BankBalanceImport;
 
-        //     Excel::import($bankBalanceimport, $request->file('bank_balance'));
+            Excel::import($bankBalanceimport, $request->file('bank_balance'));
 
-        //     $bankBalance = $bankBalanceimport->data;
+            $bankBalance = $bankBalanceimport->data;
 
-        //     $document = $request->bank_balance;
+            $document = $request->bank_balance;
 
-        //     $fileName = 'bank_balance';
+            $fileName = 'bank_balance';
 
-        //     Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
-        //         file_get_contents($document));
-        // } else {
+            Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
+                file_get_contents($document));
+        } else {
             $bankBalance            = new stdClass;
             $bankBalance->statement = new stdClass;
             $bankBalance->bankbook  = new stdClass;
-        // }
+        }
 
-        // if ($request->has('asset_list_and_expenses')) {
-        //     $import = new AssetsImport;
+        if ($request->has('asset_list_and_expenses')) {
+            $import = new AssetsImport;
 
-        //     Excel::import($import, $request->file('asset_list_and_expenses'));
-        //     $assets = $structuredData = $import->getResults();
+            Excel::import($import, $request->file('asset_list_and_expenses'));
+            $assets = $structuredData = $import->getResults();
 
-        //     $document = $request->asset_list_and_expenses;
+            $document = $request->asset_list_and_expenses;
 
-        //     $fileName = 'asset_list_and_expenses';
+            $fileName = 'asset_list_and_expenses';
 
-        //     Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
-        //         file_get_contents($document));
-        // } else {
+            Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
+                file_get_contents($document));
+        } else {
             $assets = [];
-        // }
+        }
 
-        // if ($request->has('utility_expenses')) {
-        //     $uaImport = new UtilityExpensesImport;
+        if ($request->has('utility_expenses')) {
+            $uaImport = new UtilityExpensesImport;
 
-        //     Excel::import($uaImport, $request->file('utility_expenses'));
-        //     $utility = $uaImport->getResults();
+            Excel::import($uaImport, $request->file('utility_expenses'));
+            $utility = $uaImport->getResults();
 
-        //     $document = $request->utility_expenses;
+            $document = $request->utility_expenses;
 
-        //     $fileName = 'utility_expenses';
+            $fileName = 'utility_expenses';
 
-        //     Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
-        //         file_get_contents($document));
-        // } else {
+            Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
+                file_get_contents($document));
+        } else {
             $utility = [];
-        // }
+        }
 
         $data = new stdClass();
 
