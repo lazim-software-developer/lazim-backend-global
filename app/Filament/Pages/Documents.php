@@ -94,7 +94,7 @@ class Documents extends Page implements HasTable
     public function table(Table $table): Table
     {   
         return $table
-            ->query(OaServiceRequest::query()->where('status','Success'))
+            ->query(OaServiceRequest::query()->whereNotNull('created_at'))
             ->columns([
                 TextColumn::make('property_name'),
                 TextColumn::make('service_period'),
