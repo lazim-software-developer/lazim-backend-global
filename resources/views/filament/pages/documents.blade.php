@@ -45,7 +45,7 @@
                     <div class="mb-3">
                         <label for="propertyGroupSelect" class="form-label">Select Property Group *</label>
                         <select required class="form-select" id="propertyGroupSelect" name="property_group" style="min-height: 38px; display: block; width: 100%; margin-bottom: 10px;">
-                        
+                        <option value="" selected disabled>Select a Property Group</option>
                         @foreach($propertyGroups as $propertyGroup)
                             <option value="{{ $propertyGroup['propertyGroupId'] }}">{{ $propertyGroup['propertyGroupName']['englishName'] }}</option>
                         @endforeach
