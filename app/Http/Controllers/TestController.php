@@ -299,6 +299,7 @@ class TestController extends Controller
         $data->reservedFund    = $reserve_fund;
         $data->collection      = $collection;
 
+        return $data;
         $response = Http::withoutVerifying()->withHeaders([
             'content-type' => 'application/json',
             'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
