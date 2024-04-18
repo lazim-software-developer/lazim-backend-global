@@ -2,11 +2,11 @@
 
 <div>
     <!-- Button trigger dropdown -->
-    <button type="button" class="btn btn-primary" id="downloadButton" style="background-color: #007bff; color: white; padding: 10px 20px; border-radius: 5px; border: none; font-size: 16px; cursor: pointer;">
+    <button type="button" class="btn btn-primary" id="downloadButton" style="background-color: #4F46E5; color: white; padding: 10px 20px; border-radius: 5px; border: none; font-size: 16px; cursor: pointer;">
         Download Templates
     </button>
     <!-- Button to trigger modal -->
-    <button type="button" class="btn btn-primary" id="uploadButton" data-bs-toggle="uploadModal" data-bs-target="#uploadModal" style="background-color: #007bff; color: white; padding: 10px 20px; border-radius: 5px; border: none; font-size: 16px; cursor: pointer;">
+    <button type="button" class="btn btn-primary" id="uploadButton" data-bs-toggle="uploadModal" data-bs-target="#uploadModal" style="background-color: #4F46E5; color: white; padding: 10px 20px; border-radius: 5px; border: none; font-size: 16px; cursor: pointer;">
         Upload File
     </button>
 
@@ -24,7 +24,7 @@
                     <!-- Add other options here -->
                 </select>
             </div>
-            <button type="submit" class="btn btn-success" style="padding: 10px 20px; border-radius: 5px; font-size: 16px; background-color: #007bff; color: white;" >Submit</button>
+            <button type="submit" class="btn btn-success" style="padding: 10px 20px; border-radius: 5px; font-size: 16px; background-color: #4F46E5; color: white;" >Submit</button>
         </form>
     </div>
 </div>
@@ -34,7 +34,7 @@
 <div class="modal fade" id="uploadModal" tabindex="-1" aria-labelledby="uploadModalLabel" aria-hidden="true" style="margin-top: 20px;">
     <div class="modal-dialog" style="margin-bottom: 20px;">
         <div class="modal-content">
-            <div class="modal-header" style="background-color: #007bff; color: white; padding: 16px 24px;">
+            <div class="modal-header" style="background-color: #4F46E5; color: white; padding: 16px 24px;">
                 <h5 class="modal-title" id="uploadModalLabel" style="font-size: 18px; margin: 0;" >Upload Your Report Here</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="background: none; border: none; font-size: 21px; color: white;"></button>
             </div>
@@ -76,7 +76,7 @@
                     @endforeach
 
                     <!-- Submit Button -->
-                    <button type="submit" class="btn btn-primary" id="submitUpload" style="padding: 10px 20px; border-radius: 5px; font-size: 16px; background-color: #007bff; color: white;" >Submit</button>
+                    <button type="submit" class="btn btn-primary" id="submitUpload" style="padding: 10px 20px; border-radius: 5px; font-size: 16px; background-color: #4F46E5; color: white;" >Submit</button>
                 </form>
             </div>
         </div>
