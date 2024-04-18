@@ -528,7 +528,7 @@ Route::post('/budget-budget_items',[MollakController::class, 'fetchbudget']);
 
 Route::get('/testing',[MollakController::class, 'test']);
 
-Route::get('/service-charge-period/{propertyId}',[MollakController::class,'fetchServicePeriods']);
+Route::get('/service-charge-period/{propertyId}',[MollakController::class,'ServicePeriods']);
 
 //App Versions
 Route::get('/app-version',[AppController::class, 'version']);

@@ -268,4 +268,18 @@ class MollakController extends Controller
 
         return response()->json(['message' => 'Budgets processed successfully'], 200);
     }
+
+    public function ServicePeriods($propertyId)
+    {
+        $results = Http::withOptions(['verify' => false])->withHeaders([
+            'content-type' => 'application/json',
+            'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
+        ])->get("https://qagate.dubailand.gov.ae/mollak/external/sync/invoices/" . $propertyId . "/servicechargeperiods");
+
+        // Assuming the API returns a JSON response, we'll decode it
+        $data = $results->json();
+
+        // Return the transformed data using the API resource
+        return ServicePeriodResource::collection($data['response']['serviceChargePeriod']); // Adjust the key as per the actual response structure
+    }
 }
