@@ -59,20 +59,20 @@ class TestController extends Controller
         }
 
         // Happiness center
-        // if ($request->has('happiness_center')) {
-        //     $happinesscenterimport = new HappinessCenterImport;
+        if ($request->has('happiness_center')) {
+            $happinesscenterimport = new HappinessCenterImport;
 
-        //     Excel::import($happinesscenterimport, $request->file('happiness_center'));
-        //     $happiness_center = $happinesscenterimport->data;
+            Excel::import($happinesscenterimport, $request->file('happiness_center'));
+            $happiness_center = $happinesscenterimport->data;
 
-        //     $document = $request->happiness_center;
-        //     $fileName = 'happiness_center';
+            $document = $request->happiness_center;
+            $fileName = 'happiness_center';
 
-        //     Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
-        //         file_get_contents($document));
-        // } else {
+            Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
+                file_get_contents($document));
+        } else {
             $happiness_center = [];
-        // }
+        }
 
         // if ($request->has('balance_sheet')) {
 
