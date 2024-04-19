@@ -30,7 +30,7 @@ class EnquiryMailJob implements ShouldQueue
         $beautymail = app()->make(Beautymail::class);
         $beautymail->send('emails.enquiry', [ 'enquiry' => $this->enquiry], function($message) {
             $message
-                ->to('test@example.com')
+                ->to('bd@lazim.ae')
                 ->subject('Welcome to Lazim!');
         });
     }
