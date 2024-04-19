@@ -187,6 +187,12 @@ class AdminPanelProvider extends PanelProvider
                                 ->icon('heroicon-s-user-group')
                                 ->activeIcon('heroicon-s-user-group')
                                 ->sort(14),
+                            NavigationItem::make('Documents')
+                                ->hidden(!in_array(Role::where('id', auth()->user()->role_id)->first()->name, ['OA','Admin','MD']))
+                                ->url('/admin/documents')
+                                ->icon('heroicon-s-user-group')
+                                ->activeIcon('heroicon-s-user-group')
+                                ->sort(14),
                         ]),
                 ]);
             }
