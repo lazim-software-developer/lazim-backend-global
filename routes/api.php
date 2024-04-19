@@ -29,6 +29,7 @@ use App\Http\Controllers\Community\PollController;
 use App\Http\Controllers\Community\PostController;
 use App\Http\Controllers\Community\PostLikeController;
 use App\Http\Controllers\Documents\DocumentsController;
+use App\Http\Controllers\EnquiryController;
 use App\Http\Controllers\Facility\FacilityController;
 use App\Http\Controllers\Forms\AccessCardController;
 use App\Http\Controllers\Forms\FitOutFormsController;
@@ -528,5 +529,10 @@ Route::post('/budget-budget_items',[MollakController::class, 'fetchbudget']);
 
 Route::get('/testing',[MollakController::class, 'test']);
 
+Route::get('/service-charge-period/{propertyId}',[MollakController::class,'ServicePeriods']);
+
 //App Versions
 Route::get('/app-version',[AppController::class, 'version']);
+
+//web enquiries
+Route::post('/web-enquiry',[EnquiryController::class,'store']);
