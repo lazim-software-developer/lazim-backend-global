@@ -61,7 +61,7 @@ class OwnerResource extends Resource
                         ->required()
                         ->placeholder('Name'),
                     TextInput::make('mobile')
-                        ->rules(['regex:/^(\+971)(50|51|52|55|56|58|02|03|04|06|07|09)\d{7}$/'])
+                        ->rules(['regex:/^(971)(50|51|52|55|56|58|02|03|04|06|07|09)\d{7}$/'])
                         ->nullable()
                         ->placeholder('Mobile'),
                     TextInput::make('email')
