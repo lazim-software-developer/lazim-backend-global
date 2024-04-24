@@ -31,7 +31,7 @@ class DocumentRequest extends FormRequest
     public function messages()
     {
         return [
-            'file' => 'The uploaded file must be less than 2MB.',
+            'file.file' => 'The uploaded file must be less than 2MB.',
         ];
     }
 }
