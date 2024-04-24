@@ -32,23 +32,24 @@ class PollNotifications extends Command
      */
     public function handle()
     {
-        $scheduledAt = Poll::whereRaw("DATE_FORMAT(scheduled_at, '%Y-%m-%d %H:%i') = ?", [now()->format('Y-m-d H:i')])
-        ->where('status','published')->where('active',true)->get();
-        foreach($scheduledAt as $poll){
-            $buildings = $poll->building->pluck('id');
+        $scheduledAt = Poll::whereBetween('scheduled_at', [
+            now()->subMinute()->startOfMinute(),
+            now()->startOfMinute()
+        ])
+        ->where('status','published')->where('active',true)->distinct()->get();
+        $buildings=$scheduledAt->pluck('building_id');
             $tenant = FlatTenant::where('active',1)
                     ->whereIn('building_id',$buildings)->distinct()->pluck('tenant_id');
+                
             foreach ($tenant as $user) {
-                $expoPushTokens = ExpoPushNotification::where('user_id', $user)->pluck('token');
-                if ($expoPushTokens->count() > 0) {
-                    foreach ($expoPushTokens as $expoPushToken) {
-                        
+                $expoPushToken = ExpoPushNotification::where('user_id', $user)->first()?->token;
+                if ($expoPushToken) {                       
                         $message = [
                             'to' => $expoPushToken,
                             'sound' => 'default',
                             'url' => 'ComunityPostTab',
                             'title' => 'New Poll!',
-                            'body' => $poll->question,
+                            'body' => 'New Poll launched',
                             'data' => ['notificationType' =>  'ComunityPostTabPoll' ],
                         ];
                         $this->expoNotification($message);
@@ -59,7 +60,7 @@ class PollNotifications extends Command
                             'notifiable_id' => $user,
                             'data' => json_encode([
                                 'actions' => [],
-                                'body' => $poll->question,
+                                'body' => 'New Poll launched',
                                 'duration' => 'persistent',
                                 'icon' => 'heroicon-o-document-text',
                                 'iconColor' => 'warning',
@@ -72,8 +73,6 @@ class PollNotifications extends Command
                             'created_at' => now()->format('Y-m-d H:i:s'),
                             'updated_at' => now()->format('Y-m-d H:i:s'),
                         ]);
-                    }
-                }
             }
         }
     }
