@@ -23,9 +23,9 @@ class RegisterWithEmiratesOrPassportRequest extends FormRequest
     {
         return [
             'name' => 'required|string',
-            'document' => 'required|file|max:2048',
-            'emirates_document' => 'required|file|max:2048',
-            'passport_document' => 'required|file|max:2048',
+            'document' => 'required|file|max:2048|mimes:pdf,jpg,jpeg,png,doc,docx',
+            'emirates_document' => 'required|file|max:2048|mimes:pdf,jpg,jpeg,png,doc,docx',
+            'passport_document' => 'required|file|max:2048|mimes:pdf,jpg,jpeg,png,doc,docx',
             'flat_id' => 'required|exists:flats,id',
             'building_id' => 'required|exists:buildings,id',
             'type' => 'required|in:Owner,Tenant',
