@@ -24,14 +24,14 @@ class DocumentRequest extends FormRequest
         return [
             'building_id' => 'required|exists:buildings,id',
             'name' => 'required|string',
-            'file' => 'required|file|max:2048'
+            'file' => 'required|file|max:2048|mimes:pdf,jpg,jpeg,png'
         ];
     }
 
     public function messages()
     {
         return [
-            'file' => 'The uploaded file must be less than 2MB.',
+            'file.max' => 'The uploaded file must be less than 2MB.',
         ];
     }
 }
