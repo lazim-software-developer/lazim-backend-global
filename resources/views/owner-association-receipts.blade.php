@@ -5,58 +5,51 @@
     <title>Receipt Voucher</title>
 </head>
 <body>
-    <div >
+    <div>
         <!-- Header -->
         <div style="text-align: center;">
-            <h2 style="font-size: 18px; " class="text-2xl font-bold text-gray-900">{{$data->type == 'building' ? $data->building?->name.' - '.$data->flat?->property_number : $data->receipt_to}}</h2>
-            <h2 style="font-size: 18px; " class="text-2xl font-bold text-gray-900">{{$data->owner?->name}}</h2>
-            <p style="font-size: 12px; ">{{$data->owner?->address}}</p>
-            <p style="font-size: 12px;">E-Mail: {{$data->owner?->email}}</p>
-            <h3 style="font-size: 16px; margin-top: 10px;">Receipt Voucher</h3>
+            <h2 style="font-size: 18px; margin: 0;">Spanish Twin Villas Owners Associat BO</h2>
+            <p style="margin: 0;">Office Number:1003, Suntech Tower</p>
+            <p style="margin: 0;">Dubai Silicon Oasis</p>
+            <p style="margin: 0;">Dubai UAE</p>
+            <p style="margin: 0;">E-Mail: info@soyam.com</p>
+            <h3 style="font-size: 16px; margin-top: 10px; margin-bottom: 0;">Receipt Voucher</h3>
         </div>
         
         <!-- Voucher Info -->
         <div style="display: flex; justify-content: space-between; padding-top: 2mm;">
-            <p style="font-size: 12px;"><strong>No. :</strong> {{$data->receipt_number}}</p>
-            <p style="font-size: 12px;"><strong>Dated :</strong> {{$data->date}}</p>
+            <p style="margin: 0;"><strong>No. :</strong> 8</p>
+            <p style="margin: 0;"><strong>Dated :</strong> 21-Mar-23</p>
         </div>
         
         <!-- Through -->
-        <p style="font-size: 12px; margin: 0;"><strong>Through :</strong> {{$data->received_in}}</p>
+        <p style="margin: 0;"><strong>Through :</strong> ADCB Escrow Account (General Fund A/C)</p>
 
         <!-- Table for Particulars and Amount -->
         <table style="width: 100%; border-collapse: collapse; margin-top: 5mm;">
             <tr>
-                <td style="border-bottom: 1px solid #000; border-top: 1px solid #000; padding: 2mm 0; font-size: 12px;" ><strong>Particulars</strong></td>
-                <td style=" border-top: 1px solid #000; padding: 2mm 0; font-size: 12px; text-align: right;"><strong>Amount</strong></td>
+                <td style="border-bottom: 1px solid black; padding: 2mm 0;"><strong>Particulars</strong></td>
+                <td style="border-bottom: 1px solid black; padding: 2mm 0; text-align: right;"><strong>Amount</strong></td>
             </tr>
             <tr>
-                <td style="padding: 2mm 0; font-size: 12px; "><strong>Account :</strong> </td>
-                <td style="padding: 2mm 0; font-size: 12px; border-top: 1px solid #000;"> </td>
-                
-            </tr>
-            <tr>
-                <td style="padding: 2mm 0; font-size: 12px;">{{$data->payment_reference}}</td>
-                <td style="padding: 2mm 0; font-size: 12px; text-align: right;">{{$data->amount}}</td>
+                <td style="padding: 2mm 0;"><strong>Account :</strong> Rongcheng Yu - Villa No: 1</td>
+                <td style="padding: 2mm 0; text-align: right;">5,868.00</td>
             </tr>
         </table>
 
-        <!-- Spacer -->
-        <div style="flex-grow: 1;"></div>
-        <table style="position: absolute; bottom: 80mm;  right: 1mm; ">
-            <tr>
-                <td style="padding: 2mm 0; font-size: 12px; text-align: right;"><strong>Total AED :</strong>  {{$data->amount}}</td>
-            </tr>
-        </table>
+        <!-- Amount in Words -->
+        <div style="position: absolute; bottom: 50mm; width: 100%;">
+            <p style="margin: 0;"><strong>On Account of :</strong> Service charge received in Virtual Account</p>
+            <p style="margin-top: 2mm; margin-bottom: 0;"><strong>Amount (in words) :</strong> UAE Dirham Five Thousand Eight Hundred Sixty Eight Only</p>
+        </div>
 
         <!-- Footer -->
-        <div style="position: absolute; bottom: 20mm; left: 15mm; right: 5mm;">
-            <p style="font-size: 12px;"><strong>On Account of :</strong> {{$data->on_account_of}} received in {{$data->received_in}} </p>
-            <p style="font-size: 12px; padding-top: 2mm;"><strong>Amount (in words) :</strong> {{$data->totalWords}}</p>
-            <div style="display: flex; justify-content: space-between; padding-top: 10mm;">
-                <p style="font-size: 12px;">&nbsp;</p> <!-- Spacer -->
-                <p style="font-size: 12px;">Authorised Signatory</p>
-            </div>
+        <div style="display: flex; justify-content: space-between; position: absolute; bottom: 30mm; width: 100%;">
+            <p style="margin: 0;">&nbsp;</p> <!-- Spacer -->
+            <p style="margin: 0;"><strong>Total AED :</strong> 5,868.00</p>
+        </div>
+        <div style="position: absolute; bottom: 20mm; right: 15mm;">
+            <p style="margin: 0;">Authorised Signatory</p>
         </div>
     </div>
 </body>
