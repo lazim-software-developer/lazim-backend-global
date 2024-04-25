@@ -339,7 +339,7 @@ class AdminPanelProvider extends PanelProvider
                                     ->icon('heroicon-o-document')
                                     ->activeIcon('heroicon-o-document')
                                     ->sort(4),
-                                NavigationItem::make('Bank Statement')
+                                NavigationItem::make('Receivables')
                                     ->url(BankStatementResource::getUrl('index'))
                                     ->hidden(!in_array(Role::where('id', auth()->user()->role_id)->first()->name, ['OA','MD','Accounts Manager']))
                                     ->icon('heroicon-s-document-text')
@@ -375,13 +375,13 @@ class AdminPanelProvider extends PanelProvider
                                     ->icon('heroicon-s-clipboard-document')
                                     ->activeIcon('heroicon-s-clipboard-document')
                                     ->sort(10),
-                                NavigationItem::make('General Fund Statement Mollak')
+                                NavigationItem::make('General Fund Statement Bank Book')
                                     ->url('/admin/mollak-general-fund-statement')
                                     ->hidden(!in_array(Role::where('id', auth()->user()->role_id)->first()->name, ['OA','MD','Accounts Manager']))
                                     ->icon('heroicon-m-clipboard-document-check')
                                     ->activeIcon('heroicon-m-clipboard-document-check')
                                     ->sort(11),
-                                NavigationItem::make('Reserve Fund Statement Mollak')
+                                NavigationItem::make('Reserve Fund Statement Bank Book')
                                     ->url('/admin/mollak-reserve-fund-statement')
                                     ->hidden(!in_array(Role::where('id', auth()->user()->role_id)->first()->name, ['OA','MD','Accounts Manager']))
                                     ->icon('heroicon-m-clipboard-document-list')
