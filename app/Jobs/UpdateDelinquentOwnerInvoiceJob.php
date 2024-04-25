@@ -70,7 +70,7 @@ class UpdateDelinquentOwnerInvoiceJob implements ShouldQueue
                 $quarterNumber = substr($invoiceQuarter, 1, 1);
                 $balanceFieldName = 'quarter_' . $quarterNumber . '_balance';
                 $receiptAmount = $receipts?->receipt_amount ?: 0;
-                $delinquent->$balanceFieldName = $this->invoice->invoice_amount - $receiptAmount;
+                $delinquent->$balanceFieldName = $this->invoice->previous_balance  + $this->invoice->invoice_amount - $receiptAmount;
                 $delinquent->save();
                 if($receipts){
                     $receipts->processed = true;
