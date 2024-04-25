@@ -2,6 +2,7 @@
     @php
         use App\Models\Accounting\Budgetitem;
         use App\Models\Vendor\Contract;
+        use App\Models\Accounting\Invoice;
 
         $serviceId = $getRecord()->service_id;
         $buildingId = $getRecord()->budget->building_id;
