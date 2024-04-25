@@ -64,12 +64,19 @@ class LedgersResource extends Resource
                     ->limit(20)
                     ->label('Invoice'),
                 TextColumn::make('invoice_amount')->formatStateUsing(fn ($state) => number_format($state, 2))
-                    ->label('Bill'),
-                ViewColumn::make('Paid Amount')->view('tables.columns.invoice-amount-paid'),
+                    ->label('Invoice amount')->alignEnd(),
+                ViewColumn::make('Paid Amount')->view('tables.columns.invoice-amount-paid')
+                    ->alignEnd(),
                 TextColumn::make('due_amount')
                     ->searchable()
                     ->default("NA")
-                    ->label('Balance'),
+                    ->alignEnd()
+                    ->label('Due Balance'),
+                TextColumn::make('previous_balance')
+                    ->searchable()
+                    ->default("NA")
+                    ->alignEnd()
+                    ->label('Previous Balance'),
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([

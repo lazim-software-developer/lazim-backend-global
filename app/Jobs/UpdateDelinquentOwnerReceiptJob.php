@@ -71,7 +71,7 @@ class UpdateDelinquentOwnerReceiptJob implements ShouldQueue
                             'invoice_pdf_link' => $lastInvoice->invoice_pdf_link,
                         ]);
                 }
-                $delinquent->$balanceFieldName = $invoice->invoice_amount - $receiptAmount;
+                $delinquent->$balanceFieldName = $invoice->previous_balance + $invoice->invoice_amount - $receiptAmount;
                 $delinquent->save();
                 $invoice->processed = true;
                 $invoice->save();
