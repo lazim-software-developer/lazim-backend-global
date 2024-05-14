@@ -29,7 +29,7 @@ class Documents extends Page implements HasTable
         $propertyResults = Http::withOptions(['verify' => false])->withHeaders([
             'content-type' => 'application/json',
             'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
-        ])->get("https://qagate.dubailand.gov.ae/mollak/external/sync/managementcompany/" . 54713 . "/propertygroups");
+        ])->get("/service-charge-period/" . 54713);
 
         // Decode the API response
         $data = $propertyResults->json();
