@@ -115,6 +115,10 @@ class Building extends Model
     {
         return $this->hasMany(Complaint::class);
     }
+    public function incident()
+    {
+        return $this->hasMany(Complaint::class);
+    }
 
     public function document()
     {

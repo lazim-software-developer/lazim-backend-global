@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Building;
 
+use App\Filament\Resources\Building\BuildingResource\RelationManagers\IncidentsRelationManager;
 use App\Filament\Resources\Building\BuildingResource\RelationManagers\OfferPromotionsRelationManager;
 use Closure;
 use Filament\Forms;
@@ -287,6 +288,7 @@ class BuildingResource extends Resource
             MeetingsRelationManager::class,
             BuildingserviceRelationManager::class,
             BuildingResource\RelationManagers\ComplaintRelationManager::class,
+            IncidentsRelationManager::class,
             BuildingResource\RelationManagers\ServiceRelationManager::class,
             // BuildingResource\RelationManagers\DocumentsRelationManager::class,
             BuildingResource\RelationManagers\FacilitiesRelationManager::class,

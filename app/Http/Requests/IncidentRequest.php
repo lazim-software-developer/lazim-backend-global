@@ -22,7 +22,8 @@ class IncidentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'category' => 'required',
+            'media' => 'nullable|mimes:jpeg,png,jpg,gif,mp4,mkv|max:2048',
             'complaint' => 'required|min:5|max:150',
             'complaint_type' => 'required|in:incident',
         ];
