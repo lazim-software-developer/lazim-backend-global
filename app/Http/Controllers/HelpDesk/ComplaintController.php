@@ -5,6 +5,7 @@ namespace App\Http\Controllers\HelpDesk;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Helpdesk\ComplaintStoreRequest;
 use App\Http\Requests\Helpdesk\ComplaintUpdateRequest;
+use App\Http\Requests\IncidentRequest;
 use App\Http\Resources\CustomResponseResource;
 use App\Http\Resources\HelpDesk\Complaintresource;
 use App\Models\Building\Building;
@@ -65,6 +66,45 @@ class ComplaintController extends Controller
 
         $complaint->load('comments');
         return new Complaintresource($complaint);
+    }
+
+    public function createIncident(IncidentRequest $request, Building $building){
+        // if (auth()->user()->role->name == 'Security') {
+        //     // Check if the gatekeeper has active member of the building
+        //     $complaintableClass =  User::class;
+        //     $complaitableId = auth()->user()->id;
+
+        //     $isActiveSecurity = BuildingPoc::where([
+        //         'user_id' => auth()->user()->id,
+        //         'role_name' => 'security',
+        //         'building_id' => $building->id,
+        //         'active' => 1
+        //     ])->exists();
+
+        //     if (!$isActiveSecurity) {
+        //         return (new CustomResponseResource([
+        //             'title' => 'Error',
+        //             'message' => 'You are not allowed to post a complaint.',
+        //             'code' => 403,
+        //         ]))->response()->setStatusCode(403);
+        //     }
+        // }
+        $complaintableClass =  User::class;
+            $complaitableId = 3;
+            $request->merge([
+                'complaintable_type' => $complaintableClass,
+                'complaintable_id' => $complaitableId,
+                'user_id' => 3,
+                'category' => 'Security Services',
+                'open_time' => now(),
+                'status' => 'open',
+                'building_id' => $building->id,
+                'owner_association_id' => $building->owner_association_id,
+            ]);
+
+            return $complaint = Complaint::withoutEvents(function () use ($request) {
+                return Complaint::create($request->all());
+            });
     }
 
     /**
