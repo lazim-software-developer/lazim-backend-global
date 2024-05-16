@@ -226,12 +226,12 @@ Route::middleware(['auth:sanctum', 'email.verified', 'active'])->group(function 
  * Help desk and happiness center related APIs
  */
 //, 'phone.verified'
-Route::post('building/{building}/incidents', [ComplaintController::class,'createIncident']);
 Route::middleware(['auth:sanctum', 'email.verified', 'active'])->group(function () {
     // Create complaint
     Route::post('building/{building}/complaints', [ComplaintController::class, 'create']);
 
-    
+    // CreateIncidents
+    Route::post('building/{building}/incidents', [ComplaintController::class,'createIncident']);
 
     // List all complaints
     Route::get('/buildings/{building}/complaints', [ComplaintController::class, 'index']);
