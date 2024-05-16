@@ -3,10 +3,12 @@
 namespace App\Models\Building;
 
 use App\Models\BuildingVendor;
+use App\Models\EmergencyNumber;
 use App\Models\Item;
 use App\Models\Asset;
 use App\Models\Floor;
 use App\Models\Meeting;
+use App\Models\OfferPromotion;
 use App\Models\User\User;
 use App\Models\Vendor\PPM;
 use App\Models\Forms\Guest;
@@ -87,7 +89,7 @@ class Building extends Model
             ->generateSlugsFrom('name')
             ->saveSlugsTo('slug');
     }
-    
+
     public function cities()
     {
         return $this->belongsTo(City::class, 'city_id');
@@ -207,7 +209,7 @@ class Building extends Model
         return $this->hasMany(AccessCard::class);
     }
 
-    // OAM accounting 
+    // OAM accounting
     // Define a one-to-many relationship with Budget
     public function budgets()
     {
@@ -272,5 +274,13 @@ class Building extends Model
     public function items()
     {
         return $this->hasMany(Item::class);
+    }
+    public function emergencyNumbers()
+    {
+        return $this->hasMany(EmergencyNumber::class);
+    }
+    public function offerPromotions()
+    {
+        return $this->hasMany(OfferPromotion::class);
     }
 }

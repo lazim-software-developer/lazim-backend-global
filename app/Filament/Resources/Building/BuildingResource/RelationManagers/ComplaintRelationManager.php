@@ -84,12 +84,11 @@ class ComplaintRelationManager extends RelationManager
                             ->label('vendor Name'),
                         Select::make('flat_id')
                             ->rules(['exists:flats,id'])
-                            ->required()
                             ->disabled()
                             ->relationship('flat', 'property_number')
                             ->searchable()
                             ->preload()
-                            ->label('Unit Number'),
+                            ->placeholder('Unit Number'),
                         Select::make('technician_id')
                             ->relationship('technician', 'first_name')
                             ->options(function (Complaint $record, Get $get) {
@@ -187,7 +186,7 @@ class ComplaintRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn(Builder $query) => $query->whereIn('complaint_type', ['help_desk', 'tenant_complaint'])->where('status','closed'))
+            ->modifyQueryUsing(fn(Builder $query) => $query->whereIn('complaint_type', ['snag']))
             ->columns([
                 TextColumn::make('building.name')
                     ->default('NA')
@@ -197,13 +196,16 @@ class ComplaintRelationManager extends RelationManager
                     ->default('NA')
                     ->searchable()
                     ->limit(50),
-                TextColumn::make('category')
+                 TextColumn::make('complaint')
+                    ->toggleable()
                     ->default('NA')
                     ->searchable()
-                    ->limit(50),
-                TextColumn::make('complaint')
+                    ->label('Complaint'),
+                TextColumn::make('complaint_details')
+                    ->toggleable()
                     ->default('NA')
-                    ->searchable(),
+                    ->searchable()
+                    ->label('Complaint Details'),
                 TextColumn::make('status')
                     ->default('NA')
                     ->searchable()

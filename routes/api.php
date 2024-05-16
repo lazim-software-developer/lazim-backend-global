@@ -429,7 +429,7 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('vendor')->group(function 
     Route::get('/tenders', [TenderController::class, 'index']);
     Route::post('/tenders/{tender}', [TenderController::class, 'store']);
 
-    // TL number 
+    // TL number
     Route::get('/{vendor}/trade-licenses',[TLController::class,'show']);
     Route::post('/{vendor}/trade-licenses/update',[TLController::class,'update']);
 
@@ -491,7 +491,7 @@ Route::middleware(['auth:sanctum', 'active', 'active.gatekeeper'])->prefix('gate
     Route::get('floors', [PatrollingController::class, 'featchAllFloors']);
     Route::post('store-patrolling/{building}', [PatrollingController::class, 'store']);
 
-    // List all residents for an 
+    // List all residents for an
     // Save visitor for a floor
     Route::post('visitor', [PatrollingController::class, 'storeVisitor']);
 
@@ -516,6 +516,12 @@ Route::get('/building/{building}', [CommunityController::class, 'about']);
 
 // rules and regulations
 Route::get('/rules-regulations/{building}',[CommunityController::class, 'rules']);
+
+// Emergency hotline Numbers
+Route::get('/emergency-hotline/numbers/{building}',[CommunityController::class, 'emergencyHotline']);
+
+// offer and Promotions
+Route::get('/offer-promotions/{building}',[CommunityController::class, 'offerPromotions']);
 
 // Visitor form
 Route::post('/store-visitor', [GuestController::class, 'saveFlatVisitors']);

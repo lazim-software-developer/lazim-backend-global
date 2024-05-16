@@ -19,6 +19,7 @@ use App\Filament\Resources\ComplaintOfficerResource;
 use App\Filament\Resources\WDAResource;
 use App\Filament\Resources\DelinquentOwnerResource;
 use App\Filament\Resources\LegalOfficerResource;
+use App\Filament\Resources\OacomplaintReportsResource;
 use App\Filament\Resources\OwnerAssociationInvoiceResource;
 use App\Filament\Resources\OwnerAssociationReceiptResource;
 use App\Filament\Resources\PatrollingResource;
@@ -196,7 +197,7 @@ class AdminPanelProvider extends PanelProvider
                         ]),
                 ]);
             }
-              
+
 
                 // if(Role::where('id', auth()->user()->role_id)->first()->name != 'Accounts Manager' ){
                     $builder->groups([
@@ -227,6 +228,11 @@ class AdminPanelProvider extends PanelProvider
                                     ->icon('heroicon-o-magnifying-glass-circle')
                                     ->activeIcon('heroicon-o-magnifying-glass-circle')
                                     ->sort(5),
+                                NavigationItem::make('Oa Complaint Reports')
+                                    ->url(OacomplaintReportsResource::getUrl('index'))
+                                    ->icon('heroicon-c-clipboard-document')
+                                    ->activeIcon('heroicon-c-clipboard-document')
+                                    ->sort(6),
                             ]),
                     ]);
                 // }
@@ -388,7 +394,7 @@ class AdminPanelProvider extends PanelProvider
                                     ->activeIcon('heroicon-m-clipboard-document-list')
                                     ->sort(12),
 
-                                ]), 
+                                ]),
                     ]);
                 }
                 if (DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] != 'Admin' && Role::where('id', auth()->user()->role_id)->first()->name != 'Building Engineer'&& Role::where('id', auth()->user()->role_id)->first()->name != 'Complaint Officer'&&Role::where('id', auth()->user()->role_id)->first()->name != 'Legal Officer') {

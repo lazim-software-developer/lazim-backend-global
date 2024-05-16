@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Building;
 
+use App\Filament\Resources\Building\BuildingResource\RelationManagers\OfferPromotionsRelationManager;
 use Closure;
 use Filament\Forms;
 use Filament\Tables;
@@ -31,6 +32,7 @@ use App\Filament\Resources\Building\BuildingResource\RelationManagers\FloorsRela
 use App\Filament\Resources\Building\BuildingResource\RelationManagers\MeetingsRelationManager;
 use App\Filament\Resources\Building\BuildingResource\RelationManagers\BuildingvendorRelationManager;
 use App\Filament\Resources\Building\BuildingResource\RelationManagers\BuildingserviceRelationManager;
+use App\Filament\Resources\Building\BuildingResource\RelationManagers\EmergencyNumbersRelationManager;
 use App\Filament\Resources\Building\BuildingResource\RelationManagers\OwnercommitteesRelationManager;
 use App\Filament\Resources\Building\BuildingResource\RelationManagers\RuleregulationsRelationManager;
 
@@ -133,7 +135,7 @@ class BuildingResource extends Resource
                             Toggle::make('show_inhouse_services')
                                 ->rules(['boolean'])
                                 ->label('Show in-house services'),
-                            
+
 
                             // TextInput::make('lat')
                             //     ->rules(['numeric'])
@@ -250,7 +252,7 @@ class BuildingResource extends Resource
 
                         // Now import using the file path
                         Excel::import(new BudgetImport($budgetPeriod, $record->id), $fullPath); // Notify user of success
-            
+
                         // } catch (\Exception $e) {
                         //     // Log::error('Error during file import: ' . $e->getMessage());
                         //     Notification::make()
@@ -279,6 +281,8 @@ class BuildingResource extends Resource
             BuildingResource\RelationManagers\BuildingPocsRelationManager::class,
             FloorsRelationManager::class,
             RuleregulationsRelationManager::class,
+            EmergencyNumbersRelationManager::class,
+            OfferPromotionsRelationManager::class,
             OwnercommitteesRelationManager::class,
             MeetingsRelationManager::class,
             BuildingserviceRelationManager::class,
