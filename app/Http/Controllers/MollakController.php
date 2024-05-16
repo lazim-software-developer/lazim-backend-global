@@ -284,4 +284,13 @@ class MollakController extends Controller
         // Return the transformed data using the API resource
         return ServicePeriodResource::collection($data['response']['serviceChargePeriod']); // Adjust the key as per the actual response structure
     }
+
+    public function testing(){
+        $results = Http::withOptions(['verify' => false])->withHeaders([
+            'content-type' => 'application/json',
+            'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
+        ])->get("https://b2bgateway.dubailand.gov.ae/mollak/external/sync/managementcompany");
+
+        return $data = $results->json();
+    }
 }
