@@ -48,9 +48,9 @@
                         <option value="" selected disabled>Select a Property Group</option>
                         @foreach($propertyGroups as $propertyGroup)
                             <option value="{{ $propertyGroup['propertyGroupId'] }}">{{ $propertyGroup['propertyGroupName']['englishName'] }}</option>
+                            <input type="hidden" name="property_name" value="{{ $propertyGroup['propertyGroupName']['englishName'] }}">
                         @endforeach
                         </select>
-                        <input type="hidden" name="property_name" value="{{ $propertyGroup['propertyGroupName']['englishName'] }}">
 
                     </div>
 
