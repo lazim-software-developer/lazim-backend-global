@@ -156,13 +156,22 @@ document.getElementById('propertyGroupSelect').addEventListener('change', functi
             event.preventDefault(); // Prevent default form submission
 
             var formData = new FormData(this);
+            var submitUpload = document.getElementById('submitUpload');
+            submitUpload.disabled = true; // Disable the submit button
+            submitUpload.innerText = 'Submitting...'; // Change button text
+
             axios.post(this.action, formData)
                 .then(function(response) {
                     console.log('Upload successful', response);
-                    // Handle the response here
+                    // Reload the page
+                    location.reload();
                 })
                 .catch(function(error) {
                     console.error('Upload error', error);
+                    // Provide feedback to the user
+                    alert('Error uploading file. Please try again.');
+                    submitUpload.disabled = false; // Re-enable the submit button
+                    submitUpload.innerText = 'Submit'; // Reset button text
                 });
         });
 
