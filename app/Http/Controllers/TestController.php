@@ -17,6 +17,7 @@ use App\Imports\ReserveFundImport;
 use App\Imports\ServiceImport;
 use App\Imports\UtilityExpensesImport;
 use App\Imports\WorkOrdersImport;
+use App\Models\Building\Building;
 use App\Models\OaServiceRequest;
 use App\Models\ServiceParameter;
 use Aws\Exception\AwsException;
@@ -313,7 +314,7 @@ class TestController extends Controller
         $oaData = OaServiceRequest::create([
             'service_parameter_id' => 1,
             'property_group'       => $request->property_group,
-            'property_name'        => $request->property_name,
+            'property_name'        => Building::where('property_group_id',$request->property_group)->first()->name,
             'from_date'            => $request->from_date,
             'to_date'              => $request->to_date,
             'service_period'       => $request->service_period,
