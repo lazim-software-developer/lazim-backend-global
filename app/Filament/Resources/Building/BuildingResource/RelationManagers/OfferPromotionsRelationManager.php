@@ -31,8 +31,8 @@ class OfferPromotionsRelationManager extends RelationManager
                     TextInput::make('name')
                         ->rules([function () {
                             return function (string $attribute, $value, Closure $fail) {
-                                if (!preg_match('/^[a-zA-Z]+(?:\s+[a-zA-Z]+)*$/', $value)) {
-                                    $fail('The Name format is invalid. It must contain only alphabetic characters and spaces.');
+                                if (!preg_match('/^(?!\s)(?!.*\s$)(?!\d+$)[a-zA-Z0-9\s]+$/', $value)) {
+                                    $fail('The Name format is invalid. It must contain only alphabetic characters and numbers.');
                                 }
                             };
                         }])
