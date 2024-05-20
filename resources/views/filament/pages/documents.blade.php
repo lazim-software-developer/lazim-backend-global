@@ -151,6 +151,20 @@ document.getElementById('propertyGroupSelect').addEventListener('change', functi
     });
 });
 
+        // AJAX submission for upload form
+        document.getElementById('uploadForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent default form submission
+
+            var formData = new FormData(this);
+            axios.post(this.action, formData)
+                .then(function(response) {
+                    console.log('Upload successful', response);
+                    // Handle the response here
+                })
+                .catch(function(error) {
+                    console.error('Upload error', error);
+                });
+        });
 
 </script>
 {{$this->table}}
