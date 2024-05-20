@@ -128,8 +128,7 @@ class ComplaintController extends Controller
 
         // Save images in media table with name "before". Once resolved, we'll store media with "after" name
         if ($request->hasFile('media')) {
-            foreach ($request->file('media') as $image) {
-                $imagePath = optimizeAndUpload($image, 'dev');
+                $imagePath = optimizeAndUpload($request->media, 'dev');
 
                 // Create a new media entry for each image
                 $media = new Media([
@@ -139,13 +138,12 @@ class ComplaintController extends Controller
 
                 // Attach the media to the post
                 $complaint->media()->save($media);
-            }
         }
 
         // Assign complaint to a technician
         // AssignTechnicianToComplaint::dispatch($complaint);
-        $serviceId  = $complaint->service_id;
-        $buildingId = $complaint->building_id;
+        $serviceId  = $service_id;
+        $buildingId = $building->id;
 
         $contract = Contract::where('service_id', $serviceId)->where('building_id', $buildingId)->where('end_date', '>=', Carbon::now()->toDateString())->first();
         if ($contract) {

@@ -2,22 +2,22 @@
 
 namespace App\Filament\Resources\Building\BuildingResource\RelationManagers;
 
+use Closure;
 use Filament\Forms\Components\DatePicker;
-use Filament\Tables;
-use Filament\Forms\Form;
-use Filament\Tables\Table;
-use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\MarkdownEditor;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Tables;
+use Filament\Tables\Table;
 
 class OfferPromotionsRelationManager extends RelationManager
 {
     protected static string $relationship = 'offerPromotions';
-    protected static ?string $modelLabel = 'Offer & Promotions';
-    protected static ?string $title = 'Offer & Promotions';
-
+    protected static ?string $modelLabel  = 'Offer & Promotions';
+    protected static ?string $title       = 'Offer & Promotions';
 
     public function form(Form $form): Form
     {
@@ -29,7 +29,13 @@ class OfferPromotionsRelationManager extends RelationManager
             ])
                 ->schema([
                     TextInput::make('name')
-                        ->rules('regex:/^(?!\s*$).+/')
+                        ->rules([function () {
+                            return function (string $attribute, $value, Closure $fail) {
+                                if (!preg_match('/^[a-zA-Z]+(?:\s+[a-zA-Z]+)*$/', $value)) {
+                                    $fail('The Name format is invalid. It must contain only alphabetic characters and spaces.');
+                                }
+                            };
+                        }])
                         ->required()
                         ->maxLength(50),
                     TextInput::make('link')
@@ -60,6 +66,7 @@ class OfferPromotionsRelationManager extends RelationManager
                             'undo',
                         ])
                         ->required()
+                        ->maxLength(400)
                         ->columnSpan([
                             'sm' => 1,
                             'md' => 1,
@@ -68,12 +75,14 @@ class OfferPromotionsRelationManager extends RelationManager
                     Datepicker::make('start_date')
                         ->required()
                         ->rules(['date'])
-                        ->minDate(now())
+                        ->displayFormat('d-M-Y')
+                        ->minDate(now()->format('d-M-Y'))
                         ->label('Start Date'),
                     DatePicker::make('end_date')
                         ->required()
+                        ->displayFormat('d-M-Y')
                         ->rules(['date'])
-                        ->minDate(now())
+                        ->minDate(now()->format('d-M-Y'))
                         ->label('End Date'),
                 ]),
         ]);
@@ -98,11 +107,11 @@ class OfferPromotionsRelationManager extends RelationManager
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ])
+            // ->bulkActions([
+            //     Tables\Actions\BulkActionGroup::make([
+            //         Tables\Actions\DeleteBulkAction::make(),
+            //     ]),
+            // ])
             ->emptyStateActions([
                 Tables\Actions\CreateAction::make(),
             ]);
