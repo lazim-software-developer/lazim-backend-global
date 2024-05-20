@@ -16,6 +16,7 @@ class OfferPromotionsRelationManager extends RelationManager
 {
     protected static string $relationship = 'offerPromotions';
     protected static ?string $modelLabel = 'Offer & Promotions';
+    protected static ?string $title = 'Offer & Promotions';
 
 
     public function form(Form $form): Form

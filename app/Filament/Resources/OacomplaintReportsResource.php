@@ -6,6 +6,7 @@ use App\Filament\Resources\OacomplaintReportsResource\Pages;
 use App\Models\BuildingVendor;
 use App\Models\Building\Building;
 use App\Models\Building\BuildingPoc;
+use App\Models\Master\Role;
 use App\Models\OacomplaintReports;
 use App\Models\TechnicianVendor;
 use App\Models\User\User;
@@ -18,6 +19,7 @@ use Filament\Forms\Get;
 use Filament\Forms\Set;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
@@ -51,7 +53,11 @@ class OacomplaintReportsResource extends Resource
                     ->required()
                     ->live()
                     ->options(function () {
-                        return Building::where('owner_association_id', auth()->user()->owner_association_id)->pluck('name', 'id');
+                        if (Role::where('id', auth()->user()->role_id)->first()->name != 'Admin') {
+                            return Building::where('owner_association_id', auth()->user()->owner_association_id)
+                                ->pluck('name', 'id');
+                        }
+                        return Building::whereNotNull('name')->pluck('name', 'id');
                     })
                     ->afterStateUpdated(function (Set $set) {
                         $set('user_id', null);
@@ -106,8 +112,8 @@ class OacomplaintReportsResource extends Resource
                 TextColumn::make('type')->searchable(),
                 TextColumn::make('building.name')->searchable(),
                 TextColumn::make('user.first_name')->searchable(),
-                TextColumn::make('issue')->searchable(),
-                TextColumn::make('image')->searchable(),
+                TextColumn::make('issue')->searchable()->limit(20),
+                ImageColumn::make('image')->disk('s3'),
             ])
             ->filters([
                 //
