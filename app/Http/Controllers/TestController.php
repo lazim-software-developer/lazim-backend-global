@@ -308,7 +308,7 @@ class TestController extends Controller
 //env("MOLLAK_API_URL") . 
         Log::info($response);
         // return json_decode($response);
-        // return $response = json_decode($response->body());
+        $response = json_decode($response->body());
 
         $oaData = OaServiceRequest::create([
             'service_parameter_id' => 1,
