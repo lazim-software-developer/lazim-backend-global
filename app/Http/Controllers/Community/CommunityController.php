@@ -8,6 +8,8 @@ use App\Http\Resources\OfferPromotionsResource;
 use App\Models\Building\Building;
 use App\Models\OfferPromotion;
 
+use function PHPUnit\Framework\isEmpty;
+
 class CommunityController extends Controller
 {
     public function about(Building $building)
@@ -24,12 +26,12 @@ class CommunityController extends Controller
 
     public function emergencyHotline(Building $building)
     {
-        return $building->emergencyNumbers;
+        return isEmpty($building->emergencyNumbers) ? 'No Emergency numbers yet! create in admin panel.' : $building->emergencyNumbers;
     }
 
     public function offerPromotions(Building $building)
     {
         $activeOfferPromotion = OfferPromotion::where('building_id', $building->id)->whereDate('end_date', '>=', now())->get();
-        return OfferPromotionsResource::collection($activeOfferPromotion);
+        return isEmpty($activeOfferPromotion) ? 'No Active Offers or Promotions! create in admin panel.' : OfferPromotionsResource::collection($activeOfferPromotion);
     }
 }
