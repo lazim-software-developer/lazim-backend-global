@@ -334,10 +334,27 @@ class TestController extends Controller
             // return response()->json(['status' => 'success', 'message' => "Uploaded successfully!"]);
         } else {
             $oaData->update(['status' => "Failed"]);
+            if (isset($response['validationErrorsList'])) {
+                $errors = array_map(function($validationError) {
+                    return array_map(function($item) use ($validationError) {
+                        return "file: " . $item['key'] . ", error: " . $validationError['errorMessage'];
+                    }, $validationError['items']);
+                }, $response['validationErrorsList']);
+                
+                $errors = array_merge(...$errors); // Flatten the array
+                $errorMessages = implode("\n", $errors);
+            }
+            
             Notification::make()
                 ->title("Upload failed")
                 ->danger()
-                ->body("There seems to be some issue with the files you are uploading. Please check and try again!")
+                ->body(function () use ($errorMessages) {
+                    if (!empty($errorMessages)) {
+                        return $errorMessages;
+                    } else {
+                        return "There seems to be some issue with the files you are uploading. Please check and try again!";
+                    }
+                })
                 ->send();
             // return response()->json(['status' => 'error', 'message' => "There seems to be some issue with the files you are uploading. Please check and try again!"]);
         }
