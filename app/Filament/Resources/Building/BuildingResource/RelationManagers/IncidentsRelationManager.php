@@ -158,9 +158,9 @@ class IncidentsRelationManager extends RelationManager
                         TextInput::make('complaint')
                             ->disabled()
                             ->placeholder('Complaint'),
-                        Textarea::make('complaint_details')
-                            ->disabled()
-                            ->placeholder('Complaint Details'),
+                        // Textarea::make('complaint_details')
+                        //     ->disabled()
+                        //     ->placeholder('Complaint Details'),
                         Select::make('status')
                             ->options([
                                 'open'   => 'Open',
@@ -205,13 +205,14 @@ class IncidentsRelationManager extends RelationManager
                 TextColumn::make('complaint')
                     ->toggleable()
                     ->default('NA')
+                    ->limit(20)
                     ->searchable()
                     ->label('Complaint'),
-                TextColumn::make('complaint_details')
-                    ->toggleable()
-                    ->default('NA')
-                    ->searchable()
-                    ->label('Complaint Details'),
+                // TextColumn::make('complaint_details')
+                //     ->toggleable()
+                //     ->default('NA')
+                //     ->searchable()
+                //     ->label('Complaint Details'),
                 TextColumn::make('status')
                     ->default('NA')
                     ->searchable()

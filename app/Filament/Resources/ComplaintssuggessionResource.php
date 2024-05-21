@@ -77,9 +77,9 @@ class ComplaintssuggessionResource extends Resource
                         TextInput::make('complaint')
                             ->label('Suggestion')
                             ->disabled(),
-                        TextInput::make('complaint_details')
-                            ->label('Suggestion Details')
-                            ->disabled(),
+                        // TextInput::make('complaint_details')
+                        //     ->label('Suggestion Details')
+                        //     ->disabled(),
                         Hidden::make('status')
                             ->default('open'),
                         Hidden::make('complaint_type')
@@ -137,12 +137,15 @@ class ComplaintssuggessionResource extends Resource
                     ->limit(50),
                 TextColumn::make('complaint')
                     ->toggleable()
+                    ->limit(20)
                     ->searchable()
                     ->label('Suggestion'),
-                TextColumn::make('complaint_details')
-                    ->toggleable()
-                    ->searchable()
-                    ->label('Suggestion Details'),
+                // TextColumn::make('complaint_details')
+                //     ->toggleable()
+                //     ->default('NA')
+                //     ->limit(20)
+                //     ->searchable()
+                //     ->label('Suggestion Details'),
                 TextColumn::make('status')
                     ->toggleable()
                     ->searchable()
