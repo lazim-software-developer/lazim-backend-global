@@ -26,12 +26,12 @@ class CommunityController extends Controller
 
     public function emergencyHotline(Building $building)
     {
-        return isEmpty($building->emergencyNumbers) ? 'No Emergency numbers yet! create in admin panel.' : $building->emergencyNumbers;
+        return $building->emergencyNumbers->isEmpty() ? 'No Emergency numbers yet! create in admin panel.' : $building->emergencyNumbers;
     }
 
     public function offerPromotions(Building $building)
     {
         $activeOfferPromotion = OfferPromotion::where('building_id', $building->id)->whereDate('end_date', '>=', now())->get();
-        return isEmpty($activeOfferPromotion) ? 'No Active Offers or Promotions! create in admin panel.' : OfferPromotionsResource::collection($activeOfferPromotion);
+        return $activeOfferPromotion->isEmpty() ? 'No Active Offers or Promotions! create in admin panel.' : OfferPromotionsResource::collection($activeOfferPromotion);
     }
 }
