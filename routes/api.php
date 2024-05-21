@@ -54,6 +54,7 @@ use App\Http\Controllers\Vendor\TenderController;
 use App\Http\Controllers\Vendor\WDAController;
 use App\Http\Controllers\Vendor\VendorBuildingController;
 use App\Http\Controllers\Gatekeeper\TenantsController;
+use App\Http\Controllers\VehicleController;
 use App\Http\Controllers\Vendor\ItemsController;
 use App\Http\Controllers\Vendor\TLController;
 
@@ -283,6 +284,8 @@ Route::middleware(['auth:sanctum', 'email.verified', 'active'])->group(function 
 Route::middleware(['auth:sanctum', 'email.verified', 'active'])->group(function () {
     Route::get('/buildings/{building}/services', [ServiceController::class, 'listServicesForBuilding']);
     Route::post('buildings/{building}/book/service', [ServiceController::class, 'bookService']);
+    Route::post('/vehicles', [VehicleController::class, 'store']);
+    Route::get('/vehicles', [VehicleController::class, 'index']);
 });
 
 

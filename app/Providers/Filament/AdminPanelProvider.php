@@ -25,6 +25,7 @@ use App\Filament\Resources\OwnerAssociationReceiptResource;
 use App\Filament\Resources\PatrollingResource;
 use App\Filament\Resources\User\UserResource;
 use App\Filament\Resources\UserApprovalResource;
+use App\Filament\Resources\VehicleResource;
 use App\Models\AgingReport;
 use App\Models\Master\Role;
 use App\Models\User\User;
@@ -191,8 +192,8 @@ class AdminPanelProvider extends PanelProvider
                             NavigationItem::make('Documents')
                                 ->hidden(!in_array(Role::where('id', auth()->user()->role_id)->first()->name, ['OA','Admin','MD']))
                                 ->url('/admin/documents')
-                                ->icon('heroicon-s-user-group')
-                                ->activeIcon('heroicon-s-user-group')
+                                ->icon('heroicon-s-document-text')
+                                ->activeIcon('heroicon-s-document-text')
                                 ->sort(14),
                         ]),
                 ]);
@@ -251,6 +252,11 @@ class AdminPanelProvider extends PanelProvider
                                     ->icon('heroicon-o-users')
                                     ->activeIcon('heroicon-o-users')
                                     ->sort(2),
+                                NavigationItem::make('Vehicles')
+                                    ->url(VehicleResource::getUrl('index'))
+                                    ->icon('heroicon-m-building-office-2')
+                                    ->activeIcon('heroicon-m-building-office-2')
+                                    ->sort(3),
                             ]),
                     ]);
                 }
