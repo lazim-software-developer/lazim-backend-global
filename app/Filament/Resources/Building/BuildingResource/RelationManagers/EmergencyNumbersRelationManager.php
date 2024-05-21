@@ -10,6 +10,7 @@ use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 
 class EmergencyNumbersRelationManager extends RelationManager
 {
@@ -30,9 +31,13 @@ class EmergencyNumbersRelationManager extends RelationManager
                     ->required()
                     ->maxLength(50),
                 TextInput::make('number')
-                    ->rules(['regex:/^(50|51|52|55|56|58|02|03|04|06|07|09)\d{7}$/',function () {
-                        return function (string $attribute, $value, Closure $fail) {
-                            if (EmergencyNumber::where('building_id',$this->ownerRecord->id)->where('number',$value)->exists()) {
+                    ->rules(['regex:/^(50|51|52|55|56|58|02|03|04|06|07|09)\d{7}$/',function (?Model $record) {
+                        return function (string $attribute, $value, Closure $fail) use ($record){
+                            $exists = EmergencyNumber::where('building_id',$this->ownerRecord->id)->where('number',$value)->exists();
+                            if($record === null && $exists){
+                                $fail('The Entered phone number already Exists!');
+                            }
+                            if($record != null && EmergencyNumber::whereNot('id',$record->id)->where('building_id',$this->ownerRecord->id)->where('number',$value)->exists()) {
                                 $fail('The Entered phone number already Exists!');
                             }
                         };
