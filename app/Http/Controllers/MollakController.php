@@ -293,4 +293,8 @@ class MollakController extends Controller
 
         return $data = $results->json();
     }
+
+    public function webhook(Request $request){
+        Log::info("Webhook--->".$request);
+    }
 }
