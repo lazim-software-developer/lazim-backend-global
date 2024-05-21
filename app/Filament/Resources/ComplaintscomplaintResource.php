@@ -163,9 +163,9 @@ class ComplaintscomplaintResource extends Resource
                         TextInput::make('complaint')
                             ->disabled()
                             ->placeholder('Complaint'),
-                        Textarea::make('complaint_details')
-                            ->disabled()
-                            ->placeholder('Complaint Details'),
+                        // Textarea::make('complaint_details')
+                        //     ->disabled()
+                        //     ->placeholder('Complaint Details'),
                         Select::make('status')
                             ->options([
                                 'open' => 'Open',
@@ -209,13 +209,15 @@ class ComplaintscomplaintResource extends Resource
                 TextColumn::make('complaint')
                     ->toggleable()
                     ->default('NA')
+                    ->limit(20)
                     ->searchable()
                     ->label('Complaint'),
-                TextColumn::make('complaint_details')
-                    ->toggleable()
-                    ->default('NA')
-                    ->searchable()
-                    ->label('Complaint Details'),
+                // TextColumn::make('complaint_details')
+                //     ->toggleable()
+                //     ->default('NA')
+                //     ->limit(20)
+                //     ->searchable()
+                //     ->label('Complaint Details'),
                 TextColumn::make('status')
                     ->toggleable()
                     ->searchable()
