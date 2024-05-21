@@ -334,14 +334,17 @@ class TestController extends Controller
             // return response()->json(['status' => 'success', 'message' => "Uploaded successfully!"]);
         } else {
             $oaData->update(['status' => "Failed"]);
-            if (isset($response['validationErrorsList'])) {
+            $errorMessages = '';
+            if (isset($response->validationErrorsList)) {
                 $errors = array_map(function($validationError) {
                     return array_map(function($item) use ($validationError) {
-                        return "file: " . $item['key'] . ", error: " . $validationError['errorMessage'];
-                    }, $validationError['items']);
-                }, $response['validationErrorsList']);
+                        return "file: " . $item->key . ", error: " . $validationError->errorMessage;
+                    }, $validationError->items);
+                }, $response->validationErrorsList);
                 
-                $errors = array_merge(...$errors); // Flatten the array
+                // Flatten the array
+                $errors = array_merge(...$errors);
+                // Join errors into a single string separated by newlines
                 $errorMessages = implode("\n", $errors);
             }
             
