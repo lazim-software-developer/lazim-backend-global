@@ -295,6 +295,6 @@ class MollakController extends Controller
     }
 
     public function webhook(Request $request){
-        Log::info("Webhook--->".$request->all());
+        Log::info("Webhook--->".$request->getContent());
     }
 }
