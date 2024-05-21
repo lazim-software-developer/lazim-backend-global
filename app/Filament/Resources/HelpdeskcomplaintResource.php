@@ -167,9 +167,9 @@ class HelpdeskcomplaintResource extends Resource
                         TextInput::make('complaint')
                             ->disabled()
                             ->placeholder('Complaint'),
-                        Textarea::make('complaint_details')
-                            ->disabled()
-                            ->placeholder('Complaint Details'),
+                        // Textarea::make('complaint_details')
+                        //     ->disabled()
+                        //     ->placeholder('Complaint Details'),
                         Select::make('status')
                             ->options([
                                 'open' => 'Open',
@@ -218,6 +218,7 @@ class HelpdeskcomplaintResource extends Resource
                     ->limit(50),
                 TextColumn::make('complaint')
                     ->toggleable()
+                    ->limit(20)
                     ->searchable(),
                 TextColumn::make('status')
                     ->toggleable()
