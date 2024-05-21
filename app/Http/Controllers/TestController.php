@@ -338,7 +338,7 @@ class TestController extends Controller
             if (isset($response->validationErrorsList)) {
                 $errors = array_map(function($validationError) {
                     return array_map(function($item) use ($validationError) {
-                        return "file: " . $item->key . ", error: " . $validationError->errorMessage;
+                        return "File: " . $item->key . ", Error: " . $validationError->errorMessage;
                     }, $validationError->items);
                 }, $response->validationErrorsList);
                 
