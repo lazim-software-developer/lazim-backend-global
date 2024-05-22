@@ -71,7 +71,7 @@
                     <div class="mb-3" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
                         <label style="flex-basis: 40%; margin-right: 10px;">{{ $service->name }}*</label>
                         <div style="flex-basis: 58%;">
-                            <input type="file" id="file_{{ $service->value }}" name="{{$service->value}}" class="form-control" style="display: block; width: 100%;" >
+                            <input required type="file" id="file_{{ $service->value }}" name="{{$service->value}}" class="form-control" style="display: block; width: 100%;" >
                         </div>
                     </div>
                     @endforeach
