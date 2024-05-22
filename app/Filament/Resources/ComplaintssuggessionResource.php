@@ -25,6 +25,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\ComplaintssuggessionResource\Pages;
 use App\Filament\Resources\ComplaintssuggessionResource\RelationManagers;
+use Filament\Forms\Components\Textarea;
 
 class ComplaintssuggessionResource extends Resource
 {
@@ -74,7 +75,7 @@ class ComplaintssuggessionResource extends Resource
                             ->disabled()
                             ->required()
                             ->label('User'),
-                        TextInput::make('complaint')
+                        Textarea::make('complaint')
                             ->label('Suggestion')
                             ->disabled(),
                         // TextInput::make('complaint_details')
