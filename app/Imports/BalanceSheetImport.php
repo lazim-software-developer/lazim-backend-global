@@ -44,9 +44,12 @@ class BalanceSheetImport implements ToCollection, WithHeadingRow
             throw new Exception();
         }
         
+        $filteredRows = $rows->filter(function($row) {
+            return !empty($row['section']) || !empty($row['name']) || !empty($row['balance']);
+        });
         // Check for missing required fields in rows
         $missingFieldsRows = [];
-        foreach ($rows as $index => $row) {
+        foreach ($filteredRows as $index => $row) {
             foreach (['section', 'name', 'balance'] as $field) {
                 if (empty($row[$field])) {
                     $missingFieldsRows[] = $index + 1;
@@ -66,7 +69,7 @@ class BalanceSheetImport implements ToCollection, WithHeadingRow
         
         // Proceed with further processing
         
-        foreach ($rows as $row) 
+        foreach ($filteredRows as $row) 
         {
             if ($row['section'] === 'income') {
                 $this->data['income'][] = [

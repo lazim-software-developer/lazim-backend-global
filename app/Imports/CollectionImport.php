@@ -55,9 +55,20 @@ class CollectionImport implements ToCollection, WithHeadingRow
             throw new Exception();
         }
         
+        $filteredRows = $rows->filter(function($row) {
+            return !empty($row['section']) || 
+                   !empty($row['utility_reference']) || 
+                   !empty($row['amount']) || 
+                   !empty($row['utility_name']) || 
+                   !empty($row['provider_name']) || 
+                   !empty($row['duration']) || 
+                   !empty($row['duration_str']) || 
+                   !empty($row['trend_amount']);
+        });
+        
         // Check for missing required fields in rows based on the section type
         $missingFieldsRows = [];
-        foreach ($rows as $index => $row) {
+        foreach ($filteredRows as $index => $row) {
             $section = $row['section'];
             if (isset($sectionRequiredFields[$section])) {
                 foreach ($sectionRequiredFields[$section] as $field) {
@@ -77,7 +88,7 @@ class CollectionImport implements ToCollection, WithHeadingRow
                 ->send();
             throw new Exception();
         }
-        foreach ($rows as $row) 
+        foreach ($filteredRows as $row) 
         {
             if ($row['section'] === 'by_method') {
                 $this->data['by_method'][] = [

@@ -46,9 +46,12 @@ class BudgetVsActualImport implements ToCollection, WithHeadingRow
             throw new Exception();
         }
         
+        $filteredRows = $rows->filter(function($row) {
+            return !empty($row['section']) || !empty($row['actual']) || !empty($row['budget']) || !empty($row['variance']) || !empty($row['service_code']);
+        });
         // Check for missing required fields in rows
         $missingFieldsRows = [];
-        foreach ($rows as $index => $row) {
+        foreach ($filteredRows as $index => $row) {
             foreach (['section', 'actual', 'budget', 'variance', 'service_code'] as $field) {
                 if (empty($row[$field])) {
                     $missingFieldsRows[] = $index + 1;
@@ -68,7 +71,7 @@ class BudgetVsActualImport implements ToCollection, WithHeadingRow
         
         // Proceed with further processing
         
-        foreach ($rows as $row) {
+        foreach ($filteredRows as $row) {
             if (($row['section']) === 'income_accounts') {
                 $this->data['income_accounts'][] = [
                     'actual' => $row['actual'],

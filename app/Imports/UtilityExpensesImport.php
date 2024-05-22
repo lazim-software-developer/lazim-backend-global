@@ -48,9 +48,18 @@ class UtilityExpensesImport implements ToCollection, WithHeadingRow
             throw new Exception();
         }
         
+        $filteredRows = $rows->filter(function($row) {
+            return !empty($row['utility_reference']) || 
+                   !empty($row['amount']) || 
+                   !empty($row['utility_name']) || 
+                   !empty($row['provider_name']) || 
+                   !empty($row['duration']) || 
+                   !empty($row['duration_str']) || 
+                   !empty($row['trend_amount']);
+        });
         // Check for missing required fields in rows
         $missingFieldsRows = [];
-        foreach ($rows as $index => $row) {
+        foreach ($filteredRows as $index => $row) {
             foreach ([
                 'utility_reference', 
                 'amount', 
@@ -78,7 +87,7 @@ class UtilityExpensesImport implements ToCollection, WithHeadingRow
         
         // Proceed with further processing
         
-        foreach ($rows as $row) 
+        foreach ($filteredRows as $row) 
         {
         $reference = $row['utility_reference'];
 

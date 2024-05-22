@@ -50,9 +50,12 @@ class AccountsPayablesImport implements ToCollection, WithHeadingRow
             throw new Exception();
         }
         
+        $filteredRows = $rows->filter(function($row) {
+            return !empty($row['service_code']) || !empty($row['account_name']) || !empty($row['bill']) || !empty($row['payment']) || !empty($row['opening_balance']) || !empty($row['closing_balance']);
+        });
         // Check for missing required fields in rows
         $missingFieldsRows = [];
-        foreach ($rows as $index => $row) {
+        foreach ($filteredRows as $index => $row) {
             foreach (['service_code', 'account_name', 'bill', 'payment', 'opening_balance', 'closing_balance'] as $field) {
                 if (empty($row[$field])) {
                     $missingFieldsRows[] = $index + 1;
@@ -72,7 +75,7 @@ class AccountsPayablesImport implements ToCollection, WithHeadingRow
         
         // Proceed with further processing
         
-        foreach ($rows as $row) 
+        foreach ($filteredRows as $row) 
         {
             if($row['account_name'] && $row['bill']  && $row['payment'] && $row['opening_balance'] && $row['closing_balance']) {
                 $this->data[] = [
