@@ -44,9 +44,12 @@ class ReserveFundImport implements ToCollection, WithHeadingRow
             throw new Exception();
         }
         
+        $filteredRows = $rows->filter(function($row) {
+            return !empty($row['section']) || !empty($row['service_code']) || !empty($row['balance']);
+        });
         // Check for missing required fields in rows
         $missingFieldsRows = [];
-        foreach ($rows as $index => $row) {
+        foreach ($filteredRows as $index => $row) {
             foreach (['section', 'service_code', 'balance'] as $field) {
                 if (empty($row[$field])) {
                     $missingFieldsRows[] = $index + 1;
@@ -66,7 +69,7 @@ class ReserveFundImport implements ToCollection, WithHeadingRow
         
         // Proceed with further processing
               
-        foreach ($rows as $row) {
+        foreach ($filteredRows as $row) {
             if ($row['section'] === 'income') {
                 $this->data['income'][] = [
                     'service_code' => $row['service_code'],

@@ -49,9 +49,18 @@ class AssetsImport implements ToCollection, WithHeadingRow
             throw new Exception();
         }
         
+        $filteredRows = $rows->filter(function($row) {
+            return !empty($row['asset_name']) || 
+                   !empty($row['item_name']) || 
+                   !empty($row['asset_code']) || 
+                   !empty($row['warranties_count']) || 
+                   !empty($row['active_warranties_count']) || 
+                   !empty($row['jobs_count']) || 
+                   !empty($row['expenses']);
+        });
         // Check for missing required fields in rows
         $missingFieldsRows = [];
-        foreach ($rows as $index => $row) {
+        foreach ($filteredRows as $index => $row) {
             foreach ([
                 'asset_name', 
                 'item_name', 
@@ -79,7 +88,7 @@ class AssetsImport implements ToCollection, WithHeadingRow
         
         // Proceed with further processing
         
-        foreach ($rows as $row) 
+        foreach ($filteredRows as $row) 
         {
         if($row['asset_name'] != null) {
             // Check if asset already exists

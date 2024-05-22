@@ -47,10 +47,13 @@ class HappinessCenterImport implements ToCollection, WithHeadingRow
                 ->send();
             throw new Exception();
         }
+        $filteredRows = $rows->filter(function($row) {
+            return !empty($row['happiness_center_id']) || !empty($row['open']) || !empty($row['resolved']) || !empty($row['total']);
+        });
         
         // Check for missing required fields in rows
         $missingFieldsRows = [];
-        foreach ($rows as $index => $row) {
+        foreach ($filteredRows as $index => $row) {
             foreach (['happiness_center_id', 'open', 'resolved', 'total'] as $field) {
                 if (empty($row[$field])) {
                     $missingFieldsRows[] = $index + 1;
@@ -70,7 +73,7 @@ class HappinessCenterImport implements ToCollection, WithHeadingRow
         
         // Proceed with further processing
         
-        foreach ($rows as $row) 
+        foreach ($filteredRows as $row) 
         {
             if($row['happiness_center_id'] && $row['open'] !=='' && $row['resolved'] !=='' && $row['total'] !=='') {
                 $this->data[] = [

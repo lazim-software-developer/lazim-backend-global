@@ -55,9 +55,25 @@ class BankBalanceImport implements ToCollection, WithHeadingRow
             throw new Exception();
         }
         
+        $filteredRows = $rows->filter(function($row) {
+            return !empty($row['type']) || 
+                   !empty($row['opening_credit']) || 
+                   !empty($row['opening_debit']) || 
+                   !empty($row['opening_balance']) || 
+                   !empty($row['credit']) || 
+                   !empty($row['debit']) || 
+                   !empty($row['balance']) || 
+                   !empty($row['closing_credit']) || 
+                   !empty($row['closing_debit']) || 
+                   !empty($row['closing_balance']) || 
+                   !empty($row['unidentified_credit']) || 
+                   !empty($row['unidentified_debit']) || 
+                   !empty($row['post_dated_credit']) || 
+                   !empty($row['post_dated_debit']);
+        });
         // Check for missing required fields in rows
         $missingFieldsRows = [];
-        foreach ($rows as $index => $row) {
+        foreach ($filteredRows as $index => $row) {
             foreach ([
                 'type', 
                 'opening_credit', 
@@ -92,7 +108,7 @@ class BankBalanceImport implements ToCollection, WithHeadingRow
         
         // Proceed with further processing
         
-        foreach ($rows as $row) 
+        foreach ($filteredRows as $row) 
         {
             if($row['type'] != null) {
                 $sectionType = $row['type'];

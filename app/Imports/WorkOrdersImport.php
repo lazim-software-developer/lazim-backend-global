@@ -50,9 +50,12 @@ class WorkOrdersImport implements ToCollection, WithHeadingRow
             throw new Exception();
         }
         
+        $filteredRows = $rows->filter(function($row) {
+            return !empty($row['title']) || !empty($row['status']) || !empty($row['type']) || !empty($row['total_amount']) || !empty($row['vendor_name']) || !empty($row['category_name']);
+        });
         // Check for missing required fields in rows
         $missingFieldsRows = [];
-        foreach ($rows as $index => $row) {
+        foreach ($filteredRows as $index => $row) {
             foreach (['title', 'status', 'type', 'total_amount', 'vendor_name', 'category_name'] as $field) {
                 if (empty($row[$field])) {
                     $missingFieldsRows[] = $index + 1;
@@ -72,7 +75,7 @@ class WorkOrdersImport implements ToCollection, WithHeadingRow
         
         // Proceed with further processing
         
-        foreach ($rows as $row) 
+        foreach ($filteredRows as $row) 
         {
             if(isset($row['title']) && isset($row['status']) && isset($row['type']) && isset($row['total_amount']) && isset($row['vendor_name']) && isset($row['category_name'])) {
                 $this->data[] = [
