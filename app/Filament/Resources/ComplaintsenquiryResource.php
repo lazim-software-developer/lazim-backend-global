@@ -25,6 +25,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\ComplaintsenquiryResource\Pages;
 use App\Filament\Resources\ComplaintsenquiryResource\RelationManagers;
+use Filament\Forms\Components\Textarea;
 
 class ComplaintsenquiryResource extends Resource
 {
@@ -74,7 +75,7 @@ class ComplaintsenquiryResource extends Resource
                             ->disabled()
                             ->required()
                             ->label('User'),
-                        TextInput::make('complaint')
+                        Textarea::make('complaint')
                             ->label('Enquiry')
                             ->disabled(),
                         // TextInput::make('complaint_details')

@@ -164,7 +164,7 @@ class HelpdeskcomplaintResource extends Resource
                         TextInput::make('category')->disabled(),
                         TextInput::make('open_time')->disabled(),
                         TextInput::make('close_time')->disabled()->default('NA'),
-                        TextInput::make('complaint')
+                        Textarea::make('complaint')
                             ->disabled()
                             ->placeholder('Complaint'),
                         // Textarea::make('complaint_details')
