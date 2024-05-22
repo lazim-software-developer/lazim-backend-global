@@ -272,6 +272,18 @@ class NocFormResource extends Resource
                             return $record->status != null;
                         })
                         ->required(),
+                    FileUpload::make('admin_document')
+                        ->disk('s3')
+                        ->directory('dev')
+                        ->openable(true)
+                        ->downloadable(true)
+                        ->visible(function (callable $get) {
+                            if ($get('status') == 'approved') {
+                                return true;
+                            }
+                            return false;
+                        })
+                        ->label('Document')
                 ]),
             ]);
     }
