@@ -337,13 +337,18 @@ class TestController extends Controller
             $errorMessages = '';
             if (isset($response->validationErrorsList)) {
                 $errors = array_map(function($validationError) {
-                    return array_map(function($item) use ($validationError) {
-                        return "File: " . $item->key . ", Error: " . $validationError->errorMessage;
-                    }, $validationError->items);
+                    // Check if $validationError->items is an array
+                    if (is_array($validationError->items)) {
+                        return array_map(function($item) use ($validationError) {
+                            return "File: " . $item->key . ", Error: " . $validationError->errorMessage;
+                        }, $validationError->items);
+                    }
+                    return [];
                 }, $response->validationErrorsList);
                 
                 // Flatten the array
                 $errors = array_merge(...$errors);
+                
                 // Join errors into a single string separated by newlines
                 $errorMessages = implode("\n", $errors);
             }
