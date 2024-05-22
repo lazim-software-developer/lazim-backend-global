@@ -2,15 +2,83 @@
 
 namespace App\Imports;
 
-use Maatwebsite\Excel\Concerns\ToModel;
+use Filament\Notifications\Notification;
+use Illuminate\Support\Collection;
+use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 
-class UtilityExpensesImport implements ToModel, WithHeadingRow
+class UtilityExpensesImport implements ToCollection, WithHeadingRow
 {
     public $data = [];
 
-    public function model(array $row)
+    public function collection(Collection $rows)
     {
+        $expectedHeadings = [
+            'utility_reference',
+            'amount',
+            'utility_name',
+            'provider_name',
+            'duration',
+            'duration_str',
+            'trend_amount',
+        ];
+        
+        // Check if the file is empty
+        if ($rows->isEmpty()) {
+            Notification::make()
+                ->title("Upload valid excel file.")
+                ->danger()
+                ->body("File Field: Utility Expenses\nYou have uploaded an empty file")
+                ->send();
+            return 'failure';
+        }
+        
+        // Extract headings from the first row
+        $extractedHeadings = array_keys($rows->first()->toArray());
+        
+        // Check for missing headings
+        $missingHeadings = array_diff($expectedHeadings, $extractedHeadings);
+        if (!empty($missingHeadings)) {
+            Notification::make()
+                ->title("Upload valid excel file.")
+                ->danger()
+                ->body("File Field: Utility Expenses\nMissing headings: " . implode(', ', $missingHeadings))
+                ->send();
+            return 'failure';
+        }
+        
+        // Check for missing required fields in rows
+        $missingFieldsRows = [];
+        foreach ($rows as $index => $row) {
+            foreach ([
+                'utility_reference', 
+                'amount', 
+                'utility_name', 
+                'provider_name', 
+                'duration', 
+                'duration_str', 
+                'trend_amount'
+            ] as $field) {
+                if (empty($row[$field])) {
+                    $missingFieldsRows[] = $index + 1;
+                    break; // No need to check other fields for this row
+                }
+            }
+        }
+        
+        if (!empty($missingFieldsRows)) {
+            Notification::make()
+                ->title("Upload valid excel file.")
+                ->danger()
+                ->body("File Field: Utility Expenses\nRequired fields are missing in the following row(s): " . implode(', ', $missingFieldsRows))
+                ->send();
+            return 'failure';
+        }
+        
+        // Proceed with further processing
+        
+        foreach ($rows as $row) 
+        {
         $reference = $row['utility_reference'];
 
         if (!isset($this->data[$reference])) {
@@ -34,6 +102,7 @@ class UtilityExpensesImport implements ToModel, WithHeadingRow
                 'amount'        => (float)$row['trend_amount'],
             ];
         }
+    }
     }
 
     public function getResults(): array
