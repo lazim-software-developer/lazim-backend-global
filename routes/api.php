@@ -510,6 +510,8 @@ Route::middleware(['auth:sanctum', 'active', 'active.gatekeeper'])->prefix('gate
     // Notify tenants on visitor's entry
     Route::post('/notify-resident', [GuestController::class, 'notifyTenant']);
 
+    // MoveIn MoveOut
+    Route::get('/move-in-out',[MoveInOutController::class, 'list']);
 });
 // Approve visitor request
 Route::post('/gatekeeper/visitor-entry', [GuestController::class, 'visitorEntry'])->middleware(['auth:sanctum']);
@@ -550,3 +552,6 @@ Route::get('/app-version',[AppController::class, 'version']);
 
 //web enquiries
 Route::post('/web-enquiry',[EnquiryController::class,'store']);
+
+//webhook
+Route::post('/webhook',[MollakController::class,'webhook']);
