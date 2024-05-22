@@ -49,10 +49,14 @@ class ServiceImport implements ToCollection, WithHeadingRow
             // return 'failure';
             throw new Exception();
         }
+
+        $filteredRows = $rows->filter(function($row) {
+            return !empty($row['eservice_id']) || !empty($row['open']) || !empty($row['resolved']) || !empty($row['total']);
+        });
         
         // Check for missing required fields in rows
         $missingFieldsRows = [];
-        foreach ($rows as $index => $row) {
+        foreach ($filteredRows as $index => $row) {
             foreach (['eservice_id', 'open', 'resolved', 'total'] as $field) {
                 if (empty($row[$field])) {
                     $missingFieldsRows[] = $index + 1;
@@ -72,7 +76,7 @@ class ServiceImport implements ToCollection, WithHeadingRow
         }
         
         
-        foreach ($rows as $row) 
+        foreach ($filteredRows as $row) 
         {
             if($row['eservice_id'] && $row['open'] !=='' && $row['resolved'] !=='' && $row['total'] !=='') {
                 $this->data[] = [
