@@ -2,6 +2,7 @@
 
 namespace App\Imports;
 
+use Exception;
 use Filament\Notifications\Notification;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
@@ -28,7 +29,7 @@ class BudgetVsActualImport implements ToCollection, WithHeadingRow
                 ->danger()
                 ->body("File Field: Budget Vs Actual\nYou have uploaded an empty file")
                 ->send();
-            return 'failure';
+            throw new Exception();
         }
         
         // Extract headings from the first row
@@ -42,7 +43,7 @@ class BudgetVsActualImport implements ToCollection, WithHeadingRow
                 ->danger()
                 ->body("File Field: Budget Vs Actual\nMissing headings: " . implode(', ', $missingHeadings))
                 ->send();
-            return 'failure';
+            throw new Exception();
         }
         
         // Check for missing required fields in rows
@@ -62,7 +63,7 @@ class BudgetVsActualImport implements ToCollection, WithHeadingRow
                 ->danger()
                 ->body("File Field: Budget Vs Actual\nRequired fields are missing in the following row(s): " . implode(', ', $missingFieldsRows))
                 ->send();
-            return 'failure';
+            throw new Exception();
         }
         
         // Proceed with further processing

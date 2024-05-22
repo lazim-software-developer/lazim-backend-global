@@ -2,6 +2,7 @@
 
 namespace App\Imports;
 
+use Exception;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\ToCollection;
@@ -31,7 +32,7 @@ class AssetsImport implements ToCollection, WithHeadingRow
                 ->danger()
                 ->body("File Field: Asset List and Expenses\nYou have uploaded an empty file")
                 ->send();
-            return 'failure';
+            throw new Exception();
         }
         
         // Extract headings from the first row
@@ -45,7 +46,7 @@ class AssetsImport implements ToCollection, WithHeadingRow
                 ->danger()
                 ->body("File Field: Asset List and Expenses\nMissing headings: " . implode(', ', $missingHeadings))
                 ->send();
-            return 'failure';
+            throw new Exception();
         }
         
         // Check for missing required fields in rows
@@ -73,7 +74,7 @@ class AssetsImport implements ToCollection, WithHeadingRow
                 ->danger()
                 ->body("File Field: Asset List and Expenses\nRequired fields are missing in the following row(s): " . implode(', ', $missingFieldsRows))
                 ->send();
-            return 'failure';
+            throw new Exception();
         }
         
         // Proceed with further processing

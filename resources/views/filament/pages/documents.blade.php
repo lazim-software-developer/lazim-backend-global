@@ -170,7 +170,7 @@ document.getElementById('propertyGroupSelect').addEventListener('change', functi
                 .catch(function(error) {
                     console.error('Upload error', error);
                     // Provide feedback to the user
-                    alert('Error uploading file. Please upload proper file and try again.');
+                    // alert('Error uploading file. Please upload proper file and try again.');
                     submitUpload.disabled = false; // Re-enable the submit button
                     submitUpload.innerText = 'Submit'; // Reset button text
                 });
