@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\NocFormResource\Pages;
 
 use App\Filament\Resources\NocFormResource;
+use App\Jobs\SaleNocMailJob;
 use App\Models\ExpoPushNotification;
 use App\Traits\UtilsTrait;
 use Filament\Actions;
@@ -26,6 +27,13 @@ class EditNocForm extends EditRecord
         return $this->getResource()::getUrl('index');
     }
 
+    public function beforeSave(){
+        if($this->record->admin_document != $this->data['admin_document']){
+            $user= $this->record->user;
+            $file = $this->data['admin_document'];
+            SaleNocMailJob::dispatch($user,$file);
+        }
+    }
     public function afterSave()
     {
         if ($this->record->status == 'approved') {
