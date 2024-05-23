@@ -28,9 +28,9 @@ class VehicleResource extends Resource
     {
         return $form
             ->schema([
-                TextInput::make('vehicle_number')->alphaNum()->unique(),
-                TextInput::make('makani_number')->alphaNum()->unique(),
-                Select::make('user_id')->label('Owner')->searchable()->preload()
+                TextInput::make('vehicle_number')->alphaNum()->unique()->required(),
+                TextInput::make('makani_number')->alphaNum()->unique()->required(),
+                Select::make('user_id')->label('Owner')->searchable()->preload()->required()
                 ->options(function(){
                     return User::where('owner_association_id', auth()->user()->owner_association_id)->whereIn('role_id',Role::whereIn('name',['Tenant','Owner'])->pluck('id'))->pluck('first_name','id');
                 })
