@@ -4,9 +4,9 @@ namespace App\Imports;
 
 use Exception;
 use Filament\Notifications\Notification;
+use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
-use Illuminate\Support\Collection;
 
 class CentralFundStatementImport implements ToCollection, WithHeadingRow
 {
@@ -21,7 +21,7 @@ class CentralFundStatementImport implements ToCollection, WithHeadingRow
         ];
 
         // Check if the file is empty
-        if ($rows->first() == null) {
+        if ($rows->first()->filter()->isEmpty()) {
             Notification::make()
                 ->title("Upload valid excel file.")
                 ->danger()
@@ -44,7 +44,7 @@ class CentralFundStatementImport implements ToCollection, WithHeadingRow
             throw new Exception();
         }
 
-        $filteredRows = $rows->filter(function($row) {
+        $filteredRows = $rows->filter(function ($row) {
             return !empty($row['section']) || !empty($row['service_code']) || !empty($row['balance']);
         });
         // Check for missing required fields in rows
@@ -69,17 +69,16 @@ class CentralFundStatementImport implements ToCollection, WithHeadingRow
 
         // Proceed with further processing
 
-        foreach ($filteredRows as $row)
-        {
+        foreach ($filteredRows as $row) {
             if ($row['section'] === 'income') {
                 $this->data['income'][] = [
-                    'service_code' => (string)$row['service_code'],
-                    'balance' => $row['balance'],
+                    'service_code' => (string) $row['service_code'],
+                    'balance'      => $row['balance'],
                 ];
             } elseif ($row['section'] === 'expense') {
                 $this->data['expense'][] = [
-                    'service_code' => (string)$row['service_code'],
-                    'balance' => $row['balance'],
+                    'service_code' => (string) $row['service_code'],
+                    'balance'      => $row['balance'],
                 ];
             }
         }

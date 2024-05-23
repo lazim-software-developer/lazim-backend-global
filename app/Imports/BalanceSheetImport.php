@@ -4,9 +4,9 @@ namespace App\Imports;
 
 use Exception;
 use Filament\Notifications\Notification;
+use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
-use Illuminate\Support\Collection;
 
 class BalanceSheetImport implements ToCollection, WithHeadingRow
 {
@@ -21,7 +21,7 @@ class BalanceSheetImport implements ToCollection, WithHeadingRow
         ];
 
         // Check if the file is empty
-        if ($rows->first() == null) {
+        if ($rows->first()->filter()->isEmpty()) {
             Notification::make()
                 ->title("Upload valid excel file.")
                 ->danger()
@@ -44,7 +44,7 @@ class BalanceSheetImport implements ToCollection, WithHeadingRow
             throw new Exception();
         }
 
-        $filteredRows = $rows->filter(function($row) {
+        $filteredRows = $rows->filter(function ($row) {
             return !empty($row['section']) || !empty($row['name']) || !empty($row['balance']);
         });
         // Check for missing required fields in rows
@@ -69,32 +69,31 @@ class BalanceSheetImport implements ToCollection, WithHeadingRow
 
         // Proceed with further processing
 
-        foreach ($filteredRows as $row)
-        {
+        foreach ($filteredRows as $row) {
             if ($row['section'] === 'income') {
                 $this->data['income'][] = [
-                    'name' => $row['name'],
+                    'name'    => $row['name'],
                     'balance' => $row['balance'],
-                    'code' => $row['code'],
+                    'code'    => $row['code'],
                 ];
             } elseif ($row['section'] === 'expense') {
                 $this->data['expense'][] = [
-                    'name' => $row['name'],
+                    'name'    => $row['name'],
                     'balance' => $row['balance'],
                 ];
-            }elseif ($row['section'] === 'asset') {
+            } elseif ($row['section'] === 'asset') {
                 $this->data['asset'][] = [
-                    'name' => $row['name'],
+                    'name'    => $row['name'],
                     'balance' => $row['balance'],
                 ];
-            }elseif ($row['section'] === 'liability') {
-                $this->data['liability'] []= [
-                    'name' => $row['name'],
+            } elseif ($row['section'] === 'liability') {
+                $this->data['liability'][] = [
+                    'name'    => $row['name'],
                     'balance' => $row['balance'],
                 ];
-            }elseif ($row['section'] === 'equity') {
-                $this->data['equity'] []= [
-                    'name' => $row['name'],
+            } elseif ($row['section'] === 'equity') {
+                $this->data['equity'][] = [
+                    'name'    => $row['name'],
                     'balance' => $row['balance'],
                 ];
             }

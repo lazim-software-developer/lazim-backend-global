@@ -4,9 +4,9 @@ namespace App\Imports;
 
 use Exception;
 use Filament\Notifications\Notification;
+use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
-use Illuminate\Support\Collection;
 
 class BankBalanceImport implements ToCollection, WithHeadingRow
 {
@@ -32,7 +32,7 @@ class BankBalanceImport implements ToCollection, WithHeadingRow
         ];
 
         // Check if the file is empty
-        if ($rows->first() == null) {
+        if ($rows->first()->filter()->isEmpty()) {
             Notification::make()
                 ->title("Upload valid excel file.")
                 ->danger()
@@ -55,21 +55,21 @@ class BankBalanceImport implements ToCollection, WithHeadingRow
             throw new Exception();
         }
 
-        $filteredRows = $rows->filter(function($row) {
+        $filteredRows = $rows->filter(function ($row) {
             return !empty($row['type']) ||
-                   !empty($row['opening_credit']) ||
-                   !empty($row['opening_debit']) ||
-                   !empty($row['opening_balance']) ||
-                   !empty($row['credit']) ||
-                   !empty($row['debit']) ||
-                   !empty($row['balance']) ||
-                   !empty($row['closing_credit']) ||
-                   !empty($row['closing_debit']) ||
-                   !empty($row['closing_balance']) ||
-                   !empty($row['unidentified_credit']) ||
-                   !empty($row['unidentified_debit']) ||
-                   !empty($row['post_dated_credit']) ||
-                   !empty($row['post_dated_debit']);
+            !empty($row['opening_credit']) ||
+            !empty($row['opening_debit']) ||
+            !empty($row['opening_balance']) ||
+            !empty($row['credit']) ||
+            !empty($row['debit']) ||
+            !empty($row['balance']) ||
+            !empty($row['closing_credit']) ||
+            !empty($row['closing_debit']) ||
+            !empty($row['closing_balance']) ||
+            !empty($row['unidentified_credit']) ||
+            !empty($row['unidentified_debit']) ||
+            !empty($row['post_dated_credit']) ||
+            !empty($row['post_dated_debit']);
         });
         // Check for missing required fields in rows
         $missingFieldsRows = [];
@@ -88,7 +88,7 @@ class BankBalanceImport implements ToCollection, WithHeadingRow
                 'unidentified_credit',
                 'unidentified_debit',
                 'post_dated_credit',
-                'post_dated_debit'
+                'post_dated_debit',
             ] as $field) {
                 if (!isset($row[$field]) || $row[$field] === null || $row[$field] === '') {
                     $missingFieldsRows[] = $index + 1;
@@ -108,9 +108,8 @@ class BankBalanceImport implements ToCollection, WithHeadingRow
 
         // Proceed with further processing
 
-        foreach ($filteredRows as $row)
-        {
-            if($row['type'] != null) {
+        foreach ($filteredRows as $row) {
+            if ($row['type'] != null) {
                 $sectionType = $row['type'];
 
                 $this->data[$sectionType] = [

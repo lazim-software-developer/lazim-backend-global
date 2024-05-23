@@ -4,9 +4,9 @@ namespace App\Imports;
 
 use Exception;
 use Filament\Notifications\Notification;
+use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
-use Illuminate\Support\Collection;
 
 class CollectionImport implements ToCollection, WithHeadingRow
 {
@@ -22,17 +22,17 @@ class CollectionImport implements ToCollection, WithHeadingRow
             'closing_balance',
             'rate',
             'payment_method_id',
-            'amount'
+            'amount',
         ];
 
         // Define the required fields for each section type
         $sectionRequiredFields = [
             'by_method' => ['payment_method_id', 'amount'],
-            'recovery' => ['opening_balanace', 'charge', 'payment', 'closing_balance', 'rate'],
+            'recovery'  => ['opening_balanace', 'charge', 'payment', 'closing_balance', 'rate'],
         ];
 
         // Check if the file is empty
-        if ($rows->first() == null) {
+        if ($rows->first()->filter()->isEmpty()) {
             Notification::make()
                 ->title("Upload valid excel file.")
                 ->danger()
@@ -56,15 +56,15 @@ class CollectionImport implements ToCollection, WithHeadingRow
         }
 
         // Filter out completely empty rows
-        $filteredRows = $rows->filter(function($row) {
+        $filteredRows = $rows->filter(function ($row) {
             return !empty($row['section']) ||
-                   !empty($row['opening_balanace']) ||
-                   !empty($row['charge']) ||
-                   !empty($row['payment']) ||
-                   !empty($row['closing_balance']) ||
-                   !empty($row['rate']) ||
-                   !empty($row['payment_method_id']) ||
-                   !empty($row['amount']);
+            !empty($row['opening_balanace']) ||
+            !empty($row['charge']) ||
+            !empty($row['payment']) ||
+            !empty($row['closing_balance']) ||
+            !empty($row['rate']) ||
+            !empty($row['payment_method_id']) ||
+            !empty($row['amount']);
         });
 
         // Check for missing required fields in rows based on the section type
@@ -89,8 +89,7 @@ class CollectionImport implements ToCollection, WithHeadingRow
                 ->send();
             throw new Exception();
         }
-        foreach ($filteredRows as $row)
-        {
+        foreach ($filteredRows as $row) {
             if ($row['section'] === 'by_method') {
                 $this->data['by_method'][] = [
                     'payment_method_id' => $row['payment_method_id'],
@@ -98,11 +97,11 @@ class CollectionImport implements ToCollection, WithHeadingRow
                 ];
             } elseif ($row['section'] === 'recovery') {
                 $this->data['recovery'] = [
-                    'opening_balanace'  => $row['opening_balanace'],
-                    'charge'            => $row['charge'],
-                    'payment'           => $row['payment'],
-                    'closing_balance'   => $row['closing_balance'],
-                    'rate'              => $row['rate']
+                    'opening_balanace' => $row['opening_balanace'],
+                    'charge'           => $row['charge'],
+                    'payment'          => $row['payment'],
+                    'closing_balance'  => $row['closing_balance'],
+                    'rate'             => $row['rate'],
                 ];
             }
         }
