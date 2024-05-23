@@ -7,6 +7,7 @@ use Filament\Notifications\Notification;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 
 class ServiceImport implements ToCollection, WithHeadingRow
 {
@@ -25,6 +26,9 @@ class ServiceImport implements ToCollection, WithHeadingRow
         ];
 
         // Check if the file is empty
+        Log::info($rows);
+        Log::info('------------------------------------');
+        Log::info($rows->first());
         if ($rows->first() == null) {
             Notification::make()
                 ->title("Upload valid excel file.")
