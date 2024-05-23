@@ -55,15 +55,27 @@ class CollectionImport implements ToCollection, WithHeadingRow
             throw new Exception();
         }
         
-        $filteredRows = $rows->filter(function($row) {
-            return !empty($row['section']) || 
-                   !empty($row['utility_reference']) || 
-                   !empty($row['amount']) || 
-                   !empty($row['utility_name']) || 
-                   !empty($row['provider_name']) || 
-                   !empty($row['duration']) || 
-                   !empty($row['duration_str']) || 
-                   !empty($row['trend_amount']);
+        $filteredRows = $rows->filter(function($row) use ($sectionRequiredFields) {
+            if (!isset($row['section'])) {
+                return false;
+            }
+            $section = $row['section'];
+            if (isset($sectionRequiredFields[$section])) {
+                foreach ($sectionRequiredFields[$section] as $field) {
+                    if (!empty($row[$field])) {
+                        return true;
+                    }
+                }
+                return false;
+            } else {
+                return !empty($row['utility_reference']) || 
+                       !empty($row['amount']) || 
+                       !empty($row['utility_name']) || 
+                       !empty($row['provider_name']) || 
+                       !empty($row['duration']) || 
+                       !empty($row['duration_str']) || 
+                       !empty($row['trend_amount']);
+            }
         });
         
         // Check for missing required fields in rows based on the section type
