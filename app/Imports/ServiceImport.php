@@ -25,7 +25,7 @@ class ServiceImport implements ToCollection, WithHeadingRow
         ];
         
         // Check if the file is empty
-        if ($rows->isEmpty()) {
+        if ($rows->first()->toArray()->isEmpty()) {
             Notification::make()
                 ->title("Upload valid excel file.")
                 ->danger()
