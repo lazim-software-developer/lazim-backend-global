@@ -73,7 +73,7 @@ class CollectionImport implements ToCollection, WithHeadingRow
             $section = $row['section'];
             if (isset($sectionRequiredFields[$section])) {
                 foreach ($sectionRequiredFields[$section] as $field) {
-                    if (empty($row[$field])) {
+                    if (!isset($row[$field]) || $row[$field] === null || $row[$field] === '') {
                         $missingFieldsRows[] = $index + 1;
                         break; // No need to check other fields for this row
                     }

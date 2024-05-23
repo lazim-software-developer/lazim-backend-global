@@ -69,7 +69,7 @@ class UtilityExpensesImport implements ToCollection, WithHeadingRow
                 'duration_str', 
                 'trend_amount'
             ] as $field) {
-                if (empty($row[$field])) {
+                if (!isset($row[$field]) || $row[$field] === null || $row[$field] === '') {
                     $missingFieldsRows[] = $index + 1;
                     break; // No need to check other fields for this row
                 }
