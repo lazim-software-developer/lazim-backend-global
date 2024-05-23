@@ -16,13 +16,13 @@ class CollectionImport implements ToCollection, WithHeadingRow
     {
         $expectedHeadings = [
             'section',
-            'utility_reference',
-            'amount',
-            'utility_name',
-            'provider_name',
-            'duration',
-            'duration_str',
-            'trend_amount',
+            'opening_balanace',
+            'charge',
+            'payment',
+            'closing_balance',
+            'rate',
+            'payment_method_id',
+            'amount'
         ];
         
         // Define the required fields for each section type
@@ -55,27 +55,16 @@ class CollectionImport implements ToCollection, WithHeadingRow
             throw new Exception();
         }
         
-        $filteredRows = $rows->filter(function($row) use ($sectionRequiredFields) {
-            if (!isset($row['section'])) {
-                return false;
-            }
-            $section = $row['section'];
-            if (isset($sectionRequiredFields[$section])) {
-                foreach ($sectionRequiredFields[$section] as $field) {
-                    if (!empty($row[$field])) {
-                        return true;
-                    }
-                }
-                return false;
-            } else {
-                return !empty($row['utility_reference']) || 
-                       !empty($row['amount']) || 
-                       !empty($row['utility_name']) || 
-                       !empty($row['provider_name']) || 
-                       !empty($row['duration']) || 
-                       !empty($row['duration_str']) || 
-                       !empty($row['trend_amount']);
-            }
+        // Filter out completely empty rows
+        $filteredRows = $rows->filter(function($row) {
+            return !empty($row['section']) || 
+                   !empty($row['opening_balanace']) || 
+                   !empty($row['charge']) || 
+                   !empty($row['payment']) || 
+                   !empty($row['closing_balance']) || 
+                   !empty($row['rate']) || 
+                   !empty($row['payment_method_id']) || 
+                   !empty($row['amount']);
         });
         
         // Check for missing required fields in rows based on the section type
