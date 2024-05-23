@@ -51,13 +51,13 @@ class DelinquentsImport implements ToCollection, WithHeadingRow
         }
         
         $filteredRows = $rows->filter(function($row) {
-            return !empty($row['unit_number']) || !empty($row['recovery_notes_count']) || !empty($row['unit_balance']) || !empty($row['first_quarter']) || !empty($row['second_quarter']) || !empty($row['third_quarter']);
+            return isset($row['unit_number']) || isset($row['recovery_notes_count']) || isset($row['unit_balance']) || isset($row['first_quarter']) || isset($row['second_quarter']) || isset($row['third_quarter']);
         });
         // Check for missing required fields in rows
         $missingFieldsRows = [];
         foreach ($filteredRows as $index => $row) {
             foreach (['unit_number', 'recovery_notes_count', 'unit_balance', 'first_quarter', 'second_quarter', 'third_quarter'] as $field) {
-                if (empty($row[$field])) {
+                if (!isset($row[$field]) || $row[$field] === null || $row[$field] === '') {
                     $missingFieldsRows[] = $index + 1;
                     break; // No need to check other fields for this row
                 }
