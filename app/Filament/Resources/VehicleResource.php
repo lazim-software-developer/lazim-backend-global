@@ -16,6 +16,7 @@ use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class VehicleResource extends Resource
@@ -28,9 +29,17 @@ class VehicleResource extends Resource
     {
         return $form
             ->schema([
-                TextInput::make('vehicle_number')->alphaNum()->unique()->required(),
-                TextInput::make('makani_number')->alphaNum()->unique()->required(),
-                Select::make('user_id')->label('Owner')->searchable()->preload()->required()
+                TextInput::make('vehicle_number')->alphaNum()->unique(
+                    'vehicles',
+                    'vehicle_number',
+                    fn (?Model $record) => $record
+                )->required(),
+                TextInput::make('makani_number')->alphaNum()->unique(
+                    'vehicles',
+                    'makani_number',
+                    fn (?Model $record) => $record
+                )->required(),
+                Select::make('user_id')->label('Owner')->searchable()->preload()->required()->disabledOn('edit')
                 ->options(function(){
                     return User::where('owner_association_id', auth()->user()->owner_association_id)->whereIn('role_id',Role::whereIn('name',['Tenant','Owner'])->pluck('id'))->pluck('first_name','id');
                 })
@@ -39,7 +48,7 @@ class VehicleResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return $table
+        return $table->modifyQueryUsing(fn(Builder $query) => $query->orderBy('created_at','desc')->withoutGlobalScopes())
             ->columns([
                 TextColumn::make('vehicle_number'),
                 TextColumn::make('makani_number'),
