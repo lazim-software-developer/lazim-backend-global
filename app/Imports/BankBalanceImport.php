@@ -30,9 +30,9 @@ class BankBalanceImport implements ToCollection, WithHeadingRow
             'post_dated_credit',
             'post_dated_debit',
         ];
-        
+
         // Check if the file is empty
-        if ($rows->isEmpty()) {
+        if ($rows->first() == null) {
             Notification::make()
                 ->title("Upload valid excel file.")
                 ->danger()
@@ -40,10 +40,10 @@ class BankBalanceImport implements ToCollection, WithHeadingRow
                 ->send();
             throw new Exception();
         }
-        
+
         // Extract headings from the first row
         $extractedHeadings = array_keys($rows->first()->toArray());
-        
+
         // Check for missing headings
         $missingHeadings = array_diff($expectedHeadings, $extractedHeadings);
         if (!empty($missingHeadings)) {
@@ -54,40 +54,40 @@ class BankBalanceImport implements ToCollection, WithHeadingRow
                 ->send();
             throw new Exception();
         }
-        
+
         $filteredRows = $rows->filter(function($row) {
-            return !empty($row['type']) || 
-                   !empty($row['opening_credit']) || 
-                   !empty($row['opening_debit']) || 
-                   !empty($row['opening_balance']) || 
-                   !empty($row['credit']) || 
-                   !empty($row['debit']) || 
-                   !empty($row['balance']) || 
-                   !empty($row['closing_credit']) || 
-                   !empty($row['closing_debit']) || 
-                   !empty($row['closing_balance']) || 
-                   !empty($row['unidentified_credit']) || 
-                   !empty($row['unidentified_debit']) || 
-                   !empty($row['post_dated_credit']) || 
+            return !empty($row['type']) ||
+                   !empty($row['opening_credit']) ||
+                   !empty($row['opening_debit']) ||
+                   !empty($row['opening_balance']) ||
+                   !empty($row['credit']) ||
+                   !empty($row['debit']) ||
+                   !empty($row['balance']) ||
+                   !empty($row['closing_credit']) ||
+                   !empty($row['closing_debit']) ||
+                   !empty($row['closing_balance']) ||
+                   !empty($row['unidentified_credit']) ||
+                   !empty($row['unidentified_debit']) ||
+                   !empty($row['post_dated_credit']) ||
                    !empty($row['post_dated_debit']);
         });
         // Check for missing required fields in rows
         $missingFieldsRows = [];
         foreach ($filteredRows as $index => $row) {
             foreach ([
-                'type', 
-                'opening_credit', 
-                'opening_debit', 
-                'opening_balance', 
-                'credit', 
-                'debit', 
-                'balance', 
-                'closing_credit', 
-                'closing_debit', 
-                'closing_balance', 
-                'unidentified_credit', 
-                'unidentified_debit', 
-                'post_dated_credit', 
+                'type',
+                'opening_credit',
+                'opening_debit',
+                'opening_balance',
+                'credit',
+                'debit',
+                'balance',
+                'closing_credit',
+                'closing_debit',
+                'closing_balance',
+                'unidentified_credit',
+                'unidentified_debit',
+                'post_dated_credit',
                 'post_dated_debit'
             ] as $field) {
                 if (!isset($row[$field]) || $row[$field] === null || $row[$field] === '') {
@@ -96,7 +96,7 @@ class BankBalanceImport implements ToCollection, WithHeadingRow
                 }
             }
         }
-        
+
         if (!empty($missingFieldsRows)) {
             Notification::make()
                 ->title("Upload valid excel file.")
@@ -105,14 +105,14 @@ class BankBalanceImport implements ToCollection, WithHeadingRow
                 ->send();
             throw new Exception();
         }
-        
+
         // Proceed with further processing
-        
-        foreach ($filteredRows as $row) 
+
+        foreach ($filteredRows as $row)
         {
             if($row['type'] != null) {
                 $sectionType = $row['type'];
-    
+
                 $this->data[$sectionType] = [
                     'opening_credit'      => $row['opening_credit'],
                     'opening_debit'       => $row['opening_debit'],

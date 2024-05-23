@@ -23,9 +23,9 @@ class ServiceImport implements ToCollection, WithHeadingRow
             'resolved',
             'total',
         ];
-        
+
         // Check if the file is empty
-        if ($rows->first()->toArray()->isEmpty()) {
+        if ($rows->first() == null) {
             Notification::make()
                 ->title("Upload valid excel file.")
                 ->danger()
@@ -34,10 +34,10 @@ class ServiceImport implements ToCollection, WithHeadingRow
             // return 'failure';
             throw new Exception();
         }
-        
+
         // Extract headings from the first row
         $extractedHeadings = array_keys($rows->first()->toArray());
-        
+
         // Check for missing headings
         $missingHeadings = array_diff($expectedHeadings, $extractedHeadings);
         if (!empty($missingHeadings)) {
@@ -53,7 +53,7 @@ class ServiceImport implements ToCollection, WithHeadingRow
         $filteredRows = $rows->filter(function($row) {
             return isset($row['eservice_id']) || isset($row['open']) || isset($row['resolved']) || isset($row['total']);
         });
-        
+
         // Check for missing required fields in rows
         $missingFieldsRows = [];
         foreach ($filteredRows as $index => $row) {
@@ -64,7 +64,7 @@ class ServiceImport implements ToCollection, WithHeadingRow
                 }
             }
         }
-        
+
         if (!empty($missingFieldsRows)) {
             Notification::make()
                 ->title("Upload valid excel file.")
@@ -74,9 +74,9 @@ class ServiceImport implements ToCollection, WithHeadingRow
             // return 'failure';
             throw new Exception();
         }
-        
-        
-        foreach ($filteredRows as $row) 
+
+
+        foreach ($filteredRows as $row)
         {
             if($row['eservice_id'] && $row['open'] !=='' && $row['resolved'] !=='' && $row['total'] !=='') {
                 $this->data[] = [

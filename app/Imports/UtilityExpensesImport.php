@@ -23,9 +23,9 @@ class UtilityExpensesImport implements ToCollection, WithHeadingRow
             'duration_str',
             'trend_amount',
         ];
-        
+
         // Check if the file is empty
-        if ($rows->isEmpty()) {
+        if ($rows->first() == null) {
             Notification::make()
                 ->title("Upload valid excel file.")
                 ->danger()
@@ -33,10 +33,10 @@ class UtilityExpensesImport implements ToCollection, WithHeadingRow
                 ->send();
             throw new Exception();
         }
-        
+
         // Extract headings from the first row
         $extractedHeadings = array_keys($rows->first()->toArray());
-        
+
         // Check for missing headings
         $missingHeadings = array_diff($expectedHeadings, $extractedHeadings);
         if (!empty($missingHeadings)) {
@@ -47,26 +47,26 @@ class UtilityExpensesImport implements ToCollection, WithHeadingRow
                 ->send();
             throw new Exception();
         }
-        
+
         $filteredRows = $rows->filter(function($row) {
-            return !empty($row['utility_reference']) || 
-                   !empty($row['amount']) || 
-                   !empty($row['utility_name']) || 
-                   !empty($row['provider_name']) || 
-                   !empty($row['duration']) || 
-                   !empty($row['duration_str']) || 
+            return !empty($row['utility_reference']) ||
+                   !empty($row['amount']) ||
+                   !empty($row['utility_name']) ||
+                   !empty($row['provider_name']) ||
+                   !empty($row['duration']) ||
+                   !empty($row['duration_str']) ||
                    !empty($row['trend_amount']);
         });
         // Check for missing required fields in rows
         $missingFieldsRows = [];
         foreach ($filteredRows as $index => $row) {
             foreach ([
-                'utility_reference', 
-                'amount', 
-                'utility_name', 
-                'provider_name', 
-                'duration', 
-                'duration_str', 
+                'utility_reference',
+                'amount',
+                'utility_name',
+                'provider_name',
+                'duration',
+                'duration_str',
                 'trend_amount'
             ] as $field) {
                 if (!isset($row[$field]) || $row[$field] === null || $row[$field] === '') {
@@ -75,7 +75,7 @@ class UtilityExpensesImport implements ToCollection, WithHeadingRow
                 }
             }
         }
-        
+
         if (!empty($missingFieldsRows)) {
             Notification::make()
                 ->title("Upload valid excel file.")
@@ -84,10 +84,10 @@ class UtilityExpensesImport implements ToCollection, WithHeadingRow
                 ->send();
             throw new Exception();
         }
-        
+
         // Proceed with further processing
-        
-        foreach ($filteredRows as $row) 
+
+        foreach ($filteredRows as $row)
         {
         $reference = $row['utility_reference'];
 

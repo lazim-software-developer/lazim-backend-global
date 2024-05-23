@@ -25,9 +25,9 @@ class DelinquentsImport implements ToCollection, WithHeadingRow
             'second_quarter',
             'third_quarter',
         ];
-        
+
         // Check if the file is empty
-        if ($rows->isEmpty()) {
+        if ($rows->first() == null) {
             Notification::make()
                 ->title("Upload valid excel file.")
                 ->danger()
@@ -35,10 +35,10 @@ class DelinquentsImport implements ToCollection, WithHeadingRow
                 ->send();
             throw new Exception();
         }
-        
+
         // Extract headings from the first row
         $extractedHeadings = array_keys($rows->first()->toArray());
-        
+
         // Check for missing headings
         $missingHeadings = array_diff($expectedHeadings, $extractedHeadings);
         if (!empty($missingHeadings)) {
@@ -49,7 +49,7 @@ class DelinquentsImport implements ToCollection, WithHeadingRow
                 ->send();
             throw new Exception();
         }
-        
+
         $filteredRows = $rows->filter(function($row) {
             return isset($row['unit_number']) || isset($row['recovery_notes_count']) || isset($row['unit_balance']) || isset($row['first_quarter']) || isset($row['second_quarter']) || isset($row['third_quarter']);
         });
@@ -63,7 +63,7 @@ class DelinquentsImport implements ToCollection, WithHeadingRow
                 }
             }
         }
-        
+
         if (!empty($missingFieldsRows)) {
             Notification::make()
                 ->title("Upload valid excel file.")
@@ -72,10 +72,10 @@ class DelinquentsImport implements ToCollection, WithHeadingRow
                 ->send();
             throw new Exception();
         }
-        
+
         // Proceed with further processing
-        
-        foreach ($filteredRows as $row) 
+
+        foreach ($filteredRows as $row)
         {
             if(isset($row['unit_number']) && isset($row['recovery_notes_count']) && isset($row['unit_balance']) && isset($row['first_quarter']) && isset($row['second_quarter']) && isset($row['third_quarter'])) {
                 $this->data[] = [
