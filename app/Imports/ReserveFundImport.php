@@ -13,15 +13,15 @@ class ReserveFundImport implements ToCollection, WithHeadingRow
     public $data = [];
 
     public function collection(Collection $rows)
-    {  
+    {
         $expectedHeadings = [
             'section',
             'service_code',
             'balance',
         ];
-        
+
         // Check if the file is empty
-        if ($rows->isEmpty()) {
+        if ($rows->first() == null) {
             Notification::make()
                 ->title("Upload valid excel file.")
                 ->danger()
@@ -29,10 +29,10 @@ class ReserveFundImport implements ToCollection, WithHeadingRow
                 ->send();
             throw new Exception();
         }
-        
+
         // Extract headings from the first row
         $extractedHeadings = array_keys($rows->first()->toArray());
-        
+
         // Check for missing headings
         $missingHeadings = array_diff($expectedHeadings, $extractedHeadings);
         if (!empty($missingHeadings)) {
@@ -43,7 +43,7 @@ class ReserveFundImport implements ToCollection, WithHeadingRow
                 ->send();
             throw new Exception();
         }
-        
+
         $filteredRows = $rows->filter(function($row) {
             return !empty($row['section']) || !empty($row['service_code']) || !empty($row['balance']);
         });
@@ -57,7 +57,7 @@ class ReserveFundImport implements ToCollection, WithHeadingRow
                 }
             }
         }
-        
+
         if (!empty($missingFieldsRows)) {
             Notification::make()
                 ->title("Upload valid excel file.")
@@ -66,9 +66,9 @@ class ReserveFundImport implements ToCollection, WithHeadingRow
                 ->send();
             throw new Exception();
         }
-        
+
         // Proceed with further processing
-              
+
         foreach ($filteredRows as $row) {
             if ($row['section'] === 'income') {
                 $this->data['income'][] = [

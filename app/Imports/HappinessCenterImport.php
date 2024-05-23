@@ -23,9 +23,9 @@ class HappinessCenterImport implements ToCollection, WithHeadingRow
             'resolved',
             'total',
         ];
-        
+
         // Check if the file is empty
-        if ($rows->isEmpty()) {
+        if ($rows->first() == null) {
             Notification::make()
                 ->title("Upload valid excel file.")
                 ->danger()
@@ -33,10 +33,10 @@ class HappinessCenterImport implements ToCollection, WithHeadingRow
                 ->send();
             throw new Exception();
         }
-        
+
         // Extract headings from the first row
         $extractedHeadings = array_keys($rows->first()->toArray());
-        
+
         // Check for missing headings
         $missingHeadings = array_diff($expectedHeadings, $extractedHeadings);
         if (!empty($missingHeadings)) {
@@ -50,7 +50,7 @@ class HappinessCenterImport implements ToCollection, WithHeadingRow
         $filteredRows = $rows->filter(function($row) {
             return !empty($row['happiness_center_id']) || !empty($row['open']) || !empty($row['resolved']) || !empty($row['total']);
         });
-        
+
         // Check for missing required fields in rows
         $missingFieldsRows = [];
         foreach ($filteredRows as $index => $row) {
@@ -61,7 +61,7 @@ class HappinessCenterImport implements ToCollection, WithHeadingRow
                 }
             }
         }
-        
+
         if (!empty($missingFieldsRows)) {
             Notification::make()
                 ->title("Upload valid excel file.")
@@ -70,10 +70,10 @@ class HappinessCenterImport implements ToCollection, WithHeadingRow
                 ->send();
             throw new Exception();
         }
-        
+
         // Proceed with further processing
-        
-        foreach ($filteredRows as $row) 
+
+        foreach ($filteredRows as $row)
         {
             if($row['happiness_center_id'] && $row['open'] !=='' && $row['resolved'] !=='' && $row['total'] !=='') {
                 $this->data[] = [

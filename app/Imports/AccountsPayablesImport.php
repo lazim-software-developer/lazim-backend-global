@@ -16,7 +16,7 @@ class AccountsPayablesImport implements ToCollection, WithHeadingRow
     * @param Collection $collection
     */
     public function collection(Collection $rows)
-    {   
+    {
         $expectedHeadings = [
             'service_code',
             'account_name',
@@ -25,9 +25,9 @@ class AccountsPayablesImport implements ToCollection, WithHeadingRow
             'opening_balance',
             'closing_balance',
         ];
-        
+
         // Check if the file is empty
-        if ($rows->isEmpty()) {
+        if ($rows->first() == null) {
             Notification::make()
                 ->title("Upload valid excel file.")
                 ->danger()
@@ -35,10 +35,10 @@ class AccountsPayablesImport implements ToCollection, WithHeadingRow
                 ->send();
             throw new Exception();
         }
-        
+
         // Extract headings from the first row
         $extractedHeadings = array_keys($rows->first()->toArray());
-        
+
         // Check for missing headings
         $missingHeadings = array_diff($expectedHeadings, $extractedHeadings);
         if (!empty($missingHeadings)) {
@@ -49,7 +49,7 @@ class AccountsPayablesImport implements ToCollection, WithHeadingRow
                 ->send();
             throw new Exception();
         }
-        
+
         $filteredRows = $rows->filter(function($row) {
             return !empty($row['service_code']) || !empty($row['account_name']) || !empty($row['bill']) || !empty($row['payment']) || !empty($row['opening_balance']) || !empty($row['closing_balance']);
         });
@@ -63,7 +63,7 @@ class AccountsPayablesImport implements ToCollection, WithHeadingRow
                 }
             }
         }
-        
+
         if (!empty($missingFieldsRows)) {
             Notification::make()
                 ->title("Upload valid excel file.")
@@ -72,10 +72,10 @@ class AccountsPayablesImport implements ToCollection, WithHeadingRow
                 ->send();
             throw new Exception();
         }
-        
+
         // Proceed with further processing
-        
-        foreach ($filteredRows as $row) 
+
+        foreach ($filteredRows as $row)
         {
             if($row['account_name'] && $row['bill']  && $row['payment'] && $row['opening_balance'] && $row['closing_balance']) {
                 $this->data[] = [

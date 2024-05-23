@@ -25,9 +25,9 @@ class WorkOrdersImport implements ToCollection, WithHeadingRow
             'vendor_name',
             'category_name',
         ];
-        
+
         // Check if the file is empty
-        if ($rows->isEmpty()) {
+        if ($rows->first() == null) {
             Notification::make()
                 ->title("Upload valid excel file.")
                 ->danger()
@@ -35,10 +35,10 @@ class WorkOrdersImport implements ToCollection, WithHeadingRow
                 ->send();
             throw new Exception();
         }
-        
+
         // Extract headings from the first row
         $extractedHeadings = array_keys($rows->first()->toArray());
-        
+
         // Check for missing headings
         $missingHeadings = array_diff($expectedHeadings, $extractedHeadings);
         if (!empty($missingHeadings)) {
@@ -49,7 +49,7 @@ class WorkOrdersImport implements ToCollection, WithHeadingRow
                 ->send();
             throw new Exception();
         }
-        
+
         $filteredRows = $rows->filter(function($row) {
             return !empty($row['title']) || !empty($row['status']) || !empty($row['type']) || !empty($row['total_amount']) || !empty($row['vendor_name']) || !empty($row['category_name']);
         });
@@ -63,7 +63,7 @@ class WorkOrdersImport implements ToCollection, WithHeadingRow
                 }
             }
         }
-        
+
         if (!empty($missingFieldsRows)) {
             Notification::make()
                 ->title("Upload valid excel file.")
@@ -72,10 +72,10 @@ class WorkOrdersImport implements ToCollection, WithHeadingRow
                 ->send();
             throw new Exception();
         }
-        
+
         // Proceed with further processing
-        
-        foreach ($filteredRows as $row) 
+
+        foreach ($filteredRows as $row)
         {
             if(isset($row['title']) && isset($row['status']) && isset($row['type']) && isset($row['total_amount']) && isset($row['vendor_name']) && isset($row['category_name'])) {
                 $this->data[] = [
