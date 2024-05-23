@@ -4,9 +4,9 @@ namespace App\Imports;
 
 use Exception;
 use Filament\Notifications\Notification;
+use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
-use Illuminate\Support\Collection;
 
 class BudgetVsActualImport implements ToCollection, WithHeadingRow
 {
@@ -23,7 +23,7 @@ class BudgetVsActualImport implements ToCollection, WithHeadingRow
         ];
 
         // Check if the file is empty
-        if ($rows->first() == null) {
+        if ($rows->first()->filter()->isEmpty()) {
             Notification::make()
                 ->title("Upload valid excel file.")
                 ->danger()
@@ -46,7 +46,7 @@ class BudgetVsActualImport implements ToCollection, WithHeadingRow
             throw new Exception();
         }
 
-        $filteredRows = $rows->filter(function($row) {
+        $filteredRows = $rows->filter(function ($row) {
             return !empty($row['section']) || !empty($row['actual']) || !empty($row['budget']) || !empty($row['variance']) || !empty($row['service_code']);
         });
         // Check for missing required fields in rows
@@ -74,16 +74,16 @@ class BudgetVsActualImport implements ToCollection, WithHeadingRow
         foreach ($filteredRows as $row) {
             if (($row['section']) === 'income_accounts') {
                 $this->data['income_accounts'][] = [
-                    'actual' => $row['actual'],
-                    'budget' => $row['budget'],
-                    'variance' => $row['variance'],
+                    'actual'       => $row['actual'],
+                    'budget'       => $row['budget'],
+                    'variance'     => $row['variance'],
                     'service_code' => $row['service_code'],
                 ];
-            }else if ($row['section'] === 'expense_accounts') {
+            } else if ($row['section'] === 'expense_accounts') {
                 $this->data['expense_accounts'][] = [
-                    'actual' => $row['actual'],
-                    'budget' => $row['budget'],
-                    'variance' => $row['variance'],
+                    'actual'       => $row['actual'],
+                    'budget'       => $row['budget'],
+                    'variance'     => $row['variance'],
                     'service_code' => $row['service_code'],
                 ];
             }

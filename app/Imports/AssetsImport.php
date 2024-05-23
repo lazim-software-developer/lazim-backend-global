@@ -6,7 +6,6 @@ use Exception;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\ToCollection;
-use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 
 class AssetsImport implements ToCollection, WithHeadingRow
@@ -26,7 +25,7 @@ class AssetsImport implements ToCollection, WithHeadingRow
         ];
 
         // Check if the file is empty
-        if ($rows->first() == null) {
+        if ($rows->first()->filter()->isEmpty()) {
             Notification::make()
                 ->title("Upload valid excel file.")
                 ->danger()
@@ -49,14 +48,14 @@ class AssetsImport implements ToCollection, WithHeadingRow
             throw new Exception();
         }
 
-        $filteredRows = $rows->filter(function($row) {
+        $filteredRows = $rows->filter(function ($row) {
             return !empty($row['asset_name']) ||
-                   !empty($row['item_name']) ||
-                   !empty($row['asset_code']) ||
-                   !empty($row['warranties_count']) ||
-                   !empty($row['active_warranties_count']) ||
-                   !empty($row['jobs_count']) ||
-                   !empty($row['expenses']);
+            !empty($row['item_name']) ||
+            !empty($row['asset_code']) ||
+            !empty($row['warranties_count']) ||
+            !empty($row['active_warranties_count']) ||
+            !empty($row['jobs_count']) ||
+            !empty($row['expenses']);
         });
         // Check for missing required fields in rows
         $missingFieldsRows = [];
@@ -68,7 +67,7 @@ class AssetsImport implements ToCollection, WithHeadingRow
                 'warranties_count',
                 'active_warranties_count',
                 'jobs_count',
-                'expenses'
+                'expenses',
             ] as $field) {
                 if (!isset($row[$field]) || $row[$field] === null || $row[$field] === '') {
                     $missingFieldsRows[] = $index + 1;
@@ -88,29 +87,28 @@ class AssetsImport implements ToCollection, WithHeadingRow
 
         // Proceed with further processing
 
-        foreach ($filteredRows as $row)
-        {
-        if($row['asset_name'] != null) {
-            // Check if asset already exists
-            if (!isset($this->data[$row['asset_name']])) {
-                $this->data[$row['asset_name']] = [
-                    'name'  => $row['asset_name'],
-                    'items' => []
+        foreach ($filteredRows as $row) {
+            if ($row['asset_name'] != null) {
+                // Check if asset already exists
+                if (!isset($this->data[$row['asset_name']])) {
+                    $this->data[$row['asset_name']] = [
+                        'name'  => $row['asset_name'],
+                        'items' => [],
+                    ];
+                }
+
+                // Append item to asset
+                $this->data[$row['asset_name']]['items'][] = [
+                    'name'                    => $row['item_name'],
+                    'asset_code'              => $row['asset_code'],
+                    'location'                => $row['location'] ?? null, // Assuming there might be empty locations
+                    'warranties_count' => $row['warranties_count'],
+                    'active_warranties_count' => $row['active_warranties_count'],
+                    'jobs_count'              => $row['jobs_count'],
+                    'expenses'                => $row['expenses'],
                 ];
             }
-
-            // Append item to asset
-            $this->data[$row['asset_name']]['items'][] = [
-                'name'                   => $row['item_name'],
-                'asset_code'             => $row['asset_code'],
-                'location'               => $row['location'] ?? null, // Assuming there might be empty locations
-                'warranties_count'       => $row['warranties_count'],
-                'active_warranties_count'=> $row['active_warranties_count'],
-                'jobs_count'             => $row['jobs_count'],
-                'expenses'               => $row['expenses']
-            ];
         }
-    }
     }
 
     public function getResults(): array

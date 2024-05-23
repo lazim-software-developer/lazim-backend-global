@@ -4,19 +4,14 @@ namespace App\Imports\OAM;
 
 use App\Models\Accounting\Budget;
 use App\Models\Accounting\Budgetitem;
-use App\Models\Accounting\Category;
-use App\Models\Accounting\SubCategory;
 use App\Models\Building\Building;
 use App\Models\Master\Service;
 use Carbon\Carbon;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
-use Illuminate\Validation\ValidationException as LaravelValidationException;
-use Maatwebsite\Excel\Validators\Failure;
-use Illuminate\Support\Facades\Validator;
 
 class BudgetImport implements ToCollection, WithHeadingRow
 {
@@ -26,7 +21,7 @@ class BudgetImport implements ToCollection, WithHeadingRow
     public function __construct($budgetPeriod, $buildingId)
     {
         $this->budgetPeriod = $budgetPeriod;
-        $this->buildingId = $buildingId;
+        $this->buildingId   = $buildingId;
     }
 
     /**
@@ -35,10 +30,10 @@ class BudgetImport implements ToCollection, WithHeadingRow
     public function collection(Collection $rows)
     {
         // Define the expected headings
-        $expectedHeadings = [ 'servicecode', 'servicename', 'budget', 'budgetvat', 'category', 'subcategory',];
+        $expectedHeadings = ['servicecode', 'servicename', 'budget', 'budgetvat', 'category', 'subcategory'];
 
         // Extract the headings from the first row
-        if($rows->first() == null){
+        if ($rows->first()->filter()->isEmpty()) {
             Notification::make()
                 ->title("Upload valid excel file.")
                 ->danger()
@@ -60,9 +55,8 @@ class BudgetImport implements ToCollection, WithHeadingRow
             return 'failure';
         }
         [$start, $end] = explode(' - ', $this->budgetPeriod);
-        $startDate = Carbon::createFromFormat('M Y', $start)->startOfMonth();
-        $endDate = Carbon::createFromFormat('M Y', $end)->endOfMonth();
-
+        $startDate     = Carbon::createFromFormat('M Y', $start)->startOfMonth();
+        $endDate       = Carbon::createFromFormat('M Y', $end)->endOfMonth();
 
         $building = Building::where('id', $this->buildingId)->first();
 
@@ -84,11 +78,11 @@ class BudgetImport implements ToCollection, WithHeadingRow
         }
 
         $budget = Budget::create([
-            'building_id' => $this->buildingId,
+            'building_id'          => $this->buildingId,
             'owner_association_id' => $building->owner_association_id,
-            'budget_period' => $this->budgetPeriod,
-            'budget_from' => $startDate->toDateString(),
-            'budget_to' => $endDate->toDateString(),
+            'budget_period'        => $this->budgetPeriod,
+            'budget_from'          => $startDate->toDateString(),
+            'budget_to'            => $endDate->toDateString(),
         ]);
 
         foreach ($rows as $row) {
@@ -133,12 +127,12 @@ class BudgetImport implements ToCollection, WithHeadingRow
 
             if ($service) {
                 Budgetitem::create([
-                    'budget_id' => $budget->id,
-                    'service_id' => $service->id,
+                    'budget_id'       => $budget->id,
+                    'service_id'      => $service->id,
                     'budget_excl_vat' => $row['budget'],
-                    'vat_rate' => 0.05,
-                    'vat_amount' => $row['budgetvat'],
-                    'total' => $row['budget'] + $row['budgetvat'],
+                    'vat_rate'        => 0.05,
+                    'vat_amount'      => $row['budgetvat'],
+                    'total'           => $row['budget'] + $row['budgetvat'],
                 ]);
             }
         }

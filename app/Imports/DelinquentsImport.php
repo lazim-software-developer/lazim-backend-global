@@ -4,17 +4,17 @@ namespace App\Imports;
 
 use Exception;
 use Filament\Notifications\Notification;
+use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
-use Illuminate\Support\Collection;
 
 class DelinquentsImport implements ToCollection, WithHeadingRow
 {
     public $data = [];
 
     /**
-    * @param Collection $collection
-    */
+     * @param Collection $collection
+     */
     public function collection(Collection $rows)
     {
         $expectedHeadings = [
@@ -27,7 +27,7 @@ class DelinquentsImport implements ToCollection, WithHeadingRow
         ];
 
         // Check if the file is empty
-        if ($rows->first() == null) {
+        if ($rows->first()->filter()->isEmpty()) {
             Notification::make()
                 ->title("Upload valid excel file.")
                 ->danger()
@@ -50,7 +50,7 @@ class DelinquentsImport implements ToCollection, WithHeadingRow
             throw new Exception();
         }
 
-        $filteredRows = $rows->filter(function($row) {
+        $filteredRows = $rows->filter(function ($row) {
             return isset($row['unit_number']) || isset($row['recovery_notes_count']) || isset($row['unit_balance']) || isset($row['first_quarter']) || isset($row['second_quarter']) || isset($row['third_quarter']);
         });
         // Check for missing required fields in rows
@@ -75,16 +75,15 @@ class DelinquentsImport implements ToCollection, WithHeadingRow
 
         // Proceed with further processing
 
-        foreach ($filteredRows as $row)
-        {
-            if(isset($row['unit_number']) && isset($row['recovery_notes_count']) && isset($row['unit_balance']) && isset($row['first_quarter']) && isset($row['second_quarter']) && isset($row['third_quarter'])) {
+        foreach ($filteredRows as $row) {
+            if (isset($row['unit_number']) && isset($row['recovery_notes_count']) && isset($row['unit_balance']) && isset($row['first_quarter']) && isset($row['second_quarter']) && isset($row['third_quarter'])) {
                 $this->data[] = [
-                    'unit_number'  => (string)$row['unit_number'],
+                    'unit_number'          => (string) $row['unit_number'],
                     'recovery_notes_count' => $row['recovery_notes_count'],
-                    'unit_balance' => $row['unit_balance'],
-                    'first_quarter' => $row['first_quarter'],
-                    'second_quarter' => $row['second_quarter'],
-                    'third_quarter' => $row['third_quarter'],
+                    'unit_balance'         => $row['unit_balance'],
+                    'first_quarter'        => $row['first_quarter'],
+                    'second_quarter'       => $row['second_quarter'],
+                    'third_quarter'        => $row['third_quarter'],
                 ];
             }
         }

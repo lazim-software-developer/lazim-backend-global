@@ -4,17 +4,17 @@ namespace App\Imports;
 
 use Exception;
 use Filament\Notifications\Notification;
+use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
-use Illuminate\Support\Collection;
 
 class AccountsPayablesImport implements ToCollection, WithHeadingRow
 {
     public $data = [];
 
     /**
-    * @param Collection $collection
-    */
+     * @param Collection $collection
+     */
     public function collection(Collection $rows)
     {
         $expectedHeadings = [
@@ -27,7 +27,7 @@ class AccountsPayablesImport implements ToCollection, WithHeadingRow
         ];
 
         // Check if the file is empty
-        if ($rows->first() == null) {
+        if ($rows->first()->filter()->isEmpty()) {
             Notification::make()
                 ->title("Upload valid excel file.")
                 ->danger()
@@ -50,7 +50,7 @@ class AccountsPayablesImport implements ToCollection, WithHeadingRow
             throw new Exception();
         }
 
-        $filteredRows = $rows->filter(function($row) {
+        $filteredRows = $rows->filter(function ($row) {
             return !empty($row['service_code']) || !empty($row['account_name']) || !empty($row['bill']) || !empty($row['payment']) || !empty($row['opening_balance']) || !empty($row['closing_balance']);
         });
         // Check for missing required fields in rows
@@ -75,14 +75,13 @@ class AccountsPayablesImport implements ToCollection, WithHeadingRow
 
         // Proceed with further processing
 
-        foreach ($filteredRows as $row)
-        {
-            if($row['account_name'] && $row['bill']  && $row['payment'] && $row['opening_balance'] && $row['closing_balance']) {
+        foreach ($filteredRows as $row) {
+            if ($row['account_name'] && $row['bill'] && $row['payment'] && $row['opening_balance'] && $row['closing_balance']) {
                 $this->data[] = [
-                    'service_code'  => $row['service_code'] ?? '',
-                    'account_name' => $row['account_name'],
-                    'bill'  => $row['bill'],
-                    'payment' => $row['payment'],
+                    'service_code'    => $row['service_code'] ?? '',
+                    'account_name'    => $row['account_name'],
+                    'bill'            => $row['bill'],
+                    'payment'         => $row['payment'],
                     'opening_balance' => $row['opening_balance'],
                     'closing_balance' => $row['closing_balance'],
                 ];

@@ -4,18 +4,17 @@ namespace App\Imports;
 
 use Exception;
 use Filament\Notifications\Notification;
+use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Log;
 
 class ServiceImport implements ToCollection, WithHeadingRow
 {
     public $data = [];
 
     /**
-    * @param Collection $collection
-    */
+     * @param Collection $collection
+     */
     public function collection(Collection $rows)
     {
         $expectedHeadings = [
@@ -26,10 +25,7 @@ class ServiceImport implements ToCollection, WithHeadingRow
         ];
 
         // Check if the file is empty
-        Log::info($rows);
-        Log::info('------------------------------------');
-        Log::info($rows->first());
-        if ($rows->first() == null) {
+        if ($rows->first()->filter()->isEmpty()) {
             Notification::make()
                 ->title("Upload valid excel file.")
                 ->danger()
@@ -54,7 +50,7 @@ class ServiceImport implements ToCollection, WithHeadingRow
             throw new Exception();
         }
 
-        $filteredRows = $rows->filter(function($row) {
+        $filteredRows = $rows->filter(function ($row) {
             return isset($row['eservice_id']) || isset($row['open']) || isset($row['resolved']) || isset($row['total']);
         });
 
@@ -79,15 +75,13 @@ class ServiceImport implements ToCollection, WithHeadingRow
             throw new Exception();
         }
 
-
-        foreach ($filteredRows as $row)
-        {
-            if($row['eservice_id'] && $row['open'] !=='' && $row['resolved'] !=='' && $row['total'] !=='') {
+        foreach ($filteredRows as $row) {
+            if ($row['eservice_id'] && $row['open'] !== '' && $row['resolved'] !== '' && $row['total'] !== '') {
                 $this->data[] = [
-                    'eservice_id'  => $row['eservice_id'],
-                    'open' => $row['open'],
-                    'resolved' => $row['resolved'],
-                    'total' => $row['total'],
+                    'eservice_id' => $row['eservice_id'],
+                    'open'        => $row['open'],
+                    'resolved'    => $row['resolved'],
+                    'total'       => $row['total'],
                 ];
             }
         }

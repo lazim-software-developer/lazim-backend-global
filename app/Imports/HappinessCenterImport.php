@@ -4,17 +4,17 @@ namespace App\Imports;
 
 use Exception;
 use Filament\Notifications\Notification;
+use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
-use Illuminate\Support\Collection;
 
 class HappinessCenterImport implements ToCollection, WithHeadingRow
 {
     public $data = [];
 
     /**
-    * @param Collection $collection
-    */
+     * @param Collection $collection
+     */
     public function collection(Collection $rows)
     {
         $expectedHeadings = [
@@ -25,7 +25,7 @@ class HappinessCenterImport implements ToCollection, WithHeadingRow
         ];
 
         // Check if the file is empty
-        if ($rows->first() == null) {
+        if ($rows->first()->filter()->isEmpty()) {
             Notification::make()
                 ->title("Upload valid excel file.")
                 ->danger()
@@ -47,7 +47,7 @@ class HappinessCenterImport implements ToCollection, WithHeadingRow
                 ->send();
             throw new Exception();
         }
-        $filteredRows = $rows->filter(function($row) {
+        $filteredRows = $rows->filter(function ($row) {
             return !empty($row['happiness_center_id']) || !empty($row['open']) || !empty($row['resolved']) || !empty($row['total']);
         });
 
@@ -73,14 +73,13 @@ class HappinessCenterImport implements ToCollection, WithHeadingRow
 
         // Proceed with further processing
 
-        foreach ($filteredRows as $row)
-        {
-            if($row['happiness_center_id'] && $row['open'] !=='' && $row['resolved'] !=='' && $row['total'] !=='') {
+        foreach ($filteredRows as $row) {
+            if ($row['happiness_center_id'] && $row['open'] !== '' && $row['resolved'] !== '' && $row['total'] !== '') {
                 $this->data[] = [
-                    'happiness_center_id'  => $row['happiness_center_id'],
-                    'open' => $row['open'],
-                    'resolved' => $row['resolved'],
-                    'total' => $row['total'],
+                    'happiness_center_id' => $row['happiness_center_id'],
+                    'open'                => $row['open'],
+                    'resolved'            => $row['resolved'],
+                    'total'               => $row['total'],
                 ];
             }
         }

@@ -25,7 +25,7 @@ class UtilityExpensesImport implements ToCollection, WithHeadingRow
         ];
 
         // Check if the file is empty
-        if ($rows->first() == null) {
+        if ($rows->first()->filter()->isEmpty()) {
             Notification::make()
                 ->title("Upload valid excel file.")
                 ->danger()
@@ -48,14 +48,14 @@ class UtilityExpensesImport implements ToCollection, WithHeadingRow
             throw new Exception();
         }
 
-        $filteredRows = $rows->filter(function($row) {
+        $filteredRows = $rows->filter(function ($row) {
             return !empty($row['utility_reference']) ||
-                   !empty($row['amount']) ||
-                   !empty($row['utility_name']) ||
-                   !empty($row['provider_name']) ||
-                   !empty($row['duration']) ||
-                   !empty($row['duration_str']) ||
-                   !empty($row['trend_amount']);
+            !empty($row['amount']) ||
+            !empty($row['utility_name']) ||
+            !empty($row['provider_name']) ||
+            !empty($row['duration']) ||
+            !empty($row['duration_str']) ||
+            !empty($row['trend_amount']);
         });
         // Check for missing required fields in rows
         $missingFieldsRows = [];
@@ -67,7 +67,7 @@ class UtilityExpensesImport implements ToCollection, WithHeadingRow
                 'provider_name',
                 'duration',
                 'duration_str',
-                'trend_amount'
+                'trend_amount',
             ] as $field) {
                 if (!isset($row[$field]) || $row[$field] === null || $row[$field] === '') {
                     $missingFieldsRows[] = $index + 1;
@@ -87,32 +87,31 @@ class UtilityExpensesImport implements ToCollection, WithHeadingRow
 
         // Proceed with further processing
 
-        foreach ($filteredRows as $row)
-        {
-        $reference = $row['utility_reference'];
+        foreach ($filteredRows as $row) {
+            $reference = $row['utility_reference'];
 
-        if (!isset($this->data[$reference])) {
-            if(isset($row['amount']) && isset($row['utility_name']) && isset($row['provider_name'])) {
-                // Initialize the utility if it's not yet in our data array
-                $this->data[$reference] = [
-                    'utility_reference' => (string)$row['utility_reference'],
-                    'amount'            => (float)$row['amount'],
-                    'utility_name'      => (string)$row['utility_name'],
-                    'provider_name'     => (string)$row['provider_name'],
-                    'trend'             => [],
+            if (!isset($this->data[$reference])) {
+                if (isset($row['amount']) && isset($row['utility_name']) && isset($row['provider_name'])) {
+                    // Initialize the utility if it's not yet in our data array
+                    $this->data[$reference] = [
+                        'utility_reference' => (string) $row['utility_reference'],
+                        'amount'            => (float) $row['amount'],
+                        'utility_name'      => (string) $row['utility_name'],
+                        'provider_name'     => (string) $row['provider_name'],
+                        'trend'             => [],
+                    ];
+                }
+            }
+
+            // Append to the trend for the respective utility
+            if (isset($row['duration']) && isset($row['duration_str']) && isset($row['trend_amount'])) {
+                $this->data[$reference]['trend'][] = [
+                    'duration'     => (string) $row['duration'],
+                    'duration_str' => (string) $row['duration_str'],
+                    'amount'       => (float) $row['trend_amount'],
                 ];
             }
         }
-
-        // Append to the trend for the respective utility
-        if(isset($row['duration']) && isset($row['duration_str']) && isset($row['trend_amount'])) {
-            $this->data[$reference]['trend'][] = [
-                'duration'      => (string)$row['duration'],
-                'duration_str'  => (string)$row['duration_str'],
-                'amount'        => (float)$row['trend_amount'],
-            ];
-        }
-    }
     }
 
     public function getResults(): array

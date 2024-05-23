@@ -4,17 +4,17 @@ namespace App\Imports;
 
 use Exception;
 use Filament\Notifications\Notification;
+use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
-use Illuminate\Support\Collection;
 
 class WorkOrdersImport implements ToCollection, WithHeadingRow
 {
     public $data = [];
 
     /**
-    * @param Collection $collection
-    */
+     * @param Collection $collection
+     */
     public function collection(Collection $rows)
     {
         $expectedHeadings = [
@@ -27,7 +27,7 @@ class WorkOrdersImport implements ToCollection, WithHeadingRow
         ];
 
         // Check if the file is empty
-        if ($rows->first() == null) {
+        if ($rows->first()->filter()->isEmpty()) {
             Notification::make()
                 ->title("Upload valid excel file.")
                 ->danger()
@@ -50,7 +50,7 @@ class WorkOrdersImport implements ToCollection, WithHeadingRow
             throw new Exception();
         }
 
-        $filteredRows = $rows->filter(function($row) {
+        $filteredRows = $rows->filter(function ($row) {
             return !empty($row['title']) || !empty($row['status']) || !empty($row['type']) || !empty($row['total_amount']) || !empty($row['vendor_name']) || !empty($row['category_name']);
         });
         // Check for missing required fields in rows
@@ -75,15 +75,14 @@ class WorkOrdersImport implements ToCollection, WithHeadingRow
 
         // Proceed with further processing
 
-        foreach ($filteredRows as $row)
-        {
-            if(isset($row['title']) && isset($row['status']) && isset($row['type']) && isset($row['total_amount']) && isset($row['vendor_name']) && isset($row['category_name'])) {
+        foreach ($filteredRows as $row) {
+            if (isset($row['title']) && isset($row['status']) && isset($row['type']) && isset($row['total_amount']) && isset($row['vendor_name']) && isset($row['category_name'])) {
                 $this->data[] = [
-                    'title'  => $row['title'],
-                    'status' => $row['status'],
-                    'type' => $row['type'],
-                    'total_amount' => $row['total_amount'],
-                    'vendor_name' => $row['vendor_name'],
+                    'title'         => $row['title'],
+                    'status'        => $row['status'],
+                    'type'          => $row['type'],
+                    'total_amount'  => $row['total_amount'],
+                    'vendor_name'   => $row['vendor_name'],
                     'category_name' => $row['category_name'],
                 ];
             }
