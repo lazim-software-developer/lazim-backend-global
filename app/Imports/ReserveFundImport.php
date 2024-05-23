@@ -51,7 +51,7 @@ class ReserveFundImport implements ToCollection, WithHeadingRow
         $missingFieldsRows = [];
         foreach ($filteredRows as $index => $row) {
             foreach (['section', 'service_code', 'balance'] as $field) {
-                if (empty($row[$field])) {
+                if (!isset($row[$field]) || $row[$field] === null || $row[$field] === '') {
                     $missingFieldsRows[] = $index + 1;
                     break; // No need to check other fields for this row
                 }
