@@ -143,12 +143,12 @@ class ComplaintsenquiryResource extends Resource
                     ->limit(20)
                     ->searchable()
                     ->label('Enquiry'),
-                // TextColumn::make('complaint_details')
-                //     ->toggleable()
-                //     ->default('NA')
-                //     ->limit(20)
-                //     ->searchable()
-                //     ->label('Enquiry Details'),
+                TextColumn::make('complaint_details')
+                    ->toggleable()
+                    ->default('NA')
+                    ->limit(20)
+                    ->searchable()
+                    ->label('Enquiry Details'),
                 TextColumn::make('status')
                     ->toggleable()
                     ->searchable()
