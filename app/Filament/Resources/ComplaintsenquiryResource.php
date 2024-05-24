@@ -78,7 +78,7 @@ class ComplaintsenquiryResource extends Resource
                         Textarea::make('complaint')
                             ->label('Enquiry')
                             ->disabled(),
-                        TextInput::make('complaint_details')
+                        Textarea::make('complaint_details')
                             ->label('Enquiry Details')
                             ->disabled(),
                         Hidden::make('status')
