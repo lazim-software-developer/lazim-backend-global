@@ -78,7 +78,7 @@ class ComplaintssuggessionResource extends Resource
                         Textarea::make('complaint')
                             ->label('Suggestion')
                             ->disabled(),
-                        TextInput::make('complaint_details')
+                        Textarea::make('complaint_details')
                             ->label('Suggestion Details')
                             ->disabled(),
                         Hidden::make('status')
