@@ -141,12 +141,12 @@ class ComplaintssuggessionResource extends Resource
                     ->limit(20)
                     ->searchable()
                     ->label('Suggestion'),
-                // TextColumn::make('complaint_details')
-                //     ->toggleable()
-                //     ->default('NA')
-                //     ->limit(20)
-                //     ->searchable()
-                //     ->label('Suggestion Details'),
+                TextColumn::make('complaint_details')
+                    ->toggleable()
+                    ->default('NA')
+                    ->limit(20)
+                    ->searchable()
+                    ->label('Suggestion Details'),
                 TextColumn::make('status')
                     ->toggleable()
                     ->searchable()
