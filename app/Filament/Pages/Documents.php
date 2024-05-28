@@ -30,13 +30,13 @@ class Documents extends Page implements HasTable
     {
         // $oaId = auth()->user()->ownerAssociation?->mollak_id;
 
-        // $propertyResults = Http::withOptions(['verify' => false])->withHeaders([
-        //     'content-type' => 'application/json',
-        //     'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
-        // ])->get("https://qagate.dubailand.gov.ae/mollak/external/sync/managementcompany/" . 54713 . "/propertygroups");
+        $propertyResults = Http::withOptions(['verify' => false])->withHeaders([
+            'content-type' => 'application/json',
+            'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
+        ])->get("https://qagate.dubailand.gov.ae/mollak/external/sync/managementcompany/" . 54713 . "/propertygroups");
 
         // Decode the API response
-        // $data = $propertyResults->json();
+        $data = $propertyResults->json();
 
         // $chargePeriodResults = Http::withOptions(['verify' => false])->withHeaders([
         //     'content-type' => 'application/json',
@@ -48,26 +48,26 @@ class Documents extends Page implements HasTable
         // Return the transformed data using the API resource
         // return PropertyGroupResource::collection($data['response']['propertyGroups']);
 
-        $hardcodedPropertyGroups = [
-            ['propertyGroupId' => 235553, 'propertyGroupName' => ['englishName' => 'Sunshine Residence']],
-            ['propertyGroupId' => 236899, 'propertyGroupName' => ['englishName' => 'Sunbeam']],
-            ['propertyGroupId' => 1089946, 'propertyGroupName' => ['englishName' => 'APEX ATRIUM BUILDING']],
-            ['propertyGroupId' => 1106135, 'propertyGroupName' => ['englishName' => 'SPANISH TWIN VILLA']],
-            ['propertyGroupId' => 111782142, 'propertyGroupName' => ['englishName' => 'Suntech Tower']],
-            ['propertyGroupId' => 146995554, 'propertyGroupName' => ['englishName' => 'Empire Heights']],
-            ['propertyGroupId' => 182636537, 'propertyGroupName' => ['englishName' => 'Suncity Homes']],
-            ['propertyGroupId' => 208393821, 'propertyGroupName' => ['englishName' => 'Continental Tower']],
-            ['propertyGroupId' => 306418560, 'propertyGroupName' => ['englishName' => 'Samana Greens']],
-            ['propertyGroupId' => 311139905, 'propertyGroupName' => ['englishName' => '2020 Marquis']],
-            ['propertyGroupId' => 353741613, 'propertyGroupName' => ['englishName' => 'Azure']],
-            ['propertyGroupId' => 443715721, 'propertyGroupName' => ['englishName' => 'East40']],
-            ['propertyGroupId' => 456632490, 'propertyGroupName' => ['englishName' => 'Royal Residence']],
-            ['propertyGroupId' => 494741520, 'propertyGroupName' => ['englishName' => 'SAFEER TOWER 2']],
-            ['propertyGroupId' => 571737916, 'propertyGroupName' => ['englishName' => 'WAVES TOWER']],
-            ['propertyGroupId' => 591473609, 'propertyGroupName' => ['englishName' => 'Myka Residence']],
-            ['propertyGroupId' => 600776909, 'propertyGroupName' => ['englishName' => 'Rukan']],
-            ['propertyGroupId' => 687874294, 'propertyGroupName' => ['englishName' => 'The Court']]
-        ];
+        // $hardcodedPropertyGroups = [
+        //     ['propertyGroupId' => 235553, 'propertyGroupName' => ['englishName' => 'Sunshine Residence']],
+        //     ['propertyGroupId' => 236899, 'propertyGroupName' => ['englishName' => 'Sunbeam']],
+        //     ['propertyGroupId' => 1089946, 'propertyGroupName' => ['englishName' => 'APEX ATRIUM BUILDING']],
+        //     ['propertyGroupId' => 1106135, 'propertyGroupName' => ['englishName' => 'SPANISH TWIN VILLA']],
+        //     ['propertyGroupId' => 111782142, 'propertyGroupName' => ['englishName' => 'Suntech Tower']],
+        //     ['propertyGroupId' => 146995554, 'propertyGroupName' => ['englishName' => 'Empire Heights']],
+        //     ['propertyGroupId' => 182636537, 'propertyGroupName' => ['englishName' => 'Suncity Homes']],
+        //     ['propertyGroupId' => 208393821, 'propertyGroupName' => ['englishName' => 'Continental Tower']],
+        //     ['propertyGroupId' => 306418560, 'propertyGroupName' => ['englishName' => 'Samana Greens']],
+        //     ['propertyGroupId' => 311139905, 'propertyGroupName' => ['englishName' => '2020 Marquis']],
+        //     ['propertyGroupId' => 353741613, 'propertyGroupName' => ['englishName' => 'Azure']],
+        //     ['propertyGroupId' => 443715721, 'propertyGroupName' => ['englishName' => 'East40']],
+        //     ['propertyGroupId' => 456632490, 'propertyGroupName' => ['englishName' => 'Royal Residence']],
+        //     ['propertyGroupId' => 494741520, 'propertyGroupName' => ['englishName' => 'SAFEER TOWER 2']],
+        //     ['propertyGroupId' => 571737916, 'propertyGroupName' => ['englishName' => 'WAVES TOWER']],
+        //     ['propertyGroupId' => 591473609, 'propertyGroupName' => ['englishName' => 'Myka Residence']],
+        //     ['propertyGroupId' => 600776909, 'propertyGroupName' => ['englishName' => 'Rukan']],
+        //     ['propertyGroupId' => 687874294, 'propertyGroupName' => ['englishName' => 'The Court']]
+        // ];
 
         // $hardcodedData = [
         //     ['id' => 704518, 'name' => '1-Jan-2018 To 31-Dec-2018', 'from' => '2018-01-01T20:00:00', 'to' => '2018-12-31T20:00:00'],
@@ -87,9 +87,9 @@ class Documents extends Page implements HasTable
         // dd($data['response']['propertyGroups']);
         return [
             'services' => ServiceParameterResource::collection(ServiceParameter::all()),
-            // 'propertyGroups' => $data['response']['propertyGroups'],
+            'propertyGroups' => $data['response']['propertyGroups'],
             // 'propertyPeriods' => ServicePeriodResource::collection($data1['response']['serviceChargePeriod']),
-            'propertyGroups' => $hardcodedPropertyGroups,
+            // 'propertyGroups' => $hardcodedPropertyGroups,
             // 'propertyPeriods' => $hardcodedData
 
         ];
