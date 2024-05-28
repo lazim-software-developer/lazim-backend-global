@@ -3,10 +3,18 @@
 namespace App\Filament\Resources\FitOutFormsDocumentResource\Pages;
 
 use App\Filament\Resources\FitOutFormsDocumentResource;
+use App\Jobs\SaleNocMailJob;
 use App\Models\ExpoPushNotification;
+use App\Models\Forms\FitOutForm;
+use App\Models\Master\Service;
+use App\Models\Order;
+use App\Models\User\User;
+use App\Models\Vendor\Contract;
+use App\Models\Vendor\Vendor;
 use App\Traits\UtilsTrait;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class EditFitOutFormsDocument extends EditRecord
 {
@@ -25,9 +33,50 @@ class EditFitOutFormsDocument extends EditRecord
         return $this->getResource()::getUrl('index');
     }
 
+    public function beforeSave(){
+        if($this->record->admin_document != $this->data['admin_document']){
+            $user= $this->record->user;
+            $file = $this->data['admin_document'];
+            SaleNocMailJob::dispatch($user,$file);
+
+            $vendor = Contract::where('service_id', Service::where('name','MEP Services')->first()?->id)->where('end_date', now()->toDateString())->first()?->vendor_id;
+            if($vendor){
+                $vendor = Vendor::find($vendor);
+                $user = $vendor->user;
+                SaleNocMailJob::dispatch($user,$file);
+            }
+            $gatekeeper = $this->record->fitOut?->user_id;
+            if($gatekeeper){
+                $user = User::find($gatekeeper);
+                SaleNocMailJob::dispatch($user,$file);
+            }
+        }
+    }
     public function afterSave()
     {
         if ($this->record->status == 'approved') {
+            $this->record->contractorRequest->update(['status'=>$this->record->status]);
+
+            try {
+                $payment = createPaymentIntent(env('FIT_OUT_AMOUNT'), 'punithprachi113@gmail.com');
+
+                if ($payment) {
+                    $this->record->update([
+                        'payment_link' => $payment->client_secret
+                    ]);
+
+                    // Create an entry in orders table with status pending
+                    Order::create([
+                        'orderable_id' => $this->record->id,
+                        'orderable_type' => FitOutForm::class,
+                        'payment_status' => 'pending',
+                        'amount' => env('FIT_OUT_AMOUNT'),
+                        'payment_intent_id' => $payment->id
+                    ]);
+                }
+            } catch (\Exception $e) {
+                Log::error($e->getMessage());
+            }
             $expoPushTokens = ExpoPushNotification::where('user_id', $this->record->user_id)->pluck('token');
             if ($expoPushTokens->count() > 0) {
                 foreach ($expoPushTokens as $expoPushToken) {
@@ -65,6 +114,7 @@ class EditFitOutFormsDocument extends EditRecord
             
         }
         if ($this->record->status == 'rejected') {
+            $this->record->contractorRequest->update(['status'=>$this->record->status]);
             $expoPushTokens = ExpoPushNotification::where('user_id', $this->record->user_id)->pluck('token');
             if ($expoPushTokens->count() > 0) {
                 foreach ($expoPushTokens as $expoPushToken) {

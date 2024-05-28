@@ -347,6 +347,8 @@ Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active']
     //Fit Out rejected API
     Route::get('/fit-out/status/{fitout}',[FitOutFormsController::class, 'index']);
 });
+//Contractor Request
+Route::post('/fit-out/contractor/{fitout}',[FitOutFormsController::class, 'contractorRequest']);
 
 // API  to fetch Security for a building
 Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active'])->prefix('building')->group(function () {
