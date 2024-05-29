@@ -556,4 +556,4 @@ Route::get('/app-version',[AppController::class, 'version']);
 Route::post('/web-enquiry',[EnquiryController::class,'store']);
 
 //webhook
-Route::post('/webhook',[MollakController::class,'webhook']);
+Route::get('/webhook',[MollakController::class,'webhook']);

@@ -2,29 +2,88 @@
 
 namespace App\Imports;
 
+use Exception;
+use Filament\Notifications\Notification;
+use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
-use Illuminate\Support\Collection;
 
 class DelinquentsImport implements ToCollection, WithHeadingRow
 {
     public $data = [];
 
     /**
-    * @param Collection $collection
-    */
+     * @param Collection $collection
+     */
     public function collection(Collection $rows)
     {
-        foreach ($rows as $row) 
-        {
-            if(isset($row['unit_number']) && isset($row['recovery_notes_count']) && isset($row['unit_balance']) && isset($row['first_quarter']) && isset($row['second_quarter']) && isset($row['third_quarter'])) {
+        $expectedHeadings = [
+            'unit_number',
+            'recovery_notes_count',
+            'unit_balance',
+            'first_quarter',
+            'second_quarter',
+            'third_quarter',
+        ];
+
+        // Check if the file is empty
+        if ($rows->first()->filter()->isEmpty()) {
+            Notification::make()
+                ->title("Upload valid excel file.")
+                ->danger()
+                ->body("File Field: Delinquent Owners\nYou have uploaded an empty file")
+                ->send();
+            throw new Exception();
+        }
+
+        // Extract headings from the first row
+        $extractedHeadings = array_keys($rows->first()->toArray());
+
+        // Check for missing headings
+        $missingHeadings = array_diff($expectedHeadings, $extractedHeadings);
+        if (!empty($missingHeadings)) {
+            Notification::make()
+                ->title("Upload valid excel file.")
+                ->danger()
+                ->body("File Field: Delinquent Owners\nMissing headings: " . implode(', ', $missingHeadings))
+                ->send();
+            throw new Exception();
+        }
+
+        $filteredRows = $rows->filter(function ($row) {
+            return isset($row['unit_number']) || isset($row['recovery_notes_count']) || isset($row['unit_balance']) || isset($row['first_quarter']) || isset($row['second_quarter']) || isset($row['third_quarter']);
+        });
+        // Check for missing required fields in rows
+        $missingFieldsRows = [];
+        foreach ($filteredRows as $index => $row) {
+            foreach (['unit_number', 'recovery_notes_count', 'unit_balance', 'first_quarter', 'second_quarter', 'third_quarter'] as $field) {
+                if (!isset($row[$field]) || $row[$field] === null || $row[$field] === '') {
+                    $missingFieldsRows[] = $index + 1;
+                    break; // No need to check other fields for this row
+                }
+            }
+        }
+
+        if (!empty($missingFieldsRows)) {
+            Notification::make()
+                ->title("Upload valid excel file.")
+                ->danger()
+                ->body("File Field: Delinquent Owners\nRequired fields are missing in the following row(s): " . implode(', ', $missingFieldsRows))
+                ->send();
+            throw new Exception();
+        }
+
+        // Proceed with further processing
+
+        foreach ($filteredRows as $row) {
+            if (isset($row['unit_number']) && isset($row['recovery_notes_count']) && isset($row['unit_balance']) && isset($row['first_quarter']) && isset($row['second_quarter']) && isset($row['third_quarter'])) {
                 $this->data[] = [
-                    'unit_number'  => (string)$row['unit_number'],
+                    'unit_number'          => (string) $row['unit_number'],
                     'recovery_notes_count' => $row['recovery_notes_count'],
-                    'unit_balance' => $row['unit_balance'],
-                    'first_quarter' => $row['first_quarter'],
-                    'second_quarter' => $row['second_quarter'],
-                    'third_quarter' => $row['third_quarter'],
+                    'unit_balance'         => $row['unit_balance'],
+                    'first_quarter'        => $row['first_quarter'],
+                    'second_quarter'       => $row['second_quarter'],
+                    'third_quarter'        => $row['third_quarter'],
                 ];
             }
         }

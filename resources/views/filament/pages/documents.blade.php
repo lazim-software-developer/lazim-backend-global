@@ -49,8 +49,8 @@
                         @foreach($propertyGroups as $propertyGroup)
                             <option value="{{ $propertyGroup['propertyGroupId'] }}">{{ $propertyGroup['propertyGroupName']['englishName'] }}</option>
                         @endforeach
-                        </select>
                         <input type="hidden" name="property_name" value="{{ $propertyGroup['propertyGroupName']['englishName'] }}">
+                        </select>
 
                     </div>
 
@@ -60,6 +60,7 @@
                         
                         <select required class="form-select" id="servicePeriodSelect" name="service_period" style="min-height: 38px; display: block; width: 100%; margin-bottom: 10px;">
                             <!-- Options will be populated based on Property Group selection -->
+                            <option value="" selected disabled>Select Service Period</option>
                         </select>
                         <input type="hidden" name="from_date" id="service_period_from">
                         <input type="hidden" name="to_date" id="service_period_to">
@@ -70,7 +71,7 @@
                     <div class="mb-3" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
                         <label style="flex-basis: 40%; margin-right: 10px;">{{ $service->name }}*</label>
                         <div style="flex-basis: 58%;">
-                            <input type="file" id="file_{{ $service->value }}" name="{{$service->value}}" class="form-control" style="display: block; width: 100%;" >
+                            <input required type="file" id="file_{{ $service->value }}" name="{{$service->value}}" class="form-control" style="display: block; width: 100%;" >
                         </div>
                     </div>
                     @endforeach
@@ -151,6 +152,29 @@ document.getElementById('propertyGroupSelect').addEventListener('change', functi
     });
 });
 
+        // AJAX submission for upload form
+        document.getElementById('uploadForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent default form submission
+
+            var formData = new FormData(this);
+            var submitUpload = document.getElementById('submitUpload');
+            submitUpload.disabled = true; // Disable the submit button
+            submitUpload.innerText = 'Submitting...'; // Change button text
+
+            axios.post(this.action, formData)
+                .then(function(response) {
+                    console.log('Upload successful', response);
+                    // Reload the page
+                    location.reload();
+                })
+                .catch(function(error) {
+                    console.error('Upload error', error);
+                    // Provide feedback to the user
+                    // alert('Error uploading file. Please upload proper file and try again.');
+                    submitUpload.disabled = false; // Re-enable the submit button
+                    submitUpload.innerText = 'Submit'; // Reset button text
+                });
+        });
 
 </script>
 {{$this->table}}

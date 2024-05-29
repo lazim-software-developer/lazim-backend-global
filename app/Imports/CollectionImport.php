@@ -2,9 +2,11 @@
 
 namespace App\Imports;
 
+use Exception;
+use Filament\Notifications\Notification;
+use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
-use Illuminate\Support\Collection;
 
 class CollectionImport implements ToCollection, WithHeadingRow
 {
@@ -12,8 +14,82 @@ class CollectionImport implements ToCollection, WithHeadingRow
 
     public function collection(Collection $rows)
     {
-        foreach ($rows as $row) 
-        {
+        $expectedHeadings = [
+            'section',
+            'opening_balanace',
+            'charge',
+            'payment',
+            'closing_balance',
+            'rate',
+            'payment_method_id',
+            'amount',
+        ];
+
+        // Define the required fields for each section type
+        $sectionRequiredFields = [
+            'by_method' => ['payment_method_id', 'amount'],
+            'recovery'  => ['opening_balanace', 'charge', 'payment', 'closing_balance', 'rate'],
+        ];
+
+        // Check if the file is empty
+        if ($rows->first()->filter()->isEmpty()) {
+            Notification::make()
+                ->title("Upload valid excel file.")
+                ->danger()
+                ->body("File Field: Collection Report\nYou have uploaded an empty file")
+                ->send();
+            throw new Exception();
+        }
+
+        // Extract headings from the first row
+        $extractedHeadings = array_keys($rows->first()->toArray());
+
+        // Check for missing headings
+        $missingHeadings = array_diff($expectedHeadings, $extractedHeadings);
+        if (!empty($missingHeadings)) {
+            Notification::make()
+                ->title("Upload valid excel file.")
+                ->danger()
+                ->body("File Field: Collection Report\nMissing headings: " . implode(', ', $missingHeadings))
+                ->send();
+            throw new Exception();
+        }
+
+        // Filter out completely empty rows
+        $filteredRows = $rows->filter(function ($row) {
+            return !empty($row['section']) ||
+            !empty($row['opening_balanace']) ||
+            !empty($row['charge']) ||
+            !empty($row['payment']) ||
+            !empty($row['closing_balance']) ||
+            !empty($row['rate']) ||
+            !empty($row['payment_method_id']) ||
+            !empty($row['amount']);
+        });
+
+        // Check for missing required fields in rows based on the section type
+        $missingFieldsRows = [];
+        foreach ($filteredRows as $index => $row) {
+            $section = $row['section'];
+            if (isset($sectionRequiredFields[$section])) {
+                foreach ($sectionRequiredFields[$section] as $field) {
+                    if (!isset($row[$field]) || $row[$field] === null || $row[$field] === '') {
+                        $missingFieldsRows[] = $index + 1;
+                        break; // No need to check other fields for this row
+                    }
+                }
+            }
+        }
+
+        if (!empty($missingFieldsRows)) {
+            Notification::make()
+                ->title("Upload valid excel file.")
+                ->danger()
+                ->body("File Field: Collection Report\nRequired fields are missing in the following row(s): " . implode(', ', $missingFieldsRows))
+                ->send();
+            throw new Exception();
+        }
+        foreach ($filteredRows as $row) {
             if ($row['section'] === 'by_method') {
                 $this->data['by_method'][] = [
                     'payment_method_id' => $row['payment_method_id'],
@@ -21,11 +97,11 @@ class CollectionImport implements ToCollection, WithHeadingRow
                 ];
             } elseif ($row['section'] === 'recovery') {
                 $this->data['recovery'] = [
-                    'opening_balanace'  => $row['opening_balanace'],
-                    'charge'            => $row['charge'],
-                    'payment'           => $row['payment'],
-                    'closing_balance'   => $row['closing_balance'],
-                    'rate'              => $row['rate']
+                    'opening_balanace' => $row['opening_balanace'],
+                    'charge'           => $row['charge'],
+                    'payment'          => $row['payment'],
+                    'closing_balance'  => $row['closing_balance'],
+                    'rate'             => $row['rate'],
                 ];
             }
         }
