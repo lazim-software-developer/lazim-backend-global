@@ -276,8 +276,11 @@ class NocFormResource extends Resource
                         ->disk('s3')
                         ->directory('dev')
                         ->rules('file|mimes:jpeg,jpg,png,pdf|max:2048')
-                        ->openable(true)
+                        ->openable(true)->required()
                         ->downloadable(true)
+                        ->disabled(function($record){
+                            return $record->admin_document  ;
+                        })
                         ->visible(function (callable $get) {
                             if ($get('status') == 'approved') {
                                 return true;
