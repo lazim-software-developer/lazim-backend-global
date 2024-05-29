@@ -15,7 +15,6 @@ class UtilityExpensesImport implements ToCollection, WithHeadingRow
     public function collection(Collection $rows)
     {
         $expectedHeadings = [
-            'utility_reference',
             'amount',
             'utility_name',
             'provider_name',
@@ -49,7 +48,6 @@ class UtilityExpensesImport implements ToCollection, WithHeadingRow
         }
 
         $filteredRows = $rows->filter(function ($row) {
-            return !empty($row['utility_reference']) ||
             !empty($row['amount']) ||
             !empty($row['utility_name']) ||
             !empty($row['provider_name']) ||
@@ -61,7 +59,6 @@ class UtilityExpensesImport implements ToCollection, WithHeadingRow
         $missingFieldsRows = [];
         foreach ($filteredRows as $index => $row) {
             foreach ([
-                'utility_reference',
                 'amount',
                 'utility_name',
                 'provider_name',
