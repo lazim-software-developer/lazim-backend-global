@@ -18,17 +18,17 @@ class ItemsListImport implements ToCollection, WithHeadingRow
         $this->buildingId = $buildingId;
     }
     /**
-    * @param Collection $collection
-    */
+     * @param Collection $collection
+     */
     public function collection(Collection $rows)
     {
         $expectedHeadings = [
             'item_name',
             'quantity',
             'description',
-           ];
+        ];
 
-        if($rows->first() == null){
+        if ($rows->first()->filter()->isEmpty()) {
             Notification::make()
                 ->title("Upload valid excel file.")
                 ->danger()
@@ -36,21 +36,21 @@ class ItemsListImport implements ToCollection, WithHeadingRow
                 ->send();
             return 'failure';
         }
-   
-           // Extract the headings from the first row
-           $extractedHeadings = array_keys($rows->first()->toArray());
-   
-           // Check if all expected headings are present in the extracted headings
-           $missingHeadings = array_diff($expectedHeadings, $extractedHeadings);
-   
-           if (!empty($missingHeadings)) {
-               Notification::make()
-                   ->title("Upload valid excel file.")
-                   ->danger()
-                   ->body("Missing headings: " . implode(', ', $missingHeadings))
-                   ->send();
-               return 'failure';
-           } else {
+
+        // Extract the headings from the first row
+        $extractedHeadings = array_keys($rows->first()->toArray());
+
+        // Check if all expected headings are present in the extracted headings
+        $missingHeadings = array_diff($expectedHeadings, $extractedHeadings);
+
+        if (!empty($missingHeadings)) {
+            Notification::make()
+                ->title("Upload valid excel file.")
+                ->danger()
+                ->body("Missing headings: " . implode(', ', $missingHeadings))
+                ->send();
+            return 'failure';
+        } else {
 
             $missingFieldsRows = [];
 
@@ -74,8 +74,8 @@ class ItemsListImport implements ToCollection, WithHeadingRow
                 $buildingId = $this->buildingId;
 
                 Item::Create([
-                    'name' => $row['item_name'],
-                    'quantity' => $row['quantity'],
+                    'name'        => $row['item_name'],
+                    'quantity'    => $row['quantity'],
                     'description' => $row['description'],
                     'building_id' => $buildingId,
                 ]);
@@ -85,6 +85,6 @@ class ItemsListImport implements ToCollection, WithHeadingRow
                 ->success()
                 ->send();
             return 'success';
-           }
+        }
     }
 }

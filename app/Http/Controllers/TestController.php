@@ -17,6 +17,7 @@ use App\Imports\ReserveFundImport;
 use App\Imports\ServiceImport;
 use App\Imports\UtilityExpensesImport;
 use App\Imports\WorkOrdersImport;
+use App\Models\Building\Building;
 use App\Models\OaServiceRequest;
 use App\Models\ServiceParameter;
 use Aws\Exception\AwsException;
@@ -308,12 +309,12 @@ class TestController extends Controller
 //env("MOLLAK_API_URL") . 
         Log::info($response);
         // return json_decode($response);
-        // return $response = json_decode($response->body());
+        $response = json_decode($response->body());
 
         $oaData = OaServiceRequest::create([
             'service_parameter_id' => 1,
             'property_group'       => $request->property_group,
-            'property_name'        => $request->property_name,
+            'property_name'        => Building::where('property_group_id',$request->property_group)->first()->name,
             'from_date'            => $request->from_date,
             'to_date'              => $request->to_date,
             'service_period'       => $request->service_period,
@@ -333,10 +334,35 @@ class TestController extends Controller
             // return response()->json(['status' => 'success', 'message' => "Uploaded successfully!"]);
         } else {
             $oaData->update(['status' => "Failed"]);
+            $errorMessages = '';
+            if (isset($response->validationErrorsList)) {
+                $errors = array_map(function($validationError) {
+                    // Check if $validationError->items is an array
+                    if (is_array($validationError->items)) {
+                        return array_map(function($item) use ($validationError) {
+                            return "File: " . $item->key . ", Error: " . $validationError->errorMessage;
+                        }, $validationError->items);
+                    }
+                    return [];
+                }, $response->validationErrorsList);
+                
+                // Flatten the array
+                $errors = array_merge(...$errors);
+                
+                // Join errors into a single string separated by newlines
+                $errorMessages = implode("\n", $errors);
+            }
+            
             Notification::make()
                 ->title("Upload failed")
                 ->danger()
-                ->body("There seems to be some issue with the files you are uploading. Please check and try again!")
+                ->body(function () use ($errorMessages) {
+                    if (!empty($errorMessages)) {
+                        return $errorMessages;
+                    } else {
+                        return "There seems to be some issue with the files you are uploading. Please check and try again!";
+                    }
+                })
                 ->send();
             // return response()->json(['status' => 'error', 'message' => "There seems to be some issue with the files you are uploading. Please check and try again!"]);
         }

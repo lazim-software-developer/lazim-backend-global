@@ -2,14 +2,12 @@
 
 namespace App\Imports;
 
-use App\Models\MollakTenant;
-use App\Models\Building\Flat;
 use App\Models\Building\Building;
-use Illuminate\Support\Collection;
+use App\Models\Building\Flat;
+use App\Models\MollakTenant;
 use Filament\Notifications\Notification;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\ToCollection;
-use Illuminate\Validation\ValidationException;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 
 class MyClientImport implements ToCollection, WithHeadingRow
@@ -28,9 +26,9 @@ class MyClientImport implements ToCollection, WithHeadingRow
         $expectedHeadings = [
             'property_group', 'building', 'mollak_id', 'unit_number',
             'contract_number', 'tenant_name', 'emirates_id', 'license_number',
-            'mobile', 'email', 'start_date', 'end_date', 'contract_status'
+            'mobile', 'email', 'start_date', 'end_date', 'contract_status',
         ];
-        if($rows->first() == null){
+        if ($rows->first()->filter()->isEmpty()) {
             Notification::make()
                 ->title("Upload valid excel file.")
                 ->danger()
@@ -53,27 +51,27 @@ class MyClientImport implements ToCollection, WithHeadingRow
             return 'failure';
         } else {
             foreach ($rows as $row) {
-                $building = Building::find($this->buildingId)->first();
+                $building   = Building::find($this->buildingId)->first();
                 $createflat = Flat::firstOrCreate(
                     [
-                        'property_number' => $row['unit_number'],
-                        'mollak_property_id' => $row['mollak_id'],
-                        'building_id' => $this->buildingId,
+                        'property_number'      => $row['unit_number'],
+                        'mollak_property_id'   => $row['mollak_id'],
+                        'building_id'          => $this->buildingId,
                         'owner_association_id' => $building->owner_association_id,
-                    ],[
+                    ], [
                         'property_type' => 'UNIT',
                     ]);
                 MollakTenant::firstOrCreate([
-                    'building_id' => $this->buildingId,
-                    'flat_id' => $createflat->id,
+                    'building_id'     => $this->buildingId,
+                    'flat_id'         => $createflat->id,
                     'contract_number' => $row['contract_number'],
-                    'name' => $row['tenant_name'],
-                    'emirates_id' => $row['emirates_id'],
-                    'license_number' => $row['license_number'],
-                    'mobile' => preg_replace('/0/', '971', $row['mobile'], 1),
-                    'email' => $row['email'],
-                    'start_date' => $row['start_date'],
-                    'end_date' => $row['end_date'],
+                    'name'            => $row['tenant_name'],
+                    'emirates_id'     => $row['emirates_id'],
+                    'license_number'  => $row['license_number'],
+                    'mobile'          => preg_replace('/0/', '971', $row['mobile'], 1),
+                    'email'           => $row['email'],
+                    'start_date'      => $row['start_date'],
+                    'end_date'        => $row['end_date'],
                     'contract_status' => $row['contract_status'],
                 ]);
             }
