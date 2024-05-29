@@ -99,10 +99,14 @@ class FitOutFormsDocumentResource extends Resource
                                 ->required(),
                             FileUpload::make('admin_document')
                                 ->disk('s3')
-                                ->directory('dev')
+                                ->directory('dev')->required()
                                 ->rules('file|mimes:jpeg,jpg,png,pdf|max:2048')
                                 ->openable(true)
                                 ->downloadable(true)
+                                ->disabled(function(FitOutForm $record){
+                                    
+                                    return $record->admin_document  ;
+                                })
                                 ->visible(function (callable $get,$record) {
                                     if ($record->orders->first()?->payment_status == 'succeeded'  && $record->status == 'approved') {
                                         return true;

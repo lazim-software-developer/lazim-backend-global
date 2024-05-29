@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('fit_out_forms', function (Blueprint $table) {
-            $table->string('admin_document')->nullable();
+            $table->longText('admin_document')->nullable();
         });
     }
 
