@@ -18,8 +18,8 @@ class AccountsPayablesImport implements ToCollection, WithHeadingRow
     public function collection(Collection $rows)
     {
         $expectedHeadings = [
-            'service_code',
-            'account_name',
+            // 'service_code',
+            // 'account_name',
             'bill',
             'payment',
             'opening_balance',
@@ -51,12 +51,12 @@ class AccountsPayablesImport implements ToCollection, WithHeadingRow
         }
 
         $filteredRows = $rows->filter(function ($row) {
-            return !empty($row['service_code']) || !empty($row['account_name']) || !empty($row['bill']) || !empty($row['payment']) || !empty($row['opening_balance']) || !empty($row['closing_balance']);
+            return  !empty($row['bill']) || !empty($row['payment']) || !empty($row['opening_balance']) || !empty($row['closing_balance']);
         });
         // Check for missing required fields in rows
         $missingFieldsRows = [];
         foreach ($filteredRows as $index => $row) {
-            foreach (['service_code', 'account_name', 'bill', 'payment', 'opening_balance', 'closing_balance'] as $field) {
+            foreach (['bill', 'payment', 'opening_balance', 'closing_balance'] as $field) {
                 if (!isset($row[$field]) || $row[$field] === null || $row[$field] === '') {
                     $missingFieldsRows[] = $index + 1;
                     break; // No need to check other fields for this row
@@ -76,10 +76,10 @@ class AccountsPayablesImport implements ToCollection, WithHeadingRow
         // Proceed with further processing
 
         foreach ($filteredRows as $row) {
-            if ($row['account_name'] && $row['bill'] && $row['payment'] && $row['opening_balance'] && $row['closing_balance']) {
+            if (($row['service_code'] || $row['account_name']) && $row['bill'] && $row['payment'] && $row['opening_balance'] && $row['closing_balance']) {
                 $this->data[] = [
-                    'service_code'    => $row['service_code'] ?? '',
-                    'account_name'    => $row['account_name'],
+                    'service_code'    => $row['service_code'] ?: null,
+                    'account_name'    => $row['account_name'] ?: null,
                     'bill'            => $row['bill'],
                     'payment'         => $row['payment'],
                     'opening_balance' => $row['opening_balance'],
