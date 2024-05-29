@@ -17,7 +17,6 @@ class AssetsImport implements ToCollection, WithHeadingRow
         $expectedHeadings = [
             'asset_name',
             'item_name',
-            'asset_code',
             'warranties_count',
             'active_warranties_count',
             'jobs_count',
@@ -51,7 +50,6 @@ class AssetsImport implements ToCollection, WithHeadingRow
         $filteredRows = $rows->filter(function ($row) {
             return !empty($row['asset_name']) ||
             !empty($row['item_name']) ||
-            !empty($row['asset_code']) ||
             !empty($row['warranties_count']) ||
             !empty($row['active_warranties_count']) ||
             !empty($row['jobs_count']) ||
@@ -63,7 +61,6 @@ class AssetsImport implements ToCollection, WithHeadingRow
             foreach ([
                 'asset_name',
                 'item_name',
-                'asset_code',
                 'warranties_count',
                 'active_warranties_count',
                 'jobs_count',
@@ -100,7 +97,7 @@ class AssetsImport implements ToCollection, WithHeadingRow
                 // Append item to asset
                 $this->data[$row['asset_name']]['items'][] = [
                     'name'                    => $row['item_name'],
-                    'asset_code'              => $row['asset_code'],
+                    'asset_code'              => $row['asset_code'] ?? null,
                     'location'                => $row['location'] ?? null, // Assuming there might be empty locations
                     'warranties_count' => $row['warranties_count'],
                     'active_warranties_count' => $row['active_warranties_count'],
