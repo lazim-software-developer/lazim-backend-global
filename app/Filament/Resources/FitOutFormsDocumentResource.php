@@ -100,7 +100,7 @@ class FitOutFormsDocumentResource extends Resource
                             FileUpload::make('admin_document')
                                 ->disk('s3')
                                 ->directory('dev')->required()
-                                ->rules('file|mimes:jpeg,jpg,png,pdf|max:2048')
+                                ->rules('file|mimes:pdf|max:2048')
                                 ->openable(true)
                                 ->downloadable(true)
                                 ->disabled(function(FitOutForm $record){
