@@ -302,7 +302,7 @@ class TestController extends Controller
         $data->Collection      = $collection;
 
         // return $data;
-        $response = Http::withOptions(['verify' => false])->withHeaders([
+        $response = Http::withOptions(['verify' => false])->timeout(30)->withHeaders([
             'content-type' => 'application/json',
             'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
         ])->post('https://qagate.dubailand.gov.ae/mollak/external/managementreport/submit', $data);
