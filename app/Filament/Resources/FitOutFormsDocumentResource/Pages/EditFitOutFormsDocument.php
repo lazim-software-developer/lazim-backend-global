@@ -39,13 +39,13 @@ class EditFitOutFormsDocument extends EditRecord
             $file = $this->data['admin_document'];
             SaleNocMailJob::dispatch($user,$file);
 
-            $vendor = Contract::where('service_id', Service::where('name','MEP Services')->first()?->id)->where('end_date', now()->toDateString())->first()?->vendor_id;
+            $vendor = Contract::where('service_id', Service::where('name','MEP Services')->first()?->id)->where('end_date','>=', now()->toDateString())->first()?->vendor_id;
             if($vendor){
                 $vendor = Vendor::find($vendor);
                 $user = $vendor->user;
                 SaleNocMailJob::dispatch($user,$file);
             }
-            $gatekeeper = $this->record->fitOut?->user_id;
+            $gatekeeper = $this->record->user_id;
             if($gatekeeper){
                 $user = User::find($gatekeeper);
                 SaleNocMailJob::dispatch($user,$file);
@@ -54,7 +54,7 @@ class EditFitOutFormsDocument extends EditRecord
     }
     public function afterSave()
     {
-        if ($this->record->status == 'approved') {
+        if ($this->record->status == 'approved' && $this->record->status != $this->data['status']) {
             $this->record->contractorRequest->update(['status'=>$this->record->status]);
 
             try {
@@ -113,7 +113,7 @@ class EditFitOutFormsDocument extends EditRecord
                 
             
         }
-        if ($this->record->status == 'rejected') {
+        if ($this->record->status == 'rejected' && $this->record->status != $this->data['status']) {
             $this->record->contractorRequest->update(['status'=>$this->record->status]);
             $expoPushTokens = ExpoPushNotification::where('user_id', $this->record->user_id)->pluck('token');
             if ($expoPushTokens->count() > 0) {
