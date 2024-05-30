@@ -14,6 +14,7 @@ class Enquiry extends Model
         'name',
         'email',
         'phone',
-        'message'
+        'message',
+        'company_name'
     ];
 }
