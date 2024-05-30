@@ -18,6 +18,11 @@
 </tr>
 <tr>
 	<td class="paragraph">
+		Company Name : {{$enquiry->company_name}}
+	</td>
+</tr>
+<tr>
+	<td class="paragraph">
 		Name : {{$enquiry->name}}
 	</td>
 </tr>
