@@ -279,7 +279,7 @@ class NocFormResource extends Resource
                         ->rules(['file','mimes:pdf',function () {
                             return function (string $attribute, $value, Closure $fail) {
                                 if($value->getSize()/ 1024 > 2048){
-                                    $fail('The cover Photo field must not be greater than 2MB.');
+                                    $fail('The document must not be greater than 2MB.');
                                 }
                             };
                         },])
