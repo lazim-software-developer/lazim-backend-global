@@ -4,6 +4,7 @@ namespace App\Filament\Resources\FitOutFormsDocumentResource\Pages;
 
 use App\Filament\Resources\FitOutFormsDocumentResource;
 use App\Jobs\SaleNocMailJob;
+use App\Models\Building\BuildingPoc;
 use App\Models\ExpoPushNotification;
 use App\Models\Forms\FitOutForm;
 use App\Models\Master\Service;
@@ -45,9 +46,9 @@ class EditFitOutFormsDocument extends EditRecord
                 $user = $vendor->user;
                 SaleNocMailJob::dispatch($user,$file);
             }
-            $gatekeeper = $this->record->user_id;
+            $gatekeeper = BuildingPoc::where('building_id',$this->record->building_id)->where('active',true)->where('role_name','security')->first();
             if($gatekeeper){
-                $user = User::find($gatekeeper);
+                $user = User::find($gatekeeper->user_id);
                 SaleNocMailJob::dispatch($user,$file);
             }
         }
