@@ -280,7 +280,7 @@ class NocFormResource extends Resource
                         ->downloadable(true)
                         ->disabled(function($record){
                             return $record->admin_document  ;
-                        })
+                        })->helperText('Once a document is uploaded, it cannot be modified.')
                         ->visible(function (callable $get) {
                             if ($get('status') == 'approved') {
                                 return true;
