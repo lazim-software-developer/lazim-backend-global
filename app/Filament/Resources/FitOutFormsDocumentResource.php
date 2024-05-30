@@ -112,7 +112,7 @@ class FitOutFormsDocumentResource extends Resource
                                         return true;
                                     }
                                     return false;
-                                })
+                                })->helperText('Once a document is uploaded, it cannot be modified.')
                                 ->label('Document'),
                              // If the form is rejected, we need to capture which fields are rejected
                              CheckboxList::make('rejected_fields')
