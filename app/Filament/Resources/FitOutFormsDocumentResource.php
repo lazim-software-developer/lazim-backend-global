@@ -101,7 +101,7 @@ class FitOutFormsDocumentResource extends Resource
                             FileUpload::make('admin_document')
                                 ->disk('s3')
                                 ->directory('dev')->required()
-                                ->rules(['file','mimes:png',function () {
+                                ->rules(['file','mimes:pdf',function () {
                                     return function (string $attribute, $value, Closure $fail) {
                                         if($value->getSize()/ 1024 > 2048){
                                             $fail('The cover Photo field must not be greater than 2MB.');
