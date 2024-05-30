@@ -275,7 +275,7 @@ class NocFormResource extends Resource
                     FileUpload::make('admin_document')
                         ->disk('s3')
                         ->directory('dev')
-                        ->rules('file|mimes:jpeg,jpg,png,pdf|max:2048')
+                        ->rules('file|mimes:pdf|max:2048')
                         ->openable(true)->required()
                         ->downloadable(true)
                         ->disabled(function($record){
