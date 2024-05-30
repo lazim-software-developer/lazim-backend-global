@@ -18,6 +18,7 @@ use Filament\Forms\Components\FileUpload;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\NocFormResource\Pages;
+use Closure;
 
 class NocFormResource extends Resource
 {
@@ -275,7 +276,13 @@ class NocFormResource extends Resource
                     FileUpload::make('admin_document')
                         ->disk('s3')
                         ->directory('dev')
-                        ->rules('file|mimes:pdf|max:2048')
+                        ->rules(['file','mimes:png',function () {
+                            return function (string $attribute, $value, Closure $fail) {
+                                if($value->getSize()/ 1024 > 2048){
+                                    $fail('The cover Photo field must not be greater than 2MB.');
+                                }
+                            };
+                        },])
                         ->openable(true)->required()
                         ->downloadable(true)
                         ->disabled(function($record){
