@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Forms;
 
+use App\Filament\Resources\FitOutFormsDocumentResource;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Forms\CreateFitOutFormsRequest;
 use App\Http\Resources\CustomResponseResource;
@@ -15,6 +16,8 @@ use App\Models\Master\DocumentLibrary;
 use App\Models\Master\Role;
 use App\Models\User\User;
 use App\Traits\UtilsTrait;
+use Filament\Notifications\Actions\Action;
+use Filament\Notifications\Notification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -107,38 +110,18 @@ class FitOutFormsController extends Controller
             Document::create($request->all());
         }
         $user = User::where('owner_association_id',$fitout->owner_association_id)->where('role_id',Role::where('name','OA')->first()->id)->first();
-        $expoPushToken = ExpoPushNotification::where('user_id', $user->id)->first()?->token;
-                if ($expoPushToken) {                       
-                        $message = [
-                            'to' => $expoPushToken,
-                            'sound' => 'default',
-                            'url' => 'FitOut',
-                            'title' => 'Contractor Request!',
-                            'body' => 'New Contractor FitOut Request',
-                            'data' => ['notificationType' =>  'FitOut' ],
-                        ];
-                        $this->expoNotification($message);
-                    }
-                        DB::table('notifications')->insert([
-                            'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
-                            'type' => 'Filament\Notifications\DatabaseNotification',
-                            'notifiable_type' => 'App\Models\User\User',
-                            'notifiable_id' => $user->id,
-                            'data' => json_encode([
-                                'actions' => [],
-                                'body' => 'New Contractor FitOut Request',
-                                'duration' => 'persistent',
-                                'icon' => 'heroicon-o-document-text',
-                                'iconColor' => 'warning',
-                                'title' => 'Contractor Request!',
-                                'view' => 'notifications::notification',
-                                'viewData' => [],
-                                'format' => 'filament',
-                                'url' => 'FitOut',
-                            ]),
-                            'created_at' => now()->format('Y-m-d H:i:s'),
-                            'updated_at' => now()->format('Y-m-d H:i:s'),
-                        ]);
+        Notification::make()
+        ->success()
+        ->title("FitOut Contractor Request! ")
+        ->icon('heroicon-o-document-text')
+        ->iconColor('warning')
+        ->body('New Contractor FitOut Request ')
+        ->actions([
+            Action::make('view')
+                ->button()
+                ->url(fn () => FitOutFormsDocumentResource::getUrl('edit', [$fitout])),
+        ])
+        ->sendToDatabase($user);
             
 
         return (new CustomResponseResource([
