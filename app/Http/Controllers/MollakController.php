@@ -295,6 +295,11 @@ class MollakController extends Controller
     }
 
     public function webhook(Request $request){
+
         Log::info("Webhook--->".json_encode($request->all()));
+        return [
+            'isExecuted' => true,
+            'acknowledgeRef' => random_int(111111,999999)
+        ];
     }
 }
