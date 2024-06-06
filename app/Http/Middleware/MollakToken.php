@@ -15,7 +15,7 @@ class MollakToken
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if ($request->header('mollak_token') != 'Mollak_TKX8z4TpH9wL') {
+        if ($request->header('mollak_id') != 'TKX8z4TpH9wL') {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
         return $next($request);

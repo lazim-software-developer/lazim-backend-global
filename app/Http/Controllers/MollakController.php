@@ -298,8 +298,8 @@ class MollakController extends Controller
 
         Log::info("Webhook--->".json_encode($request->all()));
         return [
-            'status' => 'pass',
-            'reference_id' => random_int(11111,99999)
+            'isExecuted' => true,
+            'acknowledgeRef' => random_int(111111,999999)
         ];
     }
 }
