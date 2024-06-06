@@ -2,6 +2,7 @@
 
 namespace App\Http;
 
+use App\Http\Middleware\MollakToken;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 
 class Kernel extends HttpKernel
@@ -69,5 +70,6 @@ class Kernel extends HttpKernel
         'email.verified' => \App\Http\Middleware\Custom\CheckEmailVerified::class,
         'phone.verified' => \App\Http\Middleware\Custom\CheckPhoneVerified::class,
         'active.gatekeeper' => \App\Http\Middleware\Custom\CheckActiveGateKeeper::class,
+        'check.MollakToken' => MollakToken::class,
     ];
 }
