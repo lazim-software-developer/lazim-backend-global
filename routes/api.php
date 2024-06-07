@@ -557,3 +557,6 @@ Route::post('/web-enquiry',[EnquiryController::class,'store']);
 
 //webhook
 Route::post('/webhook',[MollakController::class,'webhook']);
+
+//mollak
+Route::post('/upload',[TestController::class, 'uploadAll'])->name('uploadAll');
