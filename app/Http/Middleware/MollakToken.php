@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\Response;
 
 class MollakToken
@@ -15,6 +16,7 @@ class MollakToken
      */
     public function handle(Request $request, Closure $next): Response
     {
+        Log::info($request->header('mollak_id'));
         if ($request->header('mollak_id') != 'TKX8z4TpH9wL') {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
