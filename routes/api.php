@@ -552,4 +552,4 @@ Route::get('/app-version',[AppController::class, 'version']);
 Route::post('/web-enquiry',[EnquiryController::class,'store']);
 
 //webhook
-Route::post('/webhook',[MollakController::class,'webhook'])->middleware(['check.MollakToken']);
+Route::post('/webhook',[MollakController::class,'webhook']);

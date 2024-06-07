@@ -295,7 +295,7 @@ class MollakController extends Controller
     }
 
     public function webhook(Request $request){
-
+        Log::info($request->header('mollak_id'));
         Log::info("Webhook--->".json_encode($request->all()));
         return [
             'isExecuted' => true,
