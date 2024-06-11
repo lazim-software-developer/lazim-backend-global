@@ -75,17 +75,27 @@ class UserResource extends Resource
                     //         fn (?Model $record) => $record
                     //     )
                     //     ->placeholder('Lazim Id'),
-
-                    Select::make('role_id')
-                    ->label('Role')
-                        ->rules(['exists:roles,id'])
-                        ->required()->disabledOn('edit')
-                        ->options(function () {
-                            $oaId = auth()->user()->owner_association_id;
-                            return Role::whereNotIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'OA', 'Owner', 'Managing Director', 'Vendor'])
-                                ->pluck('name', 'id');
-                        })->searchable()->preload()
-                        ->placeholder('Role'),
+                    Select::make('roles')
+                    ->relationship('roles', 'name')
+                    // ->multiple()
+                    ->options(function () {
+                                $oaId = auth()->user()->owner_association_id;
+                                return Role::whereNotIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'OA', 'Owner', 'Managing Director', 'Vendor'])
+                                ->where('owner_association_id',$oaId)
+                                    ->pluck('name', 'id');
+                            })
+                    ->preload()->required()
+                    ->searchable(),
+                    // Select::make('role_id')
+                    // ->label('Role')
+                    //     ->rules(['exists:roles,id'])
+                    //     ->required()->disabledOn('edit')
+                    //     ->options(function () {
+                    //         $oaId = auth()->user()->owner_association_id;
+                    //         return Role::whereNotIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'OA', 'Owner', 'Managing Director', 'Vendor'])
+                    //             ->pluck('name', 'id');
+                    //     })->searchable()->preload()
+                    //     ->placeholder('Role'),
                     // Toggle::make('phone_verified')
                     //     ->rules(['boolean'])
                     //     ->hidden()
