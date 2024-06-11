@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Log;
 
 return new class extends Migration
 {
@@ -33,6 +34,7 @@ return new class extends Migration
             $table->unique(['name', 'guard_name']);
         });
         
+        Log::info('roles');
         // Schema::dropIfExists('roles');
         if (Schema::hasTable('roles')) {
             Schema::table($tableNames['roles'], function (Blueprint $table) use ($teams, $columnNames) {
