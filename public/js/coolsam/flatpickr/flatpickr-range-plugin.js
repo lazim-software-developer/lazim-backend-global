@@ -25,7 +25,7 @@
             for (var a = arguments[i], j = 0, jl = a.length; j < jl; j++, k++)
                 r[k] = a[j];
         return r;
-    }
+    } 
 
     function rangePlugin(config) {
         if (config === void 0) { config = {}; }
