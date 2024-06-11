@@ -98,7 +98,8 @@ class AdminPanelProvider extends PanelProvider
                 $user->can('view_any_master::service')||
                 $user->can('view_any_master::vendor::service')||
                 $user->can('view_any_user::user') ||
-                $user->can('view_any_building::documents')
+                $user->can('view_any_building::documents')||
+                auth()->user()->role_id == 10
               ){
                 $builder->groups([
                     NavigationGroup::make('Master')
@@ -176,7 +177,7 @@ class AdminPanelProvider extends PanelProvider
                                 ->activeIcon('heroicon-o-cube-transparent')
                                 ->sort(10),
                             NavigationItem::make('Roles')
-                                ->hidden(!$user->id == 1)
+                                ->hidden(!$user->id == 1 || !auth()->user()->role_id == 10)
                                 ->url('/admin/shield/roles')
                                 ->icon('heroicon-s-user-group')
                                 ->activeIcon('heroicon-s-user-group')
