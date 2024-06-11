@@ -34,6 +34,7 @@ return new class extends Migration
             $table->unique(['name', 'guard_name']);
         });
         
+        
         // Schema::dropIfExists('roles');
         if (Schema::hasTable('roles')) {
             Schema::table($tableNames['roles'], function (Blueprint $table) use ($teams, $columnNames) {
