@@ -27,7 +27,7 @@
             }
             return t;
         };
-        return __assign.apply(this, arguments); 
+        return __assign.apply(this, arguments);
     };
 
     function getEventTarget(event) {

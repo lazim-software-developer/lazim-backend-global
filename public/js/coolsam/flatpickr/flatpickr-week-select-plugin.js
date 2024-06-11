@@ -15,7 +15,7 @@
       catch (error) {
           return event.target;
       }
-  } 
+  }
 
   function weekSelectPlugin() {
       return function (fp) {
