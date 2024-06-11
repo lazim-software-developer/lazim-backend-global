@@ -18,10 +18,10 @@ class Role extends Model
 
     protected $searchableFields = ['*'];
 
-    public function users()
-    {
-        return $this->hasMany(User::class);
-    }
+    // public function users()
+    // {
+    //     return $this->hasMany(User::class);
+    // }
 
     public function building()
     {

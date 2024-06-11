@@ -2,8 +2,8 @@
 
 namespace App\Policies\Community;
 
-use App\Models\Building\Building;
 use App\Models\User\User;
+use App\Models\Community\Post;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class PostPolicy
@@ -11,129 +11,141 @@ class PostPolicy
     use HandlesAuthorization;
 
     /**
-     * Determine whether the user can view any posts for a specific building.
+     * Determine whether the user can view any models.
      *
-     * @param  \App\Models\User  $user
-     * @param  Integer $buildingId;
-     * @return mixed
+     * @param  \App\Models\User\User  $user
+     * @return bool
      */
-    // public function viewAny(User $user, $buildingId)
-    // {
-    //     // If the user is a tenant or Owner, they can view any post
-    //     if (in_array($user->role->name, ['Owner', 'Tenant'])) {
-    //         return $user->residences()
-    //         ->whereHas('building', function ($query) use ($buildingId) {
-    //             $query->where('id', $buildingId);
-    //         })
-    //         ->where('active', 1)
-    //         ->exists();
-    //     }
-
-    //     // TODO: Write logic for allowing OA admin to view all posts of all buildings which belongs to their OA
-
-    //     // If the user's role is not owner or tenant, they can't view the posts
-    //     return true;
-    // }
+    public function viewAny(User $user): bool
+    {
+        return $user->can('view_any_post');
+    }
 
     /**
-     * Determine whether the user can create a post for a specific building.
+     * Determine whether the user can view the model.
      *
-     * @param  \App\Models\User  $user
-     * @param  Integer $buildingId;
-     * @return mixed
+     * @param  \App\Models\User\User  $user
+     * @param  \App\Models\Community\Post  $post
+     * @return bool
      */
-    // public function create(User $user, $buildingId)
-    // {
-    //     // If the user is a tenant or Owner, they can view any post
-    //     if (in_array($user->role->name, ['Owner', 'Tenant'])) {
-    //         return $user->residences()
-    //         ->whereHas('building', function ($query) use ($buildingId) {
-    //             $query->where('id', $buildingId);
-    //         })
-    //         ->where('active', 1)
-    //         ->exists();
-    //     }
-
-    //     // TODO: Write logic for allowing OA admin to view all posts of all buildings which belongs to their OA
-
-    //     // If the user's role is not owner or tenant, they can't view the posts
-    //     return true;
-    // }
+    public function view(User $user, Post $post): bool
+    {
+        return $user->can('view_post');
+    }
 
     /**
-     * Determine whether the user can view any posts for a specific building.
+     * Determine whether the user can create models.
      *
-     * @param  \App\Models\User  $user
-     * @param  Integer $buildingId;
-     * @return mixed
+     * @param  \App\Models\User\User  $user
+     * @return bool
      */
-    // public function view(User $user, $buildingId)
-    // {
-    //     // // If the user is a tenant or Owner, they can view any post
-    //     // if (in_array($user->role->name, ['Owner', 'Tenant'])) {
-    //     //     return $user->residences()
-    //     //     ->whereHas('building', function ($query) use ($buildingId) {
-    //     //         $query->where('id', $buildingId);
-    //     //     })
-    //     //     ->where('active', 1)
-    //     //     ->exists();
-    //     // }
+    public function create(User $user): bool
+    {
+        return $user->can('create_post');
+    }
 
-    //     // TODO: Write logic for allowing OA admin to view all posts of all buildings which belongs to their OA
-
-    //     // If the user's role is not owner or tenant, they can't view the posts
-    //     return false;
-    // }
-     /**
-     * Determine whether the attendance can view any models.
+    /**
+     * Determine whether the user can update the model.
+     *
+     * @param  \App\Models\User\User  $user
+     * @param  \App\Models\Community\Post  $post
+     * @return bool
      */
+    public function update(User $user, Post $post): bool
+    {
+        return $user->can('update_post');
+    }
 
-     public function viewAny(User $user): bool
-     {
-        return true;
-     }
- 
-     /**
-      * Determine whether the attendance can view the model.
-      */
-     public function view(User $user): bool
-     {
-        return true;
-     }
- 
-     /**
-      * Determine whether the attendance can create models.
-      */
-     public function create(User $user): bool
-     {
-         return true;
-     }
- 
-     /**
-      * Determine whether the attendance can update the model.
-      */
-     public function update(User $user): bool
-     {
-        return true;
-     }
- 
-     /**
-      * Determine whether the attendance can delete the model.
-      */
-     public function delete(User $user): bool
-     {
- 
-         return false;
- 
-     }
- 
-     /**
-      * Determine whether the user can delete multiple instances of the model.
-      */
-     public function deleteAny(User $user): bool
-     {
-         return false;
- 
-     }
- 
+    /**
+     * Determine whether the user can delete the model.
+     *
+     * @param  \App\Models\User\User  $user
+     * @param  \App\Models\Community\Post  $post
+     * @return bool
+     */
+    public function delete(User $user, Post $post): bool
+    {
+        return $user->can('{{ Delete }}');
+    }
+
+    /**
+     * Determine whether the user can bulk delete.
+     *
+     * @param  \App\Models\User\User  $user
+     * @return bool
+     */
+    public function deleteAny(User $user): bool
+    {
+        return $user->can('{{ DeleteAny }}');
+    }
+
+    /**
+     * Determine whether the user can permanently delete.
+     *
+     * @param  \App\Models\User\User  $user
+     * @param  \App\Models\Community\Post  $post
+     * @return bool
+     */
+    public function forceDelete(User $user, Post $post): bool
+    {
+        return $user->can('{{ ForceDelete }}');
+    }
+
+    /**
+     * Determine whether the user can permanently bulk delete.
+     *
+     * @param  \App\Models\User\User  $user
+     * @return bool
+     */
+    public function forceDeleteAny(User $user): bool
+    {
+        return $user->can('{{ ForceDeleteAny }}');
+    }
+
+    /**
+     * Determine whether the user can restore.
+     *
+     * @param  \App\Models\User\User  $user
+     * @param  \App\Models\Community\Post  $post
+     * @return bool
+     */
+    public function restore(User $user, Post $post): bool
+    {
+        return $user->can('{{ Restore }}');
+    }
+
+    /**
+     * Determine whether the user can bulk restore.
+     *
+     * @param  \App\Models\User\User  $user
+     * @return bool
+     */
+    public function restoreAny(User $user): bool
+    {
+        return $user->can('{{ RestoreAny }}');
+    }
+
+    /**
+     * Determine whether the user can replicate.
+     *
+     * @param  \App\Models\User\User  $user
+     * @param  \App\Models\Community\Post  $post
+     * @return bool
+     */
+    public function replicate(User $user, Post $post): bool
+    {
+        return $user->can('{{ Replicate }}');
+    }
+
+    /**
+     * Determine whether the user can reorder.
+     *
+     * @param  \App\Models\User\User  $user
+     * @return bool
+     */
+    public function reorder(User $user): bool
+    {
+        return $user->can('{{ Reorder }}');
+    }
+
 }
