@@ -299,7 +299,8 @@ class MollakController extends Controller
         header("Access-Control-Allow-Headers: Authorization, Origin, X-Requested-With, Content-Type, Accept");
         // header("Content-Type: application/json");
         // header("Access-Control-Allow-Headers: Content-Type, Authorization");
-        Log::info($request->header('mollak_id'));
+        Log::info($request->header('x-api-key'));
+        Log::info($request->headers->all());
         Log::info("Webhook--->".json_encode($request->all()));
         return [
             'isExecuted' => true,
