@@ -107,9 +107,16 @@ class EditOwnerAssociation extends EditRecord
                     ['name' => 'MD'],
                     ['owner_association_id' => $oaId]
                 )->first();
+                $oa = Role::where(['name' => 'OA'],
+                ['owner_association_id' => $oaId]
+                )->first();
                 if($md){
                     $permission = Permission::all();
                     $md->syncPermissions($permission);
+                }
+                if($oa){
+                    $permission = Permission::all();
+                    $oa->syncPermissions($permission);
                 }
             }
         
