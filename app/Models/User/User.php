@@ -99,10 +99,10 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
     //     return "{$this->first_name} {$this->last_name}";
     // }
 
-    // public function role()
-    // {
-    //     return $this->belongsTo(Role::class);
-    // }
+    public function role()
+    {
+        return $this->belongsTo(Role::class);
+    }
 
     public function vendors()
     {
