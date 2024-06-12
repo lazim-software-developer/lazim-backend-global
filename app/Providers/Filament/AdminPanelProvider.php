@@ -177,7 +177,7 @@ class AdminPanelProvider extends PanelProvider
                                 ->activeIcon('heroicon-o-cube-transparent')
                                 ->sort(10),
                             NavigationItem::make('Roles')
-                                ->hidden(!$user->id == 1 || !auth()->user()->role_id == 10)
+                                ->hidden(!$user->id == 1 || !auth()->user()->role_id == Role::where('name', 'OA')->where('owner_association_id',auth()->user()->owner_association_id )->first()?->id)
                                 ->url('/admin/shield/roles')
                                 ->icon('heroicon-s-user-group')
                                 ->activeIcon('heroicon-s-user-group')
