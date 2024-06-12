@@ -93,13 +93,13 @@ class EditOwnerAssociation extends EditRecord
             
 
             $permissionsConfig = config('role-permission');
-            
+            Log::info($permissionsConfig);
             foreach ($permissionsConfig['roles'] as $roleName => $roleConfig) {
                 $role = Role::where(
                     ['name' => $roleName],
                     ['owner_association_id' => $oaId]
                 )->first();
-    
+                Log::info("Role".$role);
                 if (isset($roleConfig['permissions'])) {
                     $role->syncPermissions($roleConfig['permissions']);                
                 }
@@ -107,9 +107,11 @@ class EditOwnerAssociation extends EditRecord
                     ['name' => 'MD'],
                     ['owner_association_id' => $oaId]
                 )->first();
+                Log::info("md".$md);
                 $oa = Role::where(['name' => 'OA'],
                 ['owner_association_id' => $oaId]
                 )->first();
+                Log::info("oa".$oa);
                 if($md){
                     $permission = Permission::all();
                     $md->syncPermissions($permission);
