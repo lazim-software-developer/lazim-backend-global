@@ -122,7 +122,7 @@ class EditOwnerAssociation extends EditRecord
                 $oa->syncPermissions($permission);
             }
         
-
+            
             // Create an entry in Users table
             // check if entered email and phone number is already present for other users in users table
             $emailexists = User::where(['email' => $this->record->email, 'phone' => $this->record->phone])->exists();
@@ -140,6 +140,12 @@ class EditOwnerAssociation extends EditRecord
                     'owner_association_id' => $this->record->id,
                     'email_verified' => 1,
                     'phone_verified' => 1,
+                ]);
+
+                DB::table('model_has_roles')->insert([
+                    'role_id' => $oa->id,
+                    'model_type' => User::class,
+                    'model_id' => $user->id,
                 ]);
                 // Send email with credentials
                 AccountCreationJob::dispatch($user, $password);
