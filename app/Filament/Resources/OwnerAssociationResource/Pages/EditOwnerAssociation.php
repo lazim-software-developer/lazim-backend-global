@@ -97,29 +97,29 @@ class EditOwnerAssociation extends EditRecord
             foreach ($permissionsConfig['roles'] as $roleName => $roleConfig) {
                 $role = Role::where(
                     ['name' => $roleName],
-                    ['owner_association_id' => $oaId]
+                    ['owner_association_id' => $this->record->id]
                 )->first();
                 Log::info("Role".$role);
                 if (isset($roleConfig['permissions'])) {
                     $role->syncPermissions($roleConfig['permissions']);                
                 }
-                $md = Role::where(
-                    ['name' => 'MD'],
-                    ['owner_association_id' => $oaId]
-                )->first();
-                Log::info("md".$md);
-                $oa = Role::where(['name' => 'OA'],
-                ['owner_association_id' => $oaId]
-                )->first();
-                Log::info("oa".$oa);
-                if($md){
-                    $permission = Permission::all();
-                    $md->syncPermissions($permission);
-                }
-                if($oa){
-                    $permission = Permission::all();
-                    $oa->syncPermissions($permission);
-                }
+            }
+            $md = Role::where(
+                ['name' => 'MD'],
+                ['owner_association_id' => $this->record->id]
+            )->first();
+            Log::info("md".$md);
+            $oa = Role::where(['name' => 'OA'],
+            ['owner_association_id' => $this->record->id]
+            )->first();
+            Log::info("oa".$oa);
+            if($md){
+                $permission = Permission::all();
+                $md->syncPermissions($permission);
+            }
+            if($oa){
+                $permission = Permission::all();
+                $oa->syncPermissions($permission);
             }
         
 
