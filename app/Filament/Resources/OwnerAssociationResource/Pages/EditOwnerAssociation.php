@@ -93,25 +93,17 @@ class EditOwnerAssociation extends EditRecord
             
 
             $permissionsConfig = config('role-permission');
-            Log::info($permissionsConfig);
+            Log::info('oa_id'.$this->record->id);
             foreach ($permissionsConfig['roles'] as $roleName => $roleConfig) {
-                $role = Role::where(
-                    ['name' => $roleName],
-                    ['owner_association_id' => $this->record->id]
-                )->first();
+                $role = Role::where('name', $roleName)->where('owner_association_id' , $this->record->id)->first();
                 Log::info("Role".$role);
                 if (isset($roleConfig['permissions'])) {
                     $role->syncPermissions($roleConfig['permissions']);                
                 }
             }
-            $md = Role::where(
-                ['name' => 'MD'],
-                ['owner_association_id' => $this->record->id]
-            )->first();
+            $md = Role::where('name', 'MD')->where('owner_association_id' , $this->record->id)->first();
             Log::info("md".$md);
-            $oa = Role::where(['name' => 'OA'],
-            ['owner_association_id' => $this->record->id]
-            )->first();
+            $oa = Role::where('name', 'OA')->where('owner_association_id' , $this->record->id)->first();
             Log::info("oa".$oa);
             if($md){
                 $permission = Permission::all();
