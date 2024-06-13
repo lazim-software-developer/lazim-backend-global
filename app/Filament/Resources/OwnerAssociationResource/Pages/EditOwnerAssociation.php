@@ -101,17 +101,11 @@ class EditOwnerAssociation extends EditRecord
                     $role->syncPermissions($roleConfig['permissions']);                
                 }
             }
-            $md = Role::where('name', 'MD')->where('owner_association_id' , $this->record->id)->first();
-            Log::info("md".$md);
-            $oa = Role::where('name', 'OA')->where('owner_association_id' , $this->record->id)->first();
-            Log::info("oa".$oa);
-            if($md){
+            $allowedRoles = ['MD','OA','Owner','Vendor','Tenant','Technician','Security'];
+            foreach ($allowedRoles as $role) {
+                $userRole = Role::where('name', $role)->where('owner_association_id' , $this->record->id)->first();
                 $permission = Permission::all();
-                $md->syncPermissions($permission);
-            }
-            if($oa){
-                $permission = Permission::all();
-                $oa->syncPermissions($permission);
+                $userRole->syncPermissions($permission);
             }
         
             
@@ -133,7 +127,7 @@ class EditOwnerAssociation extends EditRecord
                     'email_verified' => 1,
                     'phone_verified' => 1,
                 ]);
-
+                $oa = Role::where('name', 'OA')->where('owner_association_id' , $this->record->id)->first();
                 DB::table('model_has_roles')->insert([
                     'role_id' => $oa->id,
                     'model_type' => User::class,
