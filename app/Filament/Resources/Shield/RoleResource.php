@@ -54,7 +54,7 @@ class RoleResource extends Resource implements HasShieldPermissions
                                     ->label(__('filament-shield::filament-shield.field.guard_name'))
                                     ->default(Utils::getFilamentAuthGuard())
                                     ->nullable()->readOnly()
-                                    ->maxLength(255),
+                                    ->maxLength(255)->hidden(),
                                 Forms\Components\Toggle::make('select_all')
                                     ->onIcon('heroicon-s-shield-check')
                                     ->offIcon('heroicon-s-shield-exclamation')
@@ -206,7 +206,7 @@ class RoleResource extends Resource implements HasShieldPermissions
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('name')
+                Tables\Columns\TextColumn::make('name')->searchable()
                     ->badge()
                     ->label(__('filament-shield::filament-shield.column.name'))
                     ->formatStateUsing(fn ($state): string => Str::headline($state))
@@ -229,10 +229,10 @@ class RoleResource extends Resource implements HasShieldPermissions
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                // Tables\Actions\DeleteAction::make()
             ])
             ->bulkActions([
-                Tables\Actions\DeleteBulkAction::make(),
+                // Tables\Actions\DeleteBulkAction::make(),
             ]);
     }
 
