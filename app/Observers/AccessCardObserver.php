@@ -16,7 +16,11 @@ class AccessCardObserver
      */
     public function created(AccessCard $accessCard): void
     {
-        $notifyTo = User::where('owner_association_id', $accessCard->owner_association_id)->where('role_id', 10)->get();
+        $requiredPermissions = ['view_any_access::card::forms::document'];
+        $notifyTo = User::where('owner_association_id', $accessCard->owner_association_id)->get()
+        ->filter(function ($notifyTo) use ($requiredPermissions) {
+            return $notifyTo->can($requiredPermissions);
+        });
             Notification::make()
                 ->success()
                 ->title("New AccessCard Submission")

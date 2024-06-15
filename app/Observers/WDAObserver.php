@@ -20,8 +20,12 @@ class WDAObserver
         $vendor = DB::table('building_vendor')->where('building_id', $WDA->building_id)
             ->where('vendor_id', $WDA->vendor_id)->first();
         if ($vendor) {
+            $requiredPermissions = ['view_any_w::d::a'];
             $building = Building::where('id', $vendor->building_id)->first();
-            $notifyTo = User::where('owner_association_id', $building->owner_association_id)->where('role_id', 10)->get();
+            $notifyTo = User::where('owner_association_id', $building->owner_association_id)->get()
+            ->filter(function ($notifyTo) use ($requiredPermissions) {
+                return $notifyTo->can($requiredPermissions);
+            });
             Notification::make()
                 ->success()
                 ->title("New WDA Form")
