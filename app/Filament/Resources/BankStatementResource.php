@@ -22,7 +22,7 @@ class BankStatementResource extends Resource
 {
     protected static ?string $model = OAMReceipts::class;
 
-    protected static ?string $modelLabel = 'Bank Statement';
+    protected static ?string $modelLabel = 'Receivables';
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 

@@ -32,7 +32,7 @@ class ComplaintsenquiryResource extends Resource
     protected static ?string $model = Complaint::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-    protected static ?string $modelLabel = 'Enquirie';
+    protected static ?string $modelLabel = 'Enquiries';
 
     protected static ?string $navigationGroup = 'Happiness center';
     public static function form(Form $form): Form
