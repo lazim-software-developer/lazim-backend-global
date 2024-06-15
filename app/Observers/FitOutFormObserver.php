@@ -9,6 +9,7 @@ use App\Models\User\User;
 use Filament\Notifications\Actions\Action;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Log;
+use Spatie\Permission\Models\Permission;
 
 class FitOutFormObserver
 {
@@ -18,9 +19,11 @@ class FitOutFormObserver
     public function created(FitOutForm $fitOutForm): void
     {
         $requiredPermissions = ['view_any_master::facility'];
+        // $permissionId = Permission::whereIn('name', $requiredPermissions)->pluck('id');
+        // $userId = DB::table('role_has_permission')->whereIn('permission_id', $permissionId)->pluck
         $notifyTo = User::where('owner_association_id', $fitOutForm->owner_association_id)->get()
         ->filter(function ($notifyTo) use ($requiredPermissions) {
-            return $notifyTo->HasShieldPermissions($requiredPermissions);
+            return $notifyTo->can($requiredPermissions);
         });//->where('role_id',Role::where('name','OA')->first()->id)->first();
         Log::info($notifyTo);
         Notification::make()
