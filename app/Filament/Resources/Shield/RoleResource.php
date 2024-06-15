@@ -67,7 +67,7 @@ class RoleResource extends Resource implements HasShieldPermissions
                                         static::toggleEntitiesViaSelectAll($livewire, $set, $state);
                                     })
                                     ->dehydrated(fn ($state): bool => $state),
-                                    TextInput::make('search')->live()->reactive()
+                                    TextInput::make('search')->live()->reactive()->dehydrated(false)
                             ])
                             ->columns([
                                 'sm' => 2,
@@ -338,7 +338,8 @@ class RoleResource extends Resource implements HasShieldPermissions
         return $resources
             ->sortKeys()
             ->map(function ($entity) {
-                return Forms\Components\Section::make(FilamentShield::getLocalizedResourceLabel($entity['fqcn'])) // . Utils::showModelPath($entity['fqcn']) . '</span>'
+                return Forms\Components\Section::make(FilamentShield::getLocalizedResourceLabel($entity['fqcn']))
+                // ->description(fn () => new HtmlString('<span style="word-break: break-word;">' . Utils::showModelPath($entity['fqcn']) . '</span>'))
                     ->description(fn () => new HtmlString('<span style="word-break: break-word;">'))
                     ->compact()
                     ->schema([
