@@ -33,7 +33,7 @@ class HelpdeskcomplaintResource extends Resource
     protected static ?string $model = Complaint::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-    protected static ?string $modelLabel = 'Complaint';
+    protected static ?string $modelLabel = 'Help Desk Complaint';
 
     protected static ?string $navigationGroup = 'Help Desk';
 
