@@ -50,7 +50,7 @@ class EditTenantDocument extends EditRecord
                         'to' => $expoPushToken,
                         'sound' => 'default',
                         'title' => $this->record->name . ' Submission Status',
-                        'body' => 'The document ' . $this->record->name . ' submitted by you has been ' . $this->record->status . ' by '.auth()->user()->role?->name.' : '.auth()->user()->name,
+                        'body' => 'The document ' . $this->record->name . ' submitted by you has been ' . $this->record->status . ' by '.auth()->user()->role?->name.' : '.auth()->user()->first_name,
                         'data' => ['notificationType' => 'MyDocuments'],
                     ];
                     $this->expoNotification($message);
@@ -63,7 +63,7 @@ class EditTenantDocument extends EditRecord
                         'notifiable_id' => $this->record->documentable_id,
                         'data' => json_encode([
                             'actions' => [],
-                            'body' => 'The document ' . $this->record->name . ' submitted by you has been ' . $this->record->status . ' by '.auth()->user()->role?->name.' : '.auth()->user()->name,
+                            'body' => 'The document ' . $this->record->name . ' submitted by you has been ' . $this->record->status . ' by '.auth()->user()->role?->name.' : '.auth()->user()->first_name,
                             'duration' => 'persistent',
                             'icon' => 'heroicon-o-document-text',
                             'iconColor' => 'warning',
@@ -86,7 +86,7 @@ class EditTenantDocument extends EditRecord
                         'to' => $expoPushToken,
                         'sound' => 'default',
                         'title' => $this->record->name . ' Submission Status',
-                        'body' => 'The document ' . $this->record->name . ' submitted by you has been ' . $this->record->status . ' by '.auth()->user()->role?->name.' : '.auth()->user()->name,
+                        'body' => 'The document ' . $this->record->name . ' submitted by you has been ' . $this->record->status . ' by '.auth()->user()->role?->name.' : '.auth()->user()->first_name,
                         'data' => ['notificationType' => 'MyDocuments'],
                     ];
                     $this->expoNotification($message);
@@ -99,7 +99,7 @@ class EditTenantDocument extends EditRecord
                         'notifiable_id' => $this->record->documentable_id,
                         'data' => json_encode([
                             'actions' => [],
-                            'body' => 'The document ' . $this->record->name . ' submitted by you has been ' . $this->record->status . ' by '.auth()->user()->role?->name.' : '.auth()->user()->name,
+                            'body' => 'The document ' . $this->record->name . ' submitted by you has been ' . $this->record->status . ' by '.auth()->user()->role?->name.' : '.auth()->user()->first_name,
                             'duration' => 'persistent',
                             'icon' => 'heroicon-o-document-text',
                             'iconColor' => 'danger',
