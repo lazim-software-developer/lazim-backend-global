@@ -65,13 +65,50 @@ return [
 
         'pages' => [
             'Dashboard',
+            'OwnerAssociationInvoice',
+            'OwnerAssociationReceipt',
+            'AgingReport',
+            'DelinquentOwners',
+            'BudgetListing',
+            'CreateTender',
+            'ListAllReceipts'
         ],
 
         'widgets' => [
             'AccountWidget', 'FilamentInfoWidget',
+            'FormsChart',
+            'TasksChart',
+            'ContractsOverview',
+            'FacilityBookingOverview',
+            'HappinessCenterChart',
+            'ProposalOverview',
+            'RegistrationChart',
         ],
 
-        'resources' => [],
+        'resources' => [
+            'AccountsManagerResource',
+            'BuildingPocResource',
+            'DocumentsResource',
+            'BuildingEngineerResource',
+            'ComplaintOfficerResource',
+            'FloorResource',
+            'LegalOfficerResource',
+            'MDResource',
+            'CityResource',
+            'DocumentLibraryResource',
+            'RoleResource',
+            'MediaResource',
+            'AttendanceResource',
+            'ComplaintResource',
+            'FlatDocumentResource',
+            'SnaggingResource',
+            'OAMReceiptsResource',
+            'OAMInvoiceResource',
+            'BuildingDocumentResource',
+            'FlatDomesticHelpResource',
+            'ContractResource',
+            'TenantcomplaintResource',
+        ],
     ],
 
     'discovery' => [
