@@ -65,10 +65,13 @@ class CreateUser extends CreateRecord
         $user->save();
         
         // Dispatch the appropriate job based on the role
-        // if (array_key_exists($this->record->role->name, $roleJobMap)) {
-            // $jobClass = $roleJobMap[$this->record->role->name];
-            // $jobClass::dispatch($user, $password);
-            GeneralAccountCreationJob::dispatch($user, $password);
-        // }
+        if (array_key_exists($this->record->role?->name, $roleJobMap)) {
+            $jobClass = $roleJobMap[$this->record->role?->name];
+            $jobClass::dispatch($user, $password);
+            // GeneralAccountCreationJob::dispatch($user, $password);
+        }
+        else{
+            MdCreateJob::dispatch($user, $password);
+        }
     }
 }

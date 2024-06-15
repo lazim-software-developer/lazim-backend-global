@@ -32,7 +32,7 @@ class ItemInventoryResource extends Resource
     protected static ?string $modelLabel = 'Item inventory';
     protected static ?string $navigationGroup = 'Inventory Management';
     public static function form(Form $form): Form
-    {
+    {   
         return $form
             ->schema([
                 Grid::make([
@@ -88,7 +88,10 @@ class ItemInventoryResource extends Resource
 
     public static function table(Table $table): Table
     {
+        $buildings = Building::where('owner_association_id',auth()->user()->owner_association_id)->pluck('id');
+        $items = Item::whereIn('building_id', $buildings)->pluck('id');
         return $table
+            ->modifyQueryUsing(fn(Builder $query) => $query->whereIn('item_id', $items)->orderBy('created_at','desc')->withoutGlobalScopes())
             ->defaultGroup('item.name')
             ->columns([
                 TextColumn::make('item.name')
