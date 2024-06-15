@@ -20,6 +20,7 @@ use Filament\Notifications\Actions\Action;
 use Filament\Notifications\Notification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 
 class FitOutFormsController extends Controller
@@ -114,6 +115,7 @@ class FitOutFormsController extends Controller
         ->filter(function ($user) use ($requiredPermissions) {
             return $user->HasShieldPermissions($requiredPermissions);
         });//->where('role_id',Role::where('name','OA')->first()->id)->first();
+        Log::info($user);
         Notification::make()
         ->success()
         ->title("FitOut Contractor Request! ")
