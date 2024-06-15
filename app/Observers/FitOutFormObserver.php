@@ -18,7 +18,7 @@ class FitOutFormObserver
      */
     public function created(FitOutForm $fitOutForm): void
     {
-        $requiredPermissions = ['view_any_master::facility'];
+        $requiredPermissions = ['view_any_fit::out::forms::document'];
         $notifyTo = User::where('owner_association_id', $fitOutForm->owner_association_id)->get()
         ->filter(function ($notifyTo) use ($requiredPermissions) {
             return $notifyTo->can($requiredPermissions);
