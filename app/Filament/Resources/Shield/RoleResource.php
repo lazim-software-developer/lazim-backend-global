@@ -10,7 +10,9 @@ use BezhanSalleh\FilamentShield\Support\Utils;
 use Filament\Forms;
 use Filament\Forms\Components\Actions\Action as FormAction;
 use Filament\Forms\Components\Component;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
+use Filament\Forms\Get;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -65,6 +67,7 @@ class RoleResource extends Resource implements HasShieldPermissions
                                         static::toggleEntitiesViaSelectAll($livewire, $set, $state);
                                     })
                                     ->dehydrated(fn ($state): bool => $state),
+                                    TextInput::make('search')->live()->reactive()
                             ])
                             ->columns([
                                 'sm' => 2,
@@ -79,7 +82,7 @@ class RoleResource extends Resource implements HasShieldPermissions
                             ->badge(static::getResourceTabBadgeCount())
                             ->schema([
                                 Forms\Components\Grid::make()
-                                    ->schema(static::getResourceEntitiesSchema())
+                                    ->schema(fn (Get $get) => static::getResourceEntitiesSchema($get))
                                     ->columns(FilamentShieldPlugin::get()->getGridColumns()),
                             ]),
                         Forms\Components\Tabs\Tab::make(__('filament-shield::filament-shield.pages'))
@@ -317,21 +320,32 @@ class RoleResource extends Resource implements HasShieldPermissions
         return Utils::isResourceGloballySearchable() && count(static::getGloballySearchableAttributes()) && static::canViewAny();
     }
 
-    public static function getResourceEntitiesSchema(): ?array
+    public static function getResourceEntitiesSchema(callable $get): ?array
     {
         static::$permissionsCollection = static::$permissionsCollection ?: Utils::getPermissionModel()::all();
 
-        return collect(FilamentShield::getResources())
+        $searchTerm = $get('search', '');
+        $resources = collect(FilamentShield::getResources());
+        // dd($resources);
+
+        if ($searchTerm) {
+            $resources = $resources->filter(function ($entity) use ($searchTerm) {
+                $modelValue = strtolower($entity['model']->__toString());
+                return str_contains($modelValue, strtolower($searchTerm));
+            });
+        }
+    
+        return $resources
             ->sortKeys()
             ->map(function ($entity) {
-                return Forms\Components\Section::make(FilamentShield::getLocalizedResourceLabel($entity['fqcn']))
-                    ->description(fn () => new HtmlString('<span style="word-break: break-word;">' . Utils::showModelPath($entity['fqcn']) . '</span>'))
+                return Forms\Components\Section::make(FilamentShield::getLocalizedResourceLabel($entity['fqcn'])) // . Utils::showModelPath($entity['fqcn']) . '</span>'
+                    ->description(fn () => new HtmlString('<span style="word-break: break-word;">'))
                     ->compact()
                     ->schema([
                         static::getCheckBoxListComponentForResource($entity),
                     ])
-                    ->columnSpan(FilamentShieldPlugin::get()->getSectionColumnSpan())
-                    ->collapsible();
+                    ->columnSpan(FilamentShieldPlugin::get()->getSectionColumnSpan());
+                    // ->collapsible();
             })
             ->toArray();
     }
@@ -437,6 +451,7 @@ class RoleResource extends Resource implements HasShieldPermissions
 
     protected static function getCustomEntities(): ?Collection
     {
+        static::$permissionsCollection = static::$permissionsCollection ?: Utils::getPermissionModel()::all();
         $resourcePermissions = collect();
         collect(FilamentShield::getResources())->each(function ($entity) use ($resourcePermissions) {
             collect(Utils::getResourcePermissionPrefixes($entity['fqcn']))->map(function ($permission) use ($resourcePermissions, $entity) {
