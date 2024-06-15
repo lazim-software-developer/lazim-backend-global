@@ -8,7 +8,7 @@ use App\Models\Forms\FitOutForm;
 use App\Models\User\User;
 use Filament\Notifications\Actions\Action;
 use Filament\Notifications\Notification;
-
+use Illuminate\Support\Facades\Log;
 
 class FitOutFormObserver
 {
@@ -17,7 +17,12 @@ class FitOutFormObserver
      */
     public function created(FitOutForm $fitOutForm): void
     {
-        $notifyTo = User::where('owner_association_id', $fitOutForm->owner_association_id)->where('role_id', 10)->get();
+        $requiredPermissions = ['view_any_master::facility'];
+        $notifyTo = User::where('owner_association_id', $fitOutForm->owner_association_id)->get()
+        ->filter(function ($notifyTo) use ($requiredPermissions) {
+            return $notifyTo->HasShieldPermissions($requiredPermissions);
+        });//->where('role_id',Role::where('name','OA')->first()->id)->first();
+        Log::info($notifyTo);
         Notification::make()
         ->success()
         ->title("New FitOut Form Submission")
