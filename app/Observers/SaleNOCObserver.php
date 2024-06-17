@@ -18,7 +18,7 @@ class SaleNOCObserver
     public function created(SaleNOC $saleNOC): void
     {
         $requiredPermissions = ['view_any_noc::form'];
-        $notifyTo = User::where('owner_association_id', $saleNOC->owner_association_id)->get()
+        $notifyTo = User::where('owner_association_id', $saleNOC->owner_association_id)->whereNotIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor','Staff'])->get()
         ->filter(function ($notifyTo) use ($requiredPermissions) {
             return $notifyTo->can($requiredPermissions);
         });;

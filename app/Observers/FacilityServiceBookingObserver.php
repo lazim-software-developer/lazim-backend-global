@@ -22,7 +22,7 @@ class FacilityServiceBookingObserver
     public function created(FacilityBooking $facilityBooking): void
     {   $requiredPermissions = ['view_any_contract'];
         $building = Building::where('id', $facilityBooking->building_id)->first();
-        $notifyTo = User::where('owner_association_id',$building->owner_association_id)->get();
+        $notifyTo = User::where('owner_association_id',$building->owner_association_id)->whereNotIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor','Staff'])->get();
         if($facilityBooking->bookable_type == 'App\Models\Master\Facility'){
             $requiredPermissions = ['view_any_building::facility::booking'];
             $notifyTo->filter(function ($notifyTo) use ($requiredPermissions) {
