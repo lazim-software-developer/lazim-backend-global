@@ -15,7 +15,11 @@ class VendorObserver
      */
     public function created(Vendor $vendor): void
     {
-        $notifyTo = User::where('owner_association_id', $vendor->owner_association_id)->where('role_id',10)->get();
+        $requiredPermissions = ['view_any_vendor::vendor'];
+        $notifyTo = User::where('owner_association_id', $vendor->owner_association_id)->get()
+        ->filter(function ($notifyTo) use ($requiredPermissions) {
+            return $notifyTo->can($requiredPermissions);
+        });
             Notification::make()
             ->success()
             ->title("New Vendor")

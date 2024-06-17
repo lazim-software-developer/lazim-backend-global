@@ -19,9 +19,12 @@ class ProposalObserver
      */
     public function created(Proposal $proposal): void
     {
+        $requiredPermissions = ['view_any_proposal'];
         $tenders = Tender::where('id', $proposal->tender_id)->first();
         $building = Building::where('id', $tenders->building_id)->first();
-        $notifyTo = User::where('owner_association_id', $building->owner_association_id)->where('role_id', 10)->get();
+        $notifyTo = User::where('owner_association_id', $building->owner_association_id)->get()->filter(function ($notifyTo) use ($requiredPermissions) {
+            return $notifyTo->can($requiredPermissions);
+        });
         Notification::make()
             ->success()
             ->title("New Proposal")
