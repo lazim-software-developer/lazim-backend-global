@@ -110,12 +110,11 @@ class FitOutFormsController extends Controller
             ]);
             Document::create($request->all());
         }
-        $requiredPermissions = ['view_any_master::facility'];
+        $requiredPermissions = ['view_any_fit::out::forms::document'];
         $user = User::where('owner_association_id',$fitout->owner_association_id)->get()
-        ->filter(function ($user) use ($requiredPermissions) {
-            return $user->HasShieldPermissions($requiredPermissions);
+        ->filter(function ($notifyTo) use ($requiredPermissions) {
+            return $notifyTo->can($requiredPermissions);
         });//->where('role_id',Role::where('name','OA')->first()->id)->first();
-        Log::info($user);
         Notification::make()
         ->success()
         ->title("FitOut Contractor Request! ")
