@@ -330,8 +330,8 @@ class RoleResource extends Resource implements HasShieldPermissions
 
         if ($searchTerm) {
             $resources = $resources->filter(function ($entity) use ($searchTerm) {
-                $modelValue = strtolower($entity['model']->__toString());
-                return str_contains($modelValue, strtolower($searchTerm));
+                $fqcnValue = strtolower(FilamentShield::getLocalizedResourceLabel($entity['fqcn']));
+            return str_contains($fqcnValue, strtolower($searchTerm));
             });
         }
     
