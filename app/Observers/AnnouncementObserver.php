@@ -18,7 +18,7 @@ class AnnouncementObserver
         $scheduledAt = Post::where('scheduled_at', now())->get();
         if ($post->status == 'published') {
             foreach ($scheduledAt as $notification) {
-                $notifyTo = User::where('owner_association_id', $post->owner_association_id)->get();
+                $notifyTo = User::where('owner_association_id', $post->owner_association_id)->whereNotIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor','Staff'])->get();
                 if ($post->is_announcement) {
                     $requiredPermissions = ['view_any_announcement'];
                     $notifyTo->filter(function ($notifyTo) use ($requiredPermissions) {

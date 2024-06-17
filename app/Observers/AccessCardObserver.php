@@ -17,7 +17,7 @@ class AccessCardObserver
     public function created(AccessCard $accessCard): void
     {
         $requiredPermissions = ['view_any_access::card::forms::document'];
-        $notifyTo = User::where('owner_association_id', $accessCard->owner_association_id)->get()
+        $notifyTo = User::where('owner_association_id', $accessCard->owner_association_id)->whereNotIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor','Staff'])->get()
         ->filter(function ($notifyTo) use ($requiredPermissions) {
             return $notifyTo->can($requiredPermissions);
         });
