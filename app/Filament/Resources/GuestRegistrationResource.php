@@ -34,7 +34,8 @@ class GuestRegistrationResource extends Resource
 {
     protected static ?string $model = Guest::class;
 
-    protected static ?string $modeLabel = "Guest registration";
+    protected static ?string $modelLabel = 'Guest Registration';
+
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     public static function form(Form $form): Form

@@ -21,7 +21,7 @@ class OwnerAssociationInvoiceResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
-    // protected static ?string $modelLabel = 'Invoice';
+    protected static ?string $modelLabel = 'Generate Invoice';
 
     public static function form(Form $form): Form
     {
