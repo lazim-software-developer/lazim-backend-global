@@ -22,7 +22,7 @@ class ContractObserver
         $requiredPermissions = ['view_any_contract'];
         $user = auth()->user();
         $building = Building::where('id', $contract->building_id)->first();
-        $notifyTo = User::where('owner_association_id', $building->owner_association_id)->get()
+        $notifyTo = User::where('owner_association_id', $building->owner_association_id)->whereNotIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor','Staff'])->get()
         ->filter(function ($notifyTo) use ($requiredPermissions) {
             return $notifyTo->can($requiredPermissions);
         });
