@@ -202,7 +202,7 @@ class AdminPanelProvider extends PanelProvider
                                 ->activeIcon('heroicon-s-user-group')
                                 ->sort(14),
                             NavigationItem::make('Documents')
-                                ->hidden(!$user->can('view_any_building::documents'))
+                                ->hidden(!$user->can('page_Documents'))
                                 ->url('/admin/documents')
                                 ->icon('heroicon-s-document-text')
                                 ->activeIcon('heroicon-s-document-text')
