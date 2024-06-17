@@ -106,8 +106,8 @@ return [
             'OAMInvoiceResource',
             'BuildingDocumentResource',
             'FlatDomesticHelpResource',
-            'ContractResource',
             'TenantcomplaintResource',
+            'ContactsResource'
         ],
     ],
 

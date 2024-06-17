@@ -19,8 +19,9 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 class OwnerAssociationReceiptResource extends Resource
 {
     protected static ?string $model = OwnerAssociationReceipt::class;
-
+    
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $modelLabel = 'Generate Receipt';
 
     public static function form(Form $form): Form
     {
