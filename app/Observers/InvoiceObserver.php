@@ -22,7 +22,7 @@ class InvoiceObserver
         if ($vendor) {
             $requiredPermissions = ['view_any_invoice'];
             $building = Building::where('id', $vendor->building_id)->first();
-            $notifyTo = User::where('owner_association_id', $building->owner_association_id)->get()->filter(function ($notifyTo) use ($requiredPermissions) {
+            $notifyTo = User::where('owner_association_id', $building->owner_association_id)->whereNotIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor','Staff'])->get()->filter(function ($notifyTo) use ($requiredPermissions) {
                 return $notifyTo->can($requiredPermissions);
             });
             Notification::make()

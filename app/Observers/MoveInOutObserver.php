@@ -19,7 +19,7 @@ class MoveInOutObserver
     public function created(MoveInOut $moveInOut): void
     {
         
-        $notifyTo = User::where('owner_association_id', $moveInOut->owner_association_id)->get();
+        $notifyTo = User::where('owner_association_id', $moveInOut->owner_association_id)->whereNotIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor','Staff'])->get();
         if($moveInOut->type == 'move-in'){
             $requiredPermissions = ['view_any_move::in::forms::document'];
             $notifyTo->filter(function ($notifyTo) use ($requiredPermissions) {
