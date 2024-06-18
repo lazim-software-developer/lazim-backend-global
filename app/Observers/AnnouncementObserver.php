@@ -20,7 +20,7 @@ class AnnouncementObserver
         if ($post->status == 'published') {
             foreach ($scheduledAt as $notification) {
                 $roles = Role::where('owner_association_id',$post->owner_association_id)->whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor','Staff'])->pluck('id');
-                $notifyTo = User::where('owner_association_id', $post->owner_association_id)->whereNotIn('role_id', $roles)->get();
+                $notifyTo = User::where('owner_association_id', $post->owner_association_id)->whereNotIn('role_id', $roles)->whereNot('id', auth()->user()->id)->get();
                 if ($post->is_announcement) {
                     $requiredPermissions = ['view_any_announcement'];
                     $notifyTo->filter(function ($notifyTo) use ($requiredPermissions) {

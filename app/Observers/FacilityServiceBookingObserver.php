@@ -24,7 +24,7 @@ class FacilityServiceBookingObserver
     {   $requiredPermissions = ['view_any_contract'];
         $building = Building::where('id', $facilityBooking->building_id)->first();
         $roles = Role::where('owner_association_id',$building->owner_association_id)->whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor','Staff'])->pluck('id');
-        $notifyTo = User::where('owner_association_id',$building->owner_association_id)->whereNotIn('role_id', $roles)->get();
+        $notifyTo = User::where('owner_association_id',$building->owner_association_id)->whereNotIn('role_id', $roles)->whereNot('id', auth()->user()->id)->get();
         if($facilityBooking->bookable_type == 'App\Models\Master\Facility'){
             $requiredPermissions = ['view_any_building::facility::booking'];
             $notifyTo->filter(function ($notifyTo) use ($requiredPermissions) {
