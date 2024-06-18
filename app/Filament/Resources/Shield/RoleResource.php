@@ -7,6 +7,7 @@ use BezhanSalleh\FilamentShield\Facades\FilamentShield;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use App\Filament\Resources\Shield\RoleResource\Pages;
 use BezhanSalleh\FilamentShield\Support\Utils;
+use Closure;
 use Filament\Forms;
 use Filament\Forms\Components\Actions\Action as FormAction;
 use Filament\Forms\Components\Component;
@@ -19,6 +20,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -51,11 +53,19 @@ class RoleResource extends Resource implements HasShieldPermissions
                             ->schema([
                                 Forms\Components\TextInput::make('name')
                                     ->label(__('filament-shield::filament-shield.field.name'))
-                                    ->rule(function ($record) {
-                                        return Rule::unique('roles')
-                                            ->where('owner_association_id', $record->owner_association_id)
-                                            ->ignore($record->id);
-                                    })
+                                    ->rules([
+                                        function (Model $record) {
+                                            return function (string $attribute, $value, Closure $fail) use($record) {
+                                                if (DB::table('roles')->whereNot('id',$record->id)->where('name', $value)
+                                                ->where('owner_association_id', $record->owner_association_id)
+                                                ->count() > 0) 
+                                                {
+                                                    $fail('This role is already exists.');
+                                                }
+                                            };
+                                        }
+                                    
+                                    ])
                                     ->required()
                                     ->minLength(2)
                                     ->maxLength(100),
