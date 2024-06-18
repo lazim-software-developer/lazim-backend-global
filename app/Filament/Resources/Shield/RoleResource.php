@@ -21,6 +21,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 
 class RoleResource extends Resource implements HasShieldPermissions
 {
@@ -50,7 +51,11 @@ class RoleResource extends Resource implements HasShieldPermissions
                             ->schema([
                                 Forms\Components\TextInput::make('name')
                                     ->label(__('filament-shield::filament-shield.field.name'))
-                                    ->unique('roles', 'name', fn (?Model $record) => $record)
+                                    ->rule(function ($record) {
+                                        return Rule::unique('roles')
+                                            ->where('owner_association_id', $record->owner_association_id)
+                                            ->ignore($record->id);
+                                    })
                                     ->required()
                                     ->minLength(2)
                                     ->maxLength(100),
