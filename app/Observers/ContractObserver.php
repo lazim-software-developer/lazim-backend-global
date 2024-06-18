@@ -5,6 +5,7 @@ namespace App\Observers;
 use App\Filament\Resources\ContractResource;
 use App\Models\Accounting\Proposal;
 use App\Models\Building\Building;
+use App\Models\Master\Role;
 use App\Models\User\User;
 use App\Models\Vendor\Contract;
 use App\Models\Vendor\Vendor;
@@ -22,7 +23,8 @@ class ContractObserver
         $requiredPermissions = ['view_any_contract'];
         $user = auth()->user();
         $building = Building::where('id', $contract->building_id)->first();
-        $notifyTo = User::where('owner_association_id', $building->owner_association_id)->whereNotIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor','Staff'])->get()
+        $roles = Role::where('owner_association_id',$building->owner_association_id)->whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor','Staff'])->pluck('id');
+        $notifyTo = User::where('owner_association_id', $building->owner_association_id)->whereNotIn('role_id', $roles)->get()
         ->filter(function ($notifyTo) use ($requiredPermissions) {
             return $notifyTo->can($requiredPermissions);
         });
