@@ -663,13 +663,13 @@ class AdminPanelProvider extends PanelProvider
                             ]),
                     ]);
                 }
-                if ($user->can('view_any_snagging')){
+                if ($user->can('view_any_snags')){
                     $builder->groups([
                         NavigationGroup::make('Security')
                             ->items([
                                 NavigationItem::make('Snags')
                                     ->url('/admin/snags')
-                                    ->hidden(!$user->can('view_any_snagging'))
+                                    ->hidden(!$user->can('view_any_snags'))
                                     ->icon('heroicon-s-swatch')
                                     ->activeIcon('heroicon-s-swatch')
                                     ->sort(1),
