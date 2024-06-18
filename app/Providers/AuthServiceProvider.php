@@ -105,7 +105,7 @@ class AuthServiceProvider extends ServiceProvider
      */
     protected $policies = [
         // Post::class => PostPolicy::class,
-        FacilityBooking::class => FacilityPolicy::class,
+        // FacilityBooking::class => FacilityPolicy::class,
         AccessCard::class => AccessCardPolicy::class,
         MollakTenant::class => MollakTenantPolicy::class,
         UserApproval::class => UserApprovalPolicy::class,

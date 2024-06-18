@@ -27,6 +27,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\Building\ServiceBookingResource\Pages;
 use App\Filament\Resources\Building\ServiceBookingResource\RelationManagers;
+use Illuminate\Database\Eloquent\Model;
 
 class ServiceBookingResource extends Resource
 {
@@ -194,5 +195,29 @@ class ServiceBookingResource extends Resource
             // 'view' => Pages\ViewServiceBooking::route('/{record}'),
             'edit' => Pages\EditServiceBooking::route('/{record}/edit'),
         ];
+    }
+
+    public static function canViewAny(): bool
+    {
+        $user = User::find(auth()->user()->id);
+        return $user->can('view_any_building::service::booking');
+    }
+
+    public static function canView(Model $record): bool
+    {
+        $user = User::find(auth()->user()->id);
+        return $user->can('view_building::service::booking');
+    }
+
+    public static function canCreate(): bool
+    {
+        $user = User::find(auth()->user()->id);
+        return $user->can('create_building::service::booking');
+    }
+
+    public static function canEdit(Model $record): bool
+    {
+        $user = User::find(auth()->user()->id);
+        return $user->can('update_building::service::booking');
     }
 }
