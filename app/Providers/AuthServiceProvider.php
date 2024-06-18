@@ -104,7 +104,7 @@ class AuthServiceProvider extends ServiceProvider
      * @var array<class-string, class-string>
      */
     protected $policies = [
-        Post::class => PostPolicy::class,
+        // Post::class => PostPolicy::class,
         FacilityBooking::class => FacilityPolicy::class,
         AccessCard::class => AccessCardPolicy::class,
         MollakTenant::class => MollakTenantPolicy::class,
@@ -158,7 +158,7 @@ class AuthServiceProvider extends ServiceProvider
         FlatTenant::class => FlatTenantPolicy::class,
         Item::class => ItemPolicy::class,
         ItemInventory::class => ItemInventoryPolicy::class,
-        Complaint::class => ComplaintPolicy::class,
+        // Complaint::class => ComplaintPolicy::class,
         
     ];
 

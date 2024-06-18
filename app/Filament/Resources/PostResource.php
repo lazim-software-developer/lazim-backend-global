@@ -36,6 +36,8 @@ use App\Filament\Resources\PostResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\PostResource\RelationManagers;
 use App\Filament\Resources\PostResource\RelationManagers\CommentsRelationManager;
+use App\Models\User\User;
+use Illuminate\Database\Eloquent\Model;
 
 class PostResource extends Resource
 {
@@ -240,5 +242,29 @@ class PostResource extends Resource
             'create' => Pages\CreatePost::route('/create'),
             'edit' => Pages\EditPost::route('/{record}/edit'),
         ];
+    }
+
+    public static function canViewAny(): bool
+    {
+        $user = User::find(auth()->user()->id);
+        return $user->can('view_any_post');
+    }
+
+    public static function canView(Model $record): bool
+    {
+        $user = User::find(auth()->user()->id);
+        return $user->can('view_post');
+    }
+
+    public static function canCreate(): bool
+    {
+        $user = User::find(auth()->user()->id);
+        return $user->can('create_post');
+    }
+
+    public static function canEdit(Model $record): bool
+    {
+        $user = User::find(auth()->user()->id);
+        return $user->can('update_post');
     }
 }
