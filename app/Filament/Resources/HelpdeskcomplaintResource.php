@@ -27,6 +27,7 @@ use Filament\Forms\Components\FileUpload;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\HelpdeskcomplaintResource\Pages;
+use Illuminate\Database\Eloquent\Model;
 
 class HelpdeskcomplaintResource extends Resource
 {
@@ -256,5 +257,29 @@ class HelpdeskcomplaintResource extends Resource
             // 'view' => Pages\ViewHelpdeskcomplaint::route('/{record}'),
             'edit' => Pages\EditHelpdeskcomplaint::route('/{record}/edit'),
         ];
+    }
+
+    public static function canViewAny(): bool
+    {
+        $user = User::find(auth()->user()->id);
+        return $user->can('view_any_helpdeskcomplaint');
+    }
+
+    public static function canView(Model $record): bool
+    {
+        $user = User::find(auth()->user()->id);
+        return $user->can('view_helpdeskcomplaint');
+    }
+
+    public static function canCreate(): bool
+    {
+        $user = User::find(auth()->user()->id);
+        return $user->can('create_helpdeskcomplaint');
+    }
+
+    public static function canEdit(Model $record): bool
+    {
+        $user = User::find(auth()->user()->id);
+        return $user->can('update_helpdeskcomplaint');
     }
 }
