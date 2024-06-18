@@ -32,6 +32,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\ComplaintscomplaintResource\Pages;
 use App\Filament\Resources\ComplaintscomplaintResource\RelationManagers;
+use Illuminate\Database\Eloquent\Model;
 
 class ComplaintscomplaintResource extends Resource
 {
@@ -253,5 +254,29 @@ class ComplaintscomplaintResource extends Resource
             // 'view' => Pages\ViewComplaintscomplaints::route('/{record}'),
             'edit' => Pages\EditComplaintscomplaint::route('/{record}/edit'),
         ];
+    }
+
+    public static function canViewAny(): bool
+    {
+        $user = User::find(auth()->user()->id);
+        return $user->can('view_any_complaintscomplaint');
+    }
+
+    public static function canView(Model $record): bool
+    {
+        $user = User::find(auth()->user()->id);
+        return $user->can('view_complaintscomplaint');
+    }
+
+    public static function canCreate(): bool
+    {
+        $user = User::find(auth()->user()->id);
+        return $user->can('create_complaintscomplaint');
+    }
+
+    public static function canEdit(Model $record): bool
+    {
+        $user = User::find(auth()->user()->id);
+        return $user->can('update_complaintscomplaint');
     }
 }

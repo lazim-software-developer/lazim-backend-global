@@ -28,6 +28,7 @@ use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\SnagsResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\SnagsResource\RelationManagers;
+use Illuminate\Database\Eloquent\Model;
 
 class SnagsResource extends Resource
 {
@@ -251,5 +252,29 @@ class SnagsResource extends Resource
             'create' => Pages\CreateSnags::route('/create'),
             'edit' => Pages\EditSnags::route('/{record}/edit'),
         ];
+    }
+
+    public static function canViewAny(): bool
+    {
+        $user = User::find(auth()->user()->id);
+        return $user->can('view_any_snags');
+    }
+
+    public static function canView(Model $record): bool
+    {
+        $user = User::find(auth()->user()->id);
+        return $user->can('view_snags');
+    }
+
+    public static function canCreate(): bool
+    {
+        $user = User::find(auth()->user()->id);
+        return $user->can('create_snags');
+    }
+
+    public static function canEdit(Model $record): bool
+    {
+        $user = User::find(auth()->user()->id);
+        return $user->can('update_snags');
     }
 }
