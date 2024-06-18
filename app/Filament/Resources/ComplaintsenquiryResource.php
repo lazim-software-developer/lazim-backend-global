@@ -25,7 +25,9 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\ComplaintsenquiryResource\Pages;
 use App\Filament\Resources\ComplaintsenquiryResource\RelationManagers;
+use App\Models\User\User;
 use Filament\Forms\Components\Textarea;
+use Illuminate\Database\Eloquent\Model;
 
 class ComplaintsenquiryResource extends Resource
 {
@@ -183,5 +185,29 @@ class ComplaintsenquiryResource extends Resource
             // 'view' => Pages\ViewComplaintsenquiry::route('/{record}'),
             'edit' => Pages\EditComplaintsenquiry::route('/{record}/edit'),
         ];
+    }
+
+    public static function canViewAny(): bool
+    {
+        $user = User::find(auth()->user()->id);
+        return $user->can('view_any_complaintsenquiry');
+    }
+
+    public static function canView(Model $record): bool
+    {
+        $user = User::find(auth()->user()->id);
+        return $user->can('view_complaintsenquiry');
+    }
+
+    public static function canCreate(): bool
+    {
+        $user = User::find(auth()->user()->id);
+        return $user->can('create_complaintsenquiry');
+    }
+
+    public static function canEdit(Model $record): bool
+    {
+        $user = User::find(auth()->user()->id);
+        return $user->can('update_complaintsenquiry');
     }
 }
