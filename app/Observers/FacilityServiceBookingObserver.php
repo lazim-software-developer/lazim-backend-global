@@ -9,6 +9,7 @@ use App\Filament\Resources\Building\ServiceBookingResource;
 use App\Models\Building\Building;
 use App\Models\Building\FacilityBooking;
 use App\Models\Master\Facility;
+use App\Models\Master\Role;
 use App\Models\Master\Service;
 use App\Models\User\User;
 use Filament\Notifications\Actions\Action;
@@ -22,7 +23,8 @@ class FacilityServiceBookingObserver
     public function created(FacilityBooking $facilityBooking): void
     {   $requiredPermissions = ['view_any_contract'];
         $building = Building::where('id', $facilityBooking->building_id)->first();
-        $notifyTo = User::where('owner_association_id',$building->owner_association_id)->whereNotIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor','Staff'])->get();
+        $roles = Role::where('owner_association_id',$building->owner_association_id)->whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor','Staff'])->pluck('id');
+        $notifyTo = User::where('owner_association_id',$building->owner_association_id)->whereNotIn('role_id', $roles)->get();
         if($facilityBooking->bookable_type == 'App\Models\Master\Facility'){
             $requiredPermissions = ['view_any_building::facility::booking'];
             $notifyTo->filter(function ($notifyTo) use ($requiredPermissions) {
