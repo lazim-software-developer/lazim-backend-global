@@ -111,7 +111,8 @@ class FitOutFormsController extends Controller
             Document::create($request->all());
         }
         $requiredPermissions = ['view_any_fit::out::forms::document'];
-        $user = User::where('owner_association_id',$fitout->owner_association_id)->whereNotIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor','Staff'])->get()
+        $roles = Role::where('owner_association_id',$fitout->owner_association_id)->whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor','Staff'])->pluck('id');
+        $user = User::where('owner_association_id',$fitout->owner_association_id)->whereNotIn('role_id', $roles)->get()
         ->filter(function ($notifyTo) use ($requiredPermissions) {
             return $notifyTo->can($requiredPermissions);
         });//->where('role_id',Role::where('name','OA')->first()->id)->first();

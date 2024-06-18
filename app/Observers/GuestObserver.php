@@ -5,6 +5,7 @@ namespace App\Observers;
 use App\Filament\Resources\GuestRegistrationResource;
 use App\Models\Building\Building;
 use App\Models\Forms\Guest;
+use App\Models\Master\Role;
 use App\Models\User\User;
 use Filament\Notifications\Actions\Action;
 use Filament\Notifications\Notification;
@@ -18,7 +19,8 @@ class GuestObserver
     public function created(Guest $guest): void
     {
         $requiredPermissions = ['view_any_guest::registration'];
-        $notifyTo = User::where('owner_association_id', $guest->owner_association_id)->whereNotIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor','Staff'])->get()
+        $roles = Role::where('owner_association_id',$guest->owner_association_id)->whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor','Staff'])->pluck('id');
+        $notifyTo = User::where('owner_association_id', $guest->owner_association_id)->whereNotIn('role_id', $roles)->get()
         ->filter(function ($notifyTo) use ($requiredPermissions) {
             return $notifyTo->can($requiredPermissions);
         });

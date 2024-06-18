@@ -10,6 +10,7 @@ use BezhanSalleh\FilamentShield\Support\Utils;
 use Filament\Forms;
 use Filament\Forms\Components\Actions\Action as FormAction;
 use Filament\Forms\Components\Component;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
@@ -67,7 +68,7 @@ class RoleResource extends Resource implements HasShieldPermissions
                                         static::toggleEntitiesViaSelectAll($livewire, $set, $state);
                                     })
                                     ->dehydrated(fn ($state): bool => $state),
-                                    TextInput::make('search')->live()->reactive()->dehydrated(false)
+                                    TextInput::make('search')->live()->reactive()->dehydrated(false),
                             ])
                             ->columns([
                                 'sm' => 2,
@@ -324,19 +325,28 @@ class RoleResource extends Resource implements HasShieldPermissions
     {
         static::$permissionsCollection = static::$permissionsCollection ?: Utils::getPermissionModel()::all();
 
-        $searchTerm = $get('search', '');
+        $searchTerm = str_replace(' ', '', strtolower($get('search', '')));
         $resources = collect(FilamentShield::getResources());
         // dd($resources);
 
+        // if ($searchTerm) {
+        //     $resources = $resources->filter(function ($entity) use ($searchTerm) {
+        //         $fqcnValue = strtolower(FilamentShield::getLocalizedResourceLabel($entity['fqcn']));
+        //     return str_contains($fqcnValue, strtolower($searchTerm));
+        //     });
+        // }
+
         if ($searchTerm) {
-            $resources = $resources->filter(function ($entity) use ($searchTerm) {
-                $fqcnValue = strtolower(FilamentShield::getLocalizedResourceLabel($entity['fqcn']));
-            return str_contains($fqcnValue, strtolower($searchTerm));
+            $resources = $resources->sortBy(function ($entity) use ($searchTerm) {
+                $fqcnValue = str_replace(' ', '', strtolower(FilamentShield::getLocalizedResourceLabel($entity['fqcn'])));
+                // dd(FilamentShield::getLocalizedResourceLabel("App\Filament\Resources\WDAResource"));
+                return str_contains($fqcnValue, strtolower($searchTerm)) ? 0 : 1;
             });
+            // dd($resources);
         }
-    
+        
         return $resources
-            ->sortKeys()
+            // ->sortKeys()
             ->map(function ($entity) {
                 return Forms\Components\Section::make(FilamentShield::getLocalizedResourceLabel($entity['fqcn']))
                 // ->description(fn () => new HtmlString('<span style="word-break: break-word;">' . Utils::showModelPath($entity['fqcn']) . '</span>'))
