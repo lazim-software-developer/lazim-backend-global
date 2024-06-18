@@ -62,7 +62,8 @@ class RoleResource extends Resource implements HasShieldPermissions
                                     ->onIcon('heroicon-s-shield-check')
                                     ->offIcon('heroicon-s-shield-exclamation')
                                     ->label(__('filament-shield::filament-shield.field.select_all.name'))
-                                    ->helperText(fn (): HtmlString => new HtmlString(__('filament-shield::filament-shield.field.select_all.message')))
+                                    // ->helperText(fn (): HtmlString => new HtmlString(__('filament-shield::filament-shield.field.select_all.message')))
+                                    ->helperText('Select this option to enable all permissions at once.')
                                     ->live()
                                     ->afterStateUpdated(function ($livewire, Forms\Set $set, $state) {
                                         static::toggleEntitiesViaSelectAll($livewire, $set, $state);
