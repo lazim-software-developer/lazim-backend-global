@@ -23,7 +23,9 @@ class DocumentObserver
                 if ($document->document_library_id && in_array($document->document_library_id, $allowedDocuments)) {
                     $requiredPermissions = ['view_any_tenant::document'];
                     $building = Building::where('id', $document->building_id)->first();
-                    $notifyTo = User::where('owner_association_id', $building->owner_association_id)->whereNotIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor','Staff'])->get()->filter(function ($notifyTo) use ($requiredPermissions) {
+                    $roles = Role::where('owner_association_id',$building->owner_association_id)->whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor','Staff'])->pluck('id');
+                    $notifyTo = User::where('owner_association_id', $building->owner_association_id)->whereNotIn('role_id', $roles)->get()
+                    ->filter(function ($notifyTo) use ($requiredPermissions) {
                         return $notifyTo->can($requiredPermissions);
                     });
                     Notification::make()
