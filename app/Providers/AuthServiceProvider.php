@@ -148,7 +148,7 @@ class AuthServiceProvider extends ServiceProvider
         OAMInvoice::class => OAMInvoicePolicy::class,
         CoolingAccount::class => CoolingAccountPolicy::class,
         Guest::class => GuestPolicy::class,
-        MoveInOut::class => MoveInOutPolicy::class,
+        // MoveInOut::class => MoveInOutPolicy::class,
         AccessCard::class => AccessCardPolicy::class,
         ResidentialForm::class => ResidentialFormPolicy::class,
         SaleNOC::class => SaleNOCPolicy::class,
