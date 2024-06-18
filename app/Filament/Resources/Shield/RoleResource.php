@@ -50,11 +50,7 @@ class RoleResource extends Resource implements HasShieldPermissions
                             ->schema([
                                 Forms\Components\TextInput::make('name')
                                     ->label(__('filament-shield::filament-shield.field.name'))
-                                    ->unique(
-                                        'roles',
-                                        'name',
-                                        fn (?Model $record) => $record
-                                    )
+                                    ->unique(ignoreRecord:true)
                                     ->required()
                                     ->minLength(2)
                                     ->maxLength(100),
