@@ -54,17 +54,17 @@ class RoleResource extends Resource implements HasShieldPermissions
                                 Forms\Components\TextInput::make('name')
                                     ->label(__('filament-shield::filament-shield.field.name'))
                                     ->rules([
-                                        function (Model $record) {
+                                        function (?Model $record) {
                                             return function (string $attribute, $value, Closure $fail) use($record) {
-                                                if (DB::table('roles')->whereNot('id',$record->id)->where('name', $value)
-                                                ->where('owner_association_id', $record->owner_association_id)
-                                                ->count() > 0) 
+                                                if (DB::table('roles')->whereNot('id',$record?->id)->where('name', $value)
+                                                ->where('owner_association_id', auth()->user()?->owner_association_id)
+                                                ->count() > 0)
                                                 {
                                                     $fail('This role is already exists.');
                                                 }
                                             };
                                         }
-                                    
+
                                     ])
                                     ->required()
                                     ->minLength(2)
@@ -361,7 +361,7 @@ class RoleResource extends Resource implements HasShieldPermissions
             });
             // dd($resources);
         }
-        
+
         return $resources
             // ->sortKeys()
             ->map(function ($entity) {
