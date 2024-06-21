@@ -21,7 +21,7 @@ class EditUser extends EditRecord
         if($this->data['roles']){
             $user = User::find($this->record->id);
             $user->update([
-                'role_id' => $this->data['roles']
+                'role_id' => is_string($this->data['roles']) ? $this->data['roles'] : $this->data['roles'][0]
             ]);
         }
     }
