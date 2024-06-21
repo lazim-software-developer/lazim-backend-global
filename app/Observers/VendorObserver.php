@@ -3,6 +3,7 @@
 namespace App\Observers;
 
 use App\Filament\Resources\Vendor\VendorResource;
+use App\Models\Master\Role;
 use App\Models\User\User;
 use App\Models\Vendor\Vendor;
 use Filament\Notifications\Actions\Action;
@@ -15,7 +16,12 @@ class VendorObserver
      */
     public function created(Vendor $vendor): void
     {
-        $notifyTo = User::where('owner_association_id', $vendor->owner_association_id)->where('role_id',10)->get();
+        $requiredPermissions = ['view_any_vendor::vendor'];
+        $roles = Role::where('owner_association_id',$vendor->owner_association_id)->whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor','Staff'])->pluck('id');
+        $notifyTo = User::where('owner_association_id', $vendor->owner_association_id)->whereNotIn('role_id', $roles)->whereNot('id', auth()->user()->id)->get()
+        ->filter(function ($notifyTo) use ($requiredPermissions) {
+            return $notifyTo->can($requiredPermissions);
+        });
             Notification::make()
             ->success()
             ->title("New Vendor")

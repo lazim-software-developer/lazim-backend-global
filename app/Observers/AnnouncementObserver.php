@@ -3,6 +3,7 @@
 namespace App\Observers;
 
 use App\Models\Community\Post;
+use App\Models\Master\Role;
 use App\Models\User\User;
 use App\Traits\UtilsTrait;
 use Filament\Notifications\Notification;
@@ -18,8 +19,13 @@ class AnnouncementObserver
         $scheduledAt = Post::where('scheduled_at', now())->get();
         if ($post->status == 'published') {
             foreach ($scheduledAt as $notification) {
-                $notifyTo = User::where('owner_association_id', $post->owner_association_id)->where('role_id', 10)->get();
+                $roles = Role::where('owner_association_id',$post->owner_association_id)->whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor','Staff'])->pluck('id');
+                $notifyTo = User::where('owner_association_id', $post->owner_association_id)->whereNotIn('role_id', $roles)->whereNot('id', auth()->user()->id)->get();
                 if ($post->is_announcement) {
+                    $requiredPermissions = ['view_any_announcement'];
+                    $notifyTo->filter(function ($notifyTo) use ($requiredPermissions) {
+                        return $notifyTo->can($requiredPermissions);
+                    });
                     Notification::make()
                         ->success()
                         ->title("Announcement created")
@@ -28,6 +34,10 @@ class AnnouncementObserver
                         ->body('New Announcement has been created.')
                         ->sendToDatabase($notifyTo);
                 } else {
+                    $requiredPermissions = ['view_any_post'];
+                    $notifyTo->filter(function ($notifyTo) use ($requiredPermissions) {
+                        return $notifyTo->can($requiredPermissions);
+                    });
                     Notification::make()
                         ->success()
                         ->title("Post created")

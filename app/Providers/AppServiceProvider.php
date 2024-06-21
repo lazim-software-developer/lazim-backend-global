@@ -44,12 +44,14 @@ use Illuminate\Support\Facades\Schema;
 use App\Observers\AnnouncementObserver;
 use Illuminate\Support\ServiceProvider;
 use App\Models\Building\FacilityBooking;
+use App\Models\Order;
 use App\Models\Vendor\Vendor;
 use App\Observers\ResidentialFormObserver;
 use Filament\Support\Facades\FilamentView;
 use App\Observers\OwnerAssociationObserver;
 use App\Observers\TechnicianAssetsObserver;
 use App\Observers\FacilityServiceBookingObserver;
+use App\Observers\OrderObserver;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Table;
 
@@ -99,6 +101,7 @@ class AppServiceProvider extends ServiceProvider
         Tender::observe(TenderObserver::class);
         TechnicianAssets::observe(TechnicianAssetsObserver::class);
         Vendor::observe(VendorObserver::class);
+        Order::observe(OrderObserver::class);
 
         //Global settings for Admin module (for all table per page options)
         Table::configureUsing(function (Table $table): void {

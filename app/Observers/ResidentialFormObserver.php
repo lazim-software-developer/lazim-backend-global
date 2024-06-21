@@ -4,6 +4,7 @@ namespace App\Observers;
 
 use App\Filament\Resources\ResidentialFormResource;
 use App\Models\Building\Building;
+use App\Models\Master\Role;
 use App\Models\ResidentialForm;
 use App\Models\User\User;
 use Filament\Notifications\Actions\Action;
@@ -16,7 +17,12 @@ class ResidentialFormObserver
      */
     public function created(ResidentialForm $residentialForm): void
     {
-        $notifyTo = User::where('owner_association_id', $residentialForm->owner_association_id)->where('role_id', 10)->get();
+        $requiredPermissions = ['view_any_residential::form'];
+        $roles = Role::where('owner_association_id',$residentialForm->owner_association_id)->whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor','Staff'])->pluck('id');
+        $notifyTo = User::where('owner_association_id', $residentialForm->owner_association_id)->whereNotIn('role_id', $roles)->whereNot('id', auth()->user()->id)->get()
+        ->filter(function ($notifyTo) use ($requiredPermissions) {
+            return $notifyTo->can($requiredPermissions);
+        });
         Notification::make()
         ->success()
         ->title("New ResidentialForm Submission")

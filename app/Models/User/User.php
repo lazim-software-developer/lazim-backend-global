@@ -37,6 +37,7 @@ use App\Models\Community\PollResponse;
 use Filament\Models\Contracts\HasName;
 use Laravel\Jetstream\HasProfilePhoto;
 use App\Models\Building\FacilityBooking;
+use BezhanSalleh\FilamentShield\Traits\HasPanelShield;
 use Filament\Models\Contracts\HasAvatar;
 use Illuminate\Notifications\Notifiable;
 use Filament\Models\Contracts\FilamentUser;
@@ -44,9 +45,12 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable implements FilamentUser, HasAvatar
 {
+    use HasRoles;
+    // use HasPanelShield;
     use Notifiable;
     use HasFactory;
     use Searchable;
@@ -183,14 +187,15 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
     }
     public function canAccessPanel(Panel $panel): bool
     {
-        $allowedRoles = ['OA','Admin','Building Engineer','Accounts Manager','MD','Complaint Officer','Legal Officer'];
+        // $allowedRoles = ['OA','Admin','Building Engineer','Accounts Manager','MD','Complaint Officer','Legal Officer'];
 
-        // Retrieve the role name using the provided method
-        $userRoleName = Role::find($this->role_id)->name;
-        if (in_array($userRoleName, $allowedRoles) && $this->active) {
-            return true;
-        }
-        return false;
+        // // Retrieve the role name using the provided method
+        // $userRoleName = Role::find($this->role_id)->name;
+        // if (in_array($userRoleName, $allowedRoles) && $this->active) {
+        //     return true;
+        // }
+        // return false;
+        return true;
     }
 
     public function ownerAssociation()
@@ -294,10 +299,10 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
     {
         return $this->hasMany(PollResponse::class);
     }
-    public function roles(): BelongsToMany
-    {
-        return $this->belongsToMany(Building::class, 'owner_committees', 'building_id', 'user_id');
-    }
+    // public function roles(): BelongsToMany
+    // {
+    //     return $this->belongsToMany(Building::class, 'owner_committees', 'building_id', 'user_id');
+    // }
     public function iteminventory()
     {
         return $this->hasMany(ItemInventory::class);

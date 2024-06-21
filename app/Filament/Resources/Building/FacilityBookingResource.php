@@ -23,6 +23,7 @@ use Filament\Forms\Components\TimePicker;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\Building\FacilityBookingResource\Pages;
+use Illuminate\Database\Eloquent\Model;
 
 class FacilityBookingResource extends Resource
 {
@@ -213,5 +214,29 @@ class FacilityBookingResource extends Resource
             // 'view' => Pages\ViewFacilityBooking::route('/{record}'),
             'edit' => Pages\EditFacilityBooking::route('/{record}/edit'),
         ];
+    }
+
+    public static function canViewAny(): bool
+    {
+        $user = User::find(auth()->user()->id);
+        return $user->can('view_any_building::facility::booking');
+    }
+
+    public static function canView(Model $record): bool
+    {
+        $user = User::find(auth()->user()->id);
+        return $user->can('view_building::facility::booking');
+    }
+
+    public static function canCreate(): bool
+    {
+        $user = User::find(auth()->user()->id);
+        return $user->can('create_building::facility::booking');
+    }
+
+    public static function canEdit(Model $record): bool
+    {
+        $user = User::find(auth()->user()->id);
+        return $user->can('update_building::facility::booking');
     }
 }

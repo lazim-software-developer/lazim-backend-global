@@ -32,13 +32,14 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\ComplaintscomplaintResource\Pages;
 use App\Filament\Resources\ComplaintscomplaintResource\RelationManagers;
+use Illuminate\Database\Eloquent\Model;
 
 class ComplaintscomplaintResource extends Resource
 {
     protected static ?string $model = Complaint::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-    protected static ?string $modelLabel = 'Complaint';
+    protected static ?string $modelLabel = 'Happiness Center Complaint';
 
     protected static ?string $navigationGroup = 'Happiness center';
     public static function form(Form $form): Form
@@ -160,12 +161,12 @@ class ComplaintscomplaintResource extends Resource
                         TextInput::make('category')->disabled(),
                         TextInput::make('open_time')->disabled(),
                         TextInput::make('close_time')->disabled()->default('NA'),
-                        TextInput::make('complaint')
+                        Textarea::make('complaint')
                             ->disabled()
                             ->placeholder('Complaint'),
-                        Textarea::make('complaint_details')
-                            ->disabled()
-                            ->placeholder('Complaint Details'),
+                        // Textarea::make('complaint_details')
+                        //     ->disabled()
+                        //     ->placeholder('Complaint Details'),
                         Select::make('status')
                             ->options([
                                 'open' => 'Open',
@@ -209,13 +210,15 @@ class ComplaintscomplaintResource extends Resource
                 TextColumn::make('complaint')
                     ->toggleable()
                     ->default('NA')
+                    ->limit(20)
                     ->searchable()
                     ->label('Complaint'),
-                TextColumn::make('complaint_details')
-                    ->toggleable()
-                    ->default('NA')
-                    ->searchable()
-                    ->label('Complaint Details'),
+                // TextColumn::make('complaint_details')
+                //     ->toggleable()
+                //     ->default('NA')
+                //     ->limit(20)
+                //     ->searchable()
+                //     ->label('Complaint Details'),
                 TextColumn::make('status')
                     ->toggleable()
                     ->searchable()
@@ -251,5 +254,29 @@ class ComplaintscomplaintResource extends Resource
             // 'view' => Pages\ViewComplaintscomplaints::route('/{record}'),
             'edit' => Pages\EditComplaintscomplaint::route('/{record}/edit'),
         ];
+    }
+
+    public static function canViewAny(): bool
+    {
+        $user = User::find(auth()->user()->id);
+        return $user->can('view_any_complaintscomplaint');
+    }
+
+    public static function canView(Model $record): bool
+    {
+        $user = User::find(auth()->user()->id);
+        return $user->can('view_complaintscomplaint');
+    }
+
+    public static function canCreate(): bool
+    {
+        $user = User::find(auth()->user()->id);
+        return $user->can('create_complaintscomplaint');
+    }
+
+    public static function canEdit(Model $record): bool
+    {
+        $user = User::find(auth()->user()->id);
+        return $user->can('update_complaintscomplaint');
     }
 }

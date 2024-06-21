@@ -5,6 +5,7 @@ namespace App\Observers;
 use App\Filament\Resources\TenantDocumentResource;
 use App\Models\Building\Building;
 use App\Models\Building\Document;
+use App\Models\Master\Role;
 use App\Models\User\User;
 use Filament\Notifications\Actions\Action;
 use Filament\Notifications\Notification;
@@ -20,8 +21,13 @@ class DocumentObserver
             if ($document->building_id) {
                 $allowedDocuments = [1, 2, 3, 4, 5];
                 if ($document->document_library_id && in_array($document->document_library_id, $allowedDocuments)) {
+                    $requiredPermissions = ['view_any_tenant::document'];
                     $building = Building::where('id', $document->building_id)->first();
-                    $notifyTo = User::where('owner_association_id', $building->owner_association_id)->where('role_id', 10)->get();
+                    $roles = Role::where('owner_association_id',$building->owner_association_id)->whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor','Staff'])->pluck('id');
+                    $notifyTo = User::where('owner_association_id', $building->owner_association_id)->whereNotIn('role_id', $roles)->whereNot('id', auth()->user()->id)->get()
+                    ->filter(function ($notifyTo) use ($requiredPermissions) {
+                        return $notifyTo->can($requiredPermissions);
+                    });
                     Notification::make()
                         ->success()
                         ->title($document->name . " Received")

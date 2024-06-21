@@ -25,10 +25,17 @@ use Filament\Forms\Components\Textarea;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Resources\RelationManagers\RelationManager;
+use Illuminate\Database\Eloquent\Model;
 
 class ComplaintRelationManager extends RelationManager
 {
     protected static string $relationship = 'complaint';
+    protected static ?string $modelLabel = 'Snag';
+
+    public static function getTitle(Model $ownerRecord, string $pageClass): string
+    {
+        return 'Snags';
+    }
 
     public function form(Form $form): Form
     {
@@ -84,12 +91,11 @@ class ComplaintRelationManager extends RelationManager
                             ->label('vendor Name'),
                         Select::make('flat_id')
                             ->rules(['exists:flats,id'])
-                            ->required()
                             ->disabled()
                             ->relationship('flat', 'property_number')
                             ->searchable()
                             ->preload()
-                            ->label('Unit Number'),
+                            ->placeholder('Unit Number'),
                         Select::make('technician_id')
                             ->relationship('technician', 'first_name')
                             ->options(function (Complaint $record, Get $get) {
@@ -150,12 +156,12 @@ class ComplaintRelationManager extends RelationManager
                         TextInput::make('category')->disabled(),
                         TextInput::make('open_time')->disabled(),
                         TextInput::make('close_time')->disabled()->default('NA'),
-                        TextInput::make('complaint')
+                        Textarea::make('complaint')
                             ->disabled()
                             ->placeholder('Complaint'),
-                        Textarea::make('complaint_details')
-                            ->disabled()
-                            ->placeholder('Complaint Details'),
+                        // Textarea::make('complaint_details')
+                        //     ->disabled()
+                        //     ->placeholder('Complaint Details'),
                         Select::make('status')
                             ->options([
                                 'open' => 'Open',
@@ -187,7 +193,7 @@ class ComplaintRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn(Builder $query) => $query->whereIn('complaint_type', ['help_desk', 'tenant_complaint'])->where('status','closed'))
+            ->modifyQueryUsing(fn(Builder $query) => $query->whereIn('complaint_type', ['snag']))
             ->columns([
                 TextColumn::make('building.name')
                     ->default('NA')
@@ -197,13 +203,17 @@ class ComplaintRelationManager extends RelationManager
                     ->default('NA')
                     ->searchable()
                     ->limit(50),
-                TextColumn::make('category')
+                 TextColumn::make('complaint')
+                    ->toggleable()
                     ->default('NA')
+                    ->limit(20)
                     ->searchable()
-                    ->limit(50),
-                TextColumn::make('complaint')
-                    ->default('NA')
-                    ->searchable(),
+                    ->label('Complaint'),
+                // TextColumn::make('complaint_details')
+                //     ->toggleable()
+                //     ->default('NA')
+                //     ->searchable()
+                //     ->label('Complaint Details'),
                 TextColumn::make('status')
                     ->default('NA')
                     ->searchable()

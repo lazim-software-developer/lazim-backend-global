@@ -16,6 +16,8 @@ use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\CheckboxList;
 use App\Filament\Resources\MoveOutFormsDocumentResource\Pages;
+use App\Models\User\User;
+use Illuminate\Database\Eloquent\Model;
 
 class MoveOutFormsDocumentResource extends Resource
 {
@@ -275,5 +277,29 @@ class MoveOutFormsDocumentResource extends Resource
             // 'view' => Pages\ViewMoveOutFormsDocument::route('/{record}'),
             'edit' => Pages\EditMoveOutFormsDocument::route('/{record}/edit'),
         ];
+    }
+
+    public static function canViewAny(): bool
+    {
+        $user = User::find(auth()->user()->id);
+        return $user->can('view_any_move::out::forms::document');
+    }
+
+    public static function canView(Model $record): bool
+    {
+        $user = User::find(auth()->user()->id);
+        return $user->can('view_move::out::forms::document');
+    }
+
+    public static function canCreate(): bool
+    {
+        $user = User::find(auth()->user()->id);
+        return $user->can('create_move::out::forms::document');
+    }
+
+    public static function canEdit(Model $record): bool
+    {
+        $user = User::find(auth()->user()->id);
+        return $user->can('update_move::out::forms::document');
     }
 }

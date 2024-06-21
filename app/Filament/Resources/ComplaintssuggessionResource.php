@@ -25,6 +25,9 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\ComplaintssuggessionResource\Pages;
 use App\Filament\Resources\ComplaintssuggessionResource\RelationManagers;
+use App\Models\User\User;
+use Filament\Forms\Components\Textarea;
+use Illuminate\Database\Eloquent\Model;
 
 class ComplaintssuggessionResource extends Resource
 {
@@ -74,10 +77,10 @@ class ComplaintssuggessionResource extends Resource
                             ->disabled()
                             ->required()
                             ->label('User'),
-                        TextInput::make('complaint')
+                        Textarea::make('complaint')
                             ->label('Suggestion')
                             ->disabled(),
-                        TextInput::make('complaint_details')
+                        Textarea::make('complaint_details')
                             ->label('Suggestion Details')
                             ->disabled(),
                         Hidden::make('status')
@@ -137,10 +140,13 @@ class ComplaintssuggessionResource extends Resource
                     ->limit(50),
                 TextColumn::make('complaint')
                     ->toggleable()
+                    ->limit(20)
                     ->searchable()
                     ->label('Suggestion'),
                 TextColumn::make('complaint_details')
                     ->toggleable()
+                    ->default('NA')
+                    ->limit(20)
                     ->searchable()
                     ->label('Suggestion Details'),
                 TextColumn::make('status')
@@ -177,5 +183,29 @@ class ComplaintssuggessionResource extends Resource
             // 'view' => Pages\ViewComplaintssuggession::route('/{record}'),
             'edit' => Pages\EditComplaintssuggession::route('/{record}/edit'),
         ];
+    }
+
+    public static function canViewAny(): bool
+    {
+        $user = User::find(auth()->user()->id);
+        return $user->can('view_any_complaintssuggession');
+    }
+
+    public static function canView(Model $record): bool
+    {
+        $user = User::find(auth()->user()->id);
+        return $user->can('view_complaintssuggession');
+    }
+
+    public static function canCreate(): bool
+    {
+        $user = User::find(auth()->user()->id);
+        return $user->can('create_complaintssuggession');
+    }
+
+    public static function canEdit(Model $record): bool
+    {
+        $user = User::find(auth()->user()->id);
+        return $user->can('update_complaintssuggession');
     }
 }

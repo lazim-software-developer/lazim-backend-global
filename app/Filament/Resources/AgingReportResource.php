@@ -33,8 +33,9 @@ class AgingReportResource extends Resource
     }
 
     public static function table(Table $table): Table
-    {
+    {   $buildings = Building::where('owner_association_id',auth()->user()->owner_association_id)->pluck('id');
         return $table
+        ->modifyQueryUsing(fn(Builder $query) => $query->whereIn('building_id', $buildings)->orderBy('created_at','desc')->withoutGlobalScopes())
             ->columns([
                 TextColumn::make('flat.property_number')->label('Unit')->searchable(),
                 TextColumn::make('owner.name')->label('Owner')->limit(20),

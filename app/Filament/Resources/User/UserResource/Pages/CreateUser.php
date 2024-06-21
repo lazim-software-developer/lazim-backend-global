@@ -21,8 +21,18 @@ use Illuminate\Support\Str;
 class CreateUser extends CreateRecord
 {
     protected static string $resource = UserResource::class;
+
+
+    protected function beforeCreate(): void
+{
+    // dd($this->data['roles']);
+    // $role_id = $this->data['roles'];
+ 
+    // return $data;
+}
     protected function afterCreate()
     {
+        // dd($this->data);
         $user = User::find($this->record->id);
 
         $roleJobMap = [
@@ -51,12 +61,17 @@ class CreateUser extends CreateRecord
         $user->phone_verified = 1;
         $user->owner_association_id = auth()->user()->owner_association_id;
         $user->password = Hash::make($password);
+        $user->role_id = $this->data['roles'];
         $user->save();
         
         // Dispatch the appropriate job based on the role
-        if (array_key_exists($this->record->role->name, $roleJobMap)) {
-            $jobClass = $roleJobMap[$this->record->role->name];
+        if (array_key_exists($this->record->role?->name, $roleJobMap)) {
+            $jobClass = $roleJobMap[$this->record->role?->name];
             $jobClass::dispatch($user, $password);
+            // GeneralAccountCreationJob::dispatch($user, $password);
+        }
+        else{
+            MdCreateJob::dispatch($user, $password);
         }
     }
 }

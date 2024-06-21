@@ -4,7 +4,6 @@ namespace App\Filament\Resources\OwnerAssociationResource\Pages;
 
 use App\Filament\Resources\OwnerAssociationResource;
 use App\Jobs\AccountCreationJob;
-use App\Models\Master\Role;
 use App\Models\OwnerAssociation;
 use App\Models\User\User;
 use Filament\Actions;
@@ -13,6 +12,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 class EditOwnerAssociation extends EditRecord
 {
@@ -39,30 +40,75 @@ class EditOwnerAssociation extends EditRecord
     {
         // $phone = OwnerAssociation::where('id',$this->data['id'])->pluck('phone');
         // dd($phone->first() == $this->data['phone']);
-        OwnerAssociation::where('id', $this->data['id'])
+       
+        
+
+        // If updated value of verified is true and the value is DB is false(This happens only for the first time)
+        if ($this->record->verified == 'true' && DB::table('owner_associations')->where('id', $this->record->id)->value('verified_by') == null) {
+            // Update verified in owner_association table
+            // OwnerAssociation::where('id', $this->data['id'])
+            //     ->update([
+            //         'verified_by' => auth()->user()->id,
+            //     ]);
+            // adding roles
+            $oaId = $this->record->id;
+            $roles = [
+                ['name' => 'Owner', 'owner_association_id' => $oaId,'guard_name' => 'web'],
+                ['name' => 'Vendor', 'owner_association_id' => $oaId,'guard_name' => 'web'],
+                ['name' => 'Managing Director', 'owner_association_id' => $oaId,'guard_name' => 'web'],
+                ['name' => 'Financial Manager', 'owner_association_id' => $oaId,'guard_name' => 'web'],
+                ['name' => 'Building Engineer', 'owner_association_id' => $oaId,'guard_name' => 'web'],
+                ['name' => 'Operations Engineer', 'owner_association_id' => $oaId,'guard_name' => 'web'],
+                ['name' => 'Operations Manager', 'owner_association_id' => $oaId,'guard_name' => 'web'],
+                ['name' => 'Staff', 'owner_association_id' => $oaId,'guard_name' => 'web'],
+                // ['name' => 'Admin', 'owner_association_id' => $oaId,'guard_name' => 'web'],
+                ['name' => 'OA', 'owner_association_id' => $oaId,'guard_name' => 'web'],
+                ['name' => 'Tenant', 'owner_association_id' => $oaId,'guard_name' => 'web'],
+                ['name' => 'Security', 'owner_association_id' => $oaId,'guard_name' => 'web'],
+                ['name' => 'Technician', 'owner_association_id' => $oaId,'guard_name' => 'web'],
+                ['name' => 'Accounts Manager', 'owner_association_id' => $oaId,'guard_name' => 'web'],
+                ['name' => 'MD', 'owner_association_id' => $oaId,'guard_name' => 'web'],
+                ['name' => 'Complaint Officer', 'owner_association_id' => $oaId,'guard_name' => 'web'],
+                ['name' => 'Legal Officer', 'owner_association_id' => $oaId,'guard_name' => 'web'],
+            ];
+            DB::table('roles')->insert($roles);
+
+            OwnerAssociation::where('id', $this->record->id)
             ->update([
                 'name'    => $this->record->name,
                 'phone'   => $this->record->phone,
                 'address' => $this->record->address,
                 'active'  => $this->record->active,
+                'verified_by' => auth()->user()->id,
                 'profile_photo' => $this->record->profile_photo,
             ]);
-        User::where('owner_association_id', $this->data['id'])->where('role_id', Role::where('name', 'OA')->first()->id)
+           
+            $user = User::where('owner_association_id', $this->data['id'])->where('role_id', Role::where('name', 'OA')->where('owner_association_id' , $oaId)->first()->id)
             ->update([
                 'first_name' => $this->record->name,
                 'phone'      => $this->record->phone,
                 'profile_photo' => $this->record->profile_photo,
                 'active'  => $this->record->active,
             ]);
+            
 
-        // If updated value of verified is true and the value is DB is false(This happens only for the first time)
-        if ($this->record->verified == 'true' && DB::table('owner_associations')->where('id', $this->record->id)->value('verified_by') == null) {
-            // Update verified in owner_association table
-            OwnerAssociation::where('id', $this->data['id'])
-                ->update([
-                    'verified_by' => auth()->user()->id,
-                ]);
-
+            $permissionsConfig = config('role-permission');
+            Log::info('oa_id'.$this->record->id);
+            foreach ($permissionsConfig['roles'] as $roleName => $roleConfig) {
+                $role = Role::where('name', $roleName)->where('owner_association_id' , $this->record->id)->first();
+                Log::info("Role".$role);
+                if (isset($roleConfig['permissions'])) {
+                    $role->syncPermissions($roleConfig['permissions']);                
+                }
+            }
+            $allowedRoles = ['MD','OA','Owner','Vendor','Tenant','Technician','Security'];
+            foreach ($allowedRoles as $role) {
+                $userRole = Role::where('name', $role)->where('owner_association_id' , $this->record->id)->first();
+                $permission = Permission::all();
+                $userRole->syncPermissions($permission);
+            }
+        
+            
             // Create an entry in Users table
             // check if entered email and phone number is already present for other users in users table
             $emailexists = User::where(['email' => $this->record->email, 'phone' => $this->record->phone])->exists();
@@ -74,15 +120,22 @@ class EditOwnerAssociation extends EditRecord
                     'email'                => $this->record->email,
                     'phone'                => $this->record->phone,
                     'profile_photo'        => $this->record->profile_photo,
-                    'role_id'              => Role::where('name', 'OA')->value('id'),
+                    'role_id'              => Role::where('name', 'OA')->where('owner_association_id' , $oaId)->value('id'),
                     'active'               => $this->record->active,
                     'password' => Hash::make($password),
                     'owner_association_id' => $this->record->id,
                     'email_verified' => 1,
                     'phone_verified' => 1,
                 ]);
+                $oa = Role::where('name', 'OA')->where('owner_association_id' , $this->record->id)->first();
+                DB::table('model_has_roles')->insert([
+                    'role_id' => $oa->id,
+                    'model_type' => User::class,
+                    'model_id' => $user->id,
+                ]);
                 // Send email with credentials
                 AccountCreationJob::dispatch($user, $password);
+                
             } else {
                 // No need to handle this - Subhash
             }

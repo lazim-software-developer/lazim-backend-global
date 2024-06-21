@@ -19,8 +19,9 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 class OwnerAssociationReceiptResource extends Resource
 {
     protected static ?string $model = OwnerAssociationReceipt::class;
-
+    
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $modelLabel = 'Generate Receipt';
 
     public static function form(Form $form): Form
     {
@@ -32,7 +33,7 @@ class OwnerAssociationReceiptResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return $table->modifyQueryUsing(fn (Builder $query) => $query->orderByDesc('created_at'))
+        return $table->modifyQueryUsing(fn (Builder $query) => $query->where('owner_association_id',auth()->user()->owner_association_id)->orderByDesc('created_at'))
             ->columns([
                 TextColumn::make('receipt_number'),
                 TextColumn::make('date'),

@@ -25,13 +25,16 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\ComplaintsenquiryResource\Pages;
 use App\Filament\Resources\ComplaintsenquiryResource\RelationManagers;
+use App\Models\User\User;
+use Filament\Forms\Components\Textarea;
+use Illuminate\Database\Eloquent\Model;
 
 class ComplaintsenquiryResource extends Resource
 {
     protected static ?string $model = Complaint::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-    protected static ?string $modelLabel = 'Enquirie';
+    protected static ?string $modelLabel = 'Enquiries';
 
     protected static ?string $navigationGroup = 'Happiness center';
     public static function form(Form $form): Form
@@ -74,10 +77,10 @@ class ComplaintsenquiryResource extends Resource
                             ->disabled()
                             ->required()
                             ->label('User'),
-                        TextInput::make('complaint')
+                        Textarea::make('complaint')
                             ->label('Enquiry')
                             ->disabled(),
-                        TextInput::make('complaint_details')
+                        Textarea::make('complaint_details')
                             ->label('Enquiry Details')
                             ->disabled(),
                         Hidden::make('status')
@@ -139,11 +142,13 @@ class ComplaintsenquiryResource extends Resource
                 TextColumn::make('complaint')
                     ->toggleable()
                     ->default('NA')
+                    ->limit(20)
                     ->searchable()
                     ->label('Enquiry'),
                 TextColumn::make('complaint_details')
                     ->toggleable()
                     ->default('NA')
+                    ->limit(20)
                     ->searchable()
                     ->label('Enquiry Details'),
                 TextColumn::make('status')
@@ -180,5 +185,29 @@ class ComplaintsenquiryResource extends Resource
             // 'view' => Pages\ViewComplaintsenquiry::route('/{record}'),
             'edit' => Pages\EditComplaintsenquiry::route('/{record}/edit'),
         ];
+    }
+
+    public static function canViewAny(): bool
+    {
+        $user = User::find(auth()->user()->id);
+        return $user->can('view_any_complaintsenquiry');
+    }
+
+    public static function canView(Model $record): bool
+    {
+        $user = User::find(auth()->user()->id);
+        return $user->can('view_complaintsenquiry');
+    }
+
+    public static function canCreate(): bool
+    {
+        $user = User::find(auth()->user()->id);
+        return $user->can('create_complaintsenquiry');
+    }
+
+    public static function canEdit(Model $record): bool
+    {
+        $user = User::find(auth()->user()->id);
+        return $user->can('update_complaintsenquiry');
     }
 }

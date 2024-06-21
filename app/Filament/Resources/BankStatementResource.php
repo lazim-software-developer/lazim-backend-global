@@ -22,7 +22,7 @@ class BankStatementResource extends Resource
 {
     protected static ?string $model = OAMReceipts::class;
 
-    protected static ?string $modelLabel = 'Bank Statement';
+    protected static ?string $modelLabel = 'Receivables';
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
@@ -36,7 +36,9 @@ class BankStatementResource extends Resource
 
     public static function table(Table $table): Table
     {
+        $buildings = Building::where('owner_association_id',auth()->user()->owner_association_id)->pluck('id');
         return $table
+            ->modifyQueryUsing(fn(Builder $query) => $query->whereIn('building_id', $buildings)->orderBy('created_at','desc')->withoutGlobalScopes())
             ->columns([
                 TextColumn::make('flat.property_number')->searchable()->label('Unit'),
                 TextColumn::make('receipt_number')->searchable(),

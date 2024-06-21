@@ -42,7 +42,8 @@ class SaleNOC extends Model
         'signing_authority_name',
         'submit_status',
         'remarks',
-        'payment_link'
+        'payment_link',
+        'admin_document'
     ];
 
     public function contacts()
