@@ -31,6 +31,7 @@ class NocForms extends Model
         'verified_by',
         'flat_id',
         'owner_association_id',
+        'admin_document',
     ];
 
     protected $searchableFields = ['*'];

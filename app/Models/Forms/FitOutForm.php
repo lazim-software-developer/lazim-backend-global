@@ -4,6 +4,9 @@ namespace App\Models\Forms;
 
 use App\Models\Building\Building;
 use App\Models\Building\Flat;
+use App\Models\FitOutFormContractorRequest;
+use App\Models\Order;
+use App\Models\OwnerAssociation;
 use App\Models\User\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -23,7 +26,8 @@ class FitOutForm extends Model
         'owner_association_id',
         'status',
         'remarks',
-        'rejected_fields'
+        'rejected_fields',
+        'admin_document'
     ];
 
     protected $searchableFields = ['*'];
@@ -43,5 +47,20 @@ class FitOutForm extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function contractorRequest()
+    {
+        return $this->hasOne(FitOutFormContractorRequest::class);
+    }
+
+    public function orders()
+    {
+        return $this->morphMany(Order::class, 'orderable');
+    }
+
+    public function ownerAssociation()
+    {
+        return $this->belongsTo(OwnerAssociation::class);
     }
 }

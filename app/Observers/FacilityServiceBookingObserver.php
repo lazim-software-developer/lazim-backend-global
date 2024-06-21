@@ -9,6 +9,7 @@ use App\Filament\Resources\Building\ServiceBookingResource;
 use App\Models\Building\Building;
 use App\Models\Building\FacilityBooking;
 use App\Models\Master\Facility;
+use App\Models\Master\Role;
 use App\Models\Master\Service;
 use App\Models\User\User;
 use Filament\Notifications\Actions\Action;
@@ -20,10 +21,15 @@ class FacilityServiceBookingObserver
      * Handle the FacilityBooking "created" event.
      */
     public function created(FacilityBooking $facilityBooking): void
-    {
+    {   $requiredPermissions = ['view_any_contract'];
         $building = Building::where('id', $facilityBooking->building_id)->first();
-        $notifyTo = User::where('owner_association_id',$building->owner_association_id)->where('role_id', 10)->get();
+        $roles = Role::where('owner_association_id',$building->owner_association_id)->whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor','Staff'])->pluck('id');
+        $notifyTo = User::where('owner_association_id',$building->owner_association_id)->whereNotIn('role_id', $roles)->whereNot('id', auth()->user()->id)->get();
         if($facilityBooking->bookable_type == 'App\Models\Master\Facility'){
+            $requiredPermissions = ['view_any_building::facility::booking'];
+            $notifyTo->filter(function ($notifyTo) use ($requiredPermissions) {
+                return $notifyTo->can($requiredPermissions);
+            });
             $facilityName = Facility::where('id', $facilityBooking->bookable_id)->first();
             Notification::make()
             ->success()
@@ -39,6 +45,10 @@ class FacilityServiceBookingObserver
             ->sendToDatabase($notifyTo);
         }
         else{
+            $requiredPermissions = ['view_any_building::service::booking'];
+            $notifyTo->filter(function ($notifyTo) use ($requiredPermissions) {
+                return $notifyTo->can($requiredPermissions);
+            });
             $serviceName = Service::where('id', $facilityBooking->bookable_id)->first();
             Notification::make()
             ->success()

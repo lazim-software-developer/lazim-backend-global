@@ -25,8 +25,13 @@ class ComplaintObserver
      */
     public function created(Complaint $complaint): void
     {
-        $notifyTo = User::where('owner_association_id', $complaint->owner_association_id)->where('role_id', 10)->get();
+        $roles = Role::where('owner_association_id',$complaint->owner_association_id)->whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor','Staff'])->pluck('id');
+        $notifyTo = User::where('owner_association_id', $complaint->owner_association_id)->whereNotIn('role_id', $roles)->whereNot('id', auth()->user()->id)->get();
         if ($complaint->complaint_type == 'tenant_complaint') {
+            $requiredPermissions = ['view_any_complaintscomplaint'];
+                    $notifyTo->filter(function ($notifyTo) use ($requiredPermissions) {
+                        return $notifyTo->can($requiredPermissions);
+                    });
             Notification::make()
                 ->success()
                 ->title("Happiness center Complaint Received")
@@ -40,6 +45,10 @@ class ComplaintObserver
                 ])
                 ->sendToDatabase($notifyTo);
         } elseif ($complaint->complaint_type == 'enquiries') {
+            $requiredPermissions = ['view_any_complaintsenquiry'];
+                    $notifyTo->filter(function ($notifyTo) use ($requiredPermissions) {
+                        return $notifyTo->can($requiredPermissions);
+                    });
             Notification::make()
                 ->success()
                 ->title("New Enquiry Received")
@@ -53,6 +62,10 @@ class ComplaintObserver
                 ])
                 ->sendToDatabase($notifyTo);
         } elseif ($complaint->complaint_type == 'suggestions') {
+            $requiredPermissions = ['view_any_complaintssuggession'];
+                    $notifyTo->filter(function ($notifyTo) use ($requiredPermissions) {
+                        return $notifyTo->can($requiredPermissions);
+                    });
             Notification::make()
                 ->success()
                 ->title("New Suggestion Received")
@@ -66,6 +79,10 @@ class ComplaintObserver
                 ])
                 ->sendToDatabase($notifyTo);
         } else {
+            $requiredPermissions = ['view_any_helpdeskcomplaint'];
+                    $notifyTo->filter(function ($notifyTo) use ($requiredPermissions) {
+                        return $notifyTo->can($requiredPermissions);
+                    });
             Notification::make()
                 ->success()
                 ->title("Help Desk Ticket Received")
@@ -139,10 +156,15 @@ class ComplaintObserver
         $oldValues = $complaint->getOriginal();
         $newValues = $complaint->getAttributes();
         $building = Building::where('id', $complaint->building_id)->first();
-        $notifyTo = User::where('owner_association_id', $building->owner_association_id)->where('role_id', 10)->get();
+        $roles = Role::where('owner_association_id',$building->owner_association_id)->whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor','Staff'])->pluck('id');
+        $notifyTo = User::where('owner_association_id', $building->owner_association_id)->whereNotIn('role_id', $roles)->whereNot('id', auth()->user()->id)->get();
         //DB notification for ADMIN status update from resident/technician
         if ($complaint->status == 'closed') {
             if ($complaint->complaint_type == 'help_desk') {
+                $requiredPermissions = ['view_any_helpdeskcomplaint'];
+                    $notifyTo->filter(function ($notifyTo) use ($requiredPermissions) {
+                        return $notifyTo->can($requiredPermissions);
+                    });
                 Notification::make()
                     ->success()
                     ->title("Help Desk Complaint Resolution ")
@@ -156,6 +178,8 @@ class ComplaintObserver
                     ])
                     ->sendToDatabase($notifyTo);
             } else {
+                // $requiredPermissions = ['view_any_helpdeskcomplaint'];
+                    $notifyTo->where('role_id', Role::where('name', 'OA')->first()->id);
                 Notification::make()
                     ->success()
                     ->title("Complaints Resolved")

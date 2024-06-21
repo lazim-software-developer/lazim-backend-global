@@ -18,6 +18,9 @@ use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\CheckboxList;
 use App\Filament\Resources\FitOutFormsDocumentResource\Pages;
+use App\Filament\Resources\FitOutFormsDocumentResource\RelationManagers\ContractorRequestRelationManager;
+use Closure;
+use Filament\Forms\Components\FileUpload;
 
 class FitOutFormsDocumentResource extends Resource
 {
@@ -74,7 +77,11 @@ class FitOutFormsDocumentResource extends Resource
                                     'rejected' => 'Reject',
                                 ])
                                 ->disabled(function(FitOutForm $record){
-                                    return $record->status != null;
+                                    
+                                    return $record->status != null ;
+                                })->visible(function(FitOutForm $record){
+                                    
+                                    return $record->contractorRequest?->exists();
                                 })
                                 ->required()
                                 ->searchable()
@@ -91,6 +98,29 @@ class FitOutFormsDocumentResource extends Resource
                                     return $record->status != null;
                                 })
                                 ->required(),
+                            FileUpload::make('admin_document')
+                                ->disk('s3')
+                                ->directory('dev')->required()
+                                ->rules(['file','mimes:pdf',function () {
+                                    return function (string $attribute, $value, Closure $fail) {
+                                        if($value->getSize()/ 1024 > 2048){
+                                            $fail('The document must not be greater than 2MB.');
+                                        }
+                                    };
+                                },])
+                                ->openable(true)
+                                ->downloadable(true)
+                                ->disabled(function(FitOutForm $record){
+                                    
+                                    return $record->admin_document  ;
+                                })
+                                ->visible(function (callable $get,$record) {
+                                    if ($record->orders->first()?->payment_status == 'succeeded'  && $record->status == 'approved') {
+                                        return true;
+                                    }
+                                    return false;
+                                })->helperText('Once a document is uploaded, it cannot be modified.')
+                                ->label('Document'),
                              // If the form is rejected, we need to capture which fields are rejected
                              CheckboxList::make('rejected_fields')
                                 ->label('Please select rejected fields')
@@ -166,7 +196,7 @@ class FitOutFormsDocumentResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            ContractorRequestRelationManager::class,
         ];
     }
 

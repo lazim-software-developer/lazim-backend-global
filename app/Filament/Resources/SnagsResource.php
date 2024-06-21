@@ -28,6 +28,7 @@ use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\SnagsResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\SnagsResource\RelationManagers;
+use Illuminate\Database\Eloquent\Model;
 
 class SnagsResource extends Resource
 {
@@ -36,7 +37,7 @@ class SnagsResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-s-swatch';
     protected static ?string $modelLabel = 'Snag';
     protected static ?string $navigationGroup = 'Security';
-    
+
 
     public static function form(Form $form): Form
     {
@@ -156,12 +157,12 @@ class SnagsResource extends Resource
                         TextInput::make('category')->disabled(),
                         TextInput::make('open_time')->disabled(),
                         TextInput::make('close_time')->disabled()->default('NA'),
-                        TextInput::make('complaint')
+                        Textarea::make('complaint')
                             ->disabled()
                             ->placeholder('Complaint'),
-                        Textarea::make('complaint_details')
-                            ->disabled()
-                            ->placeholder('Complaint Details'),
+                        // Textarea::make('complaint_details')
+                        //     ->disabled()
+                        //     ->placeholder('Complaint Details'),
                         Select::make('status')
                             ->options([
                                 'open' => 'Open',
@@ -205,13 +206,15 @@ class SnagsResource extends Resource
                 TextColumn::make('complaint')
                     ->toggleable()
                     ->default('NA')
+                    ->limit(20)
                     ->searchable()
                     ->label('Complaint'),
-                TextColumn::make('complaint_details')
-                    ->toggleable()
-                    ->default('NA')
-                    ->searchable()
-                    ->label('Complaint Details'),
+                // TextColumn::make('complaint_details')
+                //     ->toggleable()
+                //     ->default('NA')
+                //     ->limit(20)
+                //     ->searchable()
+                //     ->label('Complaint Details'),
                 TextColumn::make('status')
                     ->toggleable()
                     ->searchable()
@@ -234,14 +237,14 @@ class SnagsResource extends Resource
                 // Tables\Actions\CreateAction::make(),
             ]);
     }
-    
+
     public static function getRelations(): array
     {
         return [
             //
         ];
     }
-    
+
     public static function getPages(): array
     {
         return [
@@ -249,5 +252,29 @@ class SnagsResource extends Resource
             'create' => Pages\CreateSnags::route('/create'),
             'edit' => Pages\EditSnags::route('/{record}/edit'),
         ];
-    }    
+    }
+
+    public static function canViewAny(): bool
+    {
+        $user = User::find(auth()->user()->id);
+        return $user->can('view_any_snags');
+    }
+
+    public static function canView(Model $record): bool
+    {
+        $user = User::find(auth()->user()->id);
+        return $user->can('view_snags');
+    }
+
+    public static function canCreate(): bool
+    {
+        $user = User::find(auth()->user()->id);
+        return $user->can('create_snags');
+    }
+
+    public static function canEdit(Model $record): bool
+    {
+        $user = User::find(auth()->user()->id);
+        return $user->can('update_snags');
+    }
 }

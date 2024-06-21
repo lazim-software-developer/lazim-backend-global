@@ -27,13 +27,14 @@ use Filament\Forms\Components\FileUpload;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\HelpdeskcomplaintResource\Pages;
+use Illuminate\Database\Eloquent\Model;
 
 class HelpdeskcomplaintResource extends Resource
 {
     protected static ?string $model = Complaint::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-    protected static ?string $modelLabel = 'Complaint';
+    protected static ?string $modelLabel = 'Help Desk Complaint';
 
     protected static ?string $navigationGroup = 'Help Desk';
 
@@ -164,12 +165,12 @@ class HelpdeskcomplaintResource extends Resource
                         TextInput::make('category')->disabled(),
                         TextInput::make('open_time')->disabled(),
                         TextInput::make('close_time')->disabled()->default('NA'),
-                        TextInput::make('complaint')
+                        Textarea::make('complaint')
                             ->disabled()
                             ->placeholder('Complaint'),
-                        Textarea::make('complaint_details')
-                            ->disabled()
-                            ->placeholder('Complaint Details'),
+                        // Textarea::make('complaint_details')
+                        //     ->disabled()
+                        //     ->placeholder('Complaint Details'),
                         Select::make('status')
                             ->options([
                                 'open' => 'Open',
@@ -218,6 +219,7 @@ class HelpdeskcomplaintResource extends Resource
                     ->limit(50),
                 TextColumn::make('complaint')
                     ->toggleable()
+                    ->limit(20)
                     ->searchable(),
                 TextColumn::make('status')
                     ->toggleable()
@@ -255,5 +257,29 @@ class HelpdeskcomplaintResource extends Resource
             // 'view' => Pages\ViewHelpdeskcomplaint::route('/{record}'),
             'edit' => Pages\EditHelpdeskcomplaint::route('/{record}/edit'),
         ];
+    }
+
+    public static function canViewAny(): bool
+    {
+        $user = User::find(auth()->user()->id);
+        return $user->can('view_any_helpdeskcomplaint');
+    }
+
+    public static function canView(Model $record): bool
+    {
+        $user = User::find(auth()->user()->id);
+        return $user->can('view_helpdeskcomplaint');
+    }
+
+    public static function canCreate(): bool
+    {
+        $user = User::find(auth()->user()->id);
+        return $user->can('create_helpdeskcomplaint');
+    }
+
+    public static function canEdit(Model $record): bool
+    {
+        $user = User::find(auth()->user()->id);
+        return $user->can('update_helpdeskcomplaint');
     }
 }

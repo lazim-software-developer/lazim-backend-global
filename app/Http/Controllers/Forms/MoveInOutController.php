@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Forms;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Forms\CreateFormRequest;
 use App\Http\Resources\CustomResponseResource;
+use App\Http\Resources\MoveInOutResource;
 use App\Models\Building\Building;
 use App\Models\ExpoPushNotification;
 use App\Models\Forms\MoveInOut;
@@ -130,5 +131,13 @@ class MoveInOutController extends Controller
             'code' => 200,
             'status' => 'success',
         ]))->response()->setStatusCode(200);
+    }
+
+    public function list(Request $request){
+        $request->validate([
+            'building_id' => 'required'
+        ]);
+        $mov = MoveInOut::where('status','approved')->where('moving_date','>=',now()->toDateString())->where('building_id',$request->building_id)->orderBy('moving_date')->get();
+        return MoveInOutResource::collection($mov);
     }
 }

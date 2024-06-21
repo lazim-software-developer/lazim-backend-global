@@ -347,6 +347,8 @@ Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active']
     //Fit Out rejected API
     Route::get('/fit-out/status/{fitout}',[FitOutFormsController::class, 'index']);
 });
+//Contractor Request
+Route::post('/fit-out/contractor/{fitout}',[FitOutFormsController::class, 'contractorRequest']);
 
 // API  to fetch Security for a building
 Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active'])->prefix('building')->group(function () {
@@ -510,6 +512,8 @@ Route::middleware(['auth:sanctum', 'active', 'active.gatekeeper'])->prefix('gate
     // Notify tenants on visitor's entry
     Route::post('/notify-resident', [GuestController::class, 'notifyTenant']);
 
+    // MoveIn MoveOut
+    Route::get('/move-in-out',[MoveInOutController::class, 'list']);
 });
 // Approve visitor request
 Route::post('/gatekeeper/visitor-entry', [GuestController::class, 'visitorEntry'])->middleware(['auth:sanctum']);
@@ -553,3 +557,6 @@ Route::post('/web-enquiry',[EnquiryController::class,'store']);
 
 //webhook
 Route::post('/webhook',[MollakController::class,'webhook']);
+
+//mollak
+Route::post('/upload',[TestController::class, 'uploadAll'])->name('uploadAll');

@@ -61,6 +61,43 @@ class EditMoveOutFormsDocument extends EditRecord
                         'created_at' => now()->format('Y-m-d H:i:s'),
                         'updated_at' => now()->format('Y-m-d H:i:s'),
                     ]);
+                $security= $this->record->building->buildingPocs->where('active',true)->where('role_name','security')->first();
+                if($security->exists()) {
+                    $id = $security->first()->user_id;
+                    $expoPushTokens = ExpoPushNotification::where('user_id', $id)->pluck('token');
+                    if ($expoPushTokens->count() > 0) {
+                        foreach ($expoPushTokens as $expoPushToken) {
+                            $message = [
+                                'to' => $expoPushToken,
+                                'sound' => 'default',
+                                'title' => 'Move-out',
+                                'body' => 'New move-out.',
+                                'data' => ['notificationType' => 'Move-out'],
+                            ];
+                            $this->expoNotification($message);
+                        }
+                    }
+                            DB::table('notifications')->insert([
+                                'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
+                                'type' => 'Filament\Notifications\DatabaseNotification',
+                                'notifiable_type' => 'App\Models\User\User',
+                                'notifiable_id' => $id,
+                                'data' => json_encode([
+                                    'actions' => [],
+                                    'body' => 'New move-out.',
+                                    'duration' => 'persistent',
+                                    'icon' => 'heroicon-o-document-text',
+                                    'iconColor' => 'warning',
+                                    'title' => 'Move-out',
+                                    'view' => 'notifications::notification',
+                                    'viewData' => [],
+                                    'format' => 'filament',
+                                    'url' => 'Move-out',
+                                ]),
+                                'created_at' => now()->format('Y-m-d H:i:s'),
+                                'updated_at' => now()->format('Y-m-d H:i:s'),
+                            ]);
+                }
         }
 
         if ($this->record->status == 'rejected') {

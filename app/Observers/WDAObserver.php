@@ -5,6 +5,7 @@ namespace App\Observers;
 use App\Filament\Resources\WDAResource;
 use App\Models\Accounting\WDA;
 use App\Models\Building\Building;
+use App\Models\Master\Role;
 use App\Models\User\User;
 use Filament\Notifications\Actions\Action;
 use Filament\Notifications\Notification;
@@ -20,8 +21,13 @@ class WDAObserver
         $vendor = DB::table('building_vendor')->where('building_id', $WDA->building_id)
             ->where('vendor_id', $WDA->vendor_id)->first();
         if ($vendor) {
+            $requiredPermissions = ['view_any_w::d::a'];
             $building = Building::where('id', $vendor->building_id)->first();
-            $notifyTo = User::where('owner_association_id', $building->owner_association_id)->where('role_id', 10)->get();
+            $roles = Role::where('owner_association_id',$building->owner_association_id)->whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor','Staff'])->pluck('id');
+            $notifyTo = User::where('owner_association_id', $building->owner_association_id)->whereNotIn('role_id', $roles)->whereNot('id', auth()->user()->id)->get()
+            ->filter(function ($notifyTo) use ($requiredPermissions) {
+                return $notifyTo->can($requiredPermissions);
+            });
             Notification::make()
                 ->success()
                 ->title("New WDA Form")

@@ -2,15 +2,30 @@
 
 namespace App\Http\Controllers\Forms;
 
+use App\Filament\Resources\FitOutFormsDocumentResource;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Forms\CreateFitOutFormsRequest;
 use App\Http\Resources\CustomResponseResource;
+use App\Jobs\FitOutContractorMailJob;
 use App\Models\Building\Building;
+use App\Models\Building\Document;
+use App\Models\ExpoPushNotification;
+use App\Models\FitOutFormContractorRequest;
 use App\Models\Forms\FitOutForm;
+use App\Models\Master\DocumentLibrary;
+use App\Models\Master\Role;
+use App\Models\User\User;
+use App\Traits\UtilsTrait;
+use Filament\Notifications\Actions\Action;
+use Filament\Notifications\Notification;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 
 class FitOutFormsController extends Controller
 {
+    use UtilsTrait;
     /**
      * Show the form for creating a new resource.
      */
@@ -18,7 +33,7 @@ class FitOutFormsController extends Controller
     {
         $ownerAssociationId = Building::find($request->building_id)->owner_association_id;
 
-        FitOutForm::create([
+        $form = FitOutForm::create([
             'building_id' => $request->building_id,
             'flat_id' => $request->flat_id,
             'contractor_name' => $request->contractor_name,
@@ -29,6 +44,11 @@ class FitOutFormsController extends Controller
             'no_objection'=>$request->no_objection,
             'owner_association_id' => $ownerAssociationId
         ]);
+
+        $name = $request->contractor_name;
+        $email = $request->email;
+        $id = $form->id;
+        FitOutContractorMailJob::dispatch($name,$email,$id);
 
         return (new CustomResponseResource([
             'title' => 'Success',
@@ -56,4 +76,66 @@ class FitOutFormsController extends Controller
         }
         return "Request is not rejected";
     }
+
+    public function contractorRequest(Request $request,FitOutForm $fitout){
+
+        $request->validate([
+            'work_type' => 'required|in:major,minor',
+            'work_name' => 'required',
+        ]);
+        if($fitout->contractorRequest){
+            return (new CustomResponseResource([
+                'title' => 'Request already exists!',
+                'message' => 'Request already exists for this FitOut form!',
+                'code' => 403,
+            ]))->response()->setStatusCode(403);
+        }
+
+        $contractor = FitOutFormContractorRequest::create([
+            'work_type' => $request->work_type,
+            'work_name' => $request->work_name,
+            'fit_out_form_id' => $fitout->id,
+            'status' => 'submitted',
+        ]);
+        foreach($request->documents as $key => $value){
+            $path = optimizeDocumentAndUpload($value);
+            $request->merge([
+                'name' => $key,
+                'documentable_id' => $contractor->id,
+                'status'    => 'submitted',
+                'documentable_type'   => FitOutFormContractorRequest::class,
+                'document_library_id' => DocumentLibrary::where('name', 'Other documents')->value('id'),
+                'url' => $path,
+                'owner_association_id' => $fitout->owner_association_id,
+            ]);
+            Document::create($request->all());
+        }
+        $requiredPermissions = ['view_any_fit::out::forms::document'];
+        $roles = Role::where('owner_association_id',$fitout->owner_association_id)->whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor','Staff'])->pluck('id');
+        $user = User::where('owner_association_id',$fitout->owner_association_id)->whereNotIn('role_id', $roles)->whereNot('id', auth()->user()->id)->get()
+        ->filter(function ($notifyTo) use ($requiredPermissions) {
+            return $notifyTo->can($requiredPermissions);
+        });//->where('role_id',Role::where('name','OA')->first()->id)->first();
+        Notification::make()
+        ->success()
+        ->title("FitOut Contractor Request! ")
+        ->icon('heroicon-o-document-text')
+        ->iconColor('warning')
+        ->body('New Contractor FitOut Request ')
+        ->actions([
+            Action::make('view')
+                ->button()
+                ->url(fn () => FitOutFormsDocumentResource::getUrl('edit', [$fitout])),
+        ])
+        ->sendToDatabase($user);
+            
+
+        return (new CustomResponseResource([
+            'title' => 'Successful!',
+            'message' => "",
+            'code' => 201,
+            'status' => 'success'
+        ]))->response()->setStatusCode(201);
+    }
 }
+                                                                                                                                                
