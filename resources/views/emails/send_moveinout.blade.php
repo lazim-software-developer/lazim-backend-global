@@ -34,12 +34,12 @@
 </tr>
 <tr>
 	<td class="paragraph">
-		<strong>Building ID: </strong> {{$building_id}}
+		<strong>Building: </strong> {{$building}}
 	</td>
 </tr>
 <tr>
 	<td class="paragraph">
-		<strong>Flat ID: </strong> {{$flat_id}}
+		<strong>Flat: </strong> {{$flat}}
 	</td>
 </tr>
 <tr>
