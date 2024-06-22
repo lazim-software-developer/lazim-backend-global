@@ -13,7 +13,7 @@
 </tr>
 <tr>
 	<td class="paragraph">
-		We are pleased to inform you that your move-in/move-out request has been successfully submitted. Below are your ticket details:
+		We are pleased to inform you that your {{ $type }} request has been successfully submitted. Below are your ticket details:
 	</td>
 </tr>
 <tr>
@@ -55,11 +55,6 @@
 <tr>
 	<td class="paragraph">
 		<strong>Moving Time: </strong> {{$moving_time}}
-	</td>
-</tr>
-<tr>
-	<td class="paragraph">
-		<strong>Time Preference: </strong> {{$time_preference}}
 	</td>
 </tr>
 <tr>

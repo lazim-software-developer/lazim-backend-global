@@ -72,7 +72,7 @@ class MoveInOutController extends Controller
         foreach ($document_paths as $document) {
             if ($request->hasFile($document)) {
                 $file = $request->file($document);
-                $data[$document] = optimizeDocumentAndUpload($file, 'dev');
+                $data[$document] = 'dev';
             }
         }
 
@@ -84,7 +84,7 @@ class MoveInOutController extends Controller
         $data['ticket_number'] = "MV" . date("i") . "-" . strtoupper(bin2hex(random_bytes(2))) . "-" . date("md");
 
         $moveInOut = MoveInOut::create($data);
-        MoveInOutMailJob::dispatch($moveInOut);
+        MoveInOutMailJob::dispatch(auth()->user(), $moveInOut);
 
         return (new CustomResponseResource([
             'title' => 'Success',
