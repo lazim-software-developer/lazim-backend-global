@@ -72,7 +72,7 @@ class MoveInOutController extends Controller
         foreach ($document_paths as $document) {
             if ($request->hasFile($document)) {
                 $file = $request->file($document);
-                $data[$document] = 'dev';
+                $data[$document] = optimizeDocumentAndUpload($file, 'dev');
             }
         }
 

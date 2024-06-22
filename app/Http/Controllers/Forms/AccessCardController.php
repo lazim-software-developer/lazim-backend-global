@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Forms;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Forms\CreateAccessCardFormsRequest;
 use App\Http\Resources\CustomResponseResource;
+use App\Jobs\Forms\AccessCardRequestJob;
 use App\Models\Building\Building;
 use App\Models\Forms\AccessCard;
 use App\Models\Forms\Guest;
@@ -18,7 +19,7 @@ class AccessCardController extends Controller
     public function create(CreateAccessCardFormsRequest $request)
     {
         $ownerAssociationId = Building::find($request->building_id)->owner_association_id;
-        
+
         // Handle multiple images
         $document_paths = [
             'tenancy',
@@ -26,7 +27,7 @@ class AccessCardController extends Controller
             'title_deed',
             'passport'
         ];
-        
+
         $data = $request->all();
         foreach ($document_paths as $document) {
             if($request->has($document)) {
@@ -39,8 +40,10 @@ class AccessCardController extends Controller
         $data['mobile']= auth()->user()->phone;
         $data['email'] = auth()->user()->email;
         $data['owner_association_id'] = $ownerAssociationId;
+        $data['ticket_number'] = "AC" . date("i") . "-" . strtoupper(bin2hex(random_bytes(2))) . "-" . date("md");
 
-        AccessCard::create($data);
+        $accessCard = AccessCard::create($data);
+        AccessCardRequestJob::dispatch(auth()->user(), $accessCard);
 
         return (new CustomResponseResource([
             'title' => 'Success',
@@ -49,7 +52,7 @@ class AccessCardController extends Controller
         ]))->response()->setStatusCode(201);
     }
 
-    public function fetchFormStatus(Building $building) 
+    public function fetchFormStatus(Building $building)
     {
         // Fetch status of all forms
         $accessCard = auth()->user()->accessCard()->where('building_id', $building->id)->latest()->first();
@@ -63,15 +66,15 @@ class AccessCardController extends Controller
         $fitOutForm = auth()->user()->fitOut()->latest()->where('building_id', $building->id)->first();
 
         $fitOutFormStatus = $fitOutForm ?? "Not submitted";
-        
+
         $moveInForm = auth()->user()->moveinData()->where('type', 'move-in')->where('building_id', $building->id)->latest()->first();
 
         $moveInFormStatus = $moveInForm ?? "Not submitted";
-        
+
         $moveOutForm = auth()->user()->moveinData()->where('type', 'move-out')->where('building_id', $building->id)->latest()->first();
 
         $moveOutFormStatus = $moveOutForm ?? "Not submitted";
-        
+
         $saleNocForm = auth()->user()->saleNoc()->latest()->where('building_id', $building->id)->first();
 
         $saleNocFormStatus = $saleNocForm ?? "Not submitted";

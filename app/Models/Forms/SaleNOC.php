@@ -43,7 +43,8 @@ class SaleNOC extends Model
         'submit_status',
         'remarks',
         'payment_link',
-        'admin_document'
+        'admin_document',
+        'ticket_number'
     ];
 
     public function contacts()
@@ -67,7 +68,7 @@ class SaleNOC extends Model
     {
         return $this->belongsTo(Flat::class);
     }
-    
+
     public function orders()
     {
         return $this->morphMany(Order::class, 'orderable');

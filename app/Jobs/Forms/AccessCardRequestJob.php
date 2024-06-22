@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Jobs;
+namespace App\Jobs\Forms;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
@@ -10,19 +10,19 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Snowfire\Beautymail\Beautymail;
 
-class MoveInOutMailJob implements ShouldQueue
+class AccessCardRequestJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected $user;
-    protected $moveInOut;
+    protected $accessCard;
     /**
      * Create a new job instance.
      */
-    public function __construct($user, $moveInOut)
+    public function __construct($user, $accessCard)
     {
         $this->user = $user;
-        $this->moveInOut = $moveInOut;
+        $this->accessCard = $accessCard;
     }
 
     /**
@@ -32,18 +32,17 @@ class MoveInOutMailJob implements ShouldQueue
     {
         $beautymail = app()->make(Beautymail::class);
 
-        $beautymail->send('emails.send_moveinout', [
+        $beautymail->send('emails.forms.access_card_request', [
             'user' => $this->user,
-            'ticket_number' => $this->moveInOut->ticket_number,
-            'building' => $this->moveInOut->building->name,
-            'flat' => $this->moveInOut->flat->plot_number,
-            'type' => $this->moveInOut->type,
-            'moving_date' => date("d-M-Y", strtotime($this->moveInOut->moving_date)),
-            'moving_time' => date("d-M-Y", strtotime($this->moveInOut->moving_time)),
+            'ticket_number' => $this->accessCard->ticket_number,
+            'building' => $this->accessCard->building->name,
+            'flat' => $this->accessCard->flat->plot_number,
+            'type' => 'Access Card',
+            'card_type' => $this->accessCard->card_type,
         ], function ($message) {
             $message
                 ->to($this->user->email, $this->user->first_name)
-                ->subject(ucwords($this->moveInOut->type) . ' Request Submitted');
+                ->subject('Access card Request Submitted');
         });
     }
 }
