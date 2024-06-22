@@ -14,11 +14,15 @@ class MoveInOutMailJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    protected $user;
+    protected $moveInOut;
     /**
      * Create a new job instance.
      */
-    public function __construct(protected $user, protected $moveInOut)
+    public function __construct($user, $moveInOut)
     {
+        $this->user = $user;
+        $this->moveInOut = $moveInOut;
     }
 
     /**
@@ -28,7 +32,7 @@ class MoveInOutMailJob implements ShouldQueue
     {
         $beautymail = app()->make(Beautymail::class);
 
-        $beautymail->send('emails.send_moveinout-blade', [
+        $beautymail->send('emails.send_moveinout', [
             'user' => $this->user,
             'ticket_number' => $this->moveInOut->ticket_number,
             'building_id' => $this->moveInOut->building_id,
@@ -40,7 +44,7 @@ class MoveInOutMailJob implements ShouldQueue
         ], function ($message) {
             $message
                 ->to($this->user->email, $this->user->first_name)
-                ->subject('Move-in/Move-out Request Submitted');
+                ->subject(ucwords($this->moveInOut->type) . ' Request Submitted');
         });
     }
 }
