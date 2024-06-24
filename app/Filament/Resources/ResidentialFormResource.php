@@ -213,6 +213,10 @@ class ResidentialFormResource extends Resource
     {
         return $table
             ->columns([
+                TextColumn::make('ticket_number')
+                    ->searchable()
+                    ->default('NA')
+                    ->label('Ticket Number'),
                 TextColumn::make('building.name')
                     ->searchable()
                     ->label('Building')
