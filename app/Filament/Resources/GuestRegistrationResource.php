@@ -206,6 +206,10 @@ class GuestRegistrationResource extends Resource
     {
         return $table
             ->columns([
+                TextColumn::make('ticket_number')
+                    ->searchable()
+                    ->default('NA')
+                    ->label('Ticket Number'),
                 ViewColumn::make('Name')->view('tables.columns.name'),
                 TextColumn::make('stay_duration')
                     ->searchable()

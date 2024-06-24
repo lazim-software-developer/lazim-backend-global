@@ -303,6 +303,10 @@ class NocFormResource extends Resource
     {
         return $table
             ->columns([
+                TextColumn::make('ticket_number')
+                    ->searchable()
+                    ->default('NA')
+                    ->label('Ticket Number'),
                 TextColumn::make('user.first_name')
                     ->searchable()
                     ->default('NA'),
