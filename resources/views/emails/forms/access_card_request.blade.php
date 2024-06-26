@@ -5,7 +5,7 @@
 @include('beautymail::templates.minty.contentStart')
 <tr>
 	<td class="paragraph">
-		Dear {{$name}},
+		Dear {{$user->first_name}},
 	</td>
 </tr>
 <tr>
@@ -13,26 +13,12 @@
 </tr>
 <tr>
 	<td class="paragraph">
-		FitOut request has been submitted, you will find a link below.
+		We are pleased to inform you that your {{ $type }} request has been successfully submitted. Below are your ticket details:
 	</td>
 </tr>
 <tr>
-	<td width="100%" height="20"></td>
+	<td width="100%" height="25"></td>
 </tr>
-<tr>
-	<td class="paragraph">
-		<a href="https://lazim-resident.vercel.app/forms/fitout/{{$id}}">Link</a>
-	</td>
-</tr>
-<tr>
-	<td class="paragraph">
-		Please fill the form and upload respective documents and submit the form.
-	</td>
-</tr>
-<tr>
-	<td width="100%" height="20"></td>
-</tr>
-
 <tr>
 	<td class="title">
 		Ticket Details:
@@ -57,17 +43,27 @@
 	</td>
 </tr>
 <tr>
+	<td class="paragraph">
+		<strong>Type: </strong> {{$type}}
+	</td>
+</tr>
+<tr>
+	<td class="paragraph">
+		<strong>Card Type: </strong> {{$card_type}}
+	</td>
+</tr>
+
+<tr>
 	<td width="100%" height="25"></td>
 </tr>
 <tr>
 	<td class="paragraph">
-		Thank you for choosing Lazim. We're confident that you'll find great value in our platform, and we look forward to serving you.
+		Thank you for choosing Lazim. We are confident that you will find great value in our platform, and we look forward to serving you.
 	</td>
 </tr>
 <tr>
 	<td width="100%" height="25"></td>
 </tr>
-
 <tr>
 	<td class="paragraph">
 		Warm regards,
@@ -78,10 +74,9 @@
 </tr>
 <tr>
 	<td class="paragraph">
-		Lazim team
+		The Lazim Team
 	</td>
 </tr>
-
 <tr>
 	<td width="100%" height="25"></td>
 </tr>

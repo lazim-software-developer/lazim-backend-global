@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Forms\CreateFormRequest;
 use App\Http\Resources\CustomResponseResource;
 use App\Http\Resources\MoveInOutResource;
+use App\Jobs\MoveInOutMailJob;
 use App\Models\Building\Building;
 use App\Models\ExpoPushNotification;
 use App\Models\Forms\MoveInOut;
@@ -80,8 +81,11 @@ class MoveInOutController extends Controller
         $data['email'] = auth()->user()->email;
         $data['user_id'] = auth()->user()->id;
         $data['owner_association_id'] = $ownerAssociationId;
+        $data['ticket_number'] = "MV" . date("i") . "-" . strtoupper(bin2hex(random_bytes(2))) . "-" . date("md");
 
-        MoveInOut::create($data);
+        $moveInOut = MoveInOut::create($data);
+        MoveInOutMailJob::dispatch(auth()->user(), $moveInOut);
+
         return (new CustomResponseResource([
             'title' => 'Success',
             'message' => 'Form submitted successfully!',

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Forms;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Forms\SaleNocRequest;
 use App\Http\Resources\CustomResponseResource;
+use App\Jobs\Forms\SalesNocRequestJob;
 use App\Jobs\SendSaleNocEmail;
 use App\Models\Building\Building;
 use App\Models\Forms\NocContacts;
@@ -26,9 +27,11 @@ class SaleNocController extends Controller
         $validated['user_id'] = auth()->user()->id;
         $validated['owner_association_id'] = $ownerAssociationId;
         $validated['submit_status'] = 'download_file';
+        $validated['ticket_number'] = "SN" . date("i") . "-" . strtoupper(bin2hex(random_bytes(2))) . "-" . date("md");
 
         // Create the SaleNoc entry
         $saleNoc = SaleNoc::create($validated);
+        SalesNocRequestJob::dispatch(auth()->user(), $saleNoc);
 
         $contacts = $request->get('contacts');
 

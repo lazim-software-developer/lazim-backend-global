@@ -77,10 +77,10 @@ class FitOutFormsDocumentResource extends Resource
                                     'rejected' => 'Reject',
                                 ])
                                 ->disabled(function(FitOutForm $record){
-                                    
+
                                     return $record->status != null ;
                                 })->visible(function(FitOutForm $record){
-                                    
+
                                     return $record->contractorRequest?->exists();
                                 })
                                 ->required()
@@ -111,7 +111,7 @@ class FitOutFormsDocumentResource extends Resource
                                 ->openable(true)
                                 ->downloadable(true)
                                 ->disabled(function(FitOutForm $record){
-                                    
+
                                     return $record->admin_document  ;
                                 })
                                 ->visible(function (callable $get,$record) {
@@ -144,6 +144,11 @@ class FitOutFormsDocumentResource extends Resource
         return $table
             ->poll('60s')
             ->columns([
+
+                    TextColumn::make('ticket_number')
+                    ->searchable()
+                    ->default('NA')
+                    ->label('Ticket Number'),
                 TextColumn::make('building.name')
                     ->searchable()
                     ->default('NA')
