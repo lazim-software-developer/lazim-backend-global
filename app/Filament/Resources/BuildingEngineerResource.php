@@ -21,6 +21,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\BuildingEngineerResource\Pages;
 use App\Filament\Resources\BuildingEngineerResource\RelationManagers;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class BuildingEngineerResource extends Resource
 {
@@ -64,7 +65,7 @@ class BuildingEngineerResource extends Resource
                     ->prefix('971')
                     ->required()
                     ->maxLength(255),
-                    
+
                 FileUpload::make('profile_photo')
                     ->disk('s3')
                     ->directory('dev')
@@ -102,14 +103,14 @@ class BuildingEngineerResource extends Resource
                 // Tables\Actions\CreateAction::make(),
             ]);
     }
-    
+
     public static function getRelations(): array
     {
         return [
             //
         ];
     }
-    
+
     public static function getPages(): array
     {
         return [
@@ -118,5 +119,5 @@ class BuildingEngineerResource extends Resource
             'view' => Pages\ViewBuildingEngineer::route('/{record}'),
             'edit' => Pages\EditBuildingEngineer::route('/{record}/edit'),
         ];
-    }    
+    }
 }

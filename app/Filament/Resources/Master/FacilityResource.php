@@ -20,6 +20,7 @@ use App\Filament\Resources\Master\FacilityResource\Pages;
 use App\Filament\Resources\Master\FacilityResource\RelationManagers;
 use Filament\Forms\Components\FileUpload;
 use Filament\Tables\Columns\ImageColumn;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class FacilityResource extends Resource
 {

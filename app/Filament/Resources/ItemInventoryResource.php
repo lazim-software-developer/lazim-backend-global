@@ -24,6 +24,7 @@ use Filament\Forms\Components\DateTimePicker;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\ItemInventoryResource\Pages;
 use App\Filament\Resources\ItemInventoryResource\RelationManagers;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class ItemInventoryResource extends Resource
 {
@@ -32,7 +33,7 @@ class ItemInventoryResource extends Resource
     protected static ?string $modelLabel = 'Item inventory';
     protected static ?string $navigationGroup = 'Inventory Management';
     public static function form(Form $form): Form
-    {   
+    {
         return $form
             ->schema([
                 Grid::make([
@@ -113,6 +114,7 @@ class ItemInventoryResource extends Resource
                 Tables\Actions\ViewAction::make(),
             ])
             ->bulkActions([
+                ExportBulkAction::make(),
                 Tables\Actions\BulkActionGroup::make([
                     // Tables\Actions\DeleteBulkAction::make(),
                 ]),

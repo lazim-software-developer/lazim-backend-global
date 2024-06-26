@@ -22,6 +22,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\BudgetResource\RelationManagers;
 use App\Filament\Resources\BudgetResource\RelationManagers\BudgetitemsRelationManager;
 
+
 class BudgetResource extends Resource
 {
     protected static ?string $model = Budget::class;
