@@ -25,6 +25,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\TechnicianAssetsResource\Pages;
 use App\Filament\Resources\TechnicianAssetsResource\RelationManagers;
 use App\Filament\Resources\TechnicianAssetsResource\RelationManagers\AssetMaintenancesRelationManager;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class TechnicianAssetsResource extends Resource
 {

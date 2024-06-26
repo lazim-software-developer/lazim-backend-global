@@ -21,6 +21,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\ComplaintOfficerResource\Pages;
 use App\Filament\Resources\ComplaintOfficerResource\RelationManagers;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class ComplaintOfficerResource extends Resource
 {
@@ -101,14 +102,14 @@ class ComplaintOfficerResource extends Resource
                 // Tables\Actions\CreateAction::make(),
             ]);
     }
-    
+
     public static function getRelations(): array
     {
         return [
             //
         ];
     }
-    
+
     public static function getPages(): array
     {
         return [
@@ -117,5 +118,5 @@ class ComplaintOfficerResource extends Resource
             'view' => Pages\ViewComplaintOfficer::route('/{record}'),
             'edit' => Pages\EditComplaintOfficer::route('/{record}/edit'),
         ];
-    }    
+    }
 }

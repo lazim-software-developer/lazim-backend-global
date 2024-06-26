@@ -19,6 +19,7 @@ use Filament\Forms\Components\Component;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\FileUpload;
 use App\Filament\Resources\OwnerAssociationResource\Pages;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class OwnerAssociationResource extends Resource
 {
@@ -94,7 +95,7 @@ class OwnerAssociationResource extends Resource
                                 ->where('verified', 1)
                                 ->exists();
                             }
-                            
+
                         })
                         ->placeholder('Address'),
                     TextInput::make('email')
@@ -136,7 +137,7 @@ class OwnerAssociationResource extends Resource
                                 ->where('verified', 1)
                                 ->exists();
                             }
-                            
+
                         })
                         ->placeholder('account number'),
                     FileUpload::make('profile_photo')
@@ -154,7 +155,7 @@ class OwnerAssociationResource extends Resource
                                 ->where('verified', 1)
                                 ->exists();
                             }
-                            
+
                         })
                         ->columnSpan([
                             'sm' => 1,
@@ -178,7 +179,7 @@ class OwnerAssociationResource extends Resource
                                 ->where('verified', 1)
                                 ->exists();
                             }
-                            
+
                         }),
                     FileUpload::make('trade_license')
                         ->disk('s3')
@@ -194,7 +195,7 @@ class OwnerAssociationResource extends Resource
                                 ->where('verified', 1)
                                 ->exists();
                             }
-                            
+
                         }),
                     FileUpload::make('dubai_chamber_document')
                         ->disk('s3')
@@ -210,12 +211,12 @@ class OwnerAssociationResource extends Resource
                                 ->where('verified', 1)
                                 ->exists();
                             }
-                            
+
                         }),
                     FileUpload::make('memorandum_of_association')
                         ->disk('s3')
                         ->directory('dev')
-                        ->rules('file|mimes:jpeg,jpg,png,pdf|max:2048')                        
+                        ->rules('file|mimes:jpeg,jpg,png,pdf|max:2048')
                         ->maxSize(2048)
                         ->label('Memorandum of Association')
                         ->disabled(function (callable $get) {
@@ -226,7 +227,7 @@ class OwnerAssociationResource extends Resource
                                 ->where('verified', 1)
                                 ->exists();
                             }
-                            
+
                         }),
                     Toggle::make('verified')
                         ->rules(['boolean'])

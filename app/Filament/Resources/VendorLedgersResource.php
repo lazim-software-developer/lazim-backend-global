@@ -31,6 +31,7 @@ use App\Filament\Resources\VendorLedgersResource\RelationManagers;
 use Coolsam\FilamentFlatpickr\Forms\Components\Flatpickr;
 use Illuminate\Support\Str;
 use Malzariey\FilamentDaterangepickerFilter\Fields\DateRangePicker;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class VendorLedgersResource extends Resource
 {
@@ -171,6 +172,7 @@ class VendorLedgersResource extends Resource
                 //     ->slideOver()
             ])
             ->bulkActions([
+                ExportBulkAction::make(),
                 Tables\Actions\BulkActionGroup::make([
                     // Tables\Actions\DeleteBulkAction::make(),
                 ]),

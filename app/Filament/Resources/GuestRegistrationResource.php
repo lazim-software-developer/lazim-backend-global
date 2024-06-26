@@ -28,6 +28,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Query\JoinClause;
 use Filament\Forms\Components\CheckboxList;
 use App\Filament\Resources\GuestRegistrationResource\Pages;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 
 class GuestRegistrationResource extends Resource
@@ -255,6 +256,7 @@ class GuestRegistrationResource extends Resource
                 //Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
+                ExportBulkAction::make(),
                 Tables\Actions\BulkActionGroup::make([
                     // Tables\Actions\DeleteBulkAction::make(),
                 ]),
