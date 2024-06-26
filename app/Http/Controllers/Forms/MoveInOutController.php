@@ -81,7 +81,7 @@ class MoveInOutController extends Controller
         $data['email'] = auth()->user()->email;
         $data['user_id'] = auth()->user()->id;
         $data['owner_association_id'] = $ownerAssociationId;
-        $data['ticket_number'] = "MV" . date("i") . "-" . strtoupper(bin2hex(random_bytes(2))) . "-" . date("md");
+        $data['ticket_number'] = generate_ticket_number("MV");
 
         $moveInOut = MoveInOut::create($data);
         MoveInOutMailJob::dispatch(auth()->user(), $moveInOut);

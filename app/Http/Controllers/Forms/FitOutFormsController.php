@@ -43,7 +43,7 @@ class FitOutFormsController extends Controller
             'undertaking_of_waterproofing'=>$request->undertaking_of_waterproofing,
             'no_objection'=>$request->no_objection,
             'owner_association_id' => $ownerAssociationId,
-            'ticket_number' => "FO" . date("i") . "-" . strtoupper(bin2hex(random_bytes(2))) . "-" . date("md")
+            'ticket_number' => generate_ticket_number("FO")
         ]);
 
         $name = $request->contractor_name;
