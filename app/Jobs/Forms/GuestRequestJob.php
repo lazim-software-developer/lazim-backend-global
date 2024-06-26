@@ -35,7 +35,7 @@ class GuestRequestJob implements ShouldQueue
             'user' => $this->user,
             'ticket_number' => $this->dataObj->ticket_number,
             'building' => $this->dataObj->building->name,
-            'flat' => $this->dataObj->flat->plot_number,
+            'flat' => $this->dataObj->flat->property_number,
             'type' => 'Guest registration',
         ], function ($message) {
             $message
