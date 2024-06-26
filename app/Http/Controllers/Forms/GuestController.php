@@ -43,7 +43,7 @@ class GuestController extends Controller
             'phone' => auth()->user()->phone,
             'email' => auth()->user()->email,
             'owner_association_id' => $ownerAssociationId,
-            'ticket_number' => "FV" . date("i") . "-" . strtoupper(bin2hex(random_bytes(2))) . "-" . date("md")
+            'ticket_number' => generate_ticket_number("FV")
         ]);
         $guest = FlatVisitor::create($request->all());
         GuestRequestJob::dispatch(auth()->user(), $guest);
