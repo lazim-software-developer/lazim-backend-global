@@ -223,6 +223,11 @@ class MoveOutFormsDocumentResource extends Resource
             ->poll('60s')
             ->modifyQueryUsing(fn(Builder $query) => $query->where('type', 'move-out')->withoutGlobalScopes())
             ->columns([
+
+                TextColumn::make('ticket_number')
+                    ->searchable()
+                    ->default('NA')
+                    ->label('Ticket Number'),
                 TextColumn::make('name')
                     ->searchable()
                     ->default('NA')
