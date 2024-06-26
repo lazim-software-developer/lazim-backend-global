@@ -14,4 +14,10 @@ class CreateOacomplaintReports extends CreateRecord
     {
         return $this->getResource()::getUrl('index');
     }
+
+    protected function mutateFormDataBeforeCreate(array $data): array
+    {
+        $data['ticket_number'] = generate_ticket_number('OC');
+        return $data;
+    }
 }
