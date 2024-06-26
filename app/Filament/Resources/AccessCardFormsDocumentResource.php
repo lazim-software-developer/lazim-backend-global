@@ -180,6 +180,10 @@ class AccessCardFormsDocumentResource extends Resource
     {
         return $table
             ->columns([
+                TextColumn::make('ticket_number')
+                ->searchable()
+                ->default('NA')
+                ->label('Ticket Number'),
                 TextColumn::make('card_type')
                     ->searchable()
                     ->default('NA')

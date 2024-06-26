@@ -46,9 +46,9 @@ class MoveInOut extends Model
         'cooling_final',
         'gas_final',
         'dewa_final',
-        'etisalat_final'
-
-
+        'etisalat_final',
+        'ticket_number',
+        'time_preference'
     ];
 
     protected $table = 'move_in_out';

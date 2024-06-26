@@ -53,6 +53,10 @@ class VisitorFormResource extends Resource
     {
         return $table
             ->columns([
+                TextColumn::make('ticket_number')
+                ->searchable()
+                ->default('NA')
+                ->label('Ticket Number'),
                 TextColumn::make('flat.property_number')
                 ->label('Unit'),
                 TextColumn::make('name'),

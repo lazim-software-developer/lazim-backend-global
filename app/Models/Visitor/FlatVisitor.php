@@ -32,7 +32,8 @@ class FlatVisitor extends Model
         'email',
         'number_of_visitors',
         'time_of_viewing',
-        'status'
+        'status',
+        'ticket_number'
     ];
 
     protected $searchableFields = ['*'];
