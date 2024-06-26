@@ -101,6 +101,7 @@ class ComplaintscomplaintResource extends Resource
                             ->searchable()
                             ->preload()
                             ->placeholder('Unit Number'),
+                        TextInput::make('ticket_number')->disabled(),
                         Select::make('technician_id')
                             ->relationship('technician', 'first_name')
                             ->options(function (Complaint $record, Get $get) {
@@ -198,6 +199,12 @@ class ComplaintscomplaintResource extends Resource
     {
         return $table
             ->columns([
+                TextColumn::make('ticket_number')
+                    ->toggleable()
+                    ->default('NA')
+                    ->limit(20)
+                    ->searchable()
+                    ->label('Ticket Number'),
                 TextColumn::make('building.name')
                     ->default('NA')
                     ->searchable()
