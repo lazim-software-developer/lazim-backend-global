@@ -40,7 +40,7 @@ class AccessCardController extends Controller
         $data['mobile']= auth()->user()->phone;
         $data['email'] = auth()->user()->email;
         $data['owner_association_id'] = $ownerAssociationId;
-        $data['ticket_number'] = "AC" . date("i") . "-" . strtoupper(bin2hex(random_bytes(2))) . "-" . date("md");
+        $data['ticket_number'] = generate_ticket_number("AC");
 
         $accessCard = AccessCard::create($data);
         AccessCardRequestJob::dispatch(auth()->user(), $accessCard);

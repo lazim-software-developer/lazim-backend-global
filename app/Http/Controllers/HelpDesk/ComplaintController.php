@@ -8,6 +8,7 @@ use App\Http\Requests\Helpdesk\ComplaintUpdateRequest;
 use App\Http\Requests\IncidentRequest;
 use App\Http\Resources\CustomResponseResource;
 use App\Http\Resources\HelpDesk\Complaintresource;
+use App\Jobs\Complaint\ComplaintCreationJob;
 use App\Models\Building\Building;
 use App\Models\Building\BuildingPoc;
 use App\Models\Building\Complaint;
@@ -240,6 +241,7 @@ class ComplaintController extends Controller
             'status'               => 'open',
             'building_id'          => $building->id,
             'owner_association_id' => $building->owner_association_id,
+            'ticket_number'        => generate_ticket_number("CP")
         ]);
 
         // assign a vendor if the complaint type is tenant_complaint or help_desk
@@ -255,6 +257,7 @@ class ComplaintController extends Controller
         // Create the complaint and assign it the vendor
         // TODO: Assign ticket automatically to technician
         $complaint = Complaint::create($request->all());
+        ComplaintCreationJob::dispatch($complaint->id);
 
         // Save images in media table with name "before". Once resolved, we'll store media with "after" name
         if ($request->hasFile('images')) {
@@ -301,6 +304,7 @@ class ComplaintController extends Controller
             if ($selectedTechnician) {
                 $complaint->technician_id = $selectedTechnician->id;
                 $complaint->save();
+                ComplaintCreationJob::dispatch($complaint->id, $selectedTechnician->id);
 
                 $expoPushToken = ExpoPushNotification::where('user_id', $selectedTechnician->id)->first()?->token;
                 if ($expoPushToken) {

@@ -27,7 +27,7 @@ class SaleNocController extends Controller
         $validated['user_id'] = auth()->user()->id;
         $validated['owner_association_id'] = $ownerAssociationId;
         $validated['submit_status'] = 'download_file';
-        $validated['ticket_number'] = "SN" . date("i") . "-" . strtoupper(bin2hex(random_bytes(2))) . "-" . date("md");
+        $validated['ticket_number'] = generate_ticket_number("SN");
 
         // Create the SaleNoc entry
         $saleNoc = SaleNoc::create($validated);
