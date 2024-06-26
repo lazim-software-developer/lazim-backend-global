@@ -34,7 +34,7 @@ class FitOutContractorMailJob implements ShouldQueue
             'id' => $this->form->id,
             'ticket_number' => $this->form->ticket_number,
             'building' => $this->form->building->name,
-            'flat' => $this->form->flat->plot_number,
+            'flat' => $this->form->flat->property_number,
         ], function($message) {
             $message
                 ->to($this->email, $this->name)

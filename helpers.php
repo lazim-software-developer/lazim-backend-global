@@ -66,7 +66,7 @@ function optimizeDocumentAndUpload($file, $path = 'dev', $width = 474, $height =
 
 function createPaymentIntent($amount, $email) {
     Stripe::setApiKey(env('STRIPE_SECRET'));
-    
+
     try {
         $paymentIntent = PaymentIntent::create([
             'amount' => $amount,
@@ -81,5 +81,12 @@ function createPaymentIntent($amount, $email) {
             'message' => $e->getMessage(),
             'code' => 500,
         ]))->response()->setStatusCode(500);
+    }
+}
+
+if (!function_exists('generate_ticket_number')) {
+    function generate_ticket_number($type)
+    {
+        return $type . date("d") . "-" . strtoupper(bin2hex(random_bytes(2))) . "-" . date("hi");
     }
 }
