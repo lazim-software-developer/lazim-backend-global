@@ -105,6 +105,7 @@ class HelpdeskcomplaintResource extends Resource
                             ->searchable()
                             ->preload()
                             ->placeholder('Unit Number'),
+                        TextInput::make('ticket_number')->disabled(),
                         Select::make('technician_id')
                             ->relationship('technician', 'first_name')
                             ->options(function (Complaint $record, Get $get) {
@@ -205,6 +206,12 @@ class HelpdeskcomplaintResource extends Resource
             ->columns([
                 // ViewColumn::make('name')->view('tables.columns.combined-column')
                 //     ->toggleable(),
+                TextColumn::make('ticket_number')
+                    ->toggleable()
+                    ->default('NA')
+                    ->limit(20)
+                    ->searchable()
+                    ->label('Ticket Number'),
                 TextColumn::make('building.name')
                     ->default('NA')
                     ->searchable()
