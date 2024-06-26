@@ -24,6 +24,7 @@ use Filament\Forms\Components\MarkdownEditor;
 use App\Filament\Resources\AnnouncementResource\Pages;
 use App\Models\User\User;
 use Illuminate\Database\Eloquent\Model;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class AnnouncementResource extends Resource
 {
@@ -178,10 +179,11 @@ class AnnouncementResource extends Resource
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
+                ExportBulkAction::make(),
                 Tables\Actions\BulkActionGroup::make([
                     // Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ])
+                ]),])
+
             ->emptyStateActions([
                 Tables\Actions\CreateAction::make(),
             ]);

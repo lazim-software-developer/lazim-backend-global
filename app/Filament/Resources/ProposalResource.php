@@ -41,6 +41,7 @@ use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\ProposalResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\ProposalResource\RelationManagers;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class ProposalResource extends Resource
 {
@@ -196,6 +197,7 @@ class ProposalResource extends Resource
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
+                ExportBulkAction::make(),
                 Tables\Actions\BulkActionGroup::make([
                     //Tables\Actions\DeleteBulkAction::make(),
                 ]),

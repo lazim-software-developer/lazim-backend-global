@@ -17,6 +17,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\CheckboxList;
 use App\Filament\Resources\ResidentialFormResource\Pages;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class ResidentialFormResource extends Resource
 {
@@ -261,6 +262,9 @@ class ResidentialFormResource extends Resource
                 //     ->label('Unit Number'),
             ])
             ->defaultSort('created_at', 'desc')
+            ->bulkActions([
+                ExportBulkAction::make(),
+               ])
             ->actions([
 
             ]);

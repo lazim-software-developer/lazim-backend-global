@@ -33,6 +33,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\ComplaintscomplaintResource\Pages;
 use App\Filament\Resources\ComplaintscomplaintResource\RelationManagers;
 use Illuminate\Database\Eloquent\Model;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class ComplaintscomplaintResource extends Resource
 {
@@ -198,6 +199,10 @@ class ComplaintscomplaintResource extends Resource
     {
         return $table
             ->columns([
+                TextColumn::make('ticket_number')
+                    ->searchable()
+                    ->default('NA')
+                    ->label('Ticket Number'),
                 TextColumn::make('building.name')
                     ->default('NA')
                     ->searchable()
@@ -237,6 +242,13 @@ class ComplaintscomplaintResource extends Resource
                     ->label('Building')
                     ->preload()
             ])
+            ->bulkActions([
+                ExportBulkAction::make(),
+                Tables\Actions\BulkActionGroup::make([
+                    // Tables\Actions\DeleteBulkAction::make(),
+                ]),])
+
+
             ->actions([]);
     }
 

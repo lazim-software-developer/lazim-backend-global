@@ -28,6 +28,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\Building\ServiceBookingResource\Pages;
 use App\Filament\Resources\Building\ServiceBookingResource\RelationManagers;
 use Illuminate\Database\Eloquent\Model;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class ServiceBookingResource extends Resource
 {
@@ -162,7 +163,7 @@ class ServiceBookingResource extends Resource
                         if (Role::where('id', auth()->user()->role_id)->first()->name != 'Admin') {
                             $query->where('owner_association_id', auth()->user()->owner_association_id);
                         }
-                        
+
                     })
                     ->searchable()
                     ->preload()
@@ -171,6 +172,7 @@ class ServiceBookingResource extends Resource
                 EditAction::make(),
             ])
             ->bulkActions([
+                ExportBulkAction::make(),
                 Tables\Actions\BulkActionGroup::make([
                     // Tables\Actions\DeleteBulkAction::make(),
                 ]),
