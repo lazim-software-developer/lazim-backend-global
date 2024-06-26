@@ -19,6 +19,7 @@ use Filament\Forms\Components\CheckboxList;
 use App\Filament\Resources\MoveInFormsDocumentResource\Pages;
 use App\Models\User\User;
 use Illuminate\Database\Eloquent\Model;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class MoveInFormsDocumentResource extends Resource
 {
@@ -277,6 +278,9 @@ class MoveInFormsDocumentResource extends Resource
                     ->preload()
                     ->label('Building'),
             ])
+            ->bulkActions([
+                ExportBulkAction::make(),
+              ])
             ->actions([
                 //Tables\Actions\EditAction::make(),
             ]);

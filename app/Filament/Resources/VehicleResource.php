@@ -18,6 +18,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class VehicleResource extends Resource
 {
@@ -70,14 +71,14 @@ class VehicleResource extends Resource
                 Tables\Actions\CreateAction::make(),
             ]);
     }
-    
+
     public static function getRelations(): array
     {
         return [
             //
         ];
     }
-    
+
     public static function getPages(): array
     {
         return [
@@ -86,5 +87,5 @@ class VehicleResource extends Resource
             'view' => Pages\ViewVehicle::route('/{record}'),
             'edit' => Pages\EditVehicle::route('/{record}/edit'),
         ];
-    }    
+    }
 }

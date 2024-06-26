@@ -28,6 +28,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\HelpdeskcomplaintResource\Pages;
 use Illuminate\Database\Eloquent\Model;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class HelpdeskcomplaintResource extends Resource
 {
@@ -205,6 +206,10 @@ class HelpdeskcomplaintResource extends Resource
             ->columns([
                 // ViewColumn::make('name')->view('tables.columns.combined-column')
                 //     ->toggleable(),
+                TextColumn::make('ticket_number')
+                    ->searchable()
+                    ->default('NA')
+                    ->label('Ticket Number'),
                 TextColumn::make('building.name')
                     ->default('NA')
                     ->searchable()
@@ -240,6 +245,9 @@ class HelpdeskcomplaintResource extends Resource
                     ->label('Building')
                     ->preload()
             ])
+            ->bulkActions([
+                ExportBulkAction::make(),
+                ])
             ->actions([]);
     }
 
