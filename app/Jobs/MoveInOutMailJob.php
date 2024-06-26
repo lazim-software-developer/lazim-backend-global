@@ -36,7 +36,7 @@ class MoveInOutMailJob implements ShouldQueue
             'user' => $this->user,
             'ticket_number' => $this->moveInOut->ticket_number,
             'building' => $this->moveInOut->building->name,
-            'flat' => $this->moveInOut->flat->plot_number,
+            'flat' => $this->moveInOut->flat->property_number,
             'type' => $this->moveInOut->type,
             'moving_date' => date("d-M-Y", strtotime($this->moveInOut->moving_date)),
             'moving_time' => date("d-M-Y", strtotime($this->moveInOut->moving_time)),
