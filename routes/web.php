@@ -31,7 +31,7 @@ use Illuminate\Support\Facades\Session;
 */
 
 Route::get('/', function () {
-    return redirect('/admin/login');
+    return redirect('/admin');
 });
 
 Route::middleware(['auth:sanctum', 'verified'])
