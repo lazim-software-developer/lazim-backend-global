@@ -54,7 +54,7 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->tenant(OwnerAssociation::class,ownershipRelationship: 'ownerAssociation', slugAttribute: 'slug')
-            ->tenantDomain('{tenant:slug}.'.env('APP_URL'))
+            // ->tenantDomain('{tenant:slug}.'.env('APP_URL'))
             ->login()
             ->profile(EditProfile::class)
             ->colors([
