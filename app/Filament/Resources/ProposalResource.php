@@ -49,6 +49,8 @@ class ProposalResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
     protected static ?string $navigationGroup = 'Oam';
 
+    protected static bool $isScopedToTenant = false;
+
     public static function form(Form $form): Form
     {
         return $form->schema([

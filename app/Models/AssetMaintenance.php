@@ -13,6 +13,10 @@ class AssetMaintenance extends Model
 
     protected $table = 'asset_maintenance';
 
+    public function ownerAssociation()
+    {
+        return $this->belongsTo(OwnerAssociation::class);
+    }
     public function building() {
         return $this->belongsTo(Building::class);
     }

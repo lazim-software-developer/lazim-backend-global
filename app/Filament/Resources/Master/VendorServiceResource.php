@@ -29,6 +29,8 @@ class VendorServiceResource extends Resource
     protected static ?string $modelLabel = 'Vendor Service';
     protected static ?string $navigationGroup = 'Master';
 
+    protected static bool $isScopedToTenant = false;
+
     public static function form(Form $form): Form
     {
         return $form

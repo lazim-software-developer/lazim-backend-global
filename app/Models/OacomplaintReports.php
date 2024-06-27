@@ -21,6 +21,11 @@ class OacomplaintReports extends Model
         'image',
     ];
 
+    public function ownerAssociation()
+    {
+        return $this->belongsTo(OwnerAssociation::class);
+    }
+
     public function building()
     {
         return $this->belongsTo(Building::class);
