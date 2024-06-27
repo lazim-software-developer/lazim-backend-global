@@ -43,7 +43,8 @@ class Complaint extends Model
         'vendor_id',
         'technician_id',
         'flat_id',
-        'complaint_location'
+        'complaint_location',
+        'ticket_number'
     ];
 
     protected $searchableFields = ['*'];
@@ -63,7 +64,7 @@ class Complaint extends Model
     {
         return $this->belongsTo(Building::class);
     }
-    
+
     public function flat()
     {
         return $this->belongsTo(Flat::class);
@@ -83,7 +84,7 @@ class Complaint extends Model
     {
         return $this->belongsTo(OaUserRegistration::class);
     }
-    
+
     public function comments()
     {
         return $this->morphMany(Comment::class, 'commentable');

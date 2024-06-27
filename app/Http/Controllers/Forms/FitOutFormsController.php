@@ -42,13 +42,13 @@ class FitOutFormsController extends Controller
             'user_id'=> auth()->user()->id,
             'undertaking_of_waterproofing'=>$request->undertaking_of_waterproofing,
             'no_objection'=>$request->no_objection,
-            'owner_association_id' => $ownerAssociationId
+            'owner_association_id' => $ownerAssociationId,
+            'ticket_number' => generate_ticket_number("FO")
         ]);
 
         $name = $request->contractor_name;
         $email = $request->email;
-        $id = $form->id;
-        FitOutContractorMailJob::dispatch($name,$email,$id);
+        FitOutContractorMailJob::dispatch($name,$email,$form);
 
         return (new CustomResponseResource([
             'title' => 'Success',
@@ -58,7 +58,7 @@ class FitOutFormsController extends Controller
     }
 
     public function index(FitOutForm $fitout){
-        
+
         if ($fitout->status == 'rejected') {
             $rejectedFields = json_decode($fitout->rejected_fields)->rejected_fields;
 
@@ -112,7 +112,7 @@ class FitOutFormsController extends Controller
         }
         $requiredPermissions = ['view_any_fit::out::forms::document'];
         $roles = Role::where('owner_association_id',$fitout->owner_association_id)->whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor','Staff'])->pluck('id');
-        $user = User::where('owner_association_id',$fitout->owner_association_id)->whereNotIn('role_id', $roles)->whereNot('id', auth()->user()->id)->get()
+        $user = User::where('owner_association_id',$fitout->owner_association_id)->whereNotIn('role_id', $roles)->whereNot('id', auth()->user()?->id)->get()
         ->filter(function ($notifyTo) use ($requiredPermissions) {
             return $notifyTo->can($requiredPermissions);
         });//->where('role_id',Role::where('name','OA')->first()->id)->first();
@@ -128,7 +128,7 @@ class FitOutFormsController extends Controller
                 ->url(fn () => FitOutFormsDocumentResource::getUrl('edit', [$fitout])),
         ])
         ->sendToDatabase($user);
-            
+
 
         return (new CustomResponseResource([
             'title' => 'Successful!',
@@ -138,4 +138,3 @@ class FitOutFormsController extends Controller
         ]))->response()->setStatusCode(201);
     }
 }
-                                                                                                                                                

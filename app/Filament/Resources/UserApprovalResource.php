@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\UserApprovalResource\Pages;
 use App\Filament\Resources\UserApprovalResource\RelationManagers;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class UserApprovalResource extends Resource
 {
@@ -97,8 +98,8 @@ class UserApprovalResource extends Resource
     }
 
     public static function table(Table $table): Table
-    {   
-        
+    {
+
         return $table
             ->modifyQueryUsing(fn(Builder $query) => $query->whereHas('user', function (Builder $query) {
                 $query->where('owner_association_id', auth()->user()->owner_association_id);

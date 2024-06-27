@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Forms;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Forms\ResidentialFormRequest;
+use App\Jobs\Forms\ResidentialFormRequestJob;
 use App\Models\Building\Building;
 use App\Models\ResidentialForm;
 
@@ -27,8 +28,10 @@ class ResidentialFormController extends Controller
 
         $validated['user_id'] = auth()->user()->id;
         $validated['owner_association_id'] = $ownerAssociationId;
+        $validated['ticket_number'] = generate_ticket_number("FV");
 
         $residentialForm = ResidentialForm::create($validated);
+        ResidentialFormRequestJob::dispatch(auth()->user(), $residentialForm);
 
         return response()->json([
             'message' => 'Form successfully created',

@@ -17,6 +17,7 @@ use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class AgingReportResource extends Resource
 {
@@ -87,22 +88,23 @@ class AgingReportResource extends Resource
                 // Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
+                ExportBulkAction::make(),
                 Tables\Actions\BulkActionGroup::make([
                     // Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ])
+                ]),])
+
             ->emptyStateActions([
                 // Tables\Actions\CreateAction::make(),
             ]);
     }
-    
+
     public static function getRelations(): array
     {
         return [
             //
         ];
     }
-    
+
     public static function getPages(): array
     {
         return [
@@ -110,5 +112,5 @@ class AgingReportResource extends Resource
             // 'create' => Pages\CreateAgingReport::route('/create'),
             // 'edit' => Pages\EditAgingReport::route('/{record}/edit'),
         ];
-    }    
+    }
 }

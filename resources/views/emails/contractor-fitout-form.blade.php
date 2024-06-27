@@ -32,6 +32,33 @@
 <tr>
 	<td width="100%" height="20"></td>
 </tr>
+
+<tr>
+	<td class="title">
+		Ticket Details:
+	</td>
+</tr>
+<tr>
+	<td width="100%" height="10"></td>
+</tr>
+<tr>
+	<td class="paragraph">
+		<strong>Ticket Number: </strong> {{$ticket_number}}
+	</td>
+</tr>
+<tr>
+	<td class="paragraph">
+		<strong>Building: </strong> {{$building}}
+	</td>
+</tr>
+<tr>
+	<td class="paragraph">
+		<strong>Flat: </strong> {{$flat}}
+	</td>
+</tr>
+<tr>
+	<td width="100%" height="25"></td>
+</tr>
 <tr>
 	<td class="paragraph">
 		Thank you for choosing Lazim. We're confident that you'll find great value in our platform, and we look forward to serving you.

@@ -27,7 +27,8 @@ class FitOutForm extends Model
         'status',
         'remarks',
         'rejected_fields',
-        'admin_document'
+        'admin_document',
+        'ticket_number'
     ];
 
     protected $searchableFields = ['*'];

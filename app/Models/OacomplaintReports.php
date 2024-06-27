@@ -19,6 +19,7 @@ class OacomplaintReports extends Model
         'building_id',
         'issue',
         'image',
+        'ticket_number'
     ];
 
     public function ownerAssociation()

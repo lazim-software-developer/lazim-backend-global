@@ -31,7 +31,8 @@ class AccessCard extends Model
         'rejected_fields',
         'payment_link',
         'passport',
-        'title_deed'
+        'title_deed',
+        'ticket_number'
     ];
 
     protected $searchableFields = ['*'];

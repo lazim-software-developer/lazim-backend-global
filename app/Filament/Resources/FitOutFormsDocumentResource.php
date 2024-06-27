@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use Filament\Forms\Form;
 use Filament\Tables\Table;
+use Filament\Tables\Tables;
 use App\Models\Master\Role;
 use App\Models\Forms\FitOutForm;
 use Filament\Resources\Resource;
@@ -17,10 +18,12 @@ use Filament\Forms\Components\TextInput;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\CheckboxList;
+use Filament\Tables\Actions\BulkAction;
 use App\Filament\Resources\FitOutFormsDocumentResource\Pages;
 use App\Filament\Resources\FitOutFormsDocumentResource\RelationManagers\ContractorRequestRelationManager;
 use Closure;
 use Filament\Forms\Components\FileUpload;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class FitOutFormsDocumentResource extends Resource
 {
@@ -77,10 +80,10 @@ class FitOutFormsDocumentResource extends Resource
                                     'rejected' => 'Reject',
                                 ])
                                 ->disabled(function(FitOutForm $record){
-                                    
+
                                     return $record->status != null ;
                                 })->visible(function(FitOutForm $record){
-                                    
+
                                     return $record->contractorRequest?->exists();
                                 })
                                 ->required()
@@ -111,7 +114,7 @@ class FitOutFormsDocumentResource extends Resource
                                 ->openable(true)
                                 ->downloadable(true)
                                 ->disabled(function(FitOutForm $record){
-                                    
+
                                     return $record->admin_document  ;
                                 })
                                 ->visible(function (callable $get,$record) {
@@ -144,6 +147,11 @@ class FitOutFormsDocumentResource extends Resource
         return $table
             ->poll('60s')
             ->columns([
+
+                    TextColumn::make('ticket_number')
+                    ->searchable()
+                    ->default('NA')
+                    ->label('Ticket Number'),
                 TextColumn::make('building.name')
                     ->searchable()
                     ->default('NA')
@@ -188,9 +196,14 @@ class FitOutFormsDocumentResource extends Resource
                     ->preload()
                     ->label('Building'),
             ])
+            ->bulkActions([
+                ExportBulkAction::make(),
+
+            ])
             ->actions([
                 //Tables\Actions\EditAction::make(),
             ]);
+
     }
 
     public static function getRelations(): array

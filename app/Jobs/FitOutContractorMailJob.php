@@ -17,7 +17,7 @@ class FitOutContractorMailJob implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct(protected $name,protected $email,protected $id)
+    public function __construct(protected $name,protected $email,protected $form)
     {
         //
     }
@@ -28,10 +28,17 @@ class FitOutContractorMailJob implements ShouldQueue
     public function handle(): void
     {
         $beautymail = app()->make(Beautymail::class);
-        $beautymail->send('emails.contractor-fitout-form', ['name' => $this->name, 'email' => $this->email, 'id' => $this->id], function($message) {
+        $beautymail->send('emails.contractor-fitout-form', [
+            'name' => $this->name,
+            'email' => $this->email,
+            'id' => $this->form->id,
+            'ticket_number' => $this->form->ticket_number,
+            'building' => $this->form->building->name,
+            'flat' => $this->form->flat->property_number,
+        ], function($message) {
             $message
                 ->to($this->email, $this->name)
-                ->subject('Welcome to Lazim!');
+                ->subject('Fit-out Request Submitted');
         });
     }
 }

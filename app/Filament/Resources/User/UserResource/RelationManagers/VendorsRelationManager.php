@@ -33,7 +33,7 @@ class VendorsRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     Select::make('owner_id')
                         ->rules(['exists:users,id'])
                         ->relationship('user', 'first_name')
@@ -44,7 +44,7 @@ class VendorsRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     TextInput::make('tl_number')
                         ->rules(['max:50', 'string'])
                         ->unique(
@@ -58,7 +58,7 @@ class VendorsRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     DatePicker::make('tl_expiry')
                         ->rules(['date'])
                         ->placeholder('Tl Expiry')
@@ -67,7 +67,7 @@ class VendorsRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     TextInput::make('status')
                         ->rules(['max:50', 'string'])
                         ->placeholder('Status')
@@ -76,7 +76,7 @@ class VendorsRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     KeyValue::make('remarks')
                         ->required()
                         ->columnSpan([

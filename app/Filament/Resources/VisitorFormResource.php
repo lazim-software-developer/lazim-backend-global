@@ -15,6 +15,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class VisitorFormResource extends Resource
 {
@@ -53,6 +54,10 @@ class VisitorFormResource extends Resource
     {
         return $table
             ->columns([
+                TextColumn::make('ticket_number')
+                ->searchable()
+                ->default('NA')
+                ->label('Ticket Number'),
                 TextColumn::make('flat.property_number')
                 ->label('Unit'),
                 TextColumn::make('name'),
@@ -77,6 +82,7 @@ class VisitorFormResource extends Resource
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
+                ExportBulkAction::make(),
                 // Tables\Actions\BulkActionGroup::make([
                 //     Tables\Actions\DeleteBulkAction::make(),
                 // ]),
