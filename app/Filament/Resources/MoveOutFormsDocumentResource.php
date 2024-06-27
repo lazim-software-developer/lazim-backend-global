@@ -18,6 +18,7 @@ use Filament\Forms\Components\CheckboxList;
 use App\Filament\Resources\MoveOutFormsDocumentResource\Pages;
 use App\Models\User\User;
 use Illuminate\Database\Eloquent\Model;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class MoveOutFormsDocumentResource extends Resource
 {
@@ -223,6 +224,11 @@ class MoveOutFormsDocumentResource extends Resource
             ->poll('60s')
             ->modifyQueryUsing(fn(Builder $query) => $query->where('type', 'move-out')->withoutGlobalScopes())
             ->columns([
+
+                TextColumn::make('ticket_number')
+                    ->searchable()
+                    ->default('NA')
+                    ->label('Ticket Number'),
                 TextColumn::make('name')
                     ->searchable()
                     ->default('NA')
@@ -258,6 +264,9 @@ class MoveOutFormsDocumentResource extends Resource
                     ->preload()
                     ->label('Building'),
             ])
+            ->bulkActions([
+                ExportBulkAction::make(),
+                ])
             ->actions([
                 //Tables\Actions\EditAction::make(),
             ]);

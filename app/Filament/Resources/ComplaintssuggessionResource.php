@@ -28,6 +28,7 @@ use App\Filament\Resources\ComplaintssuggessionResource\RelationManagers;
 use App\Models\User\User;
 use Filament\Forms\Components\Textarea;
 use Illuminate\Database\Eloquent\Model;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class ComplaintssuggessionResource extends Resource
 {
@@ -130,6 +131,10 @@ class ComplaintssuggessionResource extends Resource
     {
         return $table
             ->columns([
+                TextColumn::make('ticket_number')
+                    ->searchable()
+                    ->default('NA')
+                    ->label('Ticket Number'),
                 TextColumn::make('building.name')
                     ->default('NA')
                     ->searchable()
@@ -166,7 +171,12 @@ class ComplaintssuggessionResource extends Resource
                     ->searchable()
                     ->label('Building')
                     ->preload()
-            ]);
+            ])
+            ->bulkActions([
+                ExportBulkAction::make(),
+                Tables\Actions\BulkActionGroup::make([
+                    // Tables\Actions\DeleteBulkAction::make(),
+                ]),]);
     }
 
     public static function getRelations(): array

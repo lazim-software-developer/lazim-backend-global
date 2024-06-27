@@ -19,6 +19,7 @@ use Filament\Forms\Components\CheckboxList;
 use App\Filament\Resources\MoveInFormsDocumentResource\Pages;
 use App\Models\User\User;
 use Illuminate\Database\Eloquent\Model;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class MoveInFormsDocumentResource extends Resource
 {
@@ -238,6 +239,10 @@ class MoveInFormsDocumentResource extends Resource
             ->poll('60s')
             ->modifyQueryUsing(fn(Builder $query) => $query->where('type', 'move-in')->withoutGlobalScopes())
             ->columns([
+                TextColumn::make('ticket_number')
+                ->searchable()
+                ->default('NA')
+                ->label('Ticket Number'),
                 TextColumn::make('name')
                     ->searchable()
                     ->default('NA')
@@ -273,6 +278,9 @@ class MoveInFormsDocumentResource extends Resource
                     ->preload()
                     ->label('Building'),
             ])
+            ->bulkActions([
+                ExportBulkAction::make(),
+              ])
             ->actions([
                 //Tables\Actions\EditAction::make(),
             ]);
@@ -287,7 +295,7 @@ class MoveInFormsDocumentResource extends Resource
 
     protected function getRejectedFields($livewire)
     {
-        
+
         $record = $livewire->record; // Get the current record
         if ($record && $record->rejected_fields) {
             return json_decode($record->rejected_fields, true);

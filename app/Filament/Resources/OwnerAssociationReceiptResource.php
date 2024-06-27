@@ -15,11 +15,12 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class OwnerAssociationReceiptResource extends Resource
 {
     protected static ?string $model = OwnerAssociationReceipt::class;
-    
+
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
     protected static ?string $modelLabel = 'Generate Receipt';
 
@@ -73,14 +74,14 @@ class OwnerAssociationReceiptResource extends Resource
                 // Tables\Actions\CreateAction::make(),
             ]);
     }
-    
+
     public static function getRelations(): array
     {
         return [
             //
         ];
     }
-    
+
     public static function getPages(): array
     {
         return [
@@ -89,5 +90,5 @@ class OwnerAssociationReceiptResource extends Resource
             // 'view' => Pages\ViewOwnerAssociationReceipt::route('/{record}'),
             // 'edit' => Pages\EditOwnerAssociationReceipt::route('/{record}/edit'),
         ];
-    }    
+    }
 }

@@ -7,6 +7,7 @@ use App\Http\Requests\Forms\CreateGuestRequest;
 use App\Http\Requests\Forms\FlatVisitorRequest;
 use App\Http\Resources\CustomResponseResource;
 use App\Http\Resources\Forms\VisitorResource;
+use App\Jobs\Forms\GuestRequestJob;
 use App\Models\Building\Building;
 use App\Models\Building\BuildingPoc;
 use App\Models\Building\Document;
@@ -41,9 +42,11 @@ class GuestController extends Controller
             'name' => auth()->user()->first_name,
             'phone' => auth()->user()->phone,
             'email' => auth()->user()->email,
-            'owner_association_id' => $ownerAssociationId
+            'owner_association_id' => $ownerAssociationId,
+            'ticket_number' => generate_ticket_number("FV")
         ]);
         $guest = FlatVisitor::create($request->all());
+        GuestRequestJob::dispatch(auth()->user(), $guest);
 
         $filePath = optimizeDocumentAndUpload($request->file('image'), 'dev');
         $request->merge([
@@ -99,7 +102,7 @@ class GuestController extends Controller
         $requiredPermissions = ['view_any_visitor::form'];
         $visitor = FlatVisitor::create($request->all());
         $roles = Role::where('owner_association_id',$ownerAssociationId)->whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor','Staff'])->pluck('id');
-        $user = User::where('owner_association_id', $ownerAssociationId)->whereNotIn('role_id', $roles)->whereNot('id', auth()->user()->id)->get()//->where('role_id', Role::where('name','OA')->value('id'))->get();
+        $user = User::where('owner_association_id', $ownerAssociationId)->whereNotIn('role_id', $roles)->whereNot('id', auth()->user()?->id)->get()//->where('role_id', Role::where('name','OA')->value('id'))->get();
         ->filter(function ($notifyTo) use ($requiredPermissions) {
             return $notifyTo->can($requiredPermissions);
         });
@@ -132,7 +135,7 @@ class GuestController extends Controller
                 Document::create($request->all());
             }
         }
-        
+
         return (new CustomResponseResource([
             'title' => 'Success',
             'message' => ' created successfully!',
@@ -165,7 +168,7 @@ class GuestController extends Controller
 
             $expoPushTokens = ExpoPushNotification::where('user_id', $user->tenant_id)->pluck('token');
             if ($expoPushTokens->count() > 0) {
-                
+
                 foreach ($expoPushTokens as $expoPushToken) {
                     $message = [
                         'to' => $expoPushToken,

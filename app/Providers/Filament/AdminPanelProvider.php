@@ -94,7 +94,7 @@ class AdminPanelProvider extends PanelProvider
                     ]);
                 // }
                     $user = User::find(auth()->user()->id) ;
-              if( 
+              if(
                 $user->can('view_any_mollak::tenant')||
                 $user->can('view_any_user::approval') ||
                 $user->can('view_any_owner::association')||
@@ -186,7 +186,7 @@ class AdminPanelProvider extends PanelProvider
                                 ->hidden(function () {
                                     $userRoleId = auth()->user()->role_id;
                                     $adminRoleIds = Role::whereIn('name', ['OA', 'MD'])->pluck('id')->toArray();
-                                    
+
                                     return !in_array($userRoleId, $adminRoleIds);
                                 })
                                 ->url('/admin/shield/roles')
@@ -222,7 +222,7 @@ class AdminPanelProvider extends PanelProvider
             }
 
 
-                if($user->can('view_any_building::building') || 
+                if($user->can('view_any_building::building') ||
                 $user->can('view_any_building::flat') ||
                 $user->can('view_any_building::facility::booking') ||
                 $user->can('view_any_building::service::booking')  ||
@@ -490,7 +490,7 @@ class AdminPanelProvider extends PanelProvider
 
                 if ($user->can('view_any_guest::registration')||
                 $user->can('view_any_move::in::forms::document')||
-                $user->can('view_move::out::forms::document')||
+                $user->can('view_any_move::out::forms::document')||
                 $user->can('view_any_fit::out::forms::document')||
                 $user->can('view_any_access::card::forms::document')||
                 $user->can('view_any_residential::form')||
@@ -515,7 +515,7 @@ class AdminPanelProvider extends PanelProvider
                                     ->sort(2),
                                 NavigationItem::make('Move out')
                                     ->url('/admin/move-out-forms-documents')
-                                    ->hidden(!$user->can('view_move::out::forms::document'))
+                                    ->hidden(!$user->can('view_any_move::out::forms::document'))
                                     ->icon('heroicon-s-arrow-left-circle')
                                     ->activeIcon('heroicon-s-arrow-left-circle')
                                     ->sort(3),
@@ -725,4 +725,3 @@ class AdminPanelProvider extends PanelProvider
             ]);
     }
 }
-                                                                          

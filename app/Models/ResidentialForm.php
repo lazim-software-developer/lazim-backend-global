@@ -35,7 +35,8 @@ class ResidentialForm extends Model
         'status',
         'tenancy_contract',
         'remarks',
-        'rejected_fields'
+        'rejected_fields',
+        'ticket_number'
     ];
 
     protected $casts = [

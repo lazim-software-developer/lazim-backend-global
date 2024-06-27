@@ -19,6 +19,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\NocFormResource\Pages;
 use Closure;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class NocFormResource extends Resource
 {
@@ -303,6 +304,10 @@ class NocFormResource extends Resource
     {
         return $table
             ->columns([
+                TextColumn::make('ticket_number')
+                    ->searchable()
+                    ->default('NA')
+                    ->label('Ticket Number'),
                 TextColumn::make('user.first_name')
                     ->searchable()
                     ->default('NA'),
@@ -338,6 +343,10 @@ class NocFormResource extends Resource
                 //     ->preload()
                 //     ->label('Unit Number'),
             ])
+            ->bulkActions([
+                ExportBulkAction::make(),
+               ])
+
             ->actions([
 
             ]);

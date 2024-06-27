@@ -26,7 +26,7 @@ class ComplaintObserver
     public function created(Complaint $complaint): void
     {
         $roles = Role::where('owner_association_id',$complaint->owner_association_id)->whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor','Staff'])->pluck('id');
-        $notifyTo = User::where('owner_association_id', $complaint->owner_association_id)->whereNotIn('role_id', $roles)->whereNot('id', auth()->user()->id)->get();
+        $notifyTo = User::where('owner_association_id', $complaint->owner_association_id)->whereNotIn('role_id', $roles)->whereNot('id', auth()->user()?->id)->get();
         if ($complaint->complaint_type == 'tenant_complaint') {
             $requiredPermissions = ['view_any_complaintscomplaint'];
                     $notifyTo->filter(function ($notifyTo) use ($requiredPermissions) {
@@ -157,7 +157,7 @@ class ComplaintObserver
         $newValues = $complaint->getAttributes();
         $building = Building::where('id', $complaint->building_id)->first();
         $roles = Role::where('owner_association_id',$building->owner_association_id)->whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor','Staff'])->pluck('id');
-        $notifyTo = User::where('owner_association_id', $building->owner_association_id)->whereNotIn('role_id', $roles)->whereNot('id', auth()->user()->id)->get();
+        $notifyTo = User::where('owner_association_id', $building->owner_association_id)->whereNotIn('role_id', $roles)->whereNot('id', auth()->user()?->id)->get();
         //DB notification for ADMIN status update from resident/technician
         if ($complaint->status == 'closed') {
             if ($complaint->complaint_type == 'help_desk') {

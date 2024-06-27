@@ -31,7 +31,7 @@ class FlatsRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     TextInput::make('floor')
                         ->rules(['numeric'])
                         ->numeric()
@@ -41,7 +41,7 @@ class FlatsRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     Select::make('building_id')
                         ->rules(['exists:buildings,id'])
                         ->relationship('building', 'name')
@@ -52,7 +52,7 @@ class FlatsRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     TextInput::make('description')
                         ->rules(['max:50', 'string'])
                         ->placeholder('Description')
