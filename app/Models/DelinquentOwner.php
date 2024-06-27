@@ -26,6 +26,11 @@ class DelinquentOwner extends Model
         'year'
     ];
 
+
+    public function ownerAssociation()
+    {
+        return $this->belongsTo(OwnerAssociation::class);
+    }
     public function flat(){
         return $this->belongsTo(Flat::class);
     }

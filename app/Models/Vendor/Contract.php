@@ -7,6 +7,7 @@ use App\Models\Vendor\Vendor;
 use App\Models\Master\Service;
 use App\Models\Building\Building;
 use App\Models\Accounting\Invoice;
+use App\Models\OwnerAssociation;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -24,6 +25,11 @@ class Contract extends Model
         'vendor_id',
         'budget_amount',
     ];
+
+    public function ownerAssociation()
+    {
+        return $this->belongsTo(OwnerAssociation::class);
+    }
     public function vendor()
     {
         return $this->belongsTo(Vendor::class);

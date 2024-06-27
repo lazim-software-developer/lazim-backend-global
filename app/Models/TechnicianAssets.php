@@ -24,6 +24,11 @@ class TechnicianAssets extends Model
         'building_id'
     ];
 
+    public function ownerAssociation()
+    {
+        return $this->belongsTo(OwnerAssociation::class);
+    }
+
     public function asset() {
         return $this->belongsTo(Asset::class);
     }

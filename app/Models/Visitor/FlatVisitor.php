@@ -7,6 +7,7 @@ use App\Models\Building\Document;
 use App\Models\Building\Flat;
 use App\Models\Forms\Guest;
 use App\Models\OaUserRegistration;
+use App\Models\OwnerAssociation;
 use App\Models\User\User;
 use App\Models\Scopes\Searchable;
 use Illuminate\Database\Eloquent\Model;
@@ -45,6 +46,11 @@ class FlatVisitor extends Model
         'end_time' => 'datetime',
         'remarks' => 'array',
     ];
+
+    public function ownerAssociation()
+    {
+        return $this->belongsTo(OwnerAssociation::class);
+    }
     public function guests()
     {
         return $this->hasMany(Guest::class);

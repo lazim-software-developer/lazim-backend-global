@@ -5,6 +5,7 @@ namespace App\Models\Forms;
 use App\Models\Building\Building;
 use App\Models\Building\Flat;
 use App\Models\Media;
+use App\Models\OwnerAssociation;
 use App\Models\User\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -59,6 +60,10 @@ class MoveInOut extends Model
         'allow_postupload' => 'boolean',
     ];
 
+    public function ownerAssociation()
+    {
+        return $this->belongsTo(OwnerAssociation::class);
+    }
     public function user()
     {
         return $this->belongsTo(User::class);

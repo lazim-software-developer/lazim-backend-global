@@ -7,6 +7,7 @@ use App\Models\Vendor\Vendor;
 use App\Models\Vendor\Contract;
 use App\Models\Building\Building;
 use App\Models\Master\Service;
+use App\Models\OwnerAssociation;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -32,6 +33,10 @@ class WDA extends Model
         'service_id'
     ];
 
+    public function ownerAssociation()
+    {
+        return $this->belongsTo(OwnerAssociation::class);
+    }
     public function vendor()
     {
         return $this->belongsTo(Vendor::class);

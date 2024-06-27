@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Building\Building;
 use App\Models\Floor;
+use App\Models\OwnerAssociation;
 use App\Models\User\User;
 use Carbon\Carbon;
 
@@ -15,7 +16,10 @@ class Patrolling extends Model
 
     protected $fillable = ['building_id', 'patrolled_by', 'floor_id', 'patrolled_at'];
 
-    
+    public function ownerAssociation()
+    {
+        return $this->belongsTo(OwnerAssociation::class);
+    }
     public function getPatrolledAtDiffAttribute()
     {
         return Carbon::parse($this->attributes['patrolled_at'])->diffForHumans();

@@ -52,6 +52,7 @@ use App\Observers\OwnerAssociationObserver;
 use App\Observers\TechnicianAssetsObserver;
 use App\Observers\FacilityServiceBookingObserver;
 use App\Observers\OrderObserver;
+use Filament\Resources\Resource;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Table;
 
@@ -102,6 +103,8 @@ class AppServiceProvider extends ServiceProvider
         TechnicianAssets::observe(TechnicianAssetsObserver::class);
         Vendor::observe(VendorObserver::class);
         Order::observe(OrderObserver::class);
+
+        // Resource::scopeToTenant(false);
 
         //Global settings for Admin module (for all table per page options)
         Table::configureUsing(function (Table $table): void {

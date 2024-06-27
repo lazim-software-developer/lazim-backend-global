@@ -178,7 +178,7 @@ class Building extends Model
     }
     public function ownerAssociation()
     {
-        return $this->belongsTo(OwnerAssociation::class);
+        return $this->belongsToMany(OwnerAssociation::class, 'building_owner_association');
     }
     public function posts()
     {

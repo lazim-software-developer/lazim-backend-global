@@ -4,6 +4,7 @@ namespace App\Models\Accounting;
 
 use App\Models\Building\Building;
 use App\Models\Building\Flat;
+use App\Models\OwnerAssociation;
 use Illuminate\Support\Facades\DB;
 use Filament\Forms\Components\Select;
 use Illuminate\Database\Eloquent\Model;
@@ -58,6 +59,11 @@ class OAMInvoice extends Model
                 ]);
             });
         });
+    }
+
+    public function ownerAssociation()
+    {
+        return $this->belongsTo(OwnerAssociation::class);
     }
     public function building()
     {
