@@ -24,6 +24,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\DelinquentOwnerResource\Pages;
 use App\Filament\Resources\DelinquentOwnerResource\RelationManagers;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class DelinquentOwnerResource extends Resource
 {
@@ -97,6 +98,7 @@ class DelinquentOwnerResource extends Resource
                 // Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
+                ExportBulkAction::make(),
                 Tables\Actions\BulkActionGroup::make([
                     // Tables\Actions\DeleteBulkAction::make(),
                     BulkAction::make('Remind')

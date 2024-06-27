@@ -35,7 +35,7 @@ class FlatVisitorsRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     TextInput::make('name')
                         ->rules(['max:50', 'string'])
                         ->placeholder('Name')
@@ -44,7 +44,7 @@ class FlatVisitorsRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     TextInput::make('phone')
                         ->rules(['max:10', 'string'])
                         ->unique(
@@ -58,7 +58,7 @@ class FlatVisitorsRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     TextInput::make('type')
                         ->rules(['max:50', 'string'])
                         ->placeholder('Type')
@@ -67,7 +67,7 @@ class FlatVisitorsRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     DateTimePicker::make('start_time')
                         ->rules(['date'])
                         ->placeholder('Start Time')
@@ -76,7 +76,7 @@ class FlatVisitorsRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     DateTimePicker::make('end_time')
                         ->rules(['date'])
                         ->placeholder('End Time')
@@ -85,7 +85,7 @@ class FlatVisitorsRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     TextInput::make('verification_code')
                         ->rules(['numeric'])
                         ->unique(
@@ -100,7 +100,7 @@ class FlatVisitorsRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     Select::make('initiated_by')
                         ->rules(['exists:users,id'])
                         ->relationship('userInitiatedBy', 'first_name')
@@ -111,7 +111,7 @@ class FlatVisitorsRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     KeyValue::make('remarks')
                         ->required()
                         ->columnSpan([
@@ -119,7 +119,7 @@ class FlatVisitorsRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     TextInput::make('number_of_visitors')
                         ->rules(['numeric'])
                         ->numeric()

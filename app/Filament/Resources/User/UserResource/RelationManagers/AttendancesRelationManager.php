@@ -36,7 +36,7 @@ class AttendancesRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     DatePicker::make('date')
                         ->rules(['date'])
                         ->placeholder('Date')
@@ -45,7 +45,7 @@ class AttendancesRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     DateTimePicker::make('entry_time')
                         ->rules(['date_format:H:i:s'])
                         ->placeholder('Entry Time')
@@ -54,7 +54,7 @@ class AttendancesRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     TimePicker::make('exit_time')
                         ->rules(['date_format:H:i:s'])
                         ->placeholder('Exit Time')
@@ -63,7 +63,7 @@ class AttendancesRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     Toggle::make('attendance')
                         ->rules(['boolean'])
                         ->columnSpan([
@@ -71,7 +71,7 @@ class AttendancesRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     Select::make('approved_by')
                         ->rules(['exists:users,id'])
                         ->relationship('userAttendanceApprove', 'first_name')
@@ -82,7 +82,7 @@ class AttendancesRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     DateTimePicker::make('approved_on')
                         ->rules(['date'])
                         ->placeholder('Approved On')

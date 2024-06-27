@@ -28,6 +28,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\HelpdeskcomplaintResource\Pages;
 use Illuminate\Database\Eloquent\Model;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class HelpdeskcomplaintResource extends Resource
 {
@@ -247,6 +248,9 @@ class HelpdeskcomplaintResource extends Resource
                     ->label('Building')
                     ->preload()
             ])
+            ->bulkActions([
+                ExportBulkAction::make(),
+                ])
             ->actions([]);
     }
 

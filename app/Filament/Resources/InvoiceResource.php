@@ -24,6 +24,7 @@ use App\Filament\Resources\InvoiceResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\InvoiceResource\RelationManagers;
 use App\Models\InvoiceApproval;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class InvoiceResource extends Resource
 {
@@ -227,6 +228,7 @@ class InvoiceResource extends Resource
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
+                ExportBulkAction::make(),
                 Tables\Actions\BulkActionGroup::make([
                     // Tables\Actions\DeleteBulkAction::make(),
                 ]),

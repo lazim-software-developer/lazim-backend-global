@@ -21,6 +21,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\LegalOfficerResource\Pages;
 use App\Filament\Resources\LegalOfficerResource\RelationManagers;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class LegalOfficerResource extends Resource
 {
@@ -101,14 +102,14 @@ class LegalOfficerResource extends Resource
                 // Tables\Actions\CreateAction::make(),
             ]);
     }
-    
+
     public static function getRelations(): array
     {
         return [
             //
         ];
     }
-    
+
     public static function getPages(): array
     {
         return [
@@ -117,5 +118,5 @@ class LegalOfficerResource extends Resource
             'list' => Pages\ListLegalOfficers::route('/{record}'),
             'edit' => Pages\EditLegalOfficer::route('/{record}/edit'),
         ];
-    }    
+    }
 }

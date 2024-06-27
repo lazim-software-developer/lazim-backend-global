@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Resources\RelationManagers\RelationManager;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class RuleregulationsRelationManager extends RelationManager
 {
@@ -60,7 +61,7 @@ class RuleregulationsRelationManager extends RelationManager
                             }),
                         RichEditor::make('rule_regulation')
                             ->required()
-    
+
                             ->columnSpanFull(),
                     ])
                     ->action(function (array $data): void {
@@ -84,14 +85,14 @@ class RuleregulationsRelationManager extends RelationManager
                             }),
                         RichEditor::make('rule_regulation')
                             ->required()
-    
+
                             ->columnSpanFull(),
                     ])
                     ->fillForm(fn(RuleRegulation $record): array => [
                         'rule_regulation' => $record->rule_regulation,
                     ])
                     ->action(function (RuleRegulation $record, array $data): void {
-                        
+
                         $record->rule_regulation = $data['rule_regulation'];
                         $record->save();
                     })
