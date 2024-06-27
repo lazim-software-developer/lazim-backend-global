@@ -33,7 +33,7 @@ class BuildingPocsRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     TextInput::make('role_name')
                         ->rules(['max:50', 'string'])
                         ->placeholder('Role Name')
@@ -42,7 +42,7 @@ class BuildingPocsRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     TextInput::make('escalation_level')
                         ->rules(['max:50', 'string'])
                         ->placeholder('Escalation Level')
@@ -51,7 +51,7 @@ class BuildingPocsRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     Toggle::make('active')
                         ->rules(['boolean'])
                         ->columnSpan([
@@ -59,7 +59,7 @@ class BuildingPocsRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     Toggle::make('emergency_contact')
                         ->rules(['boolean'])
                         ->columnSpan([
