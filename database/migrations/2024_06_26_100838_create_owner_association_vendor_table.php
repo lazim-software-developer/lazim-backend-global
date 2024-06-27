@@ -19,7 +19,7 @@ return new class extends Migration
             $table->date('to')->nullable();
             $table->boolean('active')->default(true);
 
-            $table->foreign('owner_association_id')->references('id')->on('owner_association');
+            $table->foreign('owner_association_id')->references('id')->on('owner_associations');
             $table->foreign('vendor_id')->references('id')->on('vendors');
         });
     }
