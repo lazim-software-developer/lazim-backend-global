@@ -5,6 +5,7 @@ namespace App\Jobs;
 use App\Models\Accounting\OAMInvoice;
 use App\Models\Accounting\OAMReceipts;
 use App\Models\AgingReport;
+use App\Models\Building\Flat;
 use App\Models\DelinquentOwner;
 use App\Models\FlatOwners;
 use Carbon\Carbon;
@@ -47,6 +48,7 @@ class UpdateDelinquentOwnerInvoiceJob implements ShouldQueue
                                 ->latest('invoice_date')
                                 ->first();
             $dueAmount = $lastInvoice->due_amount;
+            $oa_id = Flat::find($flatId)?->owner_association_id;
             if(!$receipts || $this->invoice->invoice_due_date < Carbon::parse($receipts?->receipt_date)->toDateString()){
                 
                 if($lastInvoice?->invoice_due_date && $lastReceipt?->receipt_date && Carbon::parse($lastReceipt?->receipt_date)->greaterThan(Carbon::parse($lastInvoice?->invoice_due_date)))
@@ -57,7 +59,8 @@ class UpdateDelinquentOwnerInvoiceJob implements ShouldQueue
                     [
                         'year'=> $year,
                         'building_id'=>$this->invoice->building_id,
-                        'flat_id'=>$flatId
+                        'flat_id'=>$flatId,
+                        // 'owner_association_id' => $oa_id
                     ],
                     [
                         'owner_id'=>$ownerId,
@@ -81,7 +84,8 @@ class UpdateDelinquentOwnerInvoiceJob implements ShouldQueue
             $aging = AgingReport::updateOrCreate([
                         'year'=> $year,
                         'building_id'=>$this->invoice->building_id,
-                        'flat_id'=>$flatId
+                        'flat_id'=>$flatId,
+                        // 'owner_association_id' => $oa_id
                     ],
                     [
                         'owner_id'=>$ownerId,

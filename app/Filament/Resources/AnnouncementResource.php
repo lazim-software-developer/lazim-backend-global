@@ -22,6 +22,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\MarkdownEditor;
 use App\Filament\Resources\AnnouncementResource\Pages;
+use App\Models\OwnerAssociation;
 use App\Models\User\User;
 use Illuminate\Database\Eloquent\Model;
 
@@ -167,8 +168,11 @@ class AnnouncementResource extends Resource
                 SelectFilter::make('building_id')
                     ->relationship('building', 'name', function (Builder $query) {
                         if (Role::where('id', auth()->user()->role_id)->first()->name != 'Admin') {
-                            $query->where('owner_association_id', auth()->user()->owner_association_id);
-                        }
+                            $oa = OwnerAssociation::find(auth()->user()->owner_association_id);
+                            $buildings = $oa->building?->pluck('id');
+
+                        $query->whereIn('id', $buildings?:[]);
+                    }
                     })
                     ->searchable()
                     ->preload()

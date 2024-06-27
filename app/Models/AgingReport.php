@@ -20,9 +20,14 @@ class AgingReport extends Model
         'balance_3',
         'balance_4',
         'over_balance',
-        'year'
+        'year',
+        'owner_association_id'
     ];
 
+    public function ownerAssociation()
+    {
+        return $this->belongsTo(OwnerAssociation::class);
+    }
     public function flat(){
         return $this->belongsTo(Flat::class);
     }

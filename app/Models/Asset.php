@@ -27,6 +27,10 @@ class Asset extends Model
         'frequency_of_service'
     ];
 
+    public function ownerAssociation()
+    {
+        return $this->belongsTo(OwnerAssociation::class);
+    }
     public function building()
     {
         return $this->belongsTo(Building::class);

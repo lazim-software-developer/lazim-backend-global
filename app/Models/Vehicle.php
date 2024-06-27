@@ -12,6 +12,10 @@ class Vehicle extends Model
 
     protected $fillable = ['user_id', 'vehicle_number', 'makani_number'];
 
+    public function ownerAssociation()
+    {
+        return $this->belongsTo(OwnerAssociation::class);
+    }
     public function user()
     {
         return $this->belongsTo(User::class);

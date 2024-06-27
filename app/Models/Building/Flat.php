@@ -17,6 +17,7 @@ use App\Models\OaUserRegistration;
 use App\Models\Building\FlatTenant;
 use App\Models\Visitor\FlatVisitor;
 use App\Models\Accounting\OAMInvoice;
+use App\Models\OwnerAssociation;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Visitor\FlatDomesticHelp;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -45,6 +46,10 @@ class Flat extends Model
 
     protected $searchableFields = ['*'];
 
+    public function ownerAssociation()
+    {
+        return $this->belongsTo(OwnerAssociation::class);
+    }
     public function building()
     {
         return $this->belongsTo(Building::class);

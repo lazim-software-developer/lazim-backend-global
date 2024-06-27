@@ -5,6 +5,7 @@ namespace App\Models\Forms;
 use App\Models\Building\Building;
 use App\Models\Building\Flat;
 use App\Models\Order;
+use App\Models\OwnerAssociation;
 use App\Models\User\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -35,6 +36,10 @@ class AccessCard extends Model
 
     protected $searchableFields = ['*'];
 
+    public function ownerAssociation()
+    {
+        return $this->belongsTo(OwnerAssociation::class);
+    }
     public function flat()
     {
         return $this->belongsTo(Flat::class);

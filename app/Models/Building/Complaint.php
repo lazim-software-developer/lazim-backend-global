@@ -13,6 +13,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\Building\Flat;
+use App\Models\OwnerAssociation;
 use App\Models\Vendor\Vendor;
 
 class Complaint extends Model
@@ -54,6 +55,10 @@ class Complaint extends Model
         'remarks' => 'array',
     ];
 
+    public function ownerAssociation()
+    {
+        return $this->belongsTo(OwnerAssociation::class);
+    }
     public function building()
     {
         return $this->belongsTo(Building::class);

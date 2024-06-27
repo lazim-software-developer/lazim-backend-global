@@ -38,16 +38,21 @@ use Filament\Models\Contracts\HasName;
 use Laravel\Jetstream\HasProfilePhoto;
 use App\Models\Building\FacilityBooking;
 use BezhanSalleh\FilamentShield\Traits\HasPanelShield;
+use Filament\Facades\Filament;
 use Filament\Models\Contracts\HasAvatar;
 use Illuminate\Notifications\Notifiable;
 use Filament\Models\Contracts\FilamentUser;
+use Filament\Models\Contracts\HasTenants;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Collection;
+use Illuminate\Validation\ValidationException;
 use Spatie\Permission\Traits\HasRoles;
 
-class User extends Authenticatable implements FilamentUser, HasAvatar
+class User extends Authenticatable implements FilamentUser, HasAvatar, HasTenants, HasName
 {
     use HasRoles;
     // use HasPanelShield;
@@ -93,11 +98,10 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
     {
         return $this->profile_photo ? env('AWS_URL') . '/' . $this->profile_photo : env('DEFAULT_AVATAR');
     }
-    // public function getFullNameAttribute(): string
-    // {
-
-    //     return "{$this->first_name} {$this->last_name}";
-    // }
+    public function getFilamentName(): string
+    {
+        return "{$this->first_name} {$this->last_name}";
+    }
 
     public function role()
     {
@@ -187,20 +191,38 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
     }
     public function canAccessPanel(Panel $panel): bool
     {
-        // $allowedRoles = ['OA','Admin','Building Engineer','Accounts Manager','MD','Complaint Officer','Legal Officer'];
+        $allowedRoles = ['Admin','Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor'];
 
-        // // Retrieve the role name using the provided method
-        // $userRoleName = Role::find($this->role_id)->name;
-        // if (in_array($userRoleName, $allowedRoles) && $this->active) {
-        //     return true;
-        // }
-        // return false;
-        return true;
+        // Retrieve the role name using the provided method
+        $userRoleName = Role::find($this->role_id)->name;   
+        if ($panel->getId() === 'app' && $userRoleName == 'Admin') {
+            return true;
+        }
+        else if($panel->getId() === 'admin' && !in_array($userRoleName, $allowedRoles) && $this->active) {
+            return true;
+        }
+        else{
+            Filament::auth()->logout();
+            throw ValidationException::withMessages([
+                'data.email' => __('Unautorized access'),
+            ]);
+        }
     }
 
-    public function ownerAssociation()
+    public function ownerAssociation(): BelongsToMany
     {
-        return $this->belongsTo(OwnerAssociation::class);
+        return $this->belongsToMany(OwnerAssociation::class);
+    }
+
+    public function getTenants(Panel $panel): Collection
+    {
+        // return OwnerAssociation::where('id',$this->ownerAssociation)->get();
+        return $this->ownerAssociation()->get();
+    }
+ 
+    public function canAccessTenant(Model $tenant): bool
+    {
+        return $this->ownerAssociation()->whereKey($tenant)->exists();
     }
 
     public function residences()

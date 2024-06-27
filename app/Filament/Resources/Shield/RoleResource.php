@@ -6,6 +6,7 @@ use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use BezhanSalleh\FilamentShield\Facades\FilamentShield;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use App\Filament\Resources\Shield\RoleResource\Pages;
+use App\Models\Master\Role;
 use BezhanSalleh\FilamentShield\Support\Utils;
 use Closure;
 use Filament\Forms;
@@ -23,10 +24,10 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
-use Illuminate\Validation\Rule;
 
 class RoleResource extends Resource implements HasShieldPermissions
 {
+    protected static ?string $model = Role::class;
     protected static ?string $recordTitleAttribute = 'name';
 
     protected static $permissionsCollection;

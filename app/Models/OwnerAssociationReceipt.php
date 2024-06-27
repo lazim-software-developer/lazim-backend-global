@@ -18,6 +18,10 @@ class OwnerAssociationReceipt extends Model
         'on_account_of','receipt_document','flat_id','owner_association_id','building_id','receipt_to','amount'
     ];
 
+    public function ownerAssociation()
+    {
+        return $this->belongsTo(OwnerAssociation::class);
+    }
     public function building(){
         return $this->belongsTo(Building::class);
     }

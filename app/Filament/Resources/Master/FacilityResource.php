@@ -27,6 +27,8 @@ class FacilityResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
     protected static ?string $navigationGroup = 'Master';
+
+    protected static bool $isScopedToTenant = false;
     public static function form(Form $form): Form
     {
         return $form
