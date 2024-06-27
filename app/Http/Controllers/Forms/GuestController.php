@@ -102,7 +102,7 @@ class GuestController extends Controller
         $requiredPermissions = ['view_any_visitor::form'];
         $visitor = FlatVisitor::create($request->all());
         $roles = Role::where('owner_association_id',$ownerAssociationId)->whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor','Staff'])->pluck('id');
-        $user = User::where('owner_association_id', $ownerAssociationId)->whereNotIn('role_id', $roles)->whereNot('id', auth()->user()->id)->get()//->where('role_id', Role::where('name','OA')->value('id'))->get();
+        $user = User::where('owner_association_id', $ownerAssociationId)->whereNotIn('role_id', $roles)->whereNot('id', auth()->user()?->id)->get()//->where('role_id', Role::where('name','OA')->value('id'))->get();
         ->filter(function ($notifyTo) use ($requiredPermissions) {
             return $notifyTo->can($requiredPermissions);
         });
