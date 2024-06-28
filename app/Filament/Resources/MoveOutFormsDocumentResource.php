@@ -17,6 +17,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\CheckboxList;
 use App\Filament\Resources\MoveOutFormsDocumentResource\Pages;
 use App\Models\User\User;
+use Filament\Facades\Filament;
 use Illuminate\Database\Eloquent\Model;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
@@ -256,7 +257,7 @@ class MoveOutFormsDocumentResource extends Resource
                 SelectFilter::make('building_id')
                     ->relationship('building', 'name', function (Builder $query) {
                         if (Role::where('id', auth()->user()->role_id)->first()->name != 'Admin') {
-                            $query->where('owner_association_id', auth()->user()->owner_association_id);
+                            $query->where('owner_association_id', Filament::getTenant()->id);
                         }
 
                     })

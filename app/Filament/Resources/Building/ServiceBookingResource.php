@@ -27,6 +27,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\Building\ServiceBookingResource\Pages;
 use App\Filament\Resources\Building\ServiceBookingResource\RelationManagers;
+use Filament\Facades\Filament;
 use Illuminate\Database\Eloquent\Model;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
@@ -161,7 +162,7 @@ class ServiceBookingResource extends Resource
                 SelectFilter::make('building_id')
                     ->relationship('building', 'name', function (Builder $query) {
                         if (Role::where('id', auth()->user()->role_id)->first()->name != 'Admin') {
-                            $query->where('owner_association_id', auth()->user()->owner_association_id);
+                            $query->where('owner_association_id', Filament::getTenant()->id);
                         }
 
                     })

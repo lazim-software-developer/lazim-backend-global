@@ -24,6 +24,7 @@ use App\Filament\Resources\InvoiceResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\InvoiceResource\RelationManagers;
 use App\Models\InvoiceApproval;
+use Filament\Facades\Filament;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class InvoiceResource extends Resource
@@ -217,7 +218,7 @@ class InvoiceResource extends Resource
                 SelectFilter::make('building_id')
                     ->relationship('building', 'name', function (Builder $query) {
                         if (Role::where('id', auth()->user()->role_id)->first()->name != 'Admin') {
-                            $query->where('owner_association_id', auth()->user()->owner_association_id);
+                            $query->where('owner_association_id', Filament::getTenant()->id);
                         }
                     })
                     ->searchable()
