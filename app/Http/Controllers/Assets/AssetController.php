@@ -16,6 +16,7 @@ use App\Models\TechnicianAssets;
 use App\Models\Vendor\Vendor;
 use Carbon\Carbon;
 use Illuminate\Http\Client\Request;
+use Illuminate\Support\Facades\DB;
 
 class AssetController extends Controller
 {
@@ -78,7 +79,7 @@ class AssetController extends Controller
                 'after' => ''
             ]
         ];
-
+        $oa_id = DB::table('building_owner_association')->where('building_id', $request->building_id)->where('active', true)->first()?->owner_association_id;
         $data = AssetMaintenance::create([
             'maintenance_date' => now(),
             'comment' => json_encode($jsonData['comment']),
@@ -87,6 +88,7 @@ class AssetController extends Controller
             'building_id' => $request->building_id,
             'status' => 'in-progress',
             'technician_asset_id' => $request->technician_asset_id,
+            'owner_association_id' => $oa_id,
         ]);
 
         return (new CustomResponseResource([

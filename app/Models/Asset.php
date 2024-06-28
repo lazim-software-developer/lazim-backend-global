@@ -24,7 +24,8 @@ class Asset extends Model
         'floor',
         'division',
         'discipline',
-        'frequency_of_service'
+        'frequency_of_service',
+        'owner_association_id',
     ];
 
     public function ownerAssociation()
