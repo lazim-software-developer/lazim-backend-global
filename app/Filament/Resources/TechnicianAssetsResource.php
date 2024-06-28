@@ -25,6 +25,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\TechnicianAssetsResource\Pages;
 use App\Filament\Resources\TechnicianAssetsResource\RelationManagers;
 use App\Filament\Resources\TechnicianAssetsResource\RelationManagers\AssetMaintenancesRelationManager;
+use Filament\Facades\Filament;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class TechnicianAssetsResource extends Resource
@@ -106,7 +107,7 @@ class TechnicianAssetsResource extends Resource
                 SelectFilter::make('building_id')
                     ->relationship('building', 'name', function (Builder $query) {
                         if (Role::where('id', auth()->user()->role_id)->first()->name != 'Admin') {
-                            $query->where('owner_association_id', auth()->user()->owner_association_id);
+                            $query->where('owner_association_id', Filament::getTenant()->id);
                         }
                     })
                     ->searchable()
