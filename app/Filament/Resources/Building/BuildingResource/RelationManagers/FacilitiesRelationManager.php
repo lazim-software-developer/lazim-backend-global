@@ -5,14 +5,17 @@ namespace App\Filament\Resources\Building\BuildingResource\RelationManagers;
 use App\Models\Master\Facility;
 use Filament\Forms;
 use Closure;
+use Filament\Facades\Filament;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
+use Filament\Tables\Actions\AttachAction;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\DB;
 
@@ -85,7 +88,16 @@ class FacilitiesRelationManager extends RelationManager
                             ->searchable()
                             ->required()
                             ->preload();
-                    })
+                    })->form(fn (AttachAction $action, RelationManager $livewire): array => [
+                        $action->getRecordSelect(),
+                        Hidden::make('owner_association_id')
+                        ->default(function()use ($action, $livewire){
+                            $buildingId = $livewire->ownerRecord->id;
+                            $oa_id = DB::table('building_owner_association')->where('building_id', $buildingId)->where('active', true)->first()?->owner_association_id;
+                            return $oa_id;
+                        }),   
+                    ])
+                    
 
             ]);
     }
