@@ -60,7 +60,7 @@ class UpdateDelinquentOwnerInvoiceJob implements ShouldQueue
                         'year'=> $year,
                         'building_id'=>$this->invoice->building_id,
                         'flat_id'=>$flatId,
-                        // 'owner_association_id' => $oa_id
+                        'owner_association_id' => $oa_id
                     ],
                     [
                         'owner_id'=>$ownerId,
@@ -85,7 +85,7 @@ class UpdateDelinquentOwnerInvoiceJob implements ShouldQueue
                         'year'=> $year,
                         'building_id'=>$this->invoice->building_id,
                         'flat_id'=>$flatId,
-                        // 'owner_association_id' => $oa_id
+                        'owner_association_id' => $oa_id
                     ],
                     [
                         'owner_id'=>$ownerId,
