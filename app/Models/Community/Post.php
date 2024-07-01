@@ -35,7 +35,7 @@ class Post extends Model
 
     public function building()
     {
-        return $this->belongsToMany(Building::class);
+        return $this->belongsToMany(Building::class)->withPivot('owner_association_id');
     }
 
     public function media()
