@@ -36,9 +36,9 @@ class SyncOwnerAssociations extends Command
             'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
         ])->get(env("MOLLAK_API_URL") . '/sync/managementcompany');
 
-        $managementCompanies = $response->json()['response']['managementCompanies'];
+        // $managementCompanies = $response->json()['response']['managementCompanies'];
 
-        Log::info($managementCompanies);
+        Log::info($response->json());
 
         // foreach ($managementCompanies as $company) {
         //     $ownerAssociation = OwnerAssociation::firstOrCreate(
