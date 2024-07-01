@@ -38,22 +38,24 @@ class SyncOwnerAssociations extends Command
 
         $managementCompanies = $response->json()['response']['managementCompanies'];
 
-        foreach ($managementCompanies as $company) {
-            $ownerAssociation = OwnerAssociation::firstOrCreate(
-                [
-                    'mollak_id' => $company['id'],
-                    'trn_number' => $company['trn']
-                ],
-                [
-                    'name'       => $company['name']['englishName'],
-                    'phone'      => $company['contactNumber'],
-                    'email'      => $company['email'],
-                    'trn_number' => $company['trn'],
-                    'address'    => $company['address'],
-                ]
-            );
+        Log::info($managementCompanies);
 
-            FetchBuildingsJob::dispatch($ownerAssociation);
-        }
+        // foreach ($managementCompanies as $company) {
+        //     $ownerAssociation = OwnerAssociation::firstOrCreate(
+        //         [
+        //             'mollak_id' => $company['id'],
+        //             'trn_number' => $company['trn']
+        //         ],
+        //         [
+        //             'name'       => $company['name']['englishName'],
+        //             'phone'      => $company['contactNumber'],
+        //             'email'      => $company['email'],
+        //             'trn_number' => $company['trn'],
+        //             'address'    => $company['address'],
+        //         ]
+        //     );
+
+        //     FetchBuildingsJob::dispatch($ownerAssociation);
+        // }
     }
 }
