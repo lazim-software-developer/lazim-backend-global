@@ -24,6 +24,7 @@ use Filament\Forms\Components\MarkdownEditor;
 use App\Filament\Resources\AnnouncementResource\Pages;
 use App\Models\OwnerAssociation;
 use App\Models\User\User;
+use Filament\Facades\Filament;
 use Illuminate\Database\Eloquent\Model;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
@@ -169,7 +170,7 @@ class AnnouncementResource extends Resource
                 SelectFilter::make('building_id')
                     ->relationship('building', 'name', function (Builder $query) {
                         if (Role::where('id', auth()->user()->role_id)->first()->name != 'Admin') {
-                            $oa = OwnerAssociation::find(auth()->user()->owner_association_id);
+                            $oa = OwnerAssociation::find(Filament::getTenant()->id);
                             $buildings = $oa->building?->pluck('id');
 
                         $query->whereIn('id', $buildings?:[]);

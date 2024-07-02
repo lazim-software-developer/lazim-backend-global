@@ -26,6 +26,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\User\TenantResource\Pages;
 use App\Filament\Resources\User\TenantResource\RelationManagers;
 use App\Filament\Resources\User\TenantResource\RelationManagers\UserDocumentsRelationManager;
+use Filament\Facades\Filament;
 
 class TenantResource extends Resource
 {
@@ -134,7 +135,7 @@ class TenantResource extends Resource
             ->defaultSort('created_at', 'desc')
             ->filters([
                 SelectFilter::make('building_id')
-                    ->relationship('building', 'name',fn (Builder $query) => $query->where('owner_association_id',auth()->user()->owner_association_id))
+                    ->relationship('building', 'name',fn (Builder $query) => $query->where('owner_association_id',Filament::getTenant()->id))
                     ->searchable()
                     ->preload()
                     ->label('Building'),
