@@ -17,6 +17,7 @@ use Illuminate\Validation\Rules\NotIn;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Str;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class AuthController extends Controller
@@ -117,6 +118,7 @@ class AuthController extends Controller
             ]);
         }
         if ($user && $user?->role->name == 'Tenant' ){
+            Log::info($user->residences->where('active',true)->count());
             abort_if($user->residences->where('active',true)->count() < 1, 422, "Currently, you don't have any active contract" );
         }
 
