@@ -118,6 +118,7 @@ class AuthController extends Controller
             ]);
         }
         if ($user && $user?->role->name == 'Tenant' ){
+            Log::info($user->residences);
             Log::info($user->residences->where('active',true)->count());
             abort_if($user->residences->where('active',true)->count() < 1, 422, "Currently, you don't have any active contract" );
         }
