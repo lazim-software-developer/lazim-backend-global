@@ -18,7 +18,13 @@ class UserController extends Controller
     {
         $user = auth()->user();
 
-        $flats = $user->residences;
+        if ($user && $user?->role->name == 'Tenant'){
+
+            $flats = $user->residences->where('active',true)->get();
+        }
+        else{
+            $flats = $user->residences;
+        }
 
         return UserFlatResource::collection($flats);
     }
