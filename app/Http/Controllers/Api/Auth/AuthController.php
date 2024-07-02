@@ -117,8 +117,7 @@ class AuthController extends Controller
             ]);
         }
         if ($user && $user?->role->name == 'Tenant' ){
-            $user->residences->where('active',true)->count() < 1;
-            abort_if(true, 422, "Currently,you don't have any active contract" );
+            abort_if($user->residences->where('active',true)->count() < 1, 422, "Currently, you don't have any active contract" );
         }
 
         // Check if the user's email and phone number is verified
