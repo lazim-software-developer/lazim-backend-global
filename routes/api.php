@@ -557,6 +557,7 @@ Route::post('/web-enquiry',[EnquiryController::class,'store']);
 
 //webhook
 Route::post('/webhook',[MollakController::class,'webhook'])->middleware('check.MollakToken');
+Route::get('/webhook',[MollakController::class,'webhook'])->middleware('check.MollakToken');
 
 //mollak
 Route::post('/upload',[TestController::class, 'uploadAll'])->name('uploadAll');
