@@ -30,6 +30,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Resources\RelationManagers\RelationManager;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
+use Vinkla\Hashids\Facades\Hashids;
 
 class AssetsRelationManager extends RelationManager
 {
@@ -109,12 +110,15 @@ class AssetsRelationManager extends RelationManager
                         $technician_asset_id = TechnicianAssets::where('asset_id', $asset)->first();
                         // Fetch Building name
                         $building_name = Building::where('id', $asset->building_id)->first();
+                        $oa_id = DB::table('building_owner_association')->where('building_id', $asset->building_id)->where('active', true)->first()?->owner_association_id;
                         // Fetch maintenance details from the database
                         $maintenance = Assetmaintenance::where('technician_asset_id', $technician_asset_id)->first();
+                        $assetCode = strtoupper(substr(auth()->user()->ownerAssociation->name, 0, 2)).'-'. Hashids::encode($this->record->id);
 
                         // Build an object with the required properties
                         $qrCodeContent = [
                             'id' => $record->id,
+                            'asset_code' => $assetCode,
                             'technician_asset_id' => $technician_asset_id,
                             'asset_id' => $record->id,
                             'asset_name' => $asset->name,
@@ -130,7 +134,7 @@ class AssetsRelationManager extends RelationManager
                         $qrCode = \SimpleSoftwareIO\QrCode\Facades\QrCode::size(200)->generate(json_encode($qrCodeContent));
 
                         // Update the newly created asset record with the generated QR code
-                        Asset::where('id', $record->id)->update(['qr_code' => $qrCode]);
+                        Asset::where('id', $record->id)->update(['qr_code' => $qrCode,'asset_code' => $assetCode, 'owner_association_id' => $oa_id]);
 
                         $buildingId = $record->building_id;
                         $serviceId = $record->service_id;

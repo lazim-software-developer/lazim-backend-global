@@ -175,8 +175,11 @@ class BuildingPocsRelationManager extends RelationManager
                                 return $livewire->ownerRecord->id;
                             }),
                     ])
-                    ->action(function (array $data): void {
+                    ->action(function (RelationManager $livewire,array $data): void {
 
+                        $buildingId = $livewire->ownerRecord->id;
+                        $oa_id = DB::table('building_owner_association')->where('building_id', $buildingId)->where('active', true)->first()?->owner_association_id;
+                            
                         $user = User::create([
                             'first_name' => $data['first_name'],
                             'last_name' => $data['last_name'],
@@ -185,12 +188,11 @@ class BuildingPocsRelationManager extends RelationManager
                             'profile_photo' => $data['profile_photo'],
                             'active' => $data['active'],
                             'role_id' => 12,
-                            'owner_association_id' => auth()->user()->owner_association_id,
+                            'owner_association_id' => $oa_id,
                             'email_verified' => 1,
                             'phone_verified' => 1
-
                         ]);
-
+                        
                         $security = BuildingPoc::create([
                             'user_id' => $user->id,
                             'role_name' => 'security',
@@ -198,6 +200,7 @@ class BuildingPocsRelationManager extends RelationManager
                             'active' => true,
                             'building_id' => $data['building_id'],
                             'emergency_contact' => true,
+                            'owner_association_id' => $oa_id,
 
                         ]);
                         if ($user && $security) {
