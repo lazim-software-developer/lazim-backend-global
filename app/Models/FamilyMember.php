@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\User\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -27,5 +28,15 @@ class FamilyMember extends Model
         'passport_expiry_date' => 'date',
         'emirates_expiry_date' => 'date',
     ];
+
+    public function ownerAssociation()
+    {
+        return $this->belongsTo(OwnerAssociation::class);
+    }
+
+    public function resident()
+    {
+        return $this->belongsTo(User::class,'user_id');
+    }
 }
                              
