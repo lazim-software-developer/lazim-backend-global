@@ -31,6 +31,7 @@ use App\Http\Controllers\Community\PostLikeController;
 use App\Http\Controllers\Documents\DocumentsController;
 use App\Http\Controllers\EnquiryController;
 use App\Http\Controllers\Facility\FacilityController;
+use App\Http\Controllers\FamilyMemberController;
 use App\Http\Controllers\Forms\AccessCardController;
 use App\Http\Controllers\Forms\FitOutFormsController;
 use App\Http\Controllers\Forms\MoveInOutController;
@@ -286,6 +287,10 @@ Route::middleware(['auth:sanctum', 'email.verified', 'active'])->group(function 
     Route::post('buildings/{building}/book/service', [ServiceController::class, 'bookService']);
     Route::post('/vehicles', [VehicleController::class, 'store']);
     Route::get('/vehicles', [VehicleController::class, 'index']);
+
+    // family members
+    Route::post('/family-members/{building}',[FamilyMemberController::class, 'store']);
+    Route::get('/family-members/{building}',[FamilyMemberController::class, 'index']);
 });
 
 
