@@ -519,6 +519,9 @@ Route::middleware(['auth:sanctum', 'active', 'active.gatekeeper'])->prefix('gate
 
     // MoveIn MoveOut
     Route::get('/move-in-out',[MoveInOutController::class, 'list']);
+
+    Route::get('/visitor-request',[GuestController::class, 'visitorRequest']);
+    Route::post('/visitor-approval/{visitor}', [GuestController::class, 'visitorApproval']);
 });
 // Approve visitor request
 Route::post('/gatekeeper/visitor-entry', [GuestController::class, 'visitorEntry'])->middleware(['auth:sanctum']);
