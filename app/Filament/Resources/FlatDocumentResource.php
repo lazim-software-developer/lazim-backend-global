@@ -52,7 +52,7 @@ class FlatDocumentResource extends Resource
                                         ->join('building_documentlibraries', function (JoinClause $join) {
                                             $join->on('document_libraries.id', '=', 'building_documentlibraries.documentlibrary_id')
                                                 ->where([
-                                                    ['building_id', '=', Filament::getTenant()->id],
+                                                    ['building_id', '=', Filament::getTenant()?->id],
 
                                                 ]);
                                         })
