@@ -211,7 +211,7 @@ class PostResource extends Resource
                 SelectFilter::make('building_id')
                     ->relationship('building', 'name', function (Builder $query) {
                         if (Role::where('id', auth()->user()->role_id)->first()->name != 'Admin') {
-                                $oa = OwnerAssociation::find(Filament::getTenant()->id);
+                                $oa = OwnerAssociation::find(Filament::getTenant()?->id);
                                 $buildings = $oa->building?->pluck('id');
                                 // dd($buildings);
 

@@ -271,7 +271,7 @@ class MoveInFormsDocumentResource extends Resource
                 SelectFilter::make('building_id')
                     ->relationship('building', 'name', function (Builder $query) {
                         if (Role::where('id', auth()->user()->role_id)->first()->name != 'Admin') {
-                            $query->where('owner_association_id', Filament::getTenant()->id);
+                            $query->where('owner_association_id', Filament::getTenant()?->id);
                         }
 
                     })
