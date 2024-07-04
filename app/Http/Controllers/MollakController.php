@@ -16,6 +16,8 @@ use App\Models\Accounting\SubCategory;
 use App\Http\Resources\Master\UnitResource;
 use App\Http\Resources\Master\PropertyGroupResource;
 use App\Http\Resources\Master\ServicePeriodResource;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Validator;
 
 class MollakController extends Controller
 {
@@ -313,20 +315,120 @@ class MollakController extends Controller
             return response()->json(['error' => 'Invalid JSON'], 400);
         }
 
-        // Validate required parameters
-        if (!isset($data['timeStamp'], $data['syncType'], $data['parameters']) ||
-            !is_array($data['parameters'])) {
-            return response()->json(['error' => 'Incorrect Parameters'], 400);
+        // Generate a unique identifier for the request body
+        $requestHash = md5($request->getContent());
+
+        // Check if this request has been processed before
+        if (Cache::has('processed_request:' . $requestHash)) {
+            return response()->json(['error' => 'Duplicate Request'], 400);
+        }
+
+        // Store the request identifier in cache with a TTL (time-to-live) to prevent future duplicates
+        Cache::put('processed_request:' . $requestHash, true, now()->addMinutes(5)); // Adjust TTL as needed
+
+        $validationError = $this->validateMollakRequest($request);
+        if(!empty($validationError)){
+            return $validationError;
         }
 
         // Check for duplicate values
-        $values = array_column($data['parameters'], 'value');
+        $values = array_column($data['parameters'], 'key');
         if (count($values) !== count(array_unique($values))) {
-            return response()->json(['error' => 'Duplicate Values'], 400);
+            return response()->json(['error' => 'Duplicate Keys'], 400);
         }
         return [
             'isExecuted' => true,
             'acknowledgeRef' => random_int(1111111,9999999)
         ];
+    }
+
+    public function validateMollakRequest(Request $request)
+    {
+        // Basic validation for common fields
+        $validator = Validator::make($request->all(), [
+            'timeStamp' => 'required|date',
+            'syncType' => 'required|string',
+            'parameters' => 'required|array',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['error' => $validator->errors()->first()], 400);
+        }
+        // Specific validation based on syncType
+        $syncType = $request->input('syncType');
+
+        switch ($syncType) {
+            case 'payment_receipt':
+                $validator = Validator::make($request->all(), [
+                    'parameters' => 'required|array',
+                    'parameters.*.key' => 'required|string|in:managementCompanyId,propertyGroupId,mollakPropertyId,receiptId',
+                    'parameters.*.value' => 'required',
+                ], [
+                    'parameters.*.key.in' => "Invalid key provided in parameters",
+                ]);
+                break;
+            case 'budget_approved':
+                $validator = Validator::make($request->all(), [
+                    'parameters' => 'required|array',
+                    'parameters.*.key' => 'required|string|in:managementCompanyId,propertyGroupId,periodCode',
+                    'parameters.*.value' => 'required',
+                ], [
+                    'parameters.*.key.in' => "Invalid key provided in parameters",
+                ]);
+                break;
+            case 'invoice_generated':
+                $validator = Validator::make($request->all(), [
+                    'parameters' => 'required|array',
+                    'parameters.*.key' => 'required|string|in:managementCompanyId,propertyGroupId,quarterCode,serviceChargeGroupId',
+                    'parameters.*.value' => 'required',
+                ], [
+                    'parameters.*.key.in' => "Invalid key provided in parameters",
+                ]);
+                break;
+            case 'ownership_changed':
+                $validator = Validator::make($request->all(), [
+                    'parameters' => 'required|array',
+                    'parameters.*.key' => 'required|string|in:managementCompanyId,propertyGroupId,mollakPropertyId',
+                    'parameters.*.value' => 'required',
+                ], [
+                    'parameters.*.key.in' => "Invalid key provided in parameters",
+                ]);
+                break;
+            case 'contract_changed':
+                $validator = Validator::make($request->all(), [
+                    'parameters' => 'required|array',
+                    'parameters.*.key' => 'required|string|in:managementCompanyId,propertyGroupId,mollakPropertyId,contractNumber,contractStatus',
+                    'parameters.*.value' => 'required',
+                ], [
+                    'parameters.*.key.in' => "Invalid key provided in parameters",
+                ]);
+                break;
+            case 'legal_notice_issued':
+                $validator = Validator::make($request->all(), [
+                    'parameters' => 'required|array',
+                    'parameters.*.key' => 'required|string|in:managementCompanyId,propertyGroupId,mollakPropertyId,legalNoticeId',
+                    'parameters.*.value' => 'required',
+                ], [
+                    'parameters.*.key.in' => "Invalid key provided in parameters",
+                ]);
+                break;
+            case 'owner_committee_formed':
+                $validator = Validator::make($request->all(), [
+                    'parameters' => 'required|array',
+                    'parameters.*.key' => 'required|string|in:managementCompanyId,propertyGroupId,ownerCommitteeNumber',
+                    'parameters.*.value' => 'required',
+                ], [
+                    'parameters.*.key.in' => "Invalid key provided in parameters",
+                ]);
+                break;
+            default:
+                return response()->json(['error' => 'Invalid syncType'], 400);
+        }
+
+        if ($validator->fails()) {
+            return response()->json(['error' => $validator->errors()->first()], 400);
+        }
+
+        // If all validations pass, you can proceed with your logic here
     }
 }
