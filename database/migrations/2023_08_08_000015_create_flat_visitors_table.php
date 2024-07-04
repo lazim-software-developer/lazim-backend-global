@@ -20,7 +20,7 @@ return new class extends Migration {
             $table->string('type', 50);
             $table->dateTime('start_time');
             $table->dateTime('end_time');
-            $table->integer('verification_code');
+            $table->string('verification_code');
             $table->unsignedBigInteger('initiated_by');
             $table->unsignedBigInteger('approved_by');
             $table->json('remarks');
