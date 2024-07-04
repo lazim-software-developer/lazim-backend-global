@@ -135,7 +135,7 @@ class TenantResource extends Resource
             ->defaultSort('created_at', 'desc')
             ->filters([
                 SelectFilter::make('building_id')
-                    ->relationship('building', 'name',fn (Builder $query) => $query->where('owner_association_id',Filament::getTenant()->id))
+                    ->relationship('building', 'name',fn (Builder $query) => $query->where('owner_association_id',Filament::getTenant()?->id))
                     ->searchable()
                     ->preload()
                     ->label('Building'),
