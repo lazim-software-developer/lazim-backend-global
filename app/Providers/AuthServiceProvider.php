@@ -27,6 +27,7 @@ use App\Models\Community\Poll;
 use App\Models\Community\Post;
 use App\Models\CoolingAccount;
 use App\Models\DelinquentOwner;
+use App\Models\FamilyMember;
 use App\Models\Forms\AccessCard;
 use App\Models\Forms\FitOutForm;
 use App\Models\Forms\Guest;
@@ -71,6 +72,7 @@ use App\Policies\Community\PostPolicy;
 use App\Policies\CoolingAccountPolicy;
 use App\Policies\DelinquentOwnerPolicy;
 use App\Policies\FacilityPolicy;
+use App\Policies\FamilyMemberPolicy;
 use App\Policies\Forms\AccessCardPolicy;
 use App\Policies\Forms\FitOutFormPolicy;
 use App\Policies\Forms\GuestPolicy;
@@ -158,6 +160,7 @@ class AuthServiceProvider extends ServiceProvider
         FlatTenant::class => FlatTenantPolicy::class,
         Item::class => ItemPolicy::class,
         ItemInventory::class => ItemInventoryPolicy::class,
+        FamilyMember::class => FamilyMemberPolicy::class,
         // Complaint::class => ComplaintPolicy::class,
         
     ];

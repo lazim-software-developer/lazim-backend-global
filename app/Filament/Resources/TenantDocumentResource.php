@@ -146,7 +146,7 @@ class TenantDocumentResource extends Resource
                     ->preload()
                     ->label('Resident'),
                 SelectFilter::make('building_id')
-                    ->relationship('building', 'name', fn (Builder $query) => $query->where('owner_association_id',Filament::getTenant()->id))
+                    ->relationship('building', 'name', fn (Builder $query) => $query->where('owner_association_id',Filament::getTenant()?->id))
                     ->searchable()
                     ->preload()
                     ->label('Building'),

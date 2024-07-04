@@ -90,3 +90,13 @@ if (!function_exists('generate_ticket_number')) {
         return $type . date("d") . "-" . strtoupper(bin2hex(random_bytes(2))) . "-" . date("hi");
     }
 }
+
+function generateAlphanumericOTP($length = 6) {
+    $characters = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+    $charactersLength = strlen($characters);
+    $otp = '';
+    for ($i = 0; $i < $length; $i++) {
+        $otp .= $characters[random_int(0, $charactersLength - 1)];
+    }
+    return $otp;
+}

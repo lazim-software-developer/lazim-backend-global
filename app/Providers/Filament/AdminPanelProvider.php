@@ -19,6 +19,7 @@ use App\Filament\Resources\ComplaintOfficerResource;
 use App\Filament\Resources\WDAResource;
 use App\Filament\Resources\DelinquentOwnerResource;
 use App\Filament\Resources\DemoResource;
+use App\Filament\Resources\FamilyMemberResource;
 use App\Filament\Resources\LegalOfficerResource;
 use App\Filament\Resources\OacomplaintReportsResource;
 use App\Filament\Resources\OwnerAssociationInvoiceResource;
@@ -295,6 +296,12 @@ class AdminPanelProvider extends PanelProvider
                                     ->icon('heroicon-m-building-office-2')
                                     ->activeIcon('heroicon-m-building-office-2')
                                     ->sort(3),
+                                NavigationItem::make('Family Members')
+                                    ->url(FamilyMemberResource::getUrl('index'))
+                                    ->visible($user->can('view_any_family::members'))
+                                    ->icon('heroicon-s-user-group')
+                                    ->activeIcon('heroicon-s-user-group')
+                                    ->sort(4),
                             ]),
                     ]);
                 }
@@ -708,21 +715,6 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->plugins([
                 FilamentShieldPlugin::make()
-                    ->gridColumns([
-                        'default' => 1,
-                        'sm' => 2,
-                        'lg' => 3
-                    ])
-                    ->sectionColumnSpan(1)
-                    ->checkboxListColumns([
-                        'default' => 1,
-                        'sm' => 2,
-                        'lg' => 4,
-                    ])
-                    ->resourceCheckboxListColumns([
-                        'default' => 1,
-                        'sm' => 2,
-                    ]),
             ]);
     }
 }
