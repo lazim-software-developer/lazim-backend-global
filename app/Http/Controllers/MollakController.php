@@ -98,10 +98,10 @@ class MollakController extends Controller
                 'content-type' => 'application/json',
                 'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
             ])->get("https://qagate.dubailand.gov.ae/mollak/external/sync/invoices/" . 235553 . "/servicechargeperiods");
-    
+
             // Decode the API response
             $data = $results->json();
-    
+
             // Return the transformed data using the API resource
             // return PropertyGroupResource::collection($data['response']['propertyGroups']);
             return ServicePeriodResource::collection($data['response']['serviceChargePeriod']);
@@ -141,13 +141,13 @@ class MollakController extends Controller
             $response = Http::withOptions(['verify' => false])->withHeaders([
                 'content-type' => 'application/json',
             ])->post(env("SMS_LINK") . "checkotp?username=" . env("SMS_USERNAME") . "&password=" . env("SMS_PASSWORD") . "&msisdn=" . $request->phone . "&otp=" . $otp);
-    
+
                 if ($response->successful()) {
                         $value = $response->json();
-    
+
                         if ($value == 101) {
                             User::where('phone', $request->phone)->update(['phone_verified' => true]);
-    
+
                             return response()->json([
                                 'message' => 'Phone successfully verified.',
                                 'status' => 'success'
@@ -302,9 +302,31 @@ class MollakController extends Controller
         Log::info($request->header('mollak-id'));
         // Log::info($request->headers->all());
         Log::info("Webhook--->".json_encode($request->all()));
+        // Check if the request body is empty
+        if (empty($request->getContent())) {
+            return response()->json(['error' => 'Empty Body'], 400);
+        }
+
+        // Manually decode JSON and check for errors
+        $data = json_decode($request->getContent(), true);
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            return response()->json(['error' => 'Invalid JSON'], 400);
+        }
+
+        // Validate required parameters
+        if (!isset($data['timeStamp'], $data['syncType'], $data['parameters']) ||
+            !is_array($data['parameters'])) {
+            return response()->json(['error' => 'Incorrect Parameters'], 400);
+        }
+
+        // Check for duplicate values
+        $values = array_column($data['parameters'], 'value');
+        if (count($values) !== count(array_unique($values))) {
+            return response()->json(['error' => 'Duplicate Values'], 400);
+        }
         return [
             'isExecuted' => true,
-            'acknowledgeRef' => random_int(111111,999999)
+            'acknowledgeRef' => random_int(1111111,9999999)
         ];
     }
 }
