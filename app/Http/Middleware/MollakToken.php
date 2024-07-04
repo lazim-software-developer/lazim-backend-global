@@ -16,10 +16,28 @@ class MollakToken
      */
     public function handle(Request $request, Closure $next): Response
     {
-        Log::info($request->header('mollak_id'));
-        if ($request->header('mollak_id') != 'TKX8z4TpH9wL') {
-            return response()->json(['error' => 'Unauthorized'], 401);
+        try {
+            // Log the mollak_id header
+            Log::info($request->header('mollak_id'));
+
+            // Check if the request method is POST
+            if (!$request->isMethod('post')) {
+                return response()->json(['error' => 'Method Not Allowed'], 405);
+            }
+
+            // Check if the mollak_id header is not the expected value
+            if ($request->header('mollak_id') != 'TKX8z4TpH9wL') {
+                return response()->json(['error' => 'Unauthorized'], 401);
+            }
+
+            // Proceed with the request
+            return $next($request);
+        } catch (\Exception $e) {
+            // Log the exception
+            Log::error($e->getMessage());
+
+            // Return a JSON response for exceptions
+            return response()->json(['error' => 'Server Error'], 500);
         }
-        return $next($request);
-    } 
+    }
 }
