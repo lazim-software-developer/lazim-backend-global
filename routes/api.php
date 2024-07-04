@@ -290,7 +290,7 @@ Route::middleware(['auth:sanctum', 'email.verified', 'active'])->group(function 
 
     // family members
     Route::post('/family-members/{building}',[FamilyMemberController::class, 'store']);
-    Route::get('/family-members/{building}',[FamilyMemberController::class, 'index']);
+    Route::get('/fetch-family-members/{building}',[FamilyMemberController::class, 'index']);
 });
 
 
