@@ -303,12 +303,12 @@ class MollakController extends Controller
         Log::info($request->headers->all());
         Log::info("Webhook--->".json_encode($request->all()));
         // Check if the request body is empty
-        if ($request->isEmpty() || empty($request->getContent())) {
+        if (empty($request->getContent())) {
             return response()->json(['error' => 'Empty Body'], 400);
         }
 
-        // Validate the JSON structure
-        $data = $request->json()->all();
+        // Manually decode JSON and check for errors
+        $data = json_decode($request->getContent(), true);
         if (json_last_error() !== JSON_ERROR_NONE) {
             return response()->json(['error' => 'Invalid JSON'], 400);
         }
@@ -326,7 +326,7 @@ class MollakController extends Controller
         }
         return [
             'isExecuted' => true,
-            'acknowledgeRef' => random_int(111111,999999)
+            'acknowledgeRef' => random_int(1111111,9999999)
         ];
     }
 }
