@@ -44,7 +44,8 @@ class Complaint extends Model
         'technician_id',
         'flat_id',
         'complaint_location',
-        'ticket_number'
+        'ticket_number',
+        'type'
     ];
 
     protected $searchableFields = ['*'];
