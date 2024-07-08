@@ -564,7 +564,10 @@ Route::get('/app-version',[AppController::class, 'version']);
 Route::post('/web-enquiry',[EnquiryController::class,'store']);
 
 //webhook
-Route::post('/webhook',[MollakController::class,'webhook'])->middleware('check.MollakToken');
+// Route::post('/webhook',[MollakController::class,'webhook'])->middleware('check.MollakToken');
+// Route::get('/webhook',[MollakController::class,'webhook'])->middleware('check.MollakToken');
+Route::match(['get', 'post'], '/webhook', [MollakController::class, 'webhook'])
+     ->middleware('check.MollakToken');
 
 //mollak
 Route::post('/upload',[TestController::class, 'uploadAll'])->name('uploadAll');
