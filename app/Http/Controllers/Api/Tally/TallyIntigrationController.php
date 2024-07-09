@@ -18,17 +18,25 @@ class TallyIntigrationController extends Controller
             ]);
             $oamReceipts = OAMReceipts::whereBetween('receipt_date', [$request->fromDate, $request->toDate])->get();
             $responseData = [];
-            foreach($oamReceipts as $k => $value){
-                if($value->flat->users->count()){
-                    $data[] = [
-                        "ledgerName" => "General Fund & Reserve Fund Ledger (Income)",
-                        "transactionType" => "Credit",
-                        "amount" => $value->receipt_amount
-                    ];
-                    $data[] = [
-                        "ledgerName" => $value->flat->property_number . "-" . $value->flat->users->first()->first_name . $value->flat->users[0]->last_name . " Ledger",
+            foreach($oamReceipts as $k => $receipt){
+                if($receipt->flat->users->count()){
+                    $data = [];
+                    $data["voucherDate"] = $receipt->receipt_date;
+                    $data["voucherNumber"] = $receipt->receipt_number;
+                    $data["narration"] = "Transaction Reference: " . $receipt->transaction_reference;
+                    $data["voucherType"] = "Sales";
+
+                    $data["voucherDetail"] = [];
+                    $data["voucherDetail"]["debit"] = [
+                        "ledgerName" => $receipt->flat->property_number . "-" . $receipt->flat->users->first()->first_name . $receipt->flat->users[0]->last_name . " Ledger",
                         "transactionType" => "Debit",
-                        "amount" => $value->receipt_amount
+                        "amount" => $receipt->receipt_amount
+                    ];
+
+                    $data["voucherDetail"]["credit"] = [
+                        "ledgerName" => "General Fund & Reserve Fund 2024",
+                        "transactionType" => "Credit",
+                        "amount" => $receipt->receipt_amount
                     ];
 
                     $responseData[] = $data;
@@ -44,7 +52,7 @@ class TallyIntigrationController extends Controller
             return response()->json([
                 'result' => 'error',
                 'errors' => $e->errors()
-            ], 422);
+            ], 200);
         }
     }
 }
