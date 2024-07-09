@@ -9,7 +9,7 @@ use Illuminate\Validation\ValidationException;
 
 class TallyIntigrationController extends Controller
 {
-    public function getSalesVouhers(Request $request)
+    public function getVouchers(Request $request)
     {
         try {
             $request->validate([
