@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('auth_credentials', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('owner_association_id')->after('id');
+            $table->unsignedBigInteger('owner_association_id');
             $table->string('client_id')->unique();
             $table->string('api_key');
             $table->string('module');
