@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\AuthCredential;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -15,20 +16,24 @@ class AuthenticateTallyApi
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // Define the expected headers and their values
-        $expectedHeaders = [
-            'Content-Type' => 'application/json',
-            'APIKey' => 'SDF8S7DF89S7DF9SDFSD897FDLKASD90',
-            'ClientID' => '1247821',
-        ];
+        try {
 
-        // Validate the headers
-        foreach ($expectedHeaders as $header => $value) {
-            if ($request->header($header) !== $value) {
-                return response()->json(['error' => "$header is missing or invalid."], 400);
+           // Define the expected headers and their values
+            $clientId = $request->header('ClientID');
+            $apiKey = $request->header('APIKey');
+
+            $apiRecord = AuthCredential::where('client_id', $clientId)
+                ->where('api_key', $apiKey)
+                ->where('module', AuthCredential::TALLY_MODULE)
+                ->first();
+
+            if (!$apiRecord) {
+                return response()->json(['error' => 'Unauthorized'], 401);
             }
-        }
 
-        return $next($request);
+            return $next($request);
+        } catch (\Throwable $th) {
+            throw $th;
+        }
     }
 }
