@@ -340,10 +340,17 @@ class TestController extends Controller
                     // Check if $validationError->items is an array
                     if (is_array($validationError->items)) {
                         return array_map(function($item) use ($validationError) {
-                            return "File: " . $item->key . ", Error: " . $validationError->errorMessage;
+                            return "Failed to upload file: " . $item->key . ", There was an issue with the: " . $validationError->errorMessage;
                         }, $validationError->items);
+                    }else if(isset($validationError->errorMessage)){
+                        $parts = explode(': ', $validationError->errorMessage);
+                        $filename = isset($parts[1]) ? $parts[1] : 'Unknown';
+                        // Handle the case where items is null but there's a general error message
+                        return ["Failed to upload file: There was an issue with the " . $filename];
                     }
-                    return [];
+                    else{
+                        return [];
+                    }
                 }, $response->validationErrorsList);
                 
                 // Flatten the array
