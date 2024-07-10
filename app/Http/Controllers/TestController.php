@@ -345,8 +345,14 @@ class TestController extends Controller
                         }, $validationError->items);
                     } else if (isset($validationError->errorMessage)) {
                         $parts = explode(': ', $validationError->errorMessage);
-                        $filename = isset($parts[1]) ? $parts[1] : 'Unknown';
-                        return ["Failed to upload file: There was an issue with the " . $filename];
+                        $filename = isset($parts[1]) ? $parts[1] : 'Unknown'; 
+                        if($filename != 'Unknown'){
+                            // Handle the case where items is null but there's a general error message
+                            return ["Failed to upload file: There was an issue with the " . $filename];
+                        }
+                        else{
+                            return [" Failed to upload files : ". $validationError->errorMessage];
+                        }
                     } else {
                         return [];
                     }
