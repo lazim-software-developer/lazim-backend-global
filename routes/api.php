@@ -20,6 +20,7 @@ use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Api\Auth\ResetPasswordController;
 use App\Http\Controllers\Api\Auth\RegistrationController;
 use App\Http\Controllers\Api\Auth\VerificationController;
+use App\Http\Controllers\Api\Tally\TallyIntigrationController;
 use App\Http\Controllers\AppFeedbackController;
 use App\Http\Controllers\Assets\AssetController;
 use App\Http\Controllers\Building\BuildingController;
@@ -571,3 +572,8 @@ Route::match(['get', 'post'], '/webhook', [MollakController::class, 'webhook'])
 
 //mollak
 Route::post('/upload',[TestController::class, 'uploadAll'])->name('uploadAll');
+
+
+Route::middleware(['authenticate.tally'])->group(function () {
+    Route::get('/V1/getVouchers',[TallyIntigrationController::class,'getVouchers']);
+});
