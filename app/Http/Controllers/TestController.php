@@ -333,6 +333,7 @@ class TestController extends Controller
                 ->send();
             // return response()->json(['status' => 'success', 'message' => "Uploaded successfully!"]);
         } else {
+            Log::info($response);
             $oaData->update(['status' => "Failed"]);
             $errorMessages = '';
             if (isset($response->validationErrorsList)) {
