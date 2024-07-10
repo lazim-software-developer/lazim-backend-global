@@ -103,10 +103,10 @@ class MollakController extends Controller
 
             // Decode the API response
             $data = $results->json();
-
+            return $data;
             // Return the transformed data using the API resource
             // return PropertyGroupResource::collection($data['response']['propertyGroups']);
-            return ServicePeriodResource::collection($data['response']['serviceChargePeriod']);
+            // return ServicePeriodResource::collection($data['response']['serviceChargePeriod']);
 
         // $response = Http::withoutVerifying()->withHeaders([
         //     'Content-Type' => 'application/json',
