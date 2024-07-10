@@ -91,15 +91,15 @@ class MollakController extends Controller
         //         'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
         //     ])->get("https://qagate.dubailand.gov.ae/mollak/external/sync/owners/235553");
 
-        // $results = Http::withOptions(['verify' => false])->withHeaders([
-        //         'content-type' => 'application/json',
-        //         'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
-        //     ])->get("https://qagate.dubailand.gov.ae/mollak/external/sync/managementcompany/" . 54713 . "/propertygroups");
-
         $results = Http::withOptions(['verify' => false])->withHeaders([
                 'content-type' => 'application/json',
                 'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
-            ])->get("https://qagate.dubailand.gov.ae/mollak/external/sync/invoices/" . 235553 . "/servicechargeperiods");
+            ])->get("https://qagate.dubailand.gov.ae/mollak/external/sync/managementcompany/" . 54713 . "/propertygroups");
+
+        // $results = Http::withOptions(['verify' => false])->withHeaders([
+        //         'content-type' => 'application/json',
+        //         'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
+        //     ])->get("https://qagate.dubailand.gov.ae/mollak/external/sync/invoices/" . 235553 . "/servicechargeperiods");
 
             // Decode the API response
             $data = $results->json();
@@ -432,3 +432,4 @@ class MollakController extends Controller
         // If all validations pass, you can proceed with your logic here
     }
 }
+    
