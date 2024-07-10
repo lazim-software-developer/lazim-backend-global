@@ -8,6 +8,7 @@ use App\Models\User\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Community\PostLike;
+use App\Models\OwnerAssociation;
 use Carbon\Carbon;
 
 class Post extends Model
@@ -23,6 +24,10 @@ class Post extends Model
     ];
     protected $appends = ['is_liked_by_user'];
 
+    public function ownerAssociation()
+    {
+        return $this->belongsTo(OwnerAssociation::class);
+    }
     public function user()
     {
         return $this->belongsTo(User::class);
@@ -30,7 +35,7 @@ class Post extends Model
 
     public function building()
     {
-        return $this->belongsToMany(Building::class);
+        return $this->belongsToMany(Building::class)->withPivot('owner_association_id');
     }
 
     public function media()

@@ -16,6 +16,7 @@ use App\Filament\Resources\FloorResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\FloorResource\RelationManagers;
 use App\Forms\Components\FloorQrCode;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class FloorResource extends Resource
 {

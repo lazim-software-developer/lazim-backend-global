@@ -17,6 +17,7 @@ use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class BankStatementResource extends Resource
 {
@@ -86,27 +87,27 @@ class BankStatementResource extends Resource
                             );
                         }),
                     ],layout: FiltersLayout::AboveContent)->filtersFormColumns(3)
-            
+
             ->actions([
                 // Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
+                ExportBulkAction::make(),
                 Tables\Actions\BulkActionGroup::make([
                     // Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ])
+                ]),])
             ->emptyStateActions([
                 // Tables\Actions\CreateAction::make(),
             ]);
     }
-    
+
     public static function getRelations(): array
     {
         return [
             //
         ];
     }
-    
+
     public static function getPages(): array
     {
         return [
@@ -114,5 +115,5 @@ class BankStatementResource extends Resource
             // 'create' => Pages\CreateBankStatement::route('/create'),
             // 'edit' => Pages\EditBankStatement::route('/{record}/edit'),
         ];
-    }    
+    }
 }

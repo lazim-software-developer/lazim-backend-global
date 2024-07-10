@@ -13,6 +13,10 @@ class ItemInventory extends Model
     protected $table = 'item_inventory';
     protected $fillable = ['item_id','date','type','quantity','user_id','comments'];
 
+    public function ownerAssociation()
+    {
+        return $this->belongsTo(OwnerAssociation::class);
+    }
     public function item()
     {
         return $this->belongsTo(Item::class);

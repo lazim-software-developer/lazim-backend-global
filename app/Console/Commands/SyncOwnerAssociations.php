@@ -38,6 +38,7 @@ class SyncOwnerAssociations extends Command
 
         $managementCompanies = $response->json()['response']['managementCompanies'];
 
+
         foreach ($managementCompanies as $company) {
             $ownerAssociation = OwnerAssociation::firstOrCreate(
                 [

@@ -13,6 +13,10 @@ class Item extends Model
     use HasFactory;
     protected $fillable = ['name','quantity','building_id','description'];
 
+    public function ownerAssociation()
+    {
+        return $this->belongsTo(OwnerAssociation::class);
+    }
     public function building()
     {
         return $this->belongsTo(Building::class);

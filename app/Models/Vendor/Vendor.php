@@ -51,6 +51,10 @@ class Vendor extends Model
         'remarks' => 'array',
     ];
 
+    public function ownerAssociation()
+    {
+        return $this->belongsToMany(OwnerAssociation::class);
+    }
     public function user()
     {
         return $this->belongsTo(User::class, 'owner_id');

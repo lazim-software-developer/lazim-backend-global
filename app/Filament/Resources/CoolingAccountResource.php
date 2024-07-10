@@ -18,6 +18,7 @@ use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Str;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class CoolingAccountResource extends Resource
 {
@@ -119,10 +120,10 @@ class CoolingAccountResource extends Resource
                 // Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
+                ExportBulkAction::make(),
                 Tables\Actions\BulkActionGroup::make([
                     // Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ])
+                ]),])
             ->emptyStateActions([
                 // Tables\Actions\CreateAction::make(),
             ]);

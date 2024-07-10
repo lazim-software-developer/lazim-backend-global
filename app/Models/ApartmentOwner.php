@@ -16,6 +16,10 @@ class ApartmentOwner extends Model
 
     protected $fillable = ['owner_number', 'email', 'name', 'mobile', 'passport', 'emirates_id', 'trade_license', 'flat_id'];
 
+    public function ownerAssociation()
+    {
+        return $this->belongsTo(OwnerAssociation::class);
+    }
     public function flatOwners() {
         return $this->hasMany(FlatOwners::class, 'owner_id');
     }

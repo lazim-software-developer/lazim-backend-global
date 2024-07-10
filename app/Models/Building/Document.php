@@ -7,6 +7,7 @@ use App\Models\Scopes\Searchable;
 use App\Models\Master\DocumentLibrary;
 use App\Models\Media;
 use App\Models\OaUserRegistration;
+use App\Models\OwnerAssociation;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -38,6 +39,10 @@ class Document extends Model
         'expiry_date' => 'date',
     ];
 
+    public function ownerAssociation()
+    {
+        return $this->belongsTo(OwnerAssociation::class);
+    }
     public function documentLibrary()
     {
         return $this->belongsTo(DocumentLibrary::class);

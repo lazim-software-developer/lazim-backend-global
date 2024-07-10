@@ -3,6 +3,7 @@
 namespace App\Models\Community;
 
 use App\Models\Building\Building;
+use App\Models\OwnerAssociation;
 use App\Models\User\User;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -23,6 +24,11 @@ class Poll extends Model
     public function getEndsOnDiffAttribute()
     {
         return Carbon::parse($this->attributes['ends_on'])->diffForHumans();
+    }
+
+    public function ownerAssociation()
+    {
+        return $this->belongsTo(OwnerAssociation::class);
     }
 
     public function building()

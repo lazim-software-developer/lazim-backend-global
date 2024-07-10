@@ -22,10 +22,12 @@ use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\AssetResource\Pages;
 use App\Models\Vendor\Vendor;
+use Filament\Facades\Filament;
 use Filament\Notifications\Notification;
 use Filament\Tables\Actions\BulkAction;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Log;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class AssetResource extends Resource
 {
@@ -136,7 +138,7 @@ class AssetResource extends Resource
                 SelectFilter::make('building_id')
                     ->relationship('building', 'name', function (Builder $query) {
                         if (Role::where('id', auth()->user()->role_id)->first()->name != 'Admin') {
-                            $query->where('owner_association_id', auth()->user()->owner_association_id);
+                            $query->where('owner_association_id', Filament::getTenant()?->id);
                         }
                     })
                     ->searchable()
@@ -152,6 +154,7 @@ class AssetResource extends Resource
                 Tables\Actions\ViewAction::make(),
             ])
             ->bulkActions([
+                ExportBulkAction::make(),
                 Tables\Actions\BulkActionGroup::make([
                     // Tables\Actions\DeleteBulkAction::make(),
                     BulkAction::make('attach')

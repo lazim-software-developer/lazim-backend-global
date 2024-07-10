@@ -23,7 +23,9 @@ use Filament\Forms\Components\TimePicker;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\Building\FacilityBookingResource\Pages;
+use Filament\Facades\Filament;
 use Illuminate\Database\Eloquent\Model;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class FacilityBookingResource extends Resource
 {
@@ -163,7 +165,7 @@ class FacilityBookingResource extends Resource
                     ->relationship('building', 'name',function (Builder $query){
                         if(Role::where('id',auth()->user()->role_id)->first()->name != 'Admin')
                         {
-                            $query->where('owner_association_id',auth()->user()->owner_association_id);
+                            $query->where('owner_association_id',Filament::getTenant()?->id);
                         }
                     })
                     ->searchable()
@@ -190,6 +192,7 @@ class FacilityBookingResource extends Resource
                     ->slideOver()
             ])
             ->bulkActions([
+                ExportBulkAction::make(),
                 Tables\Actions\BulkActionGroup::make([
                     // Tables\Actions\DeleteBulkAction::make(),
                 ]),

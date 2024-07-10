@@ -36,6 +36,7 @@ use App\Filament\Resources\Building\BuildingResource\RelationManagers\Buildingse
 use App\Filament\Resources\Building\BuildingResource\RelationManagers\OfferPromotionsRelationManager;
 use App\Filament\Resources\Building\BuildingResource\RelationManagers\OwnercommitteesRelationManager;
 use App\Filament\Resources\Building\BuildingResource\RelationManagers\RuleregulationsRelationManager;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 use App\Filament\Resources\Building\BuildingResource\RelationManagers\EmergencyNumbersRelationManager;
 
 class BuildingResource extends Resource
@@ -265,12 +266,13 @@ class BuildingResource extends Resource
                     }),
             ])
             ->bulkActions([
+                ExportBulkAction::make(),
                 Tables\Actions\BulkActionGroup::make([
                     // Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ])
             ->emptyStateActions([
-                Tables\Actions\CreateAction::make(),
+                // Tables\Actions\CreateAction::make(),
             ]);
     }
 

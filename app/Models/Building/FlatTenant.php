@@ -9,6 +9,7 @@ use App\Models\Building\Building;
 use App\Models\Building\Document;
 use App\Models\Scopes\Searchable;
 use App\Models\Building\Complaint;
+use App\Models\OwnerAssociation;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -39,6 +40,10 @@ class FlatTenant extends Model
         'active' => 'boolean',
     ];
 
+    public function ownerAssociation()
+    {
+        return $this->belongsTo(OwnerAssociation::class);
+    }
     public function flat()
     {
         return $this->belongsTo(Flat::class);

@@ -13,6 +13,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\Building\Flat;
+use App\Models\OwnerAssociation;
 use App\Models\Vendor\Vendor;
 
 class Complaint extends Model
@@ -43,7 +44,8 @@ class Complaint extends Model
         'technician_id',
         'flat_id',
         'complaint_location',
-        'ticket_number'
+        'ticket_number',
+        'type'
     ];
 
     protected $searchableFields = ['*'];
@@ -55,6 +57,10 @@ class Complaint extends Model
         'remarks' => 'array',
     ];
 
+    public function ownerAssociation()
+    {
+        return $this->belongsTo(OwnerAssociation::class);
+    }
     public function building()
     {
         return $this->belongsTo(Building::class);

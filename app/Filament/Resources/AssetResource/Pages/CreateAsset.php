@@ -68,7 +68,8 @@ class CreateAsset extends CreateRecord
         // $qrCode = $fullPath;
 
         // Update the newly created asset record with the generated QR code
-        Asset::where('id', $this->record->id)->update(['qr_code' => $qrCode,'asset_code' => $assetCode]);
+        $oa_id = DB::table('building_owner_association')->where('building_id', $this->record->building_id)->where('active', true)->first()?->owner_association_id;
+        Asset::where('id', $this->record->id)->update(['qr_code' => $qrCode,'asset_code' => $assetCode, 'owner_association_id' => $oa_id]);
 
         $buildingId = $this->record->building_id;
         $serviceId = $this->record->service_id;

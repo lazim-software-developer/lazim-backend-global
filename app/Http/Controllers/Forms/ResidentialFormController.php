@@ -28,7 +28,7 @@ class ResidentialFormController extends Controller
 
         $validated['user_id'] = auth()->user()->id;
         $validated['owner_association_id'] = $ownerAssociationId;
-        $validated['ticket_number'] = "RF" . date("i") . "-" . strtoupper(bin2hex(random_bytes(2))) . "-" . date("md");
+        $validated['ticket_number'] = generate_ticket_number("FV");
 
         $residentialForm = ResidentialForm::create($validated);
         ResidentialFormRequestJob::dispatch(auth()->user(), $residentialForm);

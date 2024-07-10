@@ -29,6 +29,7 @@ use App\Filament\Resources\User\TenantResource\RelationManagers\UserDocumentsRel
 use App\Jobs\WelcomeNotificationJob;
 use Filament\Notifications\Notification;
 use Filament\Tables\Actions\Action;
+use Filament\Facades\Filament;
 
 class TenantResource extends Resource
 {
@@ -157,7 +158,7 @@ class TenantResource extends Resource
             ->defaultSort('created_at', 'desc')
             ->filters([
                 SelectFilter::make('building_id')
-                    ->relationship('building', 'name',fn (Builder $query) => $query->where('owner_association_id',auth()->user()->owner_association_id))
+                    ->relationship('building', 'name',fn (Builder $query) => $query->where('owner_association_id',Filament::getTenant()?->id))
                     ->searchable()
                     ->preload()
                     ->label('Building'),

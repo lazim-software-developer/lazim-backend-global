@@ -20,6 +20,7 @@ use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Api\Auth\ResetPasswordController;
 use App\Http\Controllers\Api\Auth\RegistrationController;
 use App\Http\Controllers\Api\Auth\VerificationController;
+use App\Http\Controllers\Api\Tally\TallyIntigrationController;
 use App\Http\Controllers\AppFeedbackController;
 use App\Http\Controllers\Assets\AssetController;
 use App\Http\Controllers\Building\BuildingController;
@@ -31,6 +32,7 @@ use App\Http\Controllers\Community\PostLikeController;
 use App\Http\Controllers\Documents\DocumentsController;
 use App\Http\Controllers\EnquiryController;
 use App\Http\Controllers\Facility\FacilityController;
+use App\Http\Controllers\FamilyMemberController;
 use App\Http\Controllers\Forms\AccessCardController;
 use App\Http\Controllers\Forms\FitOutFormsController;
 use App\Http\Controllers\Forms\MoveInOutController;
@@ -286,6 +288,10 @@ Route::middleware(['auth:sanctum', 'email.verified', 'active'])->group(function 
     Route::post('buildings/{building}/book/service', [ServiceController::class, 'bookService']);
     Route::post('/vehicles', [VehicleController::class, 'store']);
     Route::get('/vehicles', [VehicleController::class, 'index']);
+
+    // family members
+    Route::post('/family-members/{building}',[FamilyMemberController::class, 'store']);
+    Route::get('/fetch-family-members/{building}',[FamilyMemberController::class, 'index']);
 });
 
 
@@ -514,6 +520,9 @@ Route::middleware(['auth:sanctum', 'active', 'active.gatekeeper'])->prefix('gate
 
     // MoveIn MoveOut
     Route::get('/move-in-out',[MoveInOutController::class, 'list']);
+
+    Route::get('/visitor-request',[GuestController::class, 'visitorRequest']);
+    Route::post('/visitor-approval/{visitor}', [GuestController::class, 'visitorApproval']);
 });
 // Approve visitor request
 Route::post('/gatekeeper/visitor-entry', [GuestController::class, 'visitorEntry'])->middleware(['auth:sanctum']);
@@ -556,7 +565,15 @@ Route::get('/app-version',[AppController::class, 'version']);
 Route::post('/web-enquiry',[EnquiryController::class,'store']);
 
 //webhook
-Route::post('/webhook',[MollakController::class,'webhook']);
+// Route::post('/webhook',[MollakController::class,'webhook'])->middleware('check.MollakToken');
+// Route::get('/webhook',[MollakController::class,'webhook'])->middleware('check.MollakToken');
+Route::match(['get', 'post'], '/webhook', [MollakController::class, 'webhook'])
+     ->middleware('check.MollakToken');
 
 //mollak
 Route::post('/upload',[TestController::class, 'uploadAll'])->name('uploadAll');
+
+
+Route::middleware(['authenticate.tally'])->group(function () {
+    Route::get('/V1/getVouchers',[TallyIntigrationController::class,'getVouchers']);
+});

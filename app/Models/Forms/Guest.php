@@ -4,6 +4,7 @@ namespace App\Models\Forms;
 
 use App\Models\Building\Building;
 use App\Models\Building\Flat;
+use App\Models\OwnerAssociation;
 use App\Models\User\User;
 use App\Models\Visitor\FlatVisitor;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -38,6 +39,10 @@ class Guest extends Model
         'guest_registration' => 'boolean',
     ];
 
+    public function ownerAssociation()
+    {
+        return $this->belongsTo(OwnerAssociation::class);
+    }
     public function user()
     {
         return $this->belongsTo(User::class);

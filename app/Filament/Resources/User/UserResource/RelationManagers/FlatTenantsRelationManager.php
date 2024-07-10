@@ -33,7 +33,7 @@ class FlatTenantsRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     Toggle::make('primary')
                         ->rules(['boolean'])
                         ->columnSpan([
@@ -41,7 +41,7 @@ class FlatTenantsRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     DateTimePicker::make('start_date')
                         ->rules(['date'])
                         ->placeholder('Start Date')
@@ -50,7 +50,7 @@ class FlatTenantsRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     DateTimePicker::make('end_date')
                         ->rules(['date'])
                         ->placeholder('End Date')
@@ -59,7 +59,7 @@ class FlatTenantsRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     Toggle::make('active')
                         ->rules(['boolean'])
                         ->columnSpan([

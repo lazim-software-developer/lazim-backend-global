@@ -26,8 +26,10 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\ComplaintssuggessionResource\Pages;
 use App\Filament\Resources\ComplaintssuggessionResource\RelationManagers;
 use App\Models\User\User;
+use Filament\Facades\Filament;
 use Filament\Forms\Components\Textarea;
 use Illuminate\Database\Eloquent\Model;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class ComplaintssuggessionResource extends Resource
 {
@@ -130,6 +132,10 @@ class ComplaintssuggessionResource extends Resource
     {
         return $table
             ->columns([
+                TextColumn::make('ticket_number')
+                    ->searchable()
+                    ->default('NA')
+                    ->label('Ticket Number'),
                 TextColumn::make('building.name')
                     ->default('NA')
                     ->searchable()
@@ -160,13 +166,18 @@ class ComplaintssuggessionResource extends Resource
                 SelectFilter::make('building_id')
                     ->relationship('building', 'name', function (Builder $query) {
                         if (Role::where('id', auth()->user()->role_id)->first()->name != 'Admin') {
-                            $query->where('owner_association_id', auth()->user()->owner_association_id);
+                            $query->where('owner_association_id', Filament::getTenant()?->id);
                         }
                     })
                     ->searchable()
                     ->label('Building')
                     ->preload()
-            ]);
+            ])
+            ->bulkActions([
+                ExportBulkAction::make(),
+                Tables\Actions\BulkActionGroup::make([
+                    // Tables\Actions\DeleteBulkAction::make(),
+                ]),]);
     }
 
     public static function getRelations(): array
