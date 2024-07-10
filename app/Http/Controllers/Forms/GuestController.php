@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Forms;
 
+use App\Filament\Resources\Vendor\VendorResource;
+use App\Filament\Resources\VisitorFormResource;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Forms\CreateGuestRequest;
 use App\Http\Requests\Forms\FlatVisitorRequest;
@@ -22,6 +24,7 @@ use App\Models\User\User;
 use App\Models\Visitor;
 use App\Models\Visitor\FlatVisitor;
 use App\Traits\UtilsTrait;
+use Filament\Notifications\Actions\Action;
 use Filament\Notifications\Notification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -112,6 +115,11 @@ class GuestController extends Controller
             ->success()
             ->title('Flat Visit Request')
             ->body("Flat visit request received for $request->start_date")
+            ->action([
+                Action::make('View')
+                ->button()
+                ->url(fn () => VisitorFormResource::getUrl('edit', [$visitor])),
+            ])
             ->icon('heroicon-o-document-text')
             ->iconColor('warning')
             ->sendToDatabase($user);

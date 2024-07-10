@@ -224,6 +224,22 @@ class InvoiceResource extends Resource
                     ->searchable()
                     ->preload()
                     ->label('Building'),
+                SelectFilter::make('Invoice Status')
+                ->options([
+                    'paid'=>'Paid',
+                    'unpaid'=>'Unpaid',
+                    'partially_paid'=>'Partially Paid'
+                ])
+                ->query(function (Builder $query, $data) {
+                    if ($data['value'] === 'paid') {
+                        $query->whereColumn('invoice_amount', '=', 'payment');
+                    } elseif ($data['value'] === 'unpaid') {
+                        $query->where('payment', '=', 0);
+                    } elseif ($data['value'] === 'partially_paid') {
+                        $query->whereColumn('invoice_amount', '>', 'payment')
+                              ->where('payment', '>', 0);
+                    }
+                })
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

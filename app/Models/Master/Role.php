@@ -17,7 +17,7 @@ class Role extends ModelsRole
     use HasFactory;
     use Searchable;
 
-    protected $fillable = ['name'];
+    protected $fillable = ['name','is_active'];
 
     protected $searchableFields = ['*'];
 
