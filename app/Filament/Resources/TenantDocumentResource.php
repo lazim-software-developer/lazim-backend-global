@@ -41,7 +41,14 @@ class TenantDocumentResource extends Resource
                     'md' => 1,
                     'lg' => 2,
                 ])->schema([
-                            TextInput::make('name')->disabled(),
+                            TextInput::make('documentable_id')
+                                ->label('Resident Name')
+                                ->formatStateUsing(function($state){
+                                    $user = User::find($state);
+                                    return $user ? $user->first_name . ' ' . $user->last_name : null;
+                                })
+                                ->disabled(),
+                            // TextInput::make('name')->disabled(),
                             Select::make('document_library_id')
                                 ->rules(['exists:document_libraries,id'])
                                 ->relationship('documentLibrary', 'name')
@@ -134,7 +141,7 @@ class TenantDocumentResource extends Resource
                     ->limit(50),
                 TextColumn::make('documentUsers.first_name')
                     ->searchable()
-                    ->label('Name')
+                    ->label('Resident Name')
                     ->default('NA'),
                 ViewColumn::make('Role')->view('tables.columns.role')->alignCenter()
             ])

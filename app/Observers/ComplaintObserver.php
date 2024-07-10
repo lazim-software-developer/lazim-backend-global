@@ -6,6 +6,7 @@ use App\Filament\Resources\ComplaintscomplaintResource;
 use App\Filament\Resources\ComplaintsenquiryResource;
 use App\Filament\Resources\ComplaintssuggessionResource;
 use App\Filament\Resources\HelpdeskcomplaintResource;
+use App\Filament\Resources\SnagsResource;
 use App\Models\Building\Building;
 use App\Models\Building\Complaint;
 use App\Models\ExpoPushNotification;
@@ -26,7 +27,7 @@ class ComplaintObserver
     public function created(Complaint $complaint): void
     {
         $roles = Role::where('owner_association_id',$complaint->owner_association_id)->whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor','Staff'])->pluck('id');
-        $notifyTo = User::where('owner_association_id', $complaint->owner_association_id)->whereNotIn('role_id', $roles)->whereNot('id', auth()->user()->id)->get();
+        $notifyTo = User::where('owner_association_id', $complaint->owner_association_id)->whereNotIn('role_id', $roles)->whereNot('id', 1)->get();
         if ($complaint->complaint_type == 'tenant_complaint') {
             $requiredPermissions = ['view_any_complaintscomplaint'];
                     $notifyTo->filter(function ($notifyTo) use ($requiredPermissions) {
@@ -78,7 +79,27 @@ class ComplaintObserver
                         ->url(fn () => ComplaintssuggessionResource::getUrl('edit', [$complaint])),
                 ])
                 ->sendToDatabase($notifyTo);
-        } else {
+        } elseif($complaint->complaint_type == 'snag'){
+            $requiredPermissions = ['view_any_snags'];
+            $roles = Role::where('owner_association_id',$complaint->owner_association_id)->whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor','Staff'])->pluck('id');
+             $notifyTo = User::where('owner_association_id', $complaint->owner_association_id)->whereNotIn('role_id', $roles)->whereNot('id', 1)->get()
+            ->filter(function ($notifyTo) use ($requiredPermissions) {
+                return $notifyTo->can($requiredPermissions);
+            });//MAKE AUTH USER ID IN USER WHERENOT-----------
+            Notification::make()
+            ->success()
+            ->title('New Snag')
+            ->body('New Snag Received')
+            ->icon('heroicon-o-document-text')
+            ->iconColor('warning')
+            ->actions([
+                Action::make('View')
+                ->button()
+                ->url(fn () => SnagsResource::getUrl('edit', [$complaint]))
+            ])
+        ->sendToDatabase($notifyTo);
+        }
+        else {
             $requiredPermissions = ['view_any_helpdeskcomplaint'];
                     $notifyTo->filter(function ($notifyTo) use ($requiredPermissions) {
                         return $notifyTo->can($requiredPermissions);

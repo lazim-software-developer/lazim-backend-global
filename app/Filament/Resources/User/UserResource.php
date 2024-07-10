@@ -57,7 +57,8 @@ class UserResource extends Resource
 
                     TextInput::make('phone')
                         ->rules(['regex:/^(50|51|52|55|56|58|02|03|04|06|07|09)\d{7}$/'])
-                        ->required()->disabledOn('edit')
+                        // ->required()
+                        ->disabledOn('edit')
                         ->prefix('971')
                         ->unique(
                             'users',
@@ -100,8 +101,9 @@ class UserResource extends Resource
                     //     ->rules(['boolean'])
                     //     ->hidden()
                     //     ->nullable(),
-                    Hidden::make('active')
-                        ->rules(['boolean'])->default(true)
+                    Toggle::make('active')
+                        // ->rules(['boolean'])
+                        // ->default(true)
                         ->nullable(),
 
                 ]),
@@ -128,9 +130,8 @@ class UserResource extends Resource
                     ->toggleable()
                     ->searchable()
                     ->limit(50),
-                // Tables\Columns\IconColumn::make('active')
-                //     ->toggleable()
-                //     ->boolean(),
+                Tables\Columns\ToggleColumn::make('active')
+                    ->toggleable(),
                 // Tables\Columns\TextColumn::make('lazim_id')
                 //     ->toggleable()
                 //     ->searchable()

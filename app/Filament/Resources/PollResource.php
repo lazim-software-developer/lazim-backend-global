@@ -135,7 +135,7 @@ class PollResource extends Resource
                     })
                     ->default(now()->addDay())
                     ->placeholder('Scheduled At'),
-                Select::make('building_id')
+                Select::make('building')
                     ->relationship('building', 'name')
                     ->options(function () {
                         if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
@@ -143,6 +143,7 @@ class PollResource extends Resource
                         }
                         return Building::where('owner_association_id', auth()->user()->owner_association_id)->pluck('name', 'id');
                     })
+                    ->multiple()
                     ->searchable()
                     ->preload()
                     ->required()
@@ -180,7 +181,7 @@ class PollResource extends Resource
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
-                SelectFilter::make('building_id')
+                SelectFilter::make('building')
                     ->relationship('building', 'name', function (Builder $query) {
                         if (Role::where('id', auth()->user()->role_id)->first()->name != 'Admin') {
                             $query->where('owner_association_id', auth()->user()->owner_association_id);

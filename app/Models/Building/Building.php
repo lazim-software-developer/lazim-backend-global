@@ -226,7 +226,7 @@ class Building extends Model
     }
     public function contracts()
     {
-        return $this->hasMany(Contract::class,'contracts');
+        return $this->hasMany(Contract::class);
     }
     public function invoices()
     {
@@ -257,7 +257,7 @@ class Building extends Model
 
     public function polls()
     {
-        return $this->hasMany(Poll::class);
+        return $this->belongsToMany(Poll::class);
     }
     public function ownercommittees()
     {
