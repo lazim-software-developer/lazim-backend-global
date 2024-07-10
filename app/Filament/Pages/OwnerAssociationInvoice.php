@@ -104,7 +104,9 @@ class OwnerAssociationInvoice extends Page implements HasForms
                     'november' =>'November',
                     'december' =>'December'
                 ]),
-            TextInput::make('description')->rules(['max:15'])->required(),
+            TextInput::make('description')
+            // ->rules(['max:15'])
+            ->required(),
             TextInput::make('quantity')->numeric()->rules([
                 fn (Get $get): Closure => function (string $attribute, $value, Closure $fail) use ($get) {
                     if ($value > 99) {
