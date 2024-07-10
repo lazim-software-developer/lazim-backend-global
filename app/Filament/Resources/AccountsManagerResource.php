@@ -22,6 +22,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\AccountsManagerResource\Pages;
 use App\Filament\Resources\AccountsManagerResource\RelationManagers;
 use Filament\Forms\Components\Hidden;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class AccountsManagerResource extends Resource
 {
@@ -101,14 +102,14 @@ class AccountsManagerResource extends Resource
                 // Tables\Actions\CreateAction::make(),
             ]);
     }
-    
+
     public static function getRelations(): array
     {
         return [
             //
         ];
     }
-    
+
     public static function getPages(): array
     {
         return [
@@ -117,5 +118,5 @@ class AccountsManagerResource extends Resource
             'view' => Pages\ViewAccountsManagers::route('/{record}'),
             'edit' => Pages\EditAccountsManager::route('/{record}/edit'),
         ];
-    }    
+    }
 }

@@ -9,6 +9,7 @@ use App\Http\Resources\User\UserFlatResource;
 use App\Models\ApartmentOwner;
 use App\Models\Building\Building;
 use App\Models\Building\Flat;
+use App\Models\Building\FlatTenant;
 use App\Models\User\User;
 use Illuminate\Support\Facades\DB;
 
@@ -18,7 +19,13 @@ class UserController extends Controller
     {
         $user = auth()->user();
 
-        $flats = $user->residences;
+        if ($user && $user?->role->name == 'Tenant'){
+            $flatIds = FlatTenant::where('tenant_id',$user->id)->where('active', true)->pluck('id');
+            $flats = Flat::whereIn('id',$flatIds)->get();
+        }
+        else{
+            $flats = $user->residences;
+        }
 
         return UserFlatResource::collection($flats);
     }

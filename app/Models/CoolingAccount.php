@@ -28,6 +28,10 @@ class CoolingAccount extends Model
         'closing_balance',
     ];
 
+    public function ownerAssociation()
+    {
+        return $this->belongsTo(OwnerAssociation::class);
+    }
     public function building()
     {
         return $this->belongsTo(Building::class);

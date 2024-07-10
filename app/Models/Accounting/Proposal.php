@@ -4,6 +4,7 @@ namespace App\Models\Accounting;
 
 use App\Models\User\User;
 use App\Models\Accounting\Tender;
+use App\Models\OwnerAssociation;
 use App\Models\Vendor\Vendor;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;

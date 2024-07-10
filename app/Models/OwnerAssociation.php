@@ -3,6 +3,9 @@
 namespace App\Models;
 
 use App\Models\Accounting\Budget;
+use App\Models\Building\Building;
+use App\Models\Building\FacilityBooking;
+use App\Models\Community\Post;
 use App\Models\Forms\SaleNOC;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -42,5 +45,17 @@ class OwnerAssociation extends Model
     public function budgets()
     {
         return $this->hasMany(Budget::class);
+    }
+
+    public function building(){
+        return $this->belongsToMany(Building::class, 'building_owner_association');
+    }
+
+    public function facilityBookings(){
+        return $this->hasMany(FacilityBooking::class);
+    }
+
+    public function posts(){
+        return $this->hasMany(Post::class);
     }
 }

@@ -36,7 +36,7 @@ class AccessCardRequestJob implements ShouldQueue
             'user' => $this->user,
             'ticket_number' => $this->accessCard->ticket_number,
             'building' => $this->accessCard->building->name,
-            'flat' => $this->accessCard->flat->plot_number,
+            'flat' => $this->accessCard->flat->property_number,
             'type' => 'Access Card',
             'card_type' => $this->accessCard->card_type,
         ], function ($message) {

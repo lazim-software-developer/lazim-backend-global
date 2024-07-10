@@ -20,6 +20,7 @@ use App\Filament\Resources\Master\FacilityResource\Pages;
 use App\Filament\Resources\Master\FacilityResource\RelationManagers;
 use Filament\Forms\Components\FileUpload;
 use Filament\Tables\Columns\ImageColumn;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class FacilityResource extends Resource
 {
@@ -27,6 +28,8 @@ class FacilityResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
     protected static ?string $navigationGroup = 'Master';
+
+    protected static bool $isScopedToTenant = false;
     public static function form(Form $form): Form
     {
         return $form

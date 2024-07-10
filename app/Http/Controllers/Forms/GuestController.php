@@ -9,6 +9,7 @@ use App\Http\Requests\Forms\CreateGuestRequest;
 use App\Http\Requests\Forms\FlatVisitorRequest;
 use App\Http\Resources\CustomResponseResource;
 use App\Http\Resources\Forms\VisitorResource;
+use App\Jobs\FlatVisitorMailJob;
 use App\Jobs\Forms\GuestRequestJob;
 use App\Models\Building\Building;
 use App\Models\Building\BuildingPoc;
@@ -91,7 +92,8 @@ class GuestController extends Controller
 
     public function saveFlatVisitors(FlatVisitorRequest $request)
     {
-        $ownerAssociationId = Building::find($request->building_id)->owner_association_id;
+        $ownerAssociationId = DB::table('building_owner_association')->where('building_id', $request->building_id)->where('active', true)->first()?->owner_association_id;
+        // $ownerAssociationId = Building::find($request->building_id)->owner_association_id;
 
         $request->merge([
             'start_time' => $request->start_date,
@@ -105,7 +107,7 @@ class GuestController extends Controller
         $requiredPermissions = ['view_any_visitor::form'];
         $visitor = FlatVisitor::create($request->all());
         $roles = Role::where('owner_association_id',$ownerAssociationId)->whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor','Staff'])->pluck('id');
-        $user = User::where('owner_association_id', $ownerAssociationId)->whereNotIn('role_id', $roles)->whereNot('id', auth()->user()->id)->get()//->where('role_id', Role::where('name','OA')->value('id'))->get();
+        $user = User::where('owner_association_id', $ownerAssociationId)->whereNotIn('role_id', $roles)->whereNot('id', auth()->user()?->id)->get()//->where('role_id', Role::where('name','OA')->value('id'))->get();
         ->filter(function ($notifyTo) use ($requiredPermissions) {
             return $notifyTo->can($requiredPermissions);
         });
@@ -144,11 +146,56 @@ class GuestController extends Controller
             }
         }
 
+        $code = generateAlphanumericOTP();
+        $visitor->update([
+            'verification_code' => $code,
+        ]);
+        FlatVisitorMailJob::dispatch($visitor,$code);
+
         return (new CustomResponseResource([
             'title' => 'Success',
             'message' => ' created successfully!',
             'code' => 201,
         ]))->response()->setStatusCode(201);
+    }
+
+    public function visitorRequest(Request $request){
+        $visitor = FlatVisitor::where('verification_code', $request->code)->first();
+        abort_if(!$visitor,403,'Invalid verification code');
+
+        if ($visitor->status == null){
+            return [
+                'data' =>[
+                'visitor_id' => $visitor->id,
+                'visitor_name' => $visitor->name,
+                'visitor_email' => $visitor->email,
+                'number_of_visitors' => $visitor->number_of_visitors,
+                'visiting_time' => $visitor->time_of_viewing,
+                'status' => $visitor->status
+                ]
+            ];
+        }
+        else{
+            return (new CustomResponseResource([
+                'title' => 'Status already updated',
+                'message' => 'Status of this visitor is already updated.',
+                'code' => 403,
+                'data' => [
+                    'visitor_id' => $visitor->id,
+                    'visitor_name' => $visitor->name,
+                    'visitor_email' => $visitor->email,
+                    'number_of_visitors' => $visitor->number_of_visitors,
+                    'visiting_time' => $visitor->time_of_viewing,
+                    'status' => $visitor->status
+                    ]
+            ]))->response()->setStatusCode(403);
+        }
+    }
+    public function visitorApproval(Request $request, FlatVisitor $visitor){
+        $visitor->update([
+            'approved_by' => auth()->user()?->id,
+            'status' => $request->status
+        ]); 
     }
 
     // List all future visits for a building

@@ -13,6 +13,10 @@ class UserApproval extends Model
 
     protected $fillable = ['user_id', 'document_type', 'status', 'remarks', 'document', 'updated_by','emirates_document','passport','owner_association_id'];
 
+    public function ownerAssociation()
+    {
+        return $this->belongsTo(OwnerAssociation::class);
+    }
     public function user()
     {
         return $this->belongsTo(User::class);

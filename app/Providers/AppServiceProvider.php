@@ -61,6 +61,7 @@ use App\Observers\PatrollingObserver;
 use App\Observers\PollResponseObserver;
 use App\Observers\SnagsObserver;
 use App\Observers\UserApprovalObserver;
+use Filament\Resources\Resource;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Table;
 
@@ -116,6 +117,8 @@ class AppServiceProvider extends ServiceProvider
         Item::observe(ItemObserver::class);
         // Complaint::observe(SnagsObserver::class);
         PollResponse::observe(PollResponseObserver::class);
+
+        // Resource::scopeToTenant(false);
 
         //Global settings for Admin module (for all table per page options)
         Table::configureUsing(function (Table $table): void {

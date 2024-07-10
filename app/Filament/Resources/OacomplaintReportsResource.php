@@ -14,6 +14,7 @@ use App\Models\Vendor\Vendor;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
@@ -35,6 +36,11 @@ class OacomplaintReportsResource extends Resource
     {
         return $form
             ->schema([
+                TextInput::make('ticket_number')
+                    ->disabled()
+                    ->visible(fn($livewire) => $livewire instanceof Pages\EditOacomplaintReports) // Only show on edit page
+                    ->label('Ticket Number')
+                    ->columnSpanFull(),
                 Select::make('type')
                     ->options([
                         'Technician' => 'Technician',
@@ -109,6 +115,7 @@ class OacomplaintReportsResource extends Resource
     {
         return $table
             ->columns([
+                TextColumn::make('ticket_number')->searchable()->default("NA"),
                 TextColumn::make('type')->searchable(),
                 TextColumn::make('building.name')->searchable(),
                 TextColumn::make('user.first_name')->searchable(),

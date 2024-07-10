@@ -24,4 +24,8 @@ class OwnerAssociationInvoice extends Model
     public function owner(){
         return $this->belongsTo(OwnerAssociation::class,'owner_association_id');
     }
+    public function ownerAssociation()
+    {
+        return $this->belongsTo(OwnerAssociation::class);
+    }
 }

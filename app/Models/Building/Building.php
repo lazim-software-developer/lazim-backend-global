@@ -145,7 +145,7 @@ class Building extends Model
     }
     public function facilities()
     {
-        return $this->belongsToMany(Facility::class, 'building_facility', 'building_id', 'facility_id');
+        return $this->belongsToMany(Facility::class, 'building_facility', 'building_id', 'facility_id')->withPivot('owner_association_id');
     }
     public function flatVisitors()
     {
@@ -178,7 +178,7 @@ class Building extends Model
     }
     public function ownerAssociation()
     {
-        return $this->belongsTo(OwnerAssociation::class);
+        return $this->belongsToMany(OwnerAssociation::class, 'building_owner_association');
     }
     public function posts()
     {

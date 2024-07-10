@@ -17,6 +17,9 @@ use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\CheckboxList;
 use App\Filament\Resources\AccessCardFormsDocumentResource\Pages;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
+use Filament\Tables;
+
 
 class AccessCardFormsDocumentResource extends Resource
 {
@@ -234,9 +237,15 @@ class AccessCardFormsDocumentResource extends Resource
                     ->preload()
                     ->label('Building'),
             ])
+            ->bulkActions([
+                ExportBulkAction::make(),
+                Tables\Actions\BulkActionGroup::make([
+                    //Tables\Actions\DeleteBulkAction::make(),
+                ]),])
             ->actions([
 
             ]);
+
     }
 
     public static function getRelations(): array

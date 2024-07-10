@@ -15,6 +15,11 @@ class MollakTenant extends Model
         'name', 'contract_number', 'emirates_id', 'license_number', 'mobile', 'email', 'start_date',
         'end_date', 'contract_status', 'building_id', 'flat_id'
     ];
+
+    public function ownerAssociation()
+    {
+        return $this->belongsTo(OwnerAssociation::class);
+    }
     public function flat()
     {
         return $this->belongsTo(Flat::class);
@@ -23,4 +28,9 @@ class MollakTenant extends Model
     {
         return $this->belongsTo(Building::class);
     }
+
+    // public function ownerAssociation()
+    // {
+    //     return $this->building->ownerAssociation ?? null;
+    // }
 }

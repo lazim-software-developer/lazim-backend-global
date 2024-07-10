@@ -36,7 +36,7 @@ class FacilityBookingsRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     Select::make('user_id')
                         ->rules(['exists:users,id'])
                         ->relationship('user', 'first_name')
@@ -47,7 +47,7 @@ class FacilityBookingsRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     DatePicker::make('date')
                         ->rules(['date'])
                         ->placeholder('Date')
@@ -56,7 +56,7 @@ class FacilityBookingsRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     TimePicker::make('start_time')
                         ->rules(['date_format:H:i:s'])
                         ->placeholder('Start Time')
@@ -65,7 +65,7 @@ class FacilityBookingsRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     TimePicker::make('end_time')
                         ->rules(['date_format:H:i:s'])
                         ->placeholder('End Time')
@@ -74,7 +74,7 @@ class FacilityBookingsRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     TextInput::make('order_id')
                         ->rules(['max:50', 'string'])
                         ->placeholder('Order Id')
@@ -83,7 +83,7 @@ class FacilityBookingsRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     TextInput::make('payment_status')
                         ->rules(['max:50', 'string'])
                         ->placeholder('Payment Status')
@@ -92,7 +92,7 @@ class FacilityBookingsRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     KeyValue::make('remarks')
                         ->required()
                         ->columnSpan([
@@ -100,7 +100,7 @@ class FacilityBookingsRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     TextInput::make('reference_number')
                         ->rules(['max:50', 'string'])
                         ->placeholder('Reference Number')
@@ -109,7 +109,7 @@ class FacilityBookingsRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     Toggle::make('approved')
                         ->rules(['boolean'])
                         ->columnSpan([

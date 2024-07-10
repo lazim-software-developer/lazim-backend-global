@@ -6,6 +6,7 @@ use App\Models\User\User;
 use App\Models\Vendor\Vendor;
 use App\Models\Vendor\Contract;
 use App\Models\Building\Building;
+use App\Models\OwnerAssociation;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -33,6 +34,10 @@ class Invoice extends Model
         'invoice_amount',
     ];
 
+    public function ownerAssociation()
+    {
+        return $this->belongsTo(OwnerAssociation::class);
+    }
     public function vendor()
     {
         return $this->belongsTo(Vendor::class);
