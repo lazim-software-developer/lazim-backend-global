@@ -17,6 +17,7 @@ use App\Models\OaUserRegistration;
 use App\Models\Building\FlatTenant;
 use App\Models\Visitor\FlatVisitor;
 use App\Models\Accounting\OAMInvoice;
+use App\Models\UserApproval;
 use App\Models\OwnerAssociation;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Visitor\FlatDomesticHelp;
@@ -123,5 +124,10 @@ class Flat extends Model
     public function coolingAccounts()
     {
         return $this->hasMany(CoolingAccount::class);
+    }
+
+    public function userApprovals()
+    {
+        return $this->hasMany(UserApproval::class);
     }
 }

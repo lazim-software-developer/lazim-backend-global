@@ -44,14 +44,23 @@ use Illuminate\Support\Facades\Schema;
 use App\Observers\AnnouncementObserver;
 use Illuminate\Support\ServiceProvider;
 use App\Models\Building\FacilityBooking;
+use App\Models\Community\PollResponse;
+use App\Models\Gatekeeper\Patrolling;
+use App\Models\Item;
 use App\Models\Order;
+use App\Models\UserApproval;
 use App\Models\Vendor\Vendor;
 use App\Observers\ResidentialFormObserver;
 use Filament\Support\Facades\FilamentView;
 use App\Observers\OwnerAssociationObserver;
 use App\Observers\TechnicianAssetsObserver;
 use App\Observers\FacilityServiceBookingObserver;
+use App\Observers\ItemObserver;
 use App\Observers\OrderObserver;
+use App\Observers\PatrollingObserver;
+use App\Observers\PollResponseObserver;
+use App\Observers\SnagsObserver;
+use App\Observers\UserApprovalObserver;
 use Filament\Resources\Resource;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Table;
@@ -103,6 +112,11 @@ class AppServiceProvider extends ServiceProvider
         TechnicianAssets::observe(TechnicianAssetsObserver::class);
         Vendor::observe(VendorObserver::class);
         Order::observe(OrderObserver::class);
+        UserApproval::observe(UserApprovalObserver::class);
+        Patrolling::observe(PatrollingObserver::class);
+        Item::observe(ItemObserver::class);
+        // Complaint::observe(SnagsObserver::class);
+        PollResponse::observe(PollResponseObserver::class);
 
         // Resource::scopeToTenant(false);
 

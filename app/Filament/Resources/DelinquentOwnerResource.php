@@ -53,8 +53,18 @@ class DelinquentOwnerResource extends Resource
                 TextColumn::make('quarter_2_balance')->default('NA'),
                 TextColumn::make('quarter_3_balance')->default('NA'),
                 TextColumn::make('quarter_4_balance')->default('NA'),
-                TextColumn::make('invoice_pdf_link')->label('invoice_file')->formatStateUsing(fn ($state) => '<a href="' . $state . '" target="_blank">LINK</a>')
-                    ->html(),
+                // TextColumn::make('invoice_pdf_link')->label('invoice_file')->formatStateUsing(fn ($state) => '<a href="' . $state . '" target="_blank">LINK</a>')
+                // ->html(),
+                TextColumn::make('invoice_pdf_link')
+                ->label('Invoice File')
+                ->formatStateUsing(function ($state, $record) {
+                    if ($record->outstanding_balance == 0) {
+                        return 'NA';
+                    }
+
+                    return '<a href="' . $state . '" target="_blank">LINK</a>';
+                })
+                ->html(),
 
             ])
             ->filters([
