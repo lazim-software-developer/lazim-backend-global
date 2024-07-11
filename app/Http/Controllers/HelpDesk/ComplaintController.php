@@ -91,20 +91,20 @@ class ComplaintController extends Controller
                 ]))->response()->setStatusCode(403);
             }
         }
-        $categoryName = $request->category ? Service::where('id', $request->category)->value('name') : '';
+        // $categoryName = $request->category ? Service::where('id', $request->category)->value('name') : '';
 
-        $service_id = $request->category ?? null;
+        // $service_id = $request->category ?? null;
 
         // Fetch vendor id who is having an active contract for the given service in the building
-        $vendor = ServiceVendor::where([
-            'building_id' => $building->id, 'service_id' => $service_id, 'active' => 1,
-        ])->first();
+        // $vendor = ServiceVendor::where([
+        //     'building_id' => $building->id, 'service_id' => $service_id, 'active' => 1,
+        // ])->first();
 
         $request->merge([
             'complaintable_type'   => $complaintableClass,
             'complaintable_id'     => $complaitableId,
             'user_id'              => auth()->user()->id,
-            'category'             => $categoryName,
+            'category'             => 'Incidents',
             'open_time'            => now(),
             'status'               => 'open',
             'building_id'          => $building->id,
@@ -112,14 +112,14 @@ class ComplaintController extends Controller
         ]);
 
         // assign a vendor if the complaint type is tenant_complaint or help_desk
-        if ($request->complaint_type == 'incident') {
-            $request->merge([
-                'priority'   => 3,
-                'due_date'   => now()->addDays(3),
-                'service_id' => $service_id,
-                'vendor_id'  => $vendor ? $vendor->vendor_id : null,
-            ]);
-        }
+        // if ($request->complaint_type == 'incident') {
+        //     $request->merge([
+        //         'priority'   => 3,
+        //         // 'due_date'   => now()->addDays(3),
+        //         // 'service_id' => $service_id,
+        //         // 'vendor_id'  => $vendor ? $vendor->vendor_id : null,
+        //     ]);
+        // }
 
         // Create the complaint and assign it the vendor
         // TODO: Assign ticket automatically to technician
@@ -143,30 +143,30 @@ class ComplaintController extends Controller
 
         // Assign complaint to a technician
         // AssignTechnicianToComplaint::dispatch($complaint);
-        $serviceId  = $service_id;
-        $buildingId = $building->id;
+        // $serviceId  = $service_id;
+        // $buildingId = $building->id;
 
-        $contract = Contract::where('service_id', $serviceId)->where('building_id', $buildingId)->where('end_date', '>=', Carbon::now()->toDateString())->first();
-        if ($contract) {
-            // Fetch technician_vendor_ids for the given service
-            $technicianVendorIds = DB::table('service_technician_vendor')
-                ->where('service_id', $contract->service_id)
-                ->pluck('technician_vendor_id');
+        // $contract = Contract::where('service_id', $serviceId)->where('building_id', $buildingId)->where('end_date', '>=', Carbon::now()->toDateString())->first();
+        // if ($contract) {
+        //     // Fetch technician_vendor_ids for the given service
+        //     $technicianVendorIds = DB::table('service_technician_vendor')
+        //         ->where('service_id', $contract->service_id)
+        //         ->pluck('technician_vendor_id');
 
-            $vendorId = $contract->vendor_id;
+        //     $vendorId = $contract->vendor_id;
 
-            // Fetch technicians who are active and match the service
-            $technicianIds = TechnicianVendor::whereIn('id', $technicianVendorIds)
-                ->where('active', true)->where('vendor_id', $vendorId)
-                ->pluck('technician_id');
-            $assignees = User::whereIn('id', $technicianIds)
-                ->withCount(['assignees' => function ($query) {
-                    $query->where('status', 'open');
-                }])
-                ->orderBy('assignees_count', 'asc')
-                ->get();
-            $selectedTechnician = $assignees->first();
-        }
+        //     // Fetch technicians who are active and match the service
+        //     $technicianIds = TechnicianVendor::whereIn('id', $technicianVendorIds)
+        //         ->where('active', true)->where('vendor_id', $vendorId)
+        //         ->pluck('technician_id');
+        //     $assignees = User::whereIn('id', $technicianIds)
+        //         ->withCount(['assignees' => function ($query) {
+        //             $query->where('status', 'open');
+        //         }])
+        //         ->orderBy('assignees_count', 'asc')
+        //         ->get();
+        //     $selectedTechnician = $assignees->first();
+        // }
         return (new CustomResponseResource([
             'title'   => 'Success',
             'message' => "We'll get back to you at the earliest!",
