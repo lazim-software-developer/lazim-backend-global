@@ -7,6 +7,7 @@ use App\Models\Building\Building;
 use App\Models\CoolingAccount;
 use Coolsam\FilamentFlatpickr\Forms\Components\Flatpickr;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Form;
 use Filament\Notifications\Notification;
@@ -89,10 +90,13 @@ class CoolingAccountResource extends Resource
                     }),
                     Filter::make('Date')
                     ->form([
-                        DatePicker::make('from')
-                            ->label('From'),
-                        DatePicker::make('to')
-                            ->label('To'),
+                        Grid::make(2) 
+                        ->schema([
+                            DatePicker::make('from')
+                                ->label('From'),
+                            DatePicker::make('to')
+                                ->label('To'),
+                        ]),
                     ])
                     ->columns(1)
                     ->query(function (Builder $query, array $data) {
