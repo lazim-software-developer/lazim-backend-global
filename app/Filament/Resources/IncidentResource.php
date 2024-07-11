@@ -24,6 +24,7 @@ use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\DB;
 
@@ -181,5 +182,29 @@ class IncidentResource extends Resource
             'view' => Pages\ViewIncident::route('/{record}'),
             'edit' => Pages\EditIncident::route('/{record}/edit'),
         ];
+    }
+
+    public static function canViewAny(): bool
+    {
+        $user = User::find(auth()->user()->id);
+        return $user->can('view_any_incidents');
+    }
+
+    public static function canView(Model $record): bool
+    {
+        $user = User::find(auth()->user()->id);
+        return $user->can('view_incidents');
+    }
+
+    public static function canCreate(): bool
+    {
+        $user = User::find(auth()->user()->id);
+        return $user->can('create_incidents');
+    }
+
+    public static function canEdit(Model $record): bool
+    {
+        $user = User::find(auth()->user()->id);
+        return $user->can('update_incidents');
     }
 }
