@@ -186,7 +186,7 @@ class PollResource extends Resource
                 SelectFilter::make('building')
                     ->relationship('building', 'name', function (Builder $query) {
                         if (Role::where('id', auth()->user()->role_id)->first()->name != 'Admin') {
-                            $query->where('owner_association_id', Filament::getTenant()?->id);
+                            $query->where('buildings.owner_association_id', Filament::getTenant()?->id ?: auth()->user()?->owner_association_id);
                         }
 
                     })
