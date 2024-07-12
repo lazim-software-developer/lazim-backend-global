@@ -45,20 +45,20 @@ class TestController extends Controller
         $mimeType = "xlsx";
 
         // E services
-        // if ($request->has('e_services')) {
-        //     $serviceImport = new ServiceImport;
+        if ($request->has('e_services')) {
+            $serviceImport = new ServiceImport;
 
-        //     Excel::import($serviceImport, $request->file('e_services'));
-        //     $e_services = $serviceImport->data;
+            Excel::import($serviceImport, $request->file('e_services'));
+            $e_services = $serviceImport->data;
 
-        //     $document = $request->e_services;
-        //     $fileName = 'e_services';
+            $document = $request->e_services;
+            $fileName = 'e_services';
 
-        //     Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
-        //         file_get_contents($document));
-        // } else {
+            Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
+                file_get_contents($document));
+        } else {
             $e_services = [];
-        // }
+        }
 
         // Happiness center
         if ($request->has('happiness_center')) {
@@ -76,21 +76,21 @@ class TestController extends Controller
             $happiness_center = [];
         }
 
-        // if ($request->has('balance_sheet')) {
+        if ($request->has('balance_sheet')) {
 
-        //     $BalanceSheetImport = new BalanceSheetImport;
+            $BalanceSheetImport = new BalanceSheetImport;
 
-        //     Excel::import($BalanceSheetImport, $request->file('balance_sheet'));
+            Excel::import($BalanceSheetImport, $request->file('balance_sheet'));
 
-        //     $balance_sheet = $BalanceSheetImport->data;
+            $balance_sheet = $BalanceSheetImport->data;
 
-        //     $document = $request->balance_sheet;
+            $document = $request->balance_sheet;
 
-        //     $fileName = 'balance_sheet';
+            $fileName = 'balance_sheet';
 
-        //     Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
-        //         file_get_contents($document));
-        // } else {
+            Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
+                file_get_contents($document));
+        } else {
             $balance_sheet = new stdClass;
 
             $balance_sheet->income    = [];
@@ -98,7 +98,7 @@ class TestController extends Controller
             $balance_sheet->asset     = [];
             $balance_sheet->liability = [];
             $balance_sheet->equity    = [];
-        // }
+        }
 
         // // Account payables
         // if ($request->has('accounts_payables')) {
