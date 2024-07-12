@@ -22,7 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('polls', function (Blueprint $table) {
-            $table->bigInteger('building_id')->nullable(false)->change();
+            $table->unsignedBigInteger('building_id')->nullable(false)->change();
         });
     }
 };
