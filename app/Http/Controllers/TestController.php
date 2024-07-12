@@ -45,36 +45,36 @@ class TestController extends Controller
         $mimeType = "xlsx";
 
         // E services
-        if ($request->has('e_services')) {
-            $serviceImport = new ServiceImport;
+        // if ($request->has('e_services')) {
+        //     $serviceImport = new ServiceImport;
 
-            Excel::import($serviceImport, $request->file('e_services'));
-            $e_services = $serviceImport->data;
+        //     Excel::import($serviceImport, $request->file('e_services'));
+        //     $e_services = $serviceImport->data;
 
-            $document = $request->e_services;
-            $fileName = 'e_services';
-
-            Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
-                file_get_contents($document));
-        } else {
-            $e_services = [];
-        }
-
-        // Happiness center
-        // if ($request->has('happiness_center')) {
-        //     $happinesscenterimport = new HappinessCenterImport;
-
-        //     Excel::import($happinesscenterimport, $request->file('happiness_center'));
-        //     $happiness_center = $happinesscenterimport->data;
-
-        //     $document = $request->happiness_center;
-        //     $fileName = 'happiness_center';
+        //     $document = $request->e_services;
+        //     $fileName = 'e_services';
 
         //     Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
         //         file_get_contents($document));
         // } else {
-            $happiness_center = [];
+            $e_services = [];
         // }
+
+        // Happiness center
+        if ($request->has('happiness_center')) {
+            $happinesscenterimport = new HappinessCenterImport;
+
+            Excel::import($happinesscenterimport, $request->file('happiness_center'));
+            $happiness_center = $happinesscenterimport->data;
+
+            $document = $request->happiness_center;
+            $fileName = 'happiness_center';
+
+            Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
+                file_get_contents($document));
+        } else {
+            $happiness_center = [];
+        }
 
         // if ($request->has('balance_sheet')) {
 
