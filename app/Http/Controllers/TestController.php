@@ -100,22 +100,22 @@ class TestController extends Controller
             $balance_sheet->equity    = [];
         }
 
-        // // Account payables
-        // if ($request->has('accounts_payables')) {
-        //     $accountspayablesimport = new AccountsPayablesImport;
+        // Account payables
+        if ($request->has('accounts_payables')) {
+            $accountspayablesimport = new AccountsPayablesImport;
 
-        //     Excel::import($accountspayablesimport, $request->file('accounts_payables'));
-        //     $accounts_payables = $accountspayablesimport->data;
+            Excel::import($accountspayablesimport, $request->file('accounts_payables'));
+            $accounts_payables = $accountspayablesimport->data;
 
-        //     $document = $request->accounts_payables;
+            $document = $request->accounts_payables;
 
-        //     $fileName = 'accounts_payables';
+            $fileName = 'accounts_payables';
 
-        //     Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
-        //         file_get_contents($document));
-        // } else {
+            Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
+                file_get_contents($document));
+        } else {
             $accounts_payables = [];
-        // }
+        }
 
         // // Delinquents
         // if ($request->has('delinquents')) {
