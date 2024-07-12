@@ -300,7 +300,7 @@ class TestController extends Controller
         $data->GeneralFund     = []; //$general_fund_statement;
         $data->ReservedFund    = []; //$reserve_fund;
         $data->Collection      = []; //$collection;
-        Log::info($data);
+        Log::info(json_encode($data));
         // return $data;
         $response = Http::withOptions(['verify' => false])->retry(3, 100)->timeout(60)->withHeaders([
             'content-type' => 'application/json',
