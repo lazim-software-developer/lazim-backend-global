@@ -288,18 +288,18 @@ class TestController extends Controller
         $data->FromDate        = $request->from_date;
         $data->ToDate          = $request->to_date;
         $data->Delinquents     = $delinquents;
-        $data->Eservices       = $e_services;
-        $data->HappinessCenter = $happiness_center;
-        $data->BalanceSheet    = $balance_sheet;
-        $data->AccountsPayable = $accounts_payables;
-        $data->WorkOrders      = $work_orders;
-        $data->Assets          = $assets;
-        $data->BankBalance     = $bankBalance;
-        $data->UtilityExpenses = $utility;
-        $data->BudgetVsActual  = $budget_vs_actual;
-        $data->GeneralFund     = $general_fund_statement;
-        $data->ReservedFund    = $reserve_fund;
-        $data->Collection      = $collection;
+        $data->Eservices       = []; //$e_services;
+        $data->HappinessCenter = []; //$happiness_center;
+        $data->BalanceSheet    = []; //$balance_sheet;
+        $data->AccountsPayable = []; //$accounts_payables;
+        $data->WorkOrders      = []; //$work_orders;
+        $data->Assets          = []; //$assets;
+        $data->BankBalance     = []; //$bankBalance;
+        $data->UtilityExpenses = []; //$utility;
+        $data->BudgetVsActual  = []; //$budget_vs_actual;
+        $data->GeneralFund     = []; //$general_fund_statement;
+        $data->ReservedFund    = []; //$reserve_fund;
+        $data->Collection      = []; //$collection;
 
         // return $data;
         $response = Http::withOptions(['verify' => false])->retry(3, 100)->timeout(60)->withHeaders([
