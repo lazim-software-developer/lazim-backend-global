@@ -118,21 +118,21 @@ class TestController extends Controller
         }
 
         // // Delinquents
-        // if ($request->has('delinquents')) {
-        //     $delinquentsImport = new DelinquentsImport;
+        if ($request->has('delinquents')) {
+            $delinquentsImport = new DelinquentsImport;
 
-        //     Excel::import($delinquentsImport, $request->file('delinquents'));
-        //     $delinquents = $delinquentsImport->data;
+            Excel::import($delinquentsImport, $request->file('delinquents'));
+            $delinquents = $delinquentsImport->data;
 
-        //     $document = $request->delinquents;
+            $document = $request->delinquents;
 
-        //     $fileName = 'delinquents';
+            $fileName = 'delinquents';
 
-        //     Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
-        //         file_get_contents($document));
-        // } else {
+            Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
+                file_get_contents($document));
+        } else {
             $delinquents = [];
-        // }
+        }
 
         // // Work orders
         // if ($request->has('work_orders')) {
