@@ -266,21 +266,21 @@ class TestController extends Controller
             $assets = [];
         }
 
-        // if ($request->has('utility_expenses')) {
-        //     $uaImport = new UtilityExpensesImport;
+        if ($request->has('utility_expenses')) {
+            $uaImport = new UtilityExpensesImport;
 
-        //     Excel::import($uaImport, $request->file('utility_expenses'));
-        //     $utility = $uaImport->getResults();
+            Excel::import($uaImport, $request->file('utility_expenses'));
+            $utility = $uaImport->getResults();
 
-        //     $document = $request->utility_expenses;
+            $document = $request->utility_expenses;
 
-        //     $fileName = 'utility_expenses';
+            $fileName = 'utility_expenses';
 
-        //     Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
-        //         file_get_contents($document));
-        // } else {
+            Storage::disk('s3')->put($folderPath . '/' . $fileName . '.' . $mimeType,
+                file_get_contents($document));
+        } else {
             $utility = [];
-        // }
+        }
 
         $data = new stdClass();
 
