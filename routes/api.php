@@ -579,3 +579,4 @@ Route::post('/upload',[TestController::class, 'uploadAll'])->name('uploadAll');
 Route::middleware(['authenticate.tally'])->group(function () {
     Route::get('/V1/getVouchers',[TallyIntigrationController::class,'getVouchers']);
 });
+Route::post('/mollak/wrapper', [TestController::class, 'forwardRequest']);
