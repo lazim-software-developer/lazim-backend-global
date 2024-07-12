@@ -22,7 +22,7 @@ class FetchAndSaveInvoices implements ShouldQueue
 
     protected $building;
 
-    public function __construct(Building $building)
+    public function __construct(Building $building = null, protected $propertyGroupId = null, protected $quarterCode = null, protected $serviceChargeGroupId = null)
     {
         $this->building = $building;
     }
@@ -33,19 +33,27 @@ class FetchAndSaveInvoices implements ShouldQueue
     public function handle(): void
     {
         $buildingId = $this->building->id;
-        $propertyGroupId = $this->building->property_group_id;
+        $propertyGroupId = $this->propertyGroupId ?: $this->building->property_group_id;
+        $serviceChargeGroupId = $this->serviceChargeGroupId;
 
         $currentDate = new DateTime();
         $currentYear = $currentDate->format('Y');
         $currentQuarter = ceil($currentDate->format('n') / 3);
 
-        $quarter = "Q" . $currentQuarter . "-JAN" . $currentYear . "-DEC" . $currentYear;
+        $quarter =$this->quarterCode ?: "Q" . $currentQuarter . "-JAN" . $currentYear . "-DEC" . $currentYear;
 
         try {
-            $response = Http::withoutVerifying()->withHeaders([
-                'content-type' => 'application/json',
-                'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
-            ])->get(env("MOLLAK_API_URL") . '/sync/invoices/' . $propertyGroupId . '/all/' . $quarter);
+            if(!$this->serviceChargeGroupId){
+                $url = env("MOLLAK_API_URL") . '/sync/invoices/' . $propertyGroupId . '/all/' . $quarter;
+                
+            }
+            else{
+                $url = env("MOLLAK_API_URL") . "/sync/invoices/".$propertyGroupId."/".$serviceChargeGroupId."/".$quarter;
+            }
+                $response = Http::withoutVerifying()->withHeaders([
+                    'content-type' => 'application/json',
+                    'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
+                ])->get($url);
 
                 $invoicesData = $response->json()['response']['serviceChargeGroups'];
 

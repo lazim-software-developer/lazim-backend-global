@@ -16,6 +16,7 @@ use App\Models\Accounting\SubCategory;
 use App\Http\Resources\Master\UnitResource;
 use App\Http\Resources\Master\PropertyGroupResource;
 use App\Http\Resources\Master\ServicePeriodResource;
+use App\Jobs\OAM\FetchAndSaveInvoices;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Validator;
 
@@ -431,4 +432,34 @@ class MollakController extends Controller
 
         // If all validations pass, you can proceed with your logic here
     }
+
+    public function invoiceWebhook(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'timeStamp' => 'required|date',
+            'syncType' => 'required|string',
+            'parameters' => 'required|array',
+            'parameters.*.key' => 'required|string|in:managementCompanyId,propertyGroupId,quarterCode,serviceChargeGroupId',
+            'parameters.*.value' => 'required',
+            ],[
+            'parameters.*.key.in' => "Invalid key provided in parameters",
+            ]); 
+        
+            if ($validator->fails()) {
+                return response()->json(['error' => $validator->errors()->first()], 400);
+            }
+
+            $propertyGroupId = $request->parameters['propertyGroupId']; //235553;
+            $quarterCode = $request->parameters['quarterCode']; //'Q4-JAN2019-DEC2019';
+            $serviceChargeGroupId = $request->parameters['serviceChargeGroupId']; //5001;
+
+            FetchAndSaveInvoices::dispatch($propertyGroupId,$serviceChargeGroupId,$quarterCode);
+
+            return [
+                'isExecuted' => true,
+                'acknowledgeRef' => random_int(1111111,9999999)
+            ];
+            
+    }
+
 }
