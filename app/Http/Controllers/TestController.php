@@ -287,8 +287,8 @@ class TestController extends Controller
         $data->PropertyGroupId = $request->property_group;
         $data->FromDate        = $request->from_date;
         $data->ToDate          = $request->to_date;
-        $data->Delinquents     = $delinquents;
-        $data->Eservices       = []; //$e_services;
+        $data->Delinquents     = []; //$delinquents;
+        $data->Eservices       = $e_services;
         $data->HappinessCenter = []; //$happiness_center;
         $data->BalanceSheet    = []; //$balance_sheet;
         $data->AccountsPayable = []; //$accounts_payables;
@@ -300,7 +300,7 @@ class TestController extends Controller
         $data->GeneralFund     = []; //$general_fund_statement;
         $data->ReservedFund    = []; //$reserve_fund;
         $data->Collection      = []; //$collection;
-
+        Log::info($data);
         // return $data;
         $response = Http::withOptions(['verify' => false])->retry(3, 100)->timeout(60)->withHeaders([
             'content-type' => 'application/json',
