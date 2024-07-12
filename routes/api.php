@@ -570,6 +570,8 @@ Route::post('/web-enquiry',[EnquiryController::class,'store']);
 Route::match(['get', 'post'], '/webhook', [MollakController::class, 'webhook'])
      ->middleware('check.MollakToken');
 
+Route::post('/webhook/sync-invoice',[MollakController::class, 'invoiceWebhook'])->middleware('check.MollakToken');
+
 //mollak
 Route::post('/upload',[TestController::class, 'uploadAll'])->name('uploadAll');
 
