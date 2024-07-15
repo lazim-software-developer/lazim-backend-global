@@ -14,6 +14,8 @@ use Filament\Tables\Table;
 use Illuminate\Mail\Markdown;
 use App\Models\OwnerCommittee;
 use App\Jobs\BeforeOcMeetingjob;
+use App\Models\OwnerAssociation;
+use Filament\Facades\Filament;
 use Filament\Tables\Actions\Action;
 use Illuminate\Support\Facades\Log;
 use Filament\Forms\Components\Hidden;
@@ -125,8 +127,12 @@ class MeetingsRelationManager extends RelationManager
                             // Use Parsedown to convert Markdown to HTML
                             $parsedown = new Parsedown();
                             $agendaHtml = $parsedown->text($meeting->agenda);
+
+                            $tenant           = Filament::getTenant()?->id ?? auth()->user()->owner_association_id;
+                            $emailCredentials = OwnerAssociation::find($tenant)->accountcredentials()->where('active', true)->latest()->first()->email ?? env('MAIL_FROM_ADDRESS');
+
                             foreach ($userslist as $owner) {
-                                BeforeMeetingOcjob::dispatch($owner, $meeting, $agendaHtml);
+                                BeforeMeetingOcjob::dispatch($owner, $meeting, $agendaHtml, $emailCredentials);
                             }
                         } else {
                             Notification::make()
