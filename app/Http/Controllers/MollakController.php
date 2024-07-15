@@ -17,6 +17,7 @@ use App\Http\Resources\Master\UnitResource;
 use App\Http\Resources\Master\PropertyGroupResource;
 use App\Http\Resources\Master\ServicePeriodResource;
 use App\Jobs\OAM\FetchAndSaveInvoices;
+use App\Jobs\OAM\FetchAndSaveReceipts;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Validator;
 
@@ -460,6 +461,33 @@ class MollakController extends Controller
                 'acknowledgeRef' => random_int(1111111,9999999)
             ];
             
+    }
+
+    public function receiptWebhook(Request $request){
+        $validator = Validator::make($request->all(), [
+            'timeStamp' => 'required|date',
+            'syncType' => 'required|string',
+            'parameters' => 'required|array',
+            'parameters.*.key' => 'required|string|in:managementCompanyId,propertyGroupId,mollakPropertyId,receiptId',
+                'parameters.*.value' => 'required',
+            ], [
+                'parameters.*.key.in' => "Invalid key provided in parameters",
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json(['error' => $validator->errors()->first()], 400);
+            }
+
+            $propertyGroupId = $request->parameters['propertyGroupId']; //235553;
+            $mollakPropertyId = $request->parameters['mollakPropertyId']; //5001;
+            $receiptId = $request->parameters['receiptId']; //1122;
+
+            FetchAndSaveReceipts::dispatch($propertyGroupId,$mollakPropertyId,$receiptId);
+
+            return [
+                'isExecuted' => true,
+                'acknowledgeRef' => random_int(1111111,9999999)
+            ];
     }
 
 }
