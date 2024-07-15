@@ -11,6 +11,8 @@ use App\Models\User\User;
 use Filament\Tables\Table;
 use Illuminate\Support\Str;
 use App\Jobs\BuildingSecurity;
+use Filament\Facades\Filament;
+use App\Models\OwnerAssociation;
 use App\Models\Building\Building;
 use Illuminate\Support\Facades\DB;
 use Filament\Forms\Components\Grid;
@@ -179,7 +181,7 @@ class BuildingPocsRelationManager extends RelationManager
 
                         $buildingId = $livewire->ownerRecord->id;
                         $oa_id = DB::table('building_owner_association')->where('building_id', $buildingId)->where('active', true)->first()?->owner_association_id;
-                            
+
                         $user = User::create([
                             'first_name' => $data['first_name'],
                             'last_name' => $data['last_name'],
@@ -192,7 +194,7 @@ class BuildingPocsRelationManager extends RelationManager
                             'email_verified' => 1,
                             'phone_verified' => 1
                         ]);
-                        
+
                         $security = BuildingPoc::create([
                             'user_id' => $user->id,
                             'role_name' => 'security',
@@ -207,7 +209,10 @@ class BuildingPocsRelationManager extends RelationManager
                             $password = Str::random(12);
                             $user->password = Hash::make($password);
                             $user->save();
-                            BuildingSecurity::dispatch($user, $password);
+                            $tenant           = Filament::getTenant()?->id ?? auth()->user()->owner_association_id;
+                            $emailCredentials = OwnerAssociation::find($tenant)->accountcredentials()->where('active', true)->latest()->first()->email ?? env('MAIL_FROM_ADDRESS');
+
+                            BuildingSecurity::dispatch($user, $password, $emailCredentials);
                         }
                     })
                     ->slideOver()
@@ -279,7 +284,10 @@ class BuildingPocsRelationManager extends RelationManager
                             $password = Str::random(12);
                             $record->password = Hash::make($password);
                             $record->save();
-                            BuildingSecurity::dispatch($record, $password);
+                            $tenant           = Filament::getTenant()?->id ?? auth()->user()->owner_association_id;
+                            $emailCredentials = OwnerAssociation::find($tenant)->accountcredentials()->where('active', true)->latest()->first()->email ?? env('MAIL_FROM_ADDRESS');
+
+                            BuildingSecurity::dispatch($record, $password, $emailCredentials);
                         }
                         $record->first_name = $data['first_name'];
                         $record->last_name = $data['last_name'];
