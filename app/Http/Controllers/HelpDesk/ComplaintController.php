@@ -128,18 +128,21 @@ class ComplaintController extends Controller
         });
 
         // Save images in media table with name "before". Once resolved, we'll store media with "after" name
-        if ($request->hasFile('media')) {
-                $imagePath = optimizeAndUpload($request->media, 'dev');
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $image) {
+                $imagePath = optimizeAndUpload($image, 'dev');
 
                 // Create a new media entry for each image
                 $media = new Media([
-                    'name' => "before",
+                    'name' => "Incident",
                     'url'  => $imagePath,
                 ]);
 
                 // Attach the media to the post
                 $complaint->media()->save($media);
+            }
         }
+
 
         // Assign complaint to a technician
         // AssignTechnicianToComplaint::dispatch($complaint);
