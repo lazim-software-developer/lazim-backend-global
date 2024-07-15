@@ -4,6 +4,7 @@ namespace App\Filament\Pages;
 
 use App\Models\Building\Building;
 use App\Models\Building\Flat;
+use App\Models\OwnerAssociation;
 use App\Models\OwnerAssociationReceipt as ModelsOwnerAssociationReceipt;
 use Closure;
 use Filament\Actions\Action;
@@ -18,6 +19,7 @@ use Filament\Forms\Set;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Support\Exceptions\Halt;
+use Illuminate\Support\Facades\DB;
 use NumberFormatter;
 
 class OwnerAssociationReceipt extends Page
@@ -135,8 +137,10 @@ class OwnerAssociationReceipt extends Page
     {
         try {
             $data = $this->form->getState();
-            $oam = auth()->user()->ownerAssociation;
-            $data['owner_association_id'] = $oam->id;
+            $oam_id = DB::table('building_owner_association')->where('building_id',$data['building_id'])->where('active', true)->first();
+            $oam = OwnerAssociation::find($oam_id?:auth()->user()->ownerAssociation->first()->id);
+            // $oam = auth()->user()->ownerAssociation;
+            $data['owner_association_id'] = $oam?->id;
             $receipt_id = strtoupper(substr($oam->name, 0, 4)) . date('YmdHis');
             $data['receipt_number'] = $receipt_id;
             // dd($data);
