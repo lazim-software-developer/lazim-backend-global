@@ -19,6 +19,7 @@ use Filament\Forms\Components\Component;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\FileUpload;
 use App\Filament\Resources\OwnerAssociationResource\Pages;
+use App\Filament\Resources\OwnerAssociationResource\RelationManagers\AccountcredentialsRelationManager;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class OwnerAssociationResource extends Resource
@@ -27,7 +28,7 @@ class OwnerAssociationResource extends Resource
     protected static ?string $modelLabel            = 'Owner Association';
     protected static ?string $navigationIcon        = 'heroicon-o-rectangle-stack';
     protected static bool $shouldRegisterNavigation = true;
-    
+
     protected static bool $isScopedToTenant = false;
 
     public static function form(Form $form): Form
@@ -294,7 +295,7 @@ class OwnerAssociationResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            AccountcredentialsRelationManager::class,
         ];
     }
 
