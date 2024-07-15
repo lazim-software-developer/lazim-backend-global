@@ -21,7 +21,7 @@ class InvoiceDueMailJob implements ShouldQueue
 
     public $content;
 
-    public function __construct($owner, $content)
+    public function __construct($owner, $content, protected $emailCredentials)
     {
         $this->owner = $owner;
         $this->content = $content;
@@ -35,6 +35,7 @@ class InvoiceDueMailJob implements ShouldQueue
         $beautymail = app()->make(Beautymail::class);
         $beautymail->send('emails.payment_due', ['owner' => $this->owner, 'content' => $this->content], function($message) {
             $message
+                ->from($this->emailCredentials,env('MAIL_FROM_NAME'))
                 ->to($this->owner->email, $this->owner->name)
                 ->subject('Reminder: Outstanding Balance');
         });

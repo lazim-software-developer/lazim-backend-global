@@ -16,7 +16,7 @@ class FlatVisitorMailJob implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct(protected $visitor,protected $code)
+    public function __construct(protected $visitor,protected $code,protected $emailCredentials)
     {
         //
     }
@@ -29,9 +29,10 @@ class FlatVisitorMailJob implements ShouldQueue
         $beautymail = app()->make(Beautymail::class);
         $beautymail->send('emails.flat-visitor_mail', ['name' => $this->visitor->name,'code' => $this->code], function ($message) {
             $message
+                ->from($this->emailCredentials,env('MAIL_FROM_NAME'))
                 ->to($this->visitor->email, $this->visitor->name)
                 ->subject('Visitor verification');
         });
     }
-    
+
 }

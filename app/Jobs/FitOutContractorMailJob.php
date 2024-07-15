@@ -17,7 +17,7 @@ class FitOutContractorMailJob implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct(protected $name,protected $email,protected $form)
+    public function __construct(protected $name,protected $email,protected $form,protected $emailCredentials)
     {
         //
     }
@@ -37,6 +37,7 @@ class FitOutContractorMailJob implements ShouldQueue
             'flat' => $this->form->flat->property_number,
         ], function($message) {
             $message
+                ->from($this->emailCredentials,env('MAIL_FROM_NAME'))
                 ->to($this->email, $this->name)
                 ->subject('Fit-out Request Submitted');
         });

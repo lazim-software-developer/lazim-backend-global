@@ -24,6 +24,8 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\DelinquentOwnerResource\Pages;
 use App\Filament\Resources\DelinquentOwnerResource\RelationManagers;
+use App\Models\OwnerAssociation;
+use Filament\Facades\Filament;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class DelinquentOwnerResource extends Resource
@@ -123,12 +125,15 @@ class DelinquentOwnerResource extends Resource
                             'content' => 'Your payment is Due, please make the payment ASAP.'
                         ])
                         ->action(function (Collection $records, array $data): void {
+                            $tenant           = Filament::getTenant()?->id ?? auth()->user()?->owner_association_id;
+                            $emailCredentials = OwnerAssociation::find($tenant)->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
+
                             foreach ($records as $record) {
                                 // Access the owner_id of each selected record
 
                                 $owner = ApartmentOwner::find($record->owner_id);
                                 $content = $data['content'];
-                                InvoiceDueMailJob::dispatch($owner, $content);
+                                InvoiceDueMailJob::dispatch($owner, $content, $emailCredentials);
                             }
                             Notification::make()
                                 ->title("Notification: Outstanding Balance")
