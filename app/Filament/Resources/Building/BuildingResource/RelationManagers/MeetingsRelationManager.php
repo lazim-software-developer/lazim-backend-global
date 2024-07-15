@@ -155,9 +155,12 @@ class MeetingsRelationManager extends RelationManager
                         $parsedown = new Parsedown();
                         $meetingSummaryHtml = $parsedown->text($record->meeting_summary);
                         $agendaHtml = $parsedown->text($record->agenda);
+                        $tenant           = Filament::getTenant()?->id ?? auth()->user()?->owner_association_id;
+                        $emailCredentials = OwnerAssociation::find($tenant)->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
+
 
                         foreach ($userslist as $owner) {
-                            OwnerMeeting::dispatch($owner, $record, $agendaHtml, $meetingSummaryHtml);
+                            OwnerMeeting::dispatch($owner, $record, $agendaHtml, $meetingSummaryHtml, $emailCredentials);
                         }
                     }),
                 // Tables\Actions\DeleteAction::make(),

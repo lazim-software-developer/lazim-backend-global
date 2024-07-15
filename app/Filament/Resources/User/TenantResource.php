@@ -27,6 +27,7 @@ use App\Filament\Resources\User\TenantResource\Pages;
 use App\Filament\Resources\User\TenantResource\RelationManagers;
 use App\Filament\Resources\User\TenantResource\RelationManagers\UserDocumentsRelationManager;
 use App\Jobs\WelcomeNotificationJob;
+use App\Models\OwnerAssociation;
 use Filament\Notifications\Notification;
 use Filament\Tables\Actions\Action;
 use Filament\Facades\Filament;
@@ -140,13 +141,16 @@ class TenantResource extends Resource
                 ->button()
                 ->action(function ($record){
                     $buildingname = $record->building->name;
+                    $tenant           = Filament::getTenant()?->id ?? auth()->user()?->owner_association_id;
+                    $emailCredentials = OwnerAssociation::find($tenant)->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
+
                     if($record->email==null){
                         Notification::make()
                         ->title('Email not found')
                         ->success()
                         ->send();
                     }else{
-                       WelcomeNotificationJob::dispatch($record->email, $record->name,$buildingname);
+                       WelcomeNotificationJob::dispatch($record->email, $record->name,$buildingname,$emailCredentials);
                         Notification::make()
                         ->title("Successfully Sent Mail")
                         ->success()

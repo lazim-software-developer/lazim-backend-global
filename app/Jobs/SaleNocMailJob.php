@@ -18,7 +18,7 @@ class SaleNocMailJob implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct(protected $user, protected $file)
+    public function __construct(protected $user, protected $file, protected $emailCredentials)
     {
         //
     }
@@ -32,6 +32,7 @@ class SaleNocMailJob implements ShouldQueue
         $beautymail->send('emails.sale_noc_doc', ['user' => $this->user], function($message) {
             $fileName =  reset($this->file);
             $message
+                ->from($this->emailCredentials,env('MAIL_FROM_NAME'))
                 ->to($this->user->email, $this->user->first_name)
                 ->subject('Welcome to Lazim!')
                 ->attach(env('AWS_URL').'/'.$fileName );

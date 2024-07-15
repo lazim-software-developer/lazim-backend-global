@@ -5,8 +5,10 @@ namespace App\Filament\Resources\NocFormResource\Pages;
 use App\Filament\Resources\NocFormResource;
 use App\Jobs\SaleNocMailJob;
 use App\Models\ExpoPushNotification;
+use App\Models\OwnerAssociation;
 use App\Traits\UtilsTrait;
 use Filament\Actions;
+use Filament\Facades\Filament;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Support\Facades\DB;
 
@@ -28,10 +30,13 @@ class EditNocForm extends EditRecord
     }
 
     public function beforeSave(){
+        $tenant           = Filament::getTenant()?->id ?? auth()->user()?->owner_association_id;
+        $emailCredentials = OwnerAssociation::find($tenant)->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
+
         if($this->record->admin_document != $this->data['admin_document']){
             $user= $this->record->user;
             $file = $this->data['admin_document'];
-            SaleNocMailJob::dispatch($user,$file);
+            SaleNocMailJob::dispatch($user,$file,$emailCredentials);
         }
     }
     public function afterSave()

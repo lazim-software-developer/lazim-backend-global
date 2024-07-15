@@ -14,6 +14,8 @@ use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ListRecords;
 use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\User\OwnerResource;
+use App\Models\OwnerAssociation;
+use Filament\Facades\Filament;
 
 class ListOwners extends ListRecords
 {
@@ -68,15 +70,18 @@ class ListOwners extends ListRecords
                                 ->send();
                             return;
                     }
+                    $tenant           = Filament::getTenant()?->id ?? auth()->user()?->owner_association_id;
+                    $emailCredentials = OwnerAssociation::find($tenant)->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
+
                     foreach ($residentsemail as $value) {
-                        WelcomeNotificationJob::dispatch($value->email, $value->name,$buildingname);
+                        WelcomeNotificationJob::dispatch($value->email, $value->name,$buildingname,$emailCredentials);
                     }
                     Notification::make()
                         ->title("Successfully Send Mail")
                         ->success()
                         ->body("sent mail to all the owners asking them to download the app.")
                         ->send();
-                   
+
                 })
                 ->slideOver()
         ];
