@@ -41,7 +41,7 @@ use Filament\Tables\Actions\Action;
 class OwnerResource extends Resource
 {
     protected static ?string $model = ApartmentOwner::class;
-    protected static ?string $modelLabel = 'Owner';
+    protected static ?string $modelLabel = 'Owners';
     protected static ?string $navigationGroup = 'User Management';
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 

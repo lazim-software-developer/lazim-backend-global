@@ -19,6 +19,7 @@ use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 class PatrollingResource extends Resource
 {
     protected static ?string $model = Patrolling::class;
+    protected static ?string $modelLabel      = 'Patrollings';
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
