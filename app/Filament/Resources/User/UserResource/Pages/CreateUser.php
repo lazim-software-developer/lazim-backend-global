@@ -1,19 +1,13 @@
 <?php
 
 namespace App\Filament\Resources\User\UserResource\Pages;
-use App\Filament\Forms\Components\Component;
 
 use App\Filament\Resources\User\UserResource;
-use App\Jobs\AccountCreationJob;
 use App\Jobs\AccountsManagerJob;
-use App\Jobs\BuildingSecurity;
-use App\Jobs\GeneralAccountCreationJob;
 use App\Jobs\MdCreateJob;
-use App\Jobs\TechnicianAccountCreationJob;
-use App\Jobs\VendorAccountCreationJob;
+use App\Models\OwnerAssociation;
 use App\Models\User\User;
-use App\Models\Vendor\Vendor;
-use Filament\Actions;
+use Filament\Facades\Filament;
 use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -27,7 +21,7 @@ class CreateUser extends CreateRecord
 {
     // dd($this->data['roles']);
     // $role_id = $this->data['roles'];
- 
+
     // return $data;
 }
     protected function afterCreate()
@@ -54,7 +48,7 @@ class CreateUser extends CreateRecord
             // 'Staff' => GeneralAccountCreationJob::class,
             // 'Admin' => GeneralAccountCreationJob::class,
         ];
-        
+
         // Generate and set the password
         $password = Str::random(12);
         $user->email_verified = 1;
@@ -63,15 +57,17 @@ class CreateUser extends CreateRecord
         $user->password = Hash::make($password);
         $user->role_id = $this->data['roles'];
         $user->save();
-        
+
         // Dispatch the appropriate job based on the role
         if (array_key_exists($this->record->role?->name, $roleJobMap)) {
             $jobClass = $roleJobMap[$this->record->role?->name];
             $jobClass::dispatch($user, $password);
             // GeneralAccountCreationJob::dispatch($user, $password);
-        }
-        else{
-            MdCreateJob::dispatch($user, $password);
+        } else {
+            $tenant = Filament::getTenant()?->id ?? auth()->user()->owner_association_id;
+            $emailCredentials = OwnerAssociation::find($tenant)->accountcredentials()->where('active',true)->latest()->first()->email ?? env('MAIL_FROM_ADDRESS');
+
+            MdCreateJob::dispatch($user, $password, $emailCredentials);
         }
     }
 }
