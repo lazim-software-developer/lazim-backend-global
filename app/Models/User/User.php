@@ -2,6 +2,7 @@
 
 namespace App\Models\User;
 
+use App\Models\AccountCredentials;
 use Filament\Panel;
 use App\Models\Asset;
 use App\Models\Vendor\PPM;
@@ -194,7 +195,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasTenant
         $allowedRoles = ['Admin','Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor'];
 
         // Retrieve the role name using the provided method
-        $userRoleName = Role::find($this->role_id)->name;   
+        $userRoleName = Role::find($this->role_id)->name;
         if ($panel->getId() === 'app' && $userRoleName == 'Admin') {
             return true;
         }
@@ -219,7 +220,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasTenant
         // return OwnerAssociation::where('id',$this->ownerAssociation)->get();
         return $this->ownerAssociation()->get();
     }
- 
+
     public function canAccessTenant(Model $tenant): bool
     {
         return $this->ownerAssociation()->whereKey($tenant)->exists();
@@ -328,5 +329,9 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasTenant
     public function iteminventory()
     {
         return $this->hasMany(ItemInventory::class);
+    }
+      public function accountcredentials()
+    {
+        return $this->hasMany(AccountCredentials::class,'created_by');
     }
 }
