@@ -31,6 +31,7 @@ class DelinquentOwnerResource extends Resource
     protected static ?string $model = DelinquentOwner::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $modelLabel      = 'DelinquentOwners';
 
     public static function form(Form $form): Form
     {

@@ -34,7 +34,7 @@ use Filament\Facades\Filament;
 class TenantResource extends Resource
 {
     protected static ?string $model = MollakTenant::class;
-    protected static ?string $modelLabel      = 'Tenant';
+    protected static ?string $modelLabel      = 'Tenants';
     protected static ?string $navigationGroup      = 'User Management';
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 

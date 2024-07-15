@@ -49,6 +49,7 @@ class ProposalResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
     protected static ?string $navigationGroup = 'Oam';
+    protected static ?string $modelLabel = 'Proposals';
 
     protected static bool $isScopedToTenant = false;
 

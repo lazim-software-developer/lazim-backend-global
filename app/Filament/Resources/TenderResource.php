@@ -28,6 +28,7 @@ class TenderResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
     protected static ?string $navigationGroup = 'Oam';
+    protected static ?string $modelLabel = 'Tenders';
 
     public static function form(Form $form): Form
     {

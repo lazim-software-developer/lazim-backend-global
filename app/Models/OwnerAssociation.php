@@ -7,6 +7,7 @@ use App\Models\Building\Building;
 use App\Models\Building\FacilityBooking;
 use App\Models\Community\Post;
 use App\Models\Forms\SaleNOC;
+use App\Models\User\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Sluggable\HasSlug;

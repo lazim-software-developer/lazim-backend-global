@@ -31,7 +31,7 @@ use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 class AnnouncementResource extends Resource
 {
     protected static ?string $model = Post::class;
-    protected static ?string $modelLabel = 'Notice board';
+    protected static ?string $modelLabel = 'Notice boards';
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
     protected static ?string $navigationGroup = 'Community';
 
