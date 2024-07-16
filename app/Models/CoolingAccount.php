@@ -26,6 +26,7 @@ class CoolingAccount extends Model
         'other_charges',
         'receipts',
         'closing_balance',
+        'owner_association_id'
     ];
 
     public function ownerAssociation()

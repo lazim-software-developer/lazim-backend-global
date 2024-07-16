@@ -54,6 +54,7 @@ class CoolingAccountImport implements ToCollection, WithHeadingRow
                    ->send();
                return 'failure';
            } else {
+            $tenant = Filament::getTenant();
 
             foreach ($rows as $row) {
                 $flatId = Flat::where(['building_id' => $this->buildingId, 'property_number' => $row['unit_no']])->first()?->id;
@@ -73,6 +74,7 @@ class CoolingAccountImport implements ToCollection, WithHeadingRow
                         'building_id'           => $this->buildingId,
                         'flat_id'               => $row['unit_no'],
                         'date'                  => $date,
+                        'owner_association_id'  => $tenant?->id,
                     ],
                     [
                         'opening_balance'       => $row['opening_balance_receivable_advance'],
