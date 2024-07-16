@@ -41,7 +41,7 @@ class LegalNoticeIssuedJob implements ShouldQueue
         
         $responce = $results->json()['response']['propertyGroups'];
         Log::info($responce);
-        $building_id = Building::where('mollak_property_id',$propertyGroupId)->first();
+        $building_id = Building::where('property_group_id',$propertyGroupId)->first();
         $oam_id = DB::table('building_owner_association')->where('building_id',$building_id?:null)->where('active', true)->first();
         foreach($responce['mollakProperties'] as $notice){
 

@@ -22,7 +22,7 @@ class FetchAndSaveInvoices implements ShouldQueue
 
     protected $building;
 
-    public function __construct(Building $building = null, protected $propertyGroupId = null, protected $quarterCode = null, protected $serviceChargeGroupId = null)
+    public function __construct(?Building $building = null, protected $propertyGroupId = null, protected $quarterCode = null, protected $serviceChargeGroupId = null)
     {
         $this->building = $building;
     }

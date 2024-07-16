@@ -21,7 +21,7 @@ class FetchAndSaveReceipts implements ShouldQueue
 
     protected $building;
 
-    public function __construct(Building $building = null, protected $propertyGroupId = null, protected $mollakPropertyId = null, protected $receiptId = null)
+    public function __construct(?Building $building = null, protected $propertyGroupId = null, protected $mollakPropertyId = null, protected $receiptId = null)
     {
         $this->building = $building;
     }

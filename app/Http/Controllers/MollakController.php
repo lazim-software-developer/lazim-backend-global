@@ -500,7 +500,7 @@ class MollakController extends Controller
             case 'invoice_generated':
                 $validator = Validator::make($request->all(), [
                     'parameters' => 'required|array',
-                    'parameters.*.key' => 'required|string|in:managementCompanyId,propertyGroupId,quarterCode,serviceChargeGroupId',
+                    'parameters.*.key' => 'required|string|in:managementCompanyId,propertyGroupId,QuarterCode,serviceChargeGroupId',
                     'parameters.*.value' => 'required',
                 ], [
                     'parameters.*.key.in' => "Invalid key provided in parameters",
