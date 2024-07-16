@@ -9,6 +9,7 @@ use App\Models\Master\Role;
 use App\Models\User\User;
 use Filament\Notifications\Actions\Action;
 use Filament\Notifications\Notification;
+use Illuminate\Support\Facades\Log;
 
 class DocumentObserver
 {
@@ -28,6 +29,7 @@ class DocumentObserver
                     ->filter(function ($notifyTo) use ($requiredPermissions) {
                         return $notifyTo->can($requiredPermissions);
                     });
+                    Log::info(TenantDocumentResource::getUrl('edit', [$document]));
                     Notification::make()
                         ->success()
                         ->title($document->name . " Received")
@@ -37,7 +39,7 @@ class DocumentObserver
                         ->actions([
                             Action::make('view')
                                 ->button()
-                                ->url(fn () => '/'.TenantDocumentResource::getUrl('edit', [$document])),
+                                ->url(fn () => '/admin/tenant-documents/'.$document->id.'/edit'),
                         ])
                         ->sendToDatabase($notifyTo);
                 }
