@@ -11,7 +11,9 @@ use Illuminate\Support\Facades\Hash;
 use App\Jobs\VendorAccountCreationJob;
 use Filament\Resources\Pages\EditRecord;
 use App\Filament\Resources\Vendor\VendorResource;
+use App\Models\OwnerAssociation;
 use App\Models\VendorRemarks;
+use Filament\Facades\Filament;
 
 class EditVendor extends EditRecord
 {
@@ -47,8 +49,11 @@ class EditVendor extends EditRecord
     }
     protected function beforeSave(): void
     {
-        if ($this->record->status == null) 
+        if ($this->record->status == null)
         {
+            $tenant           = Filament::getTenant()?->id ?? auth()->user()?->owner_association_id;
+            $emailCredentials = OwnerAssociation::find($tenant)->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
+
             if ($this->data['status'] == 'rejected') {
                 $vendor=Vendor::where('id',$this->data['id'])->first();
                 $user = User::find($vendor->owner_id);
@@ -56,16 +61,16 @@ class EditVendor extends EditRecord
                 $user->password = Hash::make($password);
                 $user->save();
                 $remarks= $this->data['remarks'];
-                VendorRejectionJob::dispatch($user,$remarks,$password);
+                VendorRejectionJob::dispatch($user,$remarks,$password,$emailCredentials);
             }
-            if ($this->data['status'] == 'approved') 
+            if ($this->data['status'] == 'approved')
             {
                 $vendor=Vendor::where('id',$this->data['id'])->first();
                 $user = User::find($vendor->owner_id);
                 $password = Str::random(12);
                 $user->password = Hash::make($password);
                 $user->save();
-                VendorAccountCreationJob::dispatch($user, $password);
+                VendorAccountCreationJob::dispatch($user, $password, $emailCredentials);
             }
         }
     }

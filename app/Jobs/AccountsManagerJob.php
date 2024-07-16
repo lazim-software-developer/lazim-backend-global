@@ -19,7 +19,7 @@ class AccountsManagerJob implements ShouldQueue
      */
     public $user;
     public $password;
-    public function __construct($user, $password)
+    public function __construct($user, $password, protected $emailCredentials)
     {
         $this->user = $user;
         $this->password = $password;
@@ -33,6 +33,7 @@ class AccountsManagerJob implements ShouldQueue
         $beautymail = app()->make(Beautymail::class);
         $beautymail->send('emails.Accountsmanager', ['user' => $this->user, 'password' => $this->password], function ($message) {
             $message
+                ->from($this->emailCredentials,env('MAIL_FROM_NAME'))
                 ->to($this->user->email, $this->user->first_name)
                 ->subject('Welcome to Lazim!');
         });

@@ -11,7 +11,9 @@ use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
 use App\Filament\Resources\UserApprovalResource;
 use App\Jobs\Residentapproval;
+use App\Models\OwnerAssociation;
 use App\Models\UserApproval;
+use Filament\Facades\Filament;
 
 class EditUserApproval extends EditRecord
 {
@@ -31,7 +33,7 @@ class EditUserApproval extends EditRecord
         $data['user'] = $user->first_name;
         $data['email'] = $user->email;
         $data['phone'] = $user->phone;
-    
+
         return $data;
     }
     protected function beforeSave(): void
@@ -39,11 +41,14 @@ class EditUserApproval extends EditRecord
         UserApproval::find($this->data['id'])->update([
             'updated_by'  => auth()->user()->id,
         ]);
+        $tenant           = Filament::getTenant()?->id ?? auth()->user()?->owner_association_id;
+        $emailCredentials = OwnerAssociation::find($tenant)->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
+
         $user = User::find($this->record->user_id);
         if ($this->data['status'] == 'approved' && $this->record->status == null) {
             $user->active = true;
             $user->save();
-            Residentapproval::dispatch($user);
+            Residentapproval::dispatch($user,$emailCredentials);
             Notification::make()
                 ->title("Resident Approved")
                 ->success()

@@ -27,7 +27,7 @@ class MollakToken
             }
 
             // Check if the mollak_id header is not the expected value
-            if ($request->header('mollak_id') != 'TKX8z4TpH9wL') {
+            if ($request->header('mollak_id') != env('MOLLAK_ID')) {
                 return response()->json(['error' => 'Unauthorized'], 401);
             }
             
