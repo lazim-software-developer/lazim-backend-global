@@ -61,7 +61,10 @@ class CreateUser extends CreateRecord
         // Dispatch the appropriate job based on the role
         if (array_key_exists($this->record->role?->name, $roleJobMap)) {
             $jobClass = $roleJobMap[$this->record->role?->name];
-            $jobClass::dispatch($user, $password);
+            $tenant           = Filament::getTenant()?->id ?? auth()->user()->owner_association_id;
+            $emailCredentials = OwnerAssociation::find($tenant)->accountcredentials()->where('active', true)->latest()->first()->email ?? env('MAIL_FROM_ADDRESS');
+
+            $jobClass::dispatch($user, $password,$emailCredentials);
             // GeneralAccountCreationJob::dispatch($user, $password);
         } else {
             $tenant = Filament::getTenant()?->id ?? auth()->user()->owner_association_id;

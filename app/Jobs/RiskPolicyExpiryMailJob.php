@@ -17,7 +17,7 @@ class RiskPolicyExpiryMailJob implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct(protected $user, protected $document)
+    public function __construct(protected $user, protected $document, protected $emailCredentials)
     {
         //
     }
@@ -30,6 +30,7 @@ class RiskPolicyExpiryMailJob implements ShouldQueue
         $beautymail = app()->make(Beautymail::class);
         $beautymail->send('emails.risk_policy_expiry_mail', ['user' => $this->user,'document' => $this->document], function($message) {
             $message
+                ->from($this->emailCredentials,env('MAIL_FROM_NAME'))
                 ->to($this->user->email, $this->user->first_name)
                 ->subject('Welcome to Lazim!');
         });

@@ -18,7 +18,7 @@ class Residentapproval implements ShouldQueue
      * Create a new job instance.
      */
     public $user;
-    public function __construct($user)
+    public function __construct($user,protected $emailCredentials)
     {
         $this->user = $user;
     }
@@ -31,6 +31,7 @@ class Residentapproval implements ShouldQueue
         $beautymail = app()->make(Beautymail::class);
         $beautymail->send('emails.Residentapproval', ['user' => $this->user], function ($message) {
             $message
+                ->from($this->emailCredentials,env('MAIL_FROM_NAME'))
                 ->to($this->user->email, $this->user->first_name)
                 ->subject('Welcome to Lazim!');
         });

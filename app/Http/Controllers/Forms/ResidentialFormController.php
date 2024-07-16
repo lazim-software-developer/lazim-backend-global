@@ -6,7 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Forms\ResidentialFormRequest;
 use App\Jobs\Forms\ResidentialFormRequestJob;
 use App\Models\Building\Building;
+use App\Models\OwnerAssociation;
 use App\Models\ResidentialForm;
+use Filament\Facades\Filament;
 
 class ResidentialFormController extends Controller
 {
@@ -31,7 +33,10 @@ class ResidentialFormController extends Controller
         $validated['ticket_number'] = generate_ticket_number("FV");
 
         $residentialForm = ResidentialForm::create($validated);
-        ResidentialFormRequestJob::dispatch(auth()->user(), $residentialForm);
+        $tenant           = Filament::getTenant()?->id ?? auth()->user()?->owner_association_id ?? $ownerAssociationId;
+        $emailCredentials = OwnerAssociation::find($tenant)->accountcredentials()->where('active', true)->latest() ->first()?->email ?? env('MAIL_FROM_ADDRESS');
+
+        ResidentialFormRequestJob::dispatch(auth()->user(), $residentialForm,$emailCredentials);
 
         return response()->json([
             'message' => 'Form successfully created',
