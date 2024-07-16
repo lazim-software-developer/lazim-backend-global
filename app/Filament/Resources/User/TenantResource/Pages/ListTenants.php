@@ -20,7 +20,7 @@ class ListTenants extends ListRecords
     protected static string $resource = TenantResource::class;
     protected function getTableQuery(): Builder
     {
-        return parent::getTableQuery()->whereIn('building_id', Building::where('owner_association_id', auth()->user()->owner_association_id)->pluck('id'));
+        return parent::getTableQuery()->whereIn('building_id', Building::where('owner_association_id', Filament::getTenant()?->id ??auth()->user()->owner_association_id)->pluck('id'));
     }
     protected function getHeaderActions(): array
     {
@@ -31,7 +31,7 @@ class ListTenants extends ListRecords
                 ->form([
                     Select::make('building_id')
                         ->options(function () {
-                            return Building::where('owner_association_id', auth()->user()->owner_association_id)->pluck('name', 'id');
+                            return Building::where('owner_association_id',Filament::getTenant()?->id ?? auth()->user()->owner_association_id)->pluck('name', 'id');
                         })
                         ->searchable()
                         ->preload()
