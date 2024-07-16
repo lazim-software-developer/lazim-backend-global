@@ -287,7 +287,7 @@ class AppPanelProvider extends PanelProvider
                                     ->sort(3),
                                 NavigationItem::make('Family Members')
                                     ->url(FamilyMemberResource::getUrl('index'))
-                                    ->visible($user->can('view_any_family::members'))
+                                    ->visible($user->can('view_any_family::member'))
                                     ->icon('heroicon-s-user-group')
                                     ->activeIcon('heroicon-s-user-group')
                                     ->sort(4),
