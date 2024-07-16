@@ -302,7 +302,7 @@ class TestController extends Controller
         $data->Collection      = $collection;
 
         Log::info(json_encode((array) $data));
-        // return $data;
+        return $data;
         $response = Http::withOptions(['verify' => false])->retry(3, 100)->timeout(60)->withHeaders([
             'content-type' => 'application/json',
             'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
