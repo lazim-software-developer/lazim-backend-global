@@ -17,6 +17,7 @@ use Filament\Resources\Pages\ListRecords;
 use Illuminate\Database\Eloquent\Builder;
 use EightyNine\ExcelImport\ExcelImportAction;
 use App\Filament\Resources\MollakTenantResource;
+use Filament\Facades\Filament;
 
 class ListMollakTenants extends ListRecords
 {
@@ -57,7 +58,7 @@ class ListMollakTenants extends ListRecords
                             if (DB::table('roles')->where('id', auth()->user()->role_id)->first()->name == 'Admin') {
                                 return Building::all()->pluck('name', 'id');
                             } else {
-                                return Building::where('owner_association_id', auth()->user()->owner_association_id)
+                                return Building::where('owner_association_id', Filament::getTenant()->id)
                                     ->pluck('name', 'id');
                             }
                         })

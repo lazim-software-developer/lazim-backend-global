@@ -7,6 +7,7 @@ use App\Models\Building\Flat;
 use App\Models\MollakTenant;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 
@@ -50,6 +51,8 @@ class MyClientImport implements ToCollection, WithHeadingRow
                 ->send();
             return 'failure';
         } else {
+            $oam_id = DB::table('building_owner_association')->where('building_id',$this->buildingId)->where('active', true)->first();
+
             foreach ($rows as $row) {
                 $building   = Building::find($this->buildingId)->first();
                 $createflat = Flat::firstOrCreate(
@@ -57,7 +60,7 @@ class MyClientImport implements ToCollection, WithHeadingRow
                         'property_number'      => $row['unit_number'],
                         'mollak_property_id'   => $row['mollak_id'],
                         'building_id'          => $this->buildingId,
-                        'owner_association_id' => $building->owner_association_id,
+                        'owner_association_id' => $oam_id?->owner_association_id,
                     ], [
                         'property_type' => 'UNIT',
                     ]);
@@ -73,6 +76,7 @@ class MyClientImport implements ToCollection, WithHeadingRow
                     'start_date'      => $row['start_date'],
                     'end_date'        => $row['end_date'],
                     'contract_status' => $row['contract_status'],
+                    'owner_association_id' => $oam_id?->owner_association_id,
                 ]);
             }
             Notification::make()
