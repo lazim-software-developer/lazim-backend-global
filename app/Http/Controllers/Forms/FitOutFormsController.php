@@ -14,8 +14,10 @@ use App\Models\FitOutFormContractorRequest;
 use App\Models\Forms\FitOutForm;
 use App\Models\Master\DocumentLibrary;
 use App\Models\Master\Role;
+use App\Models\OwnerAssociation;
 use App\Models\User\User;
 use App\Traits\UtilsTrait;
+use Filament\Facades\Filament;
 use Filament\Notifications\Actions\Action;
 use Filament\Notifications\Notification;
 use Illuminate\Http\Request;
@@ -48,7 +50,10 @@ class FitOutFormsController extends Controller
 
         $name = $request->contractor_name;
         $email = $request->email;
-        FitOutContractorMailJob::dispatch($name,$email,$form);
+        $tenant           = Filament::getTenant()?->id ?? auth()->user()->owner_association_id ?? $ownerAssociationId;
+        $emailCredentials = OwnerAssociation::find($tenant)->accountcredentials()->where('active', true)->latest()->first()->email ?? env('MAIL_FROM_ADDRESS');
+
+        FitOutContractorMailJob::dispatch($name,$email,$form,$emailCredentials);
 
         return (new CustomResponseResource([
             'title' => 'Success',

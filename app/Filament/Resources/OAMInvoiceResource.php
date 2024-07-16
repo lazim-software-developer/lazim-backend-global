@@ -23,6 +23,8 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\OAMInvoiceResource\Pages;
 use App\Filament\Resources\OAMInvoiceResource\RelationManagers;
+use App\Models\OwnerAssociation;
+use Filament\Facades\Filament;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class OAMInvoiceResource extends Resource
@@ -121,7 +123,10 @@ class OAMInvoiceResource extends Resource
                                 $ownerID = FlatOwners::where('flat_id', $flatId)->where('active', true)->first()->owner_id;
                                 $owner = ApartmentOwner::find($ownerID);
                                 $content = $data['content'];
-                                InvoiceDueMailJob::dispatch($owner, $content);
+                                $tenant           = Filament::getTenant()?->id ?? auth()->user()?->owner_association_id;
+                                $emailCredentials = OwnerAssociation::find($tenant)->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
+
+                                InvoiceDueMailJob::dispatch($owner, $content, $emailCredentials);
                             }
                         })
                         ->slideOver()
