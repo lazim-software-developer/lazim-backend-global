@@ -138,7 +138,7 @@ class OwnerAssociationReceipt extends Page
         try {
             $data = $this->form->getState();
             $oam_id = DB::table('building_owner_association')->where('building_id',$data['building_id'])->where('active', true)->first();
-            $oam = OwnerAssociation::find($oam_id?:auth()->user()->ownerAssociation->first()->id);
+            $oam = OwnerAssociation::find($oam_id?->id ?:auth()->user()->ownerAssociation->first()->id);
             // $oam = auth()->user()->ownerAssociation;
             $data['owner_association_id'] = $oam?->id;
             $receipt_id = strtoupper(substr($oam->name, 0, 4)) . date('YmdHis');
