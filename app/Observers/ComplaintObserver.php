@@ -42,7 +42,7 @@ class ComplaintObserver
                 ->actions([
                     Action::make('view')
                         ->button()
-                        ->url(fn () => ComplaintscomplaintResource::getUrl('edit', [$complaint->id])),
+                        ->url(fn () => ComplaintscomplaintResource::getUrl('edit', ['record',$complaint->id])),
                 ])
                 ->sendToDatabase($notifyTo);
         } elseif ($complaint->complaint_type == 'enquiries') {
@@ -59,7 +59,7 @@ class ComplaintObserver
                 ->actions([
                     Action::make('view')
                         ->button()
-                        ->url(fn () => ComplaintsenquiryResource::getUrl('edit', [$complaint->id])),
+                        ->url(fn () => ComplaintsenquiryResource::getUrl('edit', ['record',$complaint->id])),
                 ])
                 ->sendToDatabase($notifyTo);
         } elseif ($complaint->complaint_type == 'suggestions') {
@@ -76,7 +76,7 @@ class ComplaintObserver
                 ->actions([
                     Action::make('view')
                         ->button()
-                        ->url(fn () => ComplaintssuggessionResource::getUrl('edit', [$complaint->id])),
+                        ->url(fn () => ComplaintssuggessionResource::getUrl('edit', ['record',$complaint->id])),
                 ])
                 ->sendToDatabase($notifyTo);
         } elseif($complaint->complaint_type == 'snag'){
@@ -95,7 +95,7 @@ class ComplaintObserver
             ->actions([
                 Action::make('View')
                 ->button()
-                ->url(fn () => SnagsResource::getUrl('edit', [$complaint->id]))
+                ->url(fn () => SnagsResource::getUrl('edit', ['record',$complaint->id]))
             ])
         ->sendToDatabase($notifyTo);
         }
@@ -113,7 +113,7 @@ class ComplaintObserver
                 ->actions([
                     Action::make('view')
                         ->button()
-                        ->url(fn () => HelpdeskcomplaintResource::getUrl('edit', [$complaint->id])),
+                        ->url(fn () => HelpdeskcomplaintResource::getUrl('edit', ['record',$complaint->id])),
                 ])
                 ->sendToDatabase($notifyTo);
         }
@@ -195,7 +195,7 @@ class ComplaintObserver
                     ->actions([
                         Action::make('view')
                             ->button()
-                            ->url(fn () => HelpdeskcomplaintResource::getUrl('edit', [$complaint->id])),
+                            ->url(fn () => HelpdeskcomplaintResource::getUrl('edit', ['record',$complaint->id])),
                     ])
                     ->sendToDatabase($notifyTo);
             } else {
