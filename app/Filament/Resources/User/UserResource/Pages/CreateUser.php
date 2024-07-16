@@ -11,6 +11,7 @@ use App\Jobs\GeneralAccountCreationJob;
 use App\Jobs\MdCreateJob;
 use App\Jobs\TechnicianAccountCreationJob;
 use App\Jobs\VendorAccountCreationJob;
+use App\Models\OwnerAssociationUser;
 use App\Models\User\User;
 use App\Models\Vendor\Vendor;
 use Filament\Actions;
@@ -34,6 +35,11 @@ class CreateUser extends CreateRecord
     {
         // dd($this->data);
         $user = User::find($this->record->id);
+        OwnerAssociationUser::create([
+            'owner_association_id' => $this->record->owner_association_id,
+            'user_id'=>$this->record->id,
+            'from'=>now()
+        ]);
 
         $roleJobMap = [
             // 'Vendor' => VendorAccountCreationJob::class,
