@@ -344,7 +344,7 @@ class MollakController extends Controller
                 ]);
 
 
-                FetchAndSaveReceipts::dispatch($propertyGroupId,$mollakPropertyId,$receiptId);
+                FetchAndSaveReceipts::dispatch($building = null,$propertyGroupId,$mollakPropertyId,$receiptId);
 
                 break;
             case 'budget_approved':
