@@ -327,28 +327,39 @@ class MollakController extends Controller
         $syncType = $request->input('syncType');
         switch ($syncType) {
             case 'payment_receipt':
+                $parameters = [];
+                foreach ($request->parameters as $param) {
+                    $parameters[$param['key']] = $param['value'];
+                }
+
+                $managementCompanyId = $parameters['managementCompanyId'] ?? null;
+                $propertyGroupId = $parameters['propertyGroupId']?? null; //235553;
+                $mollakPropertyId = $parameters['mollakPropertyId']?? null; //5001;
+                $receiptId = $parameters['receiptId']?? null; //1122;
                 WebhookResponse::create([
-                    'management_company_id' => $request->parameters['managementCompanyId'],
+                    'management_company_id' => $managementCompanyId,
                     'type' => 'payment_receipt',
-                    'response' => $request->parameters
+                    'response' => json_encode($request->parameters)
                 ]);
 
-                $propertyGroupId = $request->parameters['propertyGroupId']; //235553;
-                $mollakPropertyId = $request->parameters['mollakPropertyId']; //5001;
-                $receiptId = $request->parameters['receiptId']; //1122;
 
                 FetchAndSaveReceipts::dispatch($propertyGroupId,$mollakPropertyId,$receiptId);
 
                 break;
             case 'budget_approved':
+                $parameters = [];
+                foreach ($request->parameters as $param) {
+                    $parameters[$param['key']] = $param['value'];
+                }
+                $managementCompanyId = $parameters['managementCompanyId'] ?? null;
+                $propertyGroupId = $parameters['propertyGroupId']?? null; //235553;
+                $periodCode =  $parameters['periodCode']?? null; //'JAN2021-DEC2021';
                 WebhookResponse::create([
-                    'management_company_id' => $request->parameters['managementCompanyId'],
+                    'management_company_id' => $managementCompanyId,
                     'type' => 'budget_approved',
-                    'response' => $request->parameters
+                    'response' => json_encode($request->parameters)
                 ]);
-                $propertyGroupId = $request->parameters['propertyGroupId']; //235553;
-                $periodCode =  $request->parameters['periodCode']; //'JAN2021-DEC2021';
-
+                
                 $results = Http::withOptions(['verify' => false])->withHeaders([
                     'content-type' => 'application/json',
                     'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
@@ -379,62 +390,93 @@ class MollakController extends Controller
                 Budget::where('building_id', $building?->id);
                 break;
             case 'invoice_generated':
-                WebhookResponse::create([
-                    'management_company_id' => $request->parameters['managementCompanyId'],
-                    'type' => 'invoice_generated',
-                    'response' => $request->parameters
-                ]);
 
-                $propertyGroupId = $request->parameters['propertyGroupId']; //235553;
-                $quarterCode = $request->parameters['quarterCode']; //'Q4-JAN2019-DEC2019';
-                $serviceChargeGroupId = $request->parameters['serviceChargeGroupId']; //5001;
+                $parameters = [];
+                foreach ($request->parameters as $param) {
+                    $parameters[$param['key']] = $param['value'];
+                }
+
+                $managementCompanyId = $parameters['managementCompanyId'] ?? null;
+                $propertyGroupId = $parameters['propertyGroupId']?? null; //235553;
+                $quarterCode = $parameters['quarterCode']?? null; //'Q4-JAN2019-DEC2019';
+                $serviceChargeGroupId = $parameters['serviceChargeGroupId']?? null; //5001;
+
+                WebhookResponse::create([
+                    'management_company_id' => $managementCompanyId,
+                    'type' => 'invoice_generated',
+                    'response' => json_encode($request->parameters)
+                ]);                
 
                 FetchAndSaveInvoices::dispatch($propertyGroupId,$serviceChargeGroupId,$quarterCode);
                 break;
             case 'ownership_changed':
-                WebhookResponse::create([
-                    'management_company_id' => $request->parameters['managementCompanyId'],
-                    'type' => 'ownership_changed',
-                    'response' => $request->parameters
-                ]);
 
-                $propertyGroupId = $request->parameters['propertyGroupId']; //235553;
-                $mollakPropertyId = $request->parameters['mollakPropertyId']; //5001;
+                $parameters = [];
+                foreach ($request->parameters as $param) {
+                    $parameters[$param['key']] = $param['value'];
+                }
+
+                $managementCompanyId = $parameters['managementCompanyId'] ?? null;
+                $propertyGroupId = $parameters['propertyGroupId']?? null; //235553;
+                $mollakPropertyId = $parameters['mollakPropertyId']?? null; //5001;
+
+                WebhookResponse::create([
+                    'management_company_id' => $managementCompanyId,
+                    'type' => 'ownership_changed',
+                    'response' => json_encode($request->parameters)
+                ]);
 
                 OwnershipChangedWebhookJob::dispatch($propertyGroupId,$mollakPropertyId);
                 break;
             case 'contract_changed':
+                $parameters = [];
+                foreach ($request->parameters as $param) {
+                    $parameters[$param['key']] = $param['value'];
+                }
+
+                $managementCompanyId = $parameters['managementCompanyId'] ?? null;
+                $propertyGroupId = $parameters['propertyGroupId']?? null; //235553;
+                $contractNumber = $parameters['contractNumber']?? null;
                 WebhookResponse::create([
-                    'management_company_id' => $request->parameters['managementCompanyId'],
+                    'management_company_id' => $managementCompanyId,
                     'type' => 'contract_changed',
-                    'response' => $request->parameters
+                    'response' => json_encode($request->parameters)
                 ]);
-                $propertyGroupId = $request->parameters['propertyGroupId']; //235553;
-                $contractNumber = $request->parameters['contractNumber'];
 
                 ContractChangedWebhookJob::dispatch($propertyGroupId,$contractNumber);
 
                 break;
             case 'legal_notice_issued':
 
+                $parameters = [];
+                foreach ($request->parameters as $param) {
+                    $parameters[$param['key']] = $param['value'];
+                }
+
+                $managementCompanyId = $parameters['managementCompanyId'] ?? null;
+                $propertyGroupId = $parameters['propertyGroupId']?? null; //235553;
+                $mollakPropertyId = $parameters['mollakPropertyId']?? null; //5001;
+                $legalNoticeId = $parameters['legalNoticeId']?? null; //619411;
                 WebhookResponse::create([
-                    'management_company_id' => $request->parameters['managementCompanyId'],
+                    'management_company_id' => $managementCompanyId,
                     'type' => 'legal_notice_issued',
-                    'response' => $request->parameters
+                    'response' => json_encode($request->parameters)
                 ]);
 
-                $propertyGroupId = $request->parameters['propertyGroupId']; //235553;
-                $mollakPropertyId = $request->parameters['mollakPropertyId']; //5001;
-                $legalNoticeId = $request->parameters['legalNoticeId']; //619411;
 
                 LegalNoticeIssuedJob::dispatch($propertyGroupId,$mollakPropertyId, $legalNoticeId);
                 
                 break;
             case 'owner_committee_formed':
+                $parameters = [];
+                foreach ($request->parameters as $param) {
+                    $parameters[$param['key']] = $param['value'];
+                }
+                $managementCompanyId = $parameters['managementCompanyId'] ?? null;
                 WebhookResponse::create([
-                    'management_company_id' => $request->parameters['managementCompanyId'],
+                    'management_company_id' => $managementCompanyId,
                     'type' => 'owner_committee_formed',
-                    'response' => $request->parameters
+                    'response' => json_encode($request->parameters)
                 ]);
                 break;
             default:
