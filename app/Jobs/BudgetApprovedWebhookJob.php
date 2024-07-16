@@ -4,6 +4,8 @@ namespace App\Jobs;
 
 use App\Models\Accounting\Budget;
 use App\Models\Accounting\Budgetitem;
+use App\Models\Accounting\Category;
+use App\Models\Accounting\SubCategory;
 use App\Models\Building\Building;
 use App\Models\Master\Service;
 use Carbon\Carbon;
@@ -52,7 +54,26 @@ class BudgetApprovedWebhookJob implements ShouldQueue
                     'budget_to' => Carbon::parse($group['budgetPeriodTo'])->toDateString(),
                 ]);
                 foreach($group['budgetItems'] as $budgetItem){
-                    $service =Service::where('code',$budgetItem['serviceCode'])->first();
+                    $category = Category::firstOrCreate([
+                        'code' => $budgetItem['categoryCode']
+                    ],
+                    [
+                        'name' => $budgetItem['categoryName']['englishName']
+                    ]);
+                    $subCategory = SubCategory::firstOrCreate([
+                        'code' => $budgetItem['subCategoryCode'],
+                        'category_id' => $category?->id
+                    ],[
+                        'name' => $budgetItem['subCategoryName']['englishName']
+                    ]);
+                    $service = Service::firstOrCreate([
+                        'code' => $budgetItem['serviceCode'],
+                        'subcategory_id' => $subCategory?->id
+                    ],[
+                        'name' => $budgetItem['serviceName']['englishName'],
+                        'active' => true,
+                        'type' => 'vendor_service'
+                    ]);
                     $item = Budgetitem::updateOrCreate([
                         'service_id'=>$service?->id,
                         'budget_id'=>$budget->id,
