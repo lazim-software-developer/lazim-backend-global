@@ -11,6 +11,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class ContractChangedWebhookJob implements ShouldQueue
 {
@@ -37,6 +38,7 @@ class ContractChangedWebhookJob implements ShouldQueue
             'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
         ])->get("https://qagate.dubailand.gov.ae/mollak/external/sync/property/".$propertyGroupId."/contract/".$contractNumber);
         $responce = $results->json()['response'];
+        Log::info($responce);
         $flat_id = Flat::where('mollak_property_id',$responce['property']['propertyId'])->first();
         MollakTenant::updateOrCreate([
             'contract_number' => $responce['contract']['contractNumber']

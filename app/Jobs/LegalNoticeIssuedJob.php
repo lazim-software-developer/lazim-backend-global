@@ -12,6 +12,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class LegalNoticeIssuedJob implements ShouldQueue
 {
@@ -39,6 +40,7 @@ class LegalNoticeIssuedJob implements ShouldQueue
         ])->get("https://qagate.dubailand.gov.ae/mollak/external/sync/legalnotice/".$propertyGroupId."/".$mollakPropertyId."/".$legalNoticeId);
         
         $responce = $results->json()['response']['propertyGroups'];
+        Log::info($responce);
         $building_id = Building::where('mollak_property_id',$propertyGroupId)->first();
         $oam_id = DB::table('building_owner_association')->where('building_id',$building_id?:null)->where('active', true)->first();
         foreach($responce['mollakProperties'] as $notice){

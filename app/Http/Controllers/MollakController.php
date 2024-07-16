@@ -16,6 +16,7 @@ use App\Models\Accounting\SubCategory;
 use App\Http\Resources\Master\UnitResource;
 use App\Http\Resources\Master\PropertyGroupResource;
 use App\Http\Resources\Master\ServicePeriodResource;
+use App\Jobs\BudgetApprovedWebhookJob;
 use App\Jobs\ContractChangedWebhookJob;
 use App\Jobs\LegalNoticeIssuedJob;
 use App\Jobs\OAM\FetchAndSaveInvoices;
@@ -360,34 +361,7 @@ class MollakController extends Controller
                     'response' => json_encode($request->parameters)
                 ]);
                 
-                $results = Http::withOptions(['verify' => false])->withHeaders([
-                    'content-type' => 'application/json',
-                    'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
-                ])->get("https://qagate.dubailand.gov.ae/mollak/external/sync/budgets/".$propertyGroupId."/all/".$periodCode);
-                $responce = $results->json()['response'];
-                    $building = Building::where('property_group_id',$responce['propertyGroupId'])->first();
-                    foreach($responce['serviceChargeGroups'] as $group){
-                        $budget = Budget::firstOrCreate([
-                            'building_id' => $building?->id,
-                            'budget_period' => $group['budgetPeriodCode'],
-                        ],[
-                            'budget_from' => Carbon::parse($group['budgetPeriodFrom'])->toDateString() ,
-                            'budget_to' => Carbon::parse($group['budgetPeriodTo'])->toDateString(),
-                        ]);
-                        foreach($group['budgetItems'] as $budgetItem){
-                            $service =Service::where('code',$budgetItem['serviceCode'])->first();
-                            $item = Budgetitem::updateOrCreate([
-                                'service_id'=>$service?->id,
-                                'budget_id'=>$budget->id,
-                            ],[
-                                'total' => intval($budgetItem['totalCost']),
-                                'vat_rate' => intval($budgetItem['vatAmount']) / 100,
-                                'budget_excl_vat' => intval($budgetItem['totalCost']) - (intval($budgetItem['totalCost']) * (intval($budgetItem['vatAmount']) / 100)),
-                                'vat_amount' => intval($budgetItem['totalCost']) * (intval($budgetItem['vatAmount']) / 100),
-                            ]);
-                        }
-                    }
-                Budget::where('building_id', $building?->id);
+                BudgetApprovedWebhookJob::dispatch($propertyGroupId,$periodCode);                
                 break;
             case 'invoice_generated':
 

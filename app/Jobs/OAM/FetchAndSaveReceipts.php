@@ -51,6 +51,7 @@ class FetchAndSaveReceipts implements ShouldQueue
             
             $properties = $response->json()['response']['properties'];
 
+            Log::info($properties);
             $currentQuarterDates = $this->getCurrentQuarterDates();
 
             foreach ($properties as $property) {
