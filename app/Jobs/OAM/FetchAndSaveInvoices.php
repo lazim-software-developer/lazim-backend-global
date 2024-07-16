@@ -32,7 +32,7 @@ class FetchAndSaveInvoices implements ShouldQueue
      */
     public function handle(): void
     {
-        $buildingId = $this->building->id;
+        $buildingId = $this->building?->id;
         $propertyGroupId = $this->propertyGroupId ?: $this->building->property_group_id;
         $serviceChargeGroupId = $this->serviceChargeGroupId;
 

@@ -381,7 +381,7 @@ class MollakController extends Controller
                     'response' => json_encode($request->parameters)
                 ]);                
 
-                FetchAndSaveInvoices::dispatch($propertyGroupId,$serviceChargeGroupId,$quarterCode);
+                FetchAndSaveInvoices::dispatch($building = null,$propertyGroupId,$serviceChargeGroupId,$quarterCode);
                 break;
             case 'ownership_changed':
 
