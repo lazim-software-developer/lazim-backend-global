@@ -31,6 +31,8 @@ use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 class PollResource extends Resource
 {
     protected static ?string $model = Poll::class;
+    protected static ?string $modelLabel      = 'Polls';
+
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 

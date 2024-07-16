@@ -30,6 +30,7 @@ class AssetMaintenanceResource extends Resource
     protected static ?string $model = AssetMaintenance::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $modelLabel      = 'Assets Maintenance';
 
     public static function form(Form $form): Form
     {

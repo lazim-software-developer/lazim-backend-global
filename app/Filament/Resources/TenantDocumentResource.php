@@ -30,7 +30,7 @@ class TenantDocumentResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-user-circle';
     protected static ?string $navigationGroup = 'Master';
-    protected static ?string $modelLabel = 'Resident Document';
+    protected static ?string $modelLabel = 'Resident Documents';
 
     public static function form(Form $form): Form
     {

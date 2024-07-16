@@ -36,7 +36,7 @@ class SnagsResource extends Resource
     protected static ?string $model = Complaint::class;
 
     protected static ?string $navigationIcon = 'heroicon-s-swatch';
-    protected static ?string $modelLabel = 'Snag';
+    protected static ?string $modelLabel = 'Snags';
     protected static ?string $navigationGroup = 'Security';
 
 

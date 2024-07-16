@@ -45,7 +45,7 @@ use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 class PostResource extends Resource
 {
     protected static ?string $model = Post::class;
-    protected static ?string $modelLabel = 'Post';
+    protected static ?string $modelLabel = 'Posts';
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
     protected static ?string $navigationGroup = 'Community';
 

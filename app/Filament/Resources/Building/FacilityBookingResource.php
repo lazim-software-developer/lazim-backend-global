@@ -34,6 +34,7 @@ class FacilityBookingResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
     protected static ?string $navigationLabel = 'Facility Bookings';
     protected static ?string $navigationGroup = 'Property Management';
+    protected static ?string $modelLabel      = 'Facility Bookings';
 
     public static function form(Form $form): Form
     {
