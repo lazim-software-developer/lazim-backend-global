@@ -26,12 +26,12 @@ use Illuminate\Support\Facades\DB;
 class RegistrationController extends Controller
 {
     public function registerWithEmailPhone(RegisterRequest $request) {
-        
+
         $userData = User::where(['email' => $request->get('email'), 'phone' => $request->get('mobile')]);
         if ($request->type == 'Owner'){
             $userData->where('owner_id' , $request->get('owner_id'));
         }
-        
+
         if($userData->exists() && ($userData->first()->email_verified == 0 )) {
             return (new CustomResponseResource([
                 'title' => 'account_present',
@@ -62,7 +62,7 @@ class RegistrationController extends Controller
 
         // Fetch the flat using the provided flat_id
         $flat = Flat::find($request->flat_id);
-    
+
         // Check if flat exists
         if (!$flat) {
             return (new CustomResponseResource([
@@ -86,13 +86,13 @@ class RegistrationController extends Controller
                 'code' => 400,
             ]))->response()->setStatusCode(400);
         }
-    
+
         if ($type === 'Owner') {
             $queryModel = $flat->owners()->where('apartment_owners.id',$request->owner_id);
         } else {
             $queryModel = MollakTenant::where(['email' => $request->email, 'mobile' => $request->mobile, 'building_id'=> $request->building_id, 'flat_id' => $request->flat_id]);
         }
-    
+
         if (!$queryModel->exists()) {
             if ($type === 'Owner') {
                 return (new CustomResponseResource([
@@ -110,15 +110,15 @@ class RegistrationController extends Controller
                 ]))->response()->setStatusCode(400);
             }
         }
-    
+
         // Fetch first name
         $firstName = $queryModel->value('name');
-    
+
         // Identify role based on the type
         $role = Role::where('name', $type)->value('id');
-    
+
         // If the check passes, store the user details in the users table
-        // Fetch building 
+        // Fetch building
         $building = Building::where('id', $request->building_id)->first();
         $user = User::create([
             'email' => $request->email,
@@ -129,7 +129,7 @@ class RegistrationController extends Controller
             'owner_association_id' => $building->owner_association_id,
             'owner_id' => $request->owner_id?: null,
         ]);
-    
+
         // Store details to Flat tenants table
         FlatTenant::create([
             'flat_id' => $request->flat_id,
@@ -141,13 +141,13 @@ class RegistrationController extends Controller
             'active' => 1,
             'role' => $type
         ]);
-    
+
         // Send email after 5 seconds
         SendVerificationOtp::dispatch($user)->delay(now()->addSeconds(5));
-    
+
         // Find all the flats that this user is owner of and attach them to flat_tenant table using the job
         AssignFlatsToTenant::dispatch($request->email,$request->mobile,$request->owner_id)->delay(now()->addSeconds(5));
-    
+
         return (new CustomResponseResource([
             'title' => 'Registration successful!',
             'message' => "We've sent verification code to your email Id and phone. Please verify to continue using the application",
@@ -155,14 +155,14 @@ class RegistrationController extends Controller
             'status' => 'success'
         ]))->response()->setStatusCode(201);
     }
-    
+
     public function registerWithDocument(RegisterWithEmiratesOrPassportRequest $request) {
         $userData = User::where(['email' => $request->get('email'), 'phone' => $request->get('mobile')]);
         if ($request->type == 'Owner'){
             $userData->where('owner_id' , $request->get('owner_id'));
         }
 
-        
+
         if($userData->exists() && ($userData->first()->email_verified == 0 )) {
             return (new CustomResponseResource([
                 'title' => 'account_present',
@@ -193,37 +193,37 @@ class RegistrationController extends Controller
 
         // Fetch the flat using the provided flat_id
         $flat = Flat::find($request->flat_id);
-    
+
         // Check if flat exists
         if (!$flat) {
             return (new CustomResponseResource([
                 'title' => 'Error',
                 'message' => 'Flat selected by you doesnot exists',
-                'code' => 400, 
+                'code' => 400,
             ]))->response()->setStatusCode(400);
         }
-    
+
         // Check if the given flat_id is already allotted to someone with active true
         $flatOwner = DB::table('flat_tenants')->where(['flat_id' => $flat->id, 'active' => 1])->exists();
-    
+
         if ($flatOwner) {
             return (new CustomResponseResource([
                 'title' => 'Error',
                 'message' => 'Looks like this flat is already allocated to someone!',
-                'code' => 400, 
+                'code' => 400,
             ]))->response()->setStatusCode(400);
         }
-    
+
         // Determine the type (tenant or owner)
         $type = $request->input('type', 'Owner');
 
-    
+
         // Identify role based on the type
         $role = Role::where('name', $type)->value('id');
-    
+
         // If the check passes, store the user details in the users table
         $building = Building::where('id', $request->building_id)->first();
-        
+
         $user = User::create([
             'email' => $request->email, // Assuming email is still provided for communication
             'first_name' => $request->name,
@@ -238,7 +238,7 @@ class RegistrationController extends Controller
         $passport = optimizeDocumentAndUpload($request->passport_document, 'dev');
 
         $oam_id = DB::table('building_owner_association')->where('building_id',$request->building_id)->where('active', true)->first();
-        $oam = OwnerAssociation::find($oam_id?:auth()->user()->ownerAssociation->first()->id);
+        $oam = OwnerAssociation::find($oam_id ?? $building->owner_association_id);
 
         $userApproval = UserApproval::create([
             'user_id' => $user->id,
@@ -271,7 +271,7 @@ class RegistrationController extends Controller
             'code' => 201,
             'status' => 'verificationPending'
         ]))->response()->setStatusCode(201);
-    }    
+    }
 
     public function resendOtp(ResendOtpRequest $request)
     {
@@ -309,20 +309,20 @@ class RegistrationController extends Controller
                 ['type' => $type, 'contact_value' => $contactValue],
                 ['otp' => $otp]
             );
-    
+
             // If type is email, send the OTP to the email
             ResendOtpEmail::dispatch($user, $otp, $type)->delay(now()->addSeconds(5));
-    
+
             //TODO: If type is phone, you can integrate with an SMS service to send the OTP
             // (This part is left out for now as it depends on the SMS service)
-    
+
             return (new CustomResponseResource([
                 'title' => 'Success',
                 'message' => 'OTP sent successfully!',
                 'code' => 200,
             ]))->response()->setStatusCode(200);
         }
-        
+
         return (new CustomResponseResource([
             'title' => 'Error',
             'message' => 'The provided '.$type.' is not registered in our system.',
@@ -355,7 +355,7 @@ class RegistrationController extends Controller
     }
 
     public function allOwners(Request $request){
-        
+
         $users = User::where('email',$request->email)->pluck('owner_id');
         $owners = ApartmentOwner::whereIn('id',$users)->get();
 
