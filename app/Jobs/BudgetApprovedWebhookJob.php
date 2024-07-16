@@ -57,9 +57,9 @@ class BudgetApprovedWebhookJob implements ShouldQueue
                         'budget_id'=>$budget->id,
                     ],[
                         'total' => intval($budgetItem['totalCost']),
-                        'vat_rate' => intval($budgetItem['vatAmount']) / 100,
-                        'budget_excl_vat' => intval($budgetItem['totalCost']) - (intval($budgetItem['totalCost']) * (intval($budgetItem['vatAmount']) / 100)),
-                        'vat_amount' => intval($budgetItem['totalCost']) * (intval($budgetItem['vatAmount']) / 100),
+                        'vat_rate' => 0.05,
+                        'budget_excl_vat' => intval($budgetItem['totalCost']) - intval($budgetItem['vatAmount']),
+                        'vat_amount' => intval($budgetItem['vatAmount']),
                     ]);
                 }
             }
