@@ -238,7 +238,7 @@ class RegistrationController extends Controller
         $passport = optimizeDocumentAndUpload($request->passport_document, 'dev');
 
         $oam_id = DB::table('building_owner_association')->where('building_id',$request->building_id)->where('active', true)->first();
-        $oam = OwnerAssociation::find($oam_id ?? $building->owner_association_id);
+        $oam = OwnerAssociation::find($oam_id->owner_association_id?:auth()->user()->ownerAssociation->id);
 
         $userApproval = UserApproval::create([
             'user_id' => $user->id,
