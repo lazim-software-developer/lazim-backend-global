@@ -150,7 +150,7 @@ class OwnerAssociationInvoice extends Page implements HasForms
             // dd(auth()->user()->ownerAssociation->first());
             // dd($data);
             $oam_id = DB::table('building_owner_association')->where('building_id',$data['building_id'])->where('active', true)->first();
-            $oam = OwnerAssociation::find($oam_id?:auth()->user()->ownerAssociation->first()->id);
+            $oam = OwnerAssociation::find($oam_id?->owner_association_id?:auth()->user()->ownerAssociation->first()->id);
             // $oam = auth()->user()->ownerAssociation;
             $data['owner_association_id'] = $oam?->id;
             $invoice_id = strtoupper(substr($oam->name, 0, 4)) . date('YmdHis');
