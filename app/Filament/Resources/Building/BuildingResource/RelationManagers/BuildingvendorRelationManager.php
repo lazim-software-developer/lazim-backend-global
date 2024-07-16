@@ -47,9 +47,6 @@ class BuildingvendorRelationManager extends RelationManager
                 Select::make('vender_website')
                     ->relationship('vendor','website')
                     ->label('Vendor website'),
-                Select::make('vender_fax')
-                    ->relationship('vendor','fax')
-                    ->label('Vendor fax'),
 
             ]);
     }
