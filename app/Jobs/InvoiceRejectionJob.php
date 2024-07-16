@@ -20,7 +20,7 @@ class InvoiceRejectionJob implements ShouldQueue
     public $user;
     public $remarks;
     public $invoice;
-    public function __construct($user, $remarks, $invoice)
+    public function __construct($user, $remarks, $invoice,protected $emailCredentials)
     {
         $this->user = $user;
         $this->remarks = $remarks;
@@ -35,6 +35,7 @@ class InvoiceRejectionJob implements ShouldQueue
         $beautymail = app()->make(Beautymail::class);
         $beautymail->send('emails.Invoicerejection', ['user' => $this->user, 'remarks' => $this->remarks, 'invoice' => $this->invoice], function ($message) {
             $message
+                ->from($this->emailCredentials,env('MAIL_FROM_NAME'))
                 ->to($this->user->email, $this->user->first_name)
                 ->subject('Invoice Rejection');
         });

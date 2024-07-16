@@ -110,6 +110,9 @@ class FlatResource extends Resource
                     ->default('NA')
                     ->searchable()
                     ->limit(50),
+                TextColumn::make('tenants.role')
+                    ->label('Occupied By')
+                    ->default('NA')
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([

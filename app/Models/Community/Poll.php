@@ -33,7 +33,7 @@ class Poll extends Model
 
     public function building()
     {
-        return $this->belongsTo(Building::class);
+        return $this->belongsToMany(Building::class);
     }
     public function user()
     {

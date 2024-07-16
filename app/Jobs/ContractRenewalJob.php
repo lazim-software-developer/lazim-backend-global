@@ -19,7 +19,7 @@ class ContractRenewalJob implements ShouldQueue
      */
     public $contract;
     public $user;
-    public function __construct($contract, $user)
+    public function __construct($contract, $user,protected $emailCredentials)
     {
         $this->contract = $contract;
         $this->user = $user;
@@ -33,6 +33,7 @@ class ContractRenewalJob implements ShouldQueue
         $beautymail = app()->make(Beautymail::class);
         $beautymail->send('emails.contract_renewal_mail', ['user' => $this->user,'contract' => $this->contract], function($message) {
             $message
+                ->from($this->emailCredentials,env('MAIL_FROM_NAME'))
                 ->to($this->user->email, $this->user->first_name)
                 ->subject('Welcome to Lazim!');
         });

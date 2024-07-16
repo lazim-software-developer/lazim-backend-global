@@ -2,28 +2,31 @@
 
 namespace App\Filament\Resources\Shield;
 
-use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
-use BezhanSalleh\FilamentShield\Facades\FilamentShield;
-use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
-use App\Filament\Resources\Shield\RoleResource\Pages;
-use App\Models\Master\Role;
-use BezhanSalleh\FilamentShield\Support\Utils;
 use Closure;
 use Filament\Forms;
-use Filament\Forms\Components\Actions\Action as FormAction;
-use Filament\Forms\Components\Component;
-use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Form;
-use Filament\Forms\Get;
-use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Forms\Get;
+use Filament\Forms\Form;
+use App\Models\User\User;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Model;
+use App\Models\Master\Role;
+use Illuminate\Support\Str;
+use Filament\Resources\Resource;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\HtmlString;
-use Illuminate\Support\Str;
+use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Toggle;
+use Illuminate\Database\Eloquent\Model;
+use Filament\Forms\Components\Component;
+use Filament\Forms\Components\TextInput;
+use Filament\Tables\Columns\ToggleColumn;
+use BezhanSalleh\FilamentShield\Support\Utils;
+use App\Filament\Resources\Shield\RoleResource\Pages;
+use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
+use BezhanSalleh\FilamentShield\Facades\FilamentShield;
+use Filament\Forms\Components\Actions\Action as FormAction;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 
 class RoleResource extends Resource implements HasShieldPermissions
 {
@@ -245,6 +248,14 @@ class RoleResource extends Resource implements HasShieldPermissions
                 // Tables\Columns\TextColumn::make('updated_at')
                 //     ->label(__('filament-shield::filament-shield.column.updated_at'))
                 //     ->dateTime(),
+                ToggleColumn::make('is_active')
+                ->afterStateUpdated(function($state,$record){
+                        $users = User::where('role_id',$record->id)->get();
+                        foreach($users as $user){
+                            $user->active = $state;
+                            $user->save();
+                        }
+                })
             ])
             ->filters([
                 //
