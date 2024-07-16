@@ -32,7 +32,7 @@ class OwnershipChangedWebhookJob implements ShouldQueue
     {
         $propertyGroupId = $this->propertyGroupId;
         $mollakPropertyId = $this->mollakPropertyId;
-        
+        try{
         $results = Http::withOptions(['verify' => false])->withHeaders([
             'content-type' => 'application/json',
             'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
@@ -61,5 +61,9 @@ class OwnershipChangedWebhookJob implements ShouldQueue
                 ]);
             }   
         }
+    } catch (\Exception $e) {
+        Log::error('Failed to fetch ownership changed ');
     }
+    }
+
 }

@@ -34,6 +34,7 @@ class BudgetApprovedWebhookJob implements ShouldQueue
     {
         $propertyGroupId =$this->propertyGroupId;
         $periodCode = $this->periodCode;
+        try{
         $results = Http::withOptions(['verify' => false])->withHeaders([
             'content-type' => 'application/json',
             'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
@@ -63,5 +64,8 @@ class BudgetApprovedWebhookJob implements ShouldQueue
                     ]);
                 }
             }
+        } catch (\Exception $e) {
+            Log::error('Failed to fetch budget approved ');
+        }
     }
 }
