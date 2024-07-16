@@ -32,7 +32,7 @@ class ContractChangedWebhookJob implements ShouldQueue
     {
         $propertyGroupId =$this->propertyGroupId;
         $contractNumber =$this->contractNumber;
-        
+        try{
         $results = Http::withOptions(['verify' => false])->withHeaders([
             'content-type' => 'application/json',
             'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
@@ -62,6 +62,8 @@ class ContractChangedWebhookJob implements ShouldQueue
                 'end_date' => $responce['contract']['endDate'],
             ]);
         }
-
+        } catch (\Exception $e) {
+            Log::error('Failed to fetch contract changed ');
+        }
     }
 }

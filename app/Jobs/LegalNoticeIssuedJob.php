@@ -34,6 +34,7 @@ class LegalNoticeIssuedJob implements ShouldQueue
         $propertyGroupId =$this->propertyGroupId;
         $mollakPropertyId =$this->mollakPropertyId;
         $legalNoticeId=$this->legalNoticeId;
+        try{
         $results = Http::withOptions(['verify' => false])->withHeaders([
             'content-type' => 'application/json',
             'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
@@ -65,6 +66,9 @@ class LegalNoticeIssuedJob implements ShouldQueue
                 'isRDCCaseStart' => $notice['isRDCCaseStart'],
                 'isRDCCaseEnd' => $notice['isRDCCaseEnd']
             ]);
+        }
+        } catch (\Exception $e) {
+            Log::error('Failed to fetch legal notice issued ');
         }
     }
 }
