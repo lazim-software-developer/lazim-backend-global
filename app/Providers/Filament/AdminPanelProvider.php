@@ -20,6 +20,7 @@ use App\Filament\Resources\WDAResource;
 use App\Filament\Resources\DelinquentOwnerResource;
 use App\Filament\Resources\DemoResource;
 use App\Filament\Resources\FamilyMemberResource;
+use App\Filament\Resources\IncidentResource;
 use App\Filament\Resources\LegalOfficerResource;
 use App\Filament\Resources\OacomplaintReportsResource;
 use App\Filament\Resources\OwnerAssociationInvoiceResource;
@@ -63,7 +64,7 @@ class AdminPanelProvider extends PanelProvider
                 'danger' => Color::Rose,
                 'gray' => Color::Gray,
                 'info' => Color::Blue,
-                'primary' => Color::Indigo,
+                'primary' => Color::Orange,
                 'success' => Color::Emerald,
                 'warning' => Color::Orange,
                 'pink' => Color::Pink
@@ -680,7 +681,7 @@ class AdminPanelProvider extends PanelProvider
                             ]),
                     ]);
                 }
-                if ($user->can('view_any_snags')){
+                if ($user->can('view_any_snags') || $user->can('view_any_incidents')){
                     $builder->groups([
                         NavigationGroup::make('Security')
                             ->items([
@@ -690,6 +691,12 @@ class AdminPanelProvider extends PanelProvider
                                     ->icon('heroicon-s-swatch')
                                     ->activeIcon('heroicon-s-swatch')
                                     ->sort(1),
+                                    NavigationItem::make('Incidents')
+                                    ->url(IncidentResource::getUrl('index'))
+                                    ->hidden(!$user->can('view_any_incidents'))
+                                    ->icon('heroicon-c-map-pin')
+                                    ->activeIcon('heroicon-c-map-pin')
+                                    ->sort(2),
                             ]),
                     ]);
                 }

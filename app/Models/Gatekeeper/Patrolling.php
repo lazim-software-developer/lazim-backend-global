@@ -14,7 +14,7 @@ class Patrolling extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['building_id', 'patrolled_by', 'floor_id', 'patrolled_at'];
+    protected $fillable = ['building_id', 'patrolled_by', 'floor_id', 'patrolled_at','owner_association_id'];
 
     public function ownerAssociation()
     {

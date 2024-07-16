@@ -19,7 +19,7 @@ class AccessCardRequestJob implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct($user, $accessCard)
+    public function __construct($user, $accessCard, protected $emailCredentials)
     {
         $this->user = $user;
         $this->accessCard = $accessCard;
@@ -41,6 +41,7 @@ class AccessCardRequestJob implements ShouldQueue
             'card_type' => $this->accessCard->card_type,
         ], function ($message) {
             $message
+                ->from($this->emailCredentials,env('MAIL_FROM_NAME'))
                 ->to($this->user->email, $this->user->first_name)
                 ->subject('Access card Request Submitted');
         });

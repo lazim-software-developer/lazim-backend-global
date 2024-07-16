@@ -34,6 +34,11 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\User\OwnerResource\Pages;
 use App\Filament\Resources\User\OwnerResource\RelationManagers;
 use App\Filament\Resources\User\OwnerResource\RelationManagers\UserDocumentsRelationManager;
+use App\Jobs\WelcomeNotificationJob;
+use App\Models\OwnerAssociation;
+use Filament\Facades\Filament;
+use Filament\Notifications\Notification;
+use Filament\Tables\Actions\Action;
 
 class OwnerResource extends Resource
 {
@@ -118,6 +123,31 @@ class OwnerResource extends Resource
                     ->limit(50),
                 ViewColumn::make('Unit')->view('tables.columns.apartment-ownerflat')->alignCenter(),
                 ViewColumn::make('Building')->view('tables.columns.apartment-ownerbuilding')->alignCenter(),
+            ])
+            ->actions([
+                Action::make('Notify Owner')
+                ->button()
+                ->action(function (array $data,$record){
+                    $flatID = FlatOwners::where('owner_id',$record->id)->value('flat_id');
+                    $buildingname = Flat::where('id',$flatID)->first()->building->name;
+                    $tenant           = Filament::getTenant()?->id ?? auth()->user()?->owner_association_id;
+                    $emailCredentials = OwnerAssociation::find($tenant)->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
+
+
+                    if($record->email==null){
+                        Notification::make()
+                        ->title('Email not found')
+                        ->success()
+                        ->send();
+                    }else{
+                        WelcomeNotificationJob::dispatch($record->email, $record->name,$buildingname,$emailCredentials);
+                        Notification::make()
+                        ->title("Successfully Sent Mail")
+                        ->success()
+                        ->body("Sent mail to owner asking him to download the app.")
+                        ->send();
+                    }
+                })
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([

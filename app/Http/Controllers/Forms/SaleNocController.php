@@ -12,6 +12,8 @@ use App\Models\Forms\NocContacts;
 use App\Models\Forms\NocFormSignedDocument;
 use App\Models\Forms\SaleNOC;
 use App\Models\Order;
+use App\Models\OwnerAssociation;
+use Filament\Facades\Filament;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -31,7 +33,10 @@ class SaleNocController extends Controller
 
         // Create the SaleNoc entry
         $saleNoc = SaleNoc::create($validated);
-        SalesNocRequestJob::dispatch(auth()->user(), $saleNoc);
+        $tenant           = Filament::getTenant()?->id ?? auth()->user()?->owner_association_id ?? $ownerAssociationId;
+        $emailCredentials = OwnerAssociation::find($tenant)->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
+
+        SalesNocRequestJob::dispatch(auth()->user(), $saleNoc,$emailCredentials);
 
         $contacts = $request->get('contacts');
 

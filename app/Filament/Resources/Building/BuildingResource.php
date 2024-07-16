@@ -2,8 +2,6 @@
 
 namespace App\Filament\Resources\Building;
 
-use App\Filament\Resources\Building\BuildingResource\RelationManagers\IncidentsRelationManager;
-use App\Filament\Resources\Building\BuildingResource\RelationManagers\OfferPromotionsRelationManager;
 use Closure;
 use Filament\Forms;
 use Filament\Tables;
@@ -29,14 +27,17 @@ use EightyNine\ExcelImport\ExcelImportAction;
 use Filament\Forms\Components\MarkdownEditor;
 use App\Filament\Resources\Building\BuildingResource\Pages;
 use App\Filament\Resources\Building\BuildingResource\RelationManagers;
+use App\Filament\Resources\BuildingResource\RelationManagers\ContractsRelationManager;
 use App\Filament\Resources\Building\BuildingResource\RelationManagers\FloorsRelationManager;
 use App\Filament\Resources\Building\BuildingResource\RelationManagers\MeetingsRelationManager;
+use App\Filament\Resources\Building\BuildingResource\RelationManagers\IncidentsRelationManager;
 use App\Filament\Resources\Building\BuildingResource\RelationManagers\BuildingvendorRelationManager;
 use App\Filament\Resources\Building\BuildingResource\RelationManagers\BuildingserviceRelationManager;
-use App\Filament\Resources\Building\BuildingResource\RelationManagers\EmergencyNumbersRelationManager;
+use App\Filament\Resources\Building\BuildingResource\RelationManagers\OfferPromotionsRelationManager;
 use App\Filament\Resources\Building\BuildingResource\RelationManagers\OwnercommitteesRelationManager;
 use App\Filament\Resources\Building\BuildingResource\RelationManagers\RuleregulationsRelationManager;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
+use App\Filament\Resources\Building\BuildingResource\RelationManagers\EmergencyNumbersRelationManager;
 
 class BuildingResource extends Resource
 {
@@ -298,6 +299,7 @@ class BuildingResource extends Resource
             // BuildingResource\RelationManagers\VendorRelationManager::class,
             BuildingvendorRelationManager::class,
             BuildingResource\RelationManagers\AssetsRelationManager::class,
+            ContractsRelationManager::class
         ];
     }
 

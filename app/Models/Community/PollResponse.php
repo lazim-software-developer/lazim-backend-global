@@ -13,7 +13,7 @@ class PollResponse extends Model
 
     protected $table = 'poll_responses';
 
-    protected $fillable = ['answer', 'submitted_at', 'polling_id', 'submitted_by'];
+    protected $fillable = ['answer', 'submitted_at', 'polling_id', 'submitted_by','poll_id'];
 
     public function poll()
     {

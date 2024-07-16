@@ -17,6 +17,7 @@ use App\Models\Building\Flat;
 use App\Models\Building\FlatTenant;
 use App\Models\Master\Role;
 use App\Models\MollakTenant;
+use App\Models\OwnerAssociation;
 use App\Models\User\User;
 use App\Models\UserApproval;
 use Illuminate\Http\Request;
@@ -236,13 +237,17 @@ class RegistrationController extends Controller
         $emirates = optimizeDocumentAndUpload($request->emirates_document, 'dev');
         $passport = optimizeDocumentAndUpload($request->passport_document, 'dev');
 
+        $oam_id = DB::table('building_owner_association')->where('building_id',$request->building_id)->where('active', true)->first();
+        $oam = OwnerAssociation::find($oam_id?:auth()->user()->ownerAssociation->first()->id);
 
         $userApproval = UserApproval::create([
             'user_id' => $user->id,
             'document' => $imagePath,
             'document_type' => $request->type == 'Owner'? 'Title Deed': 'Ejari',
             'emirates_document' => $emirates,
-            'passport' => $passport
+            'passport' => $passport,
+            'flat_id' => $request->flat_id,
+            'owner_assciation_id' => $oam?->id,
         ]);
 
         // Store details to Flat tenants table

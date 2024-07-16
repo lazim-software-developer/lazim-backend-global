@@ -570,6 +570,9 @@ Route::post('/web-enquiry',[EnquiryController::class,'store']);
 Route::match(['get', 'post'], '/webhook', [MollakController::class, 'webhook'])
      ->middleware('check.MollakToken');
 
+Route::post('/webhook/sync-invoice',[MollakController::class, 'invoiceWebhook'])->middleware('check.MollakToken');
+Route::post('/webhook/sync-receipt',[MollakController::class, 'receiptWebhook'])->middleware('check.MollakToken');
+
 //mollak
 Route::post('/upload',[TestController::class, 'uploadAll'])->name('uploadAll');
 
@@ -577,3 +580,4 @@ Route::post('/upload',[TestController::class, 'uploadAll'])->name('uploadAll');
 Route::middleware(['authenticate.tally'])->group(function () {
     Route::get('/V1/getVouchers',[TallyIntigrationController::class,'getVouchers']);
 });
+Route::post('/mollak/wrapper', [TestController::class, 'forwardRequest']);
