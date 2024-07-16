@@ -9,7 +9,9 @@ use App\Jobs\Forms\AccessCardRequestJob;
 use App\Models\Building\Building;
 use App\Models\Forms\AccessCard;
 use App\Models\Forms\Guest;
+use App\Models\OwnerAssociation;
 use Carbon\Carbon;
+use Filament\Facades\Filament;
 
 class AccessCardController extends Controller
 {
@@ -43,7 +45,10 @@ class AccessCardController extends Controller
         $data['ticket_number'] = generate_ticket_number("AC");
 
         $accessCard = AccessCard::create($data);
-        AccessCardRequestJob::dispatch(auth()->user(), $accessCard);
+        $tenant           = Filament::getTenant()?->id ?? auth()->user()?->owner_association_id;
+        $emailCredentials = OwnerAssociation::find($tenant)->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
+
+        AccessCardRequestJob::dispatch(auth()->user(), $accessCard,$emailCredentials);
 
         return (new CustomResponseResource([
             'title' => 'Success',

@@ -21,7 +21,7 @@ class VendorRejectionJob implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct($user,$remarks, $password)
+    public function __construct($user,$remarks, $password,protected $emailCredentials)
     {
         $this->user     = $user;
         $this->remarks = $remarks;
@@ -36,6 +36,7 @@ class VendorRejectionJob implements ShouldQueue
         $beautymail = app()->make(Beautymail::class);
         $beautymail->send('emails.vendor-rejection', ['user' => $this->user,'remarks' => $this->remarks,'password' => $this->password], function($message) {
             $message
+                ->from($this->emailCredentials,env('MAIL_FROM_NAME'))
                 ->to($this->user->email, $this->user->first_name)
                 ->subject('Welcome to Lazim!');
         });

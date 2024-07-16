@@ -21,7 +21,7 @@ class BeforeMeetingOcjob implements ShouldQueue
     public $user;
     public $meeting;
     public $agenda;
-    public function __construct($user, $meeting, $agendaHtml)
+    public function __construct($user, $meeting, $agendaHtml, protected $emailCredentials)
     {
         $this->user = $user;
         $this->meeting = $meeting;
@@ -32,10 +32,11 @@ class BeforeMeetingOcjob implements ShouldQueue
      * Execute the job.
      */
     public function handle(): void
-    {   
+    {
         $beautymail = app()->make(Beautymail::class);
         $beautymail->send('emails.beforeocmeeting', ['user' => $this->user, 'meeting' => $this->meeting, 'agenda' => $this->agenda], function ($message) {
             $message
+                ->from($this->emailCredentials,env('MAIL_FROM_NAME'))
                 ->to($this->user->email, $this->user->first_name)
                 ->subject('Owner Committe Meeting');
         });
