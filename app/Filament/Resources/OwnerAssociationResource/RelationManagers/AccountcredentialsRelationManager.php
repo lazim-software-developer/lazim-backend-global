@@ -3,7 +3,6 @@
 namespace App\Filament\Resources\OwnerAssociationResource\RelationManagers;
 
 use Filament\Facades\Filament;
-use Filament\Forms;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -11,8 +10,7 @@ use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Database\Eloquent\Model;
 
 class AccountcredentialsRelationManager extends RelationManager
 {
@@ -63,5 +61,9 @@ class AccountcredentialsRelationManager extends RelationManager
                     // Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
+    }
+    public static function canViewForRecord(Model $ownerRecord, string $pageClass): bool
+    {
+        return auth()->user()->role === 'OA';
     }
 }
