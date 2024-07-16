@@ -19,6 +19,8 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 class FamilyMemberResource extends Resource
 {
     protected static ?string $model = FamilyMember::class;
+    protected static ?string $modelLabel      = 'Family Members';
+
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 

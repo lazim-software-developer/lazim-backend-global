@@ -35,6 +35,7 @@ class AssetResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
     protected static ?string $navigationGroup = 'Vendor Management';
+    protected static ?string $modelLabel      = 'Assets';
 
     public static function form(Form $form): Form
     {

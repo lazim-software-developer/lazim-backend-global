@@ -25,8 +25,10 @@ use Filament\Notifications\Notification;
 use Filament\Forms\Components\FileUpload;
 use EightyNine\ExcelImport\ExcelImportAction;
 use Filament\Forms\Components\MarkdownEditor;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 use App\Filament\Resources\Building\BuildingResource\Pages;
 use App\Filament\Resources\Building\BuildingResource\RelationManagers;
+use App\Filament\Resources\BuildingResource\RelationManagers\VendorRelationManager;
 use App\Filament\Resources\BuildingResource\RelationManagers\ContractsRelationManager;
 use App\Filament\Resources\Building\BuildingResource\RelationManagers\FloorsRelationManager;
 use App\Filament\Resources\Building\BuildingResource\RelationManagers\MeetingsRelationManager;
@@ -36,7 +38,6 @@ use App\Filament\Resources\Building\BuildingResource\RelationManagers\Buildingse
 use App\Filament\Resources\Building\BuildingResource\RelationManagers\OfferPromotionsRelationManager;
 use App\Filament\Resources\Building\BuildingResource\RelationManagers\OwnercommitteesRelationManager;
 use App\Filament\Resources\Building\BuildingResource\RelationManagers\RuleregulationsRelationManager;
-use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 use App\Filament\Resources\Building\BuildingResource\RelationManagers\EmergencyNumbersRelationManager;
 
 class BuildingResource extends Resource
@@ -46,6 +47,7 @@ class BuildingResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
     protected static ?string $navigationGroup = 'Property Management';
     protected static bool $shouldRegisterNavigation = true;
+    protected static ?string $modelLabel      = 'Buildings';
     public static function form(Form $form): Form
     {
         return $form
@@ -299,7 +301,8 @@ class BuildingResource extends Resource
             // BuildingResource\RelationManagers\VendorRelationManager::class,
             BuildingvendorRelationManager::class,
             BuildingResource\RelationManagers\AssetsRelationManager::class,
-            ContractsRelationManager::class
+            ContractsRelationManager::class,
+            VendorRelationManager::class
         ];
     }
 
