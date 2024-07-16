@@ -13,7 +13,7 @@ class FamilyMemberPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('view_any_family::members');
+        return $user->can('view_any_family::member');
     }
 
     /**
@@ -21,7 +21,7 @@ class FamilyMemberPolicy
      */
     public function view(User $user, FamilyMember $familyMember): bool
     {
-        return $user->can('view_family::members');
+        return $user->can('view_family::member');
     }
 
     /**
@@ -29,7 +29,7 @@ class FamilyMemberPolicy
      */
     public function create(User $user): bool
     {
-        return $user->can('create_family::members');
+        return $user->can('create_family::member');
     }
 
     /**
@@ -37,7 +37,7 @@ class FamilyMemberPolicy
      */
     public function update(User $user, FamilyMember $familyMember): bool
     {
-        return $user->can('update_family::members');
+        return $user->can('update_family::member');
     }
 
     /**
