@@ -40,7 +40,7 @@ class FacilityServiceBookingObserver
             ->actions([
                 Action::make('view')
                     ->button()
-                    ->url(fn () => FacilityBookingResource::getUrl('edit', [$facilityBooking->id])),
+                    ->url(fn () => FacilityBookingResource::getUrl('edit', ['record',$facilityBooking->id])),
             ])
             ->sendToDatabase($notifyTo);
         }

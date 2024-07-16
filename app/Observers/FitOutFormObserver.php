@@ -34,7 +34,7 @@ class FitOutFormObserver
         ->actions([
             Action::make('view')
                 ->button()
-                ->url(fn () => FitOutFormsDocumentResource::getUrl('edit', [$fitOutForm])),
+                ->url(fn () => FitOutFormsDocumentResource::getUrl('edit', ['record',$fitOutForm->id])),
         ])
         ->sendToDatabase($notifyTo);
     }

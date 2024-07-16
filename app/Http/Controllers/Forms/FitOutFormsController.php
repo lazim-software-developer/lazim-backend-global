@@ -130,7 +130,7 @@ class FitOutFormsController extends Controller
         ->actions([
             Action::make('view')
                 ->button()
-                ->url(fn () => FitOutFormsDocumentResource::getUrl('edit', [$fitout])),
+                ->url(fn () => FitOutFormsDocumentResource::getUrl('edit', ['record',$fitout->id])),
         ])
         ->sendToDatabase($user);
 

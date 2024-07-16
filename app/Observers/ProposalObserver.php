@@ -37,7 +37,7 @@ class ProposalObserver
             ->actions([
                 Action::make('view')
                     ->button()
-                    ->url(fn () => ProposalResource::getUrl('edit', [$proposal])),
+                    ->url(fn () => ProposalResource::getUrl('edit', ['record',$proposal->id])),
             ])
             ->sendToDatabase($notifyTo);
     }

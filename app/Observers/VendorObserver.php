@@ -31,7 +31,7 @@ class VendorObserver
             ->actions([
                 Action::make('view')
                     ->button()
-                    ->url(fn () => VendorResource::getUrl('edit', [$vendor])),
+                    ->url(fn () => VendorResource::getUrl('edit', ['record',$vendor->id])),
             ])
             ->sendToDatabase($notifyTo);
     }

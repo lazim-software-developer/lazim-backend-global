@@ -32,7 +32,7 @@ class AccessCardObserver
                 ->actions([
                     Action::make('view')
                         ->button()
-                        ->url(fn () => AccessCardFormsDocumentResource::getUrl('edit', [$accessCard])),
+                        ->url(fn () => AccessCardFormsDocumentResource::getUrl('edit', ['record',$accessCard->id])),
                 ])
                 ->sendToDatabase($notifyTo);
     }

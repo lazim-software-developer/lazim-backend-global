@@ -31,7 +31,7 @@ class UserApprovalObserver
         ->actions([
             Action::make('View')
             ->button()
-            ->url(fn () => UserApprovalResource::getUrl('edit', [$userApproval->id]))
+            ->url(fn () => UserApprovalResource::getUrl('edit', ['record',$userApproval->id]))
 
         ])
         ->sendToDatabase($notifyTo);
