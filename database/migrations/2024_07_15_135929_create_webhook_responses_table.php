@@ -11,8 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('polls', function (Blueprint $table) {
-            $table->bigInteger('building_id')->nullable()->change();
+        Schema::create('webhook_responses', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedBigInteger('management_company_id');
+            $table->string('type');
+            $table->json('response');
+            $table->timestamps();
         });
     }
 
@@ -21,8 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('polls', function (Blueprint $table) {
-            $table->unsignedBigInteger('building_id')->nullable(false)->change();
-        });
+        Schema::dropIfExists('webhook_responses');
     }
 };
