@@ -18,7 +18,7 @@ class GuestRequestJob implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct($user, $dataObj)
+    public function __construct($user, $dataObj, protected $emailCredentials)
     {
         $this->user = $user;
         $this->dataObj = $dataObj;
@@ -39,6 +39,7 @@ class GuestRequestJob implements ShouldQueue
             'type' => 'Guest registration',
         ], function ($message) {
             $message
+                ->from($this->emailCredentials,env('MAIL_FROM_NAME'))
                 ->to($this->user->email, $this->user->first_name)
                 ->subject('Guest Registration Request Submitted');
         });
