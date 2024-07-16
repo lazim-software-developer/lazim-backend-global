@@ -35,7 +35,7 @@ class MoveInOutObserver
             ->actions([
                 Action::make('view')
                     ->button()
-                    ->url(fn () => MoveInFormsDocumentResource::getUrl('edit', [$moveInOut])),
+                    ->url(fn () => MoveInFormsDocumentResource::getUrl('edit', [$moveInOut->id])),
             ])
             ->sendToDatabase($notifyTo);
         }
@@ -53,7 +53,7 @@ class MoveInOutObserver
             ->actions([
                 Action::make('view')
                     ->button()
-                    ->url(fn () => MoveOutFormsDocumentResource::getUrl('edit', [$moveInOut])),
+                    ->url(fn () => MoveOutFormsDocumentResource::getUrl('edit', [$moveInOut->id])),
             ])
             ->sendToDatabase($notifyTo);
         }
