@@ -116,7 +116,7 @@ class AssetsRelationManager extends RelationManager
 
                         // Fetch maintenance details from the database
                         $maintenance = Assetmaintenance::where('technician_asset_id', $technician_asset_id)->first();
-                        $assetCode = strtoupper(substr($ownerAssociationName, 0, 2)).'-'. Hashids::encode($this->record->id);
+                        $assetCode = strtoupper(substr($ownerAssociationName, 0, 2)).'-'. Hashids::encode($record->id);
 
                         // Build an object with the required properties
                         $qrCodeContent = [
