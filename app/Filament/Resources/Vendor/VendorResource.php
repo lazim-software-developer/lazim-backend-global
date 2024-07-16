@@ -9,6 +9,7 @@ use App\Models\User\User;
 use Filament\Tables\Table;
 use Illuminate\Support\Str;
 use App\Models\Vendor\Vendor;
+use Filament\Facades\Filament;
 use App\Jobs\AccountCreationJob;
 use App\Jobs\VendorRejectionJob;
 use Filament\Resources\Resource;
@@ -167,7 +168,7 @@ class VendorResource extends Resource
                     Select::make('Building')
                     ->searchable()
                     ->options(function () {
-                        return Building::all()->pluck('name', 'id');
+                        return Building::where('owner_association_id',Filament::getTenant()->id)->pluck('name', 'id');
                         // Optionally, add a condition to filter buildings based on certain criteria.
                     }),
                 ])
