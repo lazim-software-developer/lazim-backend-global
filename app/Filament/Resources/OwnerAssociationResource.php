@@ -109,7 +109,8 @@ class OwnerAssociationResource extends Resource
                                     $fail('The email is already taken by a OA.');
                                 }
                                 if(DB::table('owner_associations')->where('id',$record->id)->where('verified',1)->count() > 0){
-                                    $getuserecord = User::where('owner_association_id',$record->id)->where('role_id',10)->first()->id;
+                                    $role_id = Role::where('owner_association_id',$record->id)->where('name','OA')->first();
+                                    $getuserecord = User::where('owner_association_id',$record->id)->where('role_id',$role_id?->id)->first()?->id;
                                     if (DB::table('users')->whereNot('id',$getuserecord)->where('email', $value)->exists()) {
                                         $fail('The email is already taken by a USER.');
                                     }
