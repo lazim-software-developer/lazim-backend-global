@@ -13,7 +13,7 @@ class MollakTenant extends Model
 
     protected $fillable = [
         'name', 'contract_number', 'emirates_id', 'license_number', 'mobile', 'email', 'start_date',
-        'end_date', 'contract_status', 'building_id', 'flat_id'
+        'end_date', 'contract_status', 'building_id', 'flat_id', 'owner_association_id'
     ];
 
     public function ownerAssociation()

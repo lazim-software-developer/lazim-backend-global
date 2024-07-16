@@ -4,6 +4,7 @@ namespace App\Filament\Pages;
 
 
 use App\Models\Building\Building;
+use App\Models\OwnerAssociation;
 use App\Models\OwnerAssociationInvoice as ModelsOwnerAssociationInvoice;
 use Carbon\Carbon;
 use Closure;
@@ -21,6 +22,7 @@ use Filament\Forms\Set;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Support\Exceptions\Halt;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use PhpOffice\PhpSpreadsheet\Calculation\DateTimeExcel\Days;
 
@@ -145,8 +147,12 @@ class OwnerAssociationInvoice extends Page implements HasForms
     {
         try {
             $data = $this->form->getState();
-            $oam = auth()->user()->ownerAssociation;
-            $data['owner_association_id'] = $oam->id;
+            // dd(auth()->user()->ownerAssociation->first());
+            // dd($data);
+            $oam_id = DB::table('building_owner_association')->where('building_id',$data['building_id'])->where('active', true)->first();
+            $oam = OwnerAssociation::find($oam_id?:auth()->user()->ownerAssociation->first()->id);
+            // $oam = auth()->user()->ownerAssociation;
+            $data['owner_association_id'] = $oam?->id;
             $invoice_id = strtoupper(substr($oam->name, 0, 4)) . date('YmdHis');
             $data['invoice_number'] = $invoice_id;
             if($data['type'] == 'building'){

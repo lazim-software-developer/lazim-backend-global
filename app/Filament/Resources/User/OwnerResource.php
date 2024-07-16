@@ -35,6 +35,8 @@ use App\Filament\Resources\User\OwnerResource\Pages;
 use App\Filament\Resources\User\OwnerResource\RelationManagers;
 use App\Filament\Resources\User\OwnerResource\RelationManagers\UserDocumentsRelationManager;
 use App\Jobs\WelcomeNotificationJob;
+use App\Models\OwnerAssociation;
+use Filament\Facades\Filament;
 use Filament\Notifications\Notification;
 use Filament\Tables\Actions\Action;
 
@@ -128,6 +130,9 @@ class OwnerResource extends Resource
                 ->action(function (array $data,$record){
                     $flatID = FlatOwners::where('owner_id',$record->id)->value('flat_id');
                     $buildingname = Flat::where('id',$flatID)->first()->building->name;
+                    $tenant           = Filament::getTenant()?->id ?? auth()->user()?->owner_association_id;
+                    $emailCredentials = OwnerAssociation::find($tenant)->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
+
 
                     if($record->email==null){
                         Notification::make()
@@ -135,7 +140,7 @@ class OwnerResource extends Resource
                         ->success()
                         ->send();
                     }else{
-                        WelcomeNotificationJob::dispatch($record->email, $record->name,$buildingname);
+                        WelcomeNotificationJob::dispatch($record->email, $record->name,$buildingname,$emailCredentials);
                         Notification::make()
                         ->title("Successfully Sent Mail")
                         ->success()

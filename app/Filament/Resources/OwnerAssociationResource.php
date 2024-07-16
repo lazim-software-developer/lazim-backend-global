@@ -19,6 +19,7 @@ use Filament\Forms\Components\Component;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\FileUpload;
 use App\Filament\Resources\OwnerAssociationResource\Pages;
+use App\Filament\Resources\OwnerAssociationResource\RelationManagers\AccountcredentialsRelationManager;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class OwnerAssociationResource extends Resource
@@ -27,7 +28,7 @@ class OwnerAssociationResource extends Resource
     protected static ?string $modelLabel            = 'Owner Association';
     protected static ?string $navigationIcon        = 'heroicon-o-rectangle-stack';
     protected static bool $shouldRegisterNavigation = true;
-    
+
     protected static bool $isScopedToTenant = false;
 
     public static function form(Form $form): Form
@@ -65,7 +66,8 @@ class OwnerAssociationResource extends Resource
                                     $fail('The phone is already taken by a OA.');
                                 }
                                 if(DB::table('owner_associations')->where('id',$record->id)->where('verified',1)->count() > 0){
-                                    $getuserecord = User::where('owner_association_id',$record->id)->where('role_id',10)->first()->id;
+                                    $role_id = Role::where('owner_association_id',$record->id)->where('name','OA')->first();
+                                    $getuserecord = User::where('owner_association_id',$record->id)->where('role_id',$role_id?->id)->first()?->id;
                                     if (DB::table('users')->whereNot('id',$getuserecord)->where('phone', $value)->exists()) {
                                         $fail('The phone is already taken by a user.');
                                     }
@@ -107,7 +109,8 @@ class OwnerAssociationResource extends Resource
                                     $fail('The email is already taken by a OA.');
                                 }
                                 if(DB::table('owner_associations')->where('id',$record->id)->where('verified',1)->count() > 0){
-                                    $getuserecord = User::where('owner_association_id',$record->id)->where('role_id',10)->first()->id;
+                                    $role_id = Role::where('owner_association_id',$record->id)->where('name','OA')->first();
+                                    $getuserecord = User::where('owner_association_id',$record->id)->where('role_id',$role_id?->id)->first()?->id;
                                     if (DB::table('users')->whereNot('id',$getuserecord)->where('email', $value)->exists()) {
                                         $fail('The email is already taken by a USER.');
                                     }
@@ -294,7 +297,7 @@ class OwnerAssociationResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            AccountcredentialsRelationManager::class,
         ];
     }
 

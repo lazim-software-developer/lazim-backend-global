@@ -28,7 +28,7 @@ class ItemObserver
     {
         // $tenant = Filament::getTenant();
         // $slug = $tenant->slug;
-        $slug = DB::table('owner_associations')->where('id',$item->owner_association_id)->value('slug');
+        // $slug = DB::table('owner_associations')->where('id',$item->owner_association_id)->value('slug');
 
         $requiredPermissions = ['view_any_item'];
         $roles = Role::where('owner_association_id',$item->owner_association_id)->whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor','Staff'])->pluck('id');
@@ -45,7 +45,7 @@ class ItemObserver
         ->actions([
             Action::make('View')
             ->button()
-            ->url(url($slug . ItemResource::getUrl('view', [$item->id])))
+            ->url( fn () => ItemResource::getUrl('view',[$item->id])),
             ])
         ->sendToDatabase($notifyTo);
     }

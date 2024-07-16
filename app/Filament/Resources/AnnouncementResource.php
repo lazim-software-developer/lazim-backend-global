@@ -173,7 +173,7 @@ class AnnouncementResource extends Resource
                             $oa = OwnerAssociation::find(Filament::getTenant()?->id ?: auth()->user()?->owner_association_id);
                             $buildings = $oa?->building?->pluck('id');
 
-                        $query->whereIn('id', $buildings?:[]);
+                        $query->whereIn('buildings.id', $buildings?:[]);
                     }
                     })
                     ->searchable()

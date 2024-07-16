@@ -9,13 +9,15 @@ use App\Jobs\AccountsManagerJob;
 use Illuminate\Support\Facades\Hash;
 use Filament\Resources\Pages\CreateRecord;
 use App\Filament\Resources\LegalOfficerResource;
+use App\Models\OwnerAssociation;
+use Filament\Facades\Filament;
 
 class CreateLegalOfficer extends CreateRecord
 {
     protected static string $resource = LegalOfficerResource::class;
     protected function mutateFormDataBeforeCreate(array $data): array
     {
-        
+
         $data['phone'] = '971'.$data['phone'];
         $data['email_verified'] = true;
         $data['phone_verified'] = true;
@@ -30,7 +32,10 @@ class CreateLegalOfficer extends CreateRecord
         $password = Str::random(12);
         $user->password = Hash::make($password);
         $user->save();
-        AccountsManagerJob::dispatch($user, $password);
+        $tenant           = Filament::getTenant()?->id ?? auth()->user()?->owner_association_id;
+        $emailCredentials = OwnerAssociation::findOrFail($tenant)->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
+
+        AccountsManagerJob::dispatch($user, $password, $emailCredentials);
     }
     protected function getRedirectUrl(): string
     {

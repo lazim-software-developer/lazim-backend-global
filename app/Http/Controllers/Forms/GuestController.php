@@ -20,10 +20,12 @@ use App\Models\ExpoPushNotification;
 use App\Models\Forms\Guest;
 use App\Models\Master\DocumentLibrary;
 use App\Models\Master\Role;
+use App\Models\OwnerAssociation;
 use App\Models\User\User;
 use App\Models\Visitor;
 use App\Models\Visitor\FlatVisitor;
 use App\Traits\UtilsTrait;
+use Filament\Facades\Filament;
 use Filament\Notifications\Actions\Action;
 use Filament\Notifications\Notification;
 use Illuminate\Http\Request;
@@ -50,7 +52,10 @@ class GuestController extends Controller
             'ticket_number' => generate_ticket_number("FV")
         ]);
         $guest = FlatVisitor::create($request->all());
-        GuestRequestJob::dispatch(auth()->user(), $guest);
+        $tenant           = Filament::getTenant()?->id ?? auth()->user()?->owner_association_id ?? $ownerAssociationId;
+        $emailCredentials = OwnerAssociation::find($tenant)->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
+
+        GuestRequestJob::dispatch(auth()->user(), $guest, $emailCredentials);
 
         $filePath = optimizeDocumentAndUpload($request->file('image'), 'dev');
         $request->merge([
@@ -150,7 +155,10 @@ class GuestController extends Controller
         $visitor->update([
             'verification_code' => $code,
         ]);
-        FlatVisitorMailJob::dispatch($visitor,$code);
+        $tenant           = $ownerAssociationId;
+        $emailCredentials = OwnerAssociation::find($tenant)->accountcredentials()->where('active', true)->latest()->first()->email ?? env('MAIL_FROM_ADDRESS');
+
+        FlatVisitorMailJob::dispatch($visitor,$code,$emailCredentials);
 
         return (new CustomResponseResource([
             'title' => 'Success',
@@ -195,7 +203,7 @@ class GuestController extends Controller
         $visitor->update([
             'approved_by' => auth()->user()?->id,
             'status' => $request->status
-        ]); 
+        ]);
     }
 
     // List all future visits for a building

@@ -9,10 +9,12 @@ use App\Models\ExpoPushNotification;
 use App\Models\Forms\FitOutForm;
 use App\Models\Master\Service;
 use App\Models\Order;
+use App\Models\OwnerAssociation;
 use App\Models\User\User;
 use App\Models\Vendor\Contract;
 use App\Models\Vendor\Vendor;
 use App\Traits\UtilsTrait;
+use Filament\Facades\Filament;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -35,21 +37,24 @@ class EditFitOutFormsDocument extends EditRecord
     }
 
     public function beforeSave(){
+        $tenant           = Filament::getTenant()?->id ?? auth()->user()?->owner_association_id;
+        $emailCredentials = OwnerAssociation::find($tenant)->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
+
         if($this->record->admin_document != $this->data['admin_document']){
             $user= $this->record->user;
             $file = $this->data['admin_document'];
-            SaleNocMailJob::dispatch($user,$file);
+            SaleNocMailJob::dispatch($user,$file,$emailCredentials);
 
             $vendor = Contract::where('service_id', Service::where('name','MEP Services')->first()?->id)->where('end_date','>=', now()->toDateString())->first()?->vendor_id;
             if($vendor){
                 $vendor = Vendor::find($vendor);
                 $user = $vendor->user;
-                SaleNocMailJob::dispatch($user,$file);
+                SaleNocMailJob::dispatch($user,$file,$emailCredentials);
             }
             $gatekeeper = BuildingPoc::where('building_id',$this->record->building_id)->where('active',true)->where('role_name','security')->first();
             if($gatekeeper){
                 $user = User::find($gatekeeper->user_id);
-                SaleNocMailJob::dispatch($user,$file);
+                SaleNocMailJob::dispatch($user,$file,$emailCredentials);
             }
         }
     }
@@ -111,8 +116,8 @@ class EditFitOutFormsDocument extends EditRecord
                         'created_at' => now()->format('Y-m-d H:i:s'),
                         'updated_at' => now()->format('Y-m-d H:i:s'),
                     ]);
-                
-            
+
+
         }
         if ($this->record->status == 'rejected' && $this->record->status != $this->data['status']) {
             $this->record->contractorRequest->update(['status'=>$this->record->status]);
@@ -149,8 +154,8 @@ class EditFitOutFormsDocument extends EditRecord
                         'created_at' => now()->format('Y-m-d H:i:s'),
                         'updated_at' => now()->format('Y-m-d H:i:s'),
                     ]);
-                
-            
+
+
         }
         if ($this->record->rejected_fields){
             $rejectedFieldsJson = json_encode(['rejected_fields' => $this->record->rejected_fields]);

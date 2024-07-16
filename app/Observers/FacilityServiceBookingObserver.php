@@ -40,7 +40,7 @@ class FacilityServiceBookingObserver
             ->actions([
                 Action::make('view')
                     ->button()
-                    ->url(fn () => FacilityBookingResource::getUrl('edit', [$facilityBooking])),
+                    ->url(fn () => FacilityBookingResource::getUrl('edit', [$facilityBooking->id])),
             ])
             ->sendToDatabase($notifyTo);
         }
@@ -59,7 +59,7 @@ class FacilityServiceBookingObserver
             ->actions([
                 Action::make('view')
                     ->button()
-                    ->url( fn () => ServiceBookingResource::getUrl('edit',[$facilityBooking])),
+                    ->url( fn () => ServiceBookingResource::getUrl('edit',[$facilityBooking->id])),
             ])
             ->sendToDatabase($notifyTo);
         }

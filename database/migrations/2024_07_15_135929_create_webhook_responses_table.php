@@ -11,8 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('roles', function (Blueprint $table) {
-            $table->boolean('is_active')->default(true);
+        Schema::create('webhook_responses', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedBigInteger('management_company_id');
+            $table->string('type');
+            $table->json('response');
+            $table->timestamps();
         });
     }
 
@@ -21,8 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('roles', function (Blueprint $table) {
-            $table->dropColumn('is_active');
-        });
+        Schema::dropIfExists('webhook_responses');
     }
 };

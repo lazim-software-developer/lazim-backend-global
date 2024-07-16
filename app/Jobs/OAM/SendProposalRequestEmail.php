@@ -20,7 +20,7 @@ class SendProposalRequestEmail implements ShouldQueue
     protected $vendors;
     protected $documentUrl;
 
-    public function __construct($vendors, $documentUrl)
+    public function __construct($vendors, $documentUrl,protected $emailCredentials)
     {
         $this->vendors = $vendors;
         $this->documentUrl = $documentUrl;
@@ -33,6 +33,7 @@ class SendProposalRequestEmail implements ShouldQueue
         foreach ($this->vendors as $vendor) {
             $beautymail->send('emails.proposal_request', ['vendor' => $vendor], function ($message) use ($vendor) {
                 $message
+                    ->from($this->emailCredentials,env('MAIL_FROM_NAME'))
                     ->to($vendor->user->email, $vendor->name)
                     ->subject('Request for Proposal');
 

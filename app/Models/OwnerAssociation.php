@@ -59,4 +59,17 @@ class OwnerAssociation extends Model
     public function posts(){
         return $this->hasMany(Post::class);
     }
+
+    public function accountcredentials()
+    {
+        return $this->hasMany(AccountCredentials::class,'oa_id');
+    }
+    public function items()
+    {
+        return $this->hasMany(Item::class,'owner_association_id');
+    }
+    public function itemInventories()
+    {
+        return $this->hasMany(ItemInventory::class,'owner_association_id');
+    }
 }

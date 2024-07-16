@@ -19,7 +19,7 @@ class MoveInOutMailJob implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct($user, $moveInOut)
+    public function __construct($user, $moveInOut, protected $emailCredentials)
     {
         $this->user = $user;
         $this->moveInOut = $moveInOut;
@@ -42,6 +42,7 @@ class MoveInOutMailJob implements ShouldQueue
             'moving_time' => date("d-M-Y", strtotime($this->moveInOut->moving_time)),
         ], function ($message) {
             $message
+                ->from($this->emailCredentials,env('MAIL_FROM_NAME'))
                 ->to($this->user->email, $this->user->first_name)
                 ->subject(ucwords($this->moveInOut->type) . ' Request Submitted');
         });

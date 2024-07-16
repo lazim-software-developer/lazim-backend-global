@@ -21,7 +21,7 @@ class FetchAndSaveReceipts implements ShouldQueue
 
     protected $building;
 
-    public function __construct(Building $building)
+    public function __construct($building = null, protected $propertyGroupId = null, protected $mollakPropertyId = null, protected $receiptId = null)
     {
         $this->building = $building;
     }
@@ -29,18 +29,28 @@ class FetchAndSaveReceipts implements ShouldQueue
     public function handle()
     {
         try {
-            $propertyGroupId = $this->building->property_group_id;
+            $propertyGroupId = $this->propertyGroupId ?: $this->building->property_group_id;
+            $mollakPropertyId = $this->mollakPropertyId;
+            $receiptId = $this->receiptId;
 
             $dateRange = $this->getCurrentQuarterDateRange();
 
+            if(!$this->receiptId){
+                $url = env("MOLLAK_API_URL") . '/sync/receipts/' .$propertyGroupId."/".$mollakPropertyId."/".$receiptId."/id";    
+            }
+            else{
+                $url = env("MOLLAK_API_URL") . '/sync/receipts/' . $propertyGroupId . '/01-Jan-2024/31-Mar-2024';
+                // $url = env("MOLLAK_API_URL") . '/sync/receipts/' . $propertyGroupId . '/' . $dateRange;
+            }
             $response = Http::withoutVerifying()->withHeaders([
                 'content-type' => 'application/json',
                 'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
-            ])->get(env("MOLLAK_API_URL") . '/sync/receipts/' . $propertyGroupId . '/01-Jan-2024/31-Mar-2024');
+            ])->get($url);
             // ])->get(env("MOLLAK_API_URL") . '/sync/receipts/' . $propertyGroupId . '/' . $dateRange);
             
             $properties = $response->json()['response']['properties'];
 
+            Log::info($properties);
             $currentQuarterDates = $this->getCurrentQuarterDates();
 
             foreach ($properties as $property) {
