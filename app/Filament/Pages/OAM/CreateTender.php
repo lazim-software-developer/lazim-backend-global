@@ -8,7 +8,9 @@ use App\Models\Accounting\SubCategory;
 use App\Models\Accounting\Tender;
 use App\Models\Building\Building;
 use App\Models\Master\Service;
+use App\Models\OwnerAssociation;
 use App\Models\Vendor\Vendor;
+use Filament\Facades\Filament;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Illuminate\Http\Request;
@@ -79,7 +81,10 @@ class CreateTender extends Page
         if ($request->get('vendors') != null) {
             // Send email to vendors
             $vendors = Vendor::whereIn('id', $request->get('vendors'))->get();
-            SendProposalRequestEmail::dispatch($vendors, $documentUrl);
+            $tenant           = Filament::getTenant()?->id ?? auth()->user()?->owner_association_id;
+            $emailCredentials = OwnerAssociation::find($tenant)->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
+
+            SendProposalRequestEmail::dispatch($vendors, $documentUrl, $emailCredentials);
 
             Notification::make()
                 ->title("Tender created successfully")

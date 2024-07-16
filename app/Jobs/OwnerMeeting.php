@@ -22,7 +22,7 @@ class OwnerMeeting implements ShouldQueue
     public $meeting;
     public $agenda;
     public $meetingsummary;
-    public function __construct($user, $meeting, $agendaHtml,$meetingSummaryHtml)
+    public function __construct($user, $meeting, $agendaHtml,$meetingSummaryHtml,protected $emailCredentials)
     {
         $this->user = $user;
         $this->meeting = $meeting;
@@ -34,10 +34,11 @@ class OwnerMeeting implements ShouldQueue
      * Execute the job.
      */
     public function handle(): void
-    {   
+    {
         $beautymail = app()->make(Beautymail::class);
         $beautymail->send('emails.aftermeeting', ['user' => $this->user, 'meeting' => $this->meeting, 'agenda' => $this->agenda, 'meeting_summary' => $this->meetingsummary], function ($message) {
             $message
+                ->from($this->emailCredentials,env('MAIL_FROM_NAME'))
                 ->to($this->user->email, $this->user->first_name)
                 ->subject('Owner Committe Meeting');
         });

@@ -117,7 +117,7 @@ class TestController extends Controller
             $accounts_payables = [];
         }
 
-        // Delinquents
+        // // Delinquents
         if ($request->has('delinquents')) {
             $delinquentsImport = new DelinquentsImport;
 
@@ -134,7 +134,7 @@ class TestController extends Controller
             $delinquents = [];
         }
 
-        // Work orders
+        // // Work orders
         if ($request->has('work_orders')) {
             $workordersimport = new WorkOrdersImport;
 
@@ -287,7 +287,7 @@ class TestController extends Controller
         $data->PropertyGroupId = $request->property_group;
         $data->FromDate        = $request->from_date;
         $data->ToDate          = $request->to_date;
-        $data->Delinquents     = $delinquents;
+        $data->Delinquents     = $delinquents; 
         $data->Eservices       = $e_services;
         $data->HappinessCenter = $happiness_center;
         $data->BalanceSheet    = $balance_sheet;
@@ -295,18 +295,19 @@ class TestController extends Controller
         $data->WorkOrders      = $work_orders;
         $data->Assets          = $assets;
         $data->BankBalance     = $bankBalance;
-        $data->UtilityExpenses = $utility;
+        $data->utilityExpenses = $utility;
         $data->BudgetVsActual  = $budget_vs_actual;
         $data->GeneralFund     = $general_fund_statement;
         $data->ReservedFund    = $reserve_fund;
         $data->Collection      = $collection;
 
+        Log::info(json_encode((array) $data));
         // return $data;
         $response = Http::withOptions(['verify' => false])->retry(3, 100)->timeout(60)->withHeaders([
             'content-type' => 'application/json',
             'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
         ])->post('https://qagate.dubailand.gov.ae/mollak/external/managementreport/submit', $data);
-//env("MOLLAK_API_URL") . 
+//env("MOLLAK_API_URL") .
         Log::info($response);
         // return json_decode($response);
         $response = json_decode($response->body());
@@ -324,7 +325,7 @@ class TestController extends Controller
         ]);
 
         // return $response;
-        
+
         if ($response->responseCode === 200) {
             $oaData->update(['status' => "Success", 'mollak_id' => $response->response->id]);
             Notification::make()
@@ -333,6 +334,7 @@ class TestController extends Controller
                 ->send();
             // return response()->json(['status' => 'success', 'message' => "Uploaded successfully!"]);
         } else {
+            Log::info(json_encode($response));
             $oaData->update(['status' => "Failed"]);
             $errorMessages = '';
             if (isset($response->validationErrorsList)) {
@@ -342,24 +344,28 @@ class TestController extends Controller
                         return array_map(function($item) use ($validationError) {
                             return "Failed to upload file: " . $item->key . ", There was an issue with the: " . $validationError->errorMessage;
                         }, $validationError->items);
-                    }else if(isset($validationError->errorMessage)){
+                    } else if (isset($validationError->errorMessage)) {
                         $parts = explode(': ', $validationError->errorMessage);
                         $filename = isset($parts[1]) ? $parts[1] : 'Unknown';
-                        // Handle the case where items is null but there's a general error message
-                        return ["Failed to upload file: There was an issue with the " . $filename];
-                    }
-                    else{
+                        if($filename != 'Unknown'){
+                            // Handle the case where items is null but there's a general error message
+                            return ["Failed to upload file: There was an issue with the " . $filename];
+                        }
+                        else{
+                            return [" Failed to upload files : ". $validationError->errorMessage];
+                        }
+                    } else {
                         return [];
                     }
                 }, $response->validationErrorsList);
-                
+
                 // Flatten the array
                 $errors = array_merge(...$errors);
-                
+
                 // Join errors into a single string separated by newlines
                 $errorMessages = implode("\n", $errors);
             }
-            
+
             Notification::make()
                 ->title("Upload failed")
                 ->danger()
@@ -399,7 +405,7 @@ class TestController extends Controller
     //             ->to('prashanth@zysk.tech', 'Prashanth')
     //             ->subject('Welcome to Lazim! 🎉 Download Our App Now!');
     //     });
-    // } 
+    // }
 
     public function download(Request $request)
     {
@@ -431,7 +437,7 @@ class TestController extends Controller
                 'verify' => false
             ]
         ]);
-        
+
         // The file you want to retrieve the mime type for
         $bucket = 'lazim-dev';
         if ($template == 'all') {
@@ -451,7 +457,7 @@ class TestController extends Controller
                     }
                 }
                 $zip->close();
-    
+
                 return response()->download($zipFileName)->deleteFileAfterSend(true);
             }
         } else {
@@ -472,5 +478,40 @@ class TestController extends Controller
             }
         }
     }
-    
+
+    public function forwardRequest(Request $request)
+    {
+        $url = $request->input('url'); // Get the URL from the request
+        $body = $request->input('body'); // Get the body from the request
+        $method = strtoupper($request->input('method', 'POST'));
+
+        try {
+            $httpRequest  = Http::withOptions(['verify' => false])
+                            ->withHeaders([
+                                'Content-Type' => 'application/json',
+                                'consumer-id' => env('MOLLAK_CONSUMER_ID'),
+                            ]);
+
+            switch ($method) {
+                case 'GET':
+                    $response = $httpRequest->get(env('MOLLAK_API_URL') . $url);
+                    break;
+                case 'POST':
+                    $response = $httpRequest->post(env('MOLLAK_API_URL') . $url, $body);
+                    break;
+                default:
+                    throw new \InvalidArgumentException("Unsupported HTTP method: {$method}");
+            }
+            return response()->json([
+                'status' => 'success',
+                'statusCode' => $response->status(),
+                'data' => $response->json(),
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
 }

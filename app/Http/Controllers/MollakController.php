@@ -16,7 +16,21 @@ use App\Models\Accounting\SubCategory;
 use App\Http\Resources\Master\UnitResource;
 use App\Http\Resources\Master\PropertyGroupResource;
 use App\Http\Resources\Master\ServicePeriodResource;
+use App\Jobs\BudgetApprovedWebhookJob;
+use App\Jobs\ContractChangedWebhookJob;
+use App\Jobs\LegalNoticeIssuedJob;
+use App\Jobs\OAM\FetchAndSaveInvoices;
+use App\Jobs\OAM\FetchAndSaveReceipts;
+use App\Jobs\OwnershipChangedWebhookJob;
+use App\Models\ApartmentOwner;
+use App\Models\Building\Flat;
+use App\Models\Building\FlatTenant;
+use App\Models\FlatOwners;
+use App\Models\LegalNotice;
+use App\Models\MollakTenant;
+use App\Models\WebhookResponse;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class MollakController extends Controller
@@ -91,22 +105,22 @@ class MollakController extends Controller
         //         'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
         //     ])->get("https://qagate.dubailand.gov.ae/mollak/external/sync/owners/235553");
 
-        // $results = Http::withOptions(['verify' => false])->withHeaders([
-        //         'content-type' => 'application/json',
-        //         'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
-        //     ])->get("https://qagate.dubailand.gov.ae/mollak/external/sync/managementcompany/" . 54713 . "/propertygroups");
-
         $results = Http::withOptions(['verify' => false])->withHeaders([
                 'content-type' => 'application/json',
                 'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
-            ])->get("https://qagate.dubailand.gov.ae/mollak/external/sync/invoices/" . 235553 . "/servicechargeperiods");
+            ])->get("https://qagate.dubailand.gov.ae/mollak/external/sync/managementcompany/" . 54713 . "/propertygroups");
+
+        // $results = Http::withOptions(['verify' => false])->withHeaders([
+        //         'content-type' => 'application/json',
+        //         'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
+        //     ])->get("https://qagate.dubailand.gov.ae/mollak/external/sync/invoices/" . 235553 . "/servicechargeperiods");
 
             // Decode the API response
             $data = $results->json();
-
+            return $data;
             // Return the transformed data using the API resource
             // return PropertyGroupResource::collection($data['response']['propertyGroups']);
-            return ServicePeriodResource::collection($data['response']['serviceChargePeriod']);
+            // return ServicePeriodResource::collection($data['response']['serviceChargePeriod']);
 
         // $response = Http::withoutVerifying()->withHeaders([
         //     'Content-Type' => 'application/json',
@@ -303,39 +317,146 @@ class MollakController extends Controller
         // // header("Access-Control-Allow-Headers: Content-Type, Authorization");
         Log::info($request->header('mollak-id'));
         // Log::info($request->headers->all());
-        Log::info("Webhook--->".json_encode($request->all()));
-        // Check if the request body is empty
-        if (empty($request->getContent())) {
-            return response()->json(['error' => 'Empty Body'], 400);
-        }
-
-        // Manually decode JSON and check for errors
-        $data = json_decode($request->getContent(), true);
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            return response()->json(['error' => 'Invalid JSON'], 400);
-        }
-
-        // Generate a unique identifier for the request body
-        $requestHash = md5($request->getContent());
-
-        // Check if this request has been processed before
-        if (Cache::has('processed_request:' . $requestHash)) {
-            return response()->json(['error' => 'Duplicate Request'], 400);
-        }
-
-        // Store the request identifier in cache with a TTL (time-to-live) to prevent future duplicates
-        Cache::put('processed_request:' . $requestHash, true, now()->addMinutes(5)); // Adjust TTL as needed
+        // Log::info("Webhook--->".json_encode($request->all()));
 
         $validationError = $this->validateMollakRequest($request);
         if(!empty($validationError)){
             return $validationError;
         }
 
-        // Check for duplicate values
-        $values = array_column($data['parameters'], 'key');
-        if (count($values) !== count(array_unique($values))) {
-            return response()->json(['error' => 'Duplicate Keys'], 400);
+
+        $syncType = $request->input('syncType');
+        switch ($syncType) {
+            case 'payment_receipt':
+                $parameters = [];
+                foreach ($request->parameters as $param) {
+                    $parameters[$param['key']] = $param['value'];
+                }
+
+                $managementCompanyId = $parameters['managementCompanyId'] ?? null;
+                $propertyGroupId = $parameters['propertyGroupId']?? null; //235553;
+                $mollakPropertyId = $parameters['mollakPropertyId']?? null; //5001;
+                $receiptId = $parameters['receiptId']?? null; //1122;
+                WebhookResponse::create([
+                    'management_company_id' => $managementCompanyId,
+                    'type' => 'payment_receipt',
+                    'response' => json_encode($request->parameters)
+                ]);
+
+
+                FetchAndSaveReceipts::dispatch($building = null,$propertyGroupId,$mollakPropertyId,$receiptId);
+
+                break;
+            case 'budget_approved':
+                $parameters = [];
+                foreach ($request->parameters as $param) {
+                    $parameters[$param['key']] = $param['value'];
+                }
+                $managementCompanyId = $parameters['managementCompanyId'] ?? null;
+                $propertyGroupId = $parameters['propertyGroupId']?? null; //235553;
+                $periodCode =  $parameters['periodCode']?? null; //'JAN2021-DEC2021';
+                WebhookResponse::create([
+                    'management_company_id' => $managementCompanyId,
+                    'type' => 'budget_approved',
+                    'response' => json_encode($request->parameters)
+                ]);
+                
+                BudgetApprovedWebhookJob::dispatch($propertyGroupId,$periodCode);                
+                break;
+            case 'invoice_generated':
+
+                $parameters = [];
+                foreach ($request->parameters as $param) {
+                    $parameters[$param['key']] = $param['value'];
+                }
+
+                $managementCompanyId = $parameters['managementCompanyId'] ?? null;
+                $propertyGroupId = $parameters['propertyGroupId']?? null; //235553;
+                $quarterCode = $parameters['quarterCode']?? null; //'Q4-JAN2019-DEC2019';
+                $serviceChargeGroupId = $parameters['serviceChargeGroupId']?? null; //5001;
+
+                WebhookResponse::create([
+                    'management_company_id' => $managementCompanyId,
+                    'type' => 'invoice_generated',
+                    'response' => json_encode($request->parameters)
+                ]);                
+
+                FetchAndSaveInvoices::dispatch($building = null,$propertyGroupId,$serviceChargeGroupId,$quarterCode);
+                break;
+            case 'ownership_changed':
+
+                $parameters = [];
+                foreach ($request->parameters as $param) {
+                    $parameters[$param['key']] = $param['value'];
+                }
+
+                $managementCompanyId = $parameters['managementCompanyId'] ?? null;
+                $propertyGroupId = $parameters['propertyGroupId']?? null; //235553;
+                $mollakPropertyId = $parameters['mollakPropertyId']?? null; //5001;
+
+                WebhookResponse::create([
+                    'management_company_id' => $managementCompanyId,
+                    'type' => 'ownership_changed',
+                    'response' => json_encode($request->parameters)
+                ]);
+
+                OwnershipChangedWebhookJob::dispatch($propertyGroupId,$mollakPropertyId);
+                break;
+            case 'contract_changed':
+                $parameters = [];
+                foreach ($request->parameters as $param) {
+                    $parameters[$param['key']] = $param['value'];
+                }
+
+                $managementCompanyId = $parameters['managementCompanyId'] ?? null;
+                $propertyGroupId = $parameters['propertyGroupId']?? null; //235553;
+                $contractNumber = $parameters['contractNumber']?? null;
+                WebhookResponse::create([
+                    'management_company_id' => $managementCompanyId,
+                    'type' => 'contract_changed',
+                    'response' => json_encode($request->parameters)
+                ]);
+
+                ContractChangedWebhookJob::dispatch($propertyGroupId,$contractNumber);
+
+                break;
+            case 'legal_notice_issued':
+
+                $parameters = [];
+                foreach ($request->parameters as $param) {
+                    $parameters[$param['key']] = $param['value'];
+                }
+
+                $managementCompanyId = $parameters['managementCompanyId'] ?? null;
+                $propertyGroupId = $parameters['propertyGroupId']?? null; //235553;
+                $mollakPropertyId = $parameters['mollakPropertyId']?? null; //5001;
+                $legalNoticeId = $parameters['legalNoticeId']?? null; //619411;
+                WebhookResponse::create([
+                    'management_company_id' => $managementCompanyId,
+                    'type' => 'legal_notice_issued',
+                    'response' => json_encode($request->parameters)
+                ]);
+
+
+                LegalNoticeIssuedJob::dispatch($propertyGroupId,$mollakPropertyId, $legalNoticeId);
+                
+                break;
+            case 'owner_committee_formed':
+                $parameters = [];
+                foreach ($request->parameters as $param) {
+                    $parameters[$param['key']] = $param['value'];
+                }
+                $managementCompanyId = $parameters['managementCompanyId'] ?? null;
+                WebhookResponse::create([
+                    'management_company_id' => $managementCompanyId,
+                    'type' => 'owner_committee_formed',
+                    'response' => json_encode($request->parameters)
+                ]);
+                break;
+            default:
+                return response()->json(['error' => 'Invalid syncType'], 400);
         }
+
         return [
             'isExecuted' => true,
             'acknowledgeRef' => random_int(1111111,9999999)
@@ -379,7 +500,7 @@ class MollakController extends Controller
             case 'invoice_generated':
                 $validator = Validator::make($request->all(), [
                     'parameters' => 'required|array',
-                    'parameters.*.key' => 'required|string|in:managementCompanyId,propertyGroupId,quarterCode,serviceChargeGroupId',
+                    'parameters.*.key' => 'required|string|in:managementCompanyId,propertyGroupId,QuarterCode,serviceChargeGroupId',
                     'parameters.*.value' => 'required',
                 ], [
                     'parameters.*.key.in' => "Invalid key provided in parameters",
@@ -431,4 +552,62 @@ class MollakController extends Controller
 
         // If all validations pass, you can proceed with your logic here
     }
+
+    public function invoiceWebhook(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'timeStamp' => 'required|date',
+            'syncType' => 'required|string',
+            'parameters' => 'required|array',
+            'parameters.*.key' => 'required|string|in:managementCompanyId,propertyGroupId,quarterCode,serviceChargeGroupId',
+            'parameters.*.value' => 'required',
+            ],[
+            'parameters.*.key.in' => "Invalid key provided in parameters",
+            ]); 
+        
+            if ($validator->fails()) {
+                return response()->json(['error' => $validator->errors()->first()], 400);
+            }
+
+            $propertyGroupId = $request->parameters['propertyGroupId']; //235553;
+            $quarterCode = $request->parameters['quarterCode']; //'Q4-JAN2019-DEC2019';
+            $serviceChargeGroupId = $request->parameters['serviceChargeGroupId']; //5001;
+
+            FetchAndSaveInvoices::dispatch($propertyGroupId,$serviceChargeGroupId,$quarterCode);
+
+            return [
+                'isExecuted' => true,
+                'acknowledgeRef' => random_int(1111111,9999999)
+            ];
+            
+    }
+
+    public function receiptWebhook(Request $request){
+        $validator = Validator::make($request->all(), [
+            'timeStamp' => 'required|date',
+            'syncType' => 'required|string',
+            'parameters' => 'required|array',
+            'parameters.*.key' => 'required|string|in:managementCompanyId,propertyGroupId,mollakPropertyId,receiptId',
+                'parameters.*.value' => 'required',
+            ], [
+                'parameters.*.key.in' => "Invalid key provided in parameters",
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json(['error' => $validator->errors()->first()], 400);
+            }
+
+            $propertyGroupId = $request->parameters['propertyGroupId']; //235553;
+            $mollakPropertyId = $request->parameters['mollakPropertyId']; //5001;
+            $receiptId = $request->parameters['receiptId']; //1122;
+
+            FetchAndSaveReceipts::dispatch($propertyGroupId,$mollakPropertyId,$receiptId);
+
+            return [
+                'isExecuted' => true,
+                'acknowledgeRef' => random_int(1111111,9999999)
+            ];
+    }
+
 }
+    

@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('flat_visitors', function (Blueprint $table) {
-            $table->integer('verification_code')->nullable()->change();
+            $table->string('verification_code')->nullable()->change();
             $table->unsignedBigInteger  ('approved_by')->nullable()->change();
             $table->json('remarks')->nullable()->change();
             $table->string('phone',20)->change();
@@ -26,7 +26,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('flat_visitors', function (Blueprint $table) {
-            $table->integer('verification_code')->change();
+            $table->string('verification_code')->change();
             $table->unsignedBigInteger  ('approved_by')->change();
             $table->json('remarks')->change();
             $table->string('phone',20)->change();
