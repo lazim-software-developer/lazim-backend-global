@@ -11,6 +11,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class OwnershipChangedWebhookJob implements ShouldQueue
 {
@@ -31,12 +32,13 @@ class OwnershipChangedWebhookJob implements ShouldQueue
     {
         $propertyGroupId = $this->propertyGroupId;
         $mollakPropertyId = $this->mollakPropertyId;
-        
+        try{
         $results = Http::withOptions(['verify' => false])->withHeaders([
             'content-type' => 'application/json',
             'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
         ])->get("https://qagate.dubailand.gov.ae/mollak/external/sync/owners/".$propertyGroupId."/".$mollakPropertyId);
         $responce = $results->json()['response'];
+        Log::info($responce);
         foreach($responce['properties'] as $property){
             $flat = Flat::where('mollak_property_id',$property['mollakPropertyId'])->first();
             $flatOwner = FlatOwners::find($flat?->id)->update(['active'=> false]);
@@ -59,5 +61,9 @@ class OwnershipChangedWebhookJob implements ShouldQueue
                 ]);
             }   
         }
+    } catch (\Exception $e) {
+        Log::error('Failed to fetch ownership changed ');
     }
+    }
+
 }

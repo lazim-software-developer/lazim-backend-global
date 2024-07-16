@@ -22,7 +22,7 @@ class FetchAndSaveInvoices implements ShouldQueue
 
     protected $building;
 
-    public function __construct(Building $building = null, protected $propertyGroupId = null, protected $quarterCode = null, protected $serviceChargeGroupId = null)
+    public function __construct($building = null, protected $propertyGroupId = null, protected $quarterCode = null, protected $serviceChargeGroupId = null)
     {
         $this->building = $building;
     }
@@ -32,7 +32,7 @@ class FetchAndSaveInvoices implements ShouldQueue
      */
     public function handle(): void
     {
-        $buildingId = $this->building->id;
+        $buildingId = $this->building?->id;
         $propertyGroupId = $this->propertyGroupId ?: $this->building->property_group_id;
         $serviceChargeGroupId = $this->serviceChargeGroupId;
 
@@ -57,6 +57,7 @@ class FetchAndSaveInvoices implements ShouldQueue
 
                 $invoicesData = $response->json()['response']['serviceChargeGroups'];
 
+                Log::info($invoicesData);
                 foreach ($invoicesData as $data) {
                     foreach ($data['properties'] as $property) {
                         $flat = Flat::where('mollak_property_id',  $property['mollakPropertyId'])->first();

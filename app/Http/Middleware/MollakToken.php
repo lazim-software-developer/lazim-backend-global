@@ -45,9 +45,9 @@ class MollakToken
             $requestHash = md5($request->getContent());
     
             // Check if this request has been processed before
-            if (Cache::has('processed_request:' . $requestHash)) {
-                return response()->json(['error' => 'Duplicate Request'], 400);
-            }
+            // if (Cache::has('processed_request:' . $requestHash)) {
+            //     return response()->json(['error' => 'Duplicate Request'], 400);
+            // }
     
             // Store the request identifier in cache with a TTL (time-to-live) to prevent future duplicates
             Cache::put('processed_request:' . $requestHash, true, now()->addMinutes(5)); // Adjust TTL as needed

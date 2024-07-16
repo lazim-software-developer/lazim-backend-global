@@ -12,6 +12,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class LegalNoticeIssuedJob implements ShouldQueue
 {
@@ -33,13 +34,15 @@ class LegalNoticeIssuedJob implements ShouldQueue
         $propertyGroupId =$this->propertyGroupId;
         $mollakPropertyId =$this->mollakPropertyId;
         $legalNoticeId=$this->legalNoticeId;
+        try{
         $results = Http::withOptions(['verify' => false])->withHeaders([
             'content-type' => 'application/json',
             'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
         ])->get("https://qagate.dubailand.gov.ae/mollak/external/sync/legalnotice/".$propertyGroupId."/".$mollakPropertyId."/".$legalNoticeId);
         
         $responce = $results->json()['response']['propertyGroups'];
-        $building_id = Building::where('mollak_property_id',$propertyGroupId)->first();
+        Log::info($responce);
+        $building_id = Building::where('property_group_id',$propertyGroupId)->first();
         $oam_id = DB::table('building_owner_association')->where('building_id',$building_id?:null)->where('active', true)->first();
         foreach($responce['mollakProperties'] as $notice){
 
@@ -63,6 +66,9 @@ class LegalNoticeIssuedJob implements ShouldQueue
                 'isRDCCaseStart' => $notice['isRDCCaseStart'],
                 'isRDCCaseEnd' => $notice['isRDCCaseEnd']
             ]);
+        }
+        } catch (\Exception $e) {
+            Log::error('Failed to fetch legal notice issued ');
         }
     }
 }
