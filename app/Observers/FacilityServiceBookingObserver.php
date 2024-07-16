@@ -14,7 +14,6 @@ use App\Models\Master\Service;
 use App\Models\User\User;
 use Filament\Notifications\Actions\Action;
 use Filament\Notifications\Notification;
-use Illuminate\Support\Facades\Log;
 
 class FacilityServiceBookingObserver
 {
@@ -32,7 +31,6 @@ class FacilityServiceBookingObserver
                 return $notifyTo->can($requiredPermissions);
             });
             $facilityName = Facility::where('id', $facilityBooking->bookable_id)->first();
-            Log::info(FacilityBookingResource::getUrl('edit', [$facilityBooking]));
             Notification::make()
             ->success()
             ->title("Facility Booking")
@@ -42,7 +40,7 @@ class FacilityServiceBookingObserver
             ->actions([
                 Action::make('view')
                     ->button()
-                    ->url(fn () => '/admin/tenant-documents/'.$facilityBooking.'/edit'),
+                    ->url(fn () => FacilityBookingResource::getUrl('edit', [$facilityBooking])),
             ])
             ->sendToDatabase($notifyTo);
         }
