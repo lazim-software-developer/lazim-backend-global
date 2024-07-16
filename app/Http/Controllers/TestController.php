@@ -295,7 +295,7 @@ class TestController extends Controller
         $data->WorkOrders      = $work_orders;
         $data->Assets          = $assets;
         $data->BankBalance     = $bankBalance;
-        $data->ptilityExpenses = $utility;
+        $data->utilityExpenses = $utility;
         $data->BudgetVsActual  = $budget_vs_actual;
         $data->GeneralFund     = $general_fund_statement;
         $data->ReservedFund    = $reserve_fund;
