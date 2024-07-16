@@ -18,7 +18,7 @@ return new class extends Migration
             $table->enum('status', ['published', 'draft'])->default('draft');
             $table->dateTime('scheduled_at')->nullable();
             $table->dateTime('ends_on')->nullable();
-            $table->foreignId('building_id')->constrained('buildings');
+            $table->foreignId('building_id')->nullable()->constrained('buildings');
             $table->foreignId('created_by')->constrained('users');
             $table->timestamps();
         });

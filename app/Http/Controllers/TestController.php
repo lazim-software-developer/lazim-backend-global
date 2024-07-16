@@ -117,7 +117,7 @@ class TestController extends Controller
             $accounts_payables = [];
         }
 
-        // Delinquents
+        // // Delinquents
         if ($request->has('delinquents')) {
             $delinquentsImport = new DelinquentsImport;
 
@@ -134,7 +134,7 @@ class TestController extends Controller
             $delinquents = [];
         }
 
-        // Work orders
+        // // Work orders
         if ($request->has('work_orders')) {
             $workordersimport = new WorkOrdersImport;
 
@@ -287,7 +287,7 @@ class TestController extends Controller
         $data->PropertyGroupId = $request->property_group;
         $data->FromDate        = $request->from_date;
         $data->ToDate          = $request->to_date;
-        $data->Delinquents     = $delinquents;
+        $data->Delinquents     = $delinquents; 
         $data->Eservices       = $e_services;
         $data->HappinessCenter = $happiness_center;
         $data->BalanceSheet    = $balance_sheet;
@@ -295,7 +295,18 @@ class TestController extends Controller
         $data->WorkOrders      = $work_orders;
         $data->Assets          = $assets;
         $data->BankBalance     = $bankBalance;
-        $data->UtilityExpenses = $utility;
+        // $data->UtilityExpenses = $utility;
+        $data->UtilityExpenses = [
+            'utility_reference' => '3002390545',
+            'amount'            => 987.2,
+            'utility_name'      => 'Electricity Consumption',
+            'provider_name'     => 'Dubai Electricity and Water Authority (DEWA)',
+            'trend'             => [
+                'duration'     => '2021-07',
+                'duration_str' => 'Jul 2021',
+                'amount'       => 23455.0,
+            ],
+        ];
         $data->BudgetVsActual  = $budget_vs_actual;
         $data->GeneralFund     = $general_fund_statement;
         $data->ReservedFund    = $reserve_fund;
