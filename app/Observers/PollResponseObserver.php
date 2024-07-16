@@ -31,7 +31,7 @@ class PollResponseObserver
         ->actions([
             Action::make('View')
             ->button()
-            ->url(fn () => PollResource::getUrl('edit', [$pollResponse->poll_id]))
+            ->url(fn () => PollResource::getUrl('edit', ['record',$pollResponse->poll_id]))
         ])
         ->sendToDatabase($notifyTo);
     }

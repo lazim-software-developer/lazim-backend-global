@@ -33,7 +33,7 @@ class SaleNOCObserver
         ->actions([
             Action::make('view')
                 ->button()
-                ->url(fn () => NocFormResource::getUrl('edit', [$saleNOC])),
+                ->url(fn () => NocFormResource::getUrl('edit', ['record',$saleNOC->id])),
         ])
         ->sendToDatabase($notifyTo);
     }

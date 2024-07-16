@@ -32,7 +32,7 @@ class ResidentialFormObserver
         ->actions([
             Action::make('view')
                 ->button()
-                ->url(fn () => ResidentialFormResource::getUrl('edit', [$residentialForm])),
+                ->url(fn () => ResidentialFormResource::getUrl('edit', ['record',$residentialForm->id])),
         ])
         ->sendToDatabase($notifyTo);
     }

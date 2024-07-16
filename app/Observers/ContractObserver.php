@@ -37,7 +37,7 @@ class ContractObserver
             ->actions([
                 Action::make('view')
                     ->button()
-                    ->url(fn () => ContractResource::getUrl('edit', [$contract])),
+                    ->url(fn () => ContractResource::getUrl('edit', ['record',$contract->id])),
             ])
             ->sendToDatabase($notifyTo);
     }

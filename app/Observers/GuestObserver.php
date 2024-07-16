@@ -33,7 +33,7 @@ class GuestObserver
         ->actions([
             Action::make('view')
                 ->button()
-                ->url(fn () => GuestRegistrationResource::getUrl('edit', [$guest])),
+                ->url(fn () => GuestRegistrationResource::getUrl('edit', ['record',$guest->id])),
         ])
         ->sendToDatabase($notifyTo);
     }

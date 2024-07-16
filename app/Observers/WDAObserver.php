@@ -37,7 +37,7 @@ class WDAObserver
                 ->actions([
                     Action::make('view')
                         ->button()
-                        ->url(fn () => WDAResource::getUrl('edit', [$WDA])),
+                        ->url(fn () => WDAResource::getUrl('edit', ['record',$WDA->id])),
                 ])
                 ->sendToDatabase($notifyTo);
         }

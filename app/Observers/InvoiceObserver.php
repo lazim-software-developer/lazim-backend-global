@@ -37,7 +37,7 @@ class InvoiceObserver
                 ->actions([
                     Action::make('view')
                         ->button()
-                        ->url(fn () => InvoiceResource::getUrl('edit', [$invoice])),
+                        ->url(fn () => InvoiceResource::getUrl('edit', ['record',$invoice->id])),
                 ])
                 ->sendToDatabase($notifyTo);
         }
