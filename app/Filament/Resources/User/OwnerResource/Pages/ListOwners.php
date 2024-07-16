@@ -22,8 +22,8 @@ class ListOwners extends ListRecords
     protected static string $resource = OwnerResource::class;
     protected function getTableQuery(): Builder
     {
-        $BuildingId = Building::where('owner_association_id',auth()->user()->owner_association_id)->pluck('id');
-        $flatsId = Flat::whereIn('building_id',$BuildingId)->pluck('id');
+        // $BuildingId = Building::where('owner_association_id',Filament::getTenant()?->id ?? auth()->user()->owner_association_id)->pluck('id');
+        $flatsId = Flat::where('owner_association_id',Filament::getTenant()?->id ?? auth()->user()->owner_association_id)->pluck('id');
         $flatowners = FlatOwners::whereIn('flat_id',$flatsId)->pluck('owner_id');
         return parent::getTableQuery()->whereIn('id',$flatowners);
     }
@@ -36,7 +36,7 @@ class ListOwners extends ListRecords
                 ->form([
                     Select::make('building_id')
                         ->options(function(){
-                            return Building::where('owner_association_id',auth()->user()->owner_association_id)->pluck('name','id');
+                            return Building::where('owner_association_id',Filament::getTenant()?->id ??auth()->user()->owner_association_id)->pluck('name','id');
                         })
                         ->searchable()
                         ->preload()
