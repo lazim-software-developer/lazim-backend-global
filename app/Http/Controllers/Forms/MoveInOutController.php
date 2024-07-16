@@ -10,7 +10,9 @@ use App\Jobs\MoveInOutMailJob;
 use App\Models\Building\Building;
 use App\Models\ExpoPushNotification;
 use App\Models\Forms\MoveInOut;
+use App\Models\OwnerAssociation;
 use App\Traits\UtilsTrait;
+use Filament\Facades\Filament;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
 
@@ -43,6 +45,10 @@ class MoveInOutController extends Controller
     public function store(CreateFormRequest $request)
     {
         $ownerAssociationId = Building::find($request->building_id)->owner_association_id;
+
+        $tenant           = Filament::getTenant()?->id ?? $ownerAssociationId;
+        $emailCredentials = OwnerAssociation::find($tenant)->accountcredentials()->where('active', true)->latest()->first()->email ?? env('MAIL_FROM_ADDRESS');
+
 
         // Handle multiple images
         $document_paths = [
@@ -84,7 +90,7 @@ class MoveInOutController extends Controller
         $data['ticket_number'] = generate_ticket_number("MV");
 
         $moveInOut = MoveInOut::create($data);
-        MoveInOutMailJob::dispatch(auth()->user(), $moveInOut);
+        MoveInOutMailJob::dispatch(auth()->user(), $moveInOut, $emailCredentials);
 
         return (new CustomResponseResource([
             'title' => 'Success',
