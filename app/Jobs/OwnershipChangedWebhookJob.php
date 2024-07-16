@@ -11,6 +11,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class OwnershipChangedWebhookJob implements ShouldQueue
 {
@@ -37,6 +38,7 @@ class OwnershipChangedWebhookJob implements ShouldQueue
             'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
         ])->get("https://qagate.dubailand.gov.ae/mollak/external/sync/owners/".$propertyGroupId."/".$mollakPropertyId);
         $responce = $results->json()['response'];
+        Log::info($responce);
         foreach($responce['properties'] as $property){
             $flat = Flat::where('mollak_property_id',$property['mollakPropertyId'])->first();
             $flatOwner = FlatOwners::find($flat?->id)->update(['active'=> false]);
