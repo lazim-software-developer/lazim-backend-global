@@ -11,6 +11,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class ContractChangedWebhookJob implements ShouldQueue
 {
@@ -31,12 +32,13 @@ class ContractChangedWebhookJob implements ShouldQueue
     {
         $propertyGroupId =$this->propertyGroupId;
         $contractNumber =$this->contractNumber;
-        
+        try{
         $results = Http::withOptions(['verify' => false])->withHeaders([
             'content-type' => 'application/json',
             'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
         ])->get("https://qagate.dubailand.gov.ae/mollak/external/sync/property/".$propertyGroupId."/contract/".$contractNumber);
         $responce = $results->json()['response'];
+        Log::info($responce);
         $flat_id = Flat::where('mollak_property_id',$responce['property']['propertyId'])->first();
         MollakTenant::updateOrCreate([
             'contract_number' => $responce['contract']['contractNumber']
@@ -60,6 +62,8 @@ class ContractChangedWebhookJob implements ShouldQueue
                 'end_date' => $responce['contract']['endDate'],
             ]);
         }
-
+        } catch (\Exception $e) {
+            Log::error('Failed to fetch contract changed ');
+        }
     }
 }

@@ -143,6 +143,7 @@ class ComplaintController extends Controller
             }
         }
 
+
         // Assign complaint to a technician
         // AssignTechnicianToComplaint::dispatch($complaint);
         // $serviceId  = $service_id;
