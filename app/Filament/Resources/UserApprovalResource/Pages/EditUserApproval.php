@@ -37,7 +37,7 @@ class EditUserApproval extends EditRecord
 
         return $data;
     }
-    protected function beforeSave($record): void
+    protected function beforeSave(): void
     {
         UserApproval::find($this->data['id'])->update([
             'updated_by'  => auth()->user()->id,
@@ -45,7 +45,7 @@ class EditUserApproval extends EditRecord
         $tenant           = Filament::getTenant()?->id ?? auth()->user()?->owner_association_id;
 
         if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
-            $emailCredentials = OwnerAssociation::find($record->owner_association_id)->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
+            $emailCredentials = OwnerAssociation::find($this->record->owner_association_id)->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
         }else{
             $emailCredentials = OwnerAssociation::find($tenant)->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
         }
