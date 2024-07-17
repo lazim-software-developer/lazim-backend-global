@@ -6,6 +6,7 @@ use App\Filament\Resources\TenantDocumentResource;
 use App\Models\Building\Building;
 use App\Models\Building\Document;
 use App\Models\Master\Role;
+use App\Models\OwnerAssociation;
 use App\Models\User\User;
 use Filament\Facades\Filament;
 use Filament\Notifications\Actions\Action;
@@ -30,8 +31,8 @@ class DocumentObserver
                     ->filter(function ($notifyTo) use ($requiredPermissions) {
                         return $notifyTo->can($requiredPermissions);
                     });
-                    Log::info(Filament::getTenant()->id);
-                    Log::info(Filament::getTenant()->id.TenantDocumentResource::getUrl('edit', $document->id));
+                    Log::info(OwnerAssociation::where('id',auth()->user()?->owner_association_id)?->slug);
+                    Log::info(OwnerAssociation::where('id',auth()->user()?->owner_association_id)?->slug.TenantDocumentResource::getUrl('edit', $document->id));
                     Notification::make()
                         ->success()
                         ->title($document->name . " Received")
