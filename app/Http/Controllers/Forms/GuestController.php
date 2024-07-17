@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Forms;
 
-use App\Filament\Resources\Vendor\VendorResource;
 use App\Filament\Resources\VisitorFormResource;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Forms\CreateGuestRequest;
@@ -42,56 +41,56 @@ class GuestController extends Controller
         $ownerAssociationId = Building::find($request->building_id)->owner_association_id;
 
         $request->merge([
-            'start_time' => $request->start_date,
-            'end_time' => $request->end_date,
-            'initiated_by' => auth()->user()->id,
-            'name' => auth()->user()->first_name,
-            'phone' => auth()->user()->phone,
-            'email' => auth()->user()->email,
+            'start_time'           => $request->start_date,
+            'end_time'             => $request->end_date,
+            'initiated_by'         => auth()->user()->id,
+            'name'                 => auth()->user()->first_name,
+            'phone'                => auth()->user()->phone,
+            'email'                => auth()->user()->email,
             'owner_association_id' => $ownerAssociationId,
-            'ticket_number' => generate_ticket_number("FV")
+            'ticket_number'        => generate_ticket_number("FV"),
         ]);
-        $guest = FlatVisitor::create($request->all());
+        $guest            = FlatVisitor::create($request->all());
         $tenant           = Filament::getTenant()?->id ?? auth()->user()?->owner_association_id ?? $ownerAssociationId;
-        $emailCredentials = OwnerAssociation::find($tenant)->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
+        $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
 
         GuestRequestJob::dispatch(auth()->user(), $guest, $emailCredentials);
 
         $filePath = optimizeDocumentAndUpload($request->file('image'), 'dev');
         $request->merge([
-            'flat_visitor_id' => $guest->id,
+            'flat_visitor_id'  => $guest->id,
             'dtmc_license_url' => $filePath,
-            'passport_number' =>json_encode($request->visitor_passports),
-            'guest_name' => json_encode($request->visitor_names),
+            'passport_number'  => json_encode($request->visitor_passports),
+            'guest_name'       => json_encode($request->visitor_names),
         ]);
         Guest::create($request->all());
 
         // Handle multiple images
         if ($request->hasFile('files')) {
             foreach ($request->file('files') as $image) {
-                $filePath = optimizeDocumentAndUpload($image, 'dev');
+                $filePath    = optimizeDocumentAndUpload($image, 'dev');
                 $currentDate = date('Y-m-d');
 
                 //TODO: NEED TO CHANGE EXPIRY_DATE LOGIC
                 $passportId = DocumentLibrary::where('name', 'Passport')->value('id');
 
                 $request->merge([
-                    'documentable_id' => $guest->id,
+                    'documentable_id'     => $guest->id,
                     'document_library_id' => $passportId,
-                    'status' => 'pending',
-                    'url' => $filePath,
-                    'expiry_date' => date('Y-m-d', strtotime('+1 year', strtotime($currentDate))),
-                    'documentable_type' => FlatVisitor::class,
-                    'name' => $request->type,
+                    'status'              => 'pending',
+                    'url'                 => $filePath,
+                    'expiry_date'         => date('Y-m-d', strtotime('+1 year', strtotime($currentDate))),
+                    'documentable_type'   => FlatVisitor::class,
+                    'name'                => $request->type,
                 ]);
 
                 Document::create($request->all());
             }
         }
         return (new CustomResponseResource([
-            'title' => 'Success',
+            'title'   => 'Success',
             'message' => ' created successfully!',
-            'code' => 201,
+            'code'    => 201,
         ]))->response()->setStatusCode(201);
     }
 
@@ -101,29 +100,29 @@ class GuestController extends Controller
         // $ownerAssociationId = Building::find($request->building_id)->owner_association_id;
 
         $request->merge([
-            'start_time' => $request->start_date,
-            'end_time' => $request->start_date,
-            'phone' => "NA",
-            'email' => $request->email,
+            'start_time'           => $request->start_date,
+            'end_time'             => $request->start_date,
+            'phone'                => "NA",
+            'email'                => $request->email,
             'owner_association_id' => $ownerAssociationId,
-            'type' => 'visitor'
+            'type'                 => 'visitor',
         ]);
 
         $requiredPermissions = ['view_any_visitor::form'];
-        $visitor = FlatVisitor::create($request->all());
-        $roles = Role::where('owner_association_id',$ownerAssociationId)->whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor','Staff'])->pluck('id');
-        $user = User::where('owner_association_id', $ownerAssociationId)->whereNotIn('role_id', $roles)->whereNot('id', auth()->user()?->id)->get()//->where('role_id', Role::where('name','OA')->value('id'))->get();
-        ->filter(function ($notifyTo) use ($requiredPermissions) {
-            return $notifyTo->can($requiredPermissions);
-        });
+        $visitor             = FlatVisitor::create($request->all());
+        $roles               = Role::where('owner_association_id', $ownerAssociationId)->whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor', 'Staff'])->pluck('id');
+        $user                = User::where('owner_association_id', $ownerAssociationId)->whereNotIn('role_id', $roles)->whereNot('id', auth()->user()?->id)->get() //->where('role_id', Role::where('name','OA')->value('id'))->get();
+            ->filter(function ($notifyTo) use ($requiredPermissions) {
+                return $notifyTo->can($requiredPermissions);
+            });
         Notification::make()
             ->success()
             ->title('Flat Visit Request')
             ->body("Flat visit request received for $request->start_date")
             ->action([
                 Action::make('View')
-                ->button()
-                ->url(fn () => VisitorFormResource::getUrl('edit', [OwnerAssociation::where('id',$ownerAssociationId)->first()?->slug,$visitor->id])),
+                    ->button()
+                    ->url(fn() => VisitorFormResource::getUrl('edit', [OwnerAssociation::where('id', $ownerAssociationId)->first()?->slug, $visitor->id])),
             ])
             ->icon('heroicon-o-document-text')
             ->iconColor('warning')
@@ -132,19 +131,19 @@ class GuestController extends Controller
         // Handle multiple images
         if ($request->hasFile('files')) {
             foreach ($request->file('files') as $image) {
-                $filePath = optimizeDocumentAndUpload($image, 'dev');
+                $filePath    = optimizeDocumentAndUpload($image, 'dev');
                 $currentDate = date('Y-m-d');
 
                 $emiratesId = DocumentLibrary::where('name', 'Eid')->value('id');
 
                 $request->merge([
-                    'documentable_id' => $visitor->id,
+                    'documentable_id'     => $visitor->id,
                     'document_library_id' => $emiratesId,
-                    'status' => 'pending',
-                    'url' => $filePath,
-                    'expiry_date' => date('Y-m-d', strtotime('+1 year', strtotime($currentDate))),
-                    'documentable_type' => FlatVisitor::class,
-                    'name' => 'Visitor document',
+                    'status'              => 'pending',
+                    'url'                 => $filePath,
+                    'expiry_date'         => date('Y-m-d', strtotime('+1 year', strtotime($currentDate))),
+                    'documentable_type'   => FlatVisitor::class,
+                    'name'                => 'Visitor document',
                 ]);
 
                 Document::create($request->all());
@@ -156,53 +155,54 @@ class GuestController extends Controller
             'verification_code' => $code,
         ]);
         $tenant           = $ownerAssociationId;
-        $emailCredentials = OwnerAssociation::find($tenant)->accountcredentials()->where('active', true)->latest()->first()->email ?? env('MAIL_FROM_ADDRESS');
+        $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()->email ?? env('MAIL_FROM_ADDRESS');
 
-        FlatVisitorMailJob::dispatch($visitor,$code,$emailCredentials);
+        FlatVisitorMailJob::dispatch($visitor, $code, $emailCredentials);
 
         return (new CustomResponseResource([
-            'title' => 'Success',
+            'title'   => 'Success',
             'message' => ' created successfully!',
-            'code' => 201,
+            'code'    => 201,
         ]))->response()->setStatusCode(201);
     }
 
-    public function visitorRequest(Request $request){
+    public function visitorRequest(Request $request)
+    {
         $visitor = FlatVisitor::where('verification_code', $request->code)->first();
-        abort_if(!$visitor,403,'Invalid verification code');
+        abort_if(!$visitor, 403, 'Invalid verification code');
 
-        if ($visitor->status == null){
+        if ($visitor->status == null) {
             return [
-                'data' =>[
-                'visitor_id' => $visitor->id,
-                'visitor_name' => $visitor->name,
-                'visitor_email' => $visitor->email,
-                'number_of_visitors' => $visitor->number_of_visitors,
-                'visiting_time' => $visitor->time_of_viewing,
-                'status' => $visitor->status
-                ]
-            ];
-        }
-        else{
-            return (new CustomResponseResource([
-                'title' => 'Status already updated',
-                'message' => 'Status of this visitor is already updated.',
-                'code' => 403,
                 'data' => [
-                    'visitor_id' => $visitor->id,
-                    'visitor_name' => $visitor->name,
-                    'visitor_email' => $visitor->email,
+                    'visitor_id'         => $visitor->id,
+                    'visitor_name'       => $visitor->name,
+                    'visitor_email'      => $visitor->email,
                     'number_of_visitors' => $visitor->number_of_visitors,
-                    'visiting_time' => $visitor->time_of_viewing,
-                    'status' => $visitor->status
-                    ]
+                    'visiting_time'      => $visitor->time_of_viewing,
+                    'status'             => $visitor->status,
+                ],
+            ];
+        } else {
+            return (new CustomResponseResource([
+                'title'   => 'Status already updated',
+                'message' => 'Status of this visitor is already updated.',
+                'code'    => 403,
+                'data'    => [
+                    'visitor_id'         => $visitor->id,
+                    'visitor_name'       => $visitor->name,
+                    'visitor_email'      => $visitor->email,
+                    'number_of_visitors' => $visitor->number_of_visitors,
+                    'visiting_time'      => $visitor->time_of_viewing,
+                    'status'             => $visitor->status,
+                ],
             ]))->response()->setStatusCode(403);
         }
     }
-    public function visitorApproval(Request $request, FlatVisitor $visitor){
+    public function visitorApproval(Request $request, FlatVisitor $visitor)
+    {
         $visitor->update([
             'approved_by' => auth()->user()?->id,
-            'status' => $request->status
+            'status'      => $request->status,
         ]);
     }
 
@@ -220,13 +220,14 @@ class GuestController extends Controller
     }
 
     // Notify tenant on visitor's visit
-    public function notifyTenant(Request $request) {
-        $flat = $request->input('flat_id');
+    public function notifyTenant(Request $request)
+    {
+        $flat     = $request->input('flat_id');
         $building = $request->input('building_id');
 
         $user = FlatTenant::where(['flat_id' => $flat, 'building_id' => $building, 'active' => 1])->first();
 
-        if($user) {
+        if ($user) {
             Visitor::create($request->all());
 
             $expoPushTokens = ExpoPushNotification::where('user_id', $user->tenant_id)->pluck('token');
@@ -234,48 +235,48 @@ class GuestController extends Controller
 
                 foreach ($expoPushTokens as $expoPushToken) {
                     $message = [
-                        'to' => $expoPushToken,
+                        'to'    => $expoPushToken,
                         'sound' => 'default',
                         'title' => 'Visitors',
-                        'body' => "You have a visitor as $request->type \n name: $request->name",
-                        'data' => ['notificationType' => 'VisitorAllowReject'],
+                        'body'  => "You have a visitor as $request->type \n name: $request->name",
+                        'data'  => ['notificationType' => 'VisitorAllowReject'],
                     ];
                     $this->expoNotification($message);
                     DB::table('notifications')->insert([
-                        'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
-                        'type' => 'Filament\Notifications\DatabaseNotification',
+                        'id'              => (string) \Ramsey\Uuid\Uuid::uuid4(),
+                        'type'            => 'Filament\Notifications\DatabaseNotification',
                         'notifiable_type' => 'App\Models\User\User',
-                        'notifiable_id' => $user->tenant_id,
-                        'data' => json_encode([
-                            'actions' => [],
-                            'body' => "You have a visitor as $request->type \n name: $request->name",
-                            'duration' => 'persistent',
-                            'icon' => 'heroicon-o-document-text',
+                        'notifiable_id'   => $user->tenant_id,
+                        'data'            => json_encode([
+                            'actions'   => [],
+                            'body'      => "You have a visitor as $request->type \n name: $request->name",
+                            'duration'  => 'persistent',
+                            'icon'      => 'heroicon-o-document-text',
                             'iconColor' => 'warning',
-                            'title' => 'Visitors',
-                            'view' => 'notifications::notification',
-                            'viewData' => [],
-                            'format' => 'filament',
-                            'url' => 'VisitorAllowReject',
+                            'title'     => 'Visitors',
+                            'view'      => 'notifications::notification',
+                            'viewData'  => [],
+                            'format'    => 'filament',
+                            'url'       => 'VisitorAllowReject',
                         ]),
-                        'created_at' => now()->format('Y-m-d H:i:s'),
-                        'updated_at' => now()->format('Y-m-d H:i:s'),
+                        'created_at'      => now()->format('Y-m-d H:i:s'),
+                        'updated_at'      => now()->format('Y-m-d H:i:s'),
                     ]);
                 }
-                }
+            }
 
             // TODO:Notify user
             return (new CustomResponseResource([
-                'title' => 'Success',
+                'title'   => 'Success',
                 'message' => ' created successfully!',
-                'code' => 201,
+                'code'    => 201,
             ]))->response()->setStatusCode(201);
         }
 
         return (new CustomResponseResource([
-            'title' => 'Error',
+            'title'   => 'Error',
             'message' => 'No active tenant present in this unit!',
-            'code' => 400,
+            'code'    => 400,
         ]))->response()->setStatusCode(400);
 
     }
@@ -283,92 +284,92 @@ class GuestController extends Controller
     public function visitorEntry(Request $request)
     {
         $notification = DB::table('notifications')->find($request->notification_id);
-        $flatTenant= FlatTenant::where('tenant_id', $notification->notifiable_id)->where('active', true)->first();
-        $visitor= Visitor::where('building_id',$flatTenant->building_id)->where('flat_id',$flatTenant->flat_id)->latest()->first();
+        $flatTenant   = FlatTenant::where('tenant_id', $notification->notifiable_id)->where('active', true)->first();
+        $visitor      = Visitor::where('building_id', $flatTenant->building_id)->where('flat_id', $flatTenant->flat_id)->latest()->first();
         $visitor->update([
-            "status" => $request->status,
+            "status"      => $request->status,
             "approved_by" => auth()->user()->id,
         ]);
         DB::table('notifications')->where('id', $request->notification_id)->update(['read_at' => now()]);
 
-        if ($request->status == "approved"){
-            $security= BuildingPoc::where('building_id',$flatTenant->building_id)->where('active',true)->first()->user_id;
-                $expoPushTokens = ExpoPushNotification::where('user_id', $security)->pluck('token');
+        if ($request->status == "approved") {
+            $security       = BuildingPoc::where('building_id', $flatTenant->building_id)->where('active', true)->first()->user_id;
+            $expoPushTokens = ExpoPushNotification::where('user_id', $security)->pluck('token');
             if ($expoPushTokens->count() > 0) {
-                $unit= Flat::find($flatTenant->flat_id)->property_number;
+                $unit = Flat::find($flatTenant->flat_id)->property_number;
                 foreach ($expoPushTokens as $expoPushToken) {
                     $message = [
-                        'to' => $expoPushToken,
+                        'to'    => $expoPushToken,
                         'sound' => 'default',
                         'title' => 'Visitors',
-                        'body' => "Allow Visitors of flat $unit",
-                        'data' => ['notificationType' => 'InAppNotfication'],
+                        'body'  => "Allow Visitors of flat $unit",
+                        'data'  => ['notificationType' => 'InAppNotfication'],
                     ];
                     $this->expoNotification($message);
                     DB::table('notifications')->insert([
-                        'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
-                        'type' => 'Filament\Notifications\DatabaseNotification',
+                        'id'              => (string) \Ramsey\Uuid\Uuid::uuid4(),
+                        'type'            => 'Filament\Notifications\DatabaseNotification',
                         'notifiable_type' => 'App\Models\User\User',
-                        'notifiable_id' => $security,
-                        'data' => json_encode([
-                            'actions' => [],
-                            'body' => "Allow Visitors of flat $unit ",
-                            'duration' => 'persistent',
-                            'icon' => 'heroicon-o-document-text',
+                        'notifiable_id'   => $security,
+                        'data'            => json_encode([
+                            'actions'   => [],
+                            'body'      => "Allow Visitors of flat $unit ",
+                            'duration'  => 'persistent',
+                            'icon'      => 'heroicon-o-document-text',
                             'iconColor' => 'warning',
-                            'title' => 'Visitors',
-                            'view' => 'notifications::notification',
-                            'viewData' => [],
-                            'format' => 'filament',
-                            'url' => '',
+                            'title'     => 'Visitors',
+                            'view'      => 'notifications::notification',
+                            'viewData'  => [],
+                            'format'    => 'filament',
+                            'url'       => '',
                         ]),
-                        'created_at' => now()->format('Y-m-d H:i:s'),
-                        'updated_at' => now()->format('Y-m-d H:i:s'),
+                        'created_at'      => now()->format('Y-m-d H:i:s'),
+                        'updated_at'      => now()->format('Y-m-d H:i:s'),
                     ]);
                 }
             }
         }
-        if($request->status == "rejected"){
-            $security= BuildingPoc::where('building_id',$flatTenant->building_id)->where('active',true)->first()->user_id;
-                $expoPushTokens = ExpoPushNotification::where('user_id', $security)->pluck('token');
+        if ($request->status == "rejected") {
+            $security       = BuildingPoc::where('building_id', $flatTenant->building_id)->where('active', true)->first()->user_id;
+            $expoPushTokens = ExpoPushNotification::where('user_id', $security)->pluck('token');
             if ($expoPushTokens->count() > 0) {
-                $unit= Flat::find($flatTenant->flat_id)->property_number;
+                $unit = Flat::find($flatTenant->flat_id)->property_number;
                 foreach ($expoPushTokens as $expoPushToken) {
                     $message = [
-                        'to' => $expoPushToken,
+                        'to'    => $expoPushToken,
                         'sound' => 'default',
                         'title' => 'Visitors',
-                        'body' => "Don't allow Visitors of flat $unit",
-                        'data' => ['notificationType' => 'InAppNotfication'],
+                        'body'  => "Don't allow Visitors of flat $unit",
+                        'data'  => ['notificationType' => 'InAppNotfication'],
                     ];
                     $this->expoNotification($message);
                     DB::table('notifications')->insert([
-                        'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
-                        'type' => 'Filament\Notifications\DatabaseNotification',
+                        'id'              => (string) \Ramsey\Uuid\Uuid::uuid4(),
+                        'type'            => 'Filament\Notifications\DatabaseNotification',
                         'notifiable_type' => 'App\Models\User\User',
-                        'notifiable_id' => $security,
-                        'data' => json_encode([
-                            'actions' => [],
-                            'body' => "Don't allow Visitors of flat $unit ",
-                            'duration' => 'persistent',
-                            'icon' => 'heroicon-o-document-text',
+                        'notifiable_id'   => $security,
+                        'data'            => json_encode([
+                            'actions'   => [],
+                            'body'      => "Don't allow Visitors of flat $unit ",
+                            'duration'  => 'persistent',
+                            'icon'      => 'heroicon-o-document-text',
                             'iconColor' => 'warning',
-                            'title' => 'Visitors',
-                            'view' => 'notifications::notification',
-                            'viewData' => [],
-                            'format' => 'filament',
-                            'url' => '',
+                            'title'     => 'Visitors',
+                            'view'      => 'notifications::notification',
+                            'viewData'  => [],
+                            'format'    => 'filament',
+                            'url'       => '',
                         ]),
-                        'created_at' => now()->format('Y-m-d H:i:s'),
-                        'updated_at' => now()->format('Y-m-d H:i:s'),
+                        'created_at'      => now()->format('Y-m-d H:i:s'),
+                        'updated_at'      => now()->format('Y-m-d H:i:s'),
                     ]);
                 }
+            }
         }
+        return (new CustomResponseResource([
+            'title'   => 'Success',
+            'message' => 'successfull!',
+            'code'    => 200,
+        ]))->response()->setStatusCode(200);
     }
-    return (new CustomResponseResource([
-        'title' => 'Success',
-        'message' => 'successfull!',
-        'code' => 200,
-    ]))->response()->setStatusCode(200);
-}
 }

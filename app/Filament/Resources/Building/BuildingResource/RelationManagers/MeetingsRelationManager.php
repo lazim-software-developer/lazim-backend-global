@@ -3,36 +3,26 @@
 namespace App\Filament\Resources\Building\BuildingResource\RelationManagers;
 
 use App\Jobs\BeforeMeetingOcjob;
-use Parsedown;
-use Filament\Forms;
-use Filament\Tables;
-use App\Models\Meeting;
-use Filament\Forms\Form;
-use App\Models\User\User;
 use App\Jobs\OwnerMeeting;
+use App\Models\Master\Role;
+use App\Models\Meeting;
+use App\Models\OwnerAssociation;
+use App\Models\OwnerCommittee;
+use App\Models\User\User;
+use Filament\Facades\Filament;
+use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\MarkdownEditor;
+use Filament\Forms\Form;
+use Filament\Notifications\Notification;
+use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Tables;
+use Filament\Tables\Actions\Action;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Mail\Markdown;
-use App\Models\OwnerCommittee;
-use App\Jobs\BeforeOcMeetingjob;
-use App\Models\Master\Role;
-use App\Models\OwnerAssociation;
-use Filament\Facades\Filament;
-use Filament\Tables\Actions\Action;
-use Illuminate\Support\Facades\Log;
-use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Textarea;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Forms\Components\TextInput;
-use Filament\Notifications\Notification;
-use Filament\Tables\Actions\CreateAction;
-use Illuminate\Database\Eloquent\Builder;
-use Filament\Forms\Components\DateTimePicker;
-use Filament\Forms\Components\MarkdownEditor;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Filament\Resources\RelationManagers\RelationManager;
 use Illuminate\Support\Facades\DB;
-use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
+use Parsedown;
 
 class MeetingsRelationManager extends RelationManager
 {
@@ -57,7 +47,7 @@ class MeetingsRelationManager extends RelationManager
                 DateTimePicker::make('date_time')
                     ->rules(['date'])
                     ->displayFormat('d-M-Y h:i A')
-                    // ->minDate(now())
+                // ->minDate(now())
                     ->disabled()
                     ->required()
                     ->default(now())
@@ -117,36 +107,35 @@ class MeetingsRelationManager extends RelationManager
                                 return $livewire->ownerRecord->id;
                             }),
                     ])
-                    ->action(function (array $data,RelationManager $livewire): void {
-                        $Ownerlist = OwnerCommittee::where('building_id', $data['building_id'])->where('active',true)->pluck('user_id');
+                    ->action(function (array $data, RelationManager $livewire): void {
+                        $Ownerlist = OwnerCommittee::where('building_id', $data['building_id'])->where('active', true)->pluck('user_id');
                         if ($Ownerlist->count() > 0) {
                             $meeting = Meeting::create([
-                                'agenda' => $data['agenda'],
-                                'date_time' => $data['date_time'],
+                                'agenda'      => $data['agenda'],
+                                'date_time'   => $data['date_time'],
                                 'building_id' => $data['building_id'],
                             ]);
                             $userslist = User::whereIn('id', $Ownerlist)->get();
                             // Use Parsedown to convert Markdown to HTML
-                            $parsedown = new Parsedown();
+                            $parsedown  = new Parsedown();
                             $agendaHtml = $parsedown->text($meeting->agenda);
 
-                            $tenant           = Filament::getTenant()?->id ?? auth()->user()->owner_association_id;
-                            // $emailCredentials = OwnerAssociation::find($tenant)->accountcredentials()->where('active', true)->latest()->first()->email ?? env('MAIL_FROM_ADDRESS');
-                            
-                            if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
-                                $oa_id = DB::table('building_owner_association')->where('building_id', $livewire->ownerRecord->id)->where('active', true)->first()?->owner_association_id;
-                                $emailCredentials = OwnerAssociation::find($oa_id)->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
+                            $tenant = Filament::getTenant()?->id ?? auth()->user()->owner_association_id;
+                            // $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()->email ?? env('MAIL_FROM_ADDRESS');
+
+                            if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+                                $oa_id            = DB::table('building_owner_association')->where('building_id', $livewire->ownerRecord->id)->where('active', true)->first()?->owner_association_id;
+                                $emailCredentials = OwnerAssociation::find($oa_id)?->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
                                 foreach ($userslist as $owner) {
                                     BeforeMeetingOcjob::dispatch($owner, $meeting, $agendaHtml, $emailCredentials);
                                 }
-                            }else{
-                                $emailCredentials = OwnerAssociation::find($tenant)->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
+                            } else {
+                                $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
                                 foreach ($userslist as $owner) {
                                     BeforeMeetingOcjob::dispatch($owner, $meeting, $agendaHtml, $emailCredentials);
                                 }
                             }
 
-                            
                         } else {
                             Notification::make()
                                 ->danger()
@@ -155,36 +144,35 @@ class MeetingsRelationManager extends RelationManager
                                 ->send();
                         }
                     })
-                    ->slideOver()
+                    ->slideOver(),
 
             ])
             ->actions([
                 Tables\Actions\EditAction::make()
                     ->after(function (array $data, $record) {
                         // Runs after the form fields are saved to the database.
-                        $Ownerlist = OwnerCommittee::where('building_id', $record->building_id)->where('active',true)->pluck('user_id');
+                        $Ownerlist = OwnerCommittee::where('building_id', $record->building_id)->where('active', true)->pluck('user_id');
                         $userslist = User::whereIn('id', $Ownerlist)->get();
                         // Use Parsedown to convert Markdown to HTML
-                        $parsedown = new Parsedown();
+                        $parsedown          = new Parsedown();
                         $meetingSummaryHtml = $parsedown->text($record->meeting_summary);
-                        $agendaHtml = $parsedown->text($record->agenda);
-                        $tenant           = Filament::getTenant()?->id ?? auth()->user()?->owner_association_id;
-                        // $emailCredentials = OwnerAssociation::find($tenant)->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
-                        
-                        if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
-                            $oa_id = DB::table('building_owner_association')->where('building_id', $record->building_id)->where('active', true)->first()?->owner_association_id;
-                            $emailCredentials = OwnerAssociation::find($oa_id)->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
+                        $agendaHtml         = $parsedown->text($record->agenda);
+                        $tenant             = Filament::getTenant()?->id ?? auth()->user()?->owner_association_id;
+                        // $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
+
+                        if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+                            $oa_id            = DB::table('building_owner_association')->where('building_id', $record->building_id)->where('active', true)->first()?->owner_association_id;
+                            $emailCredentials = OwnerAssociation::find($oa_id)?->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
                             foreach ($userslist as $owner) {
                                 OwnerMeeting::dispatch($owner, $record, $agendaHtml, $meetingSummaryHtml, $emailCredentials);
                             }
-                        }else{
-                            $emailCredentials = OwnerAssociation::find($tenant)->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
+                        } else {
+                            $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
                             foreach ($userslist as $owner) {
                                 OwnerMeeting::dispatch($owner, $record, $agendaHtml, $meetingSummaryHtml, $emailCredentials);
                             }
                         }
 
-                        
                     }),
                 // Tables\Actions\DeleteAction::make(),
             ])
