@@ -44,11 +44,11 @@ class EditUserApproval extends EditRecord
         ]);
         $tenant           = Filament::getTenant()?->id ?? auth()->user()?->owner_association_id;
 
-        if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
-            $emailCredentials = OwnerAssociation::find($this->record->owner_association_id)->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
-        }else{
-            $emailCredentials = OwnerAssociation::find($tenant)->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
-        }
+        // if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
+        //     $emailCredentials = OwnerAssociation::find($this->record->owner_association_id)?->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
+        // }else{
+            $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
+        // }
 
         $user = User::find($this->record->user_id);
         if ($this->data['status'] == 'approved' && $this->record->status == null) {
