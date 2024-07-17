@@ -4,6 +4,7 @@ namespace App\Observers;
 
 use App\Filament\Resources\Vendor\VendorResource;
 use App\Models\Master\Role;
+use App\Models\OwnerAssociation;
 use App\Models\User\User;
 use App\Models\Vendor\Vendor;
 use Filament\Notifications\Actions\Action;
@@ -31,7 +32,7 @@ class VendorObserver
             ->actions([
                 Action::make('view')
                     ->button()
-                    ->url(fn () => VendorResource::getUrl('edit', ['record',$vendor->id])),
+                    ->url(fn () => VendorResource::getUrl('edit', [OwnerAssociation::where('id',$vendor->owner_association_id)->first()?->slug,$vendor->id])),
             ])
             ->sendToDatabase($notifyTo);
     }

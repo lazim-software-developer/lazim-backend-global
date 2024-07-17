@@ -11,6 +11,7 @@ use App\Models\Building\Building;
 use App\Models\Building\Complaint;
 use App\Models\ExpoPushNotification;
 use App\Models\Master\Role;
+use App\Models\OwnerAssociation;
 use App\Models\User\User;
 use App\Models\Vendor\Vendor;
 use App\Traits\UtilsTrait;
@@ -42,7 +43,7 @@ class ComplaintObserver
                 ->actions([
                     Action::make('view')
                         ->button()
-                        ->url(fn () => ComplaintscomplaintResource::getUrl('edit', ['record',$complaint->id])),
+                        ->url(fn () => ComplaintscomplaintResource::getUrl('edit', [OwnerAssociation::where('id',$complaint->owner_association_id)->first()?->slug,$complaint->id])),
                 ])
                 ->sendToDatabase($notifyTo);
         } elseif ($complaint->complaint_type == 'enquiries') {
@@ -59,7 +60,7 @@ class ComplaintObserver
                 ->actions([
                     Action::make('view')
                         ->button()
-                        ->url(fn () => ComplaintsenquiryResource::getUrl('edit', ['record',$complaint->id])),
+                        ->url(fn () => ComplaintsenquiryResource::getUrl('edit', [OwnerAssociation::where('id',$complaint->owner_association_id)->first()?->slug,$complaint->id])),
                 ])
                 ->sendToDatabase($notifyTo);
         } elseif ($complaint->complaint_type == 'suggestions') {
@@ -76,7 +77,7 @@ class ComplaintObserver
                 ->actions([
                     Action::make('view')
                         ->button()
-                        ->url(fn () => ComplaintssuggessionResource::getUrl('edit', ['record',$complaint->id])),
+                        ->url(fn () => ComplaintssuggessionResource::getUrl('edit', [OwnerAssociation::where('id',$complaint->owner_association_id)->first()?->slug,$complaint->id])),
                 ])
                 ->sendToDatabase($notifyTo);
         } elseif($complaint->complaint_type == 'snag'){
@@ -95,7 +96,7 @@ class ComplaintObserver
             ->actions([
                 Action::make('View')
                 ->button()
-                ->url(fn () => SnagsResource::getUrl('edit', ['record',$complaint->id]))
+                ->url(fn () => SnagsResource::getUrl('edit', [OwnerAssociation::where('id',$complaint->owner_association_id)->first()?->slug,$complaint->id]))
             ])
         ->sendToDatabase($notifyTo);
         }
@@ -113,7 +114,7 @@ class ComplaintObserver
                 ->actions([
                     Action::make('view')
                         ->button()
-                        ->url(fn () => HelpdeskcomplaintResource::getUrl('edit', ['record',$complaint->id])),
+                        ->url(fn () => HelpdeskcomplaintResource::getUrl('edit', [OwnerAssociation::where('id',$complaint->owner_association_id)->first()?->slug,$complaint->id])),
                 ])
                 ->sendToDatabase($notifyTo);
         }
@@ -195,7 +196,7 @@ class ComplaintObserver
                     ->actions([
                         Action::make('view')
                             ->button()
-                            ->url(fn () => HelpdeskcomplaintResource::getUrl('edit', ['record',$complaint->id])),
+                            ->url(fn () => HelpdeskcomplaintResource::getUrl('edit', [OwnerAssociation::where('id',$complaint->owner_association_id)->first()?->slug,$complaint->id])),
                     ])
                     ->sendToDatabase($notifyTo);
             } else {

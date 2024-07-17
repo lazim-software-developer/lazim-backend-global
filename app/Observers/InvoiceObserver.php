@@ -6,6 +6,7 @@ use App\Filament\Resources\InvoiceResource;
 use App\Models\Accounting\Invoice;
 use App\Models\Building\Building;
 use App\Models\Master\Role;
+use App\Models\OwnerAssociation;
 use App\Models\User\User;
 use Filament\Notifications\Actions\Action;
 use Filament\Notifications\Notification;
@@ -23,8 +24,9 @@ class InvoiceObserver
         if ($vendor) {
             $requiredPermissions = ['view_any_invoice'];
             $building = Building::where('id', $vendor->building_id)->first();
-            $roles = Role::where('owner_association_id',$building->owner_association_id)->whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor','Staff'])->pluck('id');
-            $notifyTo = User::where('owner_association_id', $building->owner_association_id)->whereNotIn('role_id', $roles)->whereNot('id', auth()->user()?->id)->get()
+            $oam_id = DB::table('building_owner_association')->where('building_id', $vendor?->building_id)->where('active', true)->first();
+            $roles = Role::where('owner_association_id',$oam_id->owner_association_id)->whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor','Staff'])->pluck('id');
+            $notifyTo = User::where('owner_association_id', $oam_id->owner_association_id)->whereNotIn('role_id', $roles)->whereNot('id', auth()->user()?->id)->get()
             ->filter(function ($notifyTo) use ($requiredPermissions) {
                 return $notifyTo->can($requiredPermissions);
             });
@@ -37,7 +39,7 @@ class InvoiceObserver
                 ->actions([
                     Action::make('view')
                         ->button()
-                        ->url(fn () => InvoiceResource::getUrl('edit', ['record',$invoice->id])),
+                        ->url(fn () => InvoiceResource::getUrl('edit', [OwnerAssociation::where('id',$oam_id->owner_association_id)->first()?->slug,$invoice->id])),
                 ])
                 ->sendToDatabase($notifyTo);
         }

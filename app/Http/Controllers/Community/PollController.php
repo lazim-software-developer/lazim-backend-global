@@ -17,7 +17,9 @@ class PollController extends Controller
         $polls = Poll::with(['responses' => function ($query) {
             $query->where('submitted_by', auth()->id());
         }])
-            ->where('building_id', $building->id)
+        ->whereHas('building', function ($q) use ($building) {
+            $q->where('buildings.id', $building->id);
+        })
             ->where('status', 'published')
             ->where('active',true)
             ->where(function ($query) {

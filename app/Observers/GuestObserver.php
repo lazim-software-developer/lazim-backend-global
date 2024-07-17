@@ -6,6 +6,7 @@ use App\Filament\Resources\GuestRegistrationResource;
 use App\Models\Building\Building;
 use App\Models\Forms\Guest;
 use App\Models\Master\Role;
+use App\Models\OwnerAssociation;
 use App\Models\User\User;
 use Filament\Notifications\Actions\Action;
 use Filament\Notifications\Notification;
@@ -33,7 +34,7 @@ class GuestObserver
         ->actions([
             Action::make('view')
                 ->button()
-                ->url(fn () => GuestRegistrationResource::getUrl('edit', ['record',$guest->id])),
+                ->url(fn () => GuestRegistrationResource::getUrl('edit', [OwnerAssociation::where('id',$guest->owner_association_id)->first()?->slug,$guest->id])),
         ])
         ->sendToDatabase($notifyTo);
     }

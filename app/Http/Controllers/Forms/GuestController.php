@@ -123,7 +123,7 @@ class GuestController extends Controller
             ->action([
                 Action::make('View')
                 ->button()
-                ->url(fn () => VisitorFormResource::getUrl('edit', ['record',$visitor->id])),
+                ->url(fn () => VisitorFormResource::getUrl('edit', [OwnerAssociation::where('id',$ownerAssociationId)->first()?->slug,$visitor->id])),
             ])
             ->icon('heroicon-o-document-text')
             ->iconColor('warning')
