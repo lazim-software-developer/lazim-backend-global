@@ -4,6 +4,7 @@ namespace App\Filament\Pages;
 
 use App\Imports\GeneralFundImport;
 use App\Models\Building\Building;
+use App\Models\Master\Role;
 use Carbon\Carbon;
 use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
@@ -44,10 +45,13 @@ class GeneralFundStatement extends Page
                         Select::make('building_id')
                         ->required()
                         ->options(function () {
-                            $oaId = auth()->user()->owner_association_id;
-                            // dd($tenants);
-                            return Building::where('owner_association_id', $oaId)
+                            if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
+                                return Building::all()->pluck('name', 'id');
+                            }
+                            else{
+                                return Building::where('owner_association_id', auth()->user()->owner_association_id)
                                 ->pluck('name', 'id');
+                            } 
                         })
                         ->searchable()
                         ->label('Building Name'),

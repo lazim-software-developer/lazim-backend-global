@@ -35,6 +35,7 @@ use App\Filament\Resources\User\OwnerResource\Pages;
 use App\Filament\Resources\User\OwnerResource\RelationManagers;
 use App\Filament\Resources\User\OwnerResource\RelationManagers\UserDocumentsRelationManager;
 use App\Jobs\WelcomeNotificationJob;
+use App\Models\Master\Role;
 use App\Models\OwnerAssociation;
 use Filament\Facades\Filament;
 use Filament\Notifications\Notification;
@@ -156,7 +157,13 @@ class OwnerResource extends Resource
                         Select::make('Building')
                             ->searchable()
                             ->options(function () {
-                                return Building::where('owner_association_id', auth()->user()->owner_association_id)->pluck('name', 'id');
+                                if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
+                                    return Building::all()->pluck('name', 'id');
+                                }
+                                else{
+                                    return Building::where('owner_association_id', auth()->user()->owner_association_id)
+                                    ->pluck('name', 'id');
+                                } 
                             })
                             ->placeholder('Select Building'),
                     ])

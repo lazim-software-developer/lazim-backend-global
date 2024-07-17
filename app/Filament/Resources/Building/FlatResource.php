@@ -5,7 +5,9 @@ namespace App\Filament\Resources\Building;
 use App\Filament\Resources\Building\FlatResource\Pages;
 use App\Filament\Resources\Building\FlatResource\RelationManagers;
 use App\Filament\Resources\FlatResource\Pages\ViewFlat;
+use App\Models\Building\Building;
 use App\Models\Building\Flat;
+use App\Models\Master\Role;
 use Filament\Facades\Filament;
 use Filament\Forms;
 use Filament\Forms\Components\Grid;
@@ -118,7 +120,15 @@ class FlatResource extends Resource
             ->defaultSort('created_at', 'desc')
             ->filters([
                 SelectFilter::make('building_id')
-                    ->relationship('building', 'name',fn (Builder $query) => $query->where('owner_association_id',Filament::getTenant()?->id))
+                    ->options(function () {
+                        if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
+                            return Building::all()->pluck('name', 'id');
+                        }
+                        else{
+                             return Building::where('owner_association_id', auth()->user()->owner_association_id)
+                            ->pluck('name', 'id');
+                    }    
+                    })
                     ->searchable()
                     ->label('Building')
                     ->preload()

@@ -7,6 +7,7 @@ use Filament\Forms\Get;
 use Filament\Forms\Form;
 use App\Models\User\User;
 use Filament\Tables\Table;
+use App\Models\Master\Role;
 use Illuminate\Support\Str;
 use App\Models\Vendor\Vendor;
 use Filament\Facades\Filament;
@@ -168,9 +169,14 @@ class VendorResource extends Resource
                     Select::make('Building')
                     ->searchable()
                     ->options(function () {
-                        return auth()->user()->role->name == 'Admin' ? Building::pluck('name', 'id') :
-                        Building::where('owner_association_id',Filament::getTenant()->id)->pluck('name', 'id');
-                        // Optionally, add a condition to filter buildings based on certain criteria.
+                        if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
+                            return Building::all()->pluck('name', 'id');
+                        }
+                        else{
+                            return Building::where('owner_association_id', auth()->user()->owner_association_id)
+                            ->pluck('name', 'id');
+                        } 
+                        
                     }),
                 ])
                 ->query(function (Builder $query, array $data): Builder {
