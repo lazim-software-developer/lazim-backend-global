@@ -307,8 +307,9 @@ class MollakController extends Controller
             'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
         // ])->get("https://b2bgateway.dubailand.gov.ae/mollak/external/sync/managementcompany");
         // ])->get("https://qagate.dubailand.gov.ae/mollak/external/sync/propertygroups/235553/units");
-        ])->get("https://qagate.dubailand.gov.ae/mollak/external/sync/managementcompany");
-        // ])->get("https://qagate.dubailand.gov.ae/mollak/external/sync/propertygroups");
+        // ])->get("https://qagate.dubailand.gov.ae/mollak/external/sync/managementcompany");
+        // ])->get("https://qagate.dubailand.gov.ae/mollak/external/sync/propertygroups");0120130805004026 
+        ])->get("https://qagate.dubailand.gov.ae/mollak/external/sync/owners/235553/17651626");
 
         return $data = $results->json();
     }
