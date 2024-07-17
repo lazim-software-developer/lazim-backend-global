@@ -14,6 +14,7 @@ use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ListRecords;
 use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\User\OwnerResource;
+use App\Models\Master\Role;
 use App\Models\OwnerAssociation;
 use Filament\Facades\Filament;
 
@@ -36,7 +37,13 @@ class ListOwners extends ListRecords
                 ->form([
                     Select::make('building_id')
                         ->options(function(){
-                            return Building::where('owner_association_id',Filament::getTenant()?->id ??auth()->user()->owner_association_id)->pluck('name','id');
+                            if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
+                                return Building::all()->pluck('name', 'id');
+                            }
+                            else{
+                                return Building::where('owner_association_id', auth()->user()->owner_association_id)
+                                ->pluck('name', 'id');
+                            } 
                         })
                         ->searchable()
                         ->preload()

@@ -43,7 +43,12 @@ class VehicleResource extends Resource
                 )->required(),
                 Select::make('user_id')->label('Owner')->searchable()->preload()->required()->disabledOn('edit')
                 ->options(function(){
-                    return User::where('owner_association_id', auth()->user()->owner_association_id)->whereIn('role_id',Role::whereIn('name',['Tenant','Owner'])->pluck('id'))->pluck('first_name','id');
+                    if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
+                        return User::whereIn('role_id',Role::whereIn('name',['Tenant','Owner'])->pluck('id'))->pluck('first_name','id');
+                    }
+                    else{
+                        return User::where('owner_association_id', auth()->user()->owner_association_id)->whereIn('role_id',Role::whereIn('name',['Tenant','Owner'])->pluck('id'))->pluck('first_name','id');
+                    }
                 })
             ]);
     }
