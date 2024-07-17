@@ -155,8 +155,11 @@ class VendorRegistrationController extends Controller
         $request->merge([
             'name' => User::find($request->owner_id)->first_name,
         ]);
-
+        $user = User::find($request->owner_id);
         $vendor = Vendor::create($request->all());
+
+        $user->ownerAssociation()->attach($request->owner_association_id, ['from' => now()->toDateString()]);
+        $vendor->ownerAssociation()->attach($request->owner_association_id, ['from' => now()->toDateString()]);
 
         $doc = Document::create([
             "name" => "risk_policy",
