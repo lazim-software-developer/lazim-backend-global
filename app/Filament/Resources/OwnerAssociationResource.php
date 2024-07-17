@@ -307,7 +307,7 @@ class OwnerAssociationResource extends Resource
         return [
             'index'  => Pages\ListOwnerAssociations::route('/'),
             'create' => Pages\CreateOwnerAssociation::route('/create'),
-            'edit'   => Pages\EditOwnerAssociation::route('/{record}/edit'),
+            // 'edit'   => Pages\EditOwnerAssociation::route('/{record}/edit'),
         ];
     }
 }
