@@ -208,7 +208,11 @@ class ComplaintController extends Controller
         } else {
             // Check if the tenant is a active resident of the building
             // Fetch the flat_tenant ID using the building_id, logged-in user's ID, and active status
-            $flatTenant = FlatTenant::where('id',$request->flat_id)->first();
+            $flatTenant = FlatTenant::where([
+                'flat_id' => $request->flat_id,
+                'tenant_id' => auth()->user()->id,
+                'active' => 1
+            ])->first();
 
             $complaintableClass = FlatTenant::class;
             $complaitableId     = $flatTenant->id;
