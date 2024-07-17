@@ -132,7 +132,7 @@ class OwnerResource extends Resource
                     $buildingname = Flat::where('id',$flatID)->first()->building->name;
                     $tenant           = Filament::getTenant()?->id ?? auth()->user()?->owner_association_id;
                     $emailCredentials = OwnerAssociation::find($tenant)->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
-
+                    $OaName = Filament::getTenant()->name;
 
                     if($record->email==null){
                         Notification::make()
@@ -140,7 +140,7 @@ class OwnerResource extends Resource
                         ->success()
                         ->send();
                     }else{
-                        WelcomeNotificationJob::dispatch($record->email, $record->name,$buildingname,$emailCredentials);
+                        WelcomeNotificationJob::dispatch($record->email, $record->name,$buildingname,$emailCredentials,$OaName);
                         Notification::make()
                         ->title("Successfully Sent Mail")
                         ->success()
