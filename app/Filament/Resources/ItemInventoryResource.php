@@ -24,6 +24,7 @@ use Filament\Forms\Components\DateTimePicker;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\ItemInventoryResource\Pages;
 use App\Filament\Resources\ItemInventoryResource\RelationManagers;
+use App\Models\Master\Role;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class ItemInventoryResource extends Resource
@@ -45,6 +46,9 @@ class ItemInventoryResource extends Resource
                         ->relationship('item', 'name')
                         ->preload()
                         ->options(function () {
+                            if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
+                                return Item::pluck('name', 'id');
+                            }
                             return Item::whereIn('building_id', Building::where('owner_association_id', auth()->user()->owner_association_id)->pluck('id'))->pluck('name', 'id');
                         })
                         ->required()
