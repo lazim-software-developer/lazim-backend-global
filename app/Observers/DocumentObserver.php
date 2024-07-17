@@ -7,8 +7,10 @@ use App\Models\Building\Building;
 use App\Models\Building\Document;
 use App\Models\Master\Role;
 use App\Models\User\User;
+use Filament\Facades\Filament;
 use Filament\Notifications\Actions\Action;
 use Filament\Notifications\Notification;
+use Illuminate\Support\Facades\Log;
 
 class DocumentObserver
 {
@@ -28,6 +30,8 @@ class DocumentObserver
                     ->filter(function ($notifyTo) use ($requiredPermissions) {
                         return $notifyTo->can($requiredPermissions);
                     });
+                    Log::info(Filament::getTenant()->id);
+                    Log::info(Filament::getTenant()->id.TenantDocumentResource::getUrl('edit', $document->id));
                     Notification::make()
                         ->success()
                         ->title($document->name . " Received")
