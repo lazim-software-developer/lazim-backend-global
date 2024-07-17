@@ -51,6 +51,9 @@ class AssetResource extends Resource
                             ->relationship('building', 'name')
                             ->required()
                             ->options(function () {
+                                if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+                                    return Building::pluck('name', 'id');
+                                }
                                 $oaId = auth()->user()->owner_association_id;
                                 return Building::where('owner_association_id', $oaId)
                                     ->pluck('name', 'id');
