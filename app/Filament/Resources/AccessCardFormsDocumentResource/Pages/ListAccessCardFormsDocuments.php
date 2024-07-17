@@ -14,8 +14,7 @@ class ListAccessCardFormsDocuments extends ListRecords
     protected static ?string $title = 'Access card';
     protected function getTableQuery(): Builder
     {
-        $buildings = Building::all()->where('owner_association_id',auth()->user()->owner_association_id)->pluck('id')->toArray();
-        return parent::getTableQuery()->whereIn('building_id',$buildings);
+        return auth()->user()->role->name == 'Admin' ? parent::getTableQuery() : parent::getTableQuery()->where('owner_association_id', auth()->user()->owner_association_id);
     }
     protected function getHeaderActions(): array
     {
