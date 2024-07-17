@@ -168,7 +168,8 @@ class VendorResource extends Resource
                     Select::make('Building')
                     ->searchable()
                     ->options(function () {
-                        return Building::where('owner_association_id',Filament::getTenant()->id)->pluck('name', 'id');
+                        return auth()->user()->role->name == 'Admin' ? Building::pluck('name', 'id') :
+                        Building::where('owner_association_id',Filament::getTenant()->id)->pluck('name', 'id');
                         // Optionally, add a condition to filter buildings based on certain criteria.
                     }),
                 ])

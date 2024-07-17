@@ -72,9 +72,10 @@ class ListOwners extends ListRecords
                     }
                     $tenant           = Filament::getTenant()?->id ?? auth()->user()?->owner_association_id;
                     $emailCredentials = OwnerAssociation::find($tenant)->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
+                    $OaName = Filament::getTenant()->name;
 
                     foreach ($residentsemail as $value) {
-                        WelcomeNotificationJob::dispatch($value->email, $value->name,$buildingname,$emailCredentials);
+                        WelcomeNotificationJob::dispatch($value->email, $value->name,$buildingname,$emailCredentials,$OaName);
                     }
                     Notification::make()
                         ->title("Successfully Send Mail")
