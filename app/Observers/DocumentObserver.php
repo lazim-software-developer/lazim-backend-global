@@ -37,7 +37,7 @@ class DocumentObserver
                         ->actions([
                             Action::make('view')
                                 ->button()
-                                ->url(fn () => TenantDocumentResource::getUrl('edit', [$document->id])),
+                                ->url(url('/admin/tenant-documents/'.$document->id.'/edit')),
                         ])
                         ->sendToDatabase($notifyTo);
                 }
