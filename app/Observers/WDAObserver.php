@@ -6,6 +6,7 @@ use App\Filament\Resources\WDAResource;
 use App\Models\Accounting\WDA;
 use App\Models\Building\Building;
 use App\Models\Master\Role;
+use App\Models\OwnerAssociation;
 use App\Models\User\User;
 use Filament\Notifications\Actions\Action;
 use Filament\Notifications\Notification;
@@ -23,6 +24,7 @@ class WDAObserver
         if ($vendor) {
             $requiredPermissions = ['view_any_w::d::a'];
             $building = Building::where('id', $vendor->building_id)->first();
+            $oam_id = DB::table('building_owner_association')->where('building_id', $vendor?->building_id)->where('active', true)->first();
             $roles = Role::where('owner_association_id',$building->owner_association_id)->whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor','Staff'])->pluck('id');
             $notifyTo = User::where('owner_association_id', $building->owner_association_id)->whereNotIn('role_id', $roles)->whereNot('id', auth()->user()?->id)->get()
             ->filter(function ($notifyTo) use ($requiredPermissions) {
@@ -37,7 +39,7 @@ class WDAObserver
                 ->actions([
                     Action::make('view')
                         ->button()
-                        ->url(fn () => WDAResource::getUrl('edit', ['record',$WDA->id])),
+                        ->url(fn () => WDAResource::getUrl('edit', [OwnerAssociation::where('id',$oam_id->owner_association_id)->first()?->slug,$WDA->id])),
                 ])
                 ->sendToDatabase($notifyTo);
         }

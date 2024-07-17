@@ -5,6 +5,7 @@ namespace App\Observers;
 use App\Filament\Resources\ResidentialFormResource;
 use App\Models\Building\Building;
 use App\Models\Master\Role;
+use App\Models\OwnerAssociation;
 use App\Models\ResidentialForm;
 use App\Models\User\User;
 use Filament\Notifications\Actions\Action;
@@ -32,7 +33,7 @@ class ResidentialFormObserver
         ->actions([
             Action::make('view')
                 ->button()
-                ->url(fn () => ResidentialFormResource::getUrl('edit', ['record',$residentialForm->id])),
+                ->url(fn () => ResidentialFormResource::getUrl('edit', [OwnerAssociation::where('id',$residentialForm->owner_association_id)->first()?->slug,$residentialForm->id])),
         ])
         ->sendToDatabase($notifyTo);
     }

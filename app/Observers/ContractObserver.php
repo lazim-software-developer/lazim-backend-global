@@ -6,6 +6,7 @@ use App\Filament\Resources\ContractResource;
 use App\Models\Accounting\Proposal;
 use App\Models\Building\Building;
 use App\Models\Master\Role;
+use App\Models\OwnerAssociation;
 use App\Models\User\User;
 use App\Models\Vendor\Contract;
 use App\Models\Vendor\Vendor;
@@ -23,8 +24,9 @@ class ContractObserver
         $requiredPermissions = ['view_any_contract'];
         $user = auth()->user();
         $building = Building::where('id', $contract->building_id)->first();
-        $roles = Role::where('owner_association_id',$building->owner_association_id)->whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor','Staff'])->pluck('id');
-        $notifyTo = User::where('owner_association_id', $building->owner_association_id)->whereNotIn('role_id', $roles)->whereNot('id', auth()->user()?->id)->get()
+        $oam_id = DB::table('building_owner_association')->where('building_id', $building?->id)->where('active', true)->first();
+        $roles = Role::where('owner_association_id',$oam_id->owner_association_id)->whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor','Staff'])->pluck('id');
+        $notifyTo = User::where('owner_association_id', $oam_id->owner_association_id)->whereNotIn('role_id', $roles)->whereNot('id', auth()->user()?->id)->get()
         ->filter(function ($notifyTo) use ($requiredPermissions) {
             return $notifyTo->can($requiredPermissions);
         });
@@ -37,7 +39,7 @@ class ContractObserver
             ->actions([
                 Action::make('view')
                     ->button()
-                    ->url(fn () => ContractResource::getUrl('edit', ['record',$contract->id])),
+                    ->url(fn () => ContractResource::getUrl('edit', [OwnerAssociation::where('id',$oam_id->owner_association_id)->first()?->slug,$contract->id])),
             ])
             ->sendToDatabase($notifyTo);
     }
