@@ -5,6 +5,7 @@ namespace App\Imports;
 use Exception;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 
@@ -45,7 +46,7 @@ class BalanceSheetImport implements ToCollection, WithHeadingRow
         }
 
         $filteredRows = $rows->filter(function ($row) {
-            return !empty($row['section']) || !empty($row['name']) || !empty($row['balance']);
+            return !empty($row['section']) || (!empty($row['name']) && !empty($row['balance']));
         });
         // Check for missing required fields in rows
         $missingFieldsRows = [];
