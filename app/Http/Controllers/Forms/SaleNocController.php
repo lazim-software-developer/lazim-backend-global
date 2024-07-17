@@ -26,17 +26,17 @@ class SaleNocController extends Controller
 
         $ownerAssociationId = Building::find($request->building_id)->owner_association_id;
 
-        $validated['user_id'] = auth()->user()->id;
+        $validated['user_id']              = auth()->user()->id;
         $validated['owner_association_id'] = $ownerAssociationId;
-        $validated['submit_status'] = 'download_file';
-        $validated['ticket_number'] = generate_ticket_number("SN");
+        $validated['submit_status']        = 'download_file';
+        $validated['ticket_number']        = generate_ticket_number("SN");
 
         // Create the SaleNoc entry
-        $saleNoc = SaleNoc::create($validated);
+        $saleNoc          = SaleNoc::create($validated);
         $tenant           = Filament::getTenant()?->id ?? auth()->user()?->owner_association_id ?? $ownerAssociationId;
-        $emailCredentials = OwnerAssociation::find($tenant)->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
+        $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
 
-        SalesNocRequestJob::dispatch(auth()->user(), $saleNoc,$emailCredentials);
+        SalesNocRequestJob::dispatch(auth()->user(), $saleNoc, $emailCredentials);
 
         $contacts = $request->get('contacts');
 
@@ -60,17 +60,17 @@ class SaleNocController extends Controller
         if ($status == 'download_file') {
             return response()->json([
                 'message' => 'download_file',
-                'link' => config("app.url") . "service-charge/" . $saleNoc->id . "/generate-pdf"
+                'link'    => config("app.url") . "service-charge/" . $saleNoc->id . "/generate-pdf",
             ], 200);
         } else if ($status == 'seller_uploaded') {
             return response()->json([
                 'message' => 'buyer_uploaded',
-                'link' => ""
+                'link'    => "",
             ], 200);
         } else if ($status == 'buyer_uploaded') {
             return response()->json([
                 'message' => '',
-                'link' => ""
+                'link'    => "",
             ], 200);
         }
     }
@@ -89,8 +89,8 @@ class SaleNocController extends Controller
             // Upload document to NocFormSignedDocument
             $document = NocFormSignedDocument::create([
                 'noc_form_id' => $saleNoc->id,
-                'document' => $filePath,
-                'uploaded_by' => auth()->user()->id
+                'document'    => $filePath,
+                'uploaded_by' => auth()->user()->id,
             ]);
 
             // Send email to buyers attaching the document
@@ -101,8 +101,8 @@ class SaleNocController extends Controller
             // Upload document to NocFormSignedDocument
             NocFormSignedDocument::create([
                 'noc_form_id' => $saleNoc->id,
-                'document' => $filePath,
-                'uploaded_by' => auth()->user()->id
+                'document'    => $filePath,
+                'uploaded_by' => auth()->user()->id,
             ]);
 
             // generate a payment link and save it in sale_nocs table
@@ -111,16 +111,16 @@ class SaleNocController extends Controller
 
                 if ($payment) {
                     $saleNoc->update([
-                        'payment_link' => $payment->client_secret
+                        'payment_link' => $payment->client_secret,
                     ]);
 
                     // Create an entry in orders table with status pending
                     Order::create([
-                        'orderable_id' => $saleNoc->id,
-                        'orderable_type' => SaleNOC::class,
-                        'payment_status' => 'pending',
-                        'amount' => env('ACCESS_CARD_AMOUNT'),
-                        'payment_intent_id' => $payment->id
+                        'orderable_id'      => $saleNoc->id,
+                        'orderable_type'    => SaleNOC::class,
+                        'payment_status'    => 'pending',
+                        'amount'            => env('ACCESS_CARD_AMOUNT'),
+                        'payment_intent_id' => $payment->id,
                     ]);
                 }
             } catch (\Exception $e) {
@@ -129,10 +129,10 @@ class SaleNocController extends Controller
         }
 
         return (new CustomResponseResource([
-            'title' => 'Success',
+            'title'   => 'Success',
             'message' => 'document uploaded successfully',
-            'code' => 200,
-            'status' => 'success'
+            'code'    => 200,
+            'status'  => 'success',
         ]))->response()->setStatusCode(200);
     }
 

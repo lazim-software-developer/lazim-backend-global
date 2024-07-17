@@ -8,7 +8,6 @@ use App\Http\Resources\CustomResponseResource;
 use App\Http\Resources\MoveInOutResource;
 use App\Jobs\MoveInOutMailJob;
 use App\Models\Building\Building;
-use App\Models\ExpoPushNotification;
 use App\Models\Forms\MoveInOut;
 use App\Models\OwnerAssociation;
 use App\Traits\UtilsTrait;
@@ -47,8 +46,7 @@ class MoveInOutController extends Controller
         $ownerAssociationId = Building::find($request->building_id)->owner_association_id;
 
         $tenant           = Filament::getTenant()?->id ?? $ownerAssociationId;
-        $emailCredentials = OwnerAssociation::find($tenant)->accountcredentials()->where('active', true)->latest()->first()->email ?? env('MAIL_FROM_ADDRESS');
-
+        $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()->email ?? env('MAIL_FROM_ADDRESS');
 
         // Handle multiple images
         $document_paths = [
@@ -72,31 +70,30 @@ class MoveInOutController extends Controller
             'noc_landlord',
         ];
 
-
         $data = $request->all();
 
         foreach ($document_paths as $document) {
             if ($request->hasFile($document)) {
-                $file = $request->file($document);
+                $file            = $request->file($document);
                 $data[$document] = optimizeDocumentAndUpload($file, 'dev');
             }
         }
 
-        $data['name'] = auth()->user()->first_name;
-        $data['phone'] = auth()->user()->phone;
-        $data['email'] = auth()->user()->email;
-        $data['user_id'] = auth()->user()->id;
+        $data['name']                 = auth()->user()->first_name;
+        $data['phone']                = auth()->user()->phone;
+        $data['email']                = auth()->user()->email;
+        $data['user_id']              = auth()->user()->id;
         $data['owner_association_id'] = $ownerAssociationId;
-        $data['ticket_number'] = generate_ticket_number("MV");
+        $data['ticket_number']        = generate_ticket_number("MV");
 
         $moveInOut = MoveInOut::create($data);
         MoveInOutMailJob::dispatch(auth()->user(), $moveInOut, $emailCredentials);
 
         return (new CustomResponseResource([
-            'title' => 'Success',
+            'title'   => 'Success',
             'message' => 'Form submitted successfully!',
-            'code' => 201,
-            'status' => 'success',
+            'code'    => 201,
+            'status'  => 'success',
         ]))->response()->setStatusCode(201);
     }
 
@@ -128,7 +125,7 @@ class MoveInOutController extends Controller
 
         foreach ($document_paths as $document) {
             if ($request->hasFile($document)) {
-                $file = $request->file($document);
+                $file            = $request->file($document);
                 $data[$document] = optimizeDocumentAndUpload($file, 'dev');
             }
         }
@@ -136,18 +133,19 @@ class MoveInOutController extends Controller
         $movein->update($data);
 
         return (new CustomResponseResource([
-            'title' => 'Success',
+            'title'   => 'Success',
             'message' => 'Form edited successfully!',
-            'code' => 200,
-            'status' => 'success',
+            'code'    => 200,
+            'status'  => 'success',
         ]))->response()->setStatusCode(200);
     }
 
-    public function list(Request $request){
+    public function list(Request $request)
+    {
         $request->validate([
-            'building_id' => 'required'
+            'building_id' => 'required',
         ]);
-        $mov = MoveInOut::where('status','approved')->where('moving_date','>=',now()->toDateString())->where('building_id',$request->building_id)->orderBy('moving_date')->get();
+        $mov = MoveInOut::where('status', 'approved')->where('moving_date', '>=', now()->toDateString())->where('building_id', $request->building_id)->orderBy('moving_date')->get();
         return MoveInOutResource::collection($mov);
     }
 }

@@ -2,51 +2,30 @@
 
 namespace App\Filament\Resources\User;
 
-use Filament\Forms;
-use Filament\Tables;
-use Filament\Forms\Form;
-use App\Models\User\User;
-use App\Models\FlatOwners;
-use App\Models\User\Owner;
-use Filament\Tables\Table;
-use App\Models\Building\Flat;
-use App\Models\ApartmentOwner;
-use Filament\Actions\EditAction;
-use Filament\Resources\Resource;
-use App\Models\Building\Building;
-use Filament\Forms\Components\Grid;
-use Filament\Tables\Filters\Filter;
-use Illuminate\Support\Facades\Log;
-use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Toggle;
-use Filament\Forms\Components\Repeater;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Columns\ViewColumn;
-use Illuminate\Database\Eloquent\Model;
-use App\Filament\Filters\buildingFilter;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\ViewField;
-use Filament\Tables\Enums\FiltersLayout;
-use Filament\Tables\Filters\SelectFilter;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\User\OwnerResource\Pages;
-use App\Filament\Resources\User\OwnerResource\RelationManagers;
-use App\Filament\Resources\User\OwnerResource\RelationManagers\UserDocumentsRelationManager;
-use App\Jobs\WelcomeNotificationJob;
+use App\Models\ApartmentOwner;
+use App\Models\Building\Building;
 use App\Models\Master\Role;
-use App\Models\OwnerAssociation;
-use Filament\Facades\Filament;
-use Filament\Notifications\Notification;
-use Filament\Tables\Actions\Action;
+use App\Models\User\User;
+use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Form;
+use Filament\Resources\Resource;
+use Filament\Tables;
+use Filament\Tables\Columns\ViewColumn;
+use Filament\Tables\Enums\FiltersLayout;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class OwnerResource extends Resource
 {
-    protected static ?string $model = ApartmentOwner::class;
-    protected static ?string $modelLabel = 'Owners';
+    protected static ?string $model           = ApartmentOwner::class;
+    protected static ?string $modelLabel      = 'Owners';
     protected static ?string $navigationGroup = 'User Management';
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon  = 'heroicon-o-rectangle-stack';
 
     public static function form(Form $form): Form
     {
@@ -54,7 +33,7 @@ class OwnerResource extends Resource
             Grid::make([
                 'sm' => 1,
                 'md' => 1,
-                'lg' => 2
+                'lg' => 2,
             ])
                 ->schema([
 
@@ -97,7 +76,7 @@ class OwnerResource extends Resource
                             'sm' => 1,
                             'md' => 1,
                             'lg' => 2,
-                        ])
+                        ]),
                 ]),
 
         ]);
@@ -132,7 +111,7 @@ class OwnerResource extends Resource
                 //     $flatID = FlatOwners::where('owner_id',$record->id)->value('flat_id');
                 //     $buildingname = Flat::where('id',$flatID)->first()->building->name;
                 //     $tenant           = Filament::getTenant()?->id ?? auth()->user()?->owner_association_id;
-                //     $emailCredentials = OwnerAssociation::find($tenant)->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
+                //     $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
                 //     $OaName = Filament::getTenant()->name;
 
                 //     if($record->email==null){
@@ -157,13 +136,12 @@ class OwnerResource extends Resource
                         Select::make('Building')
                             ->searchable()
                             ->options(function () {
-                                if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
+                                if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
                                     return Building::all()->pluck('name', 'id');
-                                }
-                                else{
+                                } else {
                                     return Building::where('owner_association_id', auth()->user()->owner_association_id)
-                                    ->pluck('name', 'id');
-                                } 
+                                        ->pluck('name', 'id');
+                                }
                             })
                             ->placeholder('Select Building'),
                     ])
@@ -177,10 +155,10 @@ class OwnerResource extends Resource
                             }
                         );
                     }),
-                    Filter::make('Property Number')
+                Filter::make('Property Number')
                     ->form([
                         TextInput::make('property_number')
-                            ->placeholder('Search Unit Number')->label('Unit')
+                            ->placeholder('Search Unit Number')->label('Unit'),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         if (!empty($data['property_number'])) {
@@ -189,8 +167,8 @@ class OwnerResource extends Resource
                             });
                         }
                         return $query;
-                    })
-                ],layout: FiltersLayout::AboveContent)->filtersFormColumns(2)
+                    }),
+            ], layout: FiltersLayout::AboveContent)->filtersFormColumns(2)
             ->emptyStateActions([
                 //Tables\Actions\CreateAction::make(),
             ]);
@@ -208,7 +186,7 @@ class OwnerResource extends Resource
         return [
             'index' => Pages\ListOwners::route('/'),
             //'create' => Pages\CreateOwner::route('/create'),
-            'view' => Pages\ViewOwner::route('/{record}'),
+            'view'  => Pages\ViewOwner::route('/{record}'),
             // 'edit' => Pages\EditOwner::route('/{record}/edit'),
         ];
     }

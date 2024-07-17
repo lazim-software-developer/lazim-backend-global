@@ -2,42 +2,33 @@
 
 namespace App\Filament\Resources\Building\BuildingResource\RelationManagers;
 
-use Closure;
-use Filament\Forms;
-use Filament\Tables;
-use Filament\Forms\Get;
-use Filament\Forms\Form;
-use App\Models\User\User;
-use Filament\Tables\Table;
-use Illuminate\Support\Str;
 use App\Jobs\BuildingSecurity;
-use Filament\Facades\Filament;
-use App\Models\OwnerAssociation;
-use App\Models\Building\Building;
-use Illuminate\Support\Facades\DB;
-use Filament\Forms\Components\Grid;
-use Filament\Tables\Actions\Action;
-use Illuminate\Support\Facades\Log;
 use App\Models\Building\BuildingPoc;
-use Illuminate\Support\Facades\Hash;
+use App\Models\Master\Role;
+use App\Models\OwnerAssociation;
+use App\Models\User\User;
+use Closure;
+use Filament\Facades\Filament;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Toggle;
-use App\Jobs\VendorAccountCreationJob;
-use App\Models\Master\Role;
-use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\FileUpload;
-use Filament\Tables\Actions\CreateAction;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Filament\Widgets\Concerns\InteractsWithPageTable;
+use Filament\Forms\Components\Toggle;
+use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Tables;
+use Filament\Tables\Actions\Action;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class BuildingPocsRelationManager extends RelationManager
 {
     protected static string $relationship = 'buildingPocs';
-    protected static ?string $modelLabel = 'Security';
+    protected static ?string $modelLabel  = 'Security';
     public static function getTitle(Model $ownerRecord, string $pageClass): string
     {
         return 'Security';
@@ -109,7 +100,7 @@ class BuildingPocsRelationManager extends RelationManager
                             return $livewire->ownerRecord->id;
                         }),
                     Toggle::make('emergency_contact')
-                        ->rules(['boolean'])
+                        ->rules(['boolean']),
                 ]),
             ]);
     }
@@ -136,7 +127,7 @@ class BuildingPocsRelationManager extends RelationManager
             ])
             ->headerActions([
                 Action::make('New Security')
-                    ->visible(fn (RelationManager $livewire) => BuildingPoc::where('building_id', $livewire->ownerRecord->id)->where('active', 1)->count() == 0)
+                    ->visible(fn(RelationManager $livewire) => BuildingPoc::where('building_id', $livewire->ownerRecord->id)->where('active', 1)->count() == 0)
                     ->button()
                     ->form([
                         TextInput::make('first_name')
@@ -150,7 +141,7 @@ class BuildingPocsRelationManager extends RelationManager
                                         $fail('The email is already taken by a User.');
                                     }
                                 };
-                            },])
+                            }])
                             ->required()
                             ->maxLength(255),
                         TextInput::make('phone')
@@ -160,7 +151,7 @@ class BuildingPocsRelationManager extends RelationManager
                                         $fail('The phone is already taken by a User.');
                                     }
                                 };
-                            },])
+                            }])
                             ->prefix('971')
                             ->required()
                             ->maxLength(255),
@@ -178,55 +169,54 @@ class BuildingPocsRelationManager extends RelationManager
                                 return $livewire->ownerRecord->id;
                             }),
                     ])
-                    ->action(function (RelationManager $livewire,array $data): void {
+                    ->action(function (RelationManager $livewire, array $data): void {
 
                         $buildingId = $livewire->ownerRecord->id;
-                        $oa_id = DB::table('building_owner_association')->where('building_id', $buildingId)->where('active', true)->first()?->owner_association_id;
+                        $oa_id      = DB::table('building_owner_association')->where('building_id', $buildingId)->where('active', true)->first()?->owner_association_id;
 
                         $user = User::create([
-                            'first_name' => $data['first_name'],
-                            'last_name' => $data['last_name'],
-                            'email' => $data['email'],
-                            'phone' => '971'.$data['phone'],
-                            'profile_photo' => $data['profile_photo'],
-                            'active' => $data['active'],
-                            'role_id' => 12,
+                            'first_name'           => $data['first_name'],
+                            'last_name'            => $data['last_name'],
+                            'email'                => $data['email'],
+                            'phone'                => '971' . $data['phone'],
+                            'profile_photo'        => $data['profile_photo'],
+                            'active'               => $data['active'],
+                            'role_id'              => 12,
                             'owner_association_id' => $oa_id,
-                            'email_verified' => 1,
-                            'phone_verified' => 1
+                            'email_verified'       => 1,
+                            'phone_verified'       => 1,
                         ]);
 
                         $security = BuildingPoc::create([
-                            'user_id' => $user->id,
-                            'role_name' => 'security',
-                            'escalation_level' => 1,
-                            'active' => true,
-                            'building_id' => $data['building_id'],
-                            'emergency_contact' => true,
+                            'user_id'              => $user->id,
+                            'role_name'            => 'security',
+                            'escalation_level'     => 1,
+                            'active'               => true,
+                            'building_id'          => $data['building_id'],
+                            'emergency_contact'    => true,
                             'owner_association_id' => $oa_id,
 
                         ]);
                         if ($user && $security) {
-                            $password = Str::random(12);
+                            $password       = Str::random(12);
                             $user->password = Hash::make($password);
                             $user->save();
-                            $tenant           = Filament::getTenant()?->id ?? auth()->user()->owner_association_id;
+                            $tenant = Filament::getTenant()?->id ?? auth()->user()->owner_association_id;
 
-                            if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
-                                
-                                $emailCredentials = OwnerAssociation::find($oa_id)->accountcredentials()->where('active', true)->latest()->first()->email ?? env('MAIL_FROM_ADDRESS');
-    
+                            if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+
+                                $emailCredentials = OwnerAssociation::find($oa_id)?->accountcredentials()->where('active', true)->latest()->first()->email ?? env('MAIL_FROM_ADDRESS');
+
                                 BuildingSecurity::dispatch($user, $password, $emailCredentials);
-                            }
-                            else{
-                                $emailCredentials = OwnerAssociation::find($tenant)->accountcredentials()->where('active', true)->latest()->first()->email ?? env('MAIL_FROM_ADDRESS');
-    
+                            } else {
+                                $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()->email ?? env('MAIL_FROM_ADDRESS');
+
                                 BuildingSecurity::dispatch($user, $password, $emailCredentials);
                             }
 
                         }
                     })
-                    ->slideOver()
+                    ->slideOver(),
             ])
             ->actions([
                 //Tables\Actions\EditAction::make(),
@@ -244,17 +234,17 @@ class BuildingPocsRelationManager extends RelationManager
                                         $fail('The email is already taken by a User.');
                                     }
                                 };
-                            },])
+                            }])
                             ->required()
                             ->maxLength(255),
                         TextInput::make('phone')
                             ->rules(['regex:/^(50|51|52|55|56|58|02|03|04|06|07|09)\d{7}$/', function (Model $record) {
                                 return function (string $attribute, $value, Closure $fail) use ($record) {
-                                    if (DB::table('users')->whereNot('id', $record->user_id)->where('phone', '971'.$value)->count() > 0) {
+                                    if (DB::table('users')->whereNot('id', $record->user_id)->where('phone', '971' . $value)->count() > 0) {
                                         $fail('The phone is already taken by a User.');
                                     }
                                 };
-                            },])
+                            }])
                             ->prefix('971')
                             ->required()
                             ->maxLength(255),
@@ -280,40 +270,40 @@ class BuildingPocsRelationManager extends RelationManager
                                 return $livewire->ownerRecord->id;
                             }),
                     ])
-                    ->fillForm(fn (BuildingPoc $userId): array => [
+                    ->fillForm(fn(BuildingPoc $userId): array=> [
                         $record = User::where('id', $userId->user_id)->first(),
-                        'first_name' => $record->first_name,
-                        'last_name' => $record->last_name,
-                        'email' => $record->email,
-                        'phone' => substr($record->phone, 3),
+                        'first_name'    => $record->first_name,
+                        'last_name'     => $record->last_name,
+                        'email'         => $record->email,
+                        'phone'         => substr($record->phone, 3),
                         'profile_photo' => $record->profile_photo,
-                        'active' => $userId->active, //Active fiil from buildingPoc
+                        'active'        => $userId->active, //Active fiil from buildingPoc
                     ])
                     ->action(function (BuildingPoc $userId, array $data): void {
                         $record = User::where('id', $userId->user_id)->first();
                         if ($record->email != $data['email']) {
-                            $password = Str::random(12);
+                            $password         = Str::random(12);
                             $record->password = Hash::make($password);
                             $record->save();
-                            $tenant           = Filament::getTenant()?->id ?? auth()->user()->owner_association_id;
-                            // $emailCredentials = OwnerAssociation::find($tenant)->accountcredentials()->where('active', true)->latest()->first()->email ?? env('MAIL_FROM_ADDRESS');
+                            $tenant = Filament::getTenant()?->id ?? auth()->user()->owner_association_id;
+                            // $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()->email ?? env('MAIL_FROM_ADDRESS');
 
-                            if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
-                                $oa_id = DB::table('building_owner_association')->where('building_id', $record->building_id)->where('active', true)->first()?->owner_association_id;
-                                $emailCredentials = OwnerAssociation::find($oa_id)->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
+                            if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+                                $oa_id            = DB::table('building_owner_association')->where('building_id', $record->building_id)->where('active', true)->first()?->owner_association_id;
+                                $emailCredentials = OwnerAssociation::find($oa_id)?->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
                                 BuildingSecurity::dispatch($record, $password, $emailCredentials);
-                            }else{
-                                $emailCredentials = OwnerAssociation::find($tenant)->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
+                            } else {
+                                $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
                                 BuildingSecurity::dispatch($record, $password, $emailCredentials);
 
                             }
 
                             // BuildingSecurity::dispatch($record, $password, $emailCredentials);
                         }
-                        $record->first_name = $data['first_name'];
-                        $record->last_name = $data['last_name'];
-                        $record->email = $data['email'];
-                        $record->phone = '971'.$data['phone'];
+                        $record->first_name    = $data['first_name'];
+                        $record->last_name     = $data['last_name'];
+                        $record->email         = $data['email'];
+                        $record->phone         = '971' . $data['phone'];
                         $record->profile_photo = $data['profile_photo'];
                         $record->save();
                         //active of this BuildingPoc
@@ -322,7 +312,7 @@ class BuildingPocsRelationManager extends RelationManager
                         $userId->active = $data['active'];
                         $userId->save();
                     })
-                    ->slideOver()
+                    ->slideOver(),
 
                 //Tables\Actions\DeleteAction::make(),
             ])
