@@ -49,8 +49,10 @@ class ListTenants extends ListRecords
                             ->send();
                         return;
                     }
+                    $OaName = Filament::getTenant()->name;
+                    
                     foreach ($residents as $value) {
-                        WelcomeNotificationJob::dispatch($value->email, $value->name, $buildingname, $emailCredentials);
+                        WelcomeNotificationJob::dispatch($value->email, $value->name, $buildingname, $emailCredentials,$OaName);
                     }
                     Notification::make()
                         ->title("Successfully Send Mail")
