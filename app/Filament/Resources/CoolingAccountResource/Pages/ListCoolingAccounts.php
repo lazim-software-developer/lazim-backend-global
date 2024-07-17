@@ -18,6 +18,7 @@ use Filament\Resources\Pages\ListRecords;
 use EightyNine\ExcelImport\ExcelImportAction;
 use pxlrbt\FilamentExcel\Exports\ExcelExport;
 use App\Filament\Resources\CoolingAccountResource;
+use App\Models\Master\Role;
 use pxlrbt\FilamentExcel\Actions\Pages\ExportAction;
 use Coolsam\FilamentFlatpickr\Forms\Components\Flatpickr;
 
@@ -38,10 +39,13 @@ class ListCoolingAccounts extends ListRecords
                         ->required()
                         ->relationship('building', 'name')
                         ->options(function () {
-                            $oaId = auth()->user()->owner_association_id;
-                            // dd($tenants);
-                            return Building::where('owner_association_id', $oaId)
+                            if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
+                                return Building::all()->pluck('name', 'id');
+                            }
+                            else{
+                                return Building::where('owner_association_id', auth()->user()->owner_association_id)
                                 ->pluck('name', 'id');
+                            } 
                         })
                         ->searchable()
                         ->label('Building Name'),
