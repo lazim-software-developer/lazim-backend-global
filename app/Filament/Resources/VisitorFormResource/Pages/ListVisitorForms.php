@@ -2,25 +2,25 @@
 
 namespace App\Filament\Resources\VisitorFormResource\Pages;
 
-use Filament\Actions;
+use App\Filament\Resources\VisitorFormResource;
 use Filament\Resources\Pages\ListRecords;
 use Illuminate\Database\Eloquent\Builder;
-use App\Filament\Resources\VisitorFormResource;
-use App\Models\Building\Building;
+use Illuminate\Support\Facades\DB;
 
 class ListVisitorForms extends ListRecords
 {
     protected static string $resource = VisitorFormResource::class;
-    protected static ?string $title = 'Flat visitors';
+    protected static ?string $title   = 'Flat visitors';
 
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make(),
+            // Actions\CreateAction::make(),
         ];
     }
     protected function getTableQuery(): Builder
     {
-        return parent::getTableQuery()->whereIn('building_id',Building::where('owner_association_id',auth()->user()->owner_association_id)->pluck('id'));
+        return auth()->user()->role->name == 'Admin' ? parent::getTableQuery() :
+        parent::getTableQuery()->whereIn('building_id', DB::table('building_owner_association')->where('owner_association_id', auth()->user()->owner_association_id)->pluck('building_id'));
     }
 }
