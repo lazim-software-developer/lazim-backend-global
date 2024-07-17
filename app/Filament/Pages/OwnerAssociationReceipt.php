@@ -32,7 +32,7 @@ class OwnerAssociationReceipt extends Page
 
     protected static ?string $slug = 'generate-receipt';
 
-    public ?array $data = []; 
+    public ?array $data = [];
 
     public function form(Form $form):Form
     {
@@ -58,10 +58,14 @@ class OwnerAssociationReceipt extends Page
             }),
             Select::make('building_id')
             ->required()
-            ->options(function () {
-                $oaId = auth()->user()->owner_association_id;
-                return Building::where('owner_association_id', $oaId)
-                    ->pluck('name', 'id');
+             ->options(function () {
+                if(auth()->user()->role->name == 'Admin'){
+                    return Building::pluck('name', 'id');
+                }else{
+                    $oaId = auth()->user()->owner_association_id;
+                    return Building::where('owner_association_id', $oaId)
+                        ->pluck('name', 'id');
+                }
             })->visible(function (callable $get) {
                 if ($get('type') == 'building') {
                     return true;
@@ -119,7 +123,7 @@ class OwnerAssociationReceipt extends Page
             FileUpload::make('receipt_document'),
 
 
-            
+
         ])
     ])->statePath('data');
     }
