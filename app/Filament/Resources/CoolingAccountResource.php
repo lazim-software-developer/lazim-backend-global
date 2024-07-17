@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\CoolingAccountResource\Pages;
 use App\Models\Building\Building;
 use App\Models\CoolingAccount;
+use App\Models\Master\Role;
 use Coolsam\FilamentFlatpickr\Forms\Components\Flatpickr;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Grid;
@@ -76,9 +77,13 @@ class CoolingAccountResource extends Resource
                         Select::make('building')
                             ->searchable()
                             ->options(function () {
-                                $oaId = auth()->user()->owner_association_id;
-                                return Building::where('owner_association_id', $oaId)
+                                if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
+                                    return Building::all()->pluck('name', 'id');
+                                }
+                                else{
+                                    return Building::where('owner_association_id', auth()->user()->owner_association_id)
                                     ->pluck('name', 'id');
+                                } 
                             }),
                     ])
                     ->query(function (Builder $query, array $data): Builder {

@@ -24,6 +24,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\DelinquentOwnerResource\Pages;
 use App\Filament\Resources\DelinquentOwnerResource\RelationManagers;
+use App\Models\Master\Role;
 use App\Models\OwnerAssociation;
 use Filament\Facades\Filament;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
@@ -94,9 +95,13 @@ class DelinquentOwnerResource extends Resource
                         Select::make('building')
                             ->searchable()
                             ->options(function () {
-                                $oaId = auth()->user()->owner_association_id;
-                                return Building::where('owner_association_id', $oaId)
+                                if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
+                                    return Building::all()->pluck('name', 'id');
+                                }
+                                else{
+                                    return Building::where('owner_association_id', auth()->user()->owner_association_id)
                                     ->pluck('name', 'id');
+                                } 
                             })
                     ])
                     ->query(function (Builder $query, array $data): Builder {

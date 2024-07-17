@@ -28,6 +28,7 @@ use Filament\Tables\Columns\TextInputColumn;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\VendorLedgersResource\Pages;
 use App\Filament\Resources\VendorLedgersResource\RelationManagers;
+use App\Models\Master\Role;
 use Coolsam\FilamentFlatpickr\Forms\Components\Flatpickr;
 use Illuminate\Support\Str;
 use Malzariey\FilamentDaterangepickerFilter\Fields\DateRangePicker;
@@ -136,9 +137,13 @@ class VendorLedgersResource extends Resource
                         Select::make('building')
                             ->searchable()
                             ->options(function () {
-                                $oaId = auth()->user()->owner_association_id;
-                                return Building::where('owner_association_id', $oaId)
+                                if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
+                                    return Building::all()->pluck('name', 'id');
+                                }
+                                else{
+                                    return Building::where('owner_association_id', auth()->user()->owner_association_id)
                                     ->pluck('name', 'id');
+                                } 
                             })
                     ])
                     ->query(function (Builder $query, array $data): Builder {
