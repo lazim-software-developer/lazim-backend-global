@@ -5,11 +5,13 @@ namespace App\Filament\Resources\ItemResource\Pages;
 use App\Filament\Resources\ItemResource;
 use App\Imports\ItemsListImport;
 use App\Models\Building\Building;
+use App\Models\Master\Role;
 use Filament\Actions;
 use Filament\Actions\Action;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Resources\Pages\ListRecords;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
 use pxlrbt\FilamentExcel\Actions\Pages\ExportAction;
@@ -70,5 +72,11 @@ class ListItems extends ListRecords
 
                 }),
         ];
+    }
+    protected function getTableQuery(): Builder
+    {
+        if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
+            return parent::getTableQuery();
+        }
     }
 }
