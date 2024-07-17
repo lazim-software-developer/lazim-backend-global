@@ -30,7 +30,8 @@ class WDA extends Model
         'status_updated_by',
         'vendor_id',
         'wda_number',
-        'service_id'
+        'service_id',
+        'owner_association_id'
     ];
 
     public function ownerAssociation()
