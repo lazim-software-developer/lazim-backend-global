@@ -21,7 +21,6 @@ class UserFlatResource extends JsonResource
         $flatId = Flat::find($flat?->flat_id);
         Log::info($flat);
         Log::info($flatId);
-        Log::info($this->id,auth()->user()->id);
         return [
             'flat_name' => $this->property_number,
             'flat_id' => $this->id,
