@@ -24,7 +24,7 @@ class PostController extends Controller
      */
     public function index(Request $request, Building $building)
     {
-        $this->authorize('viewAny');
+        $this->authorize('viewAny', [Post::class, $building->id]);
 
         // Start the query on the Post model
         $query = Post::where('status', 'published')
