@@ -9,5 +9,5 @@ class WebhookResponse extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['management_company_id', 'type', 'response'];
+    protected $fillable = ['management_company_id', 'type', 'response','reference_number'];
 }
