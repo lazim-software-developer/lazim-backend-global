@@ -24,6 +24,7 @@ use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
 use App\Jobs\VendorAccountCreationJob;
+use App\Models\Master\Role;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\FileUpload;
@@ -210,9 +211,19 @@ class BuildingPocsRelationManager extends RelationManager
                             $user->password = Hash::make($password);
                             $user->save();
                             $tenant           = Filament::getTenant()?->id ?? auth()->user()->owner_association_id;
-                            $emailCredentials = OwnerAssociation::find($tenant)->accountcredentials()->where('active', true)->latest()->first()->email ?? env('MAIL_FROM_ADDRESS');
 
-                            BuildingSecurity::dispatch($user, $password, $emailCredentials);
+                            if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
+                                
+                                $emailCredentials = OwnerAssociation::find($oa_id)->accountcredentials()->where('active', true)->latest()->first()->email ?? env('MAIL_FROM_ADDRESS');
+    
+                                BuildingSecurity::dispatch($user, $password, $emailCredentials);
+                            }
+                            else{
+                                $emailCredentials = OwnerAssociation::find($tenant)->accountcredentials()->where('active', true)->latest()->first()->email ?? env('MAIL_FROM_ADDRESS');
+    
+                                BuildingSecurity::dispatch($user, $password, $emailCredentials);
+                            }
+
                         }
                     })
                     ->slideOver()
@@ -285,9 +296,19 @@ class BuildingPocsRelationManager extends RelationManager
                             $record->password = Hash::make($password);
                             $record->save();
                             $tenant           = Filament::getTenant()?->id ?? auth()->user()->owner_association_id;
-                            $emailCredentials = OwnerAssociation::find($tenant)->accountcredentials()->where('active', true)->latest()->first()->email ?? env('MAIL_FROM_ADDRESS');
+                            // $emailCredentials = OwnerAssociation::find($tenant)->accountcredentials()->where('active', true)->latest()->first()->email ?? env('MAIL_FROM_ADDRESS');
 
-                            BuildingSecurity::dispatch($record, $password, $emailCredentials);
+                            if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
+                                $oa_id = DB::table('building_owner_association')->where('building_id', $record->building_id)->where('active', true)->first()?->owner_association_id;
+                                $emailCredentials = OwnerAssociation::find($oa_id)->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
+                                BuildingSecurity::dispatch($record, $password, $emailCredentials);
+                            }else{
+                                $emailCredentials = OwnerAssociation::find($tenant)->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
+                                BuildingSecurity::dispatch($record, $password, $emailCredentials);
+
+                            }
+
+                            // BuildingSecurity::dispatch($record, $password, $emailCredentials);
                         }
                         $record->first_name = $data['first_name'];
                         $record->last_name = $data['last_name'];
