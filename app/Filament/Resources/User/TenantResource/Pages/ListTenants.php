@@ -21,6 +21,9 @@ class ListTenants extends ListRecords
     protected static string $resource = TenantResource::class;
     protected function getTableQuery(): Builder
     {
+        if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
+            return parent::getTableQuery();
+        }
         return parent::getTableQuery()->whereIn('building_id', Building::where('owner_association_id', Filament::getTenant()?->id ??auth()->user()->owner_association_id)->pluck('id'));
     }
     protected function getHeaderActions(): array

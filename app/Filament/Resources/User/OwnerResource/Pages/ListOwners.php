@@ -23,6 +23,9 @@ class ListOwners extends ListRecords
     protected static string $resource = OwnerResource::class;
     protected function getTableQuery(): Builder
     {
+        if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
+            return parent::getTableQuery();
+        }
         // $BuildingId = Building::where('owner_association_id',Filament::getTenant()?->id ?? auth()->user()->owner_association_id)->pluck('id');
         $flatsId = Flat::where('owner_association_id',Filament::getTenant()?->id ?? auth()->user()->owner_association_id)->pluck('id');
         $flatowners = FlatOwners::whereIn('flat_id',$flatsId)->pluck('owner_id');
