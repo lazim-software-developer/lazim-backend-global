@@ -46,7 +46,7 @@ class ListOwners extends ListRecords
                             else{
                                 return Building::where('owner_association_id', auth()->user()->owner_association_id)
                                 ->pluck('name', 'id');
-                            } 
+                            }
                         })
                         ->searchable()
                         ->preload()
@@ -81,7 +81,7 @@ class ListOwners extends ListRecords
                             return;
                     }
                     $tenant           = Filament::getTenant()?->id ?? auth()->user()?->owner_association_id;
-                    $emailCredentials = OwnerAssociation::find($tenant)->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
+                    $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
                     $OaName = Filament::getTenant()->name;
 
                     foreach ($residentsemail as $value) {
