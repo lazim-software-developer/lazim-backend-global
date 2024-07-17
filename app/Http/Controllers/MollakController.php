@@ -309,7 +309,8 @@ class MollakController extends Controller
         // ])->get("https://qagate.dubailand.gov.ae/mollak/external/sync/propertygroups/235553/units");
         // ])->get("https://qagate.dubailand.gov.ae/mollak/external/sync/managementcompany");
         // ])->get("https://qagate.dubailand.gov.ae/mollak/external/sync/propertygroups");0120130805004026 
-        ])->get("https://qagate.dubailand.gov.ae/mollak/external/sync/owners/235553/17651626");
+        // ])->get("https://qagate.dubailand.gov.ae/mollak/external/sync/owners/235553/17651626");
+        ])->get("https://qagate.dubailand.gov.ae/mollak/external/sync/property/17651626/contract/0120130805004026");
 
         return $data = $results->json();
     }
@@ -417,7 +418,7 @@ class MollakController extends Controller
                 }
 
                 $managementCompanyId = $parameters['managementCompanyId'] ?? null;
-                $propertyGroupId = $parameters['propertyGroupId']?? null; //235553;
+                $mollakPropertyId = $parameters['mollakPropertyId']?? null; //235553;
                 $contractNumber = $parameters['contractNumber']?? null;
                 WebhookResponse::create([
                     'management_company_id' => $managementCompanyId,
@@ -426,7 +427,7 @@ class MollakController extends Controller
                     'acknowledgeRef' => $acknowledgeRef
                 ]);
 
-                ContractChangedWebhookJob::dispatch($propertyGroupId,$contractNumber);
+                ContractChangedWebhookJob::dispatch($mollakPropertyId,$contractNumber);
 
                 break;
             case 'legal_notice_issued':
