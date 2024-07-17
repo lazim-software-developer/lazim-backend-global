@@ -80,4 +80,8 @@ class OwnerAssociation extends Model
     {
         return $this->hasMany(Asset::class,'owner_association_id');
     }
+    public function vehicles()
+    {
+        return $this->hasMany(Vehicle::class,'owner_association_id');
+    }
 }
