@@ -11,7 +11,7 @@ class BuildingVendor extends Pivot
 {
     public $timestamps = false;
     protected $table = 'building_vendor';
-    protected $fillable = ['building_id', 'contract_id', 'vendor_id', 'start_date', 'end_date', 'active'];
+    protected $fillable = ['building_id', 'contract_id', 'vendor_id', 'start_date', 'end_date', 'active','owner_association_id'];
     public function building()
     {
         return $this->belongsTo(Building::class);
