@@ -247,7 +247,7 @@ class RegistrationController extends Controller
             'emirates_document' => $emirates,
             'passport' => $passport,
             'flat_id' => $request->flat_id,
-            'owner_assciation_id' => $oam?->id,
+            'owner_association_id' => $oam?->id,
         ]);
 
         // Store details to Flat tenants table

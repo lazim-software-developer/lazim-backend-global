@@ -25,6 +25,7 @@ class InvoiceAudit extends Model
         'vendor_id',
         'invoice_amount',
         'invoice_id',
+        'owner_association_id'
     ];
 
     public function invoice()

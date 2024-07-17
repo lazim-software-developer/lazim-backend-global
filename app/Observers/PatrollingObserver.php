@@ -5,6 +5,7 @@ namespace App\Observers;
 use App\Filament\Resources\PatrollingResource;
 use App\Models\Gatekeeper\Patrolling;
 use App\Models\Master\Role;
+use App\Models\OwnerAssociation;
 use App\Models\User\User;
 use Filament\Notifications\Actions\Action;
 use Filament\Notifications\Notification;
@@ -31,7 +32,7 @@ class PatrollingObserver
         ->actions([
             Action::make('View')
             ->button()
-            ->url(fn () => PatrollingResource::getUrl('index')),
+            ->url(fn () => PatrollingResource::getUrl('index',[OwnerAssociation::where('id',$patrolling->owner_association_id)->first()?->slug])),
 
         ])
         ->sendToDatabase($notifyTo);
