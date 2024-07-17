@@ -84,4 +84,8 @@ class OwnerAssociation extends Model
     {
         return $this->hasMany(Vehicle::class,'owner_association_id');
     }
+    public function oacomplaintReports()
+    {
+        return $this->hasMany(OacomplaintReports::class,'owner_association_id');
+    }
 }
