@@ -22,6 +22,7 @@ class VehicleRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'flat_id' => 'required|integer',
             'vehicle_number' => 'required|unique:vehicles',
             'makani_number' => 'required|unique:vehicles',
         ];
