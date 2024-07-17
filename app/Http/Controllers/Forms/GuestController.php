@@ -119,7 +119,7 @@ class GuestController extends Controller
             ->success()
             ->title('Flat Visit Request')
             ->body("Flat visit request received for $request->start_date")
-            ->action([
+            ->actions([
                 Action::make('View')
                     ->button()
                     ->url(fn() => VisitorFormResource::getUrl('edit', [OwnerAssociation::where('id', $ownerAssociationId)->first()?->slug, $visitor->id])),
