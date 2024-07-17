@@ -21,7 +21,7 @@ use App\Filament\Resources\BudgetResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\BudgetResource\RelationManagers;
 use App\Filament\Resources\BudgetResource\RelationManagers\BudgetitemsRelationManager;
-
+use App\Models\Master\Role;
 
 class BudgetResource extends Resource
 {
@@ -111,6 +111,10 @@ class BudgetResource extends Resource
                 Action::make('create tender')
                     ->label('Create Tender')
                     ->url(function (Budget $records) {
+                        if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+                        return route('tenders.create', ['budget' => $records->id]);
+                            
+                        }
                         return route('tender.create', ['budget' => $records->id]);
                     })
             ])
