@@ -6,7 +6,6 @@ use App\Models\Building\Flat;
 use App\Models\Building\FlatTenant;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Facades\Log;
 
 class UserFlatResource extends JsonResource
 {
@@ -18,9 +17,7 @@ class UserFlatResource extends JsonResource
     public function toArray(Request $request): array
     {
         $flat = FlatTenant::where(['flat_id' => $this->id, 'tenant_id' => auth()->user()->id])->first();
-        $flatId = Flat::find($flat?->flat_id);
-        Log::info($flat);
-        Log::info($flatId);
+        $flatId = Flat::find($this->id);
         return [
             'flat_name' => $this->property_number,
             'flat_id' => $this->id,

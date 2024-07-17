@@ -21,13 +21,12 @@ class UserController extends Controller
         $user = auth()->user();
 
         if ($user && $user?->role->name == 'Tenant'){
-            $flatIds = FlatTenant::where('tenant_id',$user->id)->where('active', true)->pluck('id');
+            $flatIds = FlatTenant::where('tenant_id',$user->id)->where('active', true)->pluck('flat_id');
             $flats = Flat::whereIn('id',$flatIds)->get();
         }
         else{
             $flats = $user->residences;
         }
-        Log::info($flats);
         return UserFlatResource::collection($flats);
     }
 
