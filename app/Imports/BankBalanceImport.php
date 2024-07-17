@@ -73,29 +73,40 @@ class BankBalanceImport implements ToCollection, WithHeadingRow
         });
         // Check for missing required fields in rows
         $missingFieldsRows = [];
-        foreach ($filteredRows as $index => $row) {
-            foreach ([
-                'type',
-                'opening_credit',
-                'opening_debit',
-                'opening_balance',
-                'credit',
-                'debit',
-                'balance',
-                'closing_credit',
-                'closing_debit',
-                'closing_balance',
-                'unidentified_credit',
-                'unidentified_debit',
-                'post_dated_credit',
-                'post_dated_debit',
-            ] as $field) {
-                if (!isset($row[$field]) || $row[$field] === null || $row[$field] === '') {
-                    $missingFieldsRows[] = $index + 1;
-                    break; // No need to check other fields for this row
-                }
+
+if (is_array($filteredRows) && !empty($filteredRows)) {
+    // Iterate through each filtered row
+    foreach ($filteredRows as $index => $row) {
+        // List of fields to check
+        $fieldsToCheck = [
+            'type',
+            'opening_credit',
+            'opening_debit',
+            'opening_balance',
+            'credit',
+            'debit',
+            'balance',
+            'closing_credit',
+            'closing_debit',
+            'closing_balance',
+            'unidentified_credit',
+            'unidentified_debit',
+            'post_dated_credit',
+            'post_dated_debit',
+        ];
+
+        // Iterate through each field to check
+        foreach ($fieldsToCheck as $field) {
+            // Check if the field is missing, null, or empty
+            if (!isset($row[$field]) || $row[$field] === null || $row[$field] === '') {
+                // Add the row index (plus one) to the missingFieldsRows array
+                $missingFieldsRows[] = $index + 1;
+                // No need to check other fields for this row
+                break;
             }
         }
+    }
+}
 
         if (!empty($missingFieldsRows)) {
             Notification::make()
