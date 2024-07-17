@@ -346,7 +346,7 @@ class MollakController extends Controller
                     'management_company_id' => $managementCompanyId,
                     'type' => 'payment_receipt',
                     'response' => json_encode($request->parameters),
-                    'acknowledgeRef' => $acknowledgeRef
+                    'reference_number' => $acknowledgeRef
                 ]);
 
 
@@ -365,7 +365,7 @@ class MollakController extends Controller
                     'management_company_id' => $managementCompanyId,
                     'type' => 'budget_approved',
                     'response' => json_encode($request->parameters),
-                    'acknowledgeRef' => $acknowledgeRef
+                    'reference_number' => $acknowledgeRef
                 ]);
                 
                 BudgetApprovedWebhookJob::dispatch($propertyGroupId,$periodCode);                
@@ -386,7 +386,7 @@ class MollakController extends Controller
                     'management_company_id' => $managementCompanyId,
                     'type' => 'invoice_generated',
                     'response' => json_encode($request->parameters),
-                    'acknowledgeRef' => $acknowledgeRef
+                    'reference_number' => $acknowledgeRef
                 ]);                
 
                 FetchAndSaveInvoices::dispatch($building = null,$propertyGroupId,$serviceChargeGroupId,$quarterCode);
@@ -406,7 +406,7 @@ class MollakController extends Controller
                     'management_company_id' => $managementCompanyId,
                     'type' => 'ownership_changed',
                     'response' => json_encode($request->parameters),
-                    'acknowledgeRef' => $acknowledgeRef
+                    'reference_number' => $acknowledgeRef
                 ]);
 
                 OwnershipChangedWebhookJob::dispatch($propertyGroupId,$mollakPropertyId);
@@ -424,7 +424,7 @@ class MollakController extends Controller
                     'management_company_id' => $managementCompanyId,
                     'type' => 'contract_changed',
                     'response' => json_encode($request->parameters),
-                    'acknowledgeRef' => $acknowledgeRef
+                    'reference_number' => $acknowledgeRef
                 ]);
 
                 ContractChangedWebhookJob::dispatch($mollakPropertyId,$contractNumber);
@@ -445,7 +445,7 @@ class MollakController extends Controller
                     'management_company_id' => $managementCompanyId,
                     'type' => 'legal_notice_issued',
                     'response' => json_encode($request->parameters),
-                    'acknowledgeRef' => $acknowledgeRef
+                    'reference_number' => $acknowledgeRef
                 ]);
 
 
@@ -462,7 +462,7 @@ class MollakController extends Controller
                     'management_company_id' => $managementCompanyId,
                     'type' => 'owner_committee_formed',
                     'response' => json_encode($request->parameters),
-                    'acknowledgeRef' => $acknowledgeRef
+                    'reference_number' => $acknowledgeRef
                 ]);
                 break;
             default:
@@ -589,7 +589,7 @@ class MollakController extends Controller
 
             return [
                 'isExecuted' => true,
-                'acknowledgeRef' => random_int(1111111,9999999)
+                'reference_number' => random_int(1111111,9999999)
             ];
             
     }
@@ -617,7 +617,7 @@ class MollakController extends Controller
 
             return [
                 'isExecuted' => true,
-                'acknowledgeRef' => random_int(1111111,9999999)
+                'reference_number' => random_int(1111111,9999999)
             ];
     }
 
