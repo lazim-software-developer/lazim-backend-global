@@ -92,7 +92,7 @@ class ItemInventoryResource extends Resource
         $buildings = Building::where('owner_association_id',auth()->user()->owner_association_id)->pluck('id');
         $items = Item::whereIn('building_id', $buildings)->pluck('id');
         return $table
-            ->modifyQueryUsing(fn(Builder $query) => $query->whereIn('item_id', $items)->orderBy('created_at','desc')->withoutGlobalScopes())
+            // ->modifyQueryUsing(fn(Builder $query) => $query->whereIn('item_id', $items)->orderBy('created_at','desc')->withoutGlobalScopes())
             ->defaultGroup('item.name')
             ->columns([
                 TextColumn::make('item.name')
