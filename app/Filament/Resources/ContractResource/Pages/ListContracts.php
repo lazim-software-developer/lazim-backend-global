@@ -7,6 +7,8 @@ use App\Models\Building\Building;
 use Filament\Resources\Pages\ListRecords;
 use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\ContractResource;
+use App\Models\Master\Role;
+use Filament\Facades\Filament;
 
 class ListContracts extends ListRecords
 {
@@ -20,6 +22,9 @@ class ListContracts extends ListRecords
     }
     protected function getTableQuery(): Builder
     {
-        return parent::getTableQuery()->whereIn('building_id',Building::where('owner_association_id',auth()->user()->owner_association_id)->pluck('id'));
+        if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
+            return parent::getTableQuery();
+        }
+        return parent::getTableQuery()->whereIn('building_id',Building::where('owner_association_id',Filament::getTenant()->id)->pluck('id'));
     }
 }
