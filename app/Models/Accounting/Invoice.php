@@ -32,6 +32,7 @@ class Invoice extends Model
         'payment',
         'balance',
         'invoice_amount',
+        'owner_association_id'
     ];
 
     public function ownerAssociation()
