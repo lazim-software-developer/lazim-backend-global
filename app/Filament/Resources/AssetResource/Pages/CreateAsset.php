@@ -6,6 +6,7 @@ use App\Filament\Resources\AssetResource;
 use App\Models\Asset;
 use App\Models\Assets\Assetmaintenance;
 use App\Models\Building\Building;
+use App\Models\OwnerAssociation;
 use App\Models\TechnicianAssets;
 use App\Models\TechnicianVendor;
 use App\Models\User\User;
@@ -37,7 +38,9 @@ class CreateAsset extends CreateRecord
         $asset = Asset::where('id', $this->record->id)->first();
         // Fetch Building name
         $building_name = Building::where('id',$asset->building_id)->first();
-        $assetCode = strtoupper(substr(auth()->user()->ownerAssociation->name, 0, 2)).'-'. Hashids::encode($this->record->id);
+        $ownerAssociationId = DB::table('building_owner_association')->where('building_id', $asset->building_id)->where('active', true)->first()?->owner_association_id;
+        $ownerAssociationName = OwnerAssociation::findOrFail($ownerAssociationId)?->name;
+        $assetCode = strtoupper(substr($ownerAssociationName, 0, 2)).'-'. Hashids::encode($this->record->id);
         // dd($assetCode);
 
         // Build an object with the required properties
