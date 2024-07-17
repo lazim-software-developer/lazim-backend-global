@@ -12,6 +12,7 @@ use App\Models\Accounting\WdaAudit;
 use App\Models\Vendor\Vendor;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class WDAController extends Controller
 {
@@ -42,13 +43,15 @@ class WDAController extends Controller
 
         $name = $vendor->name;
         $wda_number = strtoupper(substr($name, 0, 2)).date('YmdHis');
+        $oa_id = DB::table('building_owner_association')->where('building_id', $request->buildingId)->where('active', true)->first()?->owner_association_id;
     
         $request->merge([
             'document' => $documentUrl,
             'created_by' => auth()->user()->id,
             'status' => 'pending',
             'vendor_id' => $vendor->id,
-            'wda_number' => $wda_number
+            'wda_number' => $wda_number,
+            'owner_association_id' => $oa_id,
         ]);
 
         WDA::create($request->all());
@@ -81,6 +84,7 @@ class WDAController extends Controller
                 "contract_id"=> $wda->contract_id,
                 "status_updated_by"=> $wda->status_updated_by,
                 "vendor_id"=> $wda->vendor_id,
+                'owner_association_id' => $wda?->owner_association_id,
                 ]);
         
         $request->merge([
