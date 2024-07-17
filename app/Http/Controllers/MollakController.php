@@ -324,7 +324,7 @@ class MollakController extends Controller
             return $validationError;
         }
 
-
+        $acknowledgeRef = random_int(1111111,9999999);
         $syncType = $request->input('syncType');
         switch ($syncType) {
             case 'payment_receipt':
@@ -340,7 +340,8 @@ class MollakController extends Controller
                 WebhookResponse::create([
                     'management_company_id' => $managementCompanyId,
                     'type' => 'payment_receipt',
-                    'response' => json_encode($request->parameters)
+                    'response' => json_encode($request->parameters),
+                    'acknowledgeRef' => $acknowledgeRef
                 ]);
 
 
@@ -358,7 +359,8 @@ class MollakController extends Controller
                 WebhookResponse::create([
                     'management_company_id' => $managementCompanyId,
                     'type' => 'budget_approved',
-                    'response' => json_encode($request->parameters)
+                    'response' => json_encode($request->parameters),
+                    'acknowledgeRef' => $acknowledgeRef
                 ]);
                 
                 BudgetApprovedWebhookJob::dispatch($propertyGroupId,$periodCode);                
@@ -378,7 +380,8 @@ class MollakController extends Controller
                 WebhookResponse::create([
                     'management_company_id' => $managementCompanyId,
                     'type' => 'invoice_generated',
-                    'response' => json_encode($request->parameters)
+                    'response' => json_encode($request->parameters),
+                    'acknowledgeRef' => $acknowledgeRef
                 ]);                
 
                 FetchAndSaveInvoices::dispatch($building = null,$propertyGroupId,$serviceChargeGroupId,$quarterCode);
@@ -397,7 +400,8 @@ class MollakController extends Controller
                 WebhookResponse::create([
                     'management_company_id' => $managementCompanyId,
                     'type' => 'ownership_changed',
-                    'response' => json_encode($request->parameters)
+                    'response' => json_encode($request->parameters),
+                    'acknowledgeRef' => $acknowledgeRef
                 ]);
 
                 OwnershipChangedWebhookJob::dispatch($propertyGroupId,$mollakPropertyId);
@@ -414,7 +418,8 @@ class MollakController extends Controller
                 WebhookResponse::create([
                     'management_company_id' => $managementCompanyId,
                     'type' => 'contract_changed',
-                    'response' => json_encode($request->parameters)
+                    'response' => json_encode($request->parameters),
+                    'acknowledgeRef' => $acknowledgeRef
                 ]);
 
                 ContractChangedWebhookJob::dispatch($propertyGroupId,$contractNumber);
@@ -434,7 +439,8 @@ class MollakController extends Controller
                 WebhookResponse::create([
                     'management_company_id' => $managementCompanyId,
                     'type' => 'legal_notice_issued',
-                    'response' => json_encode($request->parameters)
+                    'response' => json_encode($request->parameters),
+                    'acknowledgeRef' => $acknowledgeRef
                 ]);
 
 
@@ -450,7 +456,8 @@ class MollakController extends Controller
                 WebhookResponse::create([
                     'management_company_id' => $managementCompanyId,
                     'type' => 'owner_committee_formed',
-                    'response' => json_encode($request->parameters)
+                    'response' => json_encode($request->parameters),
+                    'acknowledgeRef' => $acknowledgeRef
                 ]);
                 break;
             default:
@@ -459,7 +466,7 @@ class MollakController extends Controller
 
         return [
             'isExecuted' => true,
-            'acknowledgeRef' => random_int(1111111,9999999)
+            'acknowledgeRef' => $acknowledgeRef
         ];
     }
 
