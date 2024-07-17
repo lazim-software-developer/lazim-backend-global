@@ -62,7 +62,7 @@ class FacilityServiceBookingObserver
             ->actions([
                 Action::make('view')
                     ->button()
-                    ->url( fn () => ServiceBookingResource::getUrl('edit',[$facilityBooking->id])),
+                    ->url( fn () => ServiceBookingResource::getUrl('edit',[OwnerAssociation::where('id',$oam_id->owner_association_id)->first()?->slug,$facilityBooking->id])),
             ])
             ->sendToDatabase($notifyTo);
         }
