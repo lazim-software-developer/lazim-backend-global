@@ -43,7 +43,7 @@ class WDAController extends Controller
 
         $name = $vendor->name;
         $wda_number = strtoupper(substr($name, 0, 2)).date('YmdHis');
-        $oa_id = DB::table('building_owner_association')->where('building_id', $request->buildingId)->where('active', true)->first()?->owner_association_id;
+        $oa_id = DB::table('building_owner_association')->where('building_id', $request->building_id)->where('active', true)->first()?->owner_association_id;
     
         $request->merge([
             'document' => $documentUrl,
