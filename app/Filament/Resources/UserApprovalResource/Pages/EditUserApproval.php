@@ -11,6 +11,7 @@ use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
 use App\Filament\Resources\UserApprovalResource;
 use App\Jobs\Residentapproval;
+use App\Models\Master\Role;
 use App\Models\OwnerAssociation;
 use App\Models\UserApproval;
 use Filament\Facades\Filament;
@@ -36,13 +37,18 @@ class EditUserApproval extends EditRecord
 
         return $data;
     }
-    protected function beforeSave(): void
+    protected function beforeSave($record): void
     {
         UserApproval::find($this->data['id'])->update([
             'updated_by'  => auth()->user()->id,
         ]);
         $tenant           = Filament::getTenant()?->id ?? auth()->user()?->owner_association_id;
-        $emailCredentials = OwnerAssociation::find($tenant)->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
+
+        if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
+            $emailCredentials = OwnerAssociation::find($record->owner_association_id)->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
+        }else{
+            $emailCredentials = OwnerAssociation::find($tenant)->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
+        }
 
         $user = User::find($this->record->user_id);
         if ($this->data['status'] == 'approved' && $this->record->status == null) {
