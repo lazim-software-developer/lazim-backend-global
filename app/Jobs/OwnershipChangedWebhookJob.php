@@ -42,7 +42,7 @@ class OwnershipChangedWebhookJob implements ShouldQueue
         foreach($responce['properties'] as $property){
             $flat = Flat::where('mollak_property_id',$property['mollakPropertyId'])->first();
             $flatOwner = FlatOwners::find($flat?->id)->update(['active'=> false]);
-            foreach($property as $units){
+            foreach($property['owners'] as $units){
 
                 $owner = ApartmentOwner::firstOrCreate([
                     'owner_number' => $units['ownerNumber'],
