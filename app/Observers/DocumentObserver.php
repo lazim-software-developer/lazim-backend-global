@@ -35,7 +35,7 @@ class DocumentObserver
                         return $notifyTo->can($requiredPermissions);
                     });
                     Log::info(OwnerAssociation::where('id',$oam_id->owner_association_id)->first()?->slug);
-                    Log::info(OwnerAssociation::where('id',$oam_id->owner_association_id)->first()?->slug.TenantDocumentResource::getUrl('edit',[$document]));
+                    Log::info(OwnerAssociation::where('id',$oam_id->owner_association_id)->first()?->slug.TenantDocumentResource::getUrl('edit',['record',$document->id]));
                     Notification::make()
                         ->success()
                         ->title($document->name . " Received")
