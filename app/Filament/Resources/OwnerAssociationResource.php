@@ -282,8 +282,8 @@ class OwnerAssociationResource extends Resource
                 //
             ])
             ->actions([
-                // Tables\Actions\EditAction::make(),
-                Tables\Actions\ViewAction::make(),
+                Tables\Actions\EditAction::make(),
+                // Tables\Actions\ViewAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -307,7 +307,7 @@ class OwnerAssociationResource extends Resource
         return [
             'index'  => Pages\ListOwnerAssociations::route('/'),
             'create' => Pages\CreateOwnerAssociation::route('/create'),
-            // 'edit'   => Pages\EditOwnerAssociation::route('/{record}/edit'),
+            'edit'   => Pages\EditOwnerAssociation::route('/{record}/edit'),
         ];
     }
 }
