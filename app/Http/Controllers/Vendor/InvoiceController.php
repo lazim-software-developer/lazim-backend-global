@@ -17,6 +17,7 @@ use App\Models\InvoiceApproval;
 use App\Models\Vendor\Vendor;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class InvoiceController extends Controller
 {
@@ -60,6 +61,7 @@ class InvoiceController extends Controller
         $wda = WDA::find($request->wda_id);
         $name = $vendor->OA->name;
         $invoice_id = strtoupper(substr($name, 0, 4)) . date('YmdHis');
+        $oa_id = DB::table('building_owner_association')->where('building_id', $wda->building_id)->where('active', true)->first()?->owner_association_id;
         $request->merge([
             'building_id' => $wda->building_id,
             'contract_id' => $wda->contract_id,
@@ -67,7 +69,8 @@ class InvoiceController extends Controller
             'document' => $document,
             'created_by' => auth()->user()->id,
             'status' => 'pending',
-            'vendor_id' => $vendor->id
+            'vendor_id' => $vendor->id,
+            'owner_association_id' => $oa_id
         ]);
 
         $invoice = Invoice::create($request->all());
@@ -119,6 +122,7 @@ class InvoiceController extends Controller
             'status_updated_by' => $invoice->status_updated_by,
             'vendor_id' => $invoice->vendor_id,
             'invoice_amount' => $invoice->invoice_amount,
+            'owner_association_id' => $invoice?->owner_association_id
 
         ]);
 
