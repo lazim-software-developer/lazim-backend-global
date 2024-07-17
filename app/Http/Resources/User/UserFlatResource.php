@@ -17,7 +17,7 @@ class UserFlatResource extends JsonResource
     public function toArray(Request $request): array
     {
         $flat = FlatTenant::where(['flat_id' => $this->id, 'tenant_id' => auth()->user()->id])->first();
-        $flatId = Flat::find($this->id);
+        $flatId = Flat::find($flat?->flat_id);
         return [
             'flat_name' => $this->property_number,
             'flat_id' => $this->id,
