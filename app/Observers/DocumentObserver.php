@@ -34,8 +34,6 @@ class DocumentObserver
                     ->filter(function ($notifyTo) use ($requiredPermissions) {
                         return $notifyTo->can($requiredPermissions);
                     });
-                    Log::info(OwnerAssociation::where('id',$oam_id->owner_association_id)->first()?->slug);
-                    Log::info(TenantDocumentResource::getUrl('edit',[OwnerAssociation::where('id',$oam_id->owner_association_id)->first()?->slug,$document->id]));
                     Notification::make()
                         ->success()
                         ->title($document->name . " Received")
@@ -45,7 +43,7 @@ class DocumentObserver
                         ->actions([
                             Action::make('view')
                                 ->button()
-                                ->url(TenantDocumentResource::getUrl('edit',[OwnerAssociation::where('id',$oam_id->owner_association_id)->first()?->slug,$document->id])),
+                                ->url(fn () => TenantDocumentResource::getUrl('edit',[OwnerAssociation::where('id',$oam_id->owner_association_id)->first()?->slug,$document->id])),
                         ])
                         ->sendToDatabase($notifyTo);
                 }
