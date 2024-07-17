@@ -9,6 +9,7 @@ use App\Models\Community\Poll;
 use App\Models\Community\Post;
 use App\Models\Forms\SaleNOC;
 use App\Models\User\User;
+use App\Models\Vendor\Contract;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Sluggable\HasSlug;
@@ -87,5 +88,10 @@ class OwnerAssociation extends Model
     public function oacomplaintReports()
     {
         return $this->hasMany(OacomplaintReports::class,'owner_association_id');
+    }
+
+    public function contracts()
+    {
+        return $this->hasMany(Contract::class);
     }
 }
