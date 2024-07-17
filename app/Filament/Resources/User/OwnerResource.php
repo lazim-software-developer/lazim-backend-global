@@ -126,29 +126,29 @@ class OwnerResource extends Resource
                 ViewColumn::make('Building')->view('tables.columns.apartment-ownerbuilding')->alignCenter(),
             ])
             ->actions([
-                Action::make('Notify Owner')
-                ->button()
-                ->action(function (array $data,$record){
-                    $flatID = FlatOwners::where('owner_id',$record->id)->value('flat_id');
-                    $buildingname = Flat::where('id',$flatID)->first()->building->name;
-                    $tenant           = Filament::getTenant()?->id ?? auth()->user()?->owner_association_id;
-                    $emailCredentials = OwnerAssociation::find($tenant)->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
-                    $OaName = Filament::getTenant()->name;
+                // Action::make('Notify Owner')
+                // ->button()
+                // ->action(function (array $data,$record){
+                //     $flatID = FlatOwners::where('owner_id',$record->id)->value('flat_id');
+                //     $buildingname = Flat::where('id',$flatID)->first()->building->name;
+                //     $tenant           = Filament::getTenant()?->id ?? auth()->user()?->owner_association_id;
+                //     $emailCredentials = OwnerAssociation::find($tenant)->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
+                //     $OaName = Filament::getTenant()->name;
 
-                    if($record->email==null){
-                        Notification::make()
-                        ->title('Email not found')
-                        ->success()
-                        ->send();
-                    }else{
-                        WelcomeNotificationJob::dispatch($record->email, $record->name,$buildingname,$emailCredentials,$OaName);
-                        Notification::make()
-                        ->title("Successfully Sent Mail")
-                        ->success()
-                        ->body("Sent mail to owner asking him to download the app.")
-                        ->send();
-                    }
-                })
+                //     if($record->email==null){
+                //         Notification::make()
+                //         ->title('Email not found')
+                //         ->success()
+                //         ->send();
+                //     }else{
+                //         WelcomeNotificationJob::dispatch($record->email, $record->name,$buildingname,$emailCredentials,$OaName);
+                //         Notification::make()
+                //         ->title("Successfully Sent Mail")
+                //         ->success()
+                //         ->body("Sent mail to owner asking him to download the app.")
+                //         ->send();
+                //     }
+                // })
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
