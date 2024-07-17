@@ -12,7 +12,7 @@ class ListVendors extends ListRecords
     protected static string $resource = VendorResource::class;
     protected function getTableQuery(): Builder
     {
-        return parent::getTableQuery()->where('owner_association_id',auth()->user()->owner_association_id);
+        return auth()->user()->role->name == 'Admin' ? parent::getTableQuery() : parent::getTableQuery()->where('owner_association_id', auth()->user()->owner_association_id);
     }
     protected function getHeaderActions(): array
     {
