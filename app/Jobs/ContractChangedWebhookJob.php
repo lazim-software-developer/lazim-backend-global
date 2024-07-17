@@ -20,7 +20,7 @@ class ContractChangedWebhookJob implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct(protected $propertyGroupId,protected $contractNumber)
+    public function __construct(protected $mollakPropertyId,protected $contractNumber)
     {
         //
     }
@@ -30,13 +30,13 @@ class ContractChangedWebhookJob implements ShouldQueue
      */
     public function handle(): void
     {
-        $propertyGroupId =$this->propertyGroupId;
+        $mollakPropertyId =$this->mollakPropertyId;
         $contractNumber =$this->contractNumber;
         try{
         $results = Http::withOptions(['verify' => false])->withHeaders([
             'content-type' => 'application/json',
             'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
-        ])->get("https://qagate.dubailand.gov.ae/mollak/external/sync/property/".$propertyGroupId."/contract/".$contractNumber);
+        ])->get("https://qagate.dubailand.gov.ae/mollak/external/sync/property/".$mollakPropertyId."/contract/".$contractNumber);
         $responce = $results->json()['response'];
         Log::info($responce);
         $flat_id = Flat::where('mollak_property_id',$responce['property']['propertyId'])->first();
