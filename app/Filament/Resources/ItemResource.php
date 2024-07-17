@@ -20,6 +20,7 @@ use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\ItemResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\ItemResource\RelationManagers;
+use App\Models\Master\Role;
 use App\Models\Vendor\Vendor;
 use Filament\Notifications\Notification;
 use Filament\Tables\Actions\BulkAction;
@@ -49,6 +50,9 @@ class ItemResource extends Resource
                         ->required()
                         ->live()
                         ->options(function () {
+                            if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
+                                return Building::pluck('name', 'id');
+                            }
                             return Building::where('owner_association_id', auth()->user()->owner_association_id)->pluck('name', 'id');
                         })
                         ->searchable(),
