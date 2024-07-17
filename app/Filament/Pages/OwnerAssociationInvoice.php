@@ -37,7 +37,7 @@ class OwnerAssociationInvoice extends Page implements HasForms
 
     protected static ?string $slug = 'generate-invoice';
 
-    public ?array $data = []; 
+    public ?array $data = [];
 
     public function form(Form $form):Form
     {
@@ -57,10 +57,14 @@ class OwnerAssociationInvoice extends Page implements HasForms
             ])->reactive(),
             Select::make('building_id')
             ->required()
-            ->options(function () {
-                $oaId = auth()->user()->owner_association_id;
-                return Building::where('owner_association_id', $oaId)
-                    ->pluck('name', 'id');
+            ->options(function ($state) {
+                if(auth()->user()->role->name == 'Admin'){
+                    return Building::pluck('name', 'id');
+                }else{
+                    $oaId = auth()->user()->owner_association_id;
+                    return Building::where('owner_association_id', $oaId)
+                        ->pluck('name', 'id');
+                }
             })->visible(function (callable $get) {
                 if ($get('type') == 'building') {
                     return true;
@@ -142,7 +146,7 @@ class OwnerAssociationInvoice extends Page implements HasForms
                 ->submit('save'),
         ];
     }
-    
+
     public function save(): void
     {
         try {
@@ -158,7 +162,7 @@ class OwnerAssociationInvoice extends Page implements HasForms
             if($data['type'] == 'building'){
                 $data['tax'] = 0.00;
             }
-            
+
             $receipt = ModelsOwnerAssociationInvoice::create($data);
             Notification::make()
                 ->title("Invoice created successfully")

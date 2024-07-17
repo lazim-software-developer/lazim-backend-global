@@ -15,7 +15,13 @@ class ListOwnerAssociationInvoices extends ListRecords
     {
         return [
             // Actions\CreateAction::make(),
-            Action::make('Generate Invoice')->url('/admin/generate-invoice')
+            Action::make('Generate Invoice')->url(function(){
+                if(auth()->user()->role->name == 'Admin'){
+                    return '/app/generate-invoice';
+                }else{
+                    return '/admin/generate-invoice';
+                }
+            })
         ];
     }
 }
