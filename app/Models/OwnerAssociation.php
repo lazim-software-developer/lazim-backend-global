@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Accounting\Budget;
 use App\Models\Building\Building;
 use App\Models\Building\FacilityBooking;
+use App\Models\Community\Poll;
 use App\Models\Community\Post;
 use App\Models\Forms\SaleNOC;
 use App\Models\User\User;
@@ -58,6 +59,9 @@ class OwnerAssociation extends Model
 
     public function posts(){
         return $this->hasMany(Post::class);
+    }
+    public function polls(){
+        return $this->hasMany(Poll::class);
     }
 
     public function accountcredentials()
