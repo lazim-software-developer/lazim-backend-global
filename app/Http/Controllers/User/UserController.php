@@ -12,6 +12,7 @@ use App\Models\Building\Flat;
 use App\Models\Building\FlatTenant;
 use App\Models\User\User;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class UserController extends Controller
 {
@@ -26,7 +27,7 @@ class UserController extends Controller
         else{
             $flats = $user->residences;
         }
-
+        Log::info($flats);
         return UserFlatResource::collection($flats);
     }
 
