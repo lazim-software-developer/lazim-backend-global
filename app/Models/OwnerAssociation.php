@@ -16,7 +16,7 @@ use Spatie\Sluggable\SlugOptions;
 
 class OwnerAssociation extends Model
 {
-    use HasFactory, HasSlug;
+    use HasFactory;//, HasSlug;
 
     protected $fillable = [
         'name', 'phone', 'email', 'trn_number',
@@ -27,12 +27,12 @@ class OwnerAssociation extends Model
     /**
      * Get the options for generating the slug.
      */
-    public function getSlugOptions(): SlugOptions
-    {
-        return SlugOptions::create()
-            ->generateSlugsFrom('name')
-            ->saveSlugsTo('slug');
-    }
+    // public function getSlugOptions(): SlugOptions
+    // {
+    //     return SlugOptions::create()
+    //         ->generateSlugsFrom('name')
+    //         ->saveSlugsTo('slug');
+    // }
 
     public function users()
     {
