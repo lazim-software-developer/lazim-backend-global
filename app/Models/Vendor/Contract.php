@@ -24,6 +24,7 @@ class Contract extends Model
         'service_id',
         'vendor_id',
         'budget_amount',
+        'owner_association_id'
     ];
 
     public function ownerAssociation()

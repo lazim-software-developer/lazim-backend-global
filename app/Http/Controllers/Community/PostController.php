@@ -24,7 +24,7 @@ class PostController extends Controller
      */
     public function index(Request $request, Building $building)
     {
-        $this->authorize('viewAny', [Post::class, $building->id]);
+        // $this->authorize('viewAny', [Post::class, $building->id]);
 
         // Start the query on the Post model
         $query = Post::where('status', 'published')
@@ -50,7 +50,7 @@ class PostController extends Controller
 
     public function store(CreatePostRequest $request, Building $building)
     {
-        $this->authorize('create', [Post::class, $building->id]);
+        // $this->authorize('create', [Post::class, $building->id]);
         // Create a new post with the provided data and the building_id and user_id
         $post = Post::create([
             'content' => $request->content,
@@ -95,7 +95,7 @@ class PostController extends Controller
      */
     public function show(Post $post)
     {
-        $this->authorize('view', $post);
+        // $this->authorize('view', $post);
 
         $post->load('comments');
         return new PostResource($post);

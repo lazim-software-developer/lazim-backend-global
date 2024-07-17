@@ -7,6 +7,7 @@ use App\Models\Accounting\Proposal;
 use App\Models\Accounting\Tender;
 use App\Models\Building\Building;
 use App\Models\Master\Role;
+use App\Models\OwnerAssociation;
 use App\Models\User\User;
 use App\Models\Vendor\Vendor;
 use Filament\Notifications\Actions\Action;
@@ -23,6 +24,7 @@ class ProposalObserver
         $requiredPermissions = ['view_any_proposal'];
         $tenders = Tender::where('id', $proposal->tender_id)->first();
         $building = Building::where('id', $tenders->building_id)->first();
+        $oam_id = DB::table('building_owner_association')->where('building_id', $tenders?->building_id)->where('active', true)->first();
         $roles = Role::where('owner_association_id',$building->owner_association_id)->whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor','Staff'])->pluck('id');
         $notifyTo = User::where('owner_association_id', $building->owner_association_id)->whereNotIn('role_id', $roles)->whereNot('id', auth()->user()?->id)->get()
         ->filter(function ($notifyTo) use ($requiredPermissions) {
@@ -37,7 +39,7 @@ class ProposalObserver
             ->actions([
                 Action::make('view')
                     ->button()
-                    ->url(fn () => ProposalResource::getUrl('edit', ['record',$proposal->id])),
+                    ->url(fn () => ProposalResource::getUrl('edit', [OwnerAssociation::where('id',$oam_id->owner_association_id)->first()?->slug,$proposal->id])),
             ])
             ->sendToDatabase($notifyTo);
     }

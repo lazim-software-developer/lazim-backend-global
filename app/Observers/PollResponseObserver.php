@@ -5,9 +5,11 @@ namespace App\Observers;
 use App\Filament\Resources\PollResource;
 use App\Models\Community\PollResponse;
 use App\Models\Master\Role;
+use App\Models\OwnerAssociation;
 use App\Models\User\User;
 use Filament\Notifications\Actions\Action;
 use Filament\Notifications\Notification;
+use Illuminate\Support\Facades\DB;
 
 class PollResponseObserver
 {
@@ -22,6 +24,8 @@ class PollResponseObserver
         ->filter(function ($notifyTo) use ($requiredPermissions) {
             return $notifyTo->can($requiredPermissions);
         });
+        $building_id = DB::table('building_poll')->where('poll_id', $pollResponse->poll->id)->first()->building_id;
+        $oam_id = DB::table('building_owner_association')->where('building_id', $building_id)->where('active', true)->first();
         Notification::make()
         ->success()
         ->title('New Poll Response')
@@ -31,7 +35,7 @@ class PollResponseObserver
         ->actions([
             Action::make('View')
             ->button()
-            ->url(fn () => PollResource::getUrl('edit', ['record',$pollResponse->poll_id]))
+            ->url(fn () => PollResource::getUrl('edit', [OwnerAssociation::where('id',$oam_id->owner_association_id)->first()?->slug,$pollResponse->poll_id]))
         ])
         ->sendToDatabase($notifyTo);
     }
