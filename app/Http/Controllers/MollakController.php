@@ -310,7 +310,7 @@ class MollakController extends Controller
         // ])->get("https://qagate.dubailand.gov.ae/mollak/external/sync/managementcompany");
         // ])->get("https://qagate.dubailand.gov.ae/mollak/external/sync/propertygroups");0120130805004026 
         // ])->get("https://qagate.dubailand.gov.ae/mollak/external/sync/owners/235553/17651626");
-        ])->get("https://qagate.dubailand.gov.ae/mollak/external/sync/property/17651626/contract/0120130805004026");
+        ])->get("https://qagate.dubailand.gov.ae/mollak/external/sync/property/17651626/contract/0120210824004047");
 
         return $data = $results->json();
     }
