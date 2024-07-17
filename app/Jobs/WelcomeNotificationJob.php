@@ -20,11 +20,13 @@ class WelcomeNotificationJob implements ShouldQueue
     public $email;
     public $name;
     public $building;
-    public function __construct($email,$name,$building,protected $emailCredentials)
+    public $OaName;
+    public function __construct($email,$name,$building,protected $emailCredentials,$OaName)
     {
         $this->email = $email;
         $this->name = $name;
         $this->building = $building;
+        $this->OaName = $OaName;
     }
 
     /**
@@ -37,7 +39,7 @@ class WelcomeNotificationJob implements ShouldQueue
             $message
                 ->from($this->emailCredentials,env('MAIL_FROM_NAME'))
                 ->to($this->email, $this->name)
-                ->subject('Symbiosis Owner Association Management Services- Welcome to Lazim!');
+                ->subject($this->OaName.' - Welcome to Lazim!');
         });
     }
 }

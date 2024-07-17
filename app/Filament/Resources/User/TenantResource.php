@@ -9,15 +9,21 @@ use App\Models\User\User;
 use Filament\Tables\Table;
 use App\Models\User\Tenant;
 use App\Models\MollakTenant;
+use Filament\Facades\Filament;
+use App\Models\OwnerAssociation;
 use Filament\Resources\Resource;
 use App\Models\Building\Building;
 use Filament\Forms\Components\Grid;
+use Filament\Tables\Actions\Action;
+use Illuminate\Support\Facades\Log;
+use App\Jobs\WelcomeNotificationJob;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
+use Filament\Notifications\Notification;
 use Filament\Forms\Components\DatePicker;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
@@ -26,11 +32,6 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\User\TenantResource\Pages;
 use App\Filament\Resources\User\TenantResource\RelationManagers;
 use App\Filament\Resources\User\TenantResource\RelationManagers\UserDocumentsRelationManager;
-use App\Jobs\WelcomeNotificationJob;
-use App\Models\OwnerAssociation;
-use Filament\Notifications\Notification;
-use Filament\Tables\Actions\Action;
-use Filament\Facades\Filament;
 
 class TenantResource extends Resource
 {
@@ -143,6 +144,7 @@ class TenantResource extends Resource
                     $buildingname = $record->building->name;
                     $tenant           = Filament::getTenant()?->id ?? auth()->user()?->owner_association_id;
                     $emailCredentials = OwnerAssociation::find($tenant)->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
+                    $OaName = Filament::getTenant()->name;
 
                     if($record->email==null){
                         Notification::make()
@@ -150,7 +152,7 @@ class TenantResource extends Resource
                         ->success()
                         ->send();
                     }else{
-                       WelcomeNotificationJob::dispatch($record->email, $record->name,$buildingname,$emailCredentials);
+                       WelcomeNotificationJob::dispatch($record->email, $record->name,$buildingname,$emailCredentials,$OaName);
                         Notification::make()
                         ->title("Successfully Sent Mail")
                         ->success()
