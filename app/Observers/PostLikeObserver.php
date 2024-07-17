@@ -5,9 +5,11 @@ namespace App\Observers;
 use App\Filament\Resources\PostResource;
 use App\Models\Community\Post;
 use App\Models\Community\PostLike;
+use App\Models\OwnerAssociation;
 use App\Models\User\User;
 use Filament\Notifications\Actions\Action;
 use Filament\Notifications\Notification;
+use Illuminate\Support\Facades\DB;
 
 class PostLikeObserver
 {
@@ -18,6 +20,8 @@ class PostLikeObserver
     {
         $post = Post::where('id',$postLike->post_id)->first();
         $notifyTo = User::where('id',$post->user_id)->get();
+        $building_id = DB::table('building_post')->where('post_id', $postLike->post_id)->first()->building_id;
+        $oam_id = DB::table('building_owner_association')->where('building_id', $building_id)->where('active', true)->first();
         Notification::make()
             ->success()
             ->title("Likes")
@@ -27,7 +31,7 @@ class PostLikeObserver
             ->actions([
                 Action::make('view')
                     ->button()
-                    ->url(fn () => PostResource::getUrl('edit',['record',$post->id])),
+                    ->url(fn () => PostResource::getUrl('edit',[OwnerAssociation::where('id',$oam_id->owner_association_id)->first()?->slug,$post->id])),
             ])
             ->sendToDatabase($notifyTo);
     }

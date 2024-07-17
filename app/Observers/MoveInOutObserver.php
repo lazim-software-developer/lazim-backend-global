@@ -7,6 +7,7 @@ use App\Filament\Resources\MoveOutFormsDocumentResource;
 use App\Models\Building\Building;
 use App\Models\Forms\MoveInOut;
 use App\Models\Master\Role;
+use App\Models\OwnerAssociation;
 use App\Models\User\User;
 use Filament\Notifications\Actions\Action;
 use Filament\Notifications\Notification;
@@ -35,7 +36,7 @@ class MoveInOutObserver
             ->actions([
                 Action::make('view')
                     ->button()
-                    ->url(fn () => MoveInFormsDocumentResource::getUrl('edit', ['record',$moveInOut->id])),
+                    ->url(fn () => MoveInFormsDocumentResource::getUrl('edit', [OwnerAssociation::where('id',$moveInOut->owner_association_id)->first()?->slug,$moveInOut->id])),
             ])
             ->sendToDatabase($notifyTo);
         }
@@ -53,7 +54,7 @@ class MoveInOutObserver
             ->actions([
                 Action::make('view')
                     ->button()
-                    ->url(fn () => MoveOutFormsDocumentResource::getUrl('edit', ['record',$moveInOut->id])),
+                    ->url(fn () => MoveOutFormsDocumentResource::getUrl('edit', [OwnerAssociation::where('id',$moveInOut->owner_association_id)->first()?->slug,$moveInOut->id])),
             ])
             ->sendToDatabase($notifyTo);
         }
