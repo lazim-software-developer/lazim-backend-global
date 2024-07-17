@@ -41,7 +41,7 @@ class ListTenants extends ListRecords
                             else{
                                 return Building::where('owner_association_id', auth()->user()->owner_association_id)
                                 ->pluck('name', 'id');
-                            } 
+                            }
                         })
                         ->searchable()
                         ->preload()
@@ -50,7 +50,7 @@ class ListTenants extends ListRecords
                     $buildingname = Building::find($data['building_id'])->name;
                     $residents = MollakTenant::where('building_id', $data['building_id'])->select('name', 'email')->distinct()->get();
                     $tenant           = Filament::getTenant()?->id ?? auth()->user()?->owner_association_id;
-                    $emailCredentials = OwnerAssociation::find($tenant)->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
+                    $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
                     if ($residents->first() == null) {
                         Notification::make()
                             ->title("No Data for Building in MollakTenant")
@@ -60,7 +60,7 @@ class ListTenants extends ListRecords
                         return;
                     }
                     $OaName = Filament::getTenant()->name;
-                    
+
                     foreach ($residents as $value) {
                         WelcomeNotificationJob::dispatch($value->email, $value->name, $buildingname, $emailCredentials,$OaName);
                     }
