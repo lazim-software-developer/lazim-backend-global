@@ -76,4 +76,8 @@ class OwnerAssociation extends Model
     {
         return $this->hasMany(ItemInventory::class,'owner_association_id');
     }
+    public function assets()
+    {
+        return $this->hasMany(Asset::class,'owner_association_id');
+    }
 }
