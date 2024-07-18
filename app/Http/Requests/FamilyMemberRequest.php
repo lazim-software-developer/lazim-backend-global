@@ -28,7 +28,7 @@ class FamilyMemberRequest extends FormRequest
             'passport_expiry_date' => 'required|date_format:Y-m-d',
             'emirates_id' => 'required',
             'emirates_expiry_date' => 'required|date_format:Y-m-d',
-            'gender' => 'required|string|in:Male,Female',
+            'gender' => 'required|string|in:Male,Female,Others',
             'relation' => 'required|string',
         ];
     }
