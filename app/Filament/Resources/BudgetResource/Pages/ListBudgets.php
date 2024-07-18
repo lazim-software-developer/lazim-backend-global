@@ -51,7 +51,8 @@ class ListBudgets extends ListRecords
                         })
                         ->preload()
                         ->searchable()
-                        ->label('Select Building'),
+                        ->label('Select Building')
+                        ->required(),
                     Select::make('budget_period')
                         ->label('Select Budget Period')
                         ->options([
