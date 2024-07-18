@@ -187,24 +187,24 @@ class IncidentResource extends Resource
     public static function canViewAny(): bool
     {
         $user = User::find(auth()->user()->id);
-        return $user->can('view_any_incidents');
+        return $user->can('view_any_incident');
     }
 
     public static function canView(Model $record): bool
     {
         $user = User::find(auth()->user()->id);
-        return $user->can('view_incidents');
+        return $user->can('view_incident');
     }
 
     public static function canCreate(): bool
     {
         $user = User::find(auth()->user()->id);
-        return $user->can('create_incidents');
+        return $user->can('create_incident');
     }
 
     public static function canEdit(Model $record): bool
     {
         $user = User::find(auth()->user()->id);
-        return $user->can('update_incidents');
+        return $user->can('update_incident');
     }
 }
