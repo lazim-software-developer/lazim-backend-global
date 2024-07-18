@@ -162,31 +162,31 @@ class VendorResource extends Resource
 
             ])
             ->filters([
-                Filter::make('vendorByBuilding')
-                ->form([
-                    Select::make('Building')
-                    ->searchable()
-                    ->options(function () {
-                        if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
-                            return Building::all()->pluck('name', 'id');
-                        }
-                        else{
-                            return Building::where('owner_association_id', auth()->user()->owner_association_id)
-                            ->pluck('name', 'id');
-                        } 
+                // Filter::make('vendorByBuilding')
+                // ->form([
+                //     Select::make('Building')
+                //     ->searchable()
+                //     ->options(function () {
+                //         if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
+                //             return Building::all()->pluck('name', 'id');
+                //         }
+                //         else{
+                //             return Building::where('owner_association_id', auth()->user()->owner_association_id)
+                //             ->pluck('name', 'id');
+                //         } 
                         
-                    }),
-                ])
-                ->query(function (Builder $query, array $data): Builder {
-                    return $query->when(
-                        isset($data['Building']),
-                        function ($query) use ($data) {
-                            $query->whereHas('buildings', function ($query) use ($data) {
-                                $query->where('buildings.id', $data['Building']);
-                            });
-                        }
-                    );
-                })
+                //     }),
+                // ])
+                // ->query(function (Builder $query, array $data): Builder {
+                //     return $query->when(
+                //         isset($data['Building']),
+                //         function ($query) use ($data) {
+                //             $query->whereHas('buildings', function ($query) use ($data) {
+                //                 $query->where('buildings.id', $data['Building']);
+                //             });
+                //         }
+                //     );
+                // })
 
             ])
             ->actions([
