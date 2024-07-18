@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Vendor\VendorResource\Pages;
 
 use App\Filament\Resources\Vendor\VendorResource;
 use Filament\Actions;
+use Filament\Facades\Filament;
 use Filament\Resources\Pages\ListRecords;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -12,7 +13,7 @@ class ListVendors extends ListRecords
     protected static string $resource = VendorResource::class;
     protected function getTableQuery(): Builder
     {
-        return auth()->user()->role->name == 'Admin' ? parent::getTableQuery() : parent::getTableQuery()->where('owner_association_id', auth()->user()->owner_association_id);
+        return auth()->user()->role->name == 'Admin' ? parent::getTableQuery() : parent::getTableQuery()->where('owner_association_id', Filament::getTenant()?->id);
     }
     protected function getHeaderActions(): array
     {
