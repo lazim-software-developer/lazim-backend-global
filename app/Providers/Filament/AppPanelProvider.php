@@ -285,12 +285,6 @@ class AppPanelProvider extends PanelProvider
                                     ->icon('heroicon-m-building-office-2')
                                     ->activeIcon('heroicon-m-building-office-2')
                                     ->sort(3),
-                                NavigationItem::make('Family Members')
-                                    ->url(FamilyMemberResource::getUrl('index'))
-                                    ->visible($user->can('view_any_family::member'))
-                                    ->icon('heroicon-s-user-group')
-                                    ->activeIcon('heroicon-s-user-group')
-                                    ->sort(4),
                             ]),
                     ]);
                 }
@@ -492,7 +486,8 @@ class AppPanelProvider extends PanelProvider
                 $user->can('view_any_access::card::forms::document')||
                 $user->can('view_any_residential::form')||
                 $user->can('view_any_noc::form')||
-                $user->can('view_any_visitor::form')
+                $user->can('view_any_visitor::form')||
+                $user->can('view_any_family::member')
                 ) {
                     $builder->groups([
                         //DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] == 'Admin' ? true : false view_any_building::building
@@ -546,6 +541,12 @@ class AppPanelProvider extends PanelProvider
                                     ->icon('heroicon-o-users')
                                     ->activeIcon('heroicon-o-users')
                                     ->sort(8),
+                                NavigationItem::make('Family Members')
+                                    ->url(FamilyMemberResource::getUrl('index'))
+                                    ->visible($user->can('view_any_family::member'))
+                                    ->icon('heroicon-s-user-group')
+                                    ->activeIcon('heroicon-s-user-group')
+                                    ->sort(9),
                             ]),
                     ]);
                 }
