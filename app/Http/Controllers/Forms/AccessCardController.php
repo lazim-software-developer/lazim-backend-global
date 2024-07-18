@@ -27,33 +27,33 @@ class AccessCardController extends Controller
             'tenancy',
             'vehicle_registration',
             'title_deed',
-            'passport'
+            'passport',
         ];
 
         $data = $request->all();
         foreach ($document_paths as $document) {
-            if($request->has($document)) {
-                $file = $request->file($document);
+            if ($request->has($document)) {
+                $file            = $request->file($document);
                 $data[$document] = optimizeDocumentAndUpload($file, 'dev');
             }
         }
 
-        $data['user_id'] = auth()->user()->id;
-        $data['mobile']= auth()->user()->phone;
-        $data['email'] = auth()->user()->email;
+        $data['user_id']              = auth()->user()->id;
+        $data['mobile']               = auth()->user()->phone;
+        $data['email']                = auth()->user()->email;
         $data['owner_association_id'] = $ownerAssociationId;
-        $data['ticket_number'] = generate_ticket_number("AC");
+        $data['ticket_number']        = generate_ticket_number("AC");
 
-        $accessCard = AccessCard::create($data);
+        $accessCard       = AccessCard::create($data);
         $tenant           = Filament::getTenant()?->id ?? auth()->user()?->owner_association_id;
-        $emailCredentials = OwnerAssociation::find($tenant)->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
+        $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
 
-        AccessCardRequestJob::dispatch(auth()->user(), $accessCard,$emailCredentials);
+        AccessCardRequestJob::dispatch(auth()->user(), $accessCard, $emailCredentials);
 
         return (new CustomResponseResource([
-            'title' => 'Success',
+            'title'   => 'Success',
             'message' => 'Access card submitted successfully!',
-            'code' => 201,
+            'code'    => 201,
         ]))->response()->setStatusCode(201);
     }
 
@@ -86,9 +86,9 @@ class AccessCardController extends Controller
 
         $guestRegistration = auth()->user()->flatVisitorInitates()->where('type', 'guest')->latest()->where('building_id', $building->id)->first();
 
-        $guest = Guest::where('flat_visitor_id',$guestRegistration?->id)->latest()->first();
+        $guest = Guest::where('flat_visitor_id', $guestRegistration?->id)->latest()->first();
 
-        $guestRegistrationStatus =  $guestRegistration ?? "Not submitted";
+        $guestRegistrationStatus = $guestRegistration ?? "Not submitted";
 
         $nocMessage = null;
 
@@ -100,82 +100,82 @@ class AccessCardController extends Controller
 
         return $forms = [
             [
-                'id' => $accessCard ? $accessCard->id : null,
-                'name' => 'Access Card',
-                'status' => $accessCard ? $accessCard->status : 'not_submitted',
-                'created_at' => $accessCard ? Carbon::parse($accessCard->created_at)->diffForHumans() : null,
+                'id'              => $accessCard ? $accessCard->id : null,
+                'name'            => 'Access Card',
+                'status'          => $accessCard ? $accessCard->status : 'not_submitted',
+                'created_at'      => $accessCard ? Carbon::parse($accessCard->created_at)->diffForHumans() : null,
                 'rejected_reason' => $accessCard ? $accessCard->remarks : null,
-                'message' => null,
-                'payment_link' => $accessCard?->payment_link,
-                'order_id' => $accessCard?->orders[0]->id ?? null,
-                'order_status' => $accessCard?->orders[0]->payment_status ?? null,
+                'message'         => null,
+                'payment_link'    => $accessCard?->payment_link,
+                'order_id'        => $accessCard?->orders[0]->id ?? null,
+                'order_status'    => $accessCard?->orders[0]->payment_status ?? null,
             ],
             [
-                'id' => $residentialForm ? $residentialForm->id : null,
-                'name' => 'Residential Form',
-                'status' => $residentialForm ? $residentialForm->status : 'not_submitted',
-                'created_at' => $residentialForm ? Carbon::parse($residentialForm->created_at)->diffForHumans() : null,
+                'id'              => $residentialForm ? $residentialForm->id : null,
+                'name'            => 'Residential Form',
+                'status'          => $residentialForm ? $residentialForm->status : 'not_submitted',
+                'created_at'      => $residentialForm ? Carbon::parse($residentialForm->created_at)->diffForHumans() : null,
                 'rejected_reason' => $residentialForm ? $residentialForm->remarks : null,
-                'message' => null,
-                'payment_link' => null,
-                'order_id' => null,
-                'order_status' => null
+                'message'         => null,
+                'payment_link'    => null,
+                'order_id'        => null,
+                'order_status'    => null,
             ],
             [
-                'id' => $fitOutForm ? $fitOutForm->id : null,
-                'name' => 'Fit Out Form',
-                'status' => $fitOutForm ? $fitOutForm->status : 'not_submitted',
-                'created_at' => $fitOutForm ? Carbon::parse($fitOutForm->created_at)->diffForHumans() : null,
+                'id'              => $fitOutForm ? $fitOutForm->id : null,
+                'name'            => 'Fit Out Form',
+                'status'          => $fitOutForm ? $fitOutForm->status : 'not_submitted',
+                'created_at'      => $fitOutForm ? Carbon::parse($fitOutForm->created_at)->diffForHumans() : null,
                 'rejected_reason' => $fitOutForm ? $fitOutForm->remarks : null,
-                'message' => null,
-                'payment_link' => null,
-                'order_id' => null,
-                'order_status' => null
+                'message'         => null,
+                'payment_link'    => null,
+                'order_id'        => null,
+                'order_status'    => null,
             ],
             [
-                'id' => $moveInForm ? $moveInForm->id : null,
-                'name' => 'Move In Form',
-                'status' => $moveInForm ? $moveInForm->status : 'not_submitted',
-                'created_at' => $moveInForm ? Carbon::parse($moveInForm->created_at)->diffForHumans() : null,
+                'id'              => $moveInForm ? $moveInForm->id : null,
+                'name'            => 'Move In Form',
+                'status'          => $moveInForm ? $moveInForm->status : 'not_submitted',
+                'created_at'      => $moveInForm ? Carbon::parse($moveInForm->created_at)->diffForHumans() : null,
                 'rejected_reason' => $moveInForm ? $moveInForm->remarks : null,
-                'message' => null,
-                'payment_link' => null,
-                'order_id' => null,
-                'order_status' => null
+                'message'         => null,
+                'payment_link'    => null,
+                'order_id'        => null,
+                'order_status'    => null,
             ],
             [
-                'id' => $moveOutForm ? $moveOutForm->id : null,
-                'name' => 'Move Out Form',
-                'status' => $moveOutForm ? $moveOutForm->status : 'not_submitted',
-                'created_at' => $moveOutForm ? Carbon::parse($moveOutForm->created_at)->diffForHumans() : null,
+                'id'              => $moveOutForm ? $moveOutForm->id : null,
+                'name'            => 'Move Out Form',
+                'status'          => $moveOutForm ? $moveOutForm->status : 'not_submitted',
+                'created_at'      => $moveOutForm ? Carbon::parse($moveOutForm->created_at)->diffForHumans() : null,
                 'rejected_reason' => $moveOutForm ? $moveOutForm->remarks : null,
-                'message' => null,
-                'payment_link' => null,
-                'order_id' => null,
-                'order_status' => null
+                'message'         => null,
+                'payment_link'    => null,
+                'order_id'        => null,
+                'order_status'    => null,
             ],
             [
-                'id' => $saleNocForm ? $saleNocForm->id : null,
-                'name' => 'Sale NOC Form',
-                'status' => $saleNocForm ? $saleNocForm->status : 'not_submitted',
-                'created_at' => $saleNocForm ? Carbon::parse($saleNocForm->created_at)->diffForHumans() : null,
+                'id'              => $saleNocForm ? $saleNocForm->id : null,
+                'name'            => 'Sale NOC Form',
+                'status'          => $saleNocForm ? $saleNocForm->status : 'not_submitted',
+                'created_at'      => $saleNocForm ? Carbon::parse($saleNocForm->created_at)->diffForHumans() : null,
                 'rejected_reason' => $saleNocForm ? $saleNocForm->remarks : null,
-                'message' => $nocMessage,
-                'payment_link' => $saleNocForm?->payment_link,
-                'order_id' => $saleNocForm?->orders[0]->id ?? null,
-                'order_status' => $saleNocForm?->orders[0]->payment_status ?? 'pending',
+                'message'         => $nocMessage,
+                'payment_link'    => $saleNocForm?->payment_link,
+                'order_id'        => $saleNocForm?->orders[0]->id ?? null,
+                'order_status'    => $saleNocForm?->orders[0]->payment_status ?? 'pending',
             ],
             [
-                'id' => $guestRegistration ? $guestRegistration->id : null,
-                'name' => 'Guest Registration Form',
-                'status' => $guest ? $guest->status : 'not_submitted',
-                'created_at' => $guestRegistration ? Carbon::parse($guestRegistration->created_at)->diffForHumans() : null,
+                'id'              => $guestRegistration ? $guestRegistration->id : null,
+                'name'            => 'Guest Registration Form',
+                'status'          => $guest ? $guest->status : 'not_submitted',
+                'created_at'      => $guestRegistration ? Carbon::parse($guestRegistration->created_at)->diffForHumans() : null,
                 'rejected_reason' => $guest ? $guest->remarks : null,
-                'message' => null,
-                'payment_link' => null,
-                'order_id' => null,
-                'order_status' => null,
-            ]
+                'message'         => null,
+                'payment_link'    => null,
+                'order_id'        => null,
+                'order_status'    => null,
+            ],
         ];
     }
 }

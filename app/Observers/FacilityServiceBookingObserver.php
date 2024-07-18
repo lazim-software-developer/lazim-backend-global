@@ -11,9 +11,11 @@ use App\Models\Building\FacilityBooking;
 use App\Models\Master\Facility;
 use App\Models\Master\Role;
 use App\Models\Master\Service;
+use App\Models\OwnerAssociation;
 use App\Models\User\User;
 use Filament\Notifications\Actions\Action;
 use Filament\Notifications\Notification;
+use Illuminate\Support\Facades\DB;
 
 class FacilityServiceBookingObserver
 {
@@ -23,6 +25,7 @@ class FacilityServiceBookingObserver
     public function created(FacilityBooking $facilityBooking): void
     {   $requiredPermissions = ['view_any_contract'];
         $building = Building::where('id', $facilityBooking->building_id)->first();
+        $oam_id = DB::table('building_owner_association')->where('building_id', $facilityBooking?->building_id)->where('active', true)->first();
         $roles = Role::where('owner_association_id',$building->owner_association_id)->whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor','Staff'])->pluck('id');
         $notifyTo = User::where('owner_association_id',$building->owner_association_id)->whereNotIn('role_id', $roles)->whereNot('id', auth()->user()?->id)->get();
         if($facilityBooking->bookable_type == 'App\Models\Master\Facility'){
@@ -40,7 +43,7 @@ class FacilityServiceBookingObserver
             ->actions([
                 Action::make('view')
                     ->button()
-                    ->url(fn () => FacilityBookingResource::getUrl('edit', ['record',$facilityBooking->id])),
+                    ->url(fn () => FacilityBookingResource::getUrl('edit', [OwnerAssociation::where('id',$oam_id->owner_association_id)->first()?->slug,$facilityBooking->id])),
             ])
             ->sendToDatabase($notifyTo);
         }
@@ -59,7 +62,7 @@ class FacilityServiceBookingObserver
             ->actions([
                 Action::make('view')
                     ->button()
-                    ->url( fn () => ServiceBookingResource::getUrl('edit',[$facilityBooking->id])),
+                    ->url( fn () => ServiceBookingResource::getUrl('edit',[OwnerAssociation::where('id',$oam_id->owner_association_id)->first()?->slug,$facilityBooking->id])),
             ])
             ->sendToDatabase($notifyTo);
         }

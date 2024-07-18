@@ -4,12 +4,15 @@ namespace App\Filament\Pages;
 
 use App\Imports\GeneralFundImport;
 use App\Models\Building\Building;
+use App\Models\Master\Role;
 use Carbon\Carbon;
 use Filament\Actions\Action;
+use Filament\Facades\Filament;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Pages\Page;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -26,9 +29,16 @@ class GeneralFundStatement extends Page
     public function getViewData(): array
     {
         $currentYear = Carbon::now()->year;
+        if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
+            $buildings = Building::all();
+        }
+        else{
+            $buildings_id = DB::table('building_owner_association')->where('owner_association_id',Filament::getTenant()->id)->where('active', true)->pluck('building_id');
+            $buildings = Building::whereIn('id', $buildings_id)->get();
+        }
         return [
             'years' => range($currentYear, Carbon::now()->subYears(5)->year),
-            'buildings' => Building::where('owner_association_id', auth()->user()->owner_association_id)->get(),
+            'buildings' => $buildings,
             "message" => "Please Select a building and Year",
         ];
     }
@@ -44,10 +54,13 @@ class GeneralFundStatement extends Page
                         Select::make('building_id')
                         ->required()
                         ->options(function () {
-                            $oaId = auth()->user()->owner_association_id;
-                            // dd($tenants);
-                            return Building::where('owner_association_id', $oaId)
+                            if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
+                                return Building::all()->pluck('name', 'id');
+                            }
+                            else{
+                                return Building::where('owner_association_id', auth()->user()->owner_association_id)
                                 ->pluck('name', 'id');
+                            } 
                         })
                         ->searchable()
                         ->label('Building Name'),

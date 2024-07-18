@@ -23,6 +23,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Query\JoinClause;
 use App\Filament\Resources\TenantDocumentResource\Pages;
+use App\Models\Building\Building;
 
 class TenantDocumentResource extends Resource
 {
@@ -148,12 +149,29 @@ class TenantDocumentResource extends Resource
             ->defaultSort('created_at', 'desc')
             ->filters([
                 SelectFilter::make('documentable_id')
-                    ->relationship('documentUsers', 'first_name', fn (Builder $query) => $query->whereIn('role_id' ,Role::whereIn('name',['Owner','Tenant'])->pluck('id'))->where('owner_association_id' ,auth()->user()->owner_association_id))
+                    ->options(function () {
+                    $roleId = Role::whereIn('name',['tenant','owner'])->pluck('id')->toArray();
+
+                    if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
+                        return User::whereIn('role_id', $roleId)->pluck('first_name', 'id'); 
+                    }
+                    else{
+                        return User::whereIn('role_id', $roleId)->where('owner_association_id',auth()->user()->owner_association_id)->pluck('first_name', 'id');
+                    }
+                    })
                     ->searchable()
                     ->preload()
                     ->label('Resident'),
                 SelectFilter::make('building_id')
-                    ->relationship('building', 'name', fn (Builder $query) => $query->where('owner_association_id',Filament::getTenant()?->id))
+                    ->options(function () {
+                    if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
+                        return Building::all()->pluck('name', 'id');
+                    }
+                    else{
+                        return Building::where('owner_association_id', auth()->user()->owner_association_id)
+                        ->pluck('name', 'id');
+                    }    
+                    })
                     ->searchable()
                     ->preload()
                     ->label('Building'),

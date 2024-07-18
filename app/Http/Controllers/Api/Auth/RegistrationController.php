@@ -139,7 +139,8 @@ class RegistrationController extends Controller
             'start_date' =>  null,
             'end_date' => $type === 'Tenant' ? $queryModel->value('end_date') : null,
             'active' => 1,
-            'role' => $type
+            'role' => $type,
+            'owner_association_id' => $building->owner_association_id,
         ]);
 
         // Send email after 5 seconds
@@ -247,7 +248,7 @@ class RegistrationController extends Controller
             'emirates_document' => $emirates,
             'passport' => $passport,
             'flat_id' => $request->flat_id,
-            'owner_assciation_id' => $oam?->id,
+            'owner_association_id' => $oam?->id,
         ]);
 
         // Store details to Flat tenants table
@@ -259,7 +260,8 @@ class RegistrationController extends Controller
             'start_date' =>  null,
             'end_date' => null,
             'active' => 1,
-            'role' => $type
+            'role' => $type,
+            'owner_association_id' => $building->owner_association_id,
         ]);
 
         // Send email after 5 seconds

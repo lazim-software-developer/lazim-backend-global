@@ -2,30 +2,27 @@
 
 namespace App\Filament\Resources;
 
-use Filament\Forms;
-use Filament\Tables;
-use Filament\Forms\Form;
-use App\Models\FlatOwners;
-use Filament\Tables\Table;
-use App\Models\ApartmentOwner;
-use App\Models\DelinquentOwner;
-use Filament\Resources\Resource;
-use App\Models\Building\Building;
-use App\Jobs\OAM\InvoiceDueMailJob;
-use Filament\Tables\Filters\Filter;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Textarea;
-use Filament\Tables\Actions\BulkAction;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Notifications\Notification;
-use Filament\Tables\Enums\FiltersLayout;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\DelinquentOwnerResource\Pages;
-use App\Filament\Resources\DelinquentOwnerResource\RelationManagers;
+use App\Jobs\OAM\InvoiceDueMailJob;
+use App\Models\ApartmentOwner;
+use App\Models\Building\Building;
+use App\Models\DelinquentOwner;
+use App\Models\Master\Role;
 use App\Models\OwnerAssociation;
 use Filament\Facades\Filament;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Form;
+use Filament\Notifications\Notification;
+use Filament\Resources\Resource;
+use Filament\Tables;
+use Filament\Tables\Actions\BulkAction;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Enums\FiltersLayout;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class DelinquentOwnerResource extends Resource
@@ -33,7 +30,7 @@ class DelinquentOwnerResource extends Resource
     protected static ?string $model = DelinquentOwner::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-    protected static ?string $modelLabel      = 'DelinquentOwners';
+    protected static ?string $modelLabel     = 'DelinquentOwners';
 
     public static function form(Form $form): Form
     {
@@ -59,15 +56,15 @@ class DelinquentOwnerResource extends Resource
                 // TextColumn::make('invoice_pdf_link')->label('invoice_file')->formatStateUsing(fn ($state) => '<a href="' . $state . '" target="_blank">LINK</a>')
                 // ->html(),
                 TextColumn::make('invoice_pdf_link')
-                ->label('Invoice File')
-                ->formatStateUsing(function ($state, $record) {
-                    if ($record->outstanding_balance == 0) {
-                        return 'NA';
-                    }
+                    ->label('Invoice File')
+                    ->formatStateUsing(function ($state, $record) {
+                        if ($record->outstanding_balance == 0) {
+                            return 'NA';
+                        }
 
-                    return '<a href="' . $state . '" target="_blank">LINK</a>';
-                })
-                ->html(),
+                        return '<a href="' . $state . '" target="_blank">LINK</a>';
+                    })
+                    ->html(),
 
             ])
             ->filters([
@@ -83,7 +80,7 @@ class DelinquentOwnerResource extends Resource
                             return $query
                                 ->when(
                                     $data['year'],
-                                    fn (Builder $query, $year) => $query->where('year', $year)
+                                    fn(Builder $query, $year) => $query->where('year', $year)
                                 );
                         }
 
@@ -94,16 +91,19 @@ class DelinquentOwnerResource extends Resource
                         Select::make('building')
                             ->searchable()
                             ->options(function () {
-                                $oaId = auth()->user()->owner_association_id;
-                                return Building::where('owner_association_id', $oaId)
-                                    ->pluck('name', 'id');
-                            })
+                                if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+                                    return Building::all()->pluck('name', 'id');
+                                } else {
+                                    return Building::where('owner_association_id', auth()->user()->owner_association_id)
+                                        ->pluck('name', 'id');
+                                }
+                            }),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         return $query
                             ->when(
                                 $data['building'],
-                                fn (Builder $query, $building_id): Builder => $query->where('building_id', $building_id),
+                                fn(Builder $query, $building_id): Builder => $query->where('building_id', $building_id),
                             );
                     }),
             ], layout: FiltersLayout::AboveContent)->filtersFormColumns(3)
@@ -122,17 +122,17 @@ class DelinquentOwnerResource extends Resource
                                 ->label('Content of email')
                                 ->helperText('Enter content with values less than 500 characters.'),
                         ])
-                        ->fillForm(fn (DelinquentOwner $record): array => [
-                            'content' => 'Your payment is Due, please make the payment ASAP.'
+                        ->fillForm(fn(DelinquentOwner $record): array=> [
+                            'content' => 'Your payment is Due, please make the payment ASAP.',
                         ])
                         ->action(function (Collection $records, array $data): void {
                             $tenant           = Filament::getTenant()?->id ?? auth()->user()?->owner_association_id;
-                            $emailCredentials = OwnerAssociation::find($tenant)->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
+                            $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
 
                             foreach ($records as $record) {
                                 // Access the owner_id of each selected record
 
-                                $owner = ApartmentOwner::find($record->owner_id);
+                                $owner   = ApartmentOwner::find($record->owner_id);
                                 $content = $data['content'];
                                 InvoiceDueMailJob::dispatch($owner, $content, $emailCredentials);
                             }
@@ -142,7 +142,7 @@ class DelinquentOwnerResource extends Resource
                                 ->body("Reminder sent regarding Outstanding Balance.")
                                 ->send();
                         })
-                        ->slideOver()
+                        ->slideOver(),
                 ]),
             ])
             ->emptyStateActions([

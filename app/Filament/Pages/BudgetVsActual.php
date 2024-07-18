@@ -6,6 +6,7 @@ use App\Filament\Resources\BudgetResource;
 use App\Models\Accounting\Budget;
 use App\Models\Accounting\Budgetitem;
 use App\Models\Building\Building;
+use App\Models\Master\Role;
 use Carbon\Carbon;
 use Filament\Forms\Components\Select;
 use Filament\Pages\Page;
@@ -63,9 +64,13 @@ class BudgetVsActual extends Page implements HasTable
                         Select::make('building')
                         ->searchable()
                         ->options(function () {
-                            $oaId = auth()->user()->owner_association_id;
-                            return Building::where('owner_association_id', $oaId)
+                            if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
+                                return Building::all()->pluck('name', 'id');
+                            }
+                            else{
+                                return Building::where('owner_association_id', auth()->user()->owner_association_id)
                                 ->pluck('name', 'id');
+                            }    
                         })
                     ])
                     ->query(function (Builder $query, array $data): Builder {

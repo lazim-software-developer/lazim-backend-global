@@ -6,8 +6,10 @@ use Filament\Actions;
 use App\Filament\Resources\AssetResource;
 use App\Imports\AssetsListImport;
 use App\Models\Building\Building;
+use App\Models\Master\Role;
 use App\Models\Master\Service;
 use Filament\Actions\Action;
+use Filament\Facades\Filament;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Resources\Pages\ListRecords;
@@ -24,8 +26,10 @@ class ListAssets extends ListRecords
     protected static ?string $title = 'Assets';
     protected function getTableQuery(): Builder
     {
-        $buildingsoflogedin = Building::all()->where('owner_association_id',auth()->user()->owner_association_id)->pluck('id')->toArray();
-        return parent::getTableQuery()->whereIn('building_id',$buildingsoflogedin);
+        if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
+            return parent::getTableQuery();
+        }
+        return parent::getTableQuery()->where('owner_association_id',Filament::getTenant()->id);
     }
 
     protected function getHeaderActions(): array

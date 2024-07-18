@@ -17,22 +17,21 @@ class CreateUser extends CreateRecord
 {
     protected static string $resource = UserResource::class;
 
-
     protected function beforeCreate(): void
-{
-    // dd($this->data['roles']);
-    // $role_id = $this->data['roles'];
+    {
+        // dd($this->data['roles']);
+        // $role_id = $this->data['roles'];
 
-    // return $data;
-}
+        // return $data;
+    }
     protected function afterCreate()
     {
         // dd($this->data);
         $user = User::find($this->record->id);
         OwnerAssociationUser::create([
             'owner_association_id' => $this->record->owner_association_id,
-            'user_id'=>$this->record->id,
-            'from'=>now()
+            'user_id'              => $this->record->id,
+            'from'                 => now(),
         ]);
 
         $roleJobMap = [
@@ -41,10 +40,10 @@ class CreateUser extends CreateRecord
             // 'OA' => AccountCreationJob::class,
             // 'Security' => BuildingSecurity::class,
             // 'Technician' => TechnicianAccountCreationJob::class,
-            'Accounts Manager' => AccountsManagerJob::class,
-            'MD' => MdCreateJob::class,
+            'Accounts Manager'  => AccountsManagerJob::class,
+            'MD'                => MdCreateJob::class,
             'Complaint Officer' => AccountsManagerJob::class,
-            'Legal Officer' => AccountsManagerJob::class,
+            'Legal Officer'     => AccountsManagerJob::class,
             // 'Managing Director' => GeneralAccountCreationJob::class,
             // 'Financial Manager' => GeneralAccountCreationJob::class,
             // 'Operations Engineer' => GeneralAccountCreationJob::class,
@@ -56,25 +55,25 @@ class CreateUser extends CreateRecord
         ];
 
         // Generate and set the password
-        $password = Str::random(12);
-        $user->email_verified = 1;
-        $user->phone_verified = 1;
+        $password                   = Str::random(12);
+        $user->email_verified       = 1;
+        $user->phone_verified       = 1;
         $user->owner_association_id = auth()->user()->owner_association_id;
-        $user->password = Hash::make($password);
-        $user->role_id = $this->data['roles'];
+        $user->password             = Hash::make($password);
+        $user->role_id              = $this->data['roles'];
         $user->save();
 
         // Dispatch the appropriate job based on the role
         if (array_key_exists($this->record->role?->name, $roleJobMap)) {
-            $jobClass = $roleJobMap[$this->record->role?->name];
+            $jobClass         = $roleJobMap[$this->record->role?->name];
             $tenant           = Filament::getTenant()?->id ?? auth()->user()->owner_association_id;
-            $emailCredentials = OwnerAssociation::find($tenant)->accountcredentials()->where('active', true)->latest()->first()->email ?? env('MAIL_FROM_ADDRESS');
+            $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()->email ?? env('MAIL_FROM_ADDRESS');
 
-            $jobClass::dispatch($user, $password,$emailCredentials);
+            $jobClass::dispatch($user, $password, $emailCredentials);
             // GeneralAccountCreationJob::dispatch($user, $password);
         } else {
-            $tenant = Filament::getTenant()?->id ?? auth()->user()->owner_association_id;
-            $emailCredentials = OwnerAssociation::find($tenant)->accountcredentials()->where('active',true)->latest()->first()->email ?? env('MAIL_FROM_ADDRESS');
+            $tenant           = Filament::getTenant()?->id ?? auth()->user()->owner_association_id;
+            $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()->email ?? env('MAIL_FROM_ADDRESS');
 
             MdCreateJob::dispatch($user, $password, $emailCredentials);
         }

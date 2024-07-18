@@ -11,6 +11,7 @@ use App\Models\Gatekeeper\Patrolling;
 use Carbon\Carbon;
 use App\Models\Floor;
 use App\Http\Resources\GateKeeper\FloorResource;
+use Illuminate\Support\Facades\DB;
 
 class PatrollingController extends Controller
 {
@@ -32,6 +33,7 @@ class PatrollingController extends Controller
 
     // Start patrolling API
     public function store(Request $request, Building $building) {
+        $oa_id = DB::table('building_owner_association')->where('building_id', $building->id)->where('active', true)->first()?->owner_association_id;
         $floor = Floor::where(['floors' => $request->input('floor'), 'building_id' => $building->id])->first();
         if(BuildingPoc::where('building_id', $building->id)->where('active',true)->first()->user_id != auth()->user()->id) {
             return (new CustomResponseResource([
@@ -56,7 +58,8 @@ class PatrollingController extends Controller
             'building_id' => $building->id,
             'patrolled_by' => auth()->user()->id,
             'floor_id' => $floor->id,
-            'patrolled_at' => now()
+            'patrolled_at' => now(),
+            'owner_association_id' => $oa_id
         ]);
 
         Patrolling::Create($request->all());

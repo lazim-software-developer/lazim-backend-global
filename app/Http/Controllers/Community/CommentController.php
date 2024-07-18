@@ -11,10 +11,12 @@ use App\Models\Building\Complaint;
 use App\Models\Community\Comment;
 use App\Models\Community\Post;
 use App\Models\ExpoPushNotification;
+use App\Models\OwnerAssociation;
 use App\Models\User\User;
 use App\Traits\UtilsTrait;
 use Filament\Notifications\Actions\Action;
 use Filament\Notifications\Notification;
+use Illuminate\Support\Facades\DB;
 
 class CommentController extends Controller
 {
@@ -37,6 +39,10 @@ class CommentController extends Controller
         $comment->user_id = auth()->user()->id;
         $comment->save();
         $notifyTo = User::where('id',$post->user_id)->get();
+        $buildingId = DB::table('building_post')->where('post_id', $post->id)->first();
+        $oam_id = DB::table('building_owner_association')->where('building_id', $buildingId?->building_id)->where('active', true)->first();
+
+
         Notification::make()
             ->success()
             ->title("comments")
@@ -46,7 +52,7 @@ class CommentController extends Controller
             ->actions([
                 Action::make('view')
                     ->button()
-                    ->url(fn () => PostResource::getUrl('edit', ['record',$post->id])),
+                    ->url(fn () => PostResource::getUrl('edit', [OwnerAssociation::where('id',$oam_id->owner_association_id)->first()?->slug,$post->id])),
             ])
             ->sendToDatabase($notifyTo);
 

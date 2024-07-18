@@ -21,7 +21,8 @@ class TechnicianAssets extends Model
         'vendor_id',
         'asset_id',
         'active',
-        'building_id'
+        'building_id',
+        'owner_association_id'
     ];
 
     public function ownerAssociation()

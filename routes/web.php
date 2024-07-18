@@ -58,6 +58,7 @@ Route::get('/filament/budget-listing/{building}', [BudgetListing::class, 'mount'
     ->name('filament.pages.budget-listing');
 
 Route::post('admin/{budget}/tender/create', [CreateTender::class, 'store'])->name('tender.create');
+Route::post('app/{budget}/tender/create', [CreateTender::class, 'store'])->name('tenders.create');
 
 // List all services for the budget
 Route::get('/budget/{budget}/available-services/{subcategory}', [MasterController::class, 'getAvailableServices']);

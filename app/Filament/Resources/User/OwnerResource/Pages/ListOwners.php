@@ -14,6 +14,7 @@ use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ListRecords;
 use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\User\OwnerResource;
+use App\Models\Master\Role;
 use App\Models\OwnerAssociation;
 use Filament\Facades\Filament;
 
@@ -22,6 +23,9 @@ class ListOwners extends ListRecords
     protected static string $resource = OwnerResource::class;
     protected function getTableQuery(): Builder
     {
+        if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
+            return parent::getTableQuery();
+        }
         // $BuildingId = Building::where('owner_association_id',Filament::getTenant()?->id ?? auth()->user()->owner_association_id)->pluck('id');
         $flatsId = Flat::where('owner_association_id',Filament::getTenant()?->id ?? auth()->user()->owner_association_id)->pluck('id');
         $flatowners = FlatOwners::whereIn('flat_id',$flatsId)->pluck('owner_id');
@@ -36,7 +40,13 @@ class ListOwners extends ListRecords
                 ->form([
                     Select::make('building_id')
                         ->options(function(){
-                            return Building::where('owner_association_id',Filament::getTenant()?->id ??auth()->user()->owner_association_id)->pluck('name','id');
+                            if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
+                                return Building::all()->pluck('name', 'id');
+                            }
+                            else{
+                                return Building::where('owner_association_id', auth()->user()->owner_association_id)
+                                ->pluck('name', 'id');
+                            }
                         })
                         ->searchable()
                         ->preload()
@@ -71,8 +81,8 @@ class ListOwners extends ListRecords
                             return;
                     }
                     $tenant           = Filament::getTenant()?->id ?? auth()->user()?->owner_association_id;
-                    $emailCredentials = OwnerAssociation::find($tenant)->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
-                    $OaName = Filament::getTenant()->name;
+                    $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
+                    $OaName = Filament::getTenant()?->name ?? 'Admin';
 
                     foreach ($residentsemail as $value) {
                         WelcomeNotificationJob::dispatch($value->email, $value->name,$buildingname,$emailCredentials,$OaName);

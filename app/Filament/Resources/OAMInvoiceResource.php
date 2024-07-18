@@ -2,37 +2,32 @@
 
 namespace App\Filament\Resources;
 
-use Filament\Forms;
-use Filament\Tables;
-use Filament\Forms\Form;
-use App\Models\FlatOwners;
-use Filament\Tables\Table;
-use App\Models\ApartmentOwner;
-use Filament\Resources\Resource;
+use App\Filament\Resources\OAMInvoiceResource\Pages;
 use App\Jobs\OAM\InvoiceDueMailJob;
 use App\Models\Accounting\OAMInvoice;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Textarea;
-use Filament\Tables\Actions\BulkAction;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\FileUpload;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use App\Filament\Resources\OAMInvoiceResource\Pages;
-use App\Filament\Resources\OAMInvoiceResource\RelationManagers;
+use App\Models\ApartmentOwner;
+use App\Models\FlatOwners;
 use App\Models\OwnerAssociation;
 use Filament\Facades\Filament;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Form;
+use Filament\Resources\Resource;
+use Filament\Tables;
+use Filament\Tables\Actions\BulkAction;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Collection;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class OAMInvoiceResource extends Resource
 {
     protected static ?string $model = OAMInvoice::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-    protected static ?string $modelLabel = 'Delinquent Owners';
+    protected static ?string $navigationIcon  = 'heroicon-o-rectangle-stack';
+    protected static ?string $modelLabel      = 'Delinquent Owners';
     protected static ?string $navigationGroup = 'oam';
 
     public static function form(Form $form): Form
@@ -112,29 +107,29 @@ class OAMInvoiceResource extends Resource
                                 ->rows(10)
                                 ->label('Content'),
                         ])
-                        ->fillForm(fn(OAMInvoice $record): array => [
-                            'content' => 'Your payment is Due, please make the payment ASAP.'
+                        ->fillForm(fn(OAMInvoice $record): array=> [
+                            'content' => 'Your payment is Due, please make the payment ASAP.',
                         ])
                         ->action(function (Collection $records, array $data): void {
                             foreach ($records as $record) {
                                 // Access the flat_id of each selected record
                                 $flatId = $record->flat_id;
 
-                                $ownerID = FlatOwners::where('flat_id', $flatId)->where('active', true)->first()->owner_id;
-                                $owner = ApartmentOwner::find($ownerID);
-                                $content = $data['content'];
+                                $ownerID          = FlatOwners::where('flat_id', $flatId)->where('active', true)->first()->owner_id;
+                                $owner            = ApartmentOwner::find($ownerID);
+                                $content          = $data['content'];
                                 $tenant           = Filament::getTenant()?->id ?? auth()->user()?->owner_association_id;
-                                $emailCredentials = OwnerAssociation::find($tenant)->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
+                                $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
 
                                 InvoiceDueMailJob::dispatch($owner, $content, $emailCredentials);
                             }
                         })
-                        ->slideOver()
+                        ->slideOver(),
                 ]),
             ])
             ->emptyStateActions([
-                    //Tables\Actions\CreateAction::make(),
-                ]);
+                //Tables\Actions\CreateAction::make(),
+            ]);
     }
 
     public static function getRelations(): array
@@ -149,7 +144,7 @@ class OAMInvoiceResource extends Resource
         return [
             'index' => Pages\ListOAMInvoices::route('/'),
             //'create' => Pages\CreateOAMInvoice::route('/create'),
-            'edit' => Pages\EditOAMInvoice::route('/{record}/edit'),
+            'edit'  => Pages\EditOAMInvoice::route('/{record}/edit'),
         ];
     }
 }
