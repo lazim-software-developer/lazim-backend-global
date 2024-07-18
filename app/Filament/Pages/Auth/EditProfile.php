@@ -49,7 +49,7 @@ class EditProfile extends BaseEditProfile
                             }
                         };
                     },])
-                    ->formatStateUsing(fn (string $state): string => substr($state,3))
+                    ->formatStateUsing(fn (string $state): string => substr($state??'',3))
                     ->required()
                     ->prefix('971')
                     ->placeholder('Phone'),
