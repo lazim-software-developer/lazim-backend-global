@@ -6,6 +6,8 @@ use App\Filament\Resources\VisitorFormResource\Pages;
 use App\Filament\Resources\VisitorFormResource\RelationManagers;
 use App\Models\Visitor\FlatVisitor;
 use Filament\Forms;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
@@ -46,7 +48,30 @@ class VisitorFormResource extends Resource
                                 ->required()
                                 ->searchable()
                                 ->live(),
+                                Repeater::make('guestDocuments')->label('Documents')
+                                    ->relationship('guestDocuments')->disabled()
+                                    ->schema([
+                                        TextInput::make('name')
+                                            ->rules(['max:30', 'regex:/^[a-zA-Z\s]*$/'])
+                                            ->required()
+                                            ->placeholder('Name'),
+                                        FileUpload::make('url')
+                                            ->disk('s3')
+                                            ->rules('file|mimes:jpeg,jpg,png|max:2048')
+                                            ->directory('dev')
+                                            ->openable(true)
+                                            ->downloadable(true)
+                                            ->image()
+                                            ->maxSize(2048)
+                                            ->required()
+                                            ->label('File')
 
+                                    ])
+                                    ->columnSpan([
+                                        'sm' => 1,
+                                        'md' => 1,
+                                        'lg' => 2,
+                                    ]),
             ]);
     }
 
