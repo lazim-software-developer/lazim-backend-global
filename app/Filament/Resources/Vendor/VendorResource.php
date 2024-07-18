@@ -139,7 +139,6 @@ class VendorResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->poll('60s')
             ->columns([
                 Tables\Columns\TextColumn::make('user.first_name')
                     ->searchable()
@@ -162,7 +161,6 @@ class VendorResource extends Resource
                 ViewColumn::make('Managers')->view('tables.columns.vendormanager'),
 
             ])
-            ->defaultSort('created_at', 'desc')
             ->filters([
                 Filter::make('vendorByBuilding')
                 ->form([
