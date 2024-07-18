@@ -2,43 +2,28 @@
 
 namespace App\Filament\Resources\User;
 
-use Filament\Forms;
-use Filament\Tables;
-use Filament\Forms\Form;
-use App\Models\User\User;
-use Filament\Tables\Table;
-use App\Models\User\Tenant;
-use App\Models\MollakTenant;
-use Filament\Facades\Filament;
-use App\Models\OwnerAssociation;
-use Filament\Resources\Resource;
-use App\Models\Building\Building;
-use Filament\Forms\Components\Grid;
-use Filament\Tables\Actions\Action;
-use Illuminate\Support\Facades\Log;
-use App\Jobs\WelcomeNotificationJob;
-use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Toggle;
-use Filament\Tables\Columns\TextColumn;
-use Illuminate\Database\Eloquent\Model;
-use Filament\Forms\Components\TextInput;
-use Filament\Notifications\Notification;
-use Filament\Forms\Components\DatePicker;
-use Filament\Tables\Filters\SelectFilter;
-use Illuminate\Database\Eloquent\Builder;
-use Filament\Forms\Components\DateTimePicker;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\User\TenantResource\Pages;
-use App\Filament\Resources\User\TenantResource\RelationManagers;
-use App\Filament\Resources\User\TenantResource\RelationManagers\UserDocumentsRelationManager;
+use App\Models\Building\Building;
+use App\Models\Master\Role;
+use App\Models\MollakTenant;
+use App\Models\User\User;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Form;
+use Filament\Resources\Resource;
+use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Table;
 
 class TenantResource extends Resource
 {
-    protected static ?string $model = MollakTenant::class;
+    protected static ?string $model           = MollakTenant::class;
     protected static ?string $modelLabel      = 'Tenants';
-    protected static ?string $navigationGroup      = 'User Management';
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationGroup = 'User Management';
+    protected static ?string $navigationIcon  = 'heroicon-o-rectangle-stack';
 
     public static function form(Form $form): Form
     {
@@ -46,7 +31,7 @@ class TenantResource extends Resource
             Grid::make([
                 'sm' => 1,
                 'md' => 1,
-                'lg' => 2
+                'lg' => 2,
             ])
                 ->schema([
                     TextInput::make('name')
@@ -92,9 +77,9 @@ class TenantResource extends Resource
                         ->placeholder('End Date'),
                     Select::make('contract_status')
                         ->options([
-                            'pass auditing' => 'Pass Auditing',
-                            'active' => 'Active',
-                            'under auditing' => 'Under Auditing'
+                            'pass auditing'  => 'Pass Auditing',
+                            'active'         => 'Active',
+                            'under auditing' => 'Under Auditing',
                         ])
                         ->searchable()
                         ->live(),
@@ -138,33 +123,40 @@ class TenantResource extends Resource
                     ->limit(50),
             ])
             ->actions([
-                Action::make('Notify Tenant')
-                ->button()
-                ->action(function ($record){
-                    $buildingname = $record->building->name;
-                    $tenant           = Filament::getTenant()?->id ?? auth()->user()?->owner_association_id;
-                    $emailCredentials = OwnerAssociation::find($tenant)->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
-                    $OaName = Filament::getTenant()->name;
+                // Action::make('Notify Tenant')
+                // ->button()
+                // ->action(function ($record){
+                //     $buildingname = $record->building->name;
+                //     $tenant           = Filament::getTenant()?->id ?? auth()->user()?->owner_association_id;
+                //     $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
+                //     $OaName = Filament::getTenant()->name;
 
-                    if($record->email==null){
-                        Notification::make()
-                        ->title('Email not found')
-                        ->success()
-                        ->send();
-                    }else{
-                       WelcomeNotificationJob::dispatch($record->email, $record->name,$buildingname,$emailCredentials,$OaName);
-                        Notification::make()
-                        ->title("Successfully Sent Mail")
-                        ->success()
-                        ->body("Sent mail to tenant asking him to download the app.")
-                        ->send();
-                    }
-                })
+                //     if($record->email==null){
+                //         Notification::make()
+                //         ->title('Email not found')
+                //         ->success()
+                //         ->send();
+                //     }else{
+                //        WelcomeNotificationJob::dispatch($record->email, $record->name,$buildingname,$emailCredentials,$OaName);
+                //         Notification::make()
+                //         ->title("Successfully Sent Mail")
+                //         ->success()
+                //         ->body("Sent mail to tenant asking him to download the app.")
+                //         ->send();
+                //     }
+                // })
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
                 SelectFilter::make('building_id')
-                    ->relationship('building', 'name',fn (Builder $query) => $query->where('owner_association_id',Filament::getTenant()?->id))
+                    ->options(function () {
+                        if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+                            return Building::all()->pluck('name', 'id');
+                        } else {
+                            return Building::where('owner_association_id', auth()->user()->owner_association_id)
+                                ->pluck('name', 'id');
+                        }
+                    })
                     ->searchable()
                     ->preload()
                     ->label('Building'),
@@ -191,7 +183,7 @@ class TenantResource extends Resource
         return [
             'index' => Pages\ListTenants::route('/'),
             //'create' => Pages\CreateTenant::route('/create'),
-            'view' => Pages\ViewTenant::route('/{record}'),
+            'view'  => Pages\ViewTenant::route('/{record}'),
         ];
     }
 }

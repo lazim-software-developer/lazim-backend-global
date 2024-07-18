@@ -101,9 +101,6 @@ class UserApprovalResource extends Resource
     {
 
         return $table
-            ->modifyQueryUsing(fn(Builder $query) => $query->whereHas('user', function (Builder $query) {
-                $query->where('owner_association_id', auth()->user()->owner_association_id);
-            }))
             ->columns([
                 Tables\Columns\TextColumn::make('user.first_name')
                     ->numeric()

@@ -4,7 +4,6 @@ namespace App\Filament\Pages\OAM;
 
 use App\Jobs\OAM\SendProposalRequestEmail;
 use App\Models\Accounting\Budget;
-use App\Models\Accounting\SubCategory;
 use App\Models\Accounting\Tender;
 use App\Models\Building\Building;
 use App\Models\Master\Service;
@@ -14,8 +13,6 @@ use Filament\Facades\Filament;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 class CreateTender extends Page
 {
@@ -53,9 +50,9 @@ class CreateTender extends Page
 
         return [
             'subcategories' => $subcategories,
-            'building' => $building,
-            'budgetId' => $this->budget->id,
-            'serviceIds' => $serviceIds
+            'building'      => $building,
+            'budgetId'      => $this->budget->id,
+            'serviceIds'    => $serviceIds,
         ];
     }
 
@@ -64,25 +61,25 @@ class CreateTender extends Page
         $building = Building::where('id', $budget->building_id)->first();
         // Upload document to S3
         $documentUrl = optimizeDocumentAndUpload($request->document, 'dev');
-        $tender = Tender::create([
-            'date' => now(),
-            'created_by' => auth()->user()->id,
-            'building_id' => $building->id,
-            'budget_id' => $budget->id,
+        $tender      = Tender::create([
+            'date'                 => now(),
+            'created_by'           => auth()->user()->id,
+            'building_id'          => $building->id,
+            'budget_id'            => $budget->id,
             'owner_association_id' => $building->owner_association_id,
-            'end_date' => $request->get('end_date'),
-            'document' => $documentUrl,
-            'service_id' => $request->get('service'),
-            'tender_type' => $request->get('tender_type')
+            'end_date'             => $request->get('end_date'),
+            'document'             => $documentUrl,
+            'service_id'           => $request->get('service'),
+            'tender_type'          => $request->get('tender_type'),
         ]);
 
         // Attach tender vendors
         $tender->vendors()->syncWithoutDetaching($request->get('vendors'));
         if ($request->get('vendors') != null) {
             // Send email to vendors
-            $vendors = Vendor::whereIn('id', $request->get('vendors'))->get();
+            $vendors          = Vendor::whereIn('id', $request->get('vendors'))->get();
             $tenant           = Filament::getTenant()?->id ?? auth()->user()?->owner_association_id;
-            $emailCredentials = OwnerAssociation::find($tenant)->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
+            $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
 
             SendProposalRequestEmail::dispatch($vendors, $documentUrl, $emailCredentials);
 
@@ -99,7 +96,6 @@ class CreateTender extends Page
                 ->send();
             return redirect()->back();
         }
-
 
     }
 }

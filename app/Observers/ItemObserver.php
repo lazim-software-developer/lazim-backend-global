@@ -5,6 +5,7 @@ namespace App\Observers;
 use App\Filament\Resources\ItemResource;
 use App\Models\Item;
 use App\Models\Master\Role;
+use App\Models\OwnerAssociation;
 use App\Models\User\User;
 use Filament\Facades\Filament;
 use Filament\Notifications\Actions\Action;
@@ -45,7 +46,7 @@ class ItemObserver
         ->actions([
             Action::make('View')
             ->button()
-            ->url( fn () => ItemResource::getUrl('view',[$item->id])),
+            ->url( fn () => ItemResource::getUrl('view',[OwnerAssociation::where('id',$item->owner_association_id)->first()?->slug,$item->id])),
             ])
         ->sendToDatabase($notifyTo);
     }
@@ -74,4 +75,3 @@ class ItemObserver
         //
     }
 }
-

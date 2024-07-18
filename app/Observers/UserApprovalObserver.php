@@ -4,6 +4,7 @@ namespace App\Observers;
 
 use App\Filament\Resources\UserApprovalResource;
 use App\Models\Master\Role;
+use App\Models\OwnerAssociation;
 use App\Models\User\User;
 use App\Models\UserApproval;
 use Filament\Notifications\Actions\Action;
@@ -31,7 +32,7 @@ class UserApprovalObserver
         ->actions([
             Action::make('View')
             ->button()
-            ->url(fn () => UserApprovalResource::getUrl('edit', ['record',$userApproval->id]))
+            ->url(fn () => UserApprovalResource::getUrl('edit', [OwnerAssociation::where('id',$userApproval->owner_association_id)->first()?->slug,$userApproval->id]))
 
         ])
         ->sendToDatabase($notifyTo);

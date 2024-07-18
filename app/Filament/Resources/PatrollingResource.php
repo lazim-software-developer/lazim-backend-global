@@ -35,7 +35,7 @@ class PatrollingResource extends Resource
     {
         $buildings = Building::where('owner_association_id',auth()->user()->owner_association_id)->pluck('id');
         return $table
-            ->modifyQueryUsing(fn(Builder $query) => $query->whereIn('building_id', $buildings)->orderBy('patrolled_at','desc')->withoutGlobalScopes())
+            // ->modifyQueryUsing(fn(Builder $query) => $query->whereIn('building_id', $buildings)->orderBy('patrolled_at','desc')->withoutGlobalScopes())
             ->columns([
                 TextColumn::make('building.name'),
                 TextColumn::make('floor.floors'),

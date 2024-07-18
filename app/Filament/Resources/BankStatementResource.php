@@ -6,6 +6,7 @@ use App\Filament\Resources\BankStatementResource\Pages;
 use App\Filament\Resources\BankStatementResource\RelationManagers;
 use App\Models\Accounting\OAMReceipts;
 use App\Models\Building\Building;
+use App\Models\Master\Role;
 use Filament\Forms;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Form;
@@ -74,9 +75,13 @@ class BankStatementResource extends Resource
                         Select::make('building')
                         ->searchable()
                         ->options(function () {
-                            $oaId = auth()->user()->owner_association_id;
-                            return Building::where('owner_association_id', $oaId)
+                            if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
+                                return Building::all()->pluck('name', 'id');
+                            }
+                            else{
+                                return Building::where('owner_association_id', auth()->user()->owner_association_id)
                                 ->pluck('name', 'id');
+                            } 
                         })
                     ])
                     ->query(function (Builder $query, array $data): Builder {

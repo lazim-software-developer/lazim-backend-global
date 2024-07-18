@@ -17,6 +17,7 @@ use Filament\Tables\Columns\TextColumn;
 use App\Models\Building\FacilityBooking;
 use App\Models\ExpoPushNotification;
 use App\Models\Master\Facility;
+use App\Models\Master\Role;
 use App\Traits\UtilsTrait;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\DatePicker;
@@ -66,7 +67,14 @@ class FacilityBookingsRelationManager extends RelationManager
                             ->required()
                             ->relationship('user', 'first_name')
                             ->options(function () {
-                                return User::whereIn('role_id', [1, 11])->where('owner_association_id',auth()->user()->owner_association_id)->pluck('first_name', 'id');
+                                $roleId = Role::whereIn('name',['tenant','owner'])->pluck('id')->toArray();
+
+                                if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
+                                    return User::whereIn('role_id', $roleId)->pluck('first_name', 'id'); 
+                                }
+                                else{
+                                    return User::whereIn('role_id', $roleId)->where('owner_association_id',auth()->user()->owner_association_id)->pluck('first_name', 'id');
+                                }
                             })
                             ->searchable()
                             ->disabledOn('edit')

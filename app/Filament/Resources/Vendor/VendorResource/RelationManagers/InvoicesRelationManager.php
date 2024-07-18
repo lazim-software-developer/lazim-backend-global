@@ -2,31 +2,25 @@
 
 namespace App\Filament\Resources\Vendor\VendorResource\RelationManagers;
 
-use Closure;
-use Filament\Forms;
-use Filament\Tables;
-use Filament\Forms\Get;
-use Filament\Forms\Form;
-use App\Models\User\User;
-use Filament\Tables\Table;
-use App\Models\Master\Role;
-use App\Models\InvoiceApproval;
 use App\Jobs\InvoiceRejectionJob;
 use App\Models\Accounting\Invoice;
+use App\Models\InvoiceApproval;
+use App\Models\Master\Role;
 use App\Models\OwnerAssociation;
+use App\Models\User\User;
 use Filament\Facades\Filament;
-use Filament\Forms\Components\Grid;
-use Filament\Tables\Actions\Action;
-use Filament\Forms\Components\Select;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Forms\Components\TextInput;
-use Filament\Notifications\Notification;
-use Filament\Tables\Columns\ImageColumn;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Form;
+use Filament\Forms\Get;
+use Filament\Notifications\Notification;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Table;
 
 class InvoicesRelationManager extends RelationManager
 {
@@ -95,7 +89,7 @@ class InvoicesRelationManager extends RelationManager
                             ->prefix('AED')
                             ->numeric()
                             ->minValue(1)
-                            ->maxValue(function(Get $get){
+                            ->maxValue(function (Get $get) {
                                 return $get('invoice_amount');
                             })
                             ->disabled(function (Invoice $record) {
@@ -103,14 +97,14 @@ class InvoicesRelationManager extends RelationManager
                                     return true;
                                 }
                                 if (Role::where('id', auth()->user()->role_id)->first()->name == 'Accounts Manager') {
-                                    $invoiceapproval = InvoiceApproval::where('invoice_id',$record->id)->where('active',true)->whereIn('updated_by',User::where('owner_association_id',auth()->user()->owner_association_id)->whereIn('role_id',Role::whereIn('name',['Accounts Manager','MD'])->pluck('id'))->pluck('id'))->exists();
+                                    $invoiceapproval = InvoiceApproval::where('invoice_id', $record->id)->where('active', true)->whereIn('updated_by', User::where('owner_association_id', auth()->user()->owner_association_id)->whereIn('role_id', Role::whereIn('name', ['Accounts Manager', 'MD'])->pluck('id'))->pluck('id'))->exists();
                                     return $invoiceapproval;
                                 }
                                 if (Role::where('id', auth()->user()->role_id)->first()->name == 'MD') {
                                     return true;
                                 }
                             })
-                            ->required(function (Invoice $record,Get $get) {
+                            ->required(function (Invoice $record, Get $get) {
                                 if (Role::where('id', auth()->user()->role_id)->first()->name == 'OA') {
                                     return false;
                                 }
@@ -138,15 +132,15 @@ class InvoicesRelationManager extends RelationManager
                             ])
                             ->disabled(function (Invoice $record) {
                                 if (Role::where('id', auth()->user()->role_id)->first()->name == 'OA') {
-                                    $invoiceapproval = InvoiceApproval::where('invoice_id',$record->id)->where('active',true)->whereIn('updated_by',User::where('owner_association_id',auth()->user()->owner_association_id)->whereIn('role_id',Role::whereIn('name',['OA','Accounts Manager','MD'])->pluck('id'))->pluck('id'))->exists();
+                                    $invoiceapproval = InvoiceApproval::where('invoice_id', $record->id)->where('active', true)->whereIn('updated_by', User::where('owner_association_id', auth()->user()->owner_association_id)->whereIn('role_id', Role::whereIn('name', ['OA', 'Accounts Manager', 'MD'])->pluck('id'))->pluck('id'))->exists();
                                     return $invoiceapproval;
                                 }
                                 if (Role::where('id', auth()->user()->role_id)->first()->name == 'Accounts Manager') {
-                                    $invoiceapproval = InvoiceApproval::where('invoice_id',$record->id)->where('active',true)->whereIn('updated_by',User::where('owner_association_id',auth()->user()->owner_association_id)->whereIn('role_id',Role::whereIn('name',['Accounts Manager','MD'])->pluck('id'))->pluck('id'))->exists();
+                                    $invoiceapproval = InvoiceApproval::where('invoice_id', $record->id)->where('active', true)->whereIn('updated_by', User::where('owner_association_id', auth()->user()->owner_association_id)->whereIn('role_id', Role::whereIn('name', ['Accounts Manager', 'MD'])->pluck('id'))->pluck('id'))->exists();
                                     return $invoiceapproval;
                                 }
                                 if (Role::where('id', auth()->user()->role_id)->first()->name == 'MD') {
-                                    $invoiceapproval = InvoiceApproval::where('invoice_id',$record->id)->where('active',true)->whereIn('updated_by',User::where('owner_association_id',auth()->user()->owner_association_id)->whereIn('role_id',Role::whereIn('name',['MD'])->pluck('id'))->pluck('id'))->exists();
+                                    $invoiceapproval = InvoiceApproval::where('invoice_id', $record->id)->where('active', true)->whereIn('updated_by', User::where('owner_association_id', auth()->user()->owner_association_id)->whereIn('role_id', Role::whereIn('name', ['MD'])->pluck('id'))->pluck('id'))->exists();
                                     return $invoiceapproval;
                                 }
                             })
@@ -162,21 +156,21 @@ class InvoicesRelationManager extends RelationManager
                             })
                             ->disabled(function (Invoice $record) {
                                 if (Role::where('id', auth()->user()->role_id)->first()->name == 'OA') {
-                                    $invoiceapproval = InvoiceApproval::where('invoice_id',$record->id)->where('active',true)->whereIn('updated_by',User::where('owner_association_id',auth()->user()->owner_association_id)->whereIn('role_id',Role::whereIn('name',['OA','Accounts Manager','MD'])->pluck('id'))->pluck('id'))->exists();
+                                    $invoiceapproval = InvoiceApproval::where('invoice_id', $record->id)->where('active', true)->whereIn('updated_by', User::where('owner_association_id', auth()->user()->owner_association_id)->whereIn('role_id', Role::whereIn('name', ['OA', 'Accounts Manager', 'MD'])->pluck('id'))->pluck('id'))->exists();
                                     return $invoiceapproval;
                                 }
                                 if (Role::where('id', auth()->user()->role_id)->first()->name == 'Accounts Manager') {
-                                    $invoiceapproval = InvoiceApproval::where('invoice_id',$record->id)->where('active',true)->whereIn('updated_by',User::where('owner_association_id',auth()->user()->owner_association_id)->whereIn('role_id',Role::whereIn('name',['Accounts Manager','MD'])->pluck('id'))->pluck('id'))->exists();
+                                    $invoiceapproval = InvoiceApproval::where('invoice_id', $record->id)->where('active', true)->whereIn('updated_by', User::where('owner_association_id', auth()->user()->owner_association_id)->whereIn('role_id', Role::whereIn('name', ['Accounts Manager', 'MD'])->pluck('id'))->pluck('id'))->exists();
                                     return $invoiceapproval;
                                 }
                                 if (Role::where('id', auth()->user()->role_id)->first()->name == 'MD') {
-                                    $invoiceapproval = InvoiceApproval::where('invoice_id',$record->id)->where('active',true)->whereIn('updated_by',User::where('owner_association_id',auth()->user()->owner_association_id)->whereIn('role_id',Role::whereIn('name',['MD'])->pluck('id'))->pluck('id'))->exists();
+                                    $invoiceapproval = InvoiceApproval::where('invoice_id', $record->id)->where('active', true)->whereIn('updated_by', User::where('owner_association_id', auth()->user()->owner_association_id)->whereIn('role_id', Role::whereIn('name', ['MD'])->pluck('id'))->pluck('id'))->exists();
                                     return $invoiceapproval;
                                 }
                             })
                             ->live()
                             ->required(),
-                    ])
+                    ]),
             ]);
     }
 
@@ -216,113 +210,109 @@ class InvoicesRelationManager extends RelationManager
                 Tables\Actions\EditAction::make()
                     ->after(function ($record) {
                         $tenant           = Filament::getTenant()?->id ?? auth()->user()->owner_association_id;
-                        $emailCredentials = OwnerAssociation::find($tenant)->accountcredentials()->where('active', true)->latest()->first()->email ?? env('MAIL_FROM_ADDRESS');
+                        $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()->email ?? env('MAIL_FROM_ADDRESS');
 
+                        if (Role::where('id', auth()->user()->role_id)->first()->name == 'OA' && !InvoiceApproval::where('invoice_id', $record->id)->where('active', true)->exists()) {
 
-                        if(Role::where('id', auth()->user()->role_id)->first()->name == 'OA' && !InvoiceApproval::where('invoice_id',$record->id)->where('active',true)->exists()){
-
-                            if($record->status == 'approved'){
+                            if ($record->status == 'approved') {
                                 InvoiceApproval::firstOrCreate([
                                     'invoice_id' => $record->id,
-                                    'status' => $record->status,
+                                    'status'     => $record->status,
                                     'updated_by' => auth()->user()->id,
-                                    'remarks' => 'approved by oa',
-                                    'active' => true,
+                                    'remarks'    => 'approved by oa',
+                                    'active'     => true,
                                 ]);
-                            }
-                            else{
+                            } else {
                                 InvoiceApproval::firstOrCreate([
                                     'invoice_id' => $record->id,
-                                    'status' => $record->status,
+                                    'status'     => $record->status,
                                     'updated_by' => auth()->user()->id,
-                                    'remarks' => $record->remarks,
-                                    'active' => true,
+                                    'remarks'    => $record->remarks,
+                                    'active'     => true,
                                 ]);
-                                $user = User::find($record->created_by);
+                                $user    = User::find($record->created_by);
                                 $invoice = Invoice::find($record->id);
-                                InvoiceRejectionJob::dispatch($user, $record->remarks, $invoice,$emailCredentials);
+                                InvoiceRejectionJob::dispatch($user, $record->remarks, $invoice, $emailCredentials);
                             }
 
                         }
-                        if(Role::where('id', auth()->user()->role_id)->first()->name == 'Accounts Manager'){
-                            if($record->status == 'approved'){
+                        if (Role::where('id', auth()->user()->role_id)->first()->name == 'Accounts Manager') {
+                            if ($record->status == 'approved') {
                                 InvoiceApproval::firstOrCreate([
                                     'invoice_id' => $record->id,
-                                    'status' => $record->status,
+                                    'status'     => $record->status,
                                     'updated_by' => auth()->user()->id,
-                                    'remarks' => 'approved by Account Manager',
-                                    'active' => true,
+                                    'remarks'    => 'approved by Account Manager',
+                                    'active'     => true,
                                 ]);
-                            }
-                            else{
+                            } else {
                                 InvoiceApproval::firstOrCreate([
                                     'invoice_id' => $record->id,
-                                    'status' => $record->status,
+                                    'status'     => $record->status,
                                     'updated_by' => auth()->user()->id,
-                                    'remarks' => $record->remarks,
-                                    'active' => true
+                                    'remarks'    => $record->remarks,
+                                    'active'     => true,
                                 ]);
-                                $notify = User::where(['owner_association_id'=>auth()->user()->owner_association_id,'role_id'=>Role::where('name','OA')->first()->id])->first();
+                                $notify = User::where(['owner_association_id' => auth()->user()->owner_association_id, 'role_id' => Role::where('name', 'OA')->first()->id])->first();
                                 Notification::make()
-                                        ->success()
-                                        ->title("Invoice Rejection")
-                                        ->icon('heroicon-o-document-text')
-                                        ->iconColor('warning')
-                                        ->body('We regret to inform that invoice '.$record->invoice_number.' has been rejected by Account Manager '.auth()->user()->first_name.'.')
-                                        ->sendToDatabase($notify);
-                                $user = User::find($record->created_by);
+                                    ->success()
+                                    ->title("Invoice Rejection")
+                                    ->icon('heroicon-o-document-text')
+                                    ->iconColor('warning')
+                                    ->body('We regret to inform that invoice ' . $record->invoice_number . ' has been rejected by Account Manager ' . auth()->user()->first_name . '.')
+                                    ->sendToDatabase($notify);
+                                $user    = User::find($record->created_by);
                                 $invoice = Invoice::find($record->id);
-                                InvoiceRejectionJob::dispatch($user, $record->remarks, $invoice,$emailCredentials);
+                                InvoiceRejectionJob::dispatch($user, $record->remarks, $invoice, $emailCredentials);
                             }
                         }
-                        if(Role::where('id', auth()->user()->role_id)->first()->name == 'MD'){
-                            if($record->status == 'approved'){
+                        if (Role::where('id', auth()->user()->role_id)->first()->name == 'MD') {
+                            if ($record->status == 'approved') {
                                 InvoiceApproval::firstOrCreate([
                                     'invoice_id' => $record->id,
-                                    'status' => $record->status,
+                                    'status'     => $record->status,
                                     'updated_by' => auth()->user()->id,
-                                    'remarks' => 'approved by md',
-                                    'active' => true,
+                                    'remarks'    => 'approved by md',
+                                    'active'     => true,
                                 ]);
-                            }
-                            else{
+                            } else {
                                 InvoiceApproval::firstOrCreate([
                                     'invoice_id' => $record->id,
-                                    'status' => $record->status,
+                                    'status'     => $record->status,
                                     'updated_by' => auth()->user()->id,
-                                    'remarks' => $record->remarks,
-                                    'active' => true,
+                                    'remarks'    => $record->remarks,
+                                    'active'     => true,
                                 ]);
-                                $notifyoa = User::where(['owner_association_id'=>auth()->user()->owner_association_id,'role_id'=>Role::where('name','OA')->first()->id])->first();
-                                $notifyacc = User::where(['owner_association_id'=>auth()->user()->owner_association_id,'role_id'=>Role::where('name','Accounts Manager')->first()->id])->get();
+                                $notifyoa  = User::where(['owner_association_id' => auth()->user()->owner_association_id, 'role_id' => Role::where('name', 'OA')->first()->id])->first();
+                                $notifyacc = User::where(['owner_association_id' => auth()->user()->owner_association_id, 'role_id' => Role::where('name', 'Accounts Manager')->first()->id])->get();
                                 // dd($notifyacc);
                                 Notification::make()
+                                    ->success()
+                                    ->title("Invoice Rejection")
+                                    ->icon('heroicon-o-document-text')
+                                    ->iconColor('warning')
+                                    ->body('We regret to inform that invoice ' . $record->invoice_number . ' has been rejected by MD ' . auth()->user()->first_name . '.')
+                                    ->sendToDatabase($notifyoa);
+                                foreach ($notifyacc as $user) {
+                                    Notification::make()
                                         ->success()
                                         ->title("Invoice Rejection")
                                         ->icon('heroicon-o-document-text')
                                         ->iconColor('warning')
-                                        ->body('We regret to inform that invoice '.$record->invoice_number.' has been rejected by MD '.auth()->user()->first_name.'.')
-                                        ->sendToDatabase($notifyoa);
-                                foreach ($notifyacc as $user) {
-                                            Notification::make()
-                                            ->success()
-                                            ->title("Invoice Rejection")
-                                            ->icon('heroicon-o-document-text')
-                                            ->iconColor('warning')
-                                            ->body('We regret to inform that invoice '.$record->invoice_number.' has been rejected by MD '.auth()->user()->first_name.'.')
-                                            ->sendToDatabase($user);
+                                        ->body('We regret to inform that invoice ' . $record->invoice_number . ' has been rejected by MD ' . auth()->user()->first_name . '.')
+                                        ->sendToDatabase($user);
                                 }
 
-                                $user = User::find($record->created_by);
+                                $user    = User::find($record->created_by);
                                 $invoice = Invoice::find($record->id);
-                                InvoiceRejectionJob::dispatch($user, $record->remarks, $invoice,$emailCredentials);
+                                InvoiceRejectionJob::dispatch($user, $record->remarks, $invoice, $emailCredentials);
                             }
                         }
                         Invoice::where('id', $record->id)
                             ->update([
                                 'status_updated_by' => auth()->user()->id,
-                                'opening_balance' => $record->invoice_amount - $record->payment,
-                                'balance' => $record->invoice_amount - $record->payment,
+                                'opening_balance'   => $record->invoice_amount - $record->payment,
+                                'balance'           => $record->invoice_amount - $record->payment,
                             ]);
                     })
                     ->mutateRecordDataUsing(function (array $data): array {
@@ -330,7 +320,7 @@ class InvoicesRelationManager extends RelationManager
                             $data['status'] = null;
                         }
                         return $data;
-                    })
+                    }),
                 //Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([

@@ -14,7 +14,10 @@ use Filament\Forms\Components\FileUpload;
 use Filament\Resources\Pages\ListRecords;
 use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\BudgetResource;
+use App\Models\Master\Role;
 use EightyNine\ExcelImport\ExcelImportAction;
+use Filament\Facades\Filament;
+use Illuminate\Support\Facades\DB;
 
 class ListBudgets extends ListRecords
 {
@@ -22,8 +25,11 @@ class ListBudgets extends ListRecords
     protected static ?string $title = 'Budgets';
     protected function getTableQuery(): Builder
     {
-        $buildings = Building::all()->where('owner_association_id', auth()->user()->owner_association_id)->pluck('id')->toArray();
-        return parent::getTableQuery()->whereIn('building_id', $buildings);
+        if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
+            return parent::getTableQuery();
+        }
+        $buildings_id = DB::table('building_owner_association')->where('owner_association_id',Filament::getTenant()->id)->where('active', true)->pluck('building_id');
+        return parent::getTableQuery()->whereIn('building_id', $buildings_id);
     }
 
     protected function getHeaderActions(): array
@@ -35,7 +41,13 @@ class ListBudgets extends ListRecords
                 ->form([
                     Select::make('building_id')
                         ->options(function(){
-                            return Building::where('owner_association_id',auth()->user()->owner_association_id)->pluck('name','id');
+                            if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
+                                return Building::all()->pluck('name', 'id');
+                            }
+                            else{
+                                return Building::where('owner_association_id', Filament::getTenant()->id)
+                                ->pluck('name', 'id');
+                            } 
                         })
                         ->preload()
                         ->searchable()

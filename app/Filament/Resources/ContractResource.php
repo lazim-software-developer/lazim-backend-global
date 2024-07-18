@@ -56,7 +56,13 @@ class ContractResource extends Resource
                         Select::make('building_id')
                             ->relationship('building', 'name')
                             ->options(function(){
-                                return Building::where('owner_association_id',auth()->user()->owner_association_id)->pluck('name','id');
+                                if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
+                                    return Building::all()->pluck('name', 'id');
+                                }
+                                else{
+                                    return Building::where('owner_association_id', auth()->user()->owner_association_id)
+                                    ->pluck('name', 'id');
+                                } 
                             })
                             ->reactive()
                             ->required()
@@ -120,7 +126,11 @@ class ContractResource extends Resource
                         Select::make('vendor_id')
                             ->relationship('vendor', 'name')
                             ->options(function(){
-                                return Vendor::where('owner_association_id',auth()->user()->owner_association_id)->where('status','approved')->pluck('name','id');
+                                if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
+                                    return Vendor::where('status','approved')->pluck('name','id');
+                                }else{
+                                    return Vendor::where('owner_association_id',auth()->user()->owner_association_id)->where('status','approved')->pluck('name','id');
+                                }
                             })
                             ->reactive()
                             ->required()

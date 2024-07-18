@@ -6,6 +6,7 @@ use App\Filament\Resources\NocFormResource;
 use App\Models\Building\Building;
 use App\Models\Forms\SaleNOC;
 use App\Models\Master\Role;
+use App\Models\OwnerAssociation;
 use App\Models\User\User;
 use Filament\Notifications\Actions\Action;
 use Filament\Notifications\Notification;
@@ -33,7 +34,7 @@ class SaleNOCObserver
         ->actions([
             Action::make('view')
                 ->button()
-                ->url(fn () => NocFormResource::getUrl('edit', ['record',$saleNOC->id])),
+                ->url(fn () => NocFormResource::getUrl('edit', [OwnerAssociation::where('id',$saleNOC->owner_association_id)->first()?->slug,$saleNOC->id])),
         ])
         ->sendToDatabase($notifyTo);
     }

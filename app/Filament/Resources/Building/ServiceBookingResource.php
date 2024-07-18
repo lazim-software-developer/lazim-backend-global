@@ -53,8 +53,13 @@ class ServiceBookingResource extends Resource
                             ->rules(['exists:buildings,id'])
                             ->relationship('building', 'name')
                             ->options(function () {
-                                return Building::where('owner_association_id', auth()->user()->owner_association_id)
+                                if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
+                                    return Building::all()->pluck('name', 'id');
+                                }
+                                else{
+                                    return Building::where('owner_association_id', auth()->user()->owner_association_id)
                                     ->pluck('name', 'id');
+                                }    
                             })
                             ->reactive()
                             ->required()
@@ -85,8 +90,15 @@ class ServiceBookingResource extends Resource
                             ->required()
                             ->relationship('user', 'first_name')
                             ->options(function () {
-                                return User::whereIn('role_id', [1, 11])->where('owner_association_id',auth()->user()->owner_association_id)->pluck('first_name', 'id');
-                            })
+                                $roleId = Role::whereIn('name',['tenant','owner'])->pluck('id')->toArray();
+
+                                if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
+                                    return User::whereIn('role_id', $roleId)->pluck('first_name', 'id'); 
+                                }
+                                else{
+                                    return User::whereIn('role_id', $roleId)->where('owner_association_id',auth()->user()->owner_association_id)->pluck('first_name', 'id');
+                                }
+                                })
                             ->searchable()
                             ->disabledOn('edit')
                             ->preload()
@@ -160,12 +172,15 @@ class ServiceBookingResource extends Resource
             ->defaultSort('created_at', 'desc')
             ->filters([
                 SelectFilter::make('building_id')
-                    ->relationship('building', 'name', function (Builder $query) {
-                        if (Role::where('id', auth()->user()->role_id)->first()->name != 'Admin') {
-                            $query->where('owner_association_id', Filament::getTenant()?->id);
-                        }
-
-                    })
+                ->options(function () {
+                    if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
+                        return Building::all()->pluck('name', 'id');
+                    }
+                    else{
+                        return Building::where('owner_association_id', auth()->user()->owner_association_id)
+                        ->pluck('name', 'id');
+                    }    
+                })
                     ->searchable()
                     ->preload()
             ])

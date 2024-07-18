@@ -6,6 +6,7 @@ use App\Filament\Resources\FitOutFormsDocumentResource;
 use App\Models\Building\Building;
 use App\Models\Forms\FitOutForm;
 use App\Models\Master\Role;
+use App\Models\OwnerAssociation;
 use App\Models\User\User;
 use Filament\Notifications\Actions\Action;
 use Filament\Notifications\Notification;
@@ -34,7 +35,7 @@ class FitOutFormObserver
         ->actions([
             Action::make('view')
                 ->button()
-                ->url(fn () => FitOutFormsDocumentResource::getUrl('edit', ['record',$fitOutForm->id])),
+                ->url(fn () => FitOutFormsDocumentResource::getUrl('edit', [OwnerAssociation::where('id',$fitOutForm->owner_association_id)->first()?->slug,$fitOutForm->id])),
         ])
         ->sendToDatabase($notifyTo);
     }

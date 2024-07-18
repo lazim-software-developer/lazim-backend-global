@@ -6,6 +6,7 @@ use App\Filament\Resources\AccessCardFormsDocumentResource;
 use App\Models\Building\Building;
 use App\Models\Forms\AccessCard;
 use App\Models\Master\Role;
+use App\Models\OwnerAssociation;
 use App\Models\User\User;
 use Filament\Notifications\Actions\Action;
 use Filament\Notifications\Notification;
@@ -32,7 +33,7 @@ class AccessCardObserver
                 ->actions([
                     Action::make('view')
                         ->button()
-                        ->url(fn () => AccessCardFormsDocumentResource::getUrl('edit', ['record',$accessCard->id])),
+                        ->url(fn () => AccessCardFormsDocumentResource::getUrl('edit', [OwnerAssociation::where('id',$accessCard->owner_association_id)->first()?->slug,$accessCard->id])),
                 ])
                 ->sendToDatabase($notifyTo);
     }

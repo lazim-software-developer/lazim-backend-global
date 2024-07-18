@@ -34,11 +34,11 @@ class RiskPolicyExpiryMail extends Command
     {
         // $vendors = Vendor::where('tl_expiry', '<', Carbon::now()->addDays(30))->where('tl_expiry', '>', Carbon::now())->get();
         $documents = Document::where('name', 'risk_policy')->where('expiry_date', '<', Carbon::now()->addDays(30))->where('expiry_date', '>', Carbon::now())->get();
-        foreach($documents as $document){
-            $vendor = Vendor::find($document->documentable_id);
-            $user = User::find($vendor->owner_id);
+        foreach ($documents as $document) {
+            $vendor           = Vendor::find($document->documentable_id);
+            $user             = User::find($vendor->owner_id);
             $tenant           = Filament::getTenant()?->id ?? auth()->user()?->owner_association_id;
-            $emailCredentials = OwnerAssociation::find($tenant)->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
+            $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
 
             RiskPolicyExpiryMailJob::dispatch($user, $document, $emailCredentials);
         }

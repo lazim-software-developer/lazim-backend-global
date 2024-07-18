@@ -92,6 +92,7 @@ class AssetsListImport implements ToCollection, WithHeadingRow
             foreach ($rows as $row) {
                 $buildingId = $this->buildingId;
                 $serviceId  = $this->serviceId;
+                $oa_id = DB::table('building_owner_association')->where('building_id', $buildingId)->where('active', true)->first()?->owner_association_id;
 
                 if ($row['asset_name'] && $row['floor'] && $row['location'] && $row['division'] && $row['discipline'] && $row['frequency_of_service']) {
 
@@ -109,6 +110,7 @@ class AssetsListImport implements ToCollection, WithHeadingRow
                         'discipline'           => $row['discipline'],
                         'frequency_of_service' => $row['frequency_of_service'],
                         'description'          => $row['description'],
+                        'owner_association_id' => $oa_id
                     ]
                 );
 
@@ -145,6 +147,7 @@ class AssetsListImport implements ToCollection, WithHeadingRow
                 $serviceId  = $asset->service_id;
                 $assetId    = $asset->id;
                 $contract   = Contract::where('building_id', $buildingId)->where('service_id', $serviceId)->where('end_date', '>=', Carbon::now()->toDateString())->first();
+                $oa_id = DB::table('building_owner_association')->where('building_id', $buildingId)->where('active', true)->first()?->owner_association_id;
                 if ($contract) {
                     $vendorId = $contract->vendor_id;
 
@@ -173,6 +176,7 @@ class AssetsListImport implements ToCollection, WithHeadingRow
                                 'vendor_id'     => $contract->vendor_id,
                                 'building_id'   => $asset->building_id,
                                 'active'        => 1,
+                                'owner_association_id' => $oa_id
                             ]);
                         } else {
                             //
