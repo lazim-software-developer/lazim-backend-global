@@ -35,6 +35,8 @@ class FetchAndSaveReceipts implements ShouldQueue
 
             $dateRange = $this->getCurrentQuarterDateRange();
 
+            Log::info('RECEIPTID', [$receiptId]);
+
             if($this->receiptId){
                 $url = 'https://qagate.dubailand.gov.ae/mollak/external/sync/receipts/' .$propertyGroupId."/".$mollakPropertyId."/".$receiptId."/id";    
             }
