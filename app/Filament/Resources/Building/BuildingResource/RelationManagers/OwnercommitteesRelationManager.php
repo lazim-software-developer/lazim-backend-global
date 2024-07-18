@@ -98,6 +98,7 @@ class OwnercommitteesRelationManager extends RelationManager
                     ->form([
 
                         Select::make('user_id')
+                            ->required()
                             ->rules(['exists:users,id'])
                             ->relationship('user', 'first_name')
                             ->preload()
