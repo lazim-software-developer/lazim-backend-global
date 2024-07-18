@@ -35,10 +35,10 @@ class FetchAndSaveReceipts implements ShouldQueue
 
             $dateRange = $this->getCurrentQuarterDateRange();
 
-            Log::info('RECEIPTID', [$receiptId]);
-
             if($this->receiptId){
                 $url = 'https://qagate.dubailand.gov.ae/mollak/external/sync/receipts/' .$propertyGroupId."/".$mollakPropertyId."/".$receiptId."/id";    
+
+                Log::info('RECEIPTID', [$url]);
             }
             else{
                 // $url = env("MOLLAK_API_URL") . '/sync/receipts/' . $propertyGroupId . '/01-Jan-2024/31-Mar-2024';
@@ -49,10 +49,12 @@ class FetchAndSaveReceipts implements ShouldQueue
                 'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
             ])->get($url);
             // ])->get(env("MOLLAK_API_URL") . '/sync/receipts/' . $propertyGroupId . '/' . $dateRange);
+
+            Log::info('RESPONSE', [$response->json()]);
             
             $properties = $response->json()['response']['properties'];
 
-            Log::info($properties);
+            
             $currentQuarterDates = $this->getCurrentQuarterDates();
 
             foreach ($properties as $property) {
