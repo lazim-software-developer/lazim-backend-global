@@ -73,7 +73,7 @@ class EditOwnerAssociation extends EditRecord
             ];
             DB::table('roles')->insert($roles);
 
-            OwnerAssociation::where('id', $this->record->id)
+            $owner = OwnerAssociation::where('id', $this->record->id)
             ->update([
                 'name'    => $this->record->name,
                 'phone'   => $this->record->phone,
@@ -90,6 +90,8 @@ class EditOwnerAssociation extends EditRecord
                 'profile_photo' => $this->record->profile_photo,
                 'active'  => $this->record->active,
             ]);
+
+            $user->owner_association()->attach($owner->id,['from' => now()->toDateString()]);
             
 
             $permissionsConfig = config('role-permission');
