@@ -22,7 +22,8 @@ class Assetmaintenance extends Model
         'maintained_by',
         'building_id',
         'status',
-        'technician_asset_id'
+        'technician_asset_id',
+        'owner_association_id'
     ];
 
     /**
