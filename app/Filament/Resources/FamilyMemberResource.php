@@ -29,8 +29,8 @@ class FamilyMemberResource extends Resource
         return $form
             ->schema([
                 TextInput::make('first_name')->required(),
-                TextInput::make('last_name'),
-                TextInput::make('phone'),
+                TextInput::make('last_name')->placeholder('NA'),
+                TextInput::make('phone')->placeholder('NA'),
                 TextInput::make('passport_number')->required(),
                 TextInput::make('passport_expiry_date')->required(),
                 TextInput::make('emirates_id')->required(),
