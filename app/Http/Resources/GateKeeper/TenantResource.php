@@ -3,6 +3,8 @@
 namespace App\Http\Resources\GateKeeper;
 
 use App\Http\Resources\FamilyMembersResource;
+use App\Models\Building\Flat;
+use App\Models\FamilyMember;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Storage;
@@ -15,7 +17,8 @@ class TenantResource extends JsonResource
      * @return array<string, mixed>
      */
     public function toArray(Request $request): array
-    {
+    { 
+        $flat = Flat::find($this->flat_id);
         return [
             'user_id' => $this->tenant_id,
             'flat' => $this->flat->property_number,
@@ -24,7 +27,7 @@ class TenantResource extends JsonResource
             'user_email' => $this->user->email,
             'user_phone' => $this->user->phone,
             'profile_pic' => $this->user->profile_photo ? Storage::disk('s3')->url($this->user->profile_photo) : null,
-            'family_members' => FamilyMembersResource::collection($this->user->residentialForm()->where('building_id', $this->building_id)->get())
+            'family_members' => FamilyMember::where('user_id',$this->tenant_id)->where('owner_association_id',$flat->owner_association_id)->get()
         ];
     }
 }
