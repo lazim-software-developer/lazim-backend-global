@@ -13,6 +13,7 @@ use Filament\Facades\Filament;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\MarkdownEditor;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -83,16 +84,16 @@ class MeetingsRelationManager extends RelationManager
                 Action::make('New Meeting')
                     ->button()
                     ->form([
-                        MarkdownEditor::make('agenda')
-                            ->toolbarButtons([
-                                'bold',
-                                'bulletList',
-                                'italic',
-                                'link',
-                                'orderedList',
-                                'redo',
-                                'undo',
-                            ])
+                        Textarea::make('agenda')
+                            // ->toolbarButtons([
+                            //     'bold',
+                            //     'bulletList',
+                            //     'italic',
+                            //     'link',
+                            //     'orderedList',
+                            //     'redo',
+                            //     'undo',
+                            // ])
                             ->required(),
                         DateTimePicker::make('date_time')
                             ->rules(['date'])

@@ -48,6 +48,7 @@ class FacilityBookingsRelationManager extends RelationManager
                             }),
 
                         Select::make('bookable_id')
+                            ->required()
                             ->options(
                                 DB::table('facilities')
                                     ->pluck('name', 'id')

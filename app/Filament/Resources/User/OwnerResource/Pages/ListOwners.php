@@ -50,6 +50,8 @@ class ListOwners extends ListRecords
                         })
                         ->searchable()
                         ->preload()
+                        ->required()
+                        ->label('Building')
                 ])
                 ->action(function (array $data){
                     $buildingname = Building::find($data['building_id'])->name;
