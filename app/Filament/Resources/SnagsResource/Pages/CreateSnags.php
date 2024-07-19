@@ -9,4 +9,9 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateSnags extends CreateRecord
 {
     protected static string $resource = SnagsResource::class;
+
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
+    }
 }
