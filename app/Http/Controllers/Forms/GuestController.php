@@ -226,6 +226,12 @@ class GuestController extends Controller
         $building = $request->input('building_id');
 
         $user = FlatTenant::where(['flat_id' => $flat, 'building_id' => $building, 'active' => 1])->first();
+        $flatDetails = Flat::find($flat);
+
+        $request->merge([
+            'owner_association_id' => $flatDetails->owner_association_id
+        ]);
+
 
         if ($user) {
             Visitor::create($request->all());
