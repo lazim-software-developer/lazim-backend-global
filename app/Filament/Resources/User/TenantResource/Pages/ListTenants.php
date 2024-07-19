@@ -45,6 +45,8 @@ class ListTenants extends ListRecords
                         })
                         ->searchable()
                         ->preload()
+                        ->label('Building')
+                        ->required()
                 ])
                 ->action(function (array $data) {
                     $buildingname = Building::find($data['building_id'])->name;

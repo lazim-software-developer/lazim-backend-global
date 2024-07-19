@@ -17,19 +17,21 @@ use App\Models\Building\Complaint;
 use Illuminate\Support\Facades\DB;
 use Filament\Forms\Components\Grid;
 use App\Models\Vendor\ServiceVendor;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Textarea;
 use Filament\Tables\Columns\TextColumn;
+use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Forms\Components\DateTimePicker;
 use App\Filament\Resources\SnagsResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use App\Filament\Resources\SnagsResource\RelationManagers;
-use Illuminate\Database\Eloquent\Model;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
+use App\Filament\Resources\SnagsResource\RelationManagers;
 
 class SnagsResource extends Resource
 {
@@ -54,10 +56,16 @@ class SnagsResource extends Resource
                             ->rules(['exists:buildings,id'])
                             ->relationship('building', 'name')
                             ->reactive()
-                            ->disabled()
+                            ->disabledOn('edit')
                             ->preload()
                             ->searchable()
                             ->placeholder('Building'),
+                        Select::make('service_id')
+                            ->relationship('service', 'name')
+                            ->preload()
+                            ->disabledOn('edit')
+                            ->searchable()
+                            ->label('Service'),
                         Select::make('user_id')
                             ->relationship('user', 'first_name')
                             ->options(function () {
@@ -69,7 +77,7 @@ class SnagsResource extends Resource
                                     ->pluck('users.first_name', 'users.id')
                                     ->toArray();
                             })
-                            ->disabled()
+                            ->disabledOn('edit')
                             ->searchable()
                             ->preload()
                             ->required()
@@ -78,36 +86,37 @@ class SnagsResource extends Resource
                             ->relationship('vendor', 'name')
                             ->preload()
                             ->required()
-                            ->options(function (Complaint $record, Get $get) {
+                            ->disabledOn('edit')
+                            ->options(function ( Get $get) {
                                 $serviceVendor = ServiceVendor::where('service_id',$get('service_id'))->pluck('vendor_id');
                                 return Vendor::whereIn('id',$serviceVendor)->where('owner_association_id', auth()->user()->owner_association_id)->pluck('name', 'id');
                             })
-                            ->disabled(function (Complaint $record) {
-                                if ($record->vendor_id == null) {
-                                    return false;
-                                }
-                                return true;
+                            // ->disabled(function (Complaint $record) {
+                            //     if ($record->vendor_id == null) {
+                            //         return false;
+                            //     }
+                            //     return true;
 
-                            })
+                            // })
                             ->live()
                             ->searchable()
                             ->label('vendor Name'),
                         Select::make('flat_id')
                             ->rules(['exists:flats,id'])
-                            ->disabled()
+                            ->disabledOn('edit')
                             ->relationship('flat', 'property_number')
                             ->searchable()
                             ->preload()
                             ->placeholder('Unit Number'),
                         Select::make('technician_id')
                             ->relationship('technician', 'first_name')
-                            ->options(function (Complaint $record, Get $get) {
-                                $technician_vendor = DB::table('service_technician_vendor')->where('service_id', $record->service_id)->pluck('technician_vendor_id');
+                            ->options(function ( Get $get) {
+                                $technician_vendor = DB::table('service_technician_vendor')->where('service_id', $get('service_id'))->pluck('technician_vendor_id');
                                 $technicians = TechnicianVendor::find($technician_vendor)->where('vendor_id', $get('vendor_id'))->pluck('technician_id');
                                 return User::find($technicians)->pluck('first_name', 'id');
                             })
-                            ->disabled(function (Complaint $record) {
-                                return $record->status != 'open';
+                            ->disabled(function ($get) {
+                                return $get('status') == 'closed';
                             })
                             ->preload()
                             ->searchable()
@@ -121,20 +130,26 @@ class SnagsResource extends Resource
                                 };
                             },
                             ])
-                            ->disabled(function (Complaint $record) {
-                                return $record->status != 'open';
+                            ->disabled(function (callable $get) {
+                                if ($get('status') == 'closed') {
+                                    return true;
+                                }
+                                return false;
                             })
                             ->numeric(),
                         DatePicker::make('due_date')
                             ->minDate(now()->format('Y-m-d'))
-                            ->disabled(function (Complaint $record) {
-                                return $record->status != 'open';
+                            ->disabled(function (callable $get) {
+                                if ($get('status') == 'closed') {
+                                    return true;
+                                }
+                                return false;
                             })
                             ->rules(['date'])
                             ->placeholder('Due Date'),
                         Repeater::make('media')
                             ->relationship()
-                            ->disabled()
+                            ->disabledOn('edit')
                             ->schema([
                                 FileUpload::make('url')
                                     ->disk('s3')
@@ -142,35 +157,45 @@ class SnagsResource extends Resource
                                     ->maxSize(2048)
                                     ->openable(true)
                                     ->downloadable(true)
-                                    ->label('File'),
+                                    ->label('File')
+                                    ->required(),
                             ])
                             ->columnSpan([
                                 'sm' => 1,
                                 'md' => 1,
                                 'lg' => 2
                             ]),
-                        Select::make('service_id')
-                            ->relationship('service', 'name')
-                            ->preload()
-                            ->disabled()
-                            ->searchable()
-                            ->label('Service'),
-                        TextInput::make('category')->disabled(),
-                        TextInput::make('open_time')->disabled(),
-                        TextInput::make('close_time')->disabled()->default('NA'),
+                        // Select::make('service_id')
+                        //     ->relationship('service', 'name')
+                        //     ->preload()
+                        //     ->disabled()
+                        //     ->searchable()
+                        //     ->label('Service'),
+                        Select::make('category')
+                        ->disabledOn('edit')
+                        ->options(function(){
+                            return DB::table('services')->pluck('name','name')->toArray();
+                        }),
+                        DateTimePicker::make('open_time')->disabledOn('edit'),
+                        DateTimePicker::make('close_time')->disabledOn('edit')->default('NA'),
                         Textarea::make('complaint')
-                            ->disabled()
+                            ->disabledOn('edit')
                             ->placeholder('Complaint'),
                         // Textarea::make('complaint_details')
                         //     ->disabled()
                         //     ->placeholder('Complaint Details'),
                         Select::make('status')
+                            ->required()
                             ->options([
                                 'open' => 'Open',
                                 'closed' => 'Closed',
                             ])
-                            ->disabled(function (Complaint $record) {
-                                return $record->status != 'open';
+                            ->disabled(function($state){
+                                if($state=='closed'){
+                                    return true;
+                                }else{
+                                    return false;
+                                }
                             })
                             ->searchable()
                             ->live(),
@@ -182,10 +207,13 @@ class SnagsResource extends Resource
                                 }
                                 return false;
                             })
-                            ->disabled(function (Complaint $record) {
-                                return $record->status != 'open';
-                            })
                             ->required(),
+                        
+                        Hidden::make('complaintable_type')
+                        ->default('App\Models\User\User'),
+
+                        Hidden::make('complaintable_id')
+                        ->default(auth()->user()->id),
 
                     ])
             ]);
