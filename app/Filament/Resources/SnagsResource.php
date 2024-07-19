@@ -181,6 +181,7 @@ class SnagsResource extends Resource
                                     ->label('File')
                                     ->required(),
                             ])
+                            ->deletable(false)
                             ->addable(false)
                             ->defaultItems(1)
                             ->columnSpan([
@@ -199,7 +200,8 @@ class SnagsResource extends Resource
                             ->options(function(){
                                 return DB::table('services')->pluck('name','name')->toArray();
                             })
-                        ->native(false),
+                            ->searchable()
+                            ->native(false),
                         DateTimePicker::make('open_time')
                         ->visibleOn('edit')
                         ->disabled(function (callable $get) {
