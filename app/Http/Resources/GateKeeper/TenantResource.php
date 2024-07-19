@@ -27,7 +27,7 @@ class TenantResource extends JsonResource
             'user_email' => $this->user->email,
             'user_phone' => $this->user->phone,
             'profile_pic' => $this->user->profile_photo ? Storage::disk('s3')->url($this->user->profile_photo) : null,
-            'family_members' => FamilyMember::where('user_id',$this->tenant_id)->where('owner_association_id',$flat->owner_association_id)->get()
+            'family_members' => FamilyMember::where('user_id',$this->tenant_id)->get()
         ];
     }
 }
