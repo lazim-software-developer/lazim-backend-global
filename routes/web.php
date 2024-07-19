@@ -16,6 +16,7 @@ use App\Http\Controllers\OwnerAssociationInvoice;
 use App\Http\Controllers\ReserveFundController;
 use App\Http\Controllers\TestController;
 use App\Http\Controllers\Vendor\MasterController;
+use App\Models\Master\Role;
 use Filament\Pages\Page;
 use Illuminate\Support\Facades\Session;
 
@@ -92,3 +93,9 @@ Route::post('/upload',[TestController::class, 'uploadAll'])->name('uploadAll');
 // Route::get('/admin/ledgers/{invoice}/receipts', function () {
 //     return redirect()->to('/admin/ledgers/{invoice}/receipts');
 // })->name('admin.ledgers.receipts');
+
+Route::get('/filament/custom/asset-fetch-data', function () {
+    $data = Session::get('data');
+    // $isAdmin = Session::get('isAdmin');
+    return view('filament.custom.asset-fetch-data', ['data' => $data]);
+})->name('asset-fetch-data');
