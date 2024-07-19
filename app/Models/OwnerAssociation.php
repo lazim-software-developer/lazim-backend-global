@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Accounting\Budget;
 use App\Models\Building\Building;
+use App\Models\Building\Complaint;
 use App\Models\Building\FacilityBooking;
 use App\Models\Community\Poll;
 use App\Models\Community\Post;
@@ -93,5 +94,10 @@ class OwnerAssociation extends Model
     public function contracts()
     {
         return $this->hasMany(Contract::class);
+    }
+
+    public function complaints()
+    {
+        return $this->hasMany(Complaint::class);
     }
 }
