@@ -47,6 +47,7 @@ class ServiceBookingsRelationManager extends RelationManager
                             }),
 
                         Select::make('bookable_id')
+                            ->required()
                             ->options(
                                 DB::table('services')
                                     ->where('type', 'inhouse')
@@ -92,10 +93,10 @@ class ServiceBookingsRelationManager extends RelationManager
                             ->required()
                             ->disabledOn('edit')
                             ->placeholder('Start Time'),
-                        TimePicker::make('end_time')
-                            ->required()
-                            ->disabledOn('edit')
-                            ->placeholder('End Time'),
+                        // TimePicker::make('end_time')
+                        //     ->required()
+                        //     ->disabledOn('edit')
+                        //     ->placeholder('End Time'),
                         Toggle::make('approved')
                             ->rules(['boolean'])
                             ->required(),
@@ -126,10 +127,10 @@ class ServiceBookingsRelationManager extends RelationManager
                     ->searchable()
                     ->default('NA')
                     ->label('Start Time'),
-                TextColumn::make('end_time')
-                    ->searchable()
-                    ->default('NA')
-                    ->label('End Time'),
+                // TextColumn::make('end_time')
+                //     ->searchable()
+                //     ->default('NA')
+                //     ->label('End Time'),
             ])
             ->filters([
                 //
