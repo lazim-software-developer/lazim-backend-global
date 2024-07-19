@@ -10,9 +10,12 @@ use Filament\Forms\Get;
 use Filament\Forms\Form;
 use App\Models\User\User;
 use Filament\Tables\Table;
+use App\Models\Master\Role;
+use App\Models\Building\Flat;
 use App\Models\Vendor\Vendor;
 use App\Models\TechnicianVendor;
 use Filament\Resources\Resource;
+use App\Models\Building\Building;
 use App\Models\Building\Complaint;
 use Illuminate\Support\Facades\DB;
 use Filament\Forms\Components\Grid;
@@ -53,13 +56,22 @@ class SnagsResource extends Resource
                 ])
                     ->schema([
                         Select::make('building_id')
+                            ->label('Building')
                             ->rules(['exists:buildings,id'])
-                            ->relationship('building', 'name')
+                            ->options(function () {
+                                if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+                                    return Building::all()->pluck('name', 'id');
+                                } else {
+                                    return Building::where('owner_association_id', auth()->user()->owner_association_id)
+                                        ->pluck('name', 'id');
+                                }
+                            })
                             ->reactive()
                             ->disabledOn('edit')
                             ->preload()
                             ->searchable()
-                            ->placeholder('Building'),
+                            ->placeholder('Building')
+                            ->live(),
                         Select::make('service_id')
                             ->relationship('service', 'name')
                             ->preload()
@@ -67,15 +79,16 @@ class SnagsResource extends Resource
                             ->searchable()
                             ->label('Service'),
                         Select::make('user_id')
-                            ->relationship('user', 'first_name')
-                            ->options(function () {
-                                $tenants = DB::table('flat_tenants')->pluck('tenant_id');
-                                // dd($tenants);
-                                return DB::table('users')
-                                    ->whereIn('users.id', $tenants)
-                                    ->select('users.id', 'users.first_name')
-                                    ->pluck('users.first_name', 'users.id')
-                                    ->toArray();
+                            ->label('Gatekeeper')
+                            // ->relationship('user', 'first_name')
+                            ->options(function (Get $get) {
+
+                                if (is_null($get('building_id'))) {
+                                    return [];
+                                }else{
+                                    $userId =  DB::table('building_pocs')->where('building_id',$get('building_id'))->where('active',true)->value('user_id');
+                                    return User::where('id',$userId)->pluck('first_name','id');
+                                }
                             })
                             ->disabledOn('edit')
                             ->searchable()
@@ -102,9 +115,17 @@ class SnagsResource extends Resource
                             ->searchable()
                             ->label('vendor Name'),
                         Select::make('flat_id')
+                            ->label('Flat')
                             ->rules(['exists:flats,id'])
                             ->disabledOn('edit')
-                            ->relationship('flat', 'property_number')
+                            // ->relationship('flat', 'property_number')
+                            ->options(function(Get $get){
+                                if (is_null($get('building_id'))) {
+                                    return [];
+                                }else{
+                                    return Flat::where('building_id',$get('building_id'))->pluck('property_number','id');
+                                }
+                            })
                             ->searchable()
                             ->preload()
                             ->placeholder('Unit Number'),
@@ -160,6 +181,8 @@ class SnagsResource extends Resource
                                     ->label('File')
                                     ->required(),
                             ])
+                            ->addable(false)
+                            ->defaultItems(1)
                             ->columnSpan([
                                 'sm' => 1,
                                 'md' => 1,
@@ -172,12 +195,30 @@ class SnagsResource extends Resource
                         //     ->searchable()
                         //     ->label('Service'),
                         Select::make('category')
-                        ->disabledOn('edit')
-                        ->options(function(){
-                            return DB::table('services')->pluck('name','name')->toArray();
+                            ->disabledOn('edit')
+                            ->options(function(){
+                                return DB::table('services')->pluck('name','name')->toArray();
+                            })
+                        ->native(false),
+                        DateTimePicker::make('open_time')
+                        ->visibleOn('edit')
+                        ->disabled(function (callable $get) {
+                            if ($get('status') == 'closed') {
+                                return true;
+                            }
+                            return false;
                         }),
-                        DateTimePicker::make('open_time')->disabledOn('edit'),
-                        DateTimePicker::make('close_time')->disabledOn('edit')->default('NA'),
+
+                        DateTimePicker::make('close_time')
+                        ->visibleOn('edit')
+                        ->disabled(function (callable $get) {
+                            if ($get('status') == 'closed') {
+                                return true;
+                            }
+                            return false;
+                        })
+                        ->default('NA'),
+
                         Textarea::make('complaint')
                             ->disabledOn('edit')
                             ->placeholder('Complaint'),
@@ -214,6 +255,9 @@ class SnagsResource extends Resource
 
                         Hidden::make('complaintable_id')
                         ->default(auth()->user()->id),
+
+                        Hidden::make('complaint_type')
+                        ->default('snag')
 
                     ])
             ]);
