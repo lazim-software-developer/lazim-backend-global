@@ -42,7 +42,7 @@ class FetchAndSaveInvoices implements ShouldQueue
 
         $quarter =$this->quarterCode ?: "Q" . $currentQuarter . "-JAN" . $currentYear . "-DEC" . $currentYear;
 
-        // try {
+        try {
             if(!$this->serviceChargeGroupId){
                 $url = env("MOLLAK_API_URL") . '/sync/invoices/' . $propertyGroupId . '/all/' . $quarter;
                 
@@ -50,7 +50,6 @@ class FetchAndSaveInvoices implements ShouldQueue
             else{
                 $url = env("MOLLAK_API_URL") . "/sync/invoices/".$propertyGroupId."/".$serviceChargeGroupId."/".$quarter;
             }
-            Log::info($url);
                 $response = Http::withoutVerifying()->withHeaders([
                     'content-type' => 'application/json',
                     'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
@@ -122,8 +121,8 @@ class FetchAndSaveInvoices implements ShouldQueue
                         );
                     }
                 }
-        // } catch (\Exception $e) {
-        //     Log::error('Failed to fetch or save invoices');
-        // }
+        } catch (\Exception $e) {
+            Log::error('Failed to fetch or save invoices');
+        }
     }
 }
