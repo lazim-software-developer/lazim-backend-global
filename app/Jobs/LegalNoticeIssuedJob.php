@@ -35,7 +35,7 @@ class LegalNoticeIssuedJob implements ShouldQueue
         $mollakPropertyId =$this->mollakPropertyId;
         $legalNoticeId=$this->legalNoticeId;
         // Log::info('data'. $prope`rtyGroupId);
-        // try{
+        try{
         $results = Http::withOptions(['verify' => false])->withHeaders([
             'content-type' => 'application/json',
             'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
@@ -71,8 +71,8 @@ class LegalNoticeIssuedJob implements ShouldQueue
                 ]);
             }
         }
-        // } catch (\Exception $e) {
-        //     Log::error('Failed to fetch legal notice issued ');
-        // }
+        } catch (\Exception $e) {
+            Log::error('Failed to fetch legal notice issued ');
+        }
     }
 }
