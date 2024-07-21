@@ -379,7 +379,7 @@ class MollakController extends Controller
 
                 $managementCompanyId = $parameters['managementCompanyId'] ?? null;
                 $propertyGroupId = $parameters['propertyGroupId']?? null; //235553;
-                $quarterCode = $parameters['quarterCode']?? null; //'Q4-JAN2019-DEC2019';
+                $quarterCode = $parameters['QuarterCode']?? null; //'Q4-JAN2019-DEC2019';
                 $serviceChargeGroupId = $parameters['serviceChargeGroupId']?? null; //5001;
 
                 WebhookResponse::create([
