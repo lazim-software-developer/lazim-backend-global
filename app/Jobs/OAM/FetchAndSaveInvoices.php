@@ -50,6 +50,7 @@ class FetchAndSaveInvoices implements ShouldQueue
             else{
                 $url = env("MOLLAK_API_URL") . "/sync/invoices/".$propertyGroupId."/".$serviceChargeGroupId."/".$quarter;
             }
+            Log::info($url);
                 $response = Http::withoutVerifying()->withHeaders([
                     'content-type' => 'application/json',
                     'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
