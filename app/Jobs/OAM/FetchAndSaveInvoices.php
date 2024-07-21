@@ -32,9 +32,9 @@ class FetchAndSaveInvoices implements ShouldQueue
      */
     public function handle(): void
     {
-        $buildingId = $this->building?->id;
         $propertyGroupId = $this->propertyGroupId ?: $this->building->property_group_id;
         $serviceChargeGroupId = $this->serviceChargeGroupId;
+        $buildingId = $this->building?->id?: Building::where('property_group_id',$propertyGroupId)->first()?->id;
 
         $currentDate = new DateTime();
         $currentYear = $currentDate->format('Y');
