@@ -42,7 +42,7 @@ class FetchAndSaveInvoices implements ShouldQueue
 
         $quarter =$this->quarterCode ?: "Q" . $currentQuarter . "-JAN" . $currentYear . "-DEC" . $currentYear;
 
-        try {
+        // try {
             if(!$this->serviceChargeGroupId){
                 $url = env("MOLLAK_API_URL") . '/sync/invoices/' . $propertyGroupId . '/all/' . $quarter;
                 
@@ -57,7 +57,7 @@ class FetchAndSaveInvoices implements ShouldQueue
 
                 $invoicesData = $response->json()['response']['serviceChargeGroups'];
 
-                Log::info($invoicesData);
+                Log::info('invoice'.$invoicesData);
                 foreach ($invoicesData as $data) {
                     foreach ($data['properties'] as $property) {
                         $flat = Flat::where('mollak_property_id',  $property['mollakPropertyId'])->first();
@@ -121,8 +121,8 @@ class FetchAndSaveInvoices implements ShouldQueue
                         );
                     }
                 }
-        } catch (\Exception $e) {
-            Log::error('Failed to fetch or save invoices');
-        }
+        // } catch (\Exception $e) {
+        //     Log::error('Failed to fetch or save invoices');
+        // }
     }
 }
