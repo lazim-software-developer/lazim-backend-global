@@ -34,13 +34,13 @@ class LegalNoticeIssuedJob implements ShouldQueue
         $propertyGroupId =$this->propertyGroupId;
         $mollakPropertyId =$this->mollakPropertyId;
         $legalNoticeId=$this->legalNoticeId;
-        Log::info('data'. $propertyGroupId);
-        try{
+        // Log::info('data'. $prope`rtyGroupId);
+        // try{
         $results = Http::withOptions(['verify' => false])->withHeaders([
             'content-type' => 'application/json',
             'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
         ])->get("https://qagate.dubailand.gov.ae/mollak/external/sync/legalnotice/".$propertyGroupId."/".$mollakPropertyId."/".$legalNoticeId);
-        Log::info($results->json());
+        // Log::info($results->json());
         
         $responce = $results->json()['response']['propertyGroups'];
         Log::info($responce);
@@ -69,8 +69,8 @@ class LegalNoticeIssuedJob implements ShouldQueue
                 'isRDCCaseEnd' => $notice['isRDCCaseEnd']
             ]);
         }
-        } catch (\Exception $e) {
-            Log::error('Failed to fetch legal notice issued ');
-        }
+        // } catch (\Exception $e) {
+        //     Log::error('Failed to fetch legal notice issued ');
+        // }
     }
 }
