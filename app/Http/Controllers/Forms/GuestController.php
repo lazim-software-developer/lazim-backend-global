@@ -204,6 +204,12 @@ class GuestController extends Controller
             'approved_by' => auth()->user()?->id,
             'status'      => $request->status,
         ]);
+
+        return (new CustomResponseResource([
+            'title'   => 'Success',
+            'message' => 'Status updated!',
+            'code'    => 200,
+        ]))->response()->setStatusCode(200);
     }
 
     // List all future visits for a building
