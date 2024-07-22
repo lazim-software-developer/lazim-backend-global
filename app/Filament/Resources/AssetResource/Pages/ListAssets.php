@@ -97,7 +97,7 @@ class ListAssets extends ListRecords
 
                 }),
 
-                Action::make('Download QR Codes')->label('QR Codes')
+                Action::make('QR Codes')->label('Download QR Codes')
                 ->action(function(){
                     
                     $data = Parent::getTableQuery()->get();
