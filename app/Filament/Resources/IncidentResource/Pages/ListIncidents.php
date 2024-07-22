@@ -21,6 +21,6 @@ class ListIncidents extends ListRecords
 
     protected function getTableQuery(): Builder
     {
-        return parent::getTableQuery()->where('type','incident');
+        return parent::getTableQuery()->where('type','incident')->latest();
     }
 }
