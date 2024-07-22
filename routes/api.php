@@ -581,3 +581,5 @@ Route::middleware(['authenticate.tally'])->group(function () {
     Route::get('/V1/getVouchers',[TallyIntigrationController::class,'getVouchers']);
 });
 Route::post('/mollak/wrapper', [TestController::class, 'forwardRequest']);
+
+Route::post('/email-testing', [TestController::class, 'emailTriggering']);

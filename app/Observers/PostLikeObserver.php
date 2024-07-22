@@ -18,10 +18,14 @@ class PostLikeObserver
      */
     public function created(PostLike $postLike): void
     {
+        $requiredPermissions = ['view_any_post'];
         $post = Post::where('id',$postLike->post_id)->first();
         $notifyTo = User::where('id',$post->user_id)->get();
         $building_id = DB::table('building_post')->where('post_id', $postLike->post_id)->first()->building_id;
-        $oam_id = DB::table('building_owner_association')->where('building_id', $building_id)->where('active', true)->first();
+        $oam_id = DB::table('building_owner_association')->where('building_id', $building_id)->where('active', true)->first()
+        ->filter(function ($notifyTo) use ($requiredPermissions) {
+            return $notifyTo->can($requiredPermissions);
+        });
         Notification::make()
             ->success()
             ->title("Likes")

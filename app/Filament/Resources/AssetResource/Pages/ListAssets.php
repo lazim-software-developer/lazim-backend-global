@@ -8,6 +8,7 @@ use App\Imports\AssetsListImport;
 use App\Models\Building\Building;
 use App\Models\Master\Role;
 use App\Models\Master\Service;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Filament\Actions\Action;
 use Filament\Facades\Filament;
 use Filament\Forms\Components\FileUpload;
@@ -95,6 +96,19 @@ class ListAssets extends ListRecords
                     Excel::import(new AssetsListImport( $buildingId, $serviceId), $fullPath);
 
                 }),
+
+                Action::make('QR Codes')->label('Download QR Codes')
+                ->action(function(){
+                    
+                    $data = Parent::getTableQuery()->get();
+
+                    $pdf = Pdf::loadView('filament.custom.asset-fetch-data', compact('data'));
+                        return response()->streamDownload(
+                            fn() => print($pdf->output()),
+                            'Qr Codes.pdf'
+                        );
+                })
+
         ];
     }
 }
