@@ -39,7 +39,7 @@ class AuthController extends Controller
 
         $user = User::where('email', $request->email)->firstOrFail();
 
-        $allowedRoles = ['Technician','OA'];
+        $allowedRoles = ['Technician', 'OA'];
 
         if (!$user || !Hash::check($request->password, $user->password)) {
             throw ValidationException::withMessages([
@@ -118,8 +118,8 @@ class AuthController extends Controller
                 'email' => ['The provided credentials are incorrect.'],
             ]);
         }
-        if ($user && $user?->role->name == 'Tenant' ){
-            abort_if(FlatTenant::where('tenant_id',$user->id)->where('active', true)->count() < 1, 422, "Currently, you don't have any active contract" );
+        if ($user && $user?->role->name == 'Tenant') {
+            abort_if(FlatTenant::where('tenant_id', $user->id)->where('active', true)->count() < 1, 422, "Currently, you don't have any active contract");
         }
 
         // Check if the user's email and phone number is verified
@@ -209,15 +209,18 @@ class AuthController extends Controller
         if ($request->has('status') && $request->status == 'login') {
             // $expo = ExpoPushNotification::where('user_id' , auth()->user()->id)->first();
 
-            ExpoPushNotification::updateOrCreate([
-                'user_id' => auth()->user()->id],
+            ExpoPushNotification::updateOrCreate(
                 [
-                'token'   => $request->token,
-            ]);
+                    'user_id' => auth()->user()->id
+                ],
+                [
+                    'token'   => $request->token,
+                ]
+            );
 
-                return response()->json([
-                    'message' => 'Token saved successfully.',
-                ]);
+            return response()->json([
+                'message' => 'Token saved successfully.',
+            ]);
         }
 
         if ($request->has('status') && $request->status == 'logout') {
@@ -230,7 +233,8 @@ class AuthController extends Controller
     }
 
     // Gatekeeper login 
-    public function gateKeeperLogin(GateKeeperLoginRequest $request) {
+    public function gateKeeperLogin(GateKeeperLoginRequest $request)
+    {
         $user = User::where('email', $request->email)->first();
 
         // if (!$user || !Hash::check($request->password, $user->password) || $user->role->name !== $request->role) {
@@ -266,7 +270,7 @@ class AuthController extends Controller
             'active' => 1
         ]);
 
-        if(!$building->exists()) {
+        if (!$building->exists()) {
             return (new CustomResponseResource([
                 'title' => 'Error',
                 'message' => "You don't have access to login to the application!",
@@ -298,7 +302,8 @@ class AuthController extends Controller
     }
 
     // Vendor login
-    public function vendorLogin(GateKeeperLoginRequest $request) {
+    public function vendorLogin(GateKeeperLoginRequest $request)
+    {
 
         $credentials = $request->validate([
             'email'    => 'required|email',
@@ -310,7 +315,7 @@ class AuthController extends Controller
         }
         $user = User::where('email', $request->email)->first();
         // cehck if user is vendor
-        if($user->role->name != 'Vendor') {
+        if ($user->role->name != 'Vendor') {
             return (new CustomResponseResource([
                 'title' => 'Unauthorized!',
                 'message' => 'You are not authorized to login!',
@@ -344,13 +349,13 @@ class AuthController extends Controller
         //     ]))->response()->setStatusCode(403);
         // }
 
-        if($user && $user->vendors->first()->status == 'rejected'){
+        if ($user && $user->vendors->first()->status == 'rejected') {
             return (new CustomResponseResource([
-                        'title' => 'Documents rejected',
-                        'message' => 'Documents are rejected, you will be redirected to documents upload page.',
-                        'code' => 403,
-                        'data' => $user->vendors->first()
-                    ]))->response()->setStatusCode(403);
+                'title' => 'Documents rejected',
+                'message' => 'Documents are rejected, you will be redirected to documents upload page.',
+                'code' => 403,
+                'data' => $user->vendors->first()
+            ]))->response()->setStatusCode(403);
         }
         // Create a new access token
         $token = $user->createToken($user->role->name)->plainTextToken;
