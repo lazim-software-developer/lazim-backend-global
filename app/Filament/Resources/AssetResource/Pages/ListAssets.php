@@ -95,6 +95,22 @@ class ListAssets extends ListRecords
                     Excel::import(new AssetsListImport( $buildingId, $serviceId), $fullPath);
 
                 }),
+
+                Action::make('QR Codes')->label('QR Codes')
+                ->action(function(array $data){
+                    
+                    $records = Parent::getTableQuery()->get();
+                    // dd($records['asset_code']);
+                    // dd($records->pluck('asset_code')->toArray());
+
+                    // $data = [
+                    //     'qr_code' => $records->pluck('qr_code'),
+                    //     'asset_code' => $records->pluck('asset_code')
+                    // ];
+                    // $isAdmin = Role::where('id', auth()->user()->role_id)->first()->name == 'Admin';
+                    
+                    return redirect()->route('asset-fetch-data')->with('data',$records);
+                })
         ];
     }
 }
