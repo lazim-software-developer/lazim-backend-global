@@ -50,6 +50,21 @@ class OwnerAssociationResource extends Resource
                                 ->exists();
                         })
                         ->placeholder('User'),
+                    TextInput::make('slug')
+                        ->label('Slug')
+                        ->required()
+                        ->rules([
+                            'required',
+                            'string',
+                            'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/',
+                            'min:4',
+                            'max:30'
+                        ])
+                        ->validationMessages([
+                            'regex'=>'Slug format is Invalid. It can only accept Lowercase letters, Numbers and hyphen'
+                        ])
+                        ->unique('owner_associations','slug', ignoreRecord:true)
+                        ->placeholder('Enter a unique slug'),
                     TextInput::make('mollak_id')->label('Oa Number')
                         ->required()
                         ->disabled()
@@ -258,6 +273,10 @@ class OwnerAssociationResource extends Resource
                     ->default('NA')
                     ->limit(50),
                 Tables\Columns\TextColumn::make('name')
+                    ->searchable()
+                    ->default('NA')
+                    ->limit(50),
+                Tables\Columns\TextColumn::make('slug')
                     ->searchable()
                     ->default('NA')
                     ->limit(50),
