@@ -287,7 +287,7 @@ class TestController extends Controller
         $data->PropertyGroupId = $request->property_group;
         $data->FromDate        = $request->from_date;
         $data->ToDate          = $request->to_date;
-        $data->Delinquents     = $delinquents; 
+        $data->Delinquents     = $delinquents;
         $data->Eservices       = $e_services;
         $data->HappinessCenter = $happiness_center;
         $data->BalanceSheet    = $balance_sheet;

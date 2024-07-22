@@ -682,7 +682,7 @@ class AdminPanelProvider extends PanelProvider
                             ]),
                     ]);
                 }
-                if ($user->can('view_any_snags') || $user->can('view_any_incidents')){
+                if ($user->can('view_any_snags') || $user->can('view_any_incident')){
                     $builder->groups([
                         NavigationGroup::make('Security')
                             ->items([
@@ -694,7 +694,7 @@ class AdminPanelProvider extends PanelProvider
                                     ->sort(1),
                                     NavigationItem::make('Incidents')
                                     ->url(IncidentResource::getUrl('index'))
-                                    ->hidden(!$user->can('view_any_incidents'))
+                                    ->hidden(!$user->can('view_any_incident'))
                                     ->icon('heroicon-c-map-pin')
                                     ->activeIcon('heroicon-c-map-pin')
                                     ->sort(2),

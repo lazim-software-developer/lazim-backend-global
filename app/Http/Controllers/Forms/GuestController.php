@@ -204,6 +204,12 @@ class GuestController extends Controller
             'approved_by' => auth()->user()?->id,
             'status'      => $request->status,
         ]);
+
+        return (new CustomResponseResource([
+            'title'   => 'Success',
+            'message' => 'Status updated!',
+            'code'    => 200,
+        ]))->response()->setStatusCode(200);
     }
 
     // List all future visits for a building
@@ -226,6 +232,12 @@ class GuestController extends Controller
         $building = $request->input('building_id');
 
         $user = FlatTenant::where(['flat_id' => $flat, 'building_id' => $building, 'active' => 1])->first();
+        $flatDetails = Flat::find($flat);
+
+        $request->merge([
+            'owner_association_id' => $flatDetails->owner_association_id
+        ]);
+
 
         if ($user) {
             Visitor::create($request->all());

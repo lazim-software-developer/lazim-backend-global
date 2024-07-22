@@ -22,7 +22,7 @@ class FetchAndSaveInvoices implements ShouldQueue
 
     protected $building;
 
-    public function __construct($building = null, protected $propertyGroupId = null, protected $quarterCode = null, protected $serviceChargeGroupId = null)
+    public function __construct($building = null, protected $propertyGroupId = null,protected $serviceChargeGroupId = null, protected $quarterCode = null )
     {
         $this->building = $building;
     }
@@ -32,9 +32,9 @@ class FetchAndSaveInvoices implements ShouldQueue
      */
     public function handle(): void
     {
-        $buildingId = $this->building?->id;
         $propertyGroupId = $this->propertyGroupId ?: $this->building->property_group_id;
         $serviceChargeGroupId = $this->serviceChargeGroupId;
+        $buildingId = $this->building?->id?: Building::where('property_group_id',$propertyGroupId)->first()?->id;
 
         $currentDate = new DateTime();
         $currentYear = $currentDate->format('Y');
@@ -57,7 +57,7 @@ class FetchAndSaveInvoices implements ShouldQueue
 
                 $invoicesData = $response->json()['response']['serviceChargeGroups'];
 
-                Log::info($invoicesData);
+                // Log::info('invoice'.json_encode($invoicesData));
                 foreach ($invoicesData as $data) {
                     foreach ($data['properties'] as $property) {
                         $flat = Flat::where('mollak_property_id',  $property['mollakPropertyId'])->first();
@@ -122,7 +122,7 @@ class FetchAndSaveInvoices implements ShouldQueue
                     }
                 }
         } catch (\Exception $e) {
-            Log::error('Failed to fetch or save invoices: ' . $this->building->property_group_id);
+            Log::error('Failed to fetch or save invoices');
         }
     }
 }

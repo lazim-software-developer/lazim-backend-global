@@ -106,6 +106,7 @@ class CreateAsset extends CreateRecord
                         'vendor_id' => $contract->vendor_id,
                         'building_id' => $asset->building_id,
                         'active' => 1,
+                        'owner_association_id' => $oa_id
                     ]);
                 } else {
                     Log::info("No technicians to add", []);

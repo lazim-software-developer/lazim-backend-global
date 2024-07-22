@@ -38,18 +38,18 @@ class OwnershipChangedWebhookJob implements ShouldQueue
             'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
         ])->get("https://qagate.dubailand.gov.ae/mollak/external/sync/owners/".$propertyGroupId."/".$mollakPropertyId);
         $responce = $results->json()['response'];
-        Log::info($responce);
+        Log::info($results->json());
         foreach($responce['properties'] as $property){
             $flat = Flat::where('mollak_property_id',$property['mollakPropertyId'])->first();
-            $flatOwner = FlatOwners::find($flat?->id)->update(['active'=> false]);
-            foreach($property as $units){
+            $flatOwner = FlatOwners::where('flat_id',$flat?->id)->update(['active'=> false]);
+            foreach($property['owners'] as $units){
 
                 $owner = ApartmentOwner::firstOrCreate([
                     'owner_number' => $units['ownerNumber'],
-                ],[
                     'email' => $units['email'],
-                    'name' => $units['name']['englishName'],
                     'mobile' => $units['email'],
+                ],[
+                    'name' => $units['name']['englishName'],
                     'passport' => $units['email'],
                     'emirates_id' => $units['emiratesId'],
                     'trade_license' => $units['tradeLicence']

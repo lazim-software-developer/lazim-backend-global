@@ -144,7 +144,7 @@ class MollakController extends Controller
             'content-type' => 'application/json',
         ])->post(env("SMS_LINK") . "otpgenerate?username=" . env("SMS_USERNAME") . "&password=" . env("SMS_PASSWORD") . "&msisdn=" . $request->phone . "&msg=Your%20one%20time%20OTP%20is%20%25m&source=ILAJ-LAZIM&tagname=" . env("SMS_TAG") . "&otplen=5&exptime=60");
 
-        // Log::info('RESPONSEEE:-' . $response);
+        Log::info('RESPONSEEE:-' . $response);
 
         return $response;
     }
@@ -305,7 +305,12 @@ class MollakController extends Controller
         $results = Http::withOptions(['verify' => false])->withHeaders([
             'content-type' => 'application/json',
             'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
-        ])->get("https://b2bgateway.dubailand.gov.ae/mollak/external/sync/managementcompany");
+        // ])->get("https://b2bgateway.dubailand.gov.ae/mollak/external/sync/managementcompany");
+        // ])->get("https://qagate.dubailand.gov.ae/mollak/external/sync/propertygroups/235553/units");
+        // ])->get("https://qagate.dubailand.gov.ae/mollak/external/sync/managementcompany");
+        // ])->get("https://qagate.dubailand.gov.ae/mollak/external/sync/propertygroups");0120130805004026 
+        // ])->get("https://qagate.dubailand.gov.ae/mollak/external/sync/owners/235553/17651626");
+        ])->get("https://qagate.dubailand.gov.ae/mollak/external/sync/property/17651626/contract/0120210824004047");
 
         return $data = $results->json();
     }
@@ -324,7 +329,7 @@ class MollakController extends Controller
             return $validationError;
         }
 
-
+        $acknowledgeRef = random_int(1111111,9999999);
         $syncType = $request->input('syncType');
         switch ($syncType) {
             case 'payment_receipt':
@@ -340,7 +345,8 @@ class MollakController extends Controller
                 WebhookResponse::create([
                     'management_company_id' => $managementCompanyId,
                     'type' => 'payment_receipt',
-                    'response' => json_encode($request->parameters)
+                    'response' => json_encode($request->parameters),
+                    'reference_number' => $acknowledgeRef
                 ]);
 
 
@@ -358,7 +364,8 @@ class MollakController extends Controller
                 WebhookResponse::create([
                     'management_company_id' => $managementCompanyId,
                     'type' => 'budget_approved',
-                    'response' => json_encode($request->parameters)
+                    'response' => json_encode($request->parameters),
+                    'reference_number' => $acknowledgeRef
                 ]);
                 
                 BudgetApprovedWebhookJob::dispatch($propertyGroupId,$periodCode);                
@@ -372,13 +379,14 @@ class MollakController extends Controller
 
                 $managementCompanyId = $parameters['managementCompanyId'] ?? null;
                 $propertyGroupId = $parameters['propertyGroupId']?? null; //235553;
-                $quarterCode = $parameters['quarterCode']?? null; //'Q4-JAN2019-DEC2019';
+                $quarterCode = $parameters['QuarterCode']?? null; //'Q4-JAN2019-DEC2019';
                 $serviceChargeGroupId = $parameters['serviceChargeGroupId']?? null; //5001;
 
                 WebhookResponse::create([
                     'management_company_id' => $managementCompanyId,
                     'type' => 'invoice_generated',
-                    'response' => json_encode($request->parameters)
+                    'response' => json_encode($request->parameters),
+                    'reference_number' => $acknowledgeRef
                 ]);                
 
                 FetchAndSaveInvoices::dispatch($building = null,$propertyGroupId,$serviceChargeGroupId,$quarterCode);
@@ -397,7 +405,8 @@ class MollakController extends Controller
                 WebhookResponse::create([
                     'management_company_id' => $managementCompanyId,
                     'type' => 'ownership_changed',
-                    'response' => json_encode($request->parameters)
+                    'response' => json_encode($request->parameters),
+                    'reference_number' => $acknowledgeRef
                 ]);
 
                 OwnershipChangedWebhookJob::dispatch($propertyGroupId,$mollakPropertyId);
@@ -409,15 +418,16 @@ class MollakController extends Controller
                 }
 
                 $managementCompanyId = $parameters['managementCompanyId'] ?? null;
-                $propertyGroupId = $parameters['propertyGroupId']?? null; //235553;
+                $mollakPropertyId = $parameters['mollakPropertyId']?? null; //235553;
                 $contractNumber = $parameters['contractNumber']?? null;
                 WebhookResponse::create([
                     'management_company_id' => $managementCompanyId,
                     'type' => 'contract_changed',
-                    'response' => json_encode($request->parameters)
+                    'response' => json_encode($request->parameters),
+                    'reference_number' => $acknowledgeRef
                 ]);
 
-                ContractChangedWebhookJob::dispatch($propertyGroupId,$contractNumber);
+                ContractChangedWebhookJob::dispatch($mollakPropertyId,$contractNumber);
 
                 break;
             case 'legal_notice_issued':
@@ -434,7 +444,8 @@ class MollakController extends Controller
                 WebhookResponse::create([
                     'management_company_id' => $managementCompanyId,
                     'type' => 'legal_notice_issued',
-                    'response' => json_encode($request->parameters)
+                    'response' => json_encode($request->parameters),
+                    'reference_number' => $acknowledgeRef
                 ]);
 
 
@@ -450,7 +461,8 @@ class MollakController extends Controller
                 WebhookResponse::create([
                     'management_company_id' => $managementCompanyId,
                     'type' => 'owner_committee_formed',
-                    'response' => json_encode($request->parameters)
+                    'response' => json_encode($request->parameters),
+                    'reference_number' => $acknowledgeRef
                 ]);
                 break;
             default:
@@ -459,7 +471,7 @@ class MollakController extends Controller
 
         return [
             'isExecuted' => true,
-            'acknowledgeRef' => random_int(1111111,9999999)
+            'acknowledgeRef' => $acknowledgeRef
         ];
     }
 
@@ -577,7 +589,7 @@ class MollakController extends Controller
 
             return [
                 'isExecuted' => true,
-                'acknowledgeRef' => random_int(1111111,9999999)
+                'reference_number' => random_int(1111111,9999999)
             ];
             
     }
@@ -605,7 +617,7 @@ class MollakController extends Controller
 
             return [
                 'isExecuted' => true,
-                'acknowledgeRef' => random_int(1111111,9999999)
+                'reference_number' => random_int(1111111,9999999)
             ];
     }
 

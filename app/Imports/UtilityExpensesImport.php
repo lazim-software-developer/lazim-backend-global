@@ -5,6 +5,7 @@ namespace App\Imports;
 use Exception;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 
@@ -48,7 +49,7 @@ class UtilityExpensesImport implements ToCollection, WithHeadingRow
         }
 
         $filteredRows = $rows->filter(function ($row) {
-            !empty($row['amount']) ||
+           return !empty($row['amount']) ||
             !empty($row['utility_name']) ||
             !empty($row['provider_name']) ||
             !empty($row['duration']) ||
