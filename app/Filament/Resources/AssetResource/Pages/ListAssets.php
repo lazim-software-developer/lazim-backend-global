@@ -8,6 +8,7 @@ use App\Imports\AssetsListImport;
 use App\Models\Building\Building;
 use App\Models\Master\Role;
 use App\Models\Master\Service;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Filament\Actions\Action;
 use Filament\Facades\Filament;
 use Filament\Forms\Components\FileUpload;
@@ -96,21 +97,18 @@ class ListAssets extends ListRecords
 
                 }),
 
-                Action::make('QR Codes')->label('QR Codes')
-                ->action(function(array $data){
+                Action::make('Download QR Codes')->label('QR Codes')
+                ->action(function(){
                     
-                    $records = Parent::getTableQuery()->get();
-                    // dd($records['asset_code']);
-                    // dd($records->pluck('asset_code')->toArray());
+                    $data = Parent::getTableQuery()->get();
 
-                    // $data = [
-                    //     'qr_code' => $records->pluck('qr_code'),
-                    //     'asset_code' => $records->pluck('asset_code')
-                    // ];
-                    // $isAdmin = Role::where('id', auth()->user()->role_id)->first()->name == 'Admin';
-                    
-                    return redirect()->route('asset-fetch-data')->with('data',$records);
+                    $pdf = Pdf::loadView('filament.custom.asset-fetch-data', compact('data'));
+                        return response()->streamDownload(
+                            fn() => print($pdf->output()),
+                            'Qr Codes.pdf'
+                        );
                 })
+
         ];
     }
 }
