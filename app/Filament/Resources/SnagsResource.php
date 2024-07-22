@@ -170,7 +170,7 @@ class SnagsResource extends Resource
                             ->placeholder('Due Date'),
                         Repeater::make('media')
                             ->relationship()
-                            ->disabledOn('edit')
+                            // ->disabledOn('edit')
                             ->schema([
                                 FileUpload::make('url')
                                     ->disk('s3')
@@ -179,7 +179,7 @@ class SnagsResource extends Resource
                                     ->openable(true)
                                     ->downloadable(true)
                                     ->label('File')
-                                    ->required(),
+                                    // ->required(),
                             ])
                             ->deletable(false)
                             ->addable(false)
