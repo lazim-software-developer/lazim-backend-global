@@ -55,23 +55,23 @@ class OfferPromotionsRelationManager extends RelationManager
                             'md' => 1,
                             'lg' => 2,
                         ]),
-                    MarkdownEditor::make('description')
-                        ->toolbarButtons([
-                            'bold',
-                            'bulletList',
-                            'italic',
-                            'link',
-                            'orderedList',
-                            'redo',
-                            'undo',
-                        ])
-                        ->required()
-                        ->maxLength(400)
-                        ->columnSpan([
-                            'sm' => 1,
-                            'md' => 1,
-                            'lg' => 2,
-                        ]),
+                    // MarkdownEditor::make('description')
+                    //     ->toolbarButtons([
+                    //         'bold',
+                    //         'bulletList',
+                    //         'italic',
+                    //         'link',
+                    //         'orderedList',
+                    //         'redo',
+                    //         'undo',
+                    //     ])
+                    //     ->required()
+                    //     ->maxLength(400)
+                    //     ->columnSpan([
+                    //         'sm' => 1,
+                    //         'md' => 1,
+                    //         'lg' => 2,
+                    //     ]),
                     Datepicker::make('start_date')
                         ->required()
                         ->rules(['date'])

@@ -17,6 +17,8 @@ use App\Imports\ReserveFundImport;
 use App\Imports\ServiceImport;
 use App\Imports\UtilityExpensesImport;
 use App\Imports\WorkOrdersImport;
+use App\Jobs\MailTestJob;
+use App\Models\AccountCredentials;
 use App\Models\Building\Building;
 use App\Models\OaServiceRequest;
 use App\Models\ServiceParameter;
@@ -513,5 +515,13 @@ class TestController extends Controller
                 'message' => $e->getMessage(),
             ], 500);
         }
+    }
+   
+    public function emailTriggering(Request $request){
+
+        $credentials = AccountCredentials::where('oa_id', $request->oa_id)->first();
+
+        MailTestJob::dispatch($credentials);
+        
     }
 }
