@@ -171,20 +171,28 @@ class MeetingsRelationManager extends RelationManager
                         $agendaHtml         = $parsedown->text($record->agenda);
                         $tenant             = Filament::getTenant()?->id ?? auth()->user()?->owner_association_id;
                         // $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
-
-                        if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
-                            $oa_id            = DB::table('building_owner_association')->where('building_id', $record->building_id)->where('active', true)->first()?->owner_association_id;
-                            $emailCredentials = OwnerAssociation::find($oa_id)?->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
-                            foreach ($userslist as $owner) {
-                                OwnerMeeting::dispatch($owner, $record, $agendaHtml, $meetingSummaryHtml, $emailCredentials);
-                            }
-                        } else {
-                            $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
-                            foreach ($userslist as $owner) {
-                                OwnerMeeting::dispatch($owner, $record, $agendaHtml, $meetingSummaryHtml, $emailCredentials);
-                            }
+                        $credentials = AccountCredentials::where('oa_id', $tenant)->where('active', true)->latest()->first();
+                        $mailCredentials = [
+                            'mail_host' => $credentials->host??env('MAIL_HOST'),
+                            'mail_port' => $credentials->port??env('MAIL_PORT'),
+                            'mail_username'=> $credentials->username??env('MAIL_USERNAME'),
+                            'mail_password' => $credentials->password??env('MAIL_PASSWORD'),
+                            'mail_encryption' => $credentials->encryption??env('MAIL_ENCRYPTION'),
+                            'mail_from_address' => $credentials->email??env('MAIL_FROM_ADDRESS'),
+                        ];
+                        // if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+                        //     $oa_id            = DB::table('building_owner_association')->where('building_id', $record->building_id)->where('active', true)->first()?->owner_association_id;
+                        //     $emailCredentials = OwnerAssociation::find($oa_id)?->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
+                        //     foreach ($userslist as $owner) {
+                        //         OwnerMeeting::dispatch($owner, $record, $agendaHtml, $meetingSummaryHtml, $emailCredentials);
+                        //     }
+                        // } else {
+                        //     $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
+                        // }
+                        foreach ($userslist as $owner) {
+                            OwnerMeeting::dispatch($owner, $record, $agendaHtml, $meetingSummaryHtml, $mailCredentials);
                         }
-
+                        
                     }),
                 // Tables\Actions\DeleteAction::make(),
             ])
