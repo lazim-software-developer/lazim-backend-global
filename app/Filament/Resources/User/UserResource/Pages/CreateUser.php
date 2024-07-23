@@ -5,6 +5,7 @@ namespace App\Filament\Resources\User\UserResource\Pages;
 use App\Filament\Resources\User\UserResource;
 use App\Jobs\AccountsManagerJob;
 use App\Jobs\MdCreateJob;
+use App\Models\AccountCredentials;
 use App\Models\OwnerAssociation;
 use App\Models\OwnerAssociationUser;
 use App\Models\User\User;
@@ -67,15 +68,35 @@ class CreateUser extends CreateRecord
         if (array_key_exists($this->record->role?->name, $roleJobMap)) {
             $jobClass         = $roleJobMap[$this->record->role?->name];
             $tenant           = Filament::getTenant()?->id ?? auth()->user()->owner_association_id;
-            $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()->email ?? env('MAIL_FROM_ADDRESS');
+            // $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()->email ?? env('MAIL_FROM_ADDRESS');
 
-            $jobClass::dispatch($user, $password, $emailCredentials);
+            $credentials = AccountCredentials::where('oa_id', $tenant)->where('active', true)->latest()->first();
+            $mailCredentials = [
+                'mail_host' => $credentials->host ?? env('MAIL_HOST'),
+                'mail_port' => $credentials->port ?? env('MAIL_PORT'),
+                'mail_username' => $credentials->username ?? env('MAIL_USERNAME'),
+                'mail_password' => $credentials->password ?? env('MAIL_PASSWORD'),
+                'mail_encryption' => $credentials->encryption ?? env('MAIL_ENCRYPTION'),
+                'mail_from_address' => $credentials->email ?? env('MAIL_FROM_ADDRESS'),
+            ];
+
+            $jobClass::dispatch($user, $password, $mailCredentials);
             // GeneralAccountCreationJob::dispatch($user, $password);
         } else {
             $tenant           = Filament::getTenant()?->id ?? auth()->user()->owner_association_id;
-            $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()->email ?? env('MAIL_FROM_ADDRESS');
+            // $mailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()->email ?? env('MAIL_FROM_ADDRESS');
 
-            MdCreateJob::dispatch($user, $password, $emailCredentials);
+            $credentials = AccountCredentials::where('oa_id', $tenant)->where('active', true)->latest()->first();
+            $mailCredentials = [
+                'mail_host' => $credentials->host ?? env('MAIL_HOST'),
+                'mail_port' => $credentials->port ?? env('MAIL_PORT'),
+                'mail_username' => $credentials->username ?? env('MAIL_USERNAME'),
+                'mail_password' => $credentials->password ?? env('MAIL_PASSWORD'),
+                'mail_encryption' => $credentials->encryption ?? env('MAIL_ENCRYPTION'),
+                'mail_from_address' => $credentials->email ?? env('MAIL_FROM_ADDRESS'),
+            ];
+
+            MdCreateJob::dispatch($user, $password, $mailCredentials);
         }
     }
 }
