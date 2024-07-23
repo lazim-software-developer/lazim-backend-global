@@ -11,6 +11,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Log;
 
 class BuildingSecurity implements ShouldQueue
 {
@@ -32,7 +33,8 @@ class BuildingSecurity implements ShouldQueue
      */
     public function handle(): void
     {
-        Config::set('mail.mailers.smtp.driver', $this->mailCredentials['mail_mailer']);
+        Log::info('$this->mailCredentials');
+        Config::set('mail.mailers.smtp.mailers', $this->mailCredentials['mail_mailer']);
         Config::set('mail.mailers.smtp.host', $this->mailCredentials['mail_host']);
         Config::set('mail.mailers.smtp.port', $this->mailCredentials['mail_port']);
         Config::set('mail.mailers.smtp.username', $this->mailCredentials['mail_username']);
