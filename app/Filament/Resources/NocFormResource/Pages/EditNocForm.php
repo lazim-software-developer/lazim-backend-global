@@ -4,6 +4,7 @@ namespace App\Filament\Resources\NocFormResource\Pages;
 
 use App\Filament\Resources\NocFormResource;
 use App\Jobs\SaleNocMailJob;
+use App\Models\AccountCredentials;
 use App\Models\ExpoPushNotification;
 use App\Models\OwnerAssociation;
 use App\Traits\UtilsTrait;
@@ -31,12 +32,20 @@ class EditNocForm extends EditRecord
     public function beforeSave()
     {
         $tenant           = Filament::getTenant()?->id ?? auth()->user()?->owner_association_id;
-        $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
-
+        // $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
+        $credentials = AccountCredentials::where('oa_id', $tenant)->where('active', true)->latest()->first();
+        $mailCredentials = [
+            'mail_host' => $credentials->host ?? env('MAIL_HOST'),
+            'mail_port' => $credentials->port ?? env('MAIL_PORT'),
+            'mail_username' => $credentials->username ?? env('MAIL_USERNAME'),
+            'mail_password' => $credentials->password ?? env('MAIL_PASSWORD'),
+            'mail_encryption' => $credentials->encryption ?? env('MAIL_ENCRYPTION'),
+            'mail_from_address' => $credentials->email ?? env('MAIL_FROM_ADDRESS'),
+        ];
         if ($this->record->admin_document != $this->data['admin_document']) {
             $user = $this->record->user;
             $file = $this->data['admin_document'];
-            SaleNocMailJob::dispatch($user, $file, $emailCredentials);
+            SaleNocMailJob::dispatch($user, $file, $mailCredentials);
         }
     }
     public function afterSave()
