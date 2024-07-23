@@ -35,7 +35,8 @@ class FlatVisitor extends Model
         'time_of_viewing',
         'status',
         'ticket_number',
-        'owner_association_id'
+        'owner_association_id',
+        'verified'
     ];
 
     protected $searchableFields = ['*'];

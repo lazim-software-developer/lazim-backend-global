@@ -39,7 +39,8 @@ class ContractRenewalMail extends Command
             $tenant           = Filament::getTenant()?->id ?? auth()->user()->owner_association_id;
             $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()->email ?? env('MAIL_FROM_ADDRESS');
 
-            ContractRenewalJob::dispatch($contract, $user, $emailCredentials);
+
+            ContractRenewalJob::dispatch($contract, $user, $emailCredentials);             
 
         }
     }
