@@ -60,7 +60,7 @@ class ContractResource extends Resource
                                     return Building::all()->pluck('name', 'id');
                                 }
                                 else{
-                                    return Building::where('owner_association_id', auth()->user()->owner_association_id)
+                                    return Building::where('owner_association_id', auth()->user()?->owner_association_id)
                                     ->pluck('name', 'id');
                                 } 
                             })
@@ -129,7 +129,7 @@ class ContractResource extends Resource
                                 if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
                                     return Vendor::where('status','approved')->pluck('name','id');
                                 }else{
-                                    return Vendor::where('owner_association_id',auth()->user()->owner_association_id)->where('status','approved')->pluck('name','id');
+                                    return Vendor::where('owner_association_id',auth()->user()?->owner_association_id)->where('status','approved')->pluck('name','id');
                                 }
                             })
                             ->reactive()

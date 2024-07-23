@@ -37,7 +37,7 @@ class TenderResource extends Resource
                 Hidden::make('created_by')
                     ->default(auth()->user()->id),
                 Hidden::make('owner_association_id')
-                    ->default(auth()->user()->owner_association_id),
+                    ->default(auth()->user()?->owner_association_id),
                 Select::make('building_id')
                     ->relationship('building', 'name')
                     ->preload()

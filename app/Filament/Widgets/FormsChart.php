@@ -75,13 +75,13 @@ class FormsChart extends ChartWidget
                 'labels' => ['Forms'],
             ];
         } else {
-            $saleNOC = SaleNOC::where('owner_association_id', auth()->user()->owner_association_id)->count();
-            $accessCard = AccessCard::where('owner_association_id', auth()->user()->owner_association_id)->count();
-            $guests = Guest::where('owner_association_id', auth()->user()->owner_association_id)->count();
-            $moveIn = MoveInOut::where('owner_association_id', auth()->user()->owner_association_id)->where('type', 'move-in')->count();
-            $moveOut = MoveInOut::where('owner_association_id', auth()->user()->owner_association_id)->where('type', 'move-out')->count();
-            $fitOut = FitOutForm::where('owner_association_id', auth()->user()->owner_association_id)->count();
-            $residential = ResidentialForm::where('owner_association_id', auth()->user()->owner_association_id)->count();
+            $saleNOC = SaleNOC::where('owner_association_id', auth()->user()?->owner_association_id)->count();
+            $accessCard = AccessCard::where('owner_association_id', auth()->user()?->owner_association_id)->count();
+            $guests = Guest::where('owner_association_id', auth()->user()?->owner_association_id)->count();
+            $moveIn = MoveInOut::where('owner_association_id', auth()->user()?->owner_association_id)->where('type', 'move-in')->count();
+            $moveOut = MoveInOut::where('owner_association_id', auth()->user()?->owner_association_id)->where('type', 'move-out')->count();
+            $fitOut = FitOutForm::where('owner_association_id', auth()->user()?->owner_association_id)->count();
+            $residential = ResidentialForm::where('owner_association_id', auth()->user()?->owner_association_id)->count();
             return [
                 'datasets' => [
                     [

@@ -126,7 +126,7 @@ class ProposalResource extends Resource
                 SelectFilter::make('vendor_id')
                     ->relationship('vendor', 'name', function (Builder $query) {
                         if (Role::where('id', auth()->user()->role_id)->first()->name != 'Admin') {
-                            $query->where('owner_association_id', auth()->user()->owner_association_id)->where('status', 'approved');
+                            $query->where('owner_association_id', auth()->user()?->owner_association_id)->where('status', 'approved');
                         }
                     })
                     ->searchable()
@@ -142,7 +142,7 @@ class ProposalResource extends Resource
                                     return Building::all()->pluck('name', 'id');
                                 }
                                 else{
-                                    return Building::where('owner_association_id', auth()->user()->owner_association_id)
+                                    return Building::where('owner_association_id', auth()->user()?->owner_association_id)
                                     ->pluck('name', 'id');
                                 } 
                             })

@@ -49,7 +49,7 @@ class ItemInventoryResource extends Resource
                             if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
                                 return Item::pluck('name', 'id');
                             }
-                            return Item::whereIn('building_id', Building::where('owner_association_id', auth()->user()->owner_association_id)->pluck('id'))->pluck('name', 'id');
+                            return Item::whereIn('building_id', Building::where('owner_association_id', auth()->user()?->owner_association_id)->pluck('id'))->pluck('name', 'id');
                         })
                         ->required()
                         ->searchable(),
@@ -93,7 +93,7 @@ class ItemInventoryResource extends Resource
 
     public static function table(Table $table): Table
     {
-        $buildings = Building::where('owner_association_id',auth()->user()->owner_association_id)->pluck('id');
+        $buildings = Building::where('owner_association_id',auth()->user()?->owner_association_id)->pluck('id');
         $items = Item::whereIn('building_id', $buildings)->pluck('id');
         return $table
             // ->modifyQueryUsing(fn(Builder $query) => $query->whereIn('item_id', $items)->orderBy('created_at','desc')->withoutGlobalScopes())

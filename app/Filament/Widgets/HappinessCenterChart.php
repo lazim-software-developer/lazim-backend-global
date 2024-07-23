@@ -32,9 +32,9 @@ class HappinessCenterChart extends ChartWidget
                 'labels' => ['Suggestions', 'Enquiries'],
             ];
         } else {
-            $complaints = Complaint::where('owner_association_id', auth()->user()->owner_association_id)->count();
-            $enquiries = Complaint::where('owner_association_id', auth()->user()->owner_association_id)->where('complaint_type', 'enquiries')->count();
-            $suggestions = Complaint::where('owner_association_id', auth()->user()->owner_association_id)->where('complaint_type', 'suggestions')->count();
+            $complaints = Complaint::where('owner_association_id', auth()->user()?->owner_association_id)->count();
+            $enquiries = Complaint::where('owner_association_id', auth()->user()?->owner_association_id)->where('complaint_type', 'enquiries')->count();
+            $suggestions = Complaint::where('owner_association_id', auth()->user()?->owner_association_id)->where('complaint_type', 'suggestions')->count();
             return [
                 'datasets' => [
                     [

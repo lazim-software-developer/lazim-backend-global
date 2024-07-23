@@ -30,7 +30,7 @@ class ProposalOverview extends BaseWidget
                     ->color('danger'),
             ];
         } else {
-            $vendorIds = Vendor::all()->where('owner_association_id', auth()->user()->owner_association_id)->pluck('id')->toArray();
+            $vendorIds = Vendor::all()->where('owner_association_id', auth()->user()?->owner_association_id)->pluck('id')->toArray();
             return [
                 Stat::make('Request Proposal', Proposal::query()->whereIn('vendor_id', $vendorIds)->count())
                     ->descriptionIcon('heroicon-s-user-group')

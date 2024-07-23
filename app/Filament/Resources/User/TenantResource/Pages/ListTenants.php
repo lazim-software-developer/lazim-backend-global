@@ -25,7 +25,7 @@ class ListTenants extends ListRecords
         if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
             return parent::getTableQuery();
         }
-        return parent::getTableQuery()->whereIn('building_id', Building::where('owner_association_id', Filament::getTenant()?->id ?? auth()->user()->owner_association_id)->pluck('id'));
+        return parent::getTableQuery()->whereIn('building_id', Building::where('owner_association_id', Filament::getTenant()?->id ?? auth()->user()?->owner_association_id)->pluck('id'));
     }
     protected function getHeaderActions(): array
     {
@@ -39,7 +39,7 @@ class ListTenants extends ListRecords
                             if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
                                 return Building::all()->pluck('name', 'id');
                             } else {
-                                return Building::where('owner_association_id', auth()->user()->owner_association_id)
+                                return Building::where('owner_association_id', auth()->user()?->owner_association_id)
                                     ->pluck('name', 'id');
                             }
                         })

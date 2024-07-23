@@ -14,7 +14,7 @@ class ListOacomplaintReports extends ListRecords
     protected static string $resource = OacomplaintReportsResource::class;
     protected function getTableQuery(): Builder
     {
-        $buildings = Building::all()->where('owner_association_id', auth()->user()->owner_association_id)->pluck('id')->toArray();
+        $buildings = Building::all()->where('owner_association_id', auth()->user()?->owner_association_id)->pluck('id')->toArray();
 
         if (Role::where('id', auth()->user()->role_id)->first()->name != 'Admin') {
             return parent::getTableQuery()->whereIn('building_id', $buildings);

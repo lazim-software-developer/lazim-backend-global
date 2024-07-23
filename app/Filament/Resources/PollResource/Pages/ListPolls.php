@@ -25,7 +25,7 @@ class ListPolls extends ListRecords
     {
         if(Role::where('id',auth()->user()->role_id)->first()->name != 'Admin') 
         {   
-            // return parent::getTableQuery()->whereIn('building_id',Building::where('owner_association_id',auth()->user()->owner_association_id)->pluck('id'));
+            // return parent::getTableQuery()->whereIn('building_id',Building::where('owner_association_id',auth()->user()?->owner_association_id)->pluck('id'));
             return Poll::where('owner_association_id',Filament::getTenant()->id);
         }
         return parent::getTableQuery();

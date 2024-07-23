@@ -23,7 +23,7 @@ class CreateRole extends CreateRecord
             ->values()
             ->flatten();
         
-            $data['owner_association_id'] = auth()->user()->owner_association_id;
+            $data['owner_association_id'] = auth()->user()?->owner_association_id;
         return Arr::only($data, ['name', 'guard_name','owner_association_id']);
     }
 

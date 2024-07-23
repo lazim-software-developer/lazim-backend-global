@@ -17,7 +17,7 @@ class ListAnnouncements extends ListRecords
     {
         if(Role::where('id',auth()->user()->role_id)->first()->name != 'Admin') 
         {
-            return parent::getTableQuery()->where('is_announcement',1)->where('owner_association_id',auth()->user()->owner_association_id);
+            return parent::getTableQuery()->where('is_announcement',1)->where('owner_association_id',auth()->user()?->owner_association_id);
         }
         return parent::getTableQuery()->where('is_announcement',1);
     }

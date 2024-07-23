@@ -29,8 +29,8 @@ class RegistrationChart extends ChartWidget
                 'labels' => ['Vendors', 'Residents'],
             ];
         } else {
-            $vendors = User::where('role_id', 2)->where('owner_association_id', auth()->user()->owner_association_id)->count();
-            $residents = User::whereIn('role_id', [1, 11])->where('owner_association_id', auth()->user()->owner_association_id)->count();
+            $vendors = User::where('role_id', 2)->where('owner_association_id', auth()->user()?->owner_association_id)->count();
+            $residents = User::whereIn('role_id', [1, 11])->where('owner_association_id', auth()->user()?->owner_association_id)->count();
             return [
                 'datasets' => [
                     [

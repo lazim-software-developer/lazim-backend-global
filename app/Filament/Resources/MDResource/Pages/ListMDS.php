@@ -15,7 +15,7 @@ class ListMDS extends ListRecords
     protected static ?string $title = 'MD';
     protected function getHeaderActions(): array
     {
-        // $Accountmanager = User::where(['owner_association_id'=> auth()->user()->owner_association_id, 'role_id' => Role::where('name', 'Accounts Manager')->first()->id])->exists();
+        // $Accountmanager = User::where(['owner_association_id'=> auth()->user()?->owner_association_id, 'role_id' => Role::where('name', 'Accounts Manager')->first()->id])->exists();
         // if (!$Accountmanager) {
         //     return [
         //         Actions\CreateAction::make(),
@@ -27,6 +27,6 @@ class ListMDS extends ListRecords
     }
     protected function getTableQuery(): Builder
     {
-        return parent::getTableQuery()->where(['owner_association_id'=>auth()->user()->owner_association_id,'role_id'=>Role::where('name','MD')->first()->id]);
+        return parent::getTableQuery()->where(['owner_association_id'=>auth()->user()?->owner_association_id,'role_id'=>Role::where('name','MD')->first()->id]);
     }
 }

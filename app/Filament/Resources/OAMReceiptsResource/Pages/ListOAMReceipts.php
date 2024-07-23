@@ -20,6 +20,6 @@ class ListOAMReceipts extends ListRecords
     // protected function getTableQuery(): Builder
     // {
     //     // dd($this->record);
-    //     return parent::getTableQuery()->where('complaint_type', 'suggestions')->where('owner_association_id',auth()->user()->owner_association_id);
+    //     return parent::getTableQuery()->where('complaint_type', 'suggestions')->where('owner_association_id',auth()->user()?->owner_association_id);
     // }
 }

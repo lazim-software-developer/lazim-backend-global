@@ -59,7 +59,7 @@ class CreateUser extends CreateRecord
         $password                   = Str::random(12);
         $user->email_verified       = 1;
         $user->phone_verified       = 1;
-        $user->owner_association_id = auth()->user()->owner_association_id;
+        $user->owner_association_id = auth()->user()?->owner_association_id;
         $user->password             = Hash::make($password);
         $user->role_id              = $this->data['roles'];
         $user->save();
@@ -67,7 +67,7 @@ class CreateUser extends CreateRecord
         // Dispatch the appropriate job based on the role
         if (array_key_exists($this->record->role?->name, $roleJobMap)) {
             $jobClass         = $roleJobMap[$this->record->role?->name];
-            $tenant           = Filament::getTenant()?->id ?? auth()->user()->owner_association_id;
+            $tenant           = Filament::getTenant()?->id ?? auth()->user()?->owner_association_id;
             // $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()->email ?? env('MAIL_FROM_ADDRESS');
 
             $credentials = AccountCredentials::where('oa_id', $tenant)->where('active', true)->latest()->first();
@@ -83,7 +83,7 @@ class CreateUser extends CreateRecord
             $jobClass::dispatch($user, $password, $mailCredentials);
             // GeneralAccountCreationJob::dispatch($user, $password);
         } else {
-            $tenant           = Filament::getTenant()?->id ?? auth()->user()->owner_association_id;
+            $tenant           = Filament::getTenant()?->id ?? auth()->user()?->owner_association_id;
             // $mailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()->email ?? env('MAIL_FROM_ADDRESS');
 
             $credentials = AccountCredentials::where('oa_id', $tenant)->where('active', true)->latest()->first();

@@ -13,7 +13,7 @@ class ListFitOutFormsDocuments extends ListRecords
     protected static ?string $title = 'Fit out';
     protected function getTableQuery(): Builder
     {
-        return auth()->user()->role->name == 'Admin' ? parent::getTableQuery() : parent::getTableQuery()->where('owner_association_id', auth()->user()->owner_association_id);
+        return auth()->user()->role->name == 'Admin' ? parent::getTableQuery() : parent::getTableQuery()->where('owner_association_id', auth()->user()?->owner_association_id);
     }
     protected function getHeaderActions(): array
     {

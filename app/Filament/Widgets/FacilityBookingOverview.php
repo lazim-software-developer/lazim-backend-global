@@ -33,7 +33,7 @@ class FacilityBookingOverview extends BaseWidget
 
             ];
         } else {
-            $buildingIds = Building::all()->where('owner_association_id', auth()->user()->owner_association_id)->pluck('id')->toArray();
+            $buildingIds = Building::all()->where('owner_association_id', auth()->user()?->owner_association_id)->pluck('id')->toArray();
             return [
                 Stat::make('Total Facility Booking', FacilityBooking::query()->whereIn('building_id', $buildingIds)->count())
                     ->descriptionIcon('heroicon-s-user-group')
