@@ -81,6 +81,6 @@ class FlatVisitor extends Model
     }
 
     public function guestDocuments(){
-        return $this->hasMany(Document::class,'documentable_id');
+        return $this->morphMany(Document::class,'documentable_id');
     }
 }
