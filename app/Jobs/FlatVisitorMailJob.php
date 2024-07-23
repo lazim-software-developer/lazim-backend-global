@@ -7,6 +7,8 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Config;
 use Snowfire\Beautymail\Beautymail;
 
 class FlatVisitorMailJob implements ShouldQueue
@@ -16,7 +18,7 @@ class FlatVisitorMailJob implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct(protected $visitor,protected $code,protected $emailCredentials)
+    public function __construct(protected $visitor,protected $code,protected $mailCredentials)
     {
         //
     }
@@ -26,13 +28,21 @@ class FlatVisitorMailJob implements ShouldQueue
      */
     public function handle(): void
     {
+        Config::set('mail.mailers.smtp.host', $this->mailCredentials['mail_host']);
+        Config::set('mail.mailers.smtp.port', $this->mailCredentials['mail_port']);
+        Config::set('mail.mailers.smtp.username', $this->mailCredentials['mail_username']);
+        Config::set('mail.mailers.smtp.password', $this->mailCredentials['mail_password']);
+        Config::set('mail.mailers.smtp.encryption', $this->mailCredentials['mail_encryption']);
+        Config::set('mail.mailers.smtp.email', $this->mailCredentials['mail_from_address']);
+        
         $beautymail = app()->make(Beautymail::class);
         $beautymail->send('emails.flat-visitor_mail', ['name' => $this->visitor->name,'code' => $this->code], function ($message) {
             $message
-                ->from($this->emailCredentials,env('MAIL_FROM_NAME'))
+                ->from($this->mailCredentials['mail_from_address'],env('MAIL_FROM_NAME'))
                 ->to($this->visitor->email, $this->visitor->name)
                 ->subject('Visitor verification');
         });
+        Artisan::call('queue:restart');
     }
 
 }
