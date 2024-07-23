@@ -44,7 +44,7 @@ class BuildingSecurity implements ShouldQueue
         $beautymail = app()->make(Beautymail::class);
         $beautymail->send('emails.buildingsecurity', ['user' => $this->user, 'password' => $this->password], function ($message) {
             $message
-                ->from($this->mailCredentials['email'],env('MAIL_FROM_NAME'))
+                ->from($this->mailCredentials['mail_from_address'],env('MAIL_FROM_NAME'))
                 ->to($this->user->email, $this->user->first_name)
                 ->subject('Welcome to Lazim!');
         });
