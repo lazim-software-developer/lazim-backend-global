@@ -35,7 +35,8 @@ class FlatVisitor extends Model
         'time_of_viewing',
         'status',
         'ticket_number',
-        'owner_association_id'
+        'owner_association_id',
+        'verified'
     ];
 
     protected $searchableFields = ['*'];
@@ -80,6 +81,6 @@ class FlatVisitor extends Model
     }
 
     public function guestDocuments(){
-        return $this->hasMany(Document::class,'documentable_id');
+        return $this->morphMany(Document::class,'documentable');
     }
 }

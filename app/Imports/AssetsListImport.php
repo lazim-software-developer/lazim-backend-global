@@ -4,6 +4,7 @@ namespace App\Imports;
 
 use App\Models\Asset;
 use App\Models\Building\Building;
+use App\Models\OwnerAssociation;
 use App\Models\TechnicianAssets;
 use App\Models\TechnicianVendor;
 use App\Models\User\User;
@@ -116,7 +117,9 @@ class AssetsListImport implements ToCollection, WithHeadingRow
 
                 // Fetch Building name
                 $building_name = Building::where('id', $asset->building_id)->first();
-                $assetCode     = strtoupper(substr(auth()->user()->ownerAssociation->name, 0, 2)) . '-' . Hashids::encode($asset->id);
+                $oam_id = DB::table('building_owner_association')->where('building_id',$asset->building_id)->where('active', true)->first();
+                $oam = OwnerAssociation::find($oam_id?->owner_association_id?:auth()->user()->ownerAssociation->first()->id);
+                $assetCode     = strtoupper(substr($oam?->name, 0, 2)) . '-' . Hashids::encode($asset->id);
                 // dd($assetCode);
 
                 // Build an object with the required properties

@@ -24,6 +24,7 @@ use App\Models\User\User;
 use App\Models\Visitor;
 use App\Models\Visitor\FlatVisitor;
 use App\Traits\UtilsTrait;
+use Carbon\Carbon;
 use Filament\Facades\Filament;
 use Filament\Notifications\Actions\Action;
 use Filament\Notifications\Notification;
@@ -169,15 +170,18 @@ class GuestController extends Controller
     public function visitorRequest(Request $request)
     {
         $visitor = FlatVisitor::where('verification_code', $request->code)->first();
+        $visitor->start_time = new Carbon($visitor->start_time);
         abort_if(!$visitor, 403, 'Invalid verification code');
+        abort_if($visitor->status!= 'approved',403, 'Not yet verified by Admin.' );
 
-        if ($visitor->status == null) {
+        if (!$visitor->verified) {
             return [
                 'data' => [
                     'visitor_id'         => $visitor->id,
                     'visitor_name'       => $visitor->name,
                     'visitor_email'      => $visitor->email,
                     'number_of_visitors' => $visitor->number_of_visitors,
+                    'date'      => $visitor->start_time->format('d-m-Y'),
                     'visiting_time'      => $visitor->time_of_viewing,
                     'status'             => $visitor->status,
                 ],
@@ -192,6 +196,7 @@ class GuestController extends Controller
                     'visitor_name'       => $visitor->name,
                     'visitor_email'      => $visitor->email,
                     'number_of_visitors' => $visitor->number_of_visitors,
+                    'visiting_date'      => $visitor->start_time->format('dmY'),
                     'visiting_time'      => $visitor->time_of_viewing,
                     'status'             => $visitor->status,
                 ],
@@ -201,8 +206,7 @@ class GuestController extends Controller
     public function visitorApproval(Request $request, FlatVisitor $visitor)
     {
         $visitor->update([
-            'approved_by' => auth()->user()?->id,
-            'status'      => $request->status,
+            'verified' => true,
         ]);
 
         return (new CustomResponseResource([
@@ -218,7 +222,7 @@ class GuestController extends Controller
         // List only approved requests from flat_visitors table
         $futureVisits = FlatVisitor::where('building_id', $building->id)
             ->where('start_time', '>', now())
-            ->where('type', 'visitor')
+            ->where('type', 'visitor')->where('status','approved')
             ->orderBy('start_time')
             ->get();
 
