@@ -72,7 +72,7 @@ class AssetResource extends Resource
                             //         }
                             //     },
                             // ])
-                            ->maxLength(50)
+                            ->maxLength(20)
                             ->required()
                             ->label('Asset Name'),
                         TextInput::make('floor')
