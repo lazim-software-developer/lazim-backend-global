@@ -7,6 +7,7 @@ use App\Http\Requests\Forms\SaleNocRequest;
 use App\Http\Resources\CustomResponseResource;
 use App\Jobs\Forms\SalesNocRequestJob;
 use App\Jobs\SendSaleNocEmail;
+use App\Models\AccountCredentials;
 use App\Models\Building\Building;
 use App\Models\Forms\NocContacts;
 use App\Models\Forms\NocFormSignedDocument;
@@ -34,9 +35,18 @@ class SaleNocController extends Controller
         // Create the SaleNoc entry
         $saleNoc          = SaleNoc::create($validated);
         $tenant           = Filament::getTenant()?->id ?? auth()->user()?->owner_association_id ?? $ownerAssociationId;
-        $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
+        // $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
 
-        SalesNocRequestJob::dispatch(auth()->user(), $saleNoc, $emailCredentials);
+        $credentials = AccountCredentials::where('oa_id', $tenant)->where('active', true)->latest()->first();
+        $mailCredentials = [
+            'mail_host' => $credentials->host ?? env('MAIL_HOST'),
+            'mail_port' => $credentials->port ?? env('MAIL_PORT'),
+            'mail_username' => $credentials->username ?? env('MAIL_USERNAME'),
+            'mail_password' => $credentials->password ?? env('MAIL_PASSWORD'),
+            'mail_encryption' => $credentials->encryption ?? env('MAIL_ENCRYPTION'),
+            'mail_from_address' => $credentials->email ?? env('MAIL_FROM_ADDRESS'),
+        ];
+        SalesNocRequestJob::dispatch(auth()->user(), $saleNoc, $mailCredentials);
 
         $contacts = $request->get('contacts');
 

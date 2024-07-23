@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Forms\CreateAccessCardFormsRequest;
 use App\Http\Resources\CustomResponseResource;
 use App\Jobs\Forms\AccessCardRequestJob;
+use App\Models\AccountCredentials;
 use App\Models\Building\Building;
 use App\Models\Forms\AccessCard;
 use App\Models\Forms\Guest;
@@ -46,9 +47,17 @@ class AccessCardController extends Controller
 
         $accessCard       = AccessCard::create($data);
         $tenant           = Filament::getTenant()?->id ?? auth()->user()?->owner_association_id;
-        $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
-
-        AccessCardRequestJob::dispatch(auth()->user(), $accessCard, $emailCredentials);
+        // $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
+        $credentials = AccountCredentials::where('oa_id', $tenant)->where('active', true)->latest()->first();
+        $mailCredentials = [
+            'mail_host' => $credentials->host ?? env('MAIL_HOST'),
+            'mail_port' => $credentials->port ?? env('MAIL_PORT'),
+            'mail_username' => $credentials->username ?? env('MAIL_USERNAME'),
+            'mail_password' => $credentials->password ?? env('MAIL_PASSWORD'),
+            'mail_encryption' => $credentials->encryption ?? env('MAIL_ENCRYPTION'),
+            'mail_from_address' => $credentials->email ?? env('MAIL_FROM_ADDRESS'),
+        ];
+        AccessCardRequestJob::dispatch(auth()->user(), $accessCard, $mailCredentials);
 
         return (new CustomResponseResource([
             'title'   => 'Success',
