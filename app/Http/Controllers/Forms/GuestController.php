@@ -221,9 +221,10 @@ class GuestController extends Controller
     {
         // List only approved requests from flat_visitors table
         $futureVisits = FlatVisitor::where('building_id', $building->id)
-            ->where('start_time', '>', now())
-            ->where('type', 'visitor')->where('status','approved')
-            ->orderBy('start_time')
+            ->whereRaw("CONCAT(DATE(start_time), ' ', time_of_viewing) > ?", [now()])
+            ->where('type', 'visitor')
+            ->where('status','approved')
+            ->orderBy(DB::raw("CONCAT(DATE(start_time), ' ', time_of_viewing)"))
             ->get();
 
         return VisitorResource::collection($futureVisits);
