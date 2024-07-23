@@ -30,15 +30,14 @@ class SendProposalRequestEmail implements ShouldQueue
 
     public function handle()
     {
-        $beautymail = app()->make(\Snowfire\Beautymail\Beautymail::class);
-
         Config::set('mail.mailers.smtp.host', $this->mailCredentials['mail_host']);
         Config::set('mail.mailers.smtp.port', $this->mailCredentials['mail_port']);
         Config::set('mail.mailers.smtp.username', $this->mailCredentials['mail_username']);
         Config::set('mail.mailers.smtp.password', $this->mailCredentials['mail_password']);
         Config::set('mail.mailers.smtp.encryption', $this->mailCredentials['mail_encryption']);
         Config::set('mail.mailers.smtp.email', $this->mailCredentials['mail_from_address']);
-
+        
+        $beautymail = app()->make(\Snowfire\Beautymail\Beautymail::class);
         foreach ($this->vendors as $vendor) {
             $beautymail->send('emails.proposal_request', ['vendor' => $vendor], function ($message) use ($vendor) {
                 $message
