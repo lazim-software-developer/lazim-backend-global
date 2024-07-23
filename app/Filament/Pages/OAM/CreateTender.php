@@ -82,7 +82,7 @@ class CreateTender extends Page
             $tenant           = Filament::getTenant()?->id ?? auth()->user()?->owner_association_id;
             // $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
 
-            $credentials = AccountCredentials::where('oa_id', $tenant)->where('active', true)->latest()->first();
+            $credentials = AccountCredentials::where('oa_id', $building->owner_association_id)->where('active', true)->latest()->first();
             $mailCredentials = [
                 'mail_host' => $credentials->host??env('MAIL_HOST'),
                 'mail_port' => $credentials->port??env('MAIL_PORT'),
