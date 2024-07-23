@@ -4,6 +4,7 @@ namespace App\Filament\Resources\FitOutFormsDocumentResource\Pages;
 
 use App\Filament\Resources\FitOutFormsDocumentResource;
 use App\Jobs\SaleNocMailJob;
+use App\Models\AccountCredentials;
 use App\Models\Building\BuildingPoc;
 use App\Models\ExpoPushNotification;
 use App\Models\Forms\FitOutForm;
@@ -39,23 +40,31 @@ class EditFitOutFormsDocument extends EditRecord
     public function beforeSave()
     {
         $tenant           = Filament::getTenant()?->id ?? auth()->user()?->owner_association_id;
-        $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
-
+        // $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
+        $credentials = AccountCredentials::where('oa_id', $tenant)->where('active', true)->latest()->first();
+        $mailCredentials = [
+            'mail_host' => $credentials->host ?? env('MAIL_HOST'),
+            'mail_port' => $credentials->port ?? env('MAIL_PORT'),
+            'mail_username' => $credentials->username ?? env('MAIL_USERNAME'),
+            'mail_password' => $credentials->password ?? env('MAIL_PASSWORD'),
+            'mail_encryption' => $credentials->encryption ?? env('MAIL_ENCRYPTION'),
+            'mail_from_address' => $credentials->email ?? env('MAIL_FROM_ADDRESS'),
+        ];
         if ($this->record->admin_document != $this->data['admin_document']) {
             $user = $this->record->user;
             $file = $this->data['admin_document'];
-            SaleNocMailJob::dispatch($user, $file, $emailCredentials);
+            SaleNocMailJob::dispatch($user, $file, $mailCredentials);
 
             $vendor = Contract::where('service_id', Service::where('name', 'MEP Services')->first()?->id)->where('end_date', '>=', now()->toDateString())->first()?->vendor_id;
             if ($vendor) {
                 $vendor = Vendor::find($vendor);
                 $user   = $vendor->user;
-                SaleNocMailJob::dispatch($user, $file, $emailCredentials);
+                SaleNocMailJob::dispatch($user, $file, $mailCredentials);
             }
             $gatekeeper = BuildingPoc::where('building_id', $this->record->building_id)->where('active', true)->where('role_name', 'security')->first();
             if ($gatekeeper) {
                 $user = User::find($gatekeeper->user_id);
-                SaleNocMailJob::dispatch($user, $file, $emailCredentials);
+                SaleNocMailJob::dispatch($user, $file, $mailCredentials);
             }
         }
     }
@@ -117,7 +126,6 @@ class EditFitOutFormsDocument extends EditRecord
                 'created_at'      => now()->format('Y-m-d H:i:s'),
                 'updated_at'      => now()->format('Y-m-d H:i:s'),
             ]);
-
         }
         if ($this->record->status == 'rejected' && $this->record->status != $this->data['status']) {
             $this->record->contractorRequest->update(['status' => $this->record->status]);
@@ -154,7 +162,6 @@ class EditFitOutFormsDocument extends EditRecord
                 'created_at'      => now()->format('Y-m-d H:i:s'),
                 'updated_at'      => now()->format('Y-m-d H:i:s'),
             ]);
-
         }
         if ($this->record->rejected_fields) {
             $rejectedFieldsJson = json_encode(['rejected_fields' => $this->record->rejected_fields]);
