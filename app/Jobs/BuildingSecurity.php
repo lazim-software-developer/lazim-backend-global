@@ -33,21 +33,21 @@ class BuildingSecurity implements ShouldQueue
      */
     public function handle(): void
     {
-        Log::info($this->mailCredentials);
-        Config::set('mail.mailers.smtp.host', $this->mailCredentials['mail_host']);
-        Config::set('mail.mailers.smtp.port', $this->mailCredentials['mail_port']);
-        Config::set('mail.mailers.smtp.username', $this->mailCredentials['mail_username']);
-        Config::set('mail.mailers.smtp.password', $this->mailCredentials['mail_password']);
-        Config::set('mail.mailers.smtp.encryption', $this->mailCredentials['mail_encryption']);
-        Config::set('mail.mailers.smtp.email', $this->mailCredentials['mail_from_address']);
+        Log::info(json_encode($this->mailCredentials));
+        // Config::set('mail.mailers.smtp.host', $this->mailCredentials['mail_host']);
+        // Config::set('mail.mailers.smtp.port', $this->mailCredentials['mail_port']);
+        // Config::set('mail.mailers.smtp.username', $this->mailCredentials['mail_username']);
+        // Config::set('mail.mailers.smtp.password', $this->mailCredentials['mail_password']);
+        // Config::set('mail.mailers.smtp.encryption', $this->mailCredentials['mail_encryption']);
+        // Config::set('mail.mailers.smtp.email', $this->mailCredentials['mail_from_address']);
 
-        $beautymail = app()->make(Beautymail::class);
-        $beautymail->send('emails.buildingsecurity', ['user' => $this->user, 'password' => $this->password], function ($message) {
-            $message
-                ->from($this->mailCredentials['email'],env('MAIL_FROM_NAME'))
-                ->to($this->user->email, $this->user->first_name)
-                ->subject('Welcome to Lazim!');
-        });
+        // $beautymail = app()->make(Beautymail::class);
+        // $beautymail->send('emails.buildingsecurity', ['user' => $this->user, 'password' => $this->password], function ($message) {
+        //     $message
+        //         ->from($this->mailCredentials['email'],env('MAIL_FROM_NAME'))
+        //         ->to($this->user->email, $this->user->first_name)
+        //         ->subject('Welcome to Lazim!');
+        // });
 
         Artisan::call('queue:restart');
     }
