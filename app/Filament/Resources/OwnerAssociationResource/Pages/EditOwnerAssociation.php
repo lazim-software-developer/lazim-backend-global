@@ -90,7 +90,7 @@ class EditOwnerAssociation extends EditRecord
                 'profile_photo' => $this->record->profile_photo,
                 'active'  => $this->record->active,
             ]);
-
+            $user = User::where('owner_association_id', $this->data['id'])->where('role_id', Role::where('name', 'OA')->where('owner_association_id' , $oaId)->first()->id)->first();
             $user->owner_association()->attach($owner->id,['from' => now()->toDateString()]);
             
 
