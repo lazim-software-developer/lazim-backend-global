@@ -4,6 +4,7 @@ namespace App\Filament\Resources\InvoiceResource\Pages;
 
 use App\Filament\Resources\InvoiceResource;
 use App\Jobs\InvoiceRejectionJob;
+use App\Models\AccountCredentials;
 use App\Models\Accounting\Invoice;
 use App\Models\InvoiceApproval;
 use App\Models\Master\Role;
@@ -40,8 +41,16 @@ class EditInvoice extends EditRecord
     protected function afterSave(): void
     {
         $tenant           = Filament::getTenant()?->id ?? auth()->user()->owner_association_id;
-        $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()->email ?? env('MAIL_FROM_ADDRESS');
-
+        // $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()->email ?? env('MAIL_FROM_ADDRESS');
+        $credentials = AccountCredentials::where('oa_id', $tenant)->where('active', true)->latest()->first();
+        $mailCredentials = [
+            'mail_host' => $credentials->host ?? env('MAIL_HOST'),
+            'mail_port' => $credentials->port ?? env('MAIL_PORT'),
+            'mail_username' => $credentials->username ?? env('MAIL_USERNAME'),
+            'mail_password' => $credentials->password ?? env('MAIL_PASSWORD'),
+            'mail_encryption' => $credentials->encryption ?? env('MAIL_ENCRYPTION'),
+            'mail_from_address' => $credentials->email ?? env('MAIL_FROM_ADDRESS'),
+        ];
         if (Role::where('id', auth()->user()->role_id)->first()->name == 'OA' && !InvoiceApproval::where('invoice_id', $this->record->id)->where('active', true)->exists()) {
 
             if ($this->record->status == 'approved') {
@@ -62,9 +71,8 @@ class EditInvoice extends EditRecord
                 ]);
                 $user    = User::find($this->record->created_by);
                 $invoice = Invoice::find($this->record->id);
-                InvoiceRejectionJob::dispatch($user, $this->record->remarks, $invoice, $emailCredentials);
+                InvoiceRejectionJob::dispatch($user, $this->record->remarks, $invoice, $mailCredentials);
             }
-
         }
         if (Role::where('id', auth()->user()->role_id)->first()->name == 'Accounts Manager') {
             if ($this->record->status == 'approved') {
@@ -93,7 +101,7 @@ class EditInvoice extends EditRecord
                     ->sendToDatabase($notify);
                 $user    = User::find($this->record->created_by);
                 $invoice = Invoice::find($this->record->id);
-                InvoiceRejectionJob::dispatch($user, $this->record->remarks, $invoice, $emailCredentials);
+                InvoiceRejectionJob::dispatch($user, $this->record->remarks, $invoice, $mailCredentials);
             }
         }
         if (Role::where('id', auth()->user()->role_id)->first()->name == 'MD') {
@@ -135,7 +143,7 @@ class EditInvoice extends EditRecord
 
                 $user    = User::find($this->record->created_by);
                 $invoice = Invoice::find($this->record->id);
-                InvoiceRejectionJob::dispatch($user, $this->record->remarks, $invoice, $emailCredentials);
+                InvoiceRejectionJob::dispatch($user, $this->record->remarks, $invoice, $mailCredentials);
             }
         }
         Invoice::where('id', $this->data['id'])
