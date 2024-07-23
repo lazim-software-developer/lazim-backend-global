@@ -74,7 +74,7 @@ class FacilityBookingsRelationManager extends RelationManager
                                     return User::whereIn('role_id', $roleId)->pluck('first_name', 'id'); 
                                 }
                                 else{
-                                    return User::whereIn('role_id', $roleId)->where('owner_association_id',auth()->user()->owner_association_id)->pluck('first_name', 'id');
+                                    return User::whereIn('role_id', $roleId)->where('owner_association_id',auth()->user()?->owner_association_id)->pluck('first_name', 'id');
                                 }
                             })
                             ->searchable()
@@ -83,7 +83,7 @@ class FacilityBookingsRelationManager extends RelationManager
                             ->placeholder('User'),
 
                         Hidden::make('owner_association_id')
-                            ->default(auth()->user()->owner_association_id),
+                            ->default(auth()->user()?->owner_association_id),
 
                         DatePicker::make('date')
                             ->rules(['date'])

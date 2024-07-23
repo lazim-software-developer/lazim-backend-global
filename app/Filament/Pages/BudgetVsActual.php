@@ -31,7 +31,7 @@ class BudgetVsActual extends Page implements HasTable
     protected static ?string $slug = 'budget-vs-actual';
 
     public function table(Table $table): Table
-    {   $oaId = auth()->user()->owner_association_id;
+    {   $oaId = auth()->user()?->owner_association_id;
         $buildingIds = Building::where('owner_association_id',$oaId)->pluck('id');
         $budgetIds = Budget::whereIn('building_id',$buildingIds)->pluck('id');
         return $table
@@ -68,7 +68,7 @@ class BudgetVsActual extends Page implements HasTable
                                 return Building::all()->pluck('name', 'id');
                             }
                             else{
-                                return Building::where('owner_association_id', auth()->user()->owner_association_id)
+                                return Building::where('owner_association_id', auth()->user()?->owner_association_id)
                                 ->pluck('name', 'id');
                             }    
                         })

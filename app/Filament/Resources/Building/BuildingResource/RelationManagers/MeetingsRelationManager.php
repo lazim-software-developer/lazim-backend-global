@@ -122,7 +122,7 @@ class MeetingsRelationManager extends RelationManager
                             $parsedown  = new Parsedown();
                             $agendaHtml = $parsedown->text($meeting->agenda);
 
-                            $tenant = Filament::getTenant()?->id ?? auth()->user()->owner_association_id;
+                            $tenant = Filament::getTenant()?->id ?? auth()->user()?->owner_association_id;
                             // $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()->email ?? env('MAIL_FROM_ADDRESS');
 
                             // if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {

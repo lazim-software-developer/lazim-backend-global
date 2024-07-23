@@ -83,7 +83,7 @@ class BuildingPocsRelationManager extends RelationManager
                             Hidden::make('role_id')
                                 ->default(12),
                             Hidden::make('owner_association_id')
-                                ->default(auth()->user()->owner_association_id),
+                                ->default(auth()->user()?->owner_association_id),
 
                         ])
                         ->required()
@@ -202,7 +202,7 @@ class BuildingPocsRelationManager extends RelationManager
                             $password       = Str::random(12);
                             $user->password = Hash::make($password);
                             $user->save();
-                            $tenant = Filament::getTenant()?->id ?? auth()->user()->owner_association_id;
+                            $tenant = Filament::getTenant()?->id ?? auth()->user()?->owner_association_id;
                             $credentials = AccountCredentials::where('oa_id', $tenant)->where('active', true)->latest()->first();
                             
                             $mailCredentials = [
@@ -296,7 +296,7 @@ class BuildingPocsRelationManager extends RelationManager
                             $password         = Str::random(12);
                             $record->password = Hash::make($password);
                             $record->save();
-                            $tenant = Filament::getTenant()?->id ?? auth()->user()->owner_association_id;
+                            $tenant = Filament::getTenant()?->id ?? auth()->user()?->owner_association_id;
                             $credentials = AccountCredentials::where('oa_id', $tenant)->where('active', true)->latest()->first();
 
                             $mailCredentials = [

@@ -21,7 +21,7 @@ class ListLedgers extends ListRecords
     }
     protected function getTableQuery(): Builder
     {
-        return parent::getTableQuery()->whereIn('building_id', Building::where('owner_association_id', auth()->user()->owner_association_id)->pluck('id'));
+        return parent::getTableQuery()->whereIn('building_id', Building::where('owner_association_id', auth()->user()?->owner_association_id)->pluck('id'));
     }
 
 }

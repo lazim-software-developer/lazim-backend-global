@@ -23,7 +23,7 @@ class CreateAccountsManager extends CreateRecord
         $data['email_verified']       = true;
         $data['phone_verified']       = true;
         $data['role_id']              = Role::where('name', 'Accounts Manager')->first()->id;
-        $data['owner_association_id'] = auth()->user()->owner_association_id;
+        $data['owner_association_id'] = auth()->user()?->owner_association_id;
 
         return $data;
     }

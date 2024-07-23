@@ -42,7 +42,7 @@ class TechnicianAssetsResource extends Resource
                     ->relationship('building', 'name')
                     ->preload()
                     ->options(function () {
-                        $oaId = auth()->user()->owner_association_id;
+                        $oaId = auth()->user()?->owner_association_id;
                         return Building::where('owner_association_id', $oaId)
                             ->pluck('name', 'id');
                     })
@@ -52,7 +52,7 @@ class TechnicianAssetsResource extends Resource
                 Select::make('asset_id')
                     ->relationship('asset', 'name')
                     ->options(function () {
-                        $BuildingId = Building::all()->where('owner_association_id', auth()->user()->owner_association_id)->pluck('id')->toArray();
+                        $BuildingId = Building::all()->where('owner_association_id', auth()->user()?->owner_association_id)->pluck('id')->toArray();
                         return Asset::whereIn('building_id', $BuildingId)->pluck('name', 'id');
                     })
                     ->preload()
@@ -116,7 +116,7 @@ class TechnicianAssetsResource extends Resource
                 SelectFilter::make('vendor_id')
                     ->relationship('vendor', 'name', function (Builder $query) {
                         if (Role::where('id', auth()->user()->role_id)->first()->name != 'Admin') {
-                            $query->where('owner_association_id', auth()->user()->owner_association_id);
+                            $query->where('owner_association_id', auth()->user()?->owner_association_id);
                         }
                     })
                     ->searchable()

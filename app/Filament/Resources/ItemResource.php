@@ -53,7 +53,7 @@ class ItemResource extends Resource
                             if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
                                 return Building::pluck('name', 'id');
                             }
-                            return Building::where('owner_association_id', auth()->user()->owner_association_id)->pluck('name', 'id');
+                            return Building::where('owner_association_id', auth()->user()?->owner_association_id)->pluck('name', 'id');
                         })
                         ->searchable(),
                     TextInput::make('name')
@@ -84,7 +84,7 @@ class ItemResource extends Resource
 
     public static function table(Table $table): Table
     {
-        $buildings = Building::where('owner_association_id',auth()->user()->owner_association_id)->pluck('id');
+        $buildings = Building::where('owner_association_id',auth()->user()?->owner_association_id)->pluck('id');
         return $table
         // ->modifyQueryUsing(fn(Builder $query) => $query->whereIn('building_id', $buildings)->orderBy('created_at','desc')->withoutGlobalScopes())
             ->columns([
@@ -116,7 +116,7 @@ class ItemResource extends Resource
                         ->required()
                         ->relationship('vendors', 'name')
                         ->options(function () {
-                            $oaId = auth()->user()->owner_association_id;
+                            $oaId = auth()->user()?->owner_association_id;
                             return Vendor::where('owner_association_id', $oaId)->where('status', 'approved')
                                 ->pluck('name', 'id');
                         })

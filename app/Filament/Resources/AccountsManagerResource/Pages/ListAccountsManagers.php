@@ -15,7 +15,7 @@ class ListAccountsManagers extends ListRecords
     protected static ?string $title = 'Accounts Manager';
     protected function getHeaderActions(): array
     {
-        // $Accountmanager = User::where(['owner_association_id'=> auth()->user()->owner_association_id, 'role_id' => Role::where('name', 'Accounts Manager')->first()->id])->exists();
+        // $Accountmanager = User::where(['owner_association_id'=> auth()->user()?->owner_association_id, 'role_id' => Role::where('name', 'Accounts Manager')->first()->id])->exists();
         // if (!$Accountmanager) {
         //     return [
         //         Actions\CreateAction::make(),
@@ -27,6 +27,6 @@ class ListAccountsManagers extends ListRecords
     }
     protected function getTableQuery(): Builder
     {
-        return parent::getTableQuery()->where(['owner_association_id' => auth()->user()->owner_association_id, 'role_id' => Role::where('name', 'Accounts Manager')->first()->id]);
+        return parent::getTableQuery()->where(['owner_association_id' => auth()->user()?->owner_association_id, 'role_id' => Role::where('name', 'Accounts Manager')->first()->id]);
     }
 }

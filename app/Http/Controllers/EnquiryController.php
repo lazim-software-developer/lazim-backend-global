@@ -16,7 +16,7 @@ class EnquiryController extends Controller
 
         $enquiry = Enquiry::create($request->all());
 
-        // $tenant           = Filament::getTenant()?->id ?? auth()->user()->owner_association_id;
+        // $tenant           = Filament::getTenant()?->id ?? auth()->user()?->owner_association_id;
         // $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()->email ?? env('MAIL_FROM_ADDRESS');
 
         EnquiryMailJob::dispatch($enquiry);

@@ -62,7 +62,7 @@ class SnagsResource extends Resource
                                 if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
                                     return Building::all()->pluck('name', 'id');
                                 } else {
-                                    return Building::where('owner_association_id', auth()->user()->owner_association_id)
+                                    return Building::where('owner_association_id', auth()->user()?->owner_association_id)
                                         ->pluck('name', 'id');
                                 }
                             })
@@ -102,7 +102,7 @@ class SnagsResource extends Resource
                             ->disabledOn('edit')
                             ->options(function ( Get $get) {
                                 $serviceVendor = ServiceVendor::where('service_id',$get('service_id'))->pluck('vendor_id');
-                                return Vendor::whereIn('id',$serviceVendor)->where('owner_association_id', auth()->user()->owner_association_id)->pluck('name', 'id');
+                                return Vendor::whereIn('id',$serviceVendor)->where('owner_association_id', auth()->user()?->owner_association_id)->pluck('name', 'id');
                             })
                             // ->disabled(function (Complaint $record) {
                             //     if ($record->vendor_id == null) {

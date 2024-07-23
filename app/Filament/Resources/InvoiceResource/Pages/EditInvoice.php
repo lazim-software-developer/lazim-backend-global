@@ -40,7 +40,7 @@ class EditInvoice extends EditRecord
     }
     protected function afterSave(): void
     {
-        $tenant           = Filament::getTenant()?->id ?? auth()->user()->owner_association_id;
+        $tenant           = Filament::getTenant()?->id ?? auth()->user()?->owner_association_id;
         // $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()->email ?? env('MAIL_FROM_ADDRESS');
         $credentials = AccountCredentials::where('oa_id', $tenant)->where('active', true)->latest()->first();
         $mailCredentials = [
@@ -91,7 +91,7 @@ class EditInvoice extends EditRecord
                     'remarks'    => $this->record->remarks,
                     'active'     => true,
                 ]);
-                $notify = User::where(['owner_association_id' => auth()->user()->owner_association_id, 'role_id' => Role::where('name', 'OA')->first()->id])->first();
+                $notify = User::where(['owner_association_id' => auth()->user()?->owner_association_id, 'role_id' => Role::where('name', 'OA')->first()->id])->first();
                 Notification::make()
                     ->success()
                     ->title("Invoice Rejection")
@@ -121,8 +121,8 @@ class EditInvoice extends EditRecord
                     'remarks'    => $this->record->remarks,
                     'active'     => true,
                 ]);
-                $notifyoa  = User::where(['owner_association_id' => auth()->user()->owner_association_id, 'role_id' => Role::where('name', 'OA')->first()->id])->first();
-                $notifyacc = User::where(['owner_association_id' => auth()->user()->owner_association_id, 'role_id' => Role::where('name', 'Accounts Manager')->first()->id])->get();
+                $notifyoa  = User::where(['owner_association_id' => auth()->user()?->owner_association_id, 'role_id' => Role::where('name', 'OA')->first()->id])->first();
+                $notifyacc = User::where(['owner_association_id' => auth()->user()?->owner_association_id, 'role_id' => Role::where('name', 'Accounts Manager')->first()->id])->get();
                 // dd($notifyacc);
                 Notification::make()
                     ->success()

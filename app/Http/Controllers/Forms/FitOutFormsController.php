@@ -48,7 +48,7 @@ class FitOutFormsController extends Controller
 
         $name             = $request->contractor_name;
         $email            = $request->email;
-        $tenant           = Filament::getTenant()?->id ?? auth()->user()->owner_association_id ?? $ownerAssociationId;
+        $tenant           = Filament::getTenant()?->id ?? auth()->user()?->owner_association_id ?? $ownerAssociationId;
         // $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()->email ?? env('MAIL_FROM_ADDRESS');
         $credentials = AccountCredentials::where('oa_id', $tenant)->where('active', true)->latest()->first();
         $mailCredentials = [
