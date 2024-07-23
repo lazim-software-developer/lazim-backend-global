@@ -17,7 +17,7 @@ class EnquiryMailJob implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct(protected $enquiry, protected $emailCredentials)
+    public function __construct(protected $enquiry)
     {
         //
     }
@@ -30,7 +30,6 @@ class EnquiryMailJob implements ShouldQueue
         $beautymail = app()->make(Beautymail::class);
         $beautymail->send('emails.enquiry', [ 'enquiry' => $this->enquiry], function($message) {
             $message
-                ->from($this->emailCredentials,env('MAIL_FROM_NAME'))
                 ->to('bd@lazim.ae')
                 ->subject('Welcome to Lazim!');
         });
