@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Building\BuildingResource\RelationManagers;
 
 use App\Jobs\BuildingSecurity;
+use App\Models\AccountCredentials;
 use App\Models\Building\BuildingPoc;
 use App\Models\Master\Role;
 use App\Models\OwnerAssociation;
@@ -202,17 +203,27 @@ class BuildingPocsRelationManager extends RelationManager
                             $user->password = Hash::make($password);
                             $user->save();
                             $tenant = Filament::getTenant()?->id ?? auth()->user()->owner_association_id;
+                            $credentials = AccountCredentials::where('oa_id', $tenant)->where('active', true)->latest()->first();
+                            
+                            $mailCredentials = [
+                                'mail_mailer'=> $credentials->mailer??env('MAIL_MAILER'),
+                                'mail_host' => $credentials->host??env('MAIL_HOST'),
+                                'mail_port' => $credentials->port??env('MAIL_PORT'),
+                                'mail_username'=> $credentials->username??env('MAIL_USERNAME'),
+                                'mail_password' => $credentials->password??env('MAIL_PASSWORD'),
+                                'mail_encryption' => $credentials->encryption??env('MAIL_ENCRYPTION'),
+                                'mail_from_address' => $credentials->email??env('MAIL_FROM_ADDRESS'),
+                            ];
+                            // if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
 
-                            if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+                            //     $emailCredentials = OwnerAssociation::find($oa_id)?->accountcredentials()->where('active', true)->latest()->first()->email ?? env('MAIL_FROM_ADDRESS');
 
-                                $emailCredentials = OwnerAssociation::find($oa_id)?->accountcredentials()->where('active', true)->latest()->first()->email ?? env('MAIL_FROM_ADDRESS');
+                            //     BuildingSecurity::dispatch($user, $password, $emailCredentials);
+                            // } else {
+                            //     $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()->email ?? env('MAIL_FROM_ADDRESS');
 
-                                BuildingSecurity::dispatch($user, $password, $emailCredentials);
-                            } else {
-                                $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()->email ?? env('MAIL_FROM_ADDRESS');
-
-                                BuildingSecurity::dispatch($user, $password, $emailCredentials);
-                            }
+                                BuildingSecurity::dispatch($user, $password, $mailCredentials);
+                            // }
 
                         }
                     })
@@ -286,17 +297,27 @@ class BuildingPocsRelationManager extends RelationManager
                             $record->password = Hash::make($password);
                             $record->save();
                             $tenant = Filament::getTenant()?->id ?? auth()->user()->owner_association_id;
+                            $credentials = AccountCredentials::where('oa_id', $tenant)->where('active', true)->latest()->first();
+
+                            $mailCredentials = [
+                                'mail_host' => $credentials->host??env('MAIL_HOST'),
+                                'mail_port' => $credentials->port??env('MAIL_PORT'),
+                                'mail_username'=> $credentials->username??env('MAIL_USERNAME'),
+                                'mail_password' => $credentials->password??env('MAIL_PASSWORD'),
+                                'mail_encryption' => $credentials->encryption??env('MAIL_ENCRYPTION'),
+                                'mail_from_address' => $credentials->email??env('MAIL_FROM_ADDRESS'),
+                            ];
                             // $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()->email ?? env('MAIL_FROM_ADDRESS');
 
-                            if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
-                                $oa_id            = DB::table('building_owner_association')->where('building_id', $record->building_id)->where('active', true)->first()?->owner_association_id;
-                                $emailCredentials = OwnerAssociation::find($oa_id)?->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
-                                BuildingSecurity::dispatch($record, $password, $emailCredentials);
-                            } else {
-                                $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
-                                BuildingSecurity::dispatch($record, $password, $emailCredentials);
+                            // if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+                            //     $oa_id            = DB::table('building_owner_association')->where('building_id', $record->building_id)->where('active', true)->first()?->owner_association_id;
+                            //     $emailCredentials = OwnerAssociation::find($oa_id)?->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
+                            //     BuildingSecurity::dispatch($record, $password, $emailCredentials);
+                            // } else {
+                            //     $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
+                                BuildingSecurity::dispatch($record, $password, $mailCredentials);
 
-                            }
+                            // }
 
                             // BuildingSecurity::dispatch($record, $password, $emailCredentials);
                         }
