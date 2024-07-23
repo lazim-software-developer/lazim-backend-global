@@ -193,10 +193,20 @@ class TechnicianController extends Controller
         $id = null;
         $last_date =  null;
 
-        if ($latestMaintenance) {
-            $status = $latestMaintenance->status;
-            $id = $latestMaintenance->id;
-            $last_date = $latestMaintenance->maintenance_date;
+        $maintenanceDate = new Carbon($latestMaintenance->maintenance_date);
+
+        // Add the number of days specified by $asset->frequency_of_service
+        $nextMaintenanceDue = $maintenanceDate->addDays($asset->frequency_of_service);
+        if ($latestMaintenance ) {
+            if($nextMaintenanceDue > now()){
+                $status = $latestMaintenance->status;
+                $id = $latestMaintenance->id;
+                $last_date = $latestMaintenance->maintenance_date;
+            }
+            else{
+                $id = $latestMaintenance->id;
+                $last_date = $latestMaintenance->maintenance_date;
+            }       
         }
 
         return [

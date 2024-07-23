@@ -330,7 +330,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasTenant
     {
         return $this->hasMany(ItemInventory::class);
     }
-      public function accountcredentials()
+      public function mailCredentials()
     {
         return $this->hasMany(AccountCredentials::class,'created_by');
     }
