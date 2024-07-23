@@ -10,7 +10,7 @@ class TasksChart extends ChartWidget
 {
     protected static ?string $heading = 'Tasks';
     protected static ?string $maxHeight = '200px';
-    protected static ?int $sort = 3;
+    protected static ?int $sort = 10;
     protected function getData(): array
     {
         if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {

@@ -7,6 +7,7 @@ use App\Models\Master\Role;
 use App\Models\Vendor\Vendor;
 use App\Models\Vendor\Contract;
 use App\Models\Accounting\Invoice;
+use Filament\Facades\Filament;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 
@@ -32,13 +33,14 @@ class ContractsOverview extends BaseWidget
         } else {
             $vendorIds = Vendor::all()->where('owner_association_id', auth()->user()->owner_association_id)->pluck('id');
             $contracts = Contract::query()->whereIn('vendor_id', $vendorIds);
-            $Invoices = Invoice::whereIn('vendor_id', $vendorIds);
+            // $Invoices = Invoice::whereIn('vendor_id', $vendorIds);
+            $Invoice = Invoice::where('owner_association_id',Filament::getTenant()->id)->count();
             return [
                 Stat::make('Contracts', $contracts->count())
                     ->descriptionIcon('heroicon-s-user-group')
                     ->chart([60, 92, 33, 80, 31, 98, 70])
                     ->color('info'),
-                Stat::make('Invoices', $Invoices->count())
+                Stat::make('Invoices', $Invoice)
                     ->descriptionIcon('heroicon-s-user-group')
                     ->chart([60, 92, 33, 80, 31, 98, 70])
                     ->color('info'),
