@@ -15,7 +15,7 @@ class FormsChart extends ChartWidget
 {
     protected static ?string $heading = 'Forms';
     protected static ?string $maxHeight = '200px';
-    protected static ?int $sort = 4;
+    protected static ?int $sort = 6;
 
     protected function getData(): array
     {
