@@ -10,8 +10,13 @@ class AccountCredentials extends Model
 {
     use HasFactory;
 
-    protected $table = 'account_credentials';
+    protected $table = 'mail_credentials';
     protected $fillable = [
+        'mailer',
+        'username',
+        'host',
+        'port',
+        'encryption',
         'email',
         'password',
         'oa_id',
