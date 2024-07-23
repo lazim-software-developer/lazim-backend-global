@@ -66,7 +66,7 @@ class OwnerAssociation extends Model
         return $this->hasMany(Poll::class);
     }
 
-    public function accountcredentials()
+    public function mailCredentials()
     {
         return $this->hasMany(AccountCredentials::class,'oa_id');
     }

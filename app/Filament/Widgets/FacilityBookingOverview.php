@@ -12,7 +12,7 @@ use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 
 class FacilityBookingOverview extends BaseWidget
 {
-    protected static ?int $sort = 1;
+    protected static ?int $sort = 4;
     protected function getStats(): array
     {
         if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
