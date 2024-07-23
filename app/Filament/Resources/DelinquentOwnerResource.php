@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\DelinquentOwnerResource\Pages;
 use App\Jobs\OAM\InvoiceDueMailJob;
+use App\Models\AccountCredentials;
 use App\Models\ApartmentOwner;
 use App\Models\Building\Building;
 use App\Models\DelinquentOwner;
@@ -80,7 +81,7 @@ class DelinquentOwnerResource extends Resource
                             return $query
                                 ->when(
                                     $data['year'],
-                                    fn(Builder $query, $year) => $query->where('year', $year)
+                                    fn (Builder $query, $year) => $query->where('year', $year)
                                 );
                         }
 
@@ -103,7 +104,7 @@ class DelinquentOwnerResource extends Resource
                         return $query
                             ->when(
                                 $data['building'],
-                                fn(Builder $query, $building_id): Builder => $query->where('building_id', $building_id),
+                                fn (Builder $query, $building_id): Builder => $query->where('building_id', $building_id),
                             );
                     }),
             ], layout: FiltersLayout::AboveContent)->filtersFormColumns(3)
@@ -122,19 +123,29 @@ class DelinquentOwnerResource extends Resource
                                 ->label('Content of email')
                                 ->helperText('Enter content with values less than 500 characters.'),
                         ])
-                        ->fillForm(fn(DelinquentOwner $record): array=> [
+                        ->fillForm(fn (DelinquentOwner $record): array => [
                             'content' => 'Your payment is Due, please make the payment ASAP.',
                         ])
                         ->action(function (Collection $records, array $data): void {
                             $tenant           = Filament::getTenant()?->id ?? auth()->user()?->owner_association_id;
-                            $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
+                            // $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
+
+                            $credentials = AccountCredentials::where('oa_id', $tenant)->where('active', true)->latest()->first();
+                            $mailCredentials = [
+                                'mail_host' => $credentials->host ?? env('MAIL_HOST'),
+                                'mail_port' => $credentials->port ?? env('MAIL_PORT'),
+                                'mail_username' => $credentials->username ?? env('MAIL_USERNAME'),
+                                'mail_password' => $credentials->password ?? env('MAIL_PASSWORD'),
+                                'mail_encryption' => $credentials->encryption ?? env('MAIL_ENCRYPTION'),
+                                'mail_from_address' => $credentials->email ?? env('MAIL_FROM_ADDRESS'),
+                            ];
 
                             foreach ($records as $record) {
                                 // Access the owner_id of each selected record
 
                                 $owner   = ApartmentOwner::find($record->owner_id);
                                 $content = $data['content'];
-                                InvoiceDueMailJob::dispatch($owner, $content, $emailCredentials);
+                                InvoiceDueMailJob::dispatch($owner, $content, $mailCredentials);
                             }
                             Notification::make()
                                 ->title("Notification: Outstanding Balance")
