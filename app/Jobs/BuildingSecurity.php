@@ -33,8 +33,7 @@ class BuildingSecurity implements ShouldQueue
      */
     public function handle(): void
     {
-        Log::info('$this->mailCredentials');
-        Config::set('mail.mailers.smtp.mailers', $this->mailCredentials['mail_mailer']);
+        Log::info($this->mailCredentials);
         Config::set('mail.mailers.smtp.host', $this->mailCredentials['mail_host']);
         Config::set('mail.mailers.smtp.port', $this->mailCredentials['mail_port']);
         Config::set('mail.mailers.smtp.username', $this->mailCredentials['mail_username']);
