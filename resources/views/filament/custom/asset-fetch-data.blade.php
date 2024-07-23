@@ -3,36 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QR Codes</title>
+    <title>Assets QR Codes</title>
     <style>
-    .container {
-    max-width: 1200px;
-    padding: 20px;
-    overflow: hidden; /* Clean up overflow */
-}
+        .container {
+            max-width: 1200px;
+            padding: 20px;
+            overflow: hidden; /* Clean up overflow */
+        }
 
-.headding {
-    padding-bottom: 20px;
-}
+        .headding {
+            padding-bottom: 20px;
+        }
 
-.asset {
-    display: flex;
-    justify-content: space-between; /* Aligns items to the left */
-}
+        .asset {
+            display: flex;
+            justify-content: space-between; /* Aligns items to the left */
+        }
 
-table {
-    width: 100%; /* Full width of the container */
-    border-collapse: separate; /* Ensures that the spacing between cells can be adjusted */
-    border-spacing: 10px 10px; /* Horizontal and vertical spacing between cells */
-}
+        table {
+            width: 100%; /* Full width of the container */
+            border-collapse: separate; /* Ensures that the spacing between cells can be adjusted */
+            border-spacing: 10px 10px; /* Horizontal and vertical spacing between cells */
+        }
 
-td {
-    text-align: center; /* Centers the content within the cell */
-    vertical-align: top; /* Aligns content to the top of the cell */
-}
-
-
-
+        td {
+            text-align: center; /* Centers the content within the cell */
+            vertical-align: top; /* Aligns content to the top of the cell */
+        }
     </style>
 </head>
 <body>
@@ -42,11 +39,11 @@ td {
         window.location = "/admin/assets";
     </script>
     @else
-    <h1 class="headding">QR Codes</h1>
+    <h1 class="headding">Assets QR Code:</h1>
     <table>
     @php $i = 0; @endphp
     @foreach($data as $qr)
-        @if ($i % 4 == 0) 
+        @if ($i % 3 == 0) <!-- Adjust to make 3 QR codes per row -->
             @if ($i != 0) 
                 </tr>
             @endif
@@ -56,27 +53,23 @@ td {
             $qrCodeData = strlen($qr['qr_code']) > 200 ? substr($qr['qr_code'], 0, 200) : $qr['qr_code'];
         @endphp
         <td>
-            <h2>{{ $qr['asset_code'] }}</h2>
+            <h4>Name: {{$qr['name']}}</h4>
+            <h4 style="margin-top: -20px;">Code: {{ $qr['asset_code'] }}</h4>
             <img src="data:image/svg+xml;base64,{{ base64_encode(QrCode::size(150)->generate($qrCodeData)) }}" alt="QR Code for {{ $qr['asset_code'] }}"/>
         </td>
         @php $i++; @endphp
     @endforeach
-    @if ($i % 4 != 0) <!-- Ensures the last row is closed properly -->
+    @if ($i % 3 != 0) <!-- Ensures the last row is closed properly -->
         </tr>
     @endif
-</table>
-
-    <div >
-    </div>
+    </table>
     @endif
 </div>
-
-
-    <script>
-        // Function to open the print dialog
-        function printDocument() {
-            window.print();
-        }
-    </script>
+<script>
+    // Function to open the print dialog
+    function printDocument() {
+        window.print();
+    }
+</script>
 </body>
 </html>

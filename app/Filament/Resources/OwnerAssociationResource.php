@@ -11,6 +11,7 @@ use App\Models\Master\Role;
 use App\Models\OwnerAssociation;
 use Filament\Resources\Resource;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\HtmlString;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Toggle;
 use Illuminate\Database\Eloquent\Model;
@@ -18,9 +19,9 @@ use Illuminate\Validation\Rules\Unique;
 use Filament\Forms\Components\Component;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\FileUpload;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 use App\Filament\Resources\OwnerAssociationResource\Pages;
 use App\Filament\Resources\OwnerAssociationResource\RelationManagers\AccountcredentialsRelationManager;
-use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class OwnerAssociationResource extends Resource
 {
@@ -64,11 +65,21 @@ class OwnerAssociationResource extends Resource
                             'regex'=>'Slug format is Invalid. It can only accept Lowercase letters, Numbers and hyphen'
                         ])
                         ->unique('owner_associations','slug', ignoreRecord:true)
-                        ->placeholder('Enter a unique slug'),
+                        ->helperText(function(){
+                            if(Role::where('id',auth()->user()->role_id)->first()->name == 'Admin'){
+                                return '' ;
+                            }else{
+                                return new HtmlString(' <strong>Note:</strong> Updating the slug will require you to re-authenticate using the new slug URL to ensure secure access to your resources.');
+                            }
+                        })
+                        ->afterStateUpdated(function($state){
+                            if(!(Role::where('id',auth()->user()->role_id)->first()->name == 'Admin')){
+                                request()->session()->invalidate();
+                            }
+                        }),
                     TextInput::make('mollak_id')->label('Oa Number')
                         ->required()
                         ->disabled()
-
                         ->placeholder('OA Number'),
                     TextInput::make('trn_number')->label('TRN Number')
                         ->required()
