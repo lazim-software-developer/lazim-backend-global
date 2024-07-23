@@ -181,7 +181,7 @@ class GuestController extends Controller
                     'visitor_name'       => $visitor->name,
                     'visitor_email'      => $visitor->email,
                     'number_of_visitors' => $visitor->number_of_visitors,
-                    'visiting_date'      => $visitor->start_time->format('dmY'),
+                    'date'      => $visitor->start_time->format('d-m-Y'),
                     'visiting_time'      => $visitor->time_of_viewing,
                     'status'             => $visitor->status,
                 ],
