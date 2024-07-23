@@ -38,7 +38,7 @@ class RiskPolicyExpiryMail extends Command
         foreach ($documents as $document) {
             $vendor           = Vendor::find($document->documentable_id);
             $user             = User::find($vendor->owner_id);
-            $tenant           = Filament::getTenant()?->id ?? auth()->user()?->owner_association_id;
+            $tenant           = Filament::getTenant()?->id ?? $document?->owner_association_id;
             // $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
             $credentials = AccountCredentials::where('oa_id', $tenant)->where('active', true)->latest()->first();
             $mailCredentials = [
