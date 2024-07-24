@@ -45,7 +45,7 @@ class CentralFundStatementImport implements ToCollection, WithHeadingRow
         }
 
         $filteredRows = $rows->filter(function ($row) {
-            return !empty($row['section']) || !empty($row['service_code']) || !empty($row['balance']);
+            return !empty($row['section']) || !empty($row['service_code']) || isset($row['balance']);
         });
         // Check for missing required fields in rows
         $missingFieldsRows = [];
@@ -73,12 +73,12 @@ class CentralFundStatementImport implements ToCollection, WithHeadingRow
             if ($row['section'] === 'income') {
                 $this->data['income'][] = [
                     'service_code' => (string) $row['service_code'],
-                    'balance'      => $row['balance'],
+                    'balance'      => (float) $row['balance'],
                 ];
             } elseif ($row['section'] === 'expense') {
                 $this->data['expense'][] = [
                     'service_code' => (string) $row['service_code'],
-                    'balance'      => $row['balance'],
+                    'balance'      => (float) $row['balance'],
                 ];
             }
         }
