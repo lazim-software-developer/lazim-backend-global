@@ -52,7 +52,8 @@ class ComplaintCreationJob implements ShouldQueue
                 'type' => 'Complaint'
             ], function ($message) use ($user) {
                 $message
-                    ->to($this->mailCredentials['mail_from_address'], $user->first_name)
+                    ->from($this->mailCredentials['mail_from_address'],env('MAIL_FROM_NAME'))
+                    ->to($user->email, $user->first_name)
                     ->subject('Complaint Request Submitted');
             });
         }
@@ -71,7 +72,8 @@ class ComplaintCreationJob implements ShouldQueue
             'type' => 'Task Assigned'
         ], function ($message) use ($user) {
             $message
-                ->to($this->mailCredentials['mail_from_address'], $user->first_name)
+                ->from($this->mailCredentials['mail_from_address'],env('MAIL_FROM_NAME'))
+                ->to($user->email, $user->first_name)
                 ->subject('Task Assigned');
         });
     }
