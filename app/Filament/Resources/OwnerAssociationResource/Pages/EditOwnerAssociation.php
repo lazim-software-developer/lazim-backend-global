@@ -130,7 +130,7 @@ class EditOwnerAssociation extends EditRecord
                     'email_verified' => 1,
                     'phone_verified' => 1,
                 ]);
-                $user->owner_association()->attach($owner->id,['from' => now()->toDateString()]);
+                $user->owner_association()->attach($this->record->id,['from' => now()->toDateString()]);
                 $oa = Role::where('name', 'OA')->where('owner_association_id' , $this->record->id)->first();
                 DB::table('model_has_roles')->insert([
                     'role_id' => $oa->id,
@@ -141,7 +141,7 @@ class EditOwnerAssociation extends EditRecord
                 AccountCreationJob::dispatch($user, $password);
                 
             } else {
-                $user->owner_association()->attach($owner->id,['from' => now()->toDateString()]);
+                $user->owner_association()->attach($this->record->id,['from' => now()->toDateString()]);
                 // No need to handle this - Subhash
             }
         }
