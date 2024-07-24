@@ -26,7 +26,7 @@ class SaleNocController extends Controller
         // Upload files using the fucntion optimizeDocumentAndUpload
         $validated = $request->validated();
 
-        $oam_id = DB::table('building_owner_association')->where('building_id',$request->building_id)->where('active', true)->first();
+        $oam_id = DB::table('building_owner_association')->where('building_id', $request->building_id)->where('active', true)->first();
 
         $validated['user_id']              = auth()->user()->id;
         $validated['owner_association_id'] = $oam_id?->owner_association_id;
@@ -104,8 +104,17 @@ class SaleNocController extends Controller
                 'uploaded_by' => auth()->user()->id,
             ]);
 
-            // Send email to buyers attaching the document
-            SendSaleNocEmail::dispatch($saleNoc, $document)->delay(5);
+            $credentials = AccountCredentials::where('oa_id', $saleNoc->owner_association_id)->where('active', true)->latest()->first();
+            $mailCredentials = [
+                'mail_host' => $credentials->host ?? env('MAIL_HOST'),
+                'mail_port' => $credentials->port ?? env('MAIL_PORT'),
+                'mail_username' => $credentials->username ?? env('MAIL_USERNAME'),
+                'mail_password' => $credentials->password ?? env('MAIL_PASSWORD'),
+                'mail_encryption' => $credentials->encryption ?? env('MAIL_ENCRYPTION'),
+                'mail_from_address' => $credentials->email ?? env('MAIL_FROM_ADDRESS'),
+            ];
+            // Send email to buyers attaching the document 
+            SendSaleNocEmail::dispatch($saleNoc, $document, $mailCredentials)->delay(5);
         } else if ($status == 'seller_uploaded') {
             $saleNoc->update(['submit_status' => 'buyer_uploaded']);
 
