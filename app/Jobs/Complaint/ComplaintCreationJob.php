@@ -9,6 +9,8 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Config;
 use Snowfire\Beautymail\Beautymail;
 
 class ComplaintCreationJob implements ShouldQueue
@@ -18,7 +20,7 @@ class ComplaintCreationJob implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct(protected $complaintId, protected $technicianId = null)
+    public function __construct(protected $complaintId, protected $technicianId = null, protected $mailCredentials)
     {
     }
 
@@ -27,6 +29,13 @@ class ComplaintCreationJob implements ShouldQueue
      */
     public function handle()
     {
+        Config::set('mail.mailers.smtp.host', $this->mailCredentials['mail_host']);
+        Config::set('mail.mailers.smtp.port', $this->mailCredentials['mail_port']);
+        Config::set('mail.mailers.smtp.username', $this->mailCredentials['mail_username']);
+        Config::set('mail.mailers.smtp.password', $this->mailCredentials['mail_password']);
+        Config::set('mail.mailers.smtp.encryption', $this->mailCredentials['mail_encryption']);
+        Config::set('mail.mailers.smtp.email', $this->mailCredentials['mail_from_address']);
+
         $beautymail = app()->make(Beautymail::class);
         $dataObj = Complaint::findOrFail($this->complaintId);
 
@@ -47,6 +56,7 @@ class ComplaintCreationJob implements ShouldQueue
                     ->subject('Complaint Request Submitted');
             });
         }
+        Artisan::call('queue:restart');
 
     }
 
