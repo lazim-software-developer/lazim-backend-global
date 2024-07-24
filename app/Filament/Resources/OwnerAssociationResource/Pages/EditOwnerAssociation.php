@@ -117,9 +117,11 @@ class EditOwnerAssociation extends EditRecord
                 $password = Str::random(12);
 
                 $user = User::firstorcreate([
-                    'first_name'           => $this->record->name,
                     'email'                => $this->record->email,
                     'phone'                => $this->record->phone,
+                ],
+                    [
+                    'first_name'           => $this->record->name,
                     'profile_photo'        => $this->record->profile_photo,
                     'role_id'              => Role::where('name', 'OA')->where('owner_association_id' , $oaId)->value('id'),
                     'active'               => $this->record->active,
