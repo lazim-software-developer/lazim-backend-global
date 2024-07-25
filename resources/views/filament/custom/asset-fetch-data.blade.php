@@ -50,7 +50,7 @@
             <tr>
         @endif
         @php
-            $qrCodeData = strlen($qr['qr_code']) > 200 ? substr($qr['qr_code'], 0, 200) : $qr['qr_code'];
+            $qrCodeData = $qr['qr_code'];
         @endphp
         <td>
             <h4>Name: {{$qr['name']}}</h4>

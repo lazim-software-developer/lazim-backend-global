@@ -14,6 +14,7 @@ use App\Models\Vendor\Contract;
 use Carbon\Carbon;
 use Filament\Actions;
 use Filament\Resources\Pages\CreateRecord;
+use GuzzleHttp\Client;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
@@ -59,7 +60,30 @@ class CreateAsset extends CreateRecord
 
         // Generate a QR code using the QrCode library
         $qrCode = QrCode::format('svg')->size(200)->generate(json_encode($qrCodeContent));
+        // $qrCode = QrCode::size(200)->generate(json_encode($qrCodeContent));
+        // // Log::info('QrCode generated for event: ' . $qrCode);
+        // $client = new Client();
+        // $apiKey = env('AWS_LAMBDA_API_KEY');
 
+        // try {
+        //     $response = $client->request('GET', env('AWS_LAMBDA_URL'), [
+        //         'headers' => [
+        //             'x-api-key'    => $apiKey,
+        //             'Content-Type' => 'application/json',
+        //         ],
+        //         'json'    => [
+        //             'file_name' => $asset->name.'-'.$assetCode,
+        //             'svg'       => $qrCode->toHtml(),
+        //         ],
+        //     ]);
+
+        //     // $content = json_decode($response->getBody()->getContents());
+
+        //     // $this->event->qr_code = $content->url;
+        //     // $this->event->save();
+        // } catch (\Exception $e) {
+        //     Log::error($e->getMessage());
+        // }
         //     $filename = uniqid() . '.' . 'svg';
         //     $fullPath = 'dev' . '/' . $filename;
 
@@ -113,6 +137,11 @@ class CreateAsset extends CreateRecord
                 }
             }
         }
+    }
+
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('view');
     }
 
 }
