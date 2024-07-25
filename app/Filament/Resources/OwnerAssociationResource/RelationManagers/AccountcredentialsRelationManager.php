@@ -14,7 +14,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class AccountcredentialsRelationManager extends RelationManager
 {
-    protected static string $relationship = 'accountcredentials';
+    protected static string $relationship = 'mailCredentials';
 
     protected static ?string $title = 'Account Credentials';
 
@@ -62,8 +62,8 @@ class AccountcredentialsRelationManager extends RelationManager
                 ]),
             ]);
     }
-    public static function canViewForRecord(Model $ownerRecord, string $pageClass): bool
-    {
-        return auth()->user()->role === 'OA';
-    }
+    // public static function canViewForRecord(Model $ownerRecord, string $pageClass): bool
+    // {
+    //     return auth()->user()->role === 'OA';
+    // }
 }
