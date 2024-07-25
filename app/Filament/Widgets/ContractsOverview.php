@@ -8,43 +8,43 @@ use App\Models\Vendor\Vendor;
 use App\Models\Vendor\Contract;
 use App\Models\Accounting\Invoice;
 use Filament\Facades\Filament;
+use Filament\Widgets\Concerns\InteractsWithPageFilters;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
+use Illuminate\Support\Facades\Log;
 
 class ContractsOverview extends BaseWidget
 {
+    use InteractsWithPageFilters;
+
     protected static ?int $sort = 0;
+
     protected function getStats(): array
     {
-        if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
-            $vendorIds = Vendor::all()->pluck('id');
-            $contracts = Contract::query()->whereIn('vendor_id', $vendorIds);
-            $Invoices = Invoice::whereIn('vendor_id', $vendorIds);
-            return [
-                Stat::make('Contracts', $contracts->count())
-                    ->descriptionIcon('heroicon-s-user-group')
-                    ->chart([60, 92, 33, 80, 31, 98, 70])
-                    ->color('info'),
-                Stat::make('Invoices', $Invoices->count())
-                    ->descriptionIcon('heroicon-s-user-group')
-                    ->chart([60, 92, 33, 80, 31, 98, 70])
-                    ->color('info'),
-            ];
-        } else {
-            $vendorIds = Vendor::all()->where('owner_association_id', auth()->user()->owner_association_id)->pluck('id');
-            $contracts = Contract::query()->whereIn('vendor_id', $vendorIds);
-            // $Invoices = Invoice::whereIn('vendor_id', $vendorIds);
-            $Invoice = Invoice::where('owner_association_id',Filament::getTenant()->id)->count();
-            return [
-                Stat::make('Contracts', $contracts->count())
-                    ->descriptionIcon('heroicon-s-user-group')
-                    ->chart([60, 92, 33, 80, 31, 98, 70])
-                    ->color('info'),
-                Stat::make('Invoices', $Invoice)
-                    ->descriptionIcon('heroicon-s-user-group')
-                    ->chart([60, 92, 33, 80, 31, 98, 70])
-                    ->color('info'),
-            ];
+        $startDate = $this->filters['startDate'] ?? null;
+        $endDate = $this->filters['endDate'] ?? null;
+
+        $query = Contract::query()->where('owner_association_id', Filament::getTenant()->id);
+
+        if ($startDate) {
+            $startOfDay = Carbon::createFromFormat('Y-m-d', $startDate)->format('Y-m-d');
+            $query->where('start_date', '>=', $startOfDay);
         }
+        if ($endDate) {
+            $endOfDay = Carbon::createFromFormat('Y-m-d', $endDate)->format('Y-m-d');
+            $query->where('end_date', '<=', $endOfDay);
+        }
+        
+
+        $contractCount = $query->count();
+
+            
+            return [
+                Stat::make('Contracts', $contractCount)
+                    ->descriptionIcon('heroicon-s-user-group')
+                    ->chart([60, 92, 33, 80, 31, 98, 70])
+                    ->color('info'),
+            ];
+        
     }
 }
