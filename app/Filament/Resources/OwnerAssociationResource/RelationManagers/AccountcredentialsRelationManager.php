@@ -18,7 +18,7 @@ class AccountcredentialsRelationManager extends RelationManager
 {
     protected static string $relationship = 'mailCredentials';
 
-    protected static ?string $title = 'Account Credentials';
+    protected static ?string $title = 'Mail Configuration';
 
     public function form(Form $form): Form
     {
@@ -97,7 +97,8 @@ class AccountcredentialsRelationManager extends RelationManager
                 //
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make(),
+                Tables\Actions\CreateAction::make()
+                ->label('Create'),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
