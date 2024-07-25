@@ -49,7 +49,7 @@ class BuildingsRelationManager extends RelationManager
                         ->nullable()
                         ->placeholder('Address Line2'),
                     Hidden::make('owner_association_id')
-                        ->default(auth()->user()->owner_association_id),
+                        ->default(auth()->user()?->owner_association_id),
 
                     TextInput::make('area')
                         ->rules(['max:50', 'string'])

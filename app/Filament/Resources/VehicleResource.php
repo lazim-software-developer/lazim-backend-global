@@ -47,7 +47,7 @@ class VehicleResource extends Resource
                         return User::all()->whereIn('role_id',Role::whereIn('name',['Tenant','Owner'])->pluck('id'))->pluck('first_name','id');
                     }
                     else{
-                        return User::where('owner_association_id', auth()->user()->owner_association_id)->whereIn('role_id',Role::whereIn('name',['Tenant','Owner'])->pluck('id'))->pluck('first_name','id');
+                        return User::where('owner_association_id', auth()->user()?->owner_association_id)->whereIn('role_id',Role::whereIn('name',['Tenant','Owner'])->pluck('id'))->pluck('first_name','id');
                     }
                 })
             ]);

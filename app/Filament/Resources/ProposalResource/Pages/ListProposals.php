@@ -24,6 +24,6 @@ class ListProposals extends ListRecords
         if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
             return parent::getTableQuery();
         }
-        return parent::getTableQuery()->whereIn('vendor_id', Vendor::where('owner_association_id', auth()->user()->owner_association_id)->pluck('id'));
+        return parent::getTableQuery()->whereIn('vendor_id', Vendor::where('owner_association_id', auth()->user()?->owner_association_id)->pluck('id'));
     }
 }

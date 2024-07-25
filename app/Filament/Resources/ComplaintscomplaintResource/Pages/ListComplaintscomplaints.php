@@ -17,7 +17,7 @@ class ListComplaintscomplaints extends ListRecords
         return parent::getTableQuery();
         }
         
-        return parent::getTableQuery()->where('complaint_type', 'tenant_complaint')->where('owner_association_id',auth()->user()->owner_association_id);
+        return parent::getTableQuery()->where('complaint_type', 'tenant_complaint')->where('owner_association_id',auth()->user()?->owner_association_id);
     }
     protected function getHeaderActions(): array
     {

@@ -54,7 +54,7 @@ class VendorResource extends Resource
                 ])->schema([
 
                             Hidden::make('owner_association_id')
-                                ->default(auth()->user()->owner_association_id),
+                                ->default(auth()->user()?->owner_association_id),
                             Select::make('owner_id')
                                 ->label('Vendor Name')
                                 ->rules(['exists:users,id'])
@@ -171,7 +171,7 @@ class VendorResource extends Resource
                 //             return Building::all()->pluck('name', 'id');
                 //         }
                 //         else{
-                //             return Building::where('owner_association_id', auth()->user()->owner_association_id)
+                //             return Building::where('owner_association_id', auth()->user()?->owner_association_id)
                 //             ->pluck('name', 'id');
                 //         } 
                         

@@ -9,6 +9,7 @@ use App\Http\Requests\IncidentRequest;
 use App\Http\Resources\CustomResponseResource;
 use App\Http\Resources\HelpDesk\Complaintresource;
 use App\Jobs\Complaint\ComplaintCreationJob;
+use App\Models\AccountCredentials;
 use App\Models\Building\Building;
 use App\Models\Building\BuildingPoc;
 use App\Models\Building\Complaint;
@@ -176,7 +177,6 @@ class ComplaintController extends Controller
             'code'    => 201,
             'status'  => 'success',
         ]))->response()->setStatusCode(201);
-
     }
 
     /**
@@ -252,18 +252,27 @@ class ComplaintController extends Controller
         // assign a vendor if the complaint type is tenant_complaint or help_desk
         if ($request->complaint_type == 'tenant_complaint' || $request->complaint_type == 'help_desk' || $request->complaint_type == 'snag') {
             $request->merge([
-                'priority'   => $request->urgent? 1 : 3,
+                'priority'   => $request->urgent ? 1 : 3,
                 'due_date'   => now()->addDays(3),
                 'service_id' => $service_id,
                 'vendor_id'  => $vendor ? $vendor->vendor_id : null,
-                'type' => $request->type?: null,
+                'type' => $request->type ?: null,
             ]);
         }
 
         // Create the complaint and assign it the vendor
         // TODO: Assign ticket automatically to technician
         $complaint = Complaint::create($request->all());
-        ComplaintCreationJob::dispatch($complaint->id);
+        $credentials = AccountCredentials::where('oa_id', $complaint->owner_association_id)->where('active', true)->latest()->first();
+        $mailCredentials = [
+            'mail_host' => $credentials->host ?? env('MAIL_HOST'),
+            'mail_port' => $credentials->port ?? env('MAIL_PORT'),
+            'mail_username' => $credentials->username ?? env('MAIL_USERNAME'),
+            'mail_password' => $credentials->password ?? env('MAIL_PASSWORD'),
+            'mail_encryption' => $credentials->encryption ?? env('MAIL_ENCRYPTION'),
+            'mail_from_address' => $credentials->email ?? env('MAIL_FROM_ADDRESS'),
+        ];
+        ComplaintCreationJob::dispatch($complaint->id, $technicianId = null, $mailCredentials);
 
         // Save images in media table with name "before". Once resolved, we'll store media with "after" name
         if ($request->hasFile('images')) {
@@ -310,7 +319,16 @@ class ComplaintController extends Controller
             if ($selectedTechnician) {
                 $complaint->technician_id = $selectedTechnician->id;
                 $complaint->save();
-                ComplaintCreationJob::dispatch($complaint->id, $selectedTechnician->id);
+                $credentials = AccountCredentials::where('oa_id', $complaint->owner_association_id)->where('active', true)->latest()->first();
+                $mailCredentials = [
+                    'mail_host' => $credentials->host ?? env('MAIL_HOST'),
+                    'mail_port' => $credentials->port ?? env('MAIL_PORT'),
+                    'mail_username' => $credentials->username ?? env('MAIL_USERNAME'),
+                    'mail_password' => $credentials->password ?? env('MAIL_PASSWORD'),
+                    'mail_encryption' => $credentials->encryption ?? env('MAIL_ENCRYPTION'),
+                    'mail_from_address' => $credentials->email ?? env('MAIL_FROM_ADDRESS'),
+                ];
+                ComplaintCreationJob::dispatch($complaint->id, $selectedTechnician->id, $mailCredentials);
 
                 $expoPushToken = ExpoPushNotification::where('user_id', $selectedTechnician->id)->first()?->token;
                 if ($expoPushToken) {
@@ -420,7 +438,6 @@ class ComplaintController extends Controller
                     'created_at'      => now()->format('Y-m-d H:i:s'),
                     'updated_at'      => now()->format('Y-m-d H:i:s'),
                 ]);
-
             }
         } else {
             $expoPushToken = ExpoPushNotification::where('user_id', $complaint->technician_id)->first()?->token;
@@ -454,7 +471,6 @@ class ComplaintController extends Controller
                     'created_at'      => now()->format('Y-m-d H:i:s'),
                     'updated_at'      => now()->format('Y-m-d H:i:s'),
                 ]);
-
             }
         }
 

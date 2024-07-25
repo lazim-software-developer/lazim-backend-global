@@ -51,7 +51,7 @@ class AssetsRelationManager extends RelationManager
                 //         $vendorId = $livewire->ownerRecord->id;
 
                 //         //Get building_Id
-                //         $building_id = Building::all()->where('owner_association_id', auth()->user()->owner_association_id)->pluck('id')->toArray();
+                //         $building_id = Building::all()->where('owner_association_id', auth()->user()?->owner_association_id)->pluck('id')->toArray();
 
                 //         // Get all the Assets
                 //         $allAssets = Asset::all()->whereIn('building_id',$building_id)->pluck('id')->toArray();

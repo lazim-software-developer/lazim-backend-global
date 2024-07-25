@@ -25,10 +25,10 @@ class ListVendorLedgers extends ListRecords
     protected static ?string $title = 'Service provider ledgers';
     protected function getTableQuery(): Builder
     {
-        // $vendor_id = Vendor::where('owner_association_id',auth()->user()->owner_association_id)->pluck('id')->toArray();
+        // $vendor_id = Vendor::where('owner_association_id',auth()->user()?->owner_association_id)->pluck('id')->toArray();
         // return parent::getTableQuery()->where('status','approved')->whereIn('vendor_id', $vendor_id);
-        $buildings = Building::where('owner_association_id',auth()->user()->owner_association_id)->pluck('id');
-        $invoiceapprovaloa = InvoiceApproval::whereIn('updated_by',User::where('owner_association_id',auth()->user()->owner_association_id)->whereIn('role_id',Role::whereIn('name',['MD'])->pluck('id'))->pluck('id'))->where('status','approved')->pluck('invoice_id');
+        $buildings = Building::where('owner_association_id',auth()->user()?->owner_association_id)->pluck('id');
+        $invoiceapprovaloa = InvoiceApproval::whereIn('updated_by',User::where('owner_association_id',auth()->user()?->owner_association_id)->whereIn('role_id',Role::whereIn('name',['MD'])->pluck('id'))->pluck('id'))->where('status','approved')->pluck('invoice_id');
         return parent::getTableQuery()->whereIn('id',$invoiceapprovaloa)->where('status','approved')->whereIn('building_id', $buildings);
     }
     protected function getHeaderActions(): array
@@ -46,7 +46,7 @@ class ListVendorLedgers extends ListRecords
             //                 if (DB::table('roles')->where('id', auth()->user()->role_id)->first()->name == 'Admin') {
             //                     return Building::all()->pluck('name', 'id');
             //                 } else {
-            //                     return Building::where('owner_association_id', auth()->user()->owner_association_id)
+            //                     return Building::where('owner_association_id', auth()->user()?->owner_association_id)
             //                         ->pluck('name', 'id');
             //                 }
             //             })

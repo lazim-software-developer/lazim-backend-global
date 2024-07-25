@@ -54,7 +54,7 @@ class AssetMaintenanceResource extends Resource
 
     public static function table(Table $table): Table
     {
-        $buildings = Building::where('owner_association_id',auth()->user()->owner_association_id)->pluck('id');
+        $buildings = Building::where('owner_association_id',auth()->user()?->owner_association_id)->pluck('id');
         return $table
             // ->modifyQueryUsing(fn(Builder $query) => $query->whereIn('building_id', $buildings)->orderBy('maintenance_date','desc')->withoutGlobalScopes())
             ->columns([

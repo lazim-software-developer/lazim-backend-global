@@ -18,7 +18,7 @@ class ListVehicles extends ListRecords
         if(Role::where('id',auth()->user()->role_id)->first()->name != 'Admin')
         {
             $roles = Role::whereIn('name',['Tenant','Owner'])->pluck('id');
-            $users= User::where('owner_association_id',auth()->user()->owner_association_id)->whereIn('role_id',$roles)->pluck('id');
+            $users= User::where('owner_association_id',auth()->user()?->owner_association_id)->whereIn('role_id',$roles)->pluck('id');
             return parent::getTableQuery()->whereIn('user_id',$users);
         }
         return parent::getTableQuery();

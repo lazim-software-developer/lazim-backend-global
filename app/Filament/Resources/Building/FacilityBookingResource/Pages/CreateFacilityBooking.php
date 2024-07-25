@@ -23,7 +23,7 @@ class CreateFacilityBooking extends CreateRecord
 
             ->update([
                 // 'approved_by'=>$this->record->user_id,
-                'owner_association_id'=>auth()->user()->owner_association_id
+                'owner_association_id'=>auth()->user()?->owner_association_id
             ]);
 
     }

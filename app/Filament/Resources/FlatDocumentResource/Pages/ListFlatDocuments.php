@@ -12,7 +12,7 @@ class ListFlatDocuments extends ListRecords
     protected static string $resource = FlatDocumentResource::class;
     protected function getTableQuery(): Builder
     {
-        return parent::getTableQuery()->where('owner_association_id',auth()->user()->owner_association_id);
+        return parent::getTableQuery()->where('owner_association_id',auth()->user()?->owner_association_id);
     }
     protected function getHeaderActions(): array
     {

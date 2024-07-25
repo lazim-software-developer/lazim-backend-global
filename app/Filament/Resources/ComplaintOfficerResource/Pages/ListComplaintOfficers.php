@@ -20,6 +20,6 @@ class ListComplaintOfficers extends ListRecords
     }
     protected function getTableQuery(): Builder
     {
-        return parent::getTableQuery()->where(['owner_association_id' => auth()->user()->owner_association_id, 'role_id' => Role::where('name', 'Complaint Officer')->first()->id]);
+        return parent::getTableQuery()->where(['owner_association_id' => auth()->user()?->owner_association_id, 'role_id' => Role::where('name', 'Complaint Officer')->first()->id]);
     }
 }
