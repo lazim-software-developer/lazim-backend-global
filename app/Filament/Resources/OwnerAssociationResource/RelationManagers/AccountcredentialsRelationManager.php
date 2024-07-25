@@ -8,6 +8,7 @@ use Filament\Forms\Form;
 use Filament\Tables\Table;
 use Filament\Facades\Filament;
 use App\Models\AccountCredentials;
+use App\Models\Master\Role;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Toggle;
 use Illuminate\Database\Eloquent\Model;
@@ -20,6 +21,18 @@ class AccountcredentialsRelationManager extends RelationManager
 
     protected static ?string $title = 'Mail Configuration';
 
+    protected static ?string $label = 'Mail Configuration';
+
+    public function canCreate(): bool
+    {
+        if(Role::where('id', auth()->user()->role_id)->first()->name !== 'Admin'){
+
+            $isActiveExists = AccountCredentials::Where('oa_id',Filament::getTenant()->id)->where('active', true)->exists();
+            return !$isActiveExists;    
+        }
+
+    }
+
     public function form(Form $form): Form
     {
         return $form
@@ -28,20 +41,24 @@ class AccountcredentialsRelationManager extends RelationManager
                     ->required()
                     ->rules([
                         'regex:/^[a-zA-Z0-9]+$/',
-                    ]),
+                    ])
+                    ->placeholder('MAIL_USERNAME'),
                 TextInput::make('email')
                     ->required()
                     ->minLength(6)
                     ->maxLength(30)
-                    ->rules(['min:6', 'max:30', 'regex:/^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/']),
+                    ->rules(['min:6', 'max:30', 'regex:/^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/'])
+                    ->placeholder('MAIL_FROM_ADDRESS'),
                 TextInput::make('password')
                     ->required()
-                    ->minLength(8),
+                    ->minLength(8)
+                    ->placeholder('MAIL_PASSWORD'),
                 TextInput::make('mailer')
                     ->required()
                     ->string()
                     ->minLength(3)
-                    ->maxLength(30),
+                    ->maxLength(30)
+                    ->placeholder('MAIL_MAILER'),
                 TextInput::make('host')
                     ->required()
                     ->string()
@@ -49,7 +66,8 @@ class AccountcredentialsRelationManager extends RelationManager
                     ->maxLength(35)
                     ->rules([
                         'regex:/^[a-z.]+$/'
-                    ]),
+                    ])
+                    ->placeholder('MAIL_HOST'),
                 TextInput::make('port')
                     ->required()
                     ->integer()
@@ -58,7 +76,8 @@ class AccountcredentialsRelationManager extends RelationManager
                     ->required()
                     ->string()
                     ->minLength(3)
-                    ->maxLength(30),
+                    ->maxLength(30)
+                    ->placeholder('MAIL_ENCRYPTION'),
                 Toggle::make('active')
                 ->rules(['boolean', function (?Model $record) {
                     return function (string $attribute, $value, Closure $fail) use ($record) {
@@ -98,10 +117,14 @@ class AccountcredentialsRelationManager extends RelationManager
             ])
             ->headerActions([
                 Tables\Actions\CreateAction::make()
-                ->label('Create'),
+                ->label('Create')
+                ->visible(fn () => Role::where('id', auth()->user()->role_id)->first()->name !== 'Admin'),
+
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\EditAction::make()
+                ->visible(fn () => Role::where('id', auth()->user()->role_id)->first()->name !== 'Admin'),
+
                 // Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
