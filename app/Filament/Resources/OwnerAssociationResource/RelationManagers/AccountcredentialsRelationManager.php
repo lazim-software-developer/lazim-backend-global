@@ -21,7 +21,7 @@ class AccountcredentialsRelationManager extends RelationManager
 
     protected static ?string $title = 'Mail Configuration';
 
-    protected static ?string $label = 'Mail Configuration';
+    protected static ?string $label = '';
 
     public function canCreate(): bool
     {
@@ -71,7 +71,8 @@ class AccountcredentialsRelationManager extends RelationManager
                 TextInput::make('port')
                     ->required()
                     ->integer()
-                    ->maxValue(9999),
+                    ->maxValue(9999)
+                    ->placeholder('MAIL_PORT'),
                 TextInput::make('encryption')
                     ->required()
                     ->string()
