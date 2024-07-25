@@ -305,8 +305,8 @@ class TestController extends Controller
         $response = Http::withOptions(['verify' => false])->retry(3, 100)->timeout(60)->withHeaders([
             'content-type' => 'application/json',
             'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
-        ])->post('https://qagate.dubailand.gov.ae/mollak/external/managementreport/submit', $data);
-//env("MOLLAK_API_URL") . 
+        ])->post(env("MOLLAK_API_URL") . '/managementreport/submit', $data);
+//env("MOLLAK_API_URL") .
         Log::info($response);
         // return json_decode($response);
         $response = json_decode($response->body());
@@ -324,7 +324,7 @@ class TestController extends Controller
         ]);
 
         // return $response;
-        
+
         if ($response->responseCode === 200) {
             $oaData->update(['status' => "Success", 'mollak_id' => $response->response->id]);
             Notification::make()
@@ -345,14 +345,14 @@ class TestController extends Controller
                     }
                     return [];
                 }, $response->validationErrorsList);
-                
+
                 // Flatten the array
                 $errors = array_merge(...$errors);
-                
+
                 // Join errors into a single string separated by newlines
                 $errorMessages = implode("\n", $errors);
             }
-            
+
             Notification::make()
                 ->title("Upload failed")
                 ->danger()
@@ -392,7 +392,7 @@ class TestController extends Controller
     //             ->to('prashanth@zysk.tech', 'Prashanth')
     //             ->subject('Welcome to Lazim! 🎉 Download Our App Now!');
     //     });
-    // } 
+    // }
 
     public function download(Request $request)
     {
@@ -424,7 +424,7 @@ class TestController extends Controller
                 'verify' => false
             ]
         ]);
-        
+
         // The file you want to retrieve the mime type for
         $bucket = 'lazim-dev';
         if ($template == 'all') {
@@ -444,7 +444,7 @@ class TestController extends Controller
                     }
                 }
                 $zip->close();
-    
+
                 return response()->download($zipFileName)->deleteFileAfterSend(true);
             }
         } else {
@@ -465,5 +465,5 @@ class TestController extends Controller
             }
         }
     }
-    
+
 }
