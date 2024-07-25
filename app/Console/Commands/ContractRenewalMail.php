@@ -37,7 +37,7 @@ class ContractRenewalMail extends Command
         foreach ($contracts as $contract) {
             $vendor           = Vendor::find($contract->vendor_id)->owner_id;
             $user             = User::find($vendor);
-            $tenant           = Filament::getTenant()?->id ?? auth()->user()->owner_association_id;
+            $tenant           = Filament::getTenant()?->id ?? $contract->owner_association_id;
             // $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()->email ?? env('MAIL_FROM_ADDRESS');
             $credentials = AccountCredentials::where('oa_id', $tenant)->where('active', true)->latest()->first();
             $mailCredentials = [

@@ -11,6 +11,7 @@ use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
 use App\Filament\Resources\UserApprovalResource;
 use App\Jobs\Residentapproval;
+use App\Models\AccountCredentials;
 use App\Models\Master\Role;
 use App\Models\OwnerAssociation;
 use App\Models\UserApproval;
@@ -47,14 +48,23 @@ class EditUserApproval extends EditRecord
         // if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
         //     $emailCredentials = OwnerAssociation::find($this->record->owner_association_id)?->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
         // }else{
-            $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
+        // $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
         // }
+        $credentials = AccountCredentials::where('oa_id', $tenant)->where('active', true)->latest()->first();
+        $mailCredentials = [
+            'mail_host' => $credentials->host ?? env('MAIL_HOST'),
+            'mail_port' => $credentials->port ?? env('MAIL_PORT'),
+            'mail_username' => $credentials->username ?? env('MAIL_USERNAME'),
+            'mail_password' => $credentials->password ?? env('MAIL_PASSWORD'),
+            'mail_encryption' => $credentials->encryption ?? env('MAIL_ENCRYPTION'),
+            'mail_from_address' => $credentials->email ?? env('MAIL_FROM_ADDRESS'),
+        ];
 
         $user = User::find($this->record->user_id);
         if ($this->data['status'] == 'approved' && $this->record->status == null) {
             $user->active = true;
             $user->save();
-            Residentapproval::dispatch($user,$emailCredentials);
+            Residentapproval::dispatch($user, $mailCredentials);
             Notification::make()
                 ->title("Resident Approved")
                 ->success()

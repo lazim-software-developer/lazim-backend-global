@@ -57,7 +57,7 @@ class ServiceBookingResource extends Resource
                                     return Building::all()->pluck('name', 'id');
                                 }
                                 else{
-                                    return Building::where('owner_association_id', auth()->user()->owner_association_id)
+                                    return Building::where('owner_association_id', auth()->user()?->owner_association_id)
                                     ->pluck('name', 'id');
                                 }    
                             })
@@ -96,7 +96,7 @@ class ServiceBookingResource extends Resource
                                     return User::whereIn('role_id', $roleId)->pluck('first_name', 'id'); 
                                 }
                                 else{
-                                    return User::whereIn('role_id', $roleId)->where('owner_association_id',auth()->user()->owner_association_id)->pluck('first_name', 'id');
+                                    return User::whereIn('role_id', $roleId)->where('owner_association_id',auth()->user()?->owner_association_id)->pluck('first_name', 'id');
                                 }
                                 })
                             ->searchable()
@@ -177,7 +177,7 @@ class ServiceBookingResource extends Resource
                         return Building::all()->pluck('name', 'id');
                     }
                     else{
-                        return Building::where('owner_association_id', auth()->user()->owner_association_id)
+                        return Building::where('owner_association_id', auth()->user()?->owner_association_id)
                         ->pluck('name', 'id');
                     }    
                 })

@@ -29,7 +29,7 @@ class AccountcredentialsRelationManager extends RelationManager
                     ->inline(false)
                     ->required(),
                 Hidden::make('oa_id')
-                    ->default(Filament::getTenant()?->id ?? auth()->user()->owner_association_id),
+                    ->default(Filament::getTenant()?->id ?? auth()->user()?->owner_association_id),
                 Hidden::make('created_by')
                     ->default(auth()->user()->id),
             ]);

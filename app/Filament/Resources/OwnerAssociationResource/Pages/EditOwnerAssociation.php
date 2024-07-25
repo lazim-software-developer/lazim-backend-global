@@ -90,8 +90,7 @@ class EditOwnerAssociation extends EditRecord
                 'profile_photo' => $this->record->profile_photo,
                 'active'  => $this->record->active,
             ]);
-
-            $user->owner_association()->attach($owner->id,['from' => now()->toDateString()]);
+            
             
 
             $permissionsConfig = config('role-permission');
@@ -118,9 +117,11 @@ class EditOwnerAssociation extends EditRecord
                 $password = Str::random(12);
 
                 $user = User::firstorcreate([
-                    'first_name'           => $this->record->name,
                     'email'                => $this->record->email,
                     'phone'                => $this->record->phone,
+                ],
+                    [
+                    'first_name'           => $this->record->name,
                     'profile_photo'        => $this->record->profile_photo,
                     'role_id'              => Role::where('name', 'OA')->where('owner_association_id' , $oaId)->value('id'),
                     'active'               => $this->record->active,
@@ -129,6 +130,7 @@ class EditOwnerAssociation extends EditRecord
                     'email_verified' => 1,
                     'phone_verified' => 1,
                 ]);
+                $user->ownerAssociation()->attach($this->record->id,['from' => now()->toDateString()]);
                 $oa = Role::where('name', 'OA')->where('owner_association_id' , $this->record->id)->first();
                 DB::table('model_has_roles')->insert([
                     'role_id' => $oa->id,
@@ -139,6 +141,7 @@ class EditOwnerAssociation extends EditRecord
                 AccountCreationJob::dispatch($user, $password);
                 
             } else {
+                $user->ownerAssociation()->attach($this->record->id,['from' => now()->toDateString()]);
                 // No need to handle this - Subhash
             }
         }

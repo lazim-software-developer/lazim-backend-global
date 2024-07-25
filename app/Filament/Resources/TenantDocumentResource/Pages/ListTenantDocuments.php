@@ -15,7 +15,7 @@ class ListTenantDocuments extends ListRecords
         if(auth()->user()->role->name == 'Admin'){
             return parent::getTableQuery();
         }
-        return parent::getTableQuery()->where('owner_association_id',auth()->user()->owner_association_id);
+        return parent::getTableQuery()->where('owner_association_id',auth()->user()?->owner_association_id);
     }
     protected function getHeaderActions(): array
     {

@@ -61,7 +61,7 @@ class OwnerAssociationInvoice extends Page implements HasForms
                 if(auth()->user()->role->name == 'Admin'){
                     return Building::pluck('name', 'id');
                 }else{
-                    $oaId = auth()->user()->owner_association_id;
+                    $oaId = auth()->user()?->owner_association_id;
                     return Building::where('owner_association_id', $oaId)
                         ->pluck('name', 'id');
                 }

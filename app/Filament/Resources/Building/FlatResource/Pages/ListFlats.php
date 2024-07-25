@@ -21,7 +21,7 @@ class ListFlats extends ListRecords
     // }
     protected function getTableQuery(): Builder
     {
-        $building = Building::all()->where('owner_association_id',auth()->user()->owner_association_id)->pluck('id')->toArray();
+        $building = Building::all()->where('owner_association_id',auth()->user()?->owner_association_id)->pluck('id')->toArray();
         if(Role::where('id',auth()->user()->role_id)->first()->name == 'Admin')
         {
             return parent::getTableQuery();

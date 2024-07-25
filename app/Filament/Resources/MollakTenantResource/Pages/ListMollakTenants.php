@@ -41,7 +41,7 @@ class ListMollakTenants extends ListRecords
         {
             return parent::getTableQuery();
         }
-        return parent::getTableQuery()->whereIn('building_id',Building::where('owner_association_id',auth()->user()->owner_association_id)->pluck('id'));
+        return parent::getTableQuery()->whereIn('building_id',Building::where('owner_association_id',auth()->user()?->owner_association_id)->pluck('id'));
     }
     protected function getHeaderActions(): array
     {

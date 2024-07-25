@@ -20,11 +20,11 @@ class MyBudgetImport implements ToCollection
      */
     public function collection(Collection $collection)
     {
-        $buildingId = Building::where('owner_association_id', auth()->user()->owner_association_id)->pluck('id')->first();
+        $buildingId = Building::where('owner_association_id', auth()->user()?->owner_association_id)->pluck('id')->first();
         
         $budgetId = Budget::create([
             'building_id' => $buildingId,
-            'owner_association_id' => auth()->user()->owner_association_id,
+            'owner_association_id' => auth()->user()?->owner_association_id,
             'budget_period' => 'Jan1-Dec31',
             'budget_from' => now()->toDateString(),
             'budget_to' => now()->addYear()->toDateString(),

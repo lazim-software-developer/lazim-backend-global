@@ -43,7 +43,7 @@ class AgingReport extends Page implements HasTable
     }
 
     public function table(Table $table): Table
-    {   $oaId = auth()->user()->owner_association_id;
+    {   $oaId = auth()->user()?->owner_association_id;
         $buildingIds = Building::where('owner_association_id',$oaId)->pluck('id');
         //Get current date
         $currentDate = Carbon::now();
@@ -86,7 +86,7 @@ class AgingReport extends Page implements HasTable
                         Select::make('building')
                         ->searchable()
                         ->options(function () {
-                            $oaId = auth()->user()->owner_association_id;
+                            $oaId = auth()->user()?->owner_association_id;
                             return Building::where('owner_association_id', $oaId)
                                 ->pluck('name', 'id');
                         })

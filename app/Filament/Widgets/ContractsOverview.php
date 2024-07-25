@@ -31,7 +31,7 @@ class ContractsOverview extends BaseWidget
                     ->color('info'),
             ];
         } else {
-            $vendorIds = Vendor::all()->where('owner_association_id', auth()->user()->owner_association_id)->pluck('id');
+            $vendorIds = Vendor::all()->where('owner_association_id', auth()->user()?->owner_association_id)->pluck('id');
             $contracts = Contract::query()->whereIn('vendor_id', $vendorIds);
             // $Invoices = Invoice::whereIn('vendor_id', $vendorIds);
             $Invoice = Invoice::where('owner_association_id',Filament::getTenant()->id)->count();

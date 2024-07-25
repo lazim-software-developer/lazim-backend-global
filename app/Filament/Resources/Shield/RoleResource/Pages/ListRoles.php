@@ -24,6 +24,6 @@ class ListRoles extends ListRecords
         // if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
         //     return parent::getTableQuery();
         // }
-        return parent::getTableQuery()->whereNotIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'OA', 'Owner', 'Managing Director', 'Vendor'])->where('owner_association_id', auth()->user()->owner_association_id);
+        return parent::getTableQuery()->whereNotIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'OA', 'Owner', 'Managing Director', 'Vendor'])->where('owner_association_id', auth()->user()?->owner_association_id);
     }
 }

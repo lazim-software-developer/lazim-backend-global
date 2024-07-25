@@ -29,9 +29,9 @@ class TasksChart extends ChartWidget
                 'labels' => ['Tenant Complaints', 'HelpDesk'],
             ];
         } else {
-            $complaints = Complaint::where('owner_association_id', auth()->user()->owner_association_id)->count();
-            $tenantComplaints = Complaint::where('owner_association_id', auth()->user()->owner_association_id)->where('complaint_type', 'tenant_complaint')->count();
-            $helpdesk = Complaint::where('owner_association_id', auth()->user()->owner_association_id)->where('complaint_type', 'help_desk')->count();
+            $complaints = Complaint::where('owner_association_id', auth()->user()?->owner_association_id)->count();
+            $tenantComplaints = Complaint::where('owner_association_id', auth()->user()?->owner_association_id)->where('complaint_type', 'tenant_complaint')->count();
+            $helpdesk = Complaint::where('owner_association_id', auth()->user()?->owner_association_id)->where('complaint_type', 'help_desk')->count();
             return [
                 'datasets' => [
                     [
