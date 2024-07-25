@@ -34,7 +34,7 @@ class TradeLicenceExpiryMail extends Command
         $vendors = Vendor::where('tl_expiry', '<', Carbon::now()->addDays(30))->where('tl_expiry', '>', Carbon::now())->get();
         foreach($vendors as $vendor){
             $user = User::find($vendor->owner_id);
-            $tenant = Filament::getTenant()?->id ?? $vendor->ownerAssociation->where('active',true)->first()?->owner_association_id;
+            $tenant = Filament::getTenant()?->id ?? $vendor->owner_association_id;
             $credentials = AccountCredentials::where('oa_id', $tenant)->where('active', true)->latest()->first();
             $mailCredentials = [
                 'mail_host' => $credentials->host??env('MAIL_HOST'),
