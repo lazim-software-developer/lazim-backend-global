@@ -2,16 +2,17 @@
 
 namespace App\Filament\Resources\OwnerAssociationResource\RelationManagers;
 
-use App\Models\AccountCredentials;
-use Filament\Facades\Filament;
-use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Toggle;
-use Filament\Forms\Form;
-use Filament\Resources\RelationManagers\RelationManager;
+use Closure;
 use Filament\Tables;
+use Filament\Forms\Form;
 use Filament\Tables\Table;
+use Filament\Facades\Filament;
+use App\Models\AccountCredentials;
+use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Toggle;
 use Illuminate\Database\Eloquent\Model;
+use Filament\Forms\Components\TextInput;
+use Filament\Resources\RelationManagers\RelationManager;
 
 class AccountcredentialsRelationManager extends RelationManager
 {
@@ -59,22 +60,16 @@ class AccountcredentialsRelationManager extends RelationManager
                     ->minLength(3)
                     ->maxLength(30),
                 Toggle::make('active')
-                ->rules([
-                    'boolean',
-                    function ( $value, $fail) {
-                        if ($value) { 
-                            $existingActive = AccountCredentials::where('active', true)
-                                ->when(isset($this->record), function ($query) {
-                                    return $query->where('id', '!=', $this->record->id);
-                                })
-                                ->exists();
-            
-                            if ($existingActive) {
-                                $fail('Only one active account credential is allowed.');
+                ->rules(['boolean', function (?Model $record) {
+                    return function (string $attribute, $value, Closure $fail) use ($record) {
+                            if (AccountCredentials::where('oa_id', Filament::getTenant()->id)->where('active', true)->whereNotIn('id',[$record?->id])->exists() && $record != null && $value) {
+                                $fail('A Active Security already exists for this building.');
                             }
-                        }
-                    }
-                ])
+                            if (AccountCredentials::where('oa_id', Filament::getTenant()->id)->where('active', true)->exists() && $record == null && $value) {
+                                $fail('A Active Security already exists for this building.');
+                            }
+                    };
+                }])
                 ->reactive(),   
                 
                 Hidden::make('oa_id')
