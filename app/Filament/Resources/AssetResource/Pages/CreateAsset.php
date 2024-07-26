@@ -75,28 +75,30 @@ class CreateAsset extends CreateRecord
                     'file_name' => $asset->name.'-'.$assetCode,
                     'svg'       => $qrCode->toHtml(),
                 ],
+                'verify'=>false,
             ]);
 
             $content = json_decode($response->getBody()->getContents());
-
-            $this->record->qr_code = $content->url;     // pass this url to database 
+            Log::info(json_encode($content));
+            $this->record->qr_code = $content->url;  
+            Log::info($this->record);   // pass this url to database 
             $this->record->save();
         } catch (\Exception $e) {
             Log::error($e->getMessage());
         }
-            $filename = uniqid() . '.' . 'svg';
-            $fullPath = 'dev' . '/' . $filename;
+        //     $filename = uniqid() . '.' . 'svg';
+        //     $fullPath = 'dev' . '/' . $filename;
 
-            // Read the file's content
-            $pdfContent = asset('images/qrcode.svg');
+        //     // Read the file's content
+        //     $pdfContent = asset('images/qrcode.svg');
 
-            // Store the file on S3
-            Storage::disk('s3')->put($fullPath, $pdfContent, 'public');
-        $qrCode = $fullPath;
+        //     // Store the file on S3
+        //     Storage::disk('s3')->put($fullPath, $pdfContent, 'public');
+        // $qrCode = $fullPath;
 
         // Update the newly created asset record with the generated QR code
         $oa_id = DB::table('building_owner_association')->where('building_id', $this->record->building_id)->where('active', true)->first()?->owner_association_id;
-        Asset::where('id', $this->record->id)->update(['qr_code' => $qrCode,'asset_code' => $assetCode, 'owner_association_id' => $oa_id]);
+        Asset::where('id', $this->record->id)->update(['qr_code' => $content->url,'asset_code' => $assetCode, 'owner_association_id' => $oa_id]);
 
         $buildingId = $this->record->building_id;
         $serviceId = $this->record->service_id;
