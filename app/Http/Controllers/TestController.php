@@ -308,7 +308,7 @@ class TestController extends Controller
         $response = Http::withOptions(['verify' => false])->retry(3, 100)->timeout(60)->withHeaders([
             'content-type' => 'application/json',
             'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
-        ])->post('https://qagate.dubailand.gov.ae/mollak/external/managementreport/submit', $data);
+        ])->post(env("MOLLAK_API_URL") . '/managementreport/submit', $data);
 //env("MOLLAK_API_URL") .
         Log::info($response);
         // return json_decode($response);
@@ -516,12 +516,12 @@ class TestController extends Controller
             ], 500);
         }
     }
-   
+
     public function emailTriggering(Request $request){
 
         $credentials = AccountCredentials::where('oa_id', $request->oa_id)->first();
 
         MailTestJob::dispatch($credentials);
-        
+
     }
 }
