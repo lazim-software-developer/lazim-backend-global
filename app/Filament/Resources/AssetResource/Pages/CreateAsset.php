@@ -59,40 +59,40 @@ class CreateAsset extends CreateRecord
         ];
 
         // Generate a QR code using the QrCode library
-        $qrCode = QrCode::format('svg')->size(200)->generate(json_encode($qrCodeContent));
-        // $qrCode = QrCode::size(200)->generate(json_encode($qrCodeContent));
-        // // Log::info('QrCode generated for event: ' . $qrCode);
-        // $client = new Client();
-        // $apiKey = env('AWS_LAMBDA_API_KEY');
+        // $qrCode = QrCode::format('svg')->size(200)->generate(json_encode($qrCodeContent));
+        $qrCode = QrCode::size(200)->generate(json_encode($qrCodeContent));
+        // Log::info('QrCode generated for event: ' . $qrCode);
+        $client = new Client();
+        $apiKey = env('AWS_LAMBDA_API_KEY');
 
-        // try {
-        //     $response = $client->request('GET', env('AWS_LAMBDA_URL'), [
-        //         'headers' => [
-        //             'x-api-key'    => $apiKey,
-        //             'Content-Type' => 'application/json',
-        //         ],
-        //         'json'    => [
-        //             'file_name' => $asset->name.'-'.$assetCode,
-        //             'svg'       => $qrCode->toHtml(),
-        //         ],
-        //     ]);
+        try {
+            $response = $client->request('GET', env('AWS_LAMBDA_URL'), [
+                'headers' => [
+                    'x-api-key'    => $apiKey,
+                    'Content-Type' => 'application/json',
+                ],
+                'json'    => [
+                    'file_name' => $asset->name.'-'.$assetCode,
+                    'svg'       => $qrCode->toHtml(),
+                ],
+            ]);
 
-        //     // $content = json_decode($response->getBody()->getContents());
+            $content = json_decode($response->getBody()->getContents());
 
-        //     // $this->event->qr_code = $content->url;
-        //     // $this->event->save();
-        // } catch (\Exception $e) {
-        //     Log::error($e->getMessage());
-        // }
-        //     $filename = uniqid() . '.' . 'svg';
-        //     $fullPath = 'dev' . '/' . $filename;
+            $this->record->qr_code = $content->url;     // pass this url to database 
+            $this->record->save();
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
+        }
+            $filename = uniqid() . '.' . 'svg';
+            $fullPath = 'dev' . '/' . $filename;
 
-        //     // Read the file's content
-        //     $pdfContent = asset('images/qrcode.svg');
+            // Read the file's content
+            $pdfContent = asset('images/qrcode.svg');
 
-        //     // Store the file on S3
-        //     Storage::disk('s3')->put($fullPath, $pdfContent, 'public');
-        // $qrCode = $fullPath;
+            // Store the file on S3
+            Storage::disk('s3')->put($fullPath, $pdfContent, 'public');
+        $qrCode = $fullPath;
 
         // Update the newly created asset record with the generated QR code
         $oa_id = DB::table('building_owner_association')->where('building_id', $this->record->building_id)->where('active', true)->first()?->owner_association_id;
@@ -139,9 +139,9 @@ class CreateAsset extends CreateRecord
         }
     }
 
-    protected function getRedirectUrl(): string
-    {
-        return $this->getResource()::getUrl('view');
-    }
+    // protected function getRedirectUrl(): string
+    // {
+    //     return $this->getResource()::getUrl('view');
+    // }
 
 }
