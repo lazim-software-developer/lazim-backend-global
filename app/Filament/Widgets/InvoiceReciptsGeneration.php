@@ -14,6 +14,9 @@ class InvoiceReciptsGeneration extends BaseWidget
 {
     use InteractsWithPageFilters;
 
+    protected static ?int $sort = 1 ;
+
+
     protected function getStats(): array
     {
         $startDate = $this->filters['startDate'] ?? null;
