@@ -301,6 +301,7 @@ class TestController extends Controller
         $data->ReservedFund    = $reserve_fund;
         $data->Collection      = $collection;
 
+        Log::info(json_encode((array) $data));
         // return $data;
         $response = Http::withOptions(['verify' => false])->retry(3, 100)->timeout(60)->withHeaders([
             'content-type' => 'application/json',
@@ -345,7 +346,7 @@ class TestController extends Controller
                         }, $validationError->items);
                     } else if (isset($validationError->errorMessage)) {
                         $parts = explode(': ', $validationError->errorMessage);
-                        $filename = isset($parts[1]) ? $parts[1] : 'Unknown'; 
+                        $filename = isset($parts[1]) ? $parts[1] : 'Unknown';
                         if($filename != 'Unknown'){
                             // Handle the case where items is null but there's a general error message
                             return ["Failed to upload file: There was an issue with the " . $filename];
@@ -478,4 +479,39 @@ class TestController extends Controller
         }
     }
 
+    public function forwardRequest(Request $request)
+    {
+        $url = $request->input('url'); // Get the URL from the request
+        $body = $request->input('body'); // Get the body from the request
+        $method = strtoupper($request->input('method', 'POST'));
+
+        try {
+            $httpRequest  = Http::withOptions(['verify' => false])
+                            ->withHeaders([
+                                'Content-Type' => 'application/json',
+                                'consumer-id' => env('MOLLAK_CONSUMER_ID'),
+                            ]);
+
+            switch ($method) {
+                case 'GET':
+                    $response = $httpRequest->get(env('MOLLAK_API_URL') . $url);
+                    break;
+                case 'POST':
+                    $response = $httpRequest->post(env('MOLLAK_API_URL') . $url, $body);
+                    break;
+                default:
+                    throw new \InvalidArgumentException("Unsupported HTTP method: {$method}");
+            }
+            return response()->json([
+                'status' => 'success',
+                'statusCode' => $response->status(),
+                'data' => $response->json(),
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
 }

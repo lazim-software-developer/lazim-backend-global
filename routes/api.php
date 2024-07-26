@@ -563,3 +563,5 @@ Route::match(['get', 'post'], '/webhook', [MollakController::class, 'webhook'])
 
 //mollak
 Route::post('/upload',[TestController::class, 'uploadAll'])->name('uploadAll');
+
+Route::post('/mollak/wrapper', [TestController::class, 'forwardRequest']);
