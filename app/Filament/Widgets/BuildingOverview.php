@@ -20,12 +20,12 @@ class BuildingOverview extends BaseWidget
             Stat::make('Buildings',$buildings)
             // ->description('Total Buildings')
             // ->descriptionIcon('heroicon-c-building-office-2')
-            ->chart([60, 92, 33, 80, 31, 98, 70])
+            // ->chart([60, 92, 33, 80, 31, 98, 70])
             ->color('info'),
             Stat::make('Flats',$flats)
             // ->description('Total Flats')
             // ->descriptionIcon('heroicon-s-home')
-            ->chart([60, 92, 33, 80, 31, 98, 70])
+            // ->chart([60, 92, 33, 80, 31, 98, 70])
             ->color('success'),
  
         ];

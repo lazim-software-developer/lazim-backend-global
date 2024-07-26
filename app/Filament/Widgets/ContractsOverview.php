@@ -40,10 +40,10 @@ class ContractsOverview extends BaseWidget
 
             
             return [
-                Stat::make('Contracts', $contractCount)
-                    ->descriptionIcon('heroicon-s-user-group')
-                    ->chart([60, 92, 33, 80, 31, 98, 70])
-                    ->color('info'),
+                // Stat::make('Contracts', $contractCount)
+                //     ->descriptionIcon('heroicon-s-user-group')
+                //     ->chart([60, 92, 33, 80, 31, 98, 70])
+                //     ->color('info'),
             ];
         
     }

@@ -41,15 +41,15 @@ class ProposalOverview extends BaseWidget
             return [
                 Stat::make('Request Proposal', Proposal::query()->whereIn('vendor_id', $vendorIds)->count())
                     ->descriptionIcon('heroicon-s-user-group')
-                    ->chart([60, 92, 33, 80, 31, 98, 70])
+                    // ->chart([60, 92, 33, 80, 31, 98, 70])
                     ->color('info'),
                 Stat::make('Approved Proposal', $approvedProposal->count())
                     ->descriptionIcon('heroicon-s-user-group')
-                    ->chart([60, 92, 33, 80, 31, 98, 70])
+                    // ->chart([60, 92, 33, 80, 31, 98, 70])
                     ->color('success'),
                 Stat::make('Rejected Proposal', $rejectedProposal->count())
                     ->descriptionIcon('heroicon-s-user-group')
-                    ->chart([60, 92, 33, 80, 31, 98, 70])
+                    // ->chart([60, 92, 33, 80, 31, 98, 70])
                     ->color('danger'),
             ];
         

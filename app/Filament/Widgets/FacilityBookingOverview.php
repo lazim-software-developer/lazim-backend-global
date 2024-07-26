@@ -45,15 +45,15 @@ class FacilityBookingOverview extends BaseWidget
             return [
                 Stat::make('Total Facility Booking', FacilityBooking::where('owner_association_id', Filament::getTenant()->id)->count())
                     ->descriptionIcon('heroicon-s-user-group')
-                    ->chart([60, 92, 33, 80, 31, 98, 70])
+                    // ->chart([60, 92, 33, 80, 31, 98, 70])
                     ->color('info'),
                 Stat::make('Approved Facility Booking', $approvedFacilityBookings->count())
                     ->descriptionIcon('heroicon-s-user-group')
-                    ->chart([60, 92, 33, 80, 31, 98, 70])
+                    // ->chart([60, 92, 33, 80, 31, 98, 70])
                     ->color('success'),
                 Stat::make('Not Approved Facility Booking',$pendingFacilityBookings->count())
                     ->descriptionIcon('heroicon-s-user-group')
-                    ->chart([60, 92, 33, 80, 31, 98, 70])
+                    // ->chart([60, 92, 33, 80, 31, 98, 70])
                     ->color('danger'),
 
             ];

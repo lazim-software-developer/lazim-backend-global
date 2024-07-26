@@ -25,15 +25,15 @@ class SecuritesOverview extends BaseWidget
  
         return [
             Stat::make('Total Securities', $securityCount)
-            ->chart([60, 92, 33, 80, 31, 98, 70])
+            // ->chart([60, 92, 33, 80, 31, 98, 70])
             ->color('info'),
  
             Stat::make('Total Vendors', $vendorsCount)
-            ->chart([60, 92, 33, 80, 31, 98, 70])
+            // ->chart([60, 92, 33, 80, 31, 98, 70])
             ->color('success'),
  
             Stat::make('Total Technicians', $technicianCount)
-            ->chart([60, 92, 33, 80, 31, 98, 70])
+            // ->chart([60, 92, 33, 80, 31, 98, 70])
             ->color('primary'),
         ];
     }
