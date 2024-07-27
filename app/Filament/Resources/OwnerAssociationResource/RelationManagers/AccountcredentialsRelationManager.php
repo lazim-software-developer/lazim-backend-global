@@ -10,6 +10,7 @@ use Filament\Facades\Filament;
 use App\Models\AccountCredentials;
 use App\Models\Master\Role;
 use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
@@ -65,20 +66,30 @@ class AccountcredentialsRelationManager extends RelationManager
                     ->minLength(10)
                     ->maxLength(35)
                     ->rules([
-                        'regex:/^[a-z.]+$/'
+                        'regex:/^[a-z0-9.]+$/'
                     ])
                     ->placeholder('MAIL_HOST'),
-                TextInput::make('port')
+                Select::make('port')
+                    ->options([
+                        '2525' => '2525',
+                        '25'=>'25',
+                        '487'=>'487'
+                    ])
                     ->required()
-                    ->integer()
-                    ->maxValue(9999)
-                    ->placeholder('MAIL_PORT'),
-                TextInput::make('encryption')
+                    // ->integer()
+                    // ->maxValue(9999)
+                    // ->placeholder('MAIL_PORT')
+                    ,
+                Select::make('encryption')
+                    ->options([
+                        'tls'=>'tls'
+                    ])
                     ->required()
-                    ->string()
-                    ->minLength(3)
-                    ->maxLength(30)
-                    ->placeholder('MAIL_ENCRYPTION'),
+                    // ->string()
+                    // ->minLength(3)
+                    // ->maxLength(30)
+                    // ->placeholder('MAIL_ENCRYPTION')
+                    ,
                 Toggle::make('active')
                 ->rules(['boolean', function (?Model $record) {
                     return function (string $attribute, $value, Closure $fail) use ($record) {
@@ -132,7 +143,9 @@ class AccountcredentialsRelationManager extends RelationManager
                 Tables\Actions\BulkActionGroup::make([
                     // Tables\Actions\DeleteBulkAction::make(),
                 ]),
-            ]);
+            ])
+            ->emptyStateHeading('No Mail Configurations')
+            ->emptyStateDescription('');;
     }
     // public static function canViewForRecord(Model $ownerRecord, string $pageClass): bool
     // {
