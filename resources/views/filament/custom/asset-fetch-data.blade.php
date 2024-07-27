@@ -67,9 +67,9 @@
 </div>
 <script>
     // Function to open the print dialog
-    function printDocument() {
-        window.print();
-    }
+    // function printDocument() {
+    //     window.print();
+    // }
 </script>
 </body>
 </html>
