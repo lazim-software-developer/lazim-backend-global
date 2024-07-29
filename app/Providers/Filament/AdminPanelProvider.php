@@ -5,47 +5,49 @@ namespace App\Providers\Filament;
 use Filament\Pages;
 use Filament\Panel;
 use Filament\Widgets;
+use App\Models\User\User;
 use Illuminate\View\View;
-use Filament\PanelProvider;
-use Filament\Support\Colors\Color;
-use Illuminate\Support\Facades\DB;
-use Filament\Navigation\NavigationItem;
-use App\Filament\Pages\Auth\EditProfile;
-use App\Filament\Resources\AgingReportResource;
-use App\Filament\Resources\AssetMaintenanceResource;
-use App\Filament\Resources\BankStatementResource;
-use App\Filament\Resources\BuildingEngineerResource;
-use App\Filament\Resources\ComplaintOfficerResource;
-use App\Filament\Resources\WDAResource;
-use App\Filament\Resources\DelinquentOwnerResource;
-use App\Filament\Resources\DemoResource;
-use App\Filament\Resources\FamilyMemberResource;
-use App\Filament\Resources\IncidentResource;
-use App\Filament\Resources\LegalOfficerResource;
-use App\Filament\Resources\OacomplaintReportsResource;
-use App\Filament\Resources\OwnerAssociationInvoiceResource;
-use App\Filament\Resources\OwnerAssociationReceiptResource;
-use App\Filament\Resources\PatrollingResource;
-use App\Filament\Resources\User\UserResource;
-use App\Filament\Resources\UserApprovalResource;
-use App\Filament\Resources\VehicleResource;
 use App\Models\AgingReport;
 use App\Models\Master\Role;
+use Filament\PanelProvider;
 use App\Models\OwnerAssociation;
-use App\Models\User\User;
-use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
+use App\Filament\Pages\Dashboard;
+use Filament\Support\Colors\Color;
+use Illuminate\Support\Facades\DB;
+use App\Filament\Resources\WDAResource;
+use Filament\Navigation\NavigationItem;
+use App\Filament\Pages\Auth\EditProfile;
+use App\Filament\Resources\DemoResource;
 use Filament\Navigation\NavigationGroup;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Navigation\NavigationBuilder;
+use App\Filament\Resources\VehicleResource;
+use App\Filament\Resources\IncidentResource;
+use App\Filament\Resources\User\UserResource;
+use App\Filament\Resources\PatrollingResource;
+use App\Filament\Resources\AgingReportResource;
 use Illuminate\Session\Middleware\StartSession;
+use App\Filament\Resources\FamilyMemberResource;
+use App\Filament\Resources\LegalOfficerResource;
+use App\Filament\Resources\UserApprovalResource;
 use Illuminate\Cookie\Middleware\EncryptCookies;
+use App\Filament\Resources\BankStatementResource;
+use App\Filament\Resources\DelinquentOwnerResource;
+use App\Filament\Resources\AssetMaintenanceResource;
+use App\Filament\Resources\BuildingEngineerResource;
+use App\Filament\Resources\ComplaintOfficerResource;
+use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use Illuminate\Routing\Middleware\SubstituteBindings;
+use App\Filament\Resources\OacomplaintReportsResource;
 use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
+use App\Filament\Resources\OwnerAssociationInvoiceResource;
+use App\Filament\Resources\OwnerAssociationReceiptResource;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
+use Leandrocfe\FilamentApexCharts\FilamentApexChartsPlugin;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -72,7 +74,7 @@ class AdminPanelProvider extends PanelProvider
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->pages([
-                Pages\Dashboard::class,
+                Dashboard::class,
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
@@ -722,7 +724,8 @@ class AdminPanelProvider extends PanelProvider
                 Authenticate::class,
             ])
             ->plugins([
-                FilamentShieldPlugin::make()
+                FilamentShieldPlugin::make(),
+                FilamentApexChartsPlugin::make()
             ]);
     }
 }

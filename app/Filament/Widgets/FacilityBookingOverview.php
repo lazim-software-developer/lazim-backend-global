@@ -7,48 +7,56 @@ use App\Models\Vendor\Vendor;
 use App\Models\Building\Building;
 use App\Models\Accounting\Proposal;
 use App\Models\Building\FacilityBooking;
+use Carbon\Carbon;
+use Filament\Facades\Filament;
+use Filament\Widgets\Concerns\InteractsWithPageFilters;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
+use Illuminate\Support\Facades\Log;
 
 class FacilityBookingOverview extends BaseWidget
 {
+    use InteractsWithPageFilters;
+    
     protected static ?int $sort = 4;
     protected function getStats(): array
     {
-        if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
-            $buildingIds = Building::all()->pluck('id');
-            return [
-                Stat::make('Total Facility Booking', FacilityBooking::query()->whereIn('building_id', $buildingIds)->count())
-                    ->descriptionIcon('heroicon-s-user-group')
-                    ->chart([60, 92, 33, 80, 31, 98, 70])
-                    ->color('info'),
-                Stat::make('Approved Facility Booking', FacilityBooking::query()->whereIn('building_id', $buildingIds)->where('approved', 1)->count())
-                    ->descriptionIcon('heroicon-s-user-group')
-                    ->chart([60, 92, 33, 80, 31, 98, 70])
-                    ->color('success'),
-                Stat::make('Not Approved Facility Booking', FacilityBooking::query()->whereIn('building_id', $buildingIds)->where('approved', 0)->count())
-                    ->descriptionIcon('heroicon-s-user-group')
-                    ->chart([60, 92, 33, 80, 31, 98, 70])
-                    ->color('danger'),
+        $startDate = $this->filters['startDate'] ?? null;
+        $endDate = $this->filters['endDate'] ?? null;
 
-            ];
-        } else {
-            $buildingIds = Building::all()->where('owner_association_id', auth()->user()?->owner_association_id)->pluck('id')->toArray();
-            return [
-                Stat::make('Total Facility Booking', FacilityBooking::query()->whereIn('building_id', $buildingIds)->count())
-                    ->descriptionIcon('heroicon-s-user-group')
-                    ->chart([60, 92, 33, 80, 31, 98, 70])
-                    ->color('info'),
-                Stat::make('Approved Facility Booking', FacilityBooking::query()->whereIn('building_id', $buildingIds)->where('approved', 1)->count())
-                    ->descriptionIcon('heroicon-s-user-group')
-                    ->chart([60, 92, 33, 80, 31, 98, 70])
-                    ->color('success'),
-                Stat::make('Not Approved Facility Booking', FacilityBooking::query()->whereIn('building_id', $buildingIds)->where('approved', 0)->count())
-                    ->descriptionIcon('heroicon-s-user-group')
-                    ->chart([60, 92, 33, 80, 31, 98, 70])
-                    ->color('danger'),
+        $query = FacilityBooking::query()->where('owner_association_id', Filament::getTenant()->id);
 
-            ];
+        if ($startDate) {
+            $startOfDay = Carbon::createFromFormat('Y-m-d', $startDate)->format('Y-m-d');
+            $query->where('date', '>=', $startOfDay);
         }
+        
+        if ($endDate) {
+            $endOfDay = Carbon::createFromFormat('Y-m-d', $endDate)->format('Y-m-d');
+            $query->where('date', '<=', $endOfDay);
+        }
+
+        $approvedQuery = clone $query;
+        $pendingQuery = clone $query;
+
+        $approvedFacilityBookings = $approvedQuery->where('approved',true);
+        $pendingFacilityBookings = $pendingQuery->where('approved',false);
+        
+            return [
+                Stat::make('Total Facility Booking', FacilityBooking::where('owner_association_id', Filament::getTenant()->id)->count())
+                    ->descriptionIcon('heroicon-s-user-group')
+                    // ->chart([60, 92, 33, 80, 31, 98, 70])
+                    ->color('info'),
+                Stat::make('Approved Facility Booking', $approvedFacilityBookings->count())
+                    ->descriptionIcon('heroicon-s-user-group')
+                    // ->chart([60, 92, 33, 80, 31, 98, 70])
+                    ->color('success'),
+                Stat::make('Not Approved Facility Booking',$pendingFacilityBookings->count())
+                    ->descriptionIcon('heroicon-s-user-group')
+                    // ->chart([60, 92, 33, 80, 31, 98, 70])
+                    ->color('danger'),
+
+            ];
+        
     }
 }
