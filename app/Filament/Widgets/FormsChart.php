@@ -9,6 +9,7 @@ use App\Models\Forms\MoveInOut;
 use App\Models\ResidentialForm;
 use App\Models\Forms\AccessCard;
 use App\Models\Forms\FitOutForm;
+use App\Models\Visitor;
 use Carbon\Carbon;
 use Filament\Widgets\ChartWidget;
 use Filament\Widgets\Concerns\InteractsWithPageFilters;
@@ -19,7 +20,7 @@ class FormsChart extends ChartWidget
 
     protected static ?string $heading = 'Forms';
     protected static ?string $maxHeight = '200px';
-    protected static ?int $sort = 6;
+    protected static ?int $sort = 7;
 
     protected function getData(): array
     {
@@ -34,6 +35,7 @@ class FormsChart extends ChartWidget
         $residentialQuery = ResidentialForm::where('owner_association_id', auth()->user()->owner_association_id);
         $moveInQuery = MoveInOut::where('owner_association_id', auth()->user()->owner_association_id)->where('type', 'move-in');
         $moveOutQuery = MoveInOut::where('owner_association_id', auth()->user()->owner_association_id)->where('type', 'move-out');
+        $visitorQuery = Visitor::where('owner_association_id', auth()->user()->owner_association_id);
         
         if ($startDate) {
             $startOfDay = Carbon::createFromFormat('Y-m-d', $startDate)->startOfDay();
@@ -44,6 +46,7 @@ class FormsChart extends ChartWidget
             $residentialQuery->where('created_at', '>=', $startOfDay);
             $moveInQuery->where('created_at', '>=', $startOfDay);
             $moveOutQuery->where('created_at', '>=', $startOfDay);
+            $visitorQuery->where('created_at', '>=', $startOfDay);
         }
         
         if ($endDate) {
@@ -55,6 +58,7 @@ class FormsChart extends ChartWidget
             $residentialQuery->where('created_at', '<=', $endOfDay);
             $moveInQuery->where('created_at', '<=', $endOfDay);
             $moveOutQuery->where('created_at', '<=', $endOfDay);
+            $visitorQuery->where('created_at', '<=', $endOfDay);
         }
         
         $saleNOCCount = $saleNOCQuery->count();
@@ -64,6 +68,7 @@ class FormsChart extends ChartWidget
         $residentialCount = $residentialQuery->count();
         $moveInCount = $moveInQuery->count();
         $moveOutCount = $moveOutQuery->count();
+        $visitorCount = $visitorQuery->count();
 
         // $moveIn = MoveInOut::where('owner_association_id', auth()->user()->owner_association_id)->where('type', 'move-in')->count();
         // $moveOut = MoveInOut::where('owner_association_id', auth()->user()->owner_association_id)->where('type', 'move-out')->count();
@@ -110,6 +115,12 @@ class FormsChart extends ChartWidget
                         'label' => 'Residential',
                         'data' => [$residentialCount],
                         'backgroundColor' => '#bbf76d',
+                        'borderColor' => '#ffffff',
+                    ],
+                    [
+                        'label' => 'Visitors',
+                        'data' => [$visitorCount],
+                        'backgroundColor' => '#5a82fa',
                         'borderColor' => '#ffffff',
                     ]
                 ],

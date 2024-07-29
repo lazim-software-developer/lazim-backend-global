@@ -10,7 +10,8 @@ use Filament\Widgets\StatsOverviewWidget\Stat;
  
 class BuildingOverview extends BaseWidget
 {
-    protected static ?int $sort = 2;
+    protected static ?int $sort = 0;
+    // protected int | string | array $columnSpan = 4;
  
     protected function getStats(): array
     {
