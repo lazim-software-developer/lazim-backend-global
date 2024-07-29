@@ -16,7 +16,7 @@ class RegistrationChart extends ChartWidget
 
     protected static ?string $heading = 'Registration';
     protected static ?string $maxHeight = '200px';
-    protected static ?int $sort = 7;
+    protected static ?int $sort = 4;
 
     protected function getData(): array
     {
