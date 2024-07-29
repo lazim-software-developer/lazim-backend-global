@@ -73,7 +73,8 @@ class AccountcredentialsRelationManager extends RelationManager
                     ->options([
                         '2525' => '2525',
                         '25'=>'25',
-                        '487'=>'487'
+                        '465'=>'465',
+                        '587'=>'587'
                     ])
                     ->required()
                     // ->integer()
@@ -82,7 +83,8 @@ class AccountcredentialsRelationManager extends RelationManager
                     ,
                 Select::make('encryption')
                     ->options([
-                        'tls'=>'tls'
+                        'tls'=>'tls',
+                        'ssl'=>'ssl'
                     ])
                     ->required()
                     // ->string()
