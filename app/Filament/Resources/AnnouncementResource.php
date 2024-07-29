@@ -112,7 +112,7 @@ class AnnouncementResource extends Resource
                         if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
                             return Building::all()->pluck('name', 'id');
                         }
-                        return Building::where('owner_association_id', auth()->user()->owner_association_id)->pluck('name', 'id');
+                        return Building::where('owner_association_id', auth()->user()?->owner_association_id)->pluck('name', 'id');
                     })
                     ->searchable()
                     ->multiple()
@@ -128,7 +128,7 @@ class AnnouncementResource extends Resource
                     ->default(auth()->user()->id),
 
                 Hidden::make('owner_association_id')
-                    ->default(auth()->user()->owner_association_id),
+                    ->default(auth()->user()?->owner_association_id),
 
                 Hidden::make('is_announcement')
                     ->default(true),
@@ -160,7 +160,7 @@ class AnnouncementResource extends Resource
                 SelectFilter::make('user_id')
                     ->relationship('user', 'first_name', function (Builder $query) {
                         if (Role::where('id', auth()->user()->role_id)->first()->name != 'Admin') {
-                            $query->where('owner_association_id', auth()->user()->owner_association_id)->where('role_id', Role::where('name', 'OA')->first()->id);
+                            $query->where('owner_association_id', auth()->user()?->owner_association_id)->where('role_id', Role::where('name', 'OA')->first()->id);
                         }
                         $query->where('role_id', Role::where('name', 'OA')->first()->id);
                     })

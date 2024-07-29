@@ -54,7 +54,7 @@ class ComplaintsenquiryResource extends Resource
                         Hidden::make('complaintable_id')
                             ->default(1),
                         Hidden::make('owner_association_id')
-                            ->default(auth()->user()->owner_association_id),
+                            ->default(auth()->user()?->owner_association_id),
                         Select::make('building_id')
                             ->rules(['exists:buildings,id'])
                             ->relationship('building', 'name')

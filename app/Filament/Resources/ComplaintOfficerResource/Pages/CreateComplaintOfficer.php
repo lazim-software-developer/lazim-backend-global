@@ -21,7 +21,7 @@ class CreateComplaintOfficer extends CreateRecord
         $data['email_verified']       = true;
         $data['phone_verified']       = true;
         $data['role_id']              = Role::where('name', 'Complaint Officer')->first()->id;
-        $data['owner_association_id'] = auth()->user()->owner_association_id;
+        $data['owner_association_id'] = auth()->user()?->owner_association_id;
 
         return $data;
     }
@@ -33,9 +33,9 @@ class CreateComplaintOfficer extends CreateRecord
         $user->save();
 
         $tenant           = Filament::getTenant()?->id ?? auth()->user()?->owner_association_id;
-        $emailCredentials = OwnerAssociation::findOrFail($tenant)?->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
+        // $emailCredentials = OwnerAssociation::findOrFail($tenant)?->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
 
-        AccountsManagerJob::dispatch($user, $password, $emailCredentials);
+        AccountsManagerJob::dispatch($user, $password);
     }
     protected function getRedirectUrl(): string
     {

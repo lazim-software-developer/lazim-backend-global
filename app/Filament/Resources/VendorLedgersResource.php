@@ -141,7 +141,7 @@ class VendorLedgersResource extends Resource
                                     return Building::all()->pluck('name', 'id');
                                 }
                                 else{
-                                    return Building::where('owner_association_id', auth()->user()->owner_association_id)
+                                    return Building::where('owner_association_id', auth()->user()?->owner_association_id)
                                     ->pluck('name', 'id');
                                 } 
                             })

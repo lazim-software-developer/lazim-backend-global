@@ -86,7 +86,7 @@ class FlatDocumentResource extends Resource
                                 ->placeholder('Expiry Date'),
 
                             Hidden::make('owner_association_id')
-                                ->default(auth()->user()->owner_association_id),
+                                ->default(auth()->user()?->owner_association_id),
 
                             Hidden::make('documentable_type')
                                 ->default('App\Models\Building\Flat'),

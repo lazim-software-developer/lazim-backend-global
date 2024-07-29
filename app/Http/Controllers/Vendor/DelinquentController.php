@@ -67,7 +67,7 @@ class DelinquentController extends Controller
         $year = $request->input('year');
         $buildingId = $request->input('building_id');
 
-        $query = Building::where('owner_association_id', auth()->user()->owner_association_id)
+        $query = Building::where('owner_association_id', auth()->user()?->owner_association_id)
         ->when($buildingId, function ($query) use ($buildingId) {
             return $query->where('id', $buildingId);
         });

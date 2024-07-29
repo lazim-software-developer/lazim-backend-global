@@ -43,7 +43,7 @@ class BuildingPocResource extends Resource
                         ->relationship('building', 'name')
                         ->reactive()
                         ->options(function () {
-                            return Building::where('owner_association_id', auth()->user()->owner_association_id)
+                            return Building::where('owner_association_id', auth()->user()?->owner_association_id)
                                 ->select('id', 'name')
                                 ->pluck('name', 'id')
                                 ->toArray();

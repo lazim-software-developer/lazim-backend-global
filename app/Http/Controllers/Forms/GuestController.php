@@ -10,6 +10,7 @@ use App\Http\Resources\CustomResponseResource;
 use App\Http\Resources\Forms\VisitorResource;
 use App\Jobs\FlatVisitorMailJob;
 use App\Jobs\Forms\GuestRequestJob;
+use App\Models\AccountCredentials;
 use App\Models\Building\Building;
 use App\Models\Building\BuildingPoc;
 use App\Models\Building\Document;
@@ -53,9 +54,17 @@ class GuestController extends Controller
         ]);
         $guest            = FlatVisitor::create($request->all());
         $tenant           = Filament::getTenant()?->id ?? auth()->user()?->owner_association_id ?? $ownerAssociationId;
-        $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
-
-        GuestRequestJob::dispatch(auth()->user(), $guest, $emailCredentials);
+        // $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
+        $credentials = AccountCredentials::where('oa_id', $tenant)->where('active', true)->latest()->first();
+        $mailCredentials = [
+            'mail_host' => $credentials->host ?? env('MAIL_HOST'),
+            'mail_port' => $credentials->port ?? env('MAIL_PORT'),
+            'mail_username' => $credentials->username ?? env('MAIL_USERNAME'),
+            'mail_password' => $credentials->password ?? env('MAIL_PASSWORD'),
+            'mail_encryption' => $credentials->encryption ?? env('MAIL_ENCRYPTION'),
+            'mail_from_address' => $credentials->email ?? env('MAIL_FROM_ADDRESS'),
+        ];
+        GuestRequestJob::dispatch(auth()->user(), $guest, $mailCredentials);
 
         $filePath = optimizeDocumentAndUpload($request->file('image'), 'dev');
         $request->merge([
@@ -123,7 +132,7 @@ class GuestController extends Controller
             ->actions([
                 Action::make('View')
                     ->button()
-                    ->url(fn() => VisitorFormResource::getUrl('edit', [OwnerAssociation::where('id', $ownerAssociationId)->first()?->slug, $visitor->id])),
+                    ->url(fn () => VisitorFormResource::getUrl('edit', [OwnerAssociation::where('id', $ownerAssociationId)->first()?->slug, $visitor->id])),
             ])
             ->icon('heroicon-o-document-text')
             ->iconColor('warning')
@@ -156,9 +165,17 @@ class GuestController extends Controller
             'verification_code' => $code,
         ]);
         $tenant           = $ownerAssociationId;
-        $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()->email ?? env('MAIL_FROM_ADDRESS');
-
-        FlatVisitorMailJob::dispatch($visitor, $code, $emailCredentials);
+        // $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()->email ?? env('MAIL_FROM_ADDRESS');
+        $credentials = AccountCredentials::where('oa_id', $tenant)->where('active', true)->latest()->first();
+        $mailCredentials = [
+            'mail_host' => $credentials->host ?? env('MAIL_HOST'),
+            'mail_port' => $credentials->port ?? env('MAIL_PORT'),
+            'mail_username' => $credentials->username ?? env('MAIL_USERNAME'),
+            'mail_password' => $credentials->password ?? env('MAIL_PASSWORD'),
+            'mail_encryption' => $credentials->encryption ?? env('MAIL_ENCRYPTION'),
+            'mail_from_address' => $credentials->email ?? env('MAIL_FROM_ADDRESS'),
+        ];
+        FlatVisitorMailJob::dispatch($visitor, $code, $mailCredentials);
 
         return (new CustomResponseResource([
             'title'   => 'Success',
@@ -172,7 +189,7 @@ class GuestController extends Controller
         $visitor = FlatVisitor::where('verification_code', $request->code)->first();
         $visitor->start_time = new Carbon($visitor->start_time);
         abort_if(!$visitor, 403, 'Invalid verification code');
-        abort_if($visitor->status!= 'approved',403, 'Not yet verified by Admin.' );
+        abort_if($visitor->status != 'approved', 403, 'Not yet verified by Admin.');
 
         if (!$visitor->verified) {
             return [
@@ -221,9 +238,10 @@ class GuestController extends Controller
     {
         // List only approved requests from flat_visitors table
         $futureVisits = FlatVisitor::where('building_id', $building->id)
-            ->where('start_time', '>', now())
-            ->where('type', 'visitor')->where('status','approved')
-            ->orderBy('start_time')
+            ->whereRaw("CONCAT(DATE(start_time), ' ', time_of_viewing) > ?", [now()])
+            ->where('type', 'visitor')
+            ->where('status','approved')
+            ->orderBy(DB::raw("CONCAT(DATE(start_time), ' ', time_of_viewing)"))
             ->get();
 
         return VisitorResource::collection($futureVisits);
@@ -294,7 +312,6 @@ class GuestController extends Controller
             'message' => 'No active tenant present in this unit!',
             'code'    => 400,
         ]))->response()->setStatusCode(400);
-
     }
 
     public function visitorEntry(Request $request)
