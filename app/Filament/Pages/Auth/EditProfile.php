@@ -107,7 +107,7 @@ class EditProfile extends BaseEditProfile
                     'profile_photo'   => $data['profile_photo'],
                 ]);
             } else {
-                $ownerassociation = OwnerAssociation::find(auth()->user()->owner_association_id);
+                $ownerassociation = OwnerAssociation::find(auth()->user()?->owner_association_id);
                 $ownerassociation->Update([
                     'name'    => $data['first_name'],
                     'phone'   => '971'.$data['phone'],

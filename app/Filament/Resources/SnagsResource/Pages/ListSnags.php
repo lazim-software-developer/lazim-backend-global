@@ -24,6 +24,6 @@ class ListSnags extends ListRecords
         {
             return parent::getTableQuery()->where('complaint_type', 'snag');
         }
-        return parent::getTableQuery()->where('complaint_type', 'snag')->where('owner_association_id',auth()->user()->owner_association_id);
+        return parent::getTableQuery()->where('complaint_type', 'snag')->where('owner_association_id',auth()->user()?->owner_association_id);
     }
 }

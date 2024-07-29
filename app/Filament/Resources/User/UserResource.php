@@ -81,7 +81,7 @@ class UserResource extends Resource
                     ->relationship('roles', 'name')
                     // ->multiple()
                     ->options(function () {
-                                $oaId = auth()->user()->owner_association_id;
+                                $oaId = auth()->user()?->owner_association_id;
                                 return Role::whereNotIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'OA', 'Owner', 'Managing Director', 'Vendor'])
                                 ->where('owner_association_id',$oaId)
                                     ->pluck('name', 'id');
@@ -93,7 +93,7 @@ class UserResource extends Resource
                     //     ->rules(['exists:roles,id'])
                     //     ->required()->disabledOn('edit')
                     //     ->options(function () {
-                    //         $oaId = auth()->user()->owner_association_id;
+                    //         $oaId = auth()->user()?->owner_association_id;
                     //         return Role::whereNotIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'OA', 'Owner', 'Managing Director', 'Vendor'])
                     //             ->pluck('name', 'id');
                     //     })->searchable()->preload()
@@ -116,7 +116,7 @@ class UserResource extends Resource
     {
         $roles = Role::whereNotIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'OA', 'Owner', 'Managing Director', 'Vendor'])->pluck('id');
         return $table
-            ->modifyQueryUsing(fn(Builder $query) => $query->where('owner_association_id',auth()->user()->owner_association_id)->whereIn('role_id',$roles))
+            ->modifyQueryUsing(fn(Builder $query) => $query->where('owner_association_id',auth()->user()?->owner_association_id)->whereIn('role_id',$roles))
             ->poll('60s')
             ->columns([
                 Tables\Columns\TextColumn::make('first_name')

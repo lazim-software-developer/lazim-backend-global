@@ -78,7 +78,7 @@ class DelinquentOwners extends Page
     protected function getViewData(): array
     {
         $buildings = Cache::remember('buildings', 60, function () {
-            return Building::where('owner_association_id', auth()->user()->owner_association_id)->pluck('id');
+            return Building::where('owner_association_id', auth()->user()?->owner_association_id)->pluck('id');
         });
 
         $currentDate = Carbon::now();
@@ -134,7 +134,7 @@ class DelinquentOwners extends Page
         return [
             'data' => $paginatedItems,
             'years' => range($currentYear, Carbon::now()->subYears(5)->year),
-            'buildings' => Building::where('owner_association_id', auth()->user()->owner_association_id)->get()
+            'buildings' => Building::where('owner_association_id', auth()->user()?->owner_association_id)->get()
         ];
     }
     protected function paginateFlats($flats)

@@ -50,7 +50,7 @@ class BuildingsRelationManager extends RelationManager
                 //         $existingServices =  DB::table('building_vendor')
                 //             ->where('vendor_id', $vendorId)
                 //             ->whereIn('building_id', $allBuildings)->pluck('building_id')->toArray();
-                //         $notSelected = Building::all()->where('owner_association_id',auth()->user()->owner_association_id)->whereNotIn('id', $existingServices)->pluck('name', 'id')->toArray();
+                //         $notSelected = Building::all()->where('owner_association_id',auth()->user()?->owner_association_id)->whereNotIn('id', $existingServices)->pluck('name', 'id')->toArray();
                 //         return Select::make('recordId')
                 //             ->label('Buildings')
                 //             ->options($notSelected)

@@ -145,7 +145,7 @@ class PollResource extends Resource
                         if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
                             return Building::all()->pluck('name', 'id');
                         }
-                        return Building::where('owner_association_id', auth()->user()->owner_association_id)->pluck('name', 'id');
+                        return Building::where('owner_association_id', auth()->user()?->owner_association_id)->pluck('name', 'id');
                     })
                     ->multiple()
                     ->searchable()

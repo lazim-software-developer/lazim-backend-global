@@ -7,6 +7,7 @@ use App\Http\Requests\Forms\CreateFormRequest;
 use App\Http\Resources\CustomResponseResource;
 use App\Http\Resources\MoveInOutResource;
 use App\Jobs\MoveInOutMailJob;
+use App\Models\AccountCredentials;
 use App\Models\Building\Building;
 use App\Models\Forms\MoveInOut;
 use App\Models\OwnerAssociation;
@@ -46,8 +47,16 @@ class MoveInOutController extends Controller
         $ownerAssociationId = Building::find($request->building_id)->owner_association_id;
 
         $tenant           = Filament::getTenant()?->id ?? $ownerAssociationId;
-        $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()->email ?? env('MAIL_FROM_ADDRESS');
-
+        // $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()->email ?? env('MAIL_FROM_ADDRESS');
+        $credentials = AccountCredentials::where('oa_id', $tenant)->where('active', true)->latest()->first();
+        $mailCredentials = [
+            'mail_host' => $credentials->host ?? env('MAIL_HOST'),
+            'mail_port' => $credentials->port ?? env('MAIL_PORT'),
+            'mail_username' => $credentials->username ?? env('MAIL_USERNAME'),
+            'mail_password' => $credentials->password ?? env('MAIL_PASSWORD'),
+            'mail_encryption' => $credentials->encryption ?? env('MAIL_ENCRYPTION'),
+            'mail_from_address' => $credentials->email ?? env('MAIL_FROM_ADDRESS'),
+        ];
         // Handle multiple images
         $document_paths = [
             'handover_acceptance',
@@ -87,7 +96,7 @@ class MoveInOutController extends Controller
         $data['ticket_number']        = generate_ticket_number("MV");
 
         $moveInOut = MoveInOut::create($data);
-        MoveInOutMailJob::dispatch(auth()->user(), $moveInOut, $emailCredentials);
+        MoveInOutMailJob::dispatch(auth()->user(), $moveInOut, $mailCredentials);
 
         return (new CustomResponseResource([
             'title'   => 'Success',

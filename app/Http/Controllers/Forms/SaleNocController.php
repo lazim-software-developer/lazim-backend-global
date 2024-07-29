@@ -7,6 +7,7 @@ use App\Http\Requests\Forms\SaleNocRequest;
 use App\Http\Resources\CustomResponseResource;
 use App\Jobs\Forms\SalesNocRequestJob;
 use App\Jobs\SendSaleNocEmail;
+use App\Models\AccountCredentials;
 use App\Models\Building\Building;
 use App\Models\Forms\NocContacts;
 use App\Models\Forms\NocFormSignedDocument;
@@ -15,6 +16,7 @@ use App\Models\Order;
 use App\Models\OwnerAssociation;
 use Filament\Facades\Filament;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class SaleNocController extends Controller
@@ -24,19 +26,28 @@ class SaleNocController extends Controller
         // Upload files using the fucntion optimizeDocumentAndUpload
         $validated = $request->validated();
 
-        $ownerAssociationId = Building::find($request->building_id)->owner_association_id;
+        $oam_id = DB::table('building_owner_association')->where('building_id', $request->building_id)->where('active', true)->first();
 
         $validated['user_id']              = auth()->user()->id;
-        $validated['owner_association_id'] = $ownerAssociationId;
+        $validated['owner_association_id'] = $oam_id?->owner_association_id;
         $validated['submit_status']        = 'download_file';
         $validated['ticket_number']        = generate_ticket_number("SN");
 
         // Create the SaleNoc entry
         $saleNoc          = SaleNoc::create($validated);
-        $tenant           = Filament::getTenant()?->id ?? auth()->user()?->owner_association_id ?? $ownerAssociationId;
-        $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
+        $tenant           = Filament::getTenant()?->id ?? $oam_id?->owner_association_id;
+        // $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
 
-        SalesNocRequestJob::dispatch(auth()->user(), $saleNoc, $emailCredentials);
+        $credentials = AccountCredentials::where('oa_id', $tenant)->where('active', true)->latest()->first();
+        $mailCredentials = [
+            'mail_host' => $credentials->host ?? env('MAIL_HOST'),
+            'mail_port' => $credentials->port ?? env('MAIL_PORT'),
+            'mail_username' => $credentials->username ?? env('MAIL_USERNAME'),
+            'mail_password' => $credentials->password ?? env('MAIL_PASSWORD'),
+            'mail_encryption' => $credentials->encryption ?? env('MAIL_ENCRYPTION'),
+            'mail_from_address' => $credentials->email ?? env('MAIL_FROM_ADDRESS'),
+        ];
+        SalesNocRequestJob::dispatch(auth()->user(), $saleNoc, $mailCredentials);
 
         $contacts = $request->get('contacts');
 
@@ -60,7 +71,7 @@ class SaleNocController extends Controller
         if ($status == 'download_file') {
             return response()->json([
                 'message' => 'download_file',
-                'link'    => config("app.url") . "service-charge/" . $saleNoc->id . "/generate-pdf",
+                'link'    => config("app.url") . "/service-charge/" . $saleNoc->id . "/generate-pdf",
             ], 200);
         } else if ($status == 'seller_uploaded') {
             return response()->json([
@@ -93,8 +104,17 @@ class SaleNocController extends Controller
                 'uploaded_by' => auth()->user()->id,
             ]);
 
-            // Send email to buyers attaching the document
-            SendSaleNocEmail::dispatch($saleNoc, $document)->delay(5);
+            $credentials = AccountCredentials::where('oa_id', $saleNoc->owner_association_id)->where('active', true)->latest()->first();
+            $mailCredentials = [
+                'mail_host' => $credentials->host ?? env('MAIL_HOST'),
+                'mail_port' => $credentials->port ?? env('MAIL_PORT'),
+                'mail_username' => $credentials->username ?? env('MAIL_USERNAME'),
+                'mail_password' => $credentials->password ?? env('MAIL_PASSWORD'),
+                'mail_encryption' => $credentials->encryption ?? env('MAIL_ENCRYPTION'),
+                'mail_from_address' => $credentials->email ?? env('MAIL_FROM_ADDRESS'),
+            ];
+            // Send email to buyers attaching the document 
+            SendSaleNocEmail::dispatch($saleNoc, $document, $mailCredentials)->delay(5);
         } else if ($status == 'seller_uploaded') {
             $saleNoc->update(['submit_status' => 'buyer_uploaded']);
 

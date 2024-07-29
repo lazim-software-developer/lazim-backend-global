@@ -43,7 +43,7 @@ class ListItems extends ListRecords
                         ->required()
                         ->relationship('building', 'name')
                         ->options(function () {
-                            $oaId = auth()->user()->owner_association_id;
+                            $oaId = auth()->user()?->owner_association_id;
                             // dd($tenants);
                             return Building::where('owner_association_id', $oaId)
                                 ->pluck('name', 'id');

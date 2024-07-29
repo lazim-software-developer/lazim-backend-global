@@ -35,7 +35,7 @@ class AgingReportResource extends Resource
     }
 
     public static function table(Table $table): Table
-    {   $buildings = Building::where('owner_association_id',auth()->user()->owner_association_id)->pluck('id');
+    {   $buildings = Building::where('owner_association_id',auth()->user()?->owner_association_id)->pluck('id');
         return $table
         ->modifyQueryUsing(fn(Builder $query) => $query->whereIn('building_id', $buildings)->orderBy('created_at','desc')->withoutGlobalScopes())
             ->columns([
@@ -76,7 +76,7 @@ class AgingReportResource extends Resource
                                 return Building::all()->pluck('name', 'id');
                             }
                             else{
-                                return Building::where('owner_association_id', auth()->user()->owner_association_id)
+                                return Building::where('owner_association_id', auth()->user()?->owner_association_id)
                                 ->pluck('name', 'id');
                             } 
                         })
