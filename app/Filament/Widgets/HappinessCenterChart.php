@@ -5,52 +5,71 @@ namespace App\Filament\Widgets;
 use App\Models\Master\Role;
 use Filament\Widgets\ChartWidget;
 use App\Models\Building\Complaint;
+use Carbon\Carbon;
+use Filament\Facades\Filament;
+use Filament\Widgets\Concerns\InteractsWithPageFilters;
 use Illuminate\Support\Facades\Log;
 
 class HappinessCenterChart extends ChartWidget
 {
-    protected static ?string $heading = 'Happiness Center';
+    use InteractsWithPageFilters;
+    
+    protected static ?string $heading = 'Complaints';
     protected static ?string $maxHeight = '200px';
 
-    protected static ?int $sort = 4;
+    protected static ?int $sort = 6;
 
     protected function getData(): array
     {
-        if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
-            $complaints = Complaint::count();
-            $enquiries = Complaint::where('complaint_type', 'enquiries')->count();
-            $suggestions = Complaint::where('complaint_type', 'suggestions')->count();
-            return [
-                'datasets' => [
-                    [
-                        'label' => ['Suggestions', 'Enquiries'],
-                        'data' => [$suggestions, $enquiries],
-                        'backgroundColor' => ['#f5fa5a', '#5a82fa'],
-                        'borderColor' => '#ffffff',
-                    ],
-                ],
-                'labels' => ['Suggestions', 'Enquiries'],
-            ];
-        } else {
-            $complaints = Complaint::where('owner_association_id', auth()->user()?->owner_association_id)->count();
-            $enquiries = Complaint::where('owner_association_id', auth()->user()?->owner_association_id)->where('complaint_type', 'enquiries')->count();
-            $suggestions = Complaint::where('owner_association_id', auth()->user()?->owner_association_id)->where('complaint_type', 'suggestions')->count();
-            return [
-                'datasets' => [
-                    [
-                        'label' => ['Suggestions', 'Enquiries'],
-                        'data' => [$suggestions, $enquiries],
-                        'backgroundColor' => ['#f5fa5a', '#5a82fa'],
-                        'borderColor' => '#ffffff',
-                    ],
-                ],
-                'labels' => ['Suggestions', 'Enquiries'],
-            ];
+        $startDate = $this->filters['startDate'] ?? null;
+        $endDate = $this->filters['endDate'] ?? null;
+
+        $query = Complaint::query()->where('owner_association_id', Filament::getTenant()->id);
+
+        if ($startDate) {
+            $startOfDay = Carbon::createFromFormat('Y-m-d', $startDate)->startOfDay();
+            $query->where('created_at', '>=', $startOfDay);
         }
+        if ($endDate) {
+            $endOfDay = Carbon::createFromFormat('Y-m-d', $endDate)->endOfDay();
+            $query->where('created_at', '<=', $endOfDay);
+        }
+
+        $HappinessCenterOpen = clone $query;
+        $HappinessCenterClosed = clone $query;
+        $HelpDeskOpen = clone $query;
+        $HelpDeskClosed = clone $query;
+
+        $HappinessCenterOpenCount = $HappinessCenterOpen->where('status','open')->where('complaint_type','tenant_complaint')->count();
+        $HappinessCenterClosedCount = $HappinessCenterClosed->where('status','closed')->where('complaint_type','tenant_complaint')->count();
+
+        $HelpDeskOpenCount = $HelpDeskOpen->where('status','open')->where('complaint_type','help_desk')->count();
+        $HelpDeskClosedCount = $HelpDeskClosed->where('status','closed')->where('complaint_type','help_desk')->count();
+
+        Log::info(['HCO'.$HappinessCenterOpenCount,'HCC'.$HappinessCenterClosedCount,'HDO'.$HelpDeskOpenCount,'HDC'.$HelpDeskClosedCount]);
+
+        return [
+            'datasets' => [
+                [
+                    'label' => 'Open',
+                    'data' => [$HelpDeskOpenCount, $HappinessCenterOpenCount],  // Open counts for Help Desk and Happiness Center
+                    'backgroundColor' => ['#f5fa5a'],
+                    'borderColor' => '#ffffff',
+                ],
+                [
+                    'label' => 'Closed',
+                    'data' => [$HelpDeskClosedCount, $HappinessCenterClosedCount],  // Closed counts for Help Desk and Happiness Center
+                    'backgroundColor' => ['#bbf76d'],
+                    'borderColor' => '#ffffff',
+                ]
+            ],
+            'labels' => ['Help Desk', 'Happiness Center'],
+        ];
     }
+
 
     protected function getType(): string
     {
-        return 'doughnut';
+        return 'bar';
     }
 }
