@@ -55,8 +55,7 @@
         <td>
             <h4>Name: {{$qr['name']}}</h4>
             <h4 style="margin-top: -20px;">Code: {{ $qr['asset_code'] }}</h4>
-            <img src="https://drona-admin-panel.s3.amazonaws.com/qr/demo-2-YzM4NzI1ZG" alt="Logo">
-        </td>   
+            <img src="{{ $qr['qr_code'] }}" alt="QR Code">        </td>   
         @php $i++; @endphp
     @endforeach
     @if ($i % 3 != 0) <!-- Ensures the last row is closed properly -->
