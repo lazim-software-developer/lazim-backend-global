@@ -159,26 +159,6 @@ class VendorRegistrationController extends Controller
         $user = User::find($request->owner_id);
         $vendor = Vendor::create($request->all());
 
-        //Inserting vendor record into lazim-accounts database
-        $created_by = DB::connection('lazim_accounts')->table('users')->where(['owner_association_id'=>$request->owner_association_id,'type' => 'company'])->first()->id;
-
-        DB::connection('lazim_accounts')->table('venders')->insert([
-            'vender_id'       => DB::connection('lazim_accounts')->table('venders')->latest()->first()?->id + 1,
-            'name'            => $request->name,
-            'email'           => $user->email,
-            'password'        => '',
-            'contact'         => $user->phone,
-            'created_by'      => $created_by ?? 2,
-            'is_enable_login' => 0,
-            'created_at'      => now(),
-            'updated_at'      => now(),
-            'lazim_vendor_id' => $vendor->id,
-        ]);
-        DB::connection('lazim_accounts')->table('oa_vendor')->insert([
-            'lazim_owner_association_id' => $request->owner_association_id,
-            'vendor_id' => DB::connection('lazim_accounts')->table('venders')->where('lazim_vendor_id',$vendor->id)->first()?->id,
-        ]);
-
         $user->ownerAssociation()->attach($request->owner_association_id, ['from' => now()->toDateString()]);
         $vendor->ownerAssociation()->attach($request->owner_association_id, ['from' => now()->toDateString()]);
 
