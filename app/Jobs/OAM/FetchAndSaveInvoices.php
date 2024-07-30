@@ -45,7 +45,8 @@ class FetchAndSaveInvoices implements ShouldQueue
 
         try {
             if (!$this->serviceChargeGroupId) {
-                $url = env("MOLLAK_API_URL") . '/sync/invoices/' . $propertyGroupId . '/all/' . $quarter;
+                // $url = env("MOLLAK_API_URL") . '/sync/invoices/' . $propertyGroupId . '/all/' . $quarter;
+                $url = env("MOLLAK_API_URL") ."/sync/invoices/". $propertyGroupId ."/all/Q1-JAN2023-DEC2023";
             } else {
                 $url = env("MOLLAK_API_URL") . "/sync/invoices/" . $propertyGroupId . "/" . $serviceChargeGroupId . "/" . $quarter;
             }
