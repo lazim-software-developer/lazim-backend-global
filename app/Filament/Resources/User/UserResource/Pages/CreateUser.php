@@ -6,12 +6,13 @@ use App\Filament\Resources\User\UserResource;
 use App\Jobs\AccountsManagerJob;
 use App\Jobs\MdCreateJob;
 use App\Models\AccountCredentials;
-use App\Models\OwnerAssociation;
 use App\Models\OwnerAssociationUser;
 use App\Models\User\User;
 use Filament\Facades\Filament;
 use Filament\Resources\Pages\CreateRecord;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class CreateUser extends CreateRecord
@@ -64,6 +65,32 @@ class CreateUser extends CreateRecord
         $user->role_id              = $this->data['roles'];
         $user->save();
 
+        if ($user->role?->name === 'Accounts Manager') {
+            $building_id = DB::table('building_owner_association')->where('owner_association_id', $user?->owner_association_id)->first()?->building_id;
+            $connection  = DB::connection('lazim_accounts');
+            $connection->table('users')->insert([
+                'name'                 => $user->first_name,
+                'email'                => $user->email,
+                'email_verified_at'    => now(),
+                'password'             => Hash::make($password),
+                'type'                 => 'accountant',
+                'lang'                 => 'en',
+                'created_by'           => 1,
+                'plan'                 => 1,
+                'owner_association_id' => $user?->owner_association_id,
+                'building_id'          => $building_id,
+                'created_at'           => now(),
+                'updated_at'           => now(),
+            ]);
+            $accountUser = $connection->table('users')->where('email', $user->email)->where('owner_association_id', $user->owner_association_id)->first();
+            $role        = $connection->table('roles')->where('name', 'accountant')->first();
+            $connection->table('model_has_roles')->insert([
+                'role_id'    => $role?->id,
+                'model_type' => 'App\Models\User',
+                'model_id'   => $accountUser?->id,
+            ]);
+
+        }
         // Dispatch the appropriate job based on the role
         if (array_key_exists($this->record->role?->name, $roleJobMap)) {
             $jobClass         = $roleJobMap[$this->record->role?->name];
