@@ -13,6 +13,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -22,7 +23,7 @@ class FetchAndSaveInvoices implements ShouldQueue
 
     protected $building;
 
-    public function __construct($building = null, protected $propertyGroupId = null,protected $serviceChargeGroupId = null, protected $quarterCode = null )
+    public function __construct($building = null, protected $propertyGroupId = null, protected $serviceChargeGroupId = null, protected $quarterCode = null)
     {
         $this->building = $building;
     }
@@ -34,93 +35,116 @@ class FetchAndSaveInvoices implements ShouldQueue
     {
         $propertyGroupId = $this->propertyGroupId ?: $this->building->property_group_id;
         $serviceChargeGroupId = $this->serviceChargeGroupId;
-        $buildingId = $this->building?->id?: Building::where('property_group_id',$propertyGroupId)->first()?->id;
+        $buildingId = $this->building?->id ?: Building::where('property_group_id', $propertyGroupId)->first()?->id;
 
         $currentDate = new DateTime();
         $currentYear = $currentDate->format('Y');
         $currentQuarter = ceil($currentDate->format('n') / 3);
 
-        $quarter =$this->quarterCode ?: "Q" . $currentQuarter . "-JAN" . $currentYear . "-DEC" . $currentYear;
+        $quarter = $this->quarterCode ?: "Q" . $currentQuarter . "-JAN" . $currentYear . "-DEC" . $currentYear;
 
         try {
-            if(!$this->serviceChargeGroupId){
+            if (!$this->serviceChargeGroupId) {
                 $url = env("MOLLAK_API_URL") . '/sync/invoices/' . $propertyGroupId . '/all/' . $quarter;
-                
+            } else {
+                $url = env("MOLLAK_API_URL") . "/sync/invoices/" . $propertyGroupId . "/" . $serviceChargeGroupId . "/" . $quarter;
             }
-            else{
-                $url = env("MOLLAK_API_URL") . "/sync/invoices/".$propertyGroupId."/".$serviceChargeGroupId."/".$quarter;
-            }
-                $response = Http::withoutVerifying()->withHeaders([
-                    'content-type' => 'application/json',
-                    'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
-                ])->get($url);
+            $response = Http::withoutVerifying()->withHeaders([
+                'content-type' => 'application/json',
+                'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
+            ])->get($url);
 
-                $invoicesData = $response->json()['response']['serviceChargeGroups'];
+            $invoicesData = $response->json()['response']['serviceChargeGroups'];
 
-                // Log::info('invoice'.json_encode($invoicesData));
-                foreach ($invoicesData as $data) {
-                    foreach ($data['properties'] as $property) {
-                        $flat = Flat::where('mollak_property_id',  $property['mollakPropertyId'])->first();
+            // Log::info('invoice'.json_encode($invoicesData));
+            foreach ($invoicesData as $data) {
+                foreach ($data['properties'] as $property) {
+                    $flat = Flat::where('mollak_property_id',  $property['mollakPropertyId'])->first();
 
-                        // Save amount data
-                        $generalFundAmount = 0;
-                        $reservedFundAmount = 0;
-                        $additionalCharges = 0;
-                        $previousBalances = 0;
-                        $adjustmentAmount = 0;
+                    // Save amount data
+                    $generalFundAmount = 0;
+                    $reservedFundAmount = 0;
+                    $additionalCharges = 0;
+                    $previousBalances = 0;
+                    $adjustmentAmount = 0;
 
-                        // Loop through invoice items to set the correct amounts
-                        foreach ($property['invoiceItems'] as $item) {
-                            switch ($item['itemName']['englishName']) {
-                                case 'General Fund':
-                                    $generalFundAmount = $item['amount'];
-                                    break;
-                                case 'Reserved Fund':
-                                    $reservedFundAmount = $item['amount'];
-                                    break;
-                                case 'Additional Charges':
-                                    $additionalCharges = $item['amount'];
-                                    break;
-                                case 'Previous Balances':
-                                    $previousBalances = $item['amount'];
-                                    break;
-                                case 'Adjustment':
-                                    $adjustmentAmount = $item['amount'];
-                                    break;
-                            }
+                    // Loop through invoice items to set the correct amounts
+                    foreach ($property['invoiceItems'] as $item) {
+                        switch ($item['itemName']['englishName']) {
+                            case 'General Fund':
+                                $generalFundAmount = $item['amount'];
+                                break;
+                            case 'Reserved Fund':
+                                $reservedFundAmount = $item['amount'];
+                                break;
+                            case 'Additional Charges':
+                                $additionalCharges = $item['amount'];
+                                break;
+                            case 'Previous Balances':
+                                $previousBalances = $item['amount'];
+                                break;
+                            case 'Adjustment':
+                                $adjustmentAmount = $item['amount'];
+                                break;
                         }
-
-                        OAMInvoice::updateOrCreate(
-                            [
-                                'building_id' => $buildingId,
-                                'flat_id' => $flat->id,
-                                'invoice_number' => $property['invoiceNumber'],
-                                'invoice_quarter' => $data['invoiceQuarter'],
-                                'invoice_period' => $data['invoicePeriod'],
-                                'budget_period' => $data['budgetPeriod'],
-                                'service_charge_group_id' => $data['serviceChargeGroupId'],
-                            ],
-                            [
-                                'invoice_date' => $property['invoiceDate'],
-                                'invoice_status' => $property['invoiceStatus']['englishName'],
-                                'due_amount' => $property['dueAmount'],
-                                'general_fund_amount' => $generalFundAmount,
-                                'reserve_fund_amount' => $reservedFundAmount,
-                                'additional_charges' => $additionalCharges,
-                                'previous_balance' => $previousBalances,
-                                'adjust_amount' => $adjustmentAmount,
-                                'invoice_due_date' => $property['invoiceDueDate'],
-                                'invoice_pdf_link' => $property['invoiceDetailUrl'] ?? null,
-                                'invoice_detail_link' => $property['invoicePDF'] ?? null,
-                                'invoice_amount' => $property['invoiceAmount'],
-                                'amount_paid' => 0,
-                                'updated_by' => User::first()->id,
-                                'type' => 'service_charge',
-                                'payment_url' => $property['paymentUrl']
-                            ]
-                        );
                     }
+
+                    OAMInvoice::updateOrCreate(
+                        [
+                            'building_id' => $buildingId,
+                            'flat_id' => $flat->id,
+                            'invoice_number' => $property['invoiceNumber'],
+                            'invoice_quarter' => $data['invoiceQuarter'],
+                            'invoice_period' => $data['invoicePeriod'],
+                            'budget_period' => $data['budgetPeriod'],
+                            'service_charge_group_id' => $data['serviceChargeGroupId'],
+                        ],
+                        [
+                            'invoice_date' => $property['invoiceDate'],
+                            'invoice_status' => $property['invoiceStatus']['englishName'],
+                            'due_amount' => $property['dueAmount'],
+                            'general_fund_amount' => $generalFundAmount,
+                            'reserve_fund_amount' => $reservedFundAmount,
+                            'additional_charges' => $additionalCharges,
+                            'previous_balance' => $previousBalances,
+                            'adjust_amount' => $adjustmentAmount,
+                            'invoice_due_date' => $property['invoiceDueDate'],
+                            'invoice_pdf_link' => $property['invoiceDetailUrl'] ?? null,
+                            'invoice_detail_link' => $property['invoicePDF'] ?? null,
+                            'invoice_amount' => $property['invoiceAmount'],
+                            'amount_paid' => 0,
+                            'updated_by' => User::first()->id,
+                            'type' => 'service_charge',
+                            'payment_url' => $property['paymentUrl'],
+                            'owner_association_id' => $flat->owner_association_id
+                        ]
+                    );
+                    $connection = DB::connection('lazim_accounts');
+                    $created_by = $connection->table('users')->where('owner_association_id', $flat->owner_association_id)->where('type', 'company')->first()?->id;
+                    $invoiceId = $connection->table('invoices')->where('created_by', $created_by)->orderByDesc('invoice_id')->first()?->invoice_id + 1;
+                    $customerId = $connection->table('customer_flat')->where('flat_id', $flat->id)->where('building_id', $buildingId)->where('active', true)->first()?->customer_id;
+                    $category_id = $connection->table('product_service_categories')->where('name', 'Service Charges')->first()?->id;
+                    $connection->table('invoices')->updateOrInsert([
+                        'building_id' => $buildingId,
+                        'flat_id' => $flat->id,
+                        'issue_date' => $property['invoiceDate'],
+                    ],
+                        [
+                        'invoice_id' => $invoiceId,
+                        'customer_id' => $customerId,
+                        'due_date' => $property['invoiceDueDate'],
+                        'send_date' => $property['invoiceDate'],
+                        'category_id' => $category_id,
+                        'ref_number' => random_int(11111111, 99999999),
+                        'status' => false,
+                        'shipping_display' => true,
+                        'discount_apply' => false,
+                        'created_by' => $created_by,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
                 }
+            }
         } catch (\Exception $e) {
             Log::error('Failed to fetch or save invoices');
         }
