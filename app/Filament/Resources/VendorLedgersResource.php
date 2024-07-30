@@ -29,7 +29,9 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\VendorLedgersResource\Pages;
 use App\Filament\Resources\VendorLedgersResource\RelationManagers;
 use App\Models\Master\Role;
+use App\Models\User\User;
 use Coolsam\FilamentFlatpickr\Forms\Components\Flatpickr;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 use Malzariey\FilamentDaterangepickerFilter\Fields\DateRangePicker;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
@@ -202,5 +204,29 @@ class VendorLedgersResource extends Resource
             //'view' => Pages\ViewVendorLedgers::route('/{record}'),
             'edit' => Pages\EditVendorLedgers::route('/{record}/edit'),
         ];
+    }
+
+    public static function canViewAny(): bool
+    {
+        $user = User::find(auth()->user()->id);
+        return $user->can('view_any_vendor::ledgers');
+    }
+
+    public static function canView(Model $record): bool
+    {
+        $user = User::find(auth()->user()->id);
+        return $user->can('view_vendor::ledgers');
+    }
+
+    public static function canCreate(): bool
+    {
+        $user = User::find(auth()->user()->id);
+        return $user->can('create_vendor::ledgers');
+    }
+
+    public static function canEdit(Model $record): bool
+    {
+        $user = User::find(auth()->user()->id);
+        return $user->can('update_vendor::ledgers');
     }
 }
