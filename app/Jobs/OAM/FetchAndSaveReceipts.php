@@ -13,6 +13,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class FetchAndSaveReceipts implements ShouldQueue
@@ -32,6 +33,7 @@ class FetchAndSaveReceipts implements ShouldQueue
             $propertyGroupId = $this->propertyGroupId ?: $this->building->property_group_id;
             $mollakPropertyId = $this->mollakPropertyId;
             $receiptId = $this->receiptId;
+            $buildingId = $this->building?->id ?: Building::where('property_group_id', $propertyGroupId)->first()?->id;
 
             $dateRange = $this->getCurrentQuarterDateRange();
 
@@ -58,14 +60,14 @@ class FetchAndSaveReceipts implements ShouldQueue
             $currentQuarterDates = $this->getCurrentQuarterDates();
 
             foreach ($properties as $property) {
-                $flatId = Flat::where('mollak_property_id', $property['mollakPropertyId'])->value('id');
+                $flat = Flat::where('mollak_property_id', $property['mollakPropertyId'])->first();
                 foreach ($property['receipts'] as $receipt) {
                     OAMReceipts::updateOrCreate(
                         [
                             'receipt_number' => $receipt['receiptNumber'],
                             'receipt_date' => $receipt['receiptDate'],
-                            'building_id' => $this->building->id,
-                            'flat_id' => $flatId,
+                            'building_id' => $buildingId,
+                            'flat_id' => $flat?->id,
                         ],
                         [
                             'transaction_reference' => $receipt['transactionReference'],
@@ -81,6 +83,28 @@ class FetchAndSaveReceipts implements ShouldQueue
                             'receipt_period' => $currentQuarterDates['receipt_period']
                         ]
                     );
+                    $connection = DB::connection('lazim_accounts');
+                    $created_by = $connection->table('users')->where('owner_association_id', $flat->owner_association_id)->where('type', 'company')->first()?->id;
+                    // $invoiceId = $connection->table('invoices')->where('created_by', $created_by)->orderByDesc('invoice_id')->first()?->invoice_id + 1;
+                    $customerId = $connection->table('customer_flat')->where('flat_id', $flat->id)->where('building_id', $this->building->id)->where('active', true)->first()?->customer_id;
+                    $category_id = $connection->table('product_service_categories')->where('name', 'Service Charges')->first()?->id;
+                    $accountId = $connection->table('bank_accounts')->where('created_by', $created_by)->where('holder_name','Owner Account')->first()?->id;
+                    $connection->table('invoices')->updateOrInsert([
+                        'building_id' => $buildingId,
+                        'flat_id' => $flat?->id,
+                        'date' => $receipt['receiptDate'],
+                    ],
+                        [
+                        'amount' => $receipt['receiptAmount'],
+                        'account_id' => $accountId,
+                        'customer_id' => $customerId,
+                        'category_id' => $category_id,
+                        'payment_method' => 0,
+                        'reference' => random_int(11111111, 99999999),
+                        'created_by' => $created_by,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
                 }
             }
         } catch (\Exception $e) {
