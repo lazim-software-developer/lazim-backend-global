@@ -90,23 +90,23 @@ class InvoiceResource extends Resource
                             ]),
                         TextInput::make('opening_balance')
                             ->prefix('AED')
-                            ->disabled()
+                            ->readOnly()
                             ->live(),
                         TextInput::make('payment')
                             ->prefix('AED')
                             ->numeric()
                             ->minValue(1)
                             ->maxValue(function(Get $get){
-                                return $get('invoice_amount');
+                                return $get('opening_balance') ?? $get('invoice_amount');
                             })
                             ->disabled(function (Invoice $record) {
                                 if (Role::where('id', auth()->user()->role_id)->first()->name == 'OA') {
                                     return true;
                                 }
-                                if (Role::where('id', auth()->user()->role_id)->first()->name == 'Accounts Manager') {
-                                    $invoiceapproval = InvoiceApproval::where('invoice_id',$record->id)->where('active',true)->whereIn('updated_by',User::where('owner_association_id',auth()->user()?->owner_association_id)->whereIn('role_id',Role::whereIn('name',['Accounts Manager','MD'])->pluck('id'))->pluck('id'))->exists();
-                                    return $invoiceapproval;
-                                }
+                                // if (Role::where('id', auth()->user()->role_id)->first()->name == 'Accounts Manager') {
+                                //     $invoiceapproval = InvoiceApproval::where('invoice_id',$record->id)->where('active',true)->whereIn('updated_by',User::where('owner_association_id',auth()->user()?->owner_association_id)->whereIn('role_id',Role::whereIn('name',['Accounts Manager','MD'])->pluck('id'))->pluck('id'))->exists();
+                                //     return $invoiceapproval;
+                                // }
                                 if (Role::where('id', auth()->user()->role_id)->first()->name == 'MD') {
                                     return true;
                                 }
@@ -125,7 +125,7 @@ class InvoiceResource extends Resource
                             ->live(),
                         TextInput::make('balance')
                             ->prefix('AED')
-                            ->disabled()
+                            ->readOnly()
                             ->live(),
                         TextInput::make('invoice_amount')
                             ->label('Invoice Amount')

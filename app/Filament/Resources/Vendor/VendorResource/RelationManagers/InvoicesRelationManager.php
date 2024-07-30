@@ -7,7 +7,6 @@ use App\Models\AccountCredentials;
 use App\Models\Accounting\Invoice;
 use App\Models\InvoiceApproval;
 use App\Models\Master\Role;
-use App\Models\OwnerAssociation;
 use App\Models\User\User;
 use Filament\Facades\Filament;
 use Filament\Forms\Components\DatePicker;
@@ -22,6 +21,7 @@ use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\DB;
 
 class InvoicesRelationManager extends RelationManager
 {
@@ -84,23 +84,23 @@ class InvoicesRelationManager extends RelationManager
                             ]),
                         TextInput::make('opening_balance')
                             ->prefix('AED')
-                            ->disabled()
+                            ->readOnly()
                             ->live(),
                         TextInput::make('payment')
                             ->prefix('AED')
                             ->numeric()
                             ->minValue(1)
                             ->maxValue(function (Get $get) {
-                                return $get('invoice_amount');
+                                return $get('opening_balance') ?? $get('invoice_amount');
                             })
                             ->disabled(function (Invoice $record) {
                                 if (Role::where('id', auth()->user()->role_id)->first()->name == 'OA') {
                                     return true;
                                 }
-                                if (Role::where('id', auth()->user()->role_id)->first()->name == 'Accounts Manager') {
-                                    $invoiceapproval = InvoiceApproval::where('invoice_id', $record->id)->where('active', true)->whereIn('updated_by', User::where('owner_association_id', auth()->user()?->owner_association_id)->whereIn('role_id', Role::whereIn('name', ['Accounts Manager', 'MD'])->pluck('id'))->pluck('id'))->exists();
-                                    return $invoiceapproval;
-                                }
+                                // if (Role::where('id', auth()->user()->role_id)->first()->name == 'Accounts Manager') {
+                                //     $invoiceapproval = InvoiceApproval::where('invoice_id', $record->id)->where('active', true)->whereIn('updated_by', User::where('owner_association_id', auth()->user()?->owner_association_id)->whereIn('role_id', Role::whereIn('name', ['Accounts Manager', 'MD'])->pluck('id'))->pluck('id'))->exists();
+                                //     return $invoiceapproval;
+                                // }
                                 if (Role::where('id', auth()->user()->role_id)->first()->name == 'MD') {
                                     return true;
                                 }
@@ -119,7 +119,7 @@ class InvoicesRelationManager extends RelationManager
                             ->live(),
                         TextInput::make('balance')
                             ->prefix('AED')
-                            ->disabled()
+                            ->readOnly()
                             ->live(),
                         TextInput::make('invoice_amount')
                             ->label('Invoice Amount')
@@ -209,16 +209,16 @@ class InvoicesRelationManager extends RelationManager
             ])
             ->actions([
                 Tables\Actions\EditAction::make()
-                    ->after(function ($record) {
-                        $tenant           = Filament::getTenant()?->id ?? auth()->user()?->owner_association_id;
+                    ->after(function (array $data, $record) {
+                        $tenant = Filament::getTenant()?->id ?? auth()->user()?->owner_association_id;
                         // $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()->email ?? env('MAIL_FROM_ADDRESS');
-                        $credentials = AccountCredentials::where('oa_id', $tenant)->where('active', true)->latest()->first();
+                        $credentials     = AccountCredentials::where('oa_id', $tenant)->where('active', true)->latest()->first();
                         $mailCredentials = [
-                            'mail_host' => $credentials->host ?? env('MAIL_HOST'),
-                            'mail_port' => $credentials->port ?? env('MAIL_PORT'),
-                            'mail_username' => $credentials->username ?? env('MAIL_USERNAME'),
-                            'mail_password' => $credentials->password ?? env('MAIL_PASSWORD'),
-                            'mail_encryption' => $credentials->encryption ?? env('MAIL_ENCRYPTION'),
+                            'mail_host'         => $credentials->host ?? env('MAIL_HOST'),
+                            'mail_port'         => $credentials->port ?? env('MAIL_PORT'),
+                            'mail_username'     => $credentials->username ?? env('MAIL_USERNAME'),
+                            'mail_password'     => $credentials->password ?? env('MAIL_PASSWORD'),
+                            'mail_encryption'   => $credentials->encryption ?? env('MAIL_ENCRYPTION'),
                             'mail_from_address' => $credentials->email ?? env('MAIL_FROM_ADDRESS'),
                         ];
                         if (Role::where('id', auth()->user()->role_id)->first()->name == 'OA' && !InvoiceApproval::where('invoice_id', $record->id)->where('active', true)->exists()) {
@@ -245,6 +245,42 @@ class InvoicesRelationManager extends RelationManager
                             }
                         }
                         if (Role::where('id', auth()->user()->role_id)->first()->name == 'Accounts Manager') {
+                            if ($record->opening_balance == null) {
+                                Invoice::where('id', $record->id)
+                                    ->update([
+                                        'status_updated_by' => auth()->user()->id,
+                                        'opening_balance'   => $record->invoice_amount - $record->payment,
+                                        'balance'           => $record->invoice_amount - $record->payment,
+                                    ]);
+                            } else {
+                                Invoice::where('id', $record->id)
+                                    ->update([
+                                        'status_updated_by' => auth()->user()->id,
+                                        'opening_balance'   => $record->opening_balance - $record->payment,
+                                        'balance'           => $record->opening_balance - $record->payment,
+                                    ]);
+                                $mdRecordExist = InvoiceApproval::where(['invoice_id' => $record->id, 'remarks' => 'approved by md', 'active' => true]);
+                                if ($mdRecordExist->first()) {
+                                    $mdRecordExist->update(['active' => false]);
+                                }
+
+                            }
+                            if ($record->payment != null) {
+                                $bill = DB::connection('lazim_accounts')->table('bills')->where('lazim_invoice_id', $record->id)->first();
+                                DB::connection('lazim_accounts')->table('bill_payments')->insert([
+                                    'bill_id'    => $bill?->id,
+                                    'date'       => now()->format('Y-m-d'),
+                                    'amount'     => $record->payment,
+                                    'account_id' => 1,
+                                    'created_at' => now(),
+                                    'updated_at' => now(),
+                                    'building_id'=> $bill?->building_id,
+
+                                ]);
+                                DB::connection('lazim_accounts')->table('bills')->where('lazim_invoice_id', $record->id)->update([
+                                    'status' => 4,
+                                ]);
+                            }
                             if ($record->status == 'approved') {
                                 InvoiceApproval::firstOrCreate([
                                     'invoice_id' => $record->id,
@@ -316,12 +352,6 @@ class InvoicesRelationManager extends RelationManager
                                 InvoiceRejectionJob::dispatch($user, $record->remarks, $invoice, $mailCredentials);
                             }
                         }
-                        Invoice::where('id', $record->id)
-                            ->update([
-                                'status_updated_by' => auth()->user()->id,
-                                'opening_balance'   => $record->invoice_amount - $record->payment,
-                                'balance'           => $record->invoice_amount - $record->payment,
-                            ]);
                     })
                     ->mutateRecordDataUsing(function (array $data): array {
                         if ($data['status'] == 'pending') {
