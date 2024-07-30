@@ -119,7 +119,7 @@ class EditInvoice extends EditRecord
                         'building_id' => $bill?->building_id,
                     ]);
                     $connection->table('bills')->where('lazim_invoice_id', $this->record->id)->update([
-                        'status' => Invoice::where('id', $this->record->id)->opening_balance == 0 ? 4 : 3, // updating status based on payment
+                        'status' => $this->record->opening_balance == 0 ? 4 : 3, // updating status based on payment
                     ]);
                     $connection->table('transactions')->insert([
                         'user_id'     => $bill?->vender_id,
