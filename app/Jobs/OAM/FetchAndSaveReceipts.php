@@ -43,8 +43,8 @@ class FetchAndSaveReceipts implements ShouldQueue
                 Log::info('RECEIPTID', [$url]);
             }
             else{
-                // $url = env("MOLLAK_API_URL") . '/sync/receipts/' . $propertyGroupId . '/01-Jan-2024/31-Mar-2024';
-                $url = env("MOLLAK_API_URL") . '/sync/receipts/' . $propertyGroupId . '/' . $dateRange;
+                $url = env("MOLLAK_API_URL") . '/sync/receipts/' . $propertyGroupId . '/01-Jan-2024/31-Mar-2024';
+                // $url = env("MOLLAK_API_URL") . '/sync/receipts/' . $propertyGroupId . '/' . $dateRange;
             }
             $response = Http::withoutVerifying()->withHeaders([
                 'content-type' => 'application/json',
