@@ -89,18 +89,16 @@ class FetchAndSaveReceipts implements ShouldQueue
                     $customerId = $connection->table('customer_flat')->where('flat_id', $flat->id)->where('building_id', $this->building->id)->where('active', true)->first()?->customer_id;
                     $category_id = $connection->table('product_service_categories')->where('name', 'Service Charges')->first()?->id;
                     $accountId = $connection->table('bank_accounts')->where('created_by', $created_by)->where('holder_name','Owner Account')->first()?->id;
-                    $connection->table('invoices')->updateOrInsert([
+                    $connection->table('revenues')->insert([
                         'building_id' => $buildingId,
                         'flat_id' => $flat?->id,
                         'date' => $receipt['receiptDate'],
-                    ],
-                        [
                         'amount' => $receipt['receiptAmount'],
                         'account_id' => $accountId,
                         'customer_id' => $customerId,
                         'category_id' => $category_id,
                         'payment_method' => 0,
-                        'reference' => random_int(11111111, 99999999),
+                        'reference' => $receipt['transactionReference'],
                         'created_by' => $created_by,
                         'created_at' => now(),
                         'updated_at' => now(),
