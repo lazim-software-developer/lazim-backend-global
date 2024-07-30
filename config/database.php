@@ -63,7 +63,7 @@ return [
             ]) : [],
         ],
 
-        'mysql_lazim' => [
+        'lazim_accounts' => [
             'driver' => 'mysql',
             'url' => env('DATABASE_URL'),
             'host' => env('SECOND_DB_HOST', '127.0.0.1'),

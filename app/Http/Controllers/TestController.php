@@ -19,13 +19,20 @@ use App\Imports\UtilityExpensesImport;
 use App\Imports\WorkOrdersImport;
 use App\Jobs\MailTestJob;
 use App\Models\AccountCredentials;
+use App\Models\Accounting\OAMInvoice;
+use App\Models\Accounting\OAMReceipts;
 use App\Models\Building\Building;
+use App\Models\Building\Flat;
 use App\Models\OaServiceRequest;
 use App\Models\ServiceParameter;
+use App\Models\User\User;
 use Aws\Exception\AwsException;
 use Aws\S3\S3Client;
+use Carbon\Carbon;
+use DateTime;
 use Filament\Notifications\Notification;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
@@ -523,5 +530,177 @@ class TestController extends Controller
 
         MailTestJob::dispatch($credentials);
 
+    }
+
+    public function invoiceTest(Request $request)
+    // {
+    //     // return $request->serviceChargeGroups;
+    //     $invoicesData =$request->serviceChargeGroups;
+    //     $buildingId = Building::where('property_group_id', 235553)->first()?->id;
+    //     // return Flat::where('mollak_property_id',  17651620)->first();
+    //     foreach ($invoicesData as $data) {
+    //         foreach ($data['properties'] as $property) {
+    //             $flat = Flat::where('mollak_property_id',  $property['mollakPropertyId'])->first();
+
+    //             // Save amount data
+    //             $generalFundAmount = 0;
+    //             $reservedFundAmount = 0;
+    //             $additionalCharges = 0;
+    //             $previousBalances = 0;
+    //             $adjustmentAmount = 0;
+
+    //             // Loop through invoice items to set the correct amounts
+    //             foreach ($property['invoiceItems'] as $item) {
+    //                 switch ($item['itemName']['englishName']) {
+    //                     case 'General Fund':
+    //                         $generalFundAmount = $item['amount'];
+    //                         break;
+    //                     case 'Reserved Fund':
+    //                         $reservedFundAmount = $item['amount'];
+    //                         break;
+    //                     case 'Additional Charges':
+    //                         $additionalCharges = $item['amount'];
+    //                         break;
+    //                     case 'Previous Balances':
+    //                         $previousBalances = $item['amount'];
+    //                         break;
+    //                     case 'Adjustment':
+    //                         $adjustmentAmount = $item['amount'];
+    //                         break;
+    //                 }
+    //             }
+
+    //             OAMInvoice::updateOrCreate(
+    //                 [
+    //                     'building_id' => $buildingId,
+    //                     'flat_id' => $flat->id,
+    //                     'invoice_number' => $property['invoiceNumber'],
+    //                     'invoice_quarter' => $data['invoiceQuarter'],
+    //                     'invoice_period' => $data['invoicePeriod'],
+    //                     'budget_period' => $data['budgetPeriod'],
+    //                     'service_charge_group_id' => $data['serviceChargeGroupId'],
+    //                 ],
+    //                 [
+    //                     'invoice_date' => $property['invoiceDate'],
+    //                     'invoice_status' => $property['invoiceStatus']['englishName'],
+    //                     'due_amount' => $property['dueAmount'],
+    //                     'general_fund_amount' => $generalFundAmount,
+    //                     'reserve_fund_amount' => $reservedFundAmount,
+    //                     'additional_charges' => $additionalCharges,
+    //                     'previous_balance' => $previousBalances,
+    //                     'adjust_amount' => $adjustmentAmount,
+    //                     'invoice_due_date' => $property['invoiceDueDate'],
+    //                     'invoice_pdf_link' => $property['invoiceDetailUrl'] ?? null,
+    //                     'invoice_detail_link' => $property['invoicePDF'] ?? null,
+    //                     'invoice_amount' => $property['invoiceAmount'],
+    //                     'amount_paid' => 0,
+    //                     'updated_by' => User::first()->id,
+    //                     'type' => 'service_charge',
+    //                     'payment_url' => $property['paymentUrl'],
+    //                     'owner_association_id' => $flat->owner_association_id
+    //                 ]
+    //             );
+    //             $connection = DB::connection('lazim_accounts');
+    //             $created_by = $connection->table('users')->where('owner_association_id', $flat->owner_association_id)->where('type', 'company')->first()?->id;
+    //             $invoiceId = $connection->table('invoices')->where('created_by', $created_by)->orderByDesc('invoice_id')->first()?->invoice_id + 1;
+    //             $customerId = $connection->table('customer_flat')->where('flat_id',$flat->id)->where('building_id' , $buildingId)->where('active',true)->first()?->customer_id;
+    //             $category_id = $connection->table('product_service_categories')->where('name','Service Charges')->first()?->id;
+    //             $connection->table('invoices')->insert([
+    //                 'invoice_id' => $invoiceId,
+    //                 'customer_id' => $customerId,
+    //                 'issue_date' => $property['invoiceDate'],
+    //                 'due_date' => $property['invoiceDueDate'],
+    //                 'send_date' =>$property['invoiceDate'],
+    //                 'category_id' => $category_id,
+    //                 'ref_number' => random_int(11111111,99999999),
+    //                 'status' => false,
+    //                 'shipping_display' => true,
+    //                 'discount_apply' => false,
+    //                 'created_by' => $created_by,
+    //                 'created_at' => now(),
+    //                 'updated_at' => now()
+    //             ]);
+    //         }
+    //     }
+    // }
+    {
+        // return $request->properties;
+        $properties = $request->properties;
+        $currentQuarterDates = $this->getCurrentQuarterDates();
+        $buildingId = Building::where('property_group_id', 235553)->first()?->id;
+
+            foreach ($properties as $property) {
+                $flat = Flat::where('mollak_property_id', $property['mollakPropertyId'])->first();
+                foreach ($property['receipts'] as $receipt) {
+                    OAMReceipts::updateOrCreate(
+                        [
+                            'receipt_number' => $receipt['receiptNumber'],
+                            'receipt_date' => $receipt['receiptDate'],
+                            'building_id' => $buildingId,
+                            'flat_id' => $flat?->id,
+                        ],
+                        [
+                            'transaction_reference' => $receipt['transactionReference'],
+                            'record_source' => $receipt['recordSource'],
+                            'receipt_amount' => $receipt['receiptAmount'],
+                            'receipt_created_date' => $receipt['receiptCreatedDate'],
+                            'payment_mode' => $receipt['paymentMode'],
+                            'virtual_account_description' => $receipt['virtualAccountDescription'],
+                            'noqodi_info' => $receipt['noqodiInfo'] ? json_encode($receipt['noqodiInfo']) : null,
+                            'payment_status' => $receipt['paymentStatus'],
+                            'from_date' => $currentQuarterDates['from_date'],
+                            'to_date' => $currentQuarterDates['to_date'],
+                            'receipt_period' => $currentQuarterDates['receipt_period']
+                        ]
+                    );
+                    $connection = DB::connection('lazim_accounts');
+                    $created_by = $connection->table('users')->where('owner_association_id', $flat->owner_association_id)->where('type', 'company')->first()?->id;
+                    // $invoiceId = $connection->table('invoices')->where('created_by', $created_by)->orderByDesc('invoice_id')->first()?->invoice_id + 1;
+                    $customerId = $connection->table('customer_flat')->where('flat_id', $flat->id)->where('building_id', $buildingId)->where('active', true)->first()?->customer_id;
+                    $category_id = $connection->table('product_service_categories')->where('name', 'Service Charges')->first()?->id;
+                    $accountId = $connection->table('bank_accounts')->where('created_by', $created_by)->where('holder_name','Owner Account')->first()?->id;
+                    $connection->table('revenues')->insert([
+                        'date' => $receipt['receiptDate'],
+                        'amount' => $receipt['receiptAmount'],
+                        'account_id' => $accountId,
+                        'customer_id' => $customerId,
+                        'category_id' => $category_id,
+                        'payment_method' => 0,
+                        'reference' => random_int(11111111, 99999999),
+                        'created_by' => $created_by,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+                }
+            }
+    }
+
+    public static function getCurrentQuarterDates()
+    {
+        $currentDate = new DateTime();
+        $currentYear = $currentDate->format('Y');
+        $currentQuarter = ceil($currentDate->format('n') / 3);
+
+        // Define start and end months for each quarter
+        $quarterMonths = [
+            1 => ['start' => '01-Jan', 'end' => '31-Mar'],
+            2 => ['start' => '01-Apr', 'end' => '30-Jun'],
+            3 => ['start' => '01-Jul', 'end' => '30-Sep'],
+            4 => ['start' => '01-Oct', 'end' => '31-Dec'],
+        ];
+
+        $startMonthDay = $quarterMonths[$currentQuarter]['start'];
+        $endMonthDay = $quarterMonths[$currentQuarter]['end'];
+
+        // Format dates
+        $fromDate = DateTime::createFromFormat('d-M-Y', $startMonthDay . '-' . $currentYear)->format('Y-m-d');
+        $toDate = DateTime::createFromFormat('d-M-Y', $endMonthDay . '-' . $currentYear)->format('Y-m-d');
+        $receiptPeriod = str_replace('-', ' ', $startMonthDay) . ' To ' . str_replace('-', ' ', $endMonthDay) . '-' . $currentYear;
+
+        return [
+            'from_date' => '2024-01-01',
+            'to_date' => '2024-03-31',
+            'receipt_period' => '01-Jan-2024 To 31-Mar-2024'
+        ];
     }
 }
