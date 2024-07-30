@@ -96,6 +96,5 @@ Route::post('/upload',[TestController::class, 'uploadAll'])->name('uploadAll');
 
 Route::get('/filament/custom/asset-fetch-data', function () {
     $data = Session::get('data');
-    // $isAdmin = Session::get('isAdmin');
     return view('filament.custom.asset-fetch-data', ['data' => $data]);
 })->name('asset-fetch-data');
