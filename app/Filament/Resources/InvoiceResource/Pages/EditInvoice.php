@@ -40,6 +40,9 @@ class EditInvoice extends EditRecord
     }
     protected function afterSave(): void
     {
+        $connection = DB::connection('lazim_accounts');
+        $bill       = $connection->table('bills')->where('lazim_invoice_id', $this->record->id)->first();
+
         $tenant = Filament::getTenant()?->id ?? auth()->user()?->owner_association_id;
         // $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()->email ?? env('MAIL_FROM_ADDRESS');
         $credentials     = AccountCredentials::where('oa_id', $tenant)->where('active', true)->latest()->first();
@@ -69,6 +72,7 @@ class EditInvoice extends EditRecord
                     'remarks'    => $this->record->remarks,
                     'active'     => true,
                 ]);
+                $connection->table('bills')->where('id', $bill->id)->update(['deleted_at' => now()]);
                 $user    = User::find($this->record->created_by);
                 $invoice = Invoice::find($this->record->id);
                 InvoiceRejectionJob::dispatch($user, $this->record->remarks, $invoice, $mailCredentials);
@@ -89,26 +93,12 @@ class EditInvoice extends EditRecord
                         'opening_balance'   => $this->record->opening_balance - $this->data['payment'],
                         'balance'           => $this->record->opening_balance - $this->data['payment'],
                     ]);
-                $mdRecordExist = InvoiceApproval::where(['invoice_id'=>$this->record->id,'remarks'=>'approved by md','active'=>true]);
-                if($mdRecordExist->first()){
+                $mdRecordExist = InvoiceApproval::where(['invoice_id' => $this->record->id, 'remarks' => 'approved by md', 'active' => true]);
+                if ($mdRecordExist->first()) {
                     $mdRecordExist->update(['active' => false]);
                 }
             }
-            if ($this->record->payment != null) {
-                $bill = DB::connection('lazim_accounts')->table('bills')->where('lazim_invoice_id', $this->record->id)->first();
-                DB::connection('lazim_accounts')->table('bill_payments')->insert([
-                    'bill_id'    => $bill?->id,
-                    'date'       => now()->format('Y-m-d'),
-                    'amount'     => $this->record->payment,
-                    'account_id' => 1,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                    'building_id'=> $bill?->building_id,
-                ]);
-                DB::connection('lazim_accounts')->table('bills')->where('lazim_invoice_id', $this->record->id)->update([
-                    'status' => 4,
-                ]);
-            }
+
             if ($this->record->status == 'approved') {
                 InvoiceApproval::firstOrCreate([
                     'invoice_id' => $this->record->id,
@@ -117,7 +107,36 @@ class EditInvoice extends EditRecord
                     'remarks'    => 'approved by Account Manager',
                     'active'     => true,
                 ]);
+
+                if ($this->record->payment != null) {
+                    $connection->table('bill_payments')->insert([
+                        'bill_id'     => $bill?->id,
+                        'date'        => now()->format('Y-m-d'),
+                        'amount'      => $this->record->payment,
+                        'account_id'  => 1,
+                        'created_at'  => now(),
+                        'updated_at'  => now(),
+                        'building_id' => $bill?->building_id,
+                    ]);
+                    $connection->table('bills')->where('lazim_invoice_id', $this->record->id)->update([
+                        'status' => Invoice::where('id', $this->record->id)->opening_balance == 0 ? 4 : 3, // updating status based on payment
+                    ]);
+                    $connection->table('transactions')->insert([
+                        'user_id'     => $bill?->vender_id,
+                        'user_type'   => 'vender',
+                        'account'     => 1,
+                        'type'        => 'payment',
+                        'amount'      => $this->record->payment,
+                        'date'        => now()->format('Y-m-d'),
+                        'created_by'  => $bill->created_by,
+                        'payment_id'  => $connection->table('bill_payments')->where('bill_id', $bill?->id)->latest()->first()?->id,
+                        'category'    => 'bill',
+                        'building_id' => $bill?->building_id,
+                    ]);
+                }
+
             } else {
+
                 InvoiceApproval::firstOrCreate([
                     'invoice_id' => $this->record->id,
                     'status'     => $this->record->status,
@@ -125,6 +144,9 @@ class EditInvoice extends EditRecord
                     'remarks'    => $this->record->remarks,
                     'active'     => true,
                 ]);
+                $connection->table('transactions')->whereIn('payment_id', $connection->table('bill_payments')->where('bill_id', $bill->id)->pluck('id'))->update(['deleted_at' => now()]);
+                $connection->table('bill_payments')->where('bill_id', $bill->id)->update(['deleted_at' => now()]);
+                $connection->table('bills')->where('id', $bill->id)->update(['deleted_at' => now()]);
                 $notify = User::where(['owner_association_id' => auth()->user()?->owner_association_id, 'role_id' => Role::where('name', 'OA')->first()->id])->first();
                 Notification::make()
                     ->success()
@@ -155,6 +177,10 @@ class EditInvoice extends EditRecord
                     'remarks'    => $this->record->remarks,
                     'active'     => true,
                 ]);
+                $connection->table('transactions')->whereIn('payment_id', $connection->table('bill_payments')->where('bill_id', $bill->id)->pluck('id'))->update(['deleted_at' => now()]);
+                $connection->table('bill_payments')->where('bill_id', $bill->id)->update(['deleted_at' => now()]);
+                $connection->table('bills')->where('id', $bill->id)->update(['deleted_at' => now()]);
+
                 $notifyoa  = User::where(['owner_association_id' => auth()->user()?->owner_association_id, 'role_id' => Role::where('name', 'OA')->first()->id])->first();
                 $notifyacc = User::where(['owner_association_id' => auth()->user()?->owner_association_id, 'role_id' => Role::where('name', 'Accounts Manager')->first()->id])->get();
                 // dd($notifyacc);
