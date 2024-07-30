@@ -100,7 +100,14 @@ class InvoiceController extends Controller
                 'building_id'      => $wda->building_id,
                 'lazim_invoice_id' => $invoice->id,
             ]);
-
+            DB::connection('lazim_accounts')->table('bill_products')->insert([
+                'bill_id' => DB::connection('lazim_accounts')->table('bills')->where('lazim_invoice_id', $invoice->id)->first()->id,
+                'product_id' => DB::connection('lazim_accounts')->table('product_services')->where('name',$wda->service->name)->first()?->id,
+                'quantity' => 1,
+                'tax' => 2,
+                'discount' => 0,
+                'price' => $request->invoice_amount,
+            ]);
         }
 
         return (new CustomResponseResource([
@@ -168,7 +175,9 @@ class InvoiceController extends Controller
             $item->update(['active' => false]);
         });
 
-        DB::connection('lazim_accounts')->table('bills')->where('lazim_invoice_id', $invoice->id)->update(['deleted_at'=>null]);
+        $bill = DB::connection('lazim_accounts')->table('bills')->where('lazim_invoice_id', $invoice->id);
+        DB::connection('lazim_accounts')->table('bill_products')->where('bill_id', $bill->first()->id)->update(['price'=>$invoice->invoice_amount]);
+        $bill->update(['deleted_at'=>null]);
 
         return (new CustomResponseResource([
             'title'   => 'Success',

@@ -13,6 +13,7 @@ use Filament\Facades\Filament;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class EditInvoice extends EditRecord
 {
@@ -31,6 +32,7 @@ class EditInvoice extends EditRecord
             $data['status'] = null;
         }
         $data['remarks'] = null;
+        $data['payment'] = null;
         return $data;
     }
     protected function mutateFormDataBeforeSave(array $data): array
@@ -119,7 +121,7 @@ class EditInvoice extends EditRecord
                         'building_id' => $bill?->building_id,
                     ]);
                     $connection->table('bills')->where('lazim_invoice_id', $this->record->id)->update([
-                        'status' => $this->record->opening_balance == 0 ? 4 : 3, // updating status based on payment
+                        'status' => Invoice::where('id', $this->record->id)->first()?->opening_balance == 0 ? 4 : 3, // updating status based on payment
                     ]);
                     $connection->table('transactions')->insert([
                         'user_id'     => $bill?->vender_id,
