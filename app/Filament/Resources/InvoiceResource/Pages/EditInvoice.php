@@ -8,11 +8,11 @@ use App\Models\AccountCredentials;
 use App\Models\Accounting\Invoice;
 use App\Models\InvoiceApproval;
 use App\Models\Master\Role;
-use App\Models\OwnerAssociation;
 use App\Models\User\User;
 use Filament\Facades\Filament;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
+use Illuminate\Support\Facades\DB;
 
 class EditInvoice extends EditRecord
 {
@@ -40,15 +40,15 @@ class EditInvoice extends EditRecord
     }
     protected function afterSave(): void
     {
-        $tenant           = Filament::getTenant()?->id ?? auth()->user()?->owner_association_id;
+        $tenant = Filament::getTenant()?->id ?? auth()->user()?->owner_association_id;
         // $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()->email ?? env('MAIL_FROM_ADDRESS');
-        $credentials = AccountCredentials::where('oa_id', $tenant)->where('active', true)->latest()->first();
+        $credentials     = AccountCredentials::where('oa_id', $tenant)->where('active', true)->latest()->first();
         $mailCredentials = [
-            'mail_host' => $credentials->host ?? env('MAIL_HOST'),
-            'mail_port' => $credentials->port ?? env('MAIL_PORT'),
-            'mail_username' => $credentials->username ?? env('MAIL_USERNAME'),
-            'mail_password' => $credentials->password ?? env('MAIL_PASSWORD'),
-            'mail_encryption' => $credentials->encryption ?? env('MAIL_ENCRYPTION'),
+            'mail_host'         => $credentials->host ?? env('MAIL_HOST'),
+            'mail_port'         => $credentials->port ?? env('MAIL_PORT'),
+            'mail_username'     => $credentials->username ?? env('MAIL_USERNAME'),
+            'mail_password'     => $credentials->password ?? env('MAIL_PASSWORD'),
+            'mail_encryption'   => $credentials->encryption ?? env('MAIL_ENCRYPTION'),
             'mail_from_address' => $credentials->email ?? env('MAIL_FROM_ADDRESS'),
         ];
         if (Role::where('id', auth()->user()->role_id)->first()->name == 'OA' && !InvoiceApproval::where('invoice_id', $this->record->id)->where('active', true)->exists()) {
@@ -75,6 +75,40 @@ class EditInvoice extends EditRecord
             }
         }
         if (Role::where('id', auth()->user()->role_id)->first()->name == 'Accounts Manager') {
+            if ($this->record->opening_balance == null) {
+                Invoice::where('id', $this->data['id'])
+                    ->update([
+                        'status_updated_by' => auth()->user()->id,
+                        'opening_balance'   => $this->data['invoice_amount'] - $this->data['payment'],
+                        'balance'           => $this->data['invoice_amount'] - $this->data['payment'],
+                    ]);
+            } else {
+                Invoice::where('id', $this->data['id'])
+                    ->update([
+                        'status_updated_by' => auth()->user()->id,
+                        'opening_balance'   => $this->record->opening_balance - $this->data['payment'],
+                        'balance'           => $this->record->opening_balance - $this->data['payment'],
+                    ]);
+                $mdRecordExist = InvoiceApproval::where(['invoice_id'=>$this->record->id,'remarks'=>'approved by md','active'=>true]);
+                if($mdRecordExist->first()){
+                    $mdRecordExist->update(['active' => false]);
+                }
+            }
+            if ($this->record->payment != null) {
+                $bill = DB::connection('lazim_accounts')->table('bills')->where('lazim_invoice_id', $this->record->id)->first();
+                DB::connection('lazim_accounts')->table('bill_payments')->insert([
+                    'bill_id'    => $bill?->id,
+                    'date'       => now()->format('Y-m-d'),
+                    'amount'     => $this->record->payment,
+                    'account_id' => 1,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                    'building_id'=> $bill?->building_id,
+                ]);
+                DB::connection('lazim_accounts')->table('bills')->where('lazim_invoice_id', $this->record->id)->update([
+                    'status' => 4,
+                ]);
+            }
             if ($this->record->status == 'approved') {
                 InvoiceApproval::firstOrCreate([
                     'invoice_id' => $this->record->id,
@@ -146,11 +180,6 @@ class EditInvoice extends EditRecord
                 InvoiceRejectionJob::dispatch($user, $this->record->remarks, $invoice, $mailCredentials);
             }
         }
-        Invoice::where('id', $this->data['id'])
-            ->update([
-                'opening_balance' => $this->data['invoice_amount'] - $this->data['payment'],
-                'balance'         => $this->data['invoice_amount'] - $this->data['payment'],
-            ]);
     }
     protected function getRedirectUrl(): string
     {
