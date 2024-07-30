@@ -125,12 +125,10 @@ class FetchAndSaveInvoices implements ShouldQueue
                     $invoiceId = $connection->table('invoices')->where('created_by', $created_by)->orderByDesc('invoice_id')->first()?->invoice_id + 1;
                     $customerId = $connection->table('customer_flat')->where('flat_id', $flat->id)->where('building_id', $buildingId)->where('active', true)->first()?->customer_id;
                     $category_id = $connection->table('product_service_categories')->where('name', 'Service Charges')->first()?->id;
-                    $connection->table('invoices')->updateOrInsert([
+                    $connection->table('invoices')->insert([
                         'building_id' => $buildingId,
                         'flat_id' => $flat->id,
                         'issue_date' => $property['invoiceDate'],
-                    ],
-                        [
                         'invoice_id' => $invoiceId,
                         'customer_id' => $customerId,
                         'due_date' => $property['invoiceDueDate'],
