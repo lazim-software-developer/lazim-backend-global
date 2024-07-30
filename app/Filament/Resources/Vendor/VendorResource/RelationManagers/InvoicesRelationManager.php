@@ -210,6 +210,9 @@ class InvoicesRelationManager extends RelationManager
             ->actions([
                 Tables\Actions\EditAction::make()
                     ->after(function (array $data, $record) {
+                        $connection = DB::connection('lazim_accounts');
+                        $bill       = $connection->table('bills')->where('lazim_invoice_id', $record->id)->first();
+
                         $tenant = Filament::getTenant()?->id ?? auth()->user()?->owner_association_id;
                         // $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()->email ?? env('MAIL_FROM_ADDRESS');
                         $credentials     = AccountCredentials::where('oa_id', $tenant)->where('active', true)->latest()->first();
@@ -239,6 +242,7 @@ class InvoicesRelationManager extends RelationManager
                                     'remarks'    => $record->remarks,
                                     'active'     => true,
                                 ]);
+                                $connection->table('bills')->where('id', $bill->id)->update(['deleted_at' => now()]);
                                 $user    = User::find($record->created_by);
                                 $invoice = Invoice::find($record->id);
                                 InvoiceRejectionJob::dispatch($user, $record->remarks, $invoice, $mailCredentials);
@@ -265,22 +269,6 @@ class InvoicesRelationManager extends RelationManager
                                 }
 
                             }
-                            if ($record->payment != null) {
-                                $bill = DB::connection('lazim_accounts')->table('bills')->where('lazim_invoice_id', $record->id)->first();
-                                DB::connection('lazim_accounts')->table('bill_payments')->insert([
-                                    'bill_id'    => $bill?->id,
-                                    'date'       => now()->format('Y-m-d'),
-                                    'amount'     => $record->payment,
-                                    'account_id' => 1,
-                                    'created_at' => now(),
-                                    'updated_at' => now(),
-                                    'building_id'=> $bill?->building_id,
-
-                                ]);
-                                DB::connection('lazim_accounts')->table('bills')->where('lazim_invoice_id', $record->id)->update([
-                                    'status' => 4,
-                                ]);
-                            }
                             if ($record->status == 'approved') {
                                 InvoiceApproval::firstOrCreate([
                                     'invoice_id' => $record->id,
@@ -289,6 +277,36 @@ class InvoicesRelationManager extends RelationManager
                                     'remarks'    => 'approved by Account Manager',
                                     'active'     => true,
                                 ]);
+
+                                if ($record->payment != null) {
+                                    $connection->table('bill_payments')->insert([
+                                        'bill_id'     => $bill?->id,
+                                        'date'        => now()->format('Y-m-d'),
+                                        'amount'      => $record->payment,
+                                        'account_id'  => 1,
+                                        'created_at'  => now(),
+                                        'updated_at'  => now(),
+                                        'building_id' => $bill?->building_id,
+
+                                    ]);
+                                    $connection->table('bills')->where('lazim_invoice_id', $record->id)->update([
+                                        'status' => Invoice::where('id', $record->id)->opening_balance == 0 ? 4 : 3,
+                                    ]);
+                                    $connection->table('transactions')->insert([
+                                        'user_id'     => $bill?->vender_id,
+                                        'user_type'   => 'vender',
+                                        'account'     => 1,
+                                        'type'        => 'payment',
+                                        'amount'      => $record->payment,
+                                        'date'        => now()->format('Y-m-d'),
+                                        'created_by'  => $bill->created_by,
+                                        'payment_id'  => $connection->table('bill_payments')->where('bill_id', $bill?->id)->latest()->first()?->id,
+                                        'category'    => 'bill',
+                                        'building_id' => $bill?->building_id,
+
+                                    ]);
+                                }
+
                             } else {
                                 InvoiceApproval::firstOrCreate([
                                     'invoice_id' => $record->id,
@@ -297,6 +315,10 @@ class InvoicesRelationManager extends RelationManager
                                     'remarks'    => $record->remarks,
                                     'active'     => true,
                                 ]);
+                                $connection->table('transactions')->whereIn('payment_id', $connection->table('bill_payments')->where('bill_id', $bill->id)->pluck('id'))->update(['deleted_at' => now()]);
+                                $connection->table('bill_payments')->where('bill_id', $bill->id)->update(['deleted_at' => now()]);
+                                $connection->table('bills')->where('id', $bill->id)->update(['deleted_at' => now()]);
+
                                 $notify = User::where(['owner_association_id' => auth()->user()?->owner_association_id, 'role_id' => Role::where('name', 'OA')->first()->id])->first();
                                 Notification::make()
                                     ->success()
@@ -327,6 +349,9 @@ class InvoicesRelationManager extends RelationManager
                                     'remarks'    => $record->remarks,
                                     'active'     => true,
                                 ]);
+                                $connection->table('transactions')->whereIn('payment_id', $connection->table('bill_payments')->where('bill_id', $bill->id)->pluck('id'))->update(['deleted_at' => now()]);
+                                $connection->table('bill_payments')->where('bill_id', $bill->id)->update(['deleted_at' => now()]);
+                                $connection->table('bills')->where('id', $bill->id)->update(['deleted_at' => now()]);
                                 $notifyoa  = User::where(['owner_association_id' => auth()->user()?->owner_association_id, 'role_id' => Role::where('name', 'OA')->first()->id])->first();
                                 $notifyacc = User::where(['owner_association_id' => auth()->user()?->owner_association_id, 'role_id' => Role::where('name', 'Accounts Manager')->first()->id])->get();
                                 // dd($notifyacc);
