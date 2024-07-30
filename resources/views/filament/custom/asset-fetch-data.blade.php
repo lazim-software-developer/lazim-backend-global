@@ -50,13 +50,12 @@
             <tr>
         @endif
         @php
-            $qrCodeData = strlen($qr['qr_code']) > 200 ? substr($qr['qr_code'], 0, 200) : $qr['qr_code'];
+            $qrCodeData = $qr['qr_code'];
         @endphp
         <td>
             <h4>Name: {{$qr['name']}}</h4>
             <h4 style="margin-top: -20px;">Code: {{ $qr['asset_code'] }}</h4>
-            <img src="data:image/svg+xml;base64,{{ base64_encode(QrCode::size(150)->generate($qrCodeData)) }}" alt="QR Code for {{ $qr['asset_code'] }}"/>
-        </td>
+            <img src="{{ $qr['qr_code'] }}" alt="QR Code">        </td>   
         @php $i++; @endphp
     @endforeach
     @if ($i % 3 != 0) <!-- Ensures the last row is closed properly -->
@@ -67,9 +66,9 @@
 </div>
 <script>
     // Function to open the print dialog
-    function printDocument() {
-        window.print();
-    }
+    // function printDocument() {
+    //     window.print();
+    // }
 </script>
 </body>
 </html>
