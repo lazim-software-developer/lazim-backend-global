@@ -25,6 +25,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\InvoiceResource\RelationManagers;
 use App\Models\InvoiceApproval;
 use Filament\Facades\Filament;
+use Illuminate\Database\Eloquent\Model;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class InvoiceResource extends Resource
@@ -269,5 +270,29 @@ class InvoiceResource extends Resource
             'create' => Pages\CreateInvoice::route('/create'),
             'edit' => Pages\EditInvoice::route('/{record}/edit'),
         ];
+    }
+
+    public static function canViewAny(): bool
+    {
+        $user = User::find(auth()->user()->id);
+        return $user->can('view_any_invoice');
+    }
+
+    public static function canView(Model $record): bool
+    {
+        $user = User::find(auth()->user()->id);
+        return $user->can('view_invoice');
+    }
+
+    public static function canCreate(): bool
+    {
+        $user = User::find(auth()->user()->id);
+        return $user->can('create_invoice');
+    }
+
+    public static function canEdit(Model $record): bool
+    {
+        $user = User::find(auth()->user()->id);
+        return $user->can('update_invoice');
     }
 }
