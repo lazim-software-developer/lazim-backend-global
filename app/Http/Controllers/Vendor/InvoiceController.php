@@ -76,7 +76,7 @@ class InvoiceController extends Controller
         $wda->update(['invoice_status' => 'submitted']);
 
         //Inserting vendor record into lazim-accounts database
-        $created_by = DB::connection('lazim_accounts')->table('users')->where(['owner_association_id' => $oa_id, 'type' => 'company'])->first()->id;
+        $created_by = DB::connection('lazim_accounts')->table('users')->where(['owner_association_id' => $oa_id, 'type' => 'company'])->first()?->id;
 
         $accountsVendorId = DB::connection('lazim_accounts')->table('venders')->where('lazim_vendor_id', $vendor->id)->first()?->id;
         $service          = $wda->service;
@@ -156,6 +156,10 @@ class InvoiceController extends Controller
         $request->merge([
             'document' => $documentUrl,
             'status'   => 'pending',
+            'opening_balance' => null,
+            'payment' => null,
+            'balance' => null,
+            'status_updated_by' => null,
         ]);
 
         $invoice->update($request->all());
@@ -163,6 +167,8 @@ class InvoiceController extends Controller
         $invoiceapproval->map(function ($item) {
             $item->update(['active' => false]);
         });
+
+        DB::connection('lazim_accounts')->table('bills')->where('lazim_invoice_id', $invoice->id)->update(['deleted_at'=>null]);
 
         return (new CustomResponseResource([
             'title'   => 'Success',

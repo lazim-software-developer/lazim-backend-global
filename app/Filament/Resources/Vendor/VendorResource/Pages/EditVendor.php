@@ -6,12 +6,12 @@ use App\Filament\Resources\Vendor\VendorResource;
 use App\Jobs\VendorAccountCreationJob;
 use App\Jobs\VendorRejectionJob;
 use App\Models\AccountCredentials;
-use App\Models\OwnerAssociation;
 use App\Models\User\User;
 use App\Models\VendorRemarks;
 use App\Models\Vendor\Vendor;
 use Filament\Facades\Filament;
 use Filament\Resources\Pages\EditRecord;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
@@ -49,17 +49,17 @@ class EditVendor extends EditRecord
     protected function beforeSave(): void
     {
         if ($this->record->status == null) {
-            $oa_id = Vendor::where('id', $this->data['id'])->first();
-            $tenant           = Filament::getTenant()?->id ?? $oa_id?->owner_association_id;
+            $oa_id  = Vendor::where('id', $this->data['id'])->first();
+            $tenant = Filament::getTenant()?->id ?? $oa_id?->owner_association_id;
             // $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
 
-            $credentials = AccountCredentials::where('oa_id', $tenant)->where('active', true)->latest()->first();
+            $credentials     = AccountCredentials::where('oa_id', $tenant)->where('active', true)->latest()->first();
             $mailCredentials = [
-                'mail_host' => $credentials->host ?? env('MAIL_HOST'),
-                'mail_port' => $credentials->port ?? env('MAIL_PORT'),
-                'mail_username' => $credentials->username ?? env('MAIL_USERNAME'),
-                'mail_password' => $credentials->password ?? env('MAIL_PASSWORD'),
-                'mail_encryption' => $credentials->encryption ?? env('MAIL_ENCRYPTION'),
+                'mail_host'         => $credentials->host ?? env('MAIL_HOST'),
+                'mail_port'         => $credentials->port ?? env('MAIL_PORT'),
+                'mail_username'     => $credentials->username ?? env('MAIL_USERNAME'),
+                'mail_password'     => $credentials->password ?? env('MAIL_PASSWORD'),
+                'mail_encryption'   => $credentials->encryption ?? env('MAIL_ENCRYPTION'),
                 'mail_from_address' => $credentials->email ?? env('MAIL_FROM_ADDRESS'),
             ];
 
@@ -79,6 +79,25 @@ class EditVendor extends EditRecord
                 $user->password = Hash::make($password);
                 $user->save();
                 VendorAccountCreationJob::dispatch($user, $password, $mailCredentials);
+
+                //Inserting vendor record into lazim-accounts database
+                $created_by = DB::connection('lazim_accounts')->table('users')->where(['owner_association_id' => $vendor->owner_association_id, 'type' => 'company'])->first()?->id;
+                DB::connection('lazim_accounts')->table('venders')->insert([
+                    'vender_id'       => DB::connection('lazim_accounts')->table('venders')->latest()->first()?->id + 1,
+                    'name'            => $vendor->name,
+                    'email'           => $user->email,
+                    'password'        => '',
+                    'contact'         => $user->phone,
+                    'created_by'      => $created_by ?? 2,
+                    'is_enable_login' => 0,
+                    'created_at'      => now(),
+                    'updated_at'      => now(),
+                    'lazim_vendor_id' => $vendor->id,
+                ]);
+                DB::connection('lazim_accounts')->table('oa_vendor')->insert([
+                    'lazim_owner_association_id' => $vendor->owner_association_id,
+                    'vendor_id'                  => DB::connection('lazim_accounts')->table('venders')->where('lazim_vendor_id', $vendor->id)->first()?->id,
+                ]);
             }
         }
     }
