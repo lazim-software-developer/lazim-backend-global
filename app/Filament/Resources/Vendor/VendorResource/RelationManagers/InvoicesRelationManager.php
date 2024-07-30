@@ -290,7 +290,7 @@ class InvoicesRelationManager extends RelationManager
 
                                     ]);
                                     $connection->table('bills')->where('lazim_invoice_id', $record->id)->update([
-                                        'status' => Invoice::where('id', $record->id)->opening_balance == 0 ? 4 : 3,
+                                        'status' => $record->opening_balance == 0 ? 4 : 3,
                                     ]);
                                     $connection->table('transactions')->insert([
                                         'user_id'     => $bill?->vender_id,
