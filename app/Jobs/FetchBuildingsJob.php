@@ -10,6 +10,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Http;
 use App\Jobs\FetchFlatsAndOwnersForBuilding;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class FetchBuildingsJob implements ShouldQueue
@@ -54,6 +55,11 @@ class FetchBuildingsJob implements ShouldQueue
                         'address_line1' => $group['projectName']['englishName'],
                     ]
                 );
+                DB::table('building_owner_association')->updateOrInsert([
+                    'owner_association_id' => $this->ownerAssociation->id,
+                    'building_id' =>$building->id,
+                    'from' => now()->toDateString(),
+                ]);
 
                 FetchFlatsAndOwnersForBuilding::dispatch($building);
             }

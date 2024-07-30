@@ -14,7 +14,7 @@ class ApartmentOwner extends Model
 
     protected $table = 'apartment_owners';
 
-    protected $fillable = ['owner_number', 'email', 'name', 'mobile', 'passport', 'emirates_id', 'trade_license', 'flat_id'];
+    protected $fillable = ['owner_number', 'email', 'name', 'mobile', 'passport', 'emirates_id', 'trade_license', 'flat_id','owner_association_id'];
 
     public function ownerAssociation()
     {

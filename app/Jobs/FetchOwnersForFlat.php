@@ -43,6 +43,7 @@ class FetchOwnersForFlat implements ShouldQueue
                         'owner_number' => $ownerData['ownerNumber'],
                         'email' => $ownerData['email'],
                         'mobile' => $phone,
+                        'owner_association_id' => $this->flat->owner_association_id,
                     ], [
                         'name' => $ownerData['name']['englishName'],
                         'passport' => $ownerData['passport'],
