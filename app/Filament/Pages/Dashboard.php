@@ -15,19 +15,19 @@ class Dashboard extends \Filament\Pages\Dashboard
 {
     use HasFiltersForm;
  
-    public function filtersForm(Form $form): Form
-    {
-        return $form
-            ->schema([
-                Section::make()
-                    ->schema([
-                        DatePicker::make('startDate'),
-                        DatePicker::make('endDate'),
+    // public function filtersForm(Form $form): Form
+    // {
+    //     return $form
+    //         ->schema([
+    //             Section::make()
+    //                 ->schema([
+    //                     DatePicker::make('startDate'),
+    //                     DatePicker::make('endDate'),
                         
-                    ])
-                    ->columns(2),
-            ]);
-    }
+    //                 ])
+    //                 ->columns(2),
+    //         ]);
+    // }
 
    
 }
