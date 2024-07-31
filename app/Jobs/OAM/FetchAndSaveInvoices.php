@@ -147,7 +147,7 @@ class FetchAndSaveInvoices implements ShouldQueue
                         'updated_at' => now(),
                     ]);
                     $invoice = $connection->table('invoices')->where('ref_number',$ref_number)->first();
-                    Log::info('invoice-------'.$invoice);
+                    Log::info('invoice-------'.json_encode($invoice));
                     $product = $connection->table('product_services')->where('name', 'Service Charges' )->first();
                     if(!$product){
                         $connection->table('product_services')->insert([
@@ -164,7 +164,7 @@ class FetchAndSaveInvoices implements ShouldQueue
                         ]);
                     }
                     $product = $connection->table('product_services')->where('name', 'Service Charges' )->first();
-                    Log::info('product-----'.$product);
+                    Log::info('product-----'.json_encode($product));
                     $connection->table('invoice_products')->insert([
                         'invoice_id' => $invoice?->id,
                         'product_id' => $product->id,
