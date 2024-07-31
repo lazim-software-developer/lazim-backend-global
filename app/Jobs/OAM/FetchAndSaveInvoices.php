@@ -128,11 +128,10 @@ class FetchAndSaveInvoices implements ShouldQueue
                     $customerId = $connection->table('customer_flat')->where('flat_id', $flat->id)->where('building_id', $buildingId)->where('active', true)->first()?->customer_id;
                     $category_id = $connection->table('product_service_categories')->where('name', 'Service Charges')->first()?->id;
                     $ref_number = random_int(11111111, 99999999);
-                    $connection->table('invoices')->updateOrInsert([
+                    $connection->table('invoices')->insert([
                         'building_id' => $buildingId,
                         'flat_id' => $flat->id,
                         'issue_date' => $property['invoiceDate'],
-                    ],[
                         'invoice_id' => $invoiceId,
                         'customer_id' => $customerId,
                         'due_date' => $property['invoiceDueDate'],
@@ -147,7 +146,6 @@ class FetchAndSaveInvoices implements ShouldQueue
                         'updated_at' => now(),
                     ]);
                     $invoice = $connection->table('invoices')->where('ref_number',$ref_number)->first();
-                    Log::info('invoice-------'.json_encode($invoice));
                     $product = $connection->table('product_services')->where('name', 'Service Charges' )->first();
                     if(!$product){
                         $connection->table('product_services')->insert([
@@ -164,7 +162,6 @@ class FetchAndSaveInvoices implements ShouldQueue
                         ]);
                     }
                     $product = $connection->table('product_services')->where('name', 'Service Charges' )->first();
-                    Log::info('product-----'.json_encode($product));
                     $connection->table('invoice_products')->insert([
                         'invoice_id' => $invoice?->id,
                         'product_id' => $product->id,
