@@ -128,11 +128,11 @@ class FetchAndSaveInvoices implements ShouldQueue
                     $customerId = $connection->table('customer_flat')->where('flat_id', $flat->id)->where('building_id', $buildingId)->where('active', true)->first()?->customer_id;
                     $category_id = $connection->table('product_service_categories')->where('name', 'Service Charges')->first()?->id;
                     $ref_number = random_int(11111111, 99999999);
-                    $connection->table('invoices')->insert([
+                    $connection->table('invoices')->updateOrInsert([
                         'building_id' => $buildingId,
                         'flat_id' => $flat->id,
                         'issue_date' => $property['invoiceDate'],
-                    
+                    ],[
                         'invoice_id' => $invoiceId,
                         'customer_id' => $customerId,
                         'due_date' => $property['invoiceDueDate'],
@@ -169,7 +169,7 @@ class FetchAndSaveInvoices implements ShouldQueue
                         'invoice_id' => $invoice?->id,
                         'product_id' => $product->id,
                         'quantity' =>1,
-                        'tax' =>1,
+                        'tax' =>2,
                         'price' => $property['invoiceAmount']
                     ]);
                 }
