@@ -55,6 +55,8 @@ class FetchAndSaveInvoices implements ShouldQueue
                 'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
             ])->get($url);
 
+            Log::info('RESPONSE', [$response->json()]);
+
             $invoicesData = $response->json()['response']['serviceChargeGroups'];
 
             // Log::info('invoice'.json_encode($invoicesData));
@@ -125,22 +127,48 @@ class FetchAndSaveInvoices implements ShouldQueue
                     $invoiceId = $connection->table('invoices')->where('created_by', $created_by)->orderByDesc('invoice_id')->first()?->invoice_id + 1;
                     $customerId = $connection->table('customer_flat')->where('flat_id', $flat->id)->where('building_id', $buildingId)->where('active', true)->first()?->customer_id;
                     $category_id = $connection->table('product_service_categories')->where('name', 'Service Charges')->first()?->id;
-                    $connection->table('invoices')->insert([
+                    $ref_number = random_int(11111111, 99999999);
+                    $connection->table('invoices')->updateOrInsert([
                         'building_id' => $buildingId,
                         'flat_id' => $flat->id,
                         'issue_date' => $property['invoiceDate'],
+                    ],[
                         'invoice_id' => $invoiceId,
                         'customer_id' => $customerId,
                         'due_date' => $property['invoiceDueDate'],
                         'send_date' => $property['invoiceDate'],
                         'category_id' => $category_id,
-                        'ref_number' => random_int(11111111, 99999999),
+                        'ref_number' => $ref_number,
                         'status' => false,
                         'shipping_display' => true,
                         'discount_apply' => false,
                         'created_by' => $created_by,
                         'created_at' => now(),
                         'updated_at' => now(),
+                    ]);
+                    $invoice = $connection->table('invoices')->where('ref_number',$ref_number)->first();
+                    $product = $connection->table('product_services')->where('name', 'Service Charges' )->first();
+                    if(!$product){
+                        $connection->table('product_services')->insert([
+                            'name' => 'Service Charges',
+                            'sku' => 'SER-001',
+                            'sale_price' => 0,
+                            'purchase_price' => 0,
+                            'quantity' => 0,
+                            'tax_id' =>2,
+                            'category_id' => $category_id,
+                            'unit_id' => 1,
+                            'type' => 'Service',
+                            'created_by' => $created_by,
+                        ]);
+                    }
+                    $product = $connection->table('product_services')->where('name', 'Service Charges' )->first();
+                    $connection->table('invoice_products')->insert([
+                        'invoice_id' => $invoice?->id,
+                        'product_id' => $product->id,
+                        'quantity' =>1,
+                        'tax' =>1,
+                        'price' => $property['invoiceAmount']
                     ]);
                 }
             }
