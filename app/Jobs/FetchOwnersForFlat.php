@@ -10,6 +10,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Http;
 use App\Models\Building\Flat;
 use App\Models\ApartmentOwner;
+use App\Models\Building\Building;
 use Illuminate\Support\Facades\DB;
 
 class FetchOwnersForFlat implements ShouldQueue
@@ -52,34 +53,48 @@ class FetchOwnersForFlat implements ShouldQueue
                         'trade_license' => $ownerData['tradeLicence'],
                     ]);
 
+                    $building = Building::find($this->flat->building_id);
                     $connection = DB::connection('lazim_accounts');
                     $created_by = $connection->table('users')->where('owner_association_id', $this->flat->owner_association_id)->where('type', 'company')->first()?->id;
                     $customerId = $connection->table('customers')->where('created_by', $created_by)->orderByDesc('customer_id')->first()?->customer_id + 1;
+                    $name = $ownerData['name']['englishName'] . ' - ' . $this->flat->property_number;
                     $connection->table('customers')->insert([
                         'customer_id' => $customerId,
-                        'name' => $ownerData['name']['englishName'],
+                        'name' => $name,
                         'email'                => $ownerData['email'],
                         'contact' => $phone,
                         'type' => 'Owner',
                         'lang' => 'en',
                         'created_by' => $created_by,
                         'is_enable_login' => 0,
+                        'billing_name' => $name,
+                        'billing_country' => 'UAE',
+                        'billing_city' => 'Dubai',
+                        'billing_phone' => $phone,
+                        'billing_address' => $building->address_line1 . ', ' . $building->area,
+                        'shipping_name' => $name,
+                        'shipping_country' => 'UAE',
+                        'shipping_city' => 'Dubai',
+                        'shipping_phone' => $phone,
+                        'shipping_address' => $building->address_line1 . ', ' . $building->area,
                         'created_by_lazim' => true,
+                        'flat_id' => $this->flat->id,
+                        'building_id' => $this->flat->building_id,
                     ]);
 
                     // Attach the owner to the flat
                     $this->flat->owners()->syncWithoutDetaching($owner->id);
 
-                    $customer = $connection->table('customers')->where([
-                        'email' => $ownerData['email'],
-                        'contact' => $phone
-                    ])->first();
-                    $connection->table('customer_flat')->insert([
-                        'customer_id' => $customer?->id,
-                        'flat_id' => $this->flat->id,
-                        'building_id' => $this->flat->building_id,
-                        'property_number' => $this->flat->property_number
-                    ]);
+                    // $customer = $connection->table('customers')->where([
+                    //     'email' => $ownerData['email'],
+                    //     'contact' => $phone
+                    // ])->first();
+                    // $connection->table('customer_flat')->insert([
+                    //     'customer_id' => $customer?->id,
+                    //     'flat_id' => $this->flat->id,
+                    //     'building_id' => $this->flat->building_id,
+                    //     'property_number' => $this->flat->property_number
+                    // ]);
                 }
             }
         }
