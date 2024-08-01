@@ -83,26 +83,26 @@ class FetchAndSaveReceipts implements ShouldQueue
                             'receipt_period' => $currentQuarterDates['receipt_period']
                         ]
                     );
-                    $connection = DB::connection('lazim_accounts');
-                    $created_by = $connection->table('users')->where('owner_association_id', $flat->owner_association_id)->where('type', 'company')->first()?->id;
-                    // $invoiceId = $connection->table('invoices')->where('created_by', $created_by)->orderByDesc('invoice_id')->first()?->invoice_id + 1;
-                    $customerId = $connection->table('customer_flat')->where('flat_id', $flat->id)->where('building_id', $this->building->id)->where('active', true)->first()?->customer_id;
-                    $category_id = $connection->table('product_service_categories')->where('name', 'Service Charges')->first()?->id;
-                    $accountId = $connection->table('bank_accounts')->where('created_by', $created_by)->where('holder_name','Owner Account')->first()?->id;
-                    $connection->table('revenues')->insert([
-                        'building_id' => $buildingId,
-                        'flat_id' => $flat?->id,
-                        'date' => $receipt['receiptDate'],
-                        'amount' => $receipt['receiptAmount'],
-                        'account_id' => $accountId,
-                        'customer_id' => $customerId,
-                        'category_id' => $category_id,
-                        'payment_method' => 0,
-                        'reference' => $receipt['transactionReference'],
-                        'created_by' => $created_by,
-                        'created_at' => now(),
-                        'updated_at' => now(),
-                    ]);
+                    // $connection = DB::connection('lazim_accounts');
+                    // $created_by = $connection->table('users')->where('owner_association_id', $flat->owner_association_id)->where('type', 'company')->first()?->id;
+                    // // $invoiceId = $connection->table('invoices')->where('created_by', $created_by)->orderByDesc('invoice_id')->first()?->invoice_id + 1;
+                    // $customerId = $connection->table('customer_flat')->where('flat_id', $flat->id)->where('building_id', $this->building->id)->where('active', true)->first()?->customer_id;
+                    // $category_id = $connection->table('product_service_categories')->where('name', 'Service Charges')->first()?->id;
+                    // $accountId = $connection->table('bank_accounts')->where('created_by', $created_by)->where('holder_name','Owner Account')->first()?->id;
+                    // $connection->table('revenues')->insert([
+                    //     'building_id' => $buildingId,
+                    //     'flat_id' => $flat?->id,
+                    //     'date' => $receipt['receiptDate'],
+                    //     'amount' => $receipt['receiptAmount'],
+                    //     'account_id' => $accountId,
+                    //     'customer_id' => $customerId,
+                    //     'category_id' => $category_id,
+                    //     'payment_method' => 0,
+                    //     'reference' => $receipt['transactionReference'],
+                    //     'created_by' => $created_by,
+                    //     'created_at' => now(),
+                    //     'updated_at' => now(),
+                    // ]);
                 }
             }
         } catch (\Exception $e) {
