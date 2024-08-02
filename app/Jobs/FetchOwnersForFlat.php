@@ -56,7 +56,8 @@ class FetchOwnersForFlat implements ShouldQueue
                     $building = Building::find($this->flat->building_id);
                     $connection = DB::connection('lazim_accounts');
                     $created_by = $connection->table('users')->where('owner_association_id', $this->flat->owner_association_id)->where('type', 'company')->first()?->id;
-                    $customerId = $connection->table('customers')->where('created_by', $created_by)->orderByDesc('customer_id')->first()?->customer_id + 1;
+                    $customer = $connection->table('customers')->where('created_by', $created_by)->orderByDesc('customer_id')->first();
+                    $customerId = $customer ? $customer->customer_id + 1 : 1;
                     $name = $ownerData['name']['englishName'] . ' - ' . $this->flat->property_number;
                     $connection->table('customers')->insert([
                         'customer_id' => $customerId,
