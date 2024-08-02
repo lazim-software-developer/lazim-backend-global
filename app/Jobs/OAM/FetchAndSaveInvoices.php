@@ -172,7 +172,8 @@ class FetchAndSaveInvoices implements ShouldQueue
                 }
             }
         } catch (\Exception $e) {
-            Log::error('Failed to fetch or save invoices');
+            Log::error("Invoice Fetch Failed: " . " File: " . $e->getFile() . " Line: " . $e->getLine() . " Message: " . $e->getMessage());
+            Log::error('Failed to fetch or save invoices: ' . $this->building->property_group_id);
         }
     }
 }
