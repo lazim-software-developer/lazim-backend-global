@@ -45,7 +45,7 @@ class MollakController extends Controller
             'content-type' => 'application/json',
             'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
         // ])->get(env("MOLLAK_API_URL") . "/sync/invoices/" . $propertyId . "/servicechargeperiods");
-        ])->get("https://qagate.dubailand.gov.ae/mollak/external/sync/invoices/" . $propertyId . "/servicechargeperiods");
+        ])->get(env("MOLLAK_API_URL") . "/sync/invoices/" . $propertyId . "/servicechargeperiods");
 
         // Assuming the API returns a JSON response, we'll decode it
         $data = $results->json();
@@ -99,7 +99,7 @@ class MollakController extends Controller
         $results = Http::withOptions(['verify' => false])->withHeaders([
                 'content-type' => 'application/json',
                 'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
-            ])->get("https://qagate.dubailand.gov.ae/mollak/external/sync/invoices/" . 235553 . "/servicechargeperiods");
+            ])->get(env("MOLLAK_API_URL") . "/sync/invoices/" . 235553 . "/servicechargeperiods");
 
             // Decode the API response
             $data = $results->json();
@@ -278,7 +278,7 @@ class MollakController extends Controller
         $results = Http::withOptions(['verify' => false])->withHeaders([
             'content-type' => 'application/json',
             'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
-        ])->get("https://qagate.dubailand.gov.ae/mollak/external/sync/invoices/" . $propertyId . "/servicechargeperiods");
+        ])->get(env("MOLLAK_API_URL") . "/sync/invoices/" . $propertyId . "/servicechargeperiods");
 
         // Assuming the API returns a JSON response, we'll decode it
         $data = $results->json();
