@@ -31,14 +31,20 @@ class FetchAndSaveReceipts implements ShouldQueue
         try {
             $propertyGroupId = $this->building->property_group_id;
 
-            $dateRange = $this->getCurrentQuarterDateRange();
+            $now = new DateTime();
 
-            $response = Http::withoutVerifying()->withHeaders([
+            // Get the start of the current week (Monday)
+            $startOfWeek = (clone $now)->modify('monday this week')->format('d-M-Y');
+
+            // Get the end of the current week (Sunday)
+            $endOfWeek = (clone $now)->modify('sunday this week')->format('d-M-Y');
+
+            $response = Http::withoutVerifying()->retry(2, 500)->timeout(60)->withHeaders([
                 'content-type' => 'application/json',
                 'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
-            ])->get(env("MOLLAK_API_URL") . '/sync/receipts/' . $propertyGroupId . '/01-Jan-2024/31-Mar-2024');
+            ])->get(env("MOLLAK_API_URL") . '/sync/receipts/' . $propertyGroupId . '/' . $startOfWeek . '/' . $endOfWeek);
             // ])->get(env("MOLLAK_API_URL") . '/sync/receipts/' . $propertyGroupId . '/' . $dateRange);
-            
+
             $properties = $response->json()['response']['properties'];
 
             $currentQuarterDates = $this->getCurrentQuarterDates();
@@ -74,7 +80,7 @@ class FetchAndSaveReceipts implements ShouldQueue
         }
     }
 
-    // Helper function 
+    // Helper function
     public static function getCurrentQuarterDateRange()
     {
         $currentDate = new DateTime();
