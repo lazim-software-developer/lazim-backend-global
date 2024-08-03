@@ -42,7 +42,7 @@ class FetchAndSaveInvoices implements ShouldQueue
         $quarter = "Q" . $currentQuarter . "-JAN" . $currentYear . "-DEC" . $currentYear;
 
         try {
-            $response = Http::withoutVerifying()->withHeaders([
+            $response = Http::withoutVerifying()->retry(2, 500)->timeout(60)->withHeaders([
                 'content-type' => 'application/json',
                 'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
             ])->get(env("MOLLAK_API_URL") . '/sync/invoices/' . $propertyGroupId . '/all/' . $quarter);
