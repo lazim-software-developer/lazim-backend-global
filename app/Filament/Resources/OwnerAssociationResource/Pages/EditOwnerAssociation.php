@@ -140,29 +140,42 @@ class EditOwnerAssociation extends EditRecord
                     'model_id' => $user->id,
                 ]);
 
-                $building_id = DB::table('building_owner_association')->where('owner_association_id' , $this->record->id)->first()?->building_id;
+                // $building_id = DB::table('building_owner_association')->where('owner_association_id' , $this->record->id)->first()?->building_id;
+                // $connection = DB::connection('lazim_accounts');
+                // $connection->table('users')->insert([
+                //     'name' => $this->record->name,
+                //     'email'                => $this->record->email,
+                //     'email_verified_at' => now(),
+                //     'password'             => Hash::make($password),
+                //     'type' => 'company',
+                //     'lang' => 'en',
+                //     'created_by' => 1,
+                //     'plan' => 1,
+                //     'owner_association_id' => $this->record->id,
+                //     'building_id' => $building_id,
+                //     'created_at' => now(),
+                //     'updated_at' => now()
+                // ]);
+                // $accountUser = $connection->table('users')->where('email',$this->record->email)->where('owner_association_id',$this->record->id )->first();
+                // $role = $connection->table('roles')->where('name', 'company')->first();
+                // $connection->table('model_has_roles')->insert([
+                //     'role_id' => $role?->id,
+                //     'model_type' => 'App\Models\User',
+                //     'model_id' => $accountUser?->id,
+                // ]);
+
                 $connection = DB::connection('lazim_accounts');
-                $connection->table('users')->insert([
-                    'name' => $this->record->name,
-                    'email'                => $this->record->email,
-                    'email_verified_at' => now(),
-                    'password'             => Hash::make($password),
-                    'type' => 'company',
-                    'lang' => 'en',
-                    'created_by' => 1,
-                    'plan' => 1,
-                    'owner_association_id' => $this->record->id,
-                    'building_id' => $building_id,
-                    'created_at' => now(),
-                    'updated_at' => now()
-                ]);
-                $accountUser = $connection->table('users')->where('email',$this->record->email)->where('owner_association_id',$this->record->id )->first();
-                $role = $connection->table('roles')->where('name', 'company')->first();
-                $connection->table('model_has_roles')->insert([
-                    'role_id' => $role?->id,
-                    'model_type' => 'App\Models\User',
-                    'model_id' => $accountUser?->id,
-                ]);
+                $accountUser = $connection->table('users')
+                    ->where('email', $this->record->email)
+                    ->where('owner_association_id', $this->record->id)
+                    ->first();
+
+                if ($accountUser) {
+                    $connection->table('users')
+                        ->where('email', $this->record->email)
+                        ->where('owner_association_id', $this->record->id)
+                        ->update(['password' => Hash::make($password)]);
+                }
                 // Send email with credentials
                 AccountCreationJob::dispatch($user, $password);
             } else {
