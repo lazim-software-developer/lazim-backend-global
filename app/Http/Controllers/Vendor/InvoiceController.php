@@ -104,7 +104,7 @@ class InvoiceController extends Controller
                 'bill_id' => DB::connection('lazim_accounts')->table('bills')->where('lazim_invoice_id', $invoice->id)->first()->id,
                 'product_id' => DB::connection('lazim_accounts')->table('product_services')->where('name',$wda->service->name)->first()?->id,
                 'quantity' => 1,
-                'tax' => 2,
+                'tax' => DB::connection('lazim_accounts')->table('taxes')->where(['building_id'=>$wda->building_id,'name'=>'No Tax'])->first()->id,
                 'discount' => 0,
                 'price' => $request->invoice_amount,
             ]);

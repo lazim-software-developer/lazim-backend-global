@@ -81,14 +81,15 @@ class EditInvoice extends EditRecord
             }
         }
         if (Role::where('id', auth()->user()->role_id)->first()->name == 'Accounts Manager') {
-            if ($this->record->opening_balance == null) {
+            if ($this->record->opening_balance == null && is_numeric($this->data['invoice_amount']) && is_numeric($this->data['payment'])) {
                 Invoice::where('id', $this->data['id'])
                     ->update([
                         'status_updated_by' => auth()->user()->id,
                         'opening_balance'   => $this->data['invoice_amount'] - $this->data['payment'],
                         'balance'           => $this->data['invoice_amount'] - $this->data['payment'],
                     ]);
-            } else {
+            }
+            if(is_numeric($this->record->opening_balance) && $this->record->opening_balance != null && is_numeric($this->data['payment'])) {
                 Invoice::where('id', $this->data['id'])
                     ->update([
                         'status_updated_by' => auth()->user()->id,
