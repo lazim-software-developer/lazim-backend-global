@@ -120,7 +120,7 @@ class InvoicesRelationManager extends RelationManager
                             ->rules([function (Get $get) {
                                 return function (string $attribute, $value, Closure $fail) use($get) {
                                     if ($get('status')==='rejected' && $value) {
-                                        $fail('No Need To Enter The Payment Amount When Rejected');
+                                        $fail('No need to input a payment amount when rejecting');
                                     }
                                 };
                             },])
