@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Vendor\VendorResource\RelationManagers;
 
+use Closure;
 use App\Jobs\InvoiceRejectionJob;
 use App\Models\AccountCredentials;
 use App\Models\Accounting\Invoice;
@@ -116,6 +117,13 @@ class InvoicesRelationManager extends RelationManager
                                     return false;
                                 }
                             })
+                            ->rules([function (Get $get) {
+                                return function (string $attribute, $value, Closure $fail) use($get) {
+                                    if ($get('status')==='rejected' && $value) {
+                                        $fail('No Need To Enter The Payment Amount When Rejected');
+                                    }
+                                };
+                            },])
                             ->live(),
                         TextInput::make('balance')
                             ->prefix('AED')
@@ -249,14 +257,15 @@ class InvoicesRelationManager extends RelationManager
                             }
                         }
                         if (Role::where('id', auth()->user()->role_id)->first()->name == 'Accounts Manager') {
-                            if ($record->opening_balance == null) {
+                            if ($record->opening_balance == null && is_numeric($record->invoice_amount) && is_numeric($record->payment)) {
                                 Invoice::where('id', $record->id)
                                     ->update([
                                         'status_updated_by' => auth()->user()->id,
                                         'opening_balance'   => $record->invoice_amount - $record->payment,
                                         'balance'           => $record->invoice_amount - $record->payment,
                                     ]);
-                            } else {
+                            }
+                            if( is_numeric($record->opening_balance) && $record->opening_balance != null && is_numeric($record->payment)) {
                                 Invoice::where('id', $record->id)
                                     ->update([
                                         'status_updated_by' => auth()->user()->id,
