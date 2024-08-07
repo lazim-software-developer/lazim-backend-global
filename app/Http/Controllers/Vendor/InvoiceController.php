@@ -213,9 +213,9 @@ class InvoiceController extends Controller
             $item->update(['active' => false]);
         });
 
-        // $bill = DB::connection('lazim_accounts')->table('bills')->where('lazim_invoice_id', $invoice->id);
-        // DB::connection('lazim_accounts')->table('bill_products')->where('bill_id', $bill->first()->id)->update(['price'=>$invoice->invoice_amount / (1 + 5 / 100)]);
-        // $bill->update(['deleted_at'=>null]);
+        $bill = DB::connection('lazim_accounts')->table('bills')->where('lazim_invoice_id', $invoice->id);
+        DB::connection('lazim_accounts')->table('bill_products')->where('bill_id', $bill->first()->id)->update(['price'=>$invoice->invoice_amount / (1 + 5 / 100)]);
+        $bill->update(['deleted_at'=>null]);
 
         return (new CustomResponseResource([
             'title'   => 'Success',
