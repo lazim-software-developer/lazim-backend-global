@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Jobs\FetchBuildingsJob;
 use App\Models\OwnerAssociation;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -53,6 +54,27 @@ class SyncOwnerAssociations extends Command
                     'address'    => $company['address'],
                 ]
             );
+
+                $connection = DB::connection('lazim_accounts');
+                $connection->table('users')->insert([
+                    'name' =>$company['name']['englishName'],
+                    'email'                => $company['email'],
+                    'email_verified_at' => now(),
+                    'type' => 'company',
+                    'lang' => 'en',
+                    'created_by' => 1,
+                    'plan' => 1,
+                    'owner_association_id' => $ownerAssociation?->id,
+                    'created_at' => now(),
+                    'updated_at' => now()
+                ]);
+                $accountUser = $connection->table('users')->where('email',$company['email'])->where('owner_association_id',$ownerAssociation?->id )->first();
+                $role = $connection->table('roles')->where('name', 'company')->first();
+                $connection->table('model_has_roles')->insert([
+                    'role_id' => $role?->id,
+                    'model_type' => 'App\Models\User',
+                    'model_id' => $accountUser?->id,
+                ]);
 
             FetchBuildingsJob::dispatch($ownerAssociation);
         }
