@@ -25,12 +25,17 @@ class FetchFlatsAndOwnersForBuilding implements ShouldQueue
 
     public function handle()
     {
-        $response = Http::withOptions(['verify' => false])->withHeaders([
-            'content-type' => 'application/json',
-            'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
-        ])->get(env("MOLLAK_API_URL") . "/sync/propertygroups/" . $this->building->property_group_id . "/units");
-
-        $data = $response->json();
+        try{
+            $response = Http::withOptions(['verify' => false])->withHeaders([
+                'content-type' => 'application/json',
+                'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
+            ])->get(env("MOLLAK_API_URL") . "/sync/propertygroups/" . $this->building->property_group_id . "/units");
+    
+            $data = $response->json();
+        }
+        catch(\Exception $e) {
+            Log::error("no responce from mollak");
+        }
         
 
         if ($data['response'] != null) {
