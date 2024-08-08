@@ -355,11 +355,12 @@ class InvoicesRelationManager extends RelationManager
 
                                 $product_services = $connection->table('product_services')->where('name', $record->wda->service->name)->first();
                                 if ($connection->table('bills')->where('lazim_invoice_id', $record->id)->count() == 0) {
+                                    $creator = $connection->table('users')->where(['type' => 'building', 'building_id' => $this->record->wda->building_id])->first();
                                     $httpRequest = Http::withOptions(['verify' => false])
                                         ->withHeaders([
                                             'Content-Type' => 'application/json',
                                         ])->post(env('ACCOUNTING_CREATE_BILL_API','http://localhost:8000/api/bill/create'), [
-                                        'created_by'     => $connection->table('users')->where(['owner_association_id' => $record->owner_association_id, 'type' => 'company'])->first()?->id,
+                                        'created_by'     => $creator->id,
                                         'buildingId'     => $record->wda->building_id,
                                         'invoiceId'      => $record->id,
                                         'venderId'       => $connection->table('venders')->where('lazim_vendor_id', $record->vendor_id)->first()?->id,
