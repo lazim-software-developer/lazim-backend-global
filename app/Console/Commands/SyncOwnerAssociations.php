@@ -60,10 +60,10 @@ class SyncOwnerAssociations extends Command
                 $body = [
                     'name'      => $company['name']['englishName'],
                     'email'     => $company['email'],
-                    'password'  => '',
-                    'password_confirmation' => '',
+                    'password'  => 'Password',
+                    'password_confirmation' => 'Password',
                     'created_by_lazim' => 1,
-                    'owner_association_id' => 1,
+                    'owner_association_id' => $ownerAssociation->id,
                 ];
                 $httpRequest  = Http::withOptions(['verify' => false])
                     ->withHeaders([
