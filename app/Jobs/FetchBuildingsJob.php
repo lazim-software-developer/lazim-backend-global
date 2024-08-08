@@ -11,7 +11,9 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Http;
 use App\Jobs\FetchFlatsAndOwnersForBuilding;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class FetchBuildingsJob implements ShouldQueue
 {
@@ -57,8 +59,26 @@ class FetchBuildingsJob implements ShouldQueue
                 );
                 DB::table('building_owner_association')->updateOrInsert([
                     'owner_association_id' => $this->ownerAssociation->id,
-                    'building_id' =>$building->id,
+                    'building_id' => $building->id,
                     'from' => now()->toDateString(),
+                ]);
+                
+                $connection = DB::connection('lazim_accounts');
+                $connection->table('users')->insert([
+                    'name' => $building->name,
+                    'email' => 'user' . Str::random(8) . '@lazim.ae',
+                    'email_verified_at' => now(),
+                    'password' => Hash::make('password'),
+                    'type' => 'building',
+                    'lang' => 'en',
+                    'created_by' => 1,
+                    'is_disable' => 0,
+                    'plan' => 1,
+                    'is_enable_login' => 1,
+                    'building_id' => $building->id,
+                    'owner_association_id' => $this->ownerAssociation->id,
+                    'created_at' => now(),
+                    'updated_at' => now()
                 ]);
 
                 FetchFlatsAndOwnersForBuilding::dispatch($building);
