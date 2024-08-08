@@ -62,8 +62,9 @@ class FetchBuildingsJob implements ShouldQueue
                     'building_id' => $building->id,
                     'from' => now()->toDateString(),
                 ]);
-                
+
                 $connection = DB::connection('lazim_accounts');
+                $created_by = $connection->table('users')->where('owner_association_id', $this->ownerAssociation->id)->where('type', 'company')->first()?->id;
                 $connection->table('users')->insert([
                     'name' => $building->name,
                     'email' => 'user' . Str::random(8) . '@lazim.ae',
@@ -71,7 +72,7 @@ class FetchBuildingsJob implements ShouldQueue
                     'password' => Hash::make('password'),
                     'type' => 'building',
                     'lang' => 'en',
-                    'created_by' => 1,
+                    'created_by' => $created_by,
                     'is_disable' => 0,
                     'plan' => 1,
                     'is_enable_login' => 1,

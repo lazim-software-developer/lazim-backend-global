@@ -32,6 +32,7 @@ class CustomerCreationJob implements ShouldQueue
         $building = Building::find($this->flat->building_id);
         $connection = DB::connection('lazim_accounts');
         $created_by = $connection->table('users')->where('owner_association_id', $this->flat->owner_association_id)->where('type', 'company')->first()?->id;
+        $buildingUser = $connection->table('users')->where(['type' => 'building', 'building_id' => $building->id])->first();
         $customer = $connection->table('customers')->where('created_by', $created_by)->orderByDesc('customer_id')->first();
         $customerId = $customer ? $customer->customer_id + 1 : 1;
         $name = $this->ownerData['name']['englishName'] . ' - ' . $this->flat->property_number;
@@ -57,7 +58,7 @@ class CustomerCreationJob implements ShouldQueue
                 'created_by_lazim' => true,
                 'flat_id' => $this->flat->id,
                 'building_id' => $this->flat->building_id,
-                'created_by' => $created_by,
+                'created_by' => $buildingUser?->id,
             ];
             $httpRequest  = Http::withOptions(['verify' => false])
                 ->withHeaders([
