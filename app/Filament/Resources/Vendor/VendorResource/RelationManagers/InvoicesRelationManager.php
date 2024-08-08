@@ -2,13 +2,13 @@
 
 namespace App\Filament\Resources\Vendor\VendorResource\RelationManagers;
 
-use Closure;
 use App\Jobs\InvoiceRejectionJob;
 use App\Models\AccountCredentials;
 use App\Models\Accounting\Invoice;
 use App\Models\InvoiceApproval;
 use App\Models\Master\Role;
 use App\Models\User\User;
+use Carbon\Carbon;
 use Filament\Facades\Filament;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
@@ -23,6 +23,7 @@ use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 
 class InvoicesRelationManager extends RelationManager
 {
@@ -91,9 +92,9 @@ class InvoicesRelationManager extends RelationManager
                             ->prefix('AED')
                             ->numeric()
                             ->minValue(1)
-                            // ->maxValue(function (Get $get) {
-                            //     return $get('opening_balance') ?? $get('invoice_amount');
-                            // })
+                        // ->maxValue(function (Get $get) {
+                        //     return $get('opening_balance') ?? $get('invoice_amount');
+                        // })
                             ->disabled(function (Invoice $record) {
                                 if (Role::where('id', auth()->user()->role_id)->first()->name == 'OA') {
                                     return true;
@@ -112,19 +113,19 @@ class InvoicesRelationManager extends RelationManager
                                     return false;
                                 }
                                 if (Role::where('id', auth()->user()->role_id)->first()->name == 'Accounts Manager') {
-                                    return false ; // true && $get('status') == 'approved'
+                                    return false; // true && $get('status') == 'approved'
                                 }
                                 if (Role::where('id', auth()->user()->role_id)->first()->name == 'MD') {
                                     return false;
                                 }
                             })
-                            // ->rules([function (Get $get) {
-                            //     return function (string $attribute, $value, Closure $fail) use($get) {
-                            //         if ($get('status')==='rejected' && $value) {
-                            //             $fail('No need to input a payment amount when rejecting');
-                            //         }
-                            //     };
-                            // },])
+                        // ->rules([function (Get $get) {
+                        //     return function (string $attribute, $value, Closure $fail) use($get) {
+                        //         if ($get('status')==='rejected' && $value) {
+                        //             $fail('No need to input a payment amount when rejecting');
+                        //         }
+                        //     };
+                        // },])
                             ->live(),
                         TextInput::make('balance')
                             ->prefix('AED')
@@ -171,7 +172,7 @@ class InvoicesRelationManager extends RelationManager
                                 }
                                 if (Role::where('id', auth()->user()->role_id)->first()->name == 'Accounts Manager') {
                                     $invoiceapproval = InvoiceApproval::where('invoice_id', $record->id)->where('active', true)->whereIn('updated_by', User::where('owner_association_id', auth()->user()?->owner_association_id)->whereIn('role_id', Role::whereIn('name', ['Accounts Manager', 'MD'])->pluck('id'))->pluck('id'))->exists();
-                                    return $invoiceapproval ; //&& Invoice::where('id', $record->id)->first()?->opening_balance == 0
+                                    return $invoiceapproval; //&& Invoice::where('id', $record->id)->first()?->opening_balance == 0
                                 }
                                 if (Role::where('id', auth()->user()->role_id)->first()->name == 'MD') {
                                     $invoiceapproval = InvoiceApproval::where('invoice_id', $record->id)->where('active', true)->whereIn('updated_by', User::where('owner_association_id', auth()->user()?->owner_association_id)->whereIn('role_id', Role::whereIn('name', ['MD'])->pluck('id'))->pluck('id'))->exists();
@@ -351,6 +352,33 @@ class InvoicesRelationManager extends RelationManager
                                     'remarks'    => 'approved by md',
                                     'active'     => true,
                                 ]);
+
+                                $product_services = $connection->table('product_services')->where('name', $record->wda->service->name)->first();
+                                if ($connection->table('bills')->where('lazim_invoice_id', $record->id)->count() == 0) {
+                                    $httpRequest = Http::withOptions(['verify' => false])
+                                        ->withHeaders([
+                                            'Content-Type' => 'application/json',
+                                        ])->post(env('ACCOUNTING_CREATE_BILL_API','http://localhost:8000/api/bill/create'), [
+                                        'created_by'     => $connection->table('users')->where(['owner_association_id' => $record->owner_association_id, 'type' => 'company'])->first()?->id,
+                                        'buildingId'     => $record->wda->building_id,
+                                        'invoiceId'      => $record->id,
+                                        'venderId'       => $connection->table('venders')->where('lazim_vendor_id', $record->vendor_id)->first()?->id,
+                                        'billDate'       => $record->date,
+                                        'dueDate'        => Carbon::parse($record->date)->addDays(30),
+                                        'categoryId'     => $product_services?->category_id,
+                                        'chartAccountId' => null,
+                                        'items'          => [
+                                            [
+                                                'item'             => $product_services?->id,
+                                                'quantity'         => 1,
+                                                'tax'              => $connection->table('taxes')->where(['building_id' => $record->wda->building_id, 'name' => 'VAT'])->first()->id,
+                                                'price'            => $record->invoice_amount / (1 + 5 / 100),
+                                                'chart_account_id' => $product_services->expense_chartaccount_id,
+                                            ],
+                                        ],
+                                    ]);
+                                }
+
                             } else {
                                 InvoiceApproval::firstOrCreate([
                                     'invoice_id' => $record->id,
