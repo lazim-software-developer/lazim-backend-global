@@ -54,45 +54,46 @@ class FetchOwnersForFlat implements ShouldQueue
                         'trade_license' => $ownerData['tradeLicence'],
                     ]);
 
-                    $building = Building::find($this->flat->building_id);
-                    $connection = DB::connection('lazim_accounts');
-                    $created_by = $connection->table('users')->where('owner_association_id', $this->flat->owner_association_id)->where('type', 'company')->first()?->id;
-                    $customer = $connection->table('customers')->where('created_by', $created_by)->orderByDesc('customer_id')->first();
-                    $customerId = $customer ? $customer->customer_id + 1 : 1;
-                    $name = $ownerData['name']['englishName'] . ' - ' . $this->flat->property_number;
+                    
+                    // $building = Building::find($this->flat->building_id);
+                    // $connection = DB::connection('lazim_accounts');
+                    // $created_by = $connection->table('users')->where('owner_association_id', $this->flat->owner_association_id)->where('type', 'company')->first()?->id;
+                    // $customer = $connection->table('customers')->where('created_by', $created_by)->orderByDesc('customer_id')->first();
+                    // $customerId = $customer ? $customer->customer_id + 1 : 1;
+                    // $name = $ownerData['name']['englishName'] . ' - ' . $this->flat->property_number;
 
-                    try {
-                        $url = 'api/customer';
-                        $body = [
-                            'name' => $name,
-                            'email' => $ownerData['email'],
-                            'contact' => $phone,
-                            'type' => 'Owner',
-                            'customer_id' => $customerId,
-                            'billing_name' => $name,
-                            'billing_country' => 'UAE',
-                            'billing_city' => 'Dubai',
-                            'billing_phone' => $phone,
-                            'billing_address' => $building->address_line1 . ', ' . $building->area,
-                            'shipping_name' => $name,
-                            'shipping_country' => 'UAE',
-                            'shipping_city' => 'Dubai',
-                            'shipping_phone' => $phone,
-                            'shipping_address' => $building->address_line1 . ', ' . $building->area,
-                            'created_by_lazim' => true,
-                            'flat_id' => $this->flat->id,
-                            'building_id' => $this->flat->building_id,
-                            'created_by' => $created_by,
-                        ];
-                        $httpRequest  = Http::withOptions(['verify' => false])
-                            ->withHeaders([
-                                'Content-Type' => 'application/json',
-                            ]);
-                        $response = $httpRequest->post(env('ACCOUNTING_URL') . $url, $body);
-                        Log::info([$response->json()]);
-                    } catch (\Exception $e) {
-                        Log::error('Error ' . $e->getMessage());
-                    }
+                    // try {
+                    //     $url = 'api/customer';
+                    //     $body = [
+                    //         'name' => $name,
+                    //         'email' => $ownerData['email'],
+                    //         'contact' => $phone,
+                    //         'type' => 'Owner',
+                    //         'customer_id' => $customerId,
+                    //         'billing_name' => $name,
+                    //         'billing_country' => 'UAE',
+                    //         'billing_city' => 'Dubai',
+                    //         'billing_phone' => $phone,
+                    //         'billing_address' => $building->address_line1 . ', ' . $building->area,
+                    //         'shipping_name' => $name,
+                    //         'shipping_country' => 'UAE',
+                    //         'shipping_city' => 'Dubai',
+                    //         'shipping_phone' => $phone,
+                    //         'shipping_address' => $building->address_line1 . ', ' . $building->area,
+                    //         'created_by_lazim' => true,
+                    //         'flat_id' => $this->flat->id,
+                    //         'building_id' => $this->flat->building_id,
+                    //         'created_by' => $created_by,
+                    //     ];
+                    //     $httpRequest  = Http::withOptions(['verify' => false])
+                    //         ->withHeaders([
+                    //             'Content-Type' => 'application/json',
+                    //         ]);
+                    //     $response = $httpRequest->post(env('ACCOUNTING_URL') . $url, $body);
+                    //     Log::info([$response->json()]);
+                    // } catch (\Exception $e) {
+                    //     Log::error('Error ' . $e->getMessage());
+                    // }
                     // $connection->table('customers')->insert([
                     //     'customer_id' => $customerId,
                     //     'name' => $name,
@@ -119,6 +120,8 @@ class FetchOwnersForFlat implements ShouldQueue
 
                     // Attach the owner to the flat
                     $this->flat->owners()->syncWithoutDetaching($owner->id);
+
+                    CustomerCreationJob::dispatch($this->flat, $ownerData, $phone);
 
                     // $customer = $connection->table('customers')->where([
                     //     'email' => $ownerData['email'],
