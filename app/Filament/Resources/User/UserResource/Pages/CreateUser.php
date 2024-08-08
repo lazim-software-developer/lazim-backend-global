@@ -68,6 +68,7 @@ class CreateUser extends CreateRecord
         if ($user->role?->name === 'Accounts Manager') {
             $building_id = DB::table('building_owner_association')->where('owner_association_id', $user?->owner_association_id)->first()?->building_id;
             $connection  = DB::connection('lazim_accounts');
+            $creator = $connection->table('users')->where(['type' => 'building', 'building_id' => $building_id])->first();
             $connection->table('users')->insert([
                 'name'                 => $user->first_name,
                 'email'                => $user->email,
@@ -75,7 +76,7 @@ class CreateUser extends CreateRecord
                 'password'             => Hash::make($password),
                 'type'                 => 'accountant',
                 'lang'                 => 'en',
-                'created_by'           => 1,
+                'created_by'           => $creator->id,
                 'plan'                 => 1,
                 'owner_association_id' => $user?->owner_association_id,
                 'building_id'          => $building_id,
