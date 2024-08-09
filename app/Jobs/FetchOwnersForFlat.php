@@ -59,7 +59,7 @@ class FetchOwnersForFlat implements ShouldQueue
                     $connection = DB::connection('lazim_accounts');
                     // $created_by = $connection->table('users')->where('owner_association_id', $this->flat->owner_association_id)->where('type', 'company')->first()?->id;
                     $buildingUser = $connection->table('users')->where(['type' => 'building', 'building_id' => $building->id])->first();
-                    $customer = $connection->table('customers')->where('created_by', $buildingUser)->orderByDesc('customer_id')->first();
+                    $customer = $connection->table('customers')->where('created_by', $buildingUser->id)->orderByDesc('customer_id')->first();
                     $customerId = $customer ? $customer->customer_id + 1 : 1;
                     $name = $ownerData['name']['englishName'] . ' - ' . $this->flat->property_number;
 
@@ -71,7 +71,7 @@ class FetchOwnersForFlat implements ShouldQueue
                         'contact' => $phone,
                         'type' => 'Owner',
                         'lang' => 'en',
-                        'created_by' => $buildingUser,
+                        'created_by' => $buildingUser->id,
                         'is_enable_login' => 0,
                         'billing_name' => $name,
                         'billing_country' => 'UAE',
