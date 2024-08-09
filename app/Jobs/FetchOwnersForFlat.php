@@ -121,7 +121,7 @@ class FetchOwnersForFlat implements ShouldQueue
                     // Attach the owner to the flat
                     $this->flat->owners()->syncWithoutDetaching($owner->id);
 
-                    CustomerCreationJob::dispatch($this->flat, $ownerData, $phone);
+                    CustomerCreationJob::dispatch($this->flat, $owner);
 
                     // $customer = $connection->table('customers')->where([
                     //     'email' => $ownerData['email'],
