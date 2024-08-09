@@ -66,10 +66,10 @@ class CustomerCreationJob implements ShouldQueue
                 ]);
             Log::info('Job started for flat: ' . $this->flat->id . ' owner: ' . $this->owner->id . 'building' . $this->flat->building_id);
             Log::info('Sending request to API for customer creation', ['request_body' => $body]);
-
-            $response = $httpRequest->post(env('ACCOUNTING_URL') . $url, $body);
-
-            Log::info('API response', ['response' => $response->body()]);
+                
+            $response = retry(5, function () use ($httpRequest, $url, $body) {
+                return $httpRequest->post(env('ACCOUNTING_URL') . $url, $body);
+            }, 1000);
             Log::info('Job finished for flat: ' . $this->flat->id . ' owner: ' . $this->owner->id . 'building' . $this->flat->building_id);
         } catch (\Exception $e) {
             Log::error('Error ' . $e->getMessage());
