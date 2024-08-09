@@ -347,7 +347,7 @@ Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active']
     // Rejected APIs
     Route::get('/move-in/{movein}', [MoveInOutController::class, 'index']);
 
-    // Update API for move-in and move-out
+    // Update API for move in and move out
     Route::post('/move-in/{movein}/update', [MoveInOutController::class, 'update']);
 
     //Fit Out rejected API
