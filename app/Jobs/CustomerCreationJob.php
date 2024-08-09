@@ -29,15 +29,15 @@ class CustomerCreationJob implements ShouldQueue
      */
     public function handle(): void
     {
+        try {
         $building = Building::find($this->flat->building_id);
         $connection = DB::connection('lazim_accounts');
-        $created_by = $connection->table('users')->where('owner_association_id', $this->flat->owner_association_id)->where('type', 'company')->first()?->id;
+        // $created_by = $connection->table('users')->where('owner_association_id', $this->flat->owner_association_id)->where('type', 'company')->first()?->id;
         $buildingUser = $connection->table('users')->where(['type' => 'building', 'building_id' => $building->id])->first();
-        $customer = $connection->table('customers')->where('created_by', $created_by)->orderByDesc('customer_id')->first();
+        $customer = $connection->table('customers')->where('created_by', $buildingUser->id)->orderByDesc('customer_id')->first();
         $customerId = $customer ? $customer->customer_id + 1 : 1;
         $name = $this->ownerData['name']['englishName'] . ' - ' . $this->flat->property_number;
 
-        try {
             $url = 'api/customer';
             $body = [
                 'name' => $name,
@@ -65,7 +65,6 @@ class CustomerCreationJob implements ShouldQueue
                     'Content-Type' => 'application/json',
                 ]);
             $response = $httpRequest->post(env('ACCOUNTING_URL') . $url, $body);
-            Log::info([$response->json()]);
         } catch (\Exception $e) {
             Log::error('Error ' . $e->getMessage());
         }
