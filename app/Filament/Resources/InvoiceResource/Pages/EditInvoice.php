@@ -175,17 +175,17 @@ class EditInvoice extends EditRecord
                     'active'     => true,
                 ]);
 
-                $product_services = $connection->table('product_services')->where('name', $this->record->wda->service->name)->first();
+                $product_services = $connection->table('product_services')->where('name', $this->record->contract->service->name)->first();
                 if ($connection->table('bills')->where('lazim_invoice_id', $this->record->id)->count() == 0) {
-                    $creator = $connection->table('users')->where(['type' => 'building', 'building_id' => $this->record->wda->building_id])->first();
+                    $creator = $connection->table('users')->where(['type' => 'building', 'building_id' => $this->record->contract->building_id])->first();
                     $httpRequest = Http::withOptions(['verify' => false])
                         ->withHeaders([
                             'Content-Type' => 'application/json',
                         ])->post(env('ACCOUNTING_CREATE_BILL_API'), [
                         'created_by'     => $creator->id,
-                        'buildingId'     => $this->record->wda->building_id,
+                        'buildingId'     => $this->record->contract->building_id,
                         'invoiceId'      => $this->record->id,
-                        'venderId'       => $connection->table('venders')->where('lazim_vendor_id', $this->record->vendor_id)->first()?->id,
+                        'venderId'       => $connection->table('venders')->where(['lazim_vendor_id' => $this->record->vendor_id,'building_id' => $this->record->contract->building_id])->first()?->id,
                         'billDate'       => $this->record->date,
                         'dueDate'        => Carbon::parse($this->record->date)->addDays(30),
                         'categoryId'     => $product_services?->category_id,
@@ -194,7 +194,7 @@ class EditInvoice extends EditRecord
                             [
                                 'item'             => $product_services?->id,
                                 'quantity'         => 1,
-                                'tax'              => $connection->table('taxes')->where(['building_id' => $this->record->wda->building_id, 'name' => 'VAT'])->first()->id,
+                                'tax'              => $connection->table('taxes')->where(['building_id' => $this->record->contract->building_id, 'name' => 'VAT'])->first()->id,
                                 'price'            => $this->record->invoice_amount / (1 + 5 / 100),
                                 'chart_account_id' => $product_services->expense_chartaccount_id,
                             ],
