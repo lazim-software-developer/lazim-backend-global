@@ -353,17 +353,17 @@ class InvoicesRelationManager extends RelationManager
                                     'active'     => true,
                                 ]);
 
-                                $product_services = $connection->table('product_services')->where('name', $record->wda->service->name)->first();
+                                $product_services = $connection->table('product_services')->where('name', $record->contract->service->name)->first();
                                 if ($connection->table('bills')->where('lazim_invoice_id', $record->id)->count() == 0) {
-                                    $creator = $connection->table('users')->where(['type' => 'building', 'building_id' => $this->record->wda->building_id])->first();
+                                    $creator = $connection->table('users')->where(['type' => 'building', 'building_id' => $this->record->contract->building_id])->first();
                                     $httpRequest = Http::withOptions(['verify' => false])
                                         ->withHeaders([
                                             'Content-Type' => 'application/json',
                                         ])->post(env('ACCOUNTING_CREATE_BILL_API','http://localhost:8000/api/bill/create'), [
                                         'created_by'     => $creator->id,
-                                        'buildingId'     => $record->wda->building_id,
+                                        'buildingId'     => $record->contract->building_id,
                                         'invoiceId'      => $record->id,
-                                        'venderId'       => $connection->table('venders')->where('lazim_vendor_id', $record->vendor_id)->first()?->id,
+                                        'venderId'       => $connection->table('venders')->where(['lazim_vendor_id'=> $record->vendor_id,'building_id' => $this->record->contract->building_id])->first()?->id,
                                         'billDate'       => $record->date,
                                         'dueDate'        => Carbon::parse($record->date)->addDays(30),
                                         'categoryId'     => $product_services?->category_id,
@@ -372,7 +372,7 @@ class InvoicesRelationManager extends RelationManager
                                             [
                                                 'item'             => $product_services?->id,
                                                 'quantity'         => 1,
-                                                'tax'              => $connection->table('taxes')->where(['building_id' => $record->wda->building_id, 'name' => 'VAT'])->first()->id,
+                                                'tax'              => $connection->table('taxes')->where(['building_id' => $record->contract->building_id, 'name' => 'VAT'])->first()->id,
                                                 'price'            => $record->invoice_amount / (1 + 5 / 100),
                                                 'chart_account_id' => $product_services->expense_chartaccount_id,
                                             ],
