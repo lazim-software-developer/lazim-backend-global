@@ -60,17 +60,12 @@ class CustomerCreationJob implements ShouldQueue
                 'building_id' => $this->flat->building_id,
                 'created_by' => $buildingUser?->id,
             ];
+            sleep(1);
             $httpRequest  = Http::withOptions(['verify' => false])
                 ->withHeaders([
                     'Content-Type' => 'application/json',
                 ]);
-            Log::info('Job started for flat: ' . $this->flat->id . ' owner: ' . $this->owner->id . 'building' . $this->flat->building_id);
-            Log::info('Sending request to API for customer creation', ['request_body' => $body]);
-                
-            $response = retry(5, function () use ($httpRequest, $url, $body) {
-                return $httpRequest->post(env('ACCOUNTING_URL') . $url, $body);
-            }, 1000);
-            Log::info('Job finished for flat: ' . $this->flat->id . ' owner: ' . $this->owner->id . 'building' . $this->flat->building_id);
+            $httpRequest->post(env('ACCOUNTING_URL') . $url, $body);
         } catch (\Exception $e) {
             Log::error('Error ' . $e->getMessage());
         }
