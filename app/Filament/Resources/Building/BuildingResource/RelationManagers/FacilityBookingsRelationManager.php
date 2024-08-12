@@ -49,11 +49,15 @@ class FacilityBookingsRelationManager extends RelationManager
 
                         Select::make('bookable_id')
                             ->required()
-                            ->options(
-                                DB::table('facilities')
-                                    ->pluck('name', 'id')
-                                    ->toArray()
-                            )
+                            ->options(function(RelationManager $livewire){
+
+                                $facilityId = DB::table('building_facility')->where('building_id',$livewire->ownerRecord->id)->pluck('facility_id');
+                                return DB::table('facilities')
+                                ->whereIn('id',$facilityId)
+                                ->where('active', true)
+                                ->pluck('name', 'id')
+                                ->toArray();
+                             })
                             ->searchable()
                             ->label('Facility')
                             ->disabledOn('edit')
