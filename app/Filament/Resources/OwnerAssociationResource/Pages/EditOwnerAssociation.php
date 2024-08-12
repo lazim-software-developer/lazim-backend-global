@@ -177,7 +177,8 @@ class EditOwnerAssociation extends EditRecord
                         ->update(['password' => Hash::make($password)]);
                 }
                 // Send email with credentials
-                AccountCreationJob::dispatch($user, $password);
+                $slug = $this->record->slug;
+                AccountCreationJob::dispatch($user, $password,$slug);
             } else {
                 $user->ownerAssociation()->attach($this->record->id, ['from' => now()->toDateString()]);
                 // No need to handle this - Subhash

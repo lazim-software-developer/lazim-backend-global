@@ -34,18 +34,13 @@ class MeetingsRelationManager extends RelationManager
     {
         return $form
             ->schema([
-                MarkdownEditor::make('agenda')
-                    ->toolbarButtons([
-                        'bold',
-                        'bulletList',
-                        'italic',
-                        'link',
-                        'orderedList',
-                        'redo',
-                        'undo',
-                    ])
+                TextArea::make('agenda')
+                    ->minLength(3)
+                    ->maxLength(255)
+                    ->rows(5)
                     ->disabled()
-                    ->required(),
+                    ->required()
+                    ->columnSpanFull(),
                 DateTimePicker::make('date_time')
                     ->rules(['date'])
                     ->displayFormat('d-M-Y h:i A')
@@ -53,17 +48,13 @@ class MeetingsRelationManager extends RelationManager
                     ->disabled()
                     ->required()
                     ->default(now())
-                    ->label('Meeting Date Time'),
-                MarkdownEditor::make('meeting_summary')
-                    ->toolbarButtons([
-                        'bold',
-                        'bulletList',
-                        'italic',
-                        'link',
-                        'orderedList',
-                        'redo',
-                        'undo',
-                    ])
+                    ->label('Meeting Date Time')
+                    ->columnSpanFull(),
+                TextArea::make('meeting_summary')
+                    ->minLength(3)
+                    ->maxLength(255)
+                    ->rows(5)
+                    ->columnSpanFull()
                     ->required()
                     ->live(),
             ]);
@@ -73,7 +64,7 @@ class MeetingsRelationManager extends RelationManager
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('agenda')->markdown(),
+                Tables\Columns\TextColumn::make('agenda'),
                 TextColumn::make('date_time')
                     ->dateTime(),
             ])

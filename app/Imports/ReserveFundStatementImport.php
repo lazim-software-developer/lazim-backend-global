@@ -25,6 +25,15 @@ class ReserveFundStatementImport implements ToCollection,WithHeadingRow
            'debit_amount',
            'credit_amount',
            ];
+
+           if($collection->first()== null){
+            Notification::make()
+                ->title("Upload valid excel file.")
+                ->danger()
+                ->body("You have uploaded an empty file")
+                ->send();
+            return 'failure';
+            }
    
            // Extract the headings from the first row
            $extractedHeadings = array_keys($collection->first()->toArray());
