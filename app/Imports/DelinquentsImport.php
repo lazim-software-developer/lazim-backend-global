@@ -26,6 +26,15 @@ class DelinquentsImport implements ToCollection, WithHeadingRow
             'third_quarter',
         ];
 
+        if($rows->first()== null){
+            Notification::make()
+                ->title("Upload valid excel file.")
+                ->danger()
+                ->body("You have uploaded an empty file")
+                ->send();
+            return 'failure';
+        }
+
         // Check if the file is empty
         if ($rows->first()->filter()->isEmpty()) {
             Notification::make()

@@ -39,6 +39,15 @@ class CoolingAccountImport implements ToCollection, WithHeadingRow
             'in_unit_security_deposit', 'in_unit_billing_charges',
             'in_unit_other_charges', 'receipts', 'closing_balance'
            ];
+
+           if($rows->first()== null){
+            Notification::make()
+                ->title("Upload valid excel file.")
+                ->danger()
+                ->body("You have uploaded an empty file")
+                ->send();
+            return 'failure';
+            }
    
            // Extract the headings from the first row
            $extractedHeadings = array_keys($rows->first()->toArray());

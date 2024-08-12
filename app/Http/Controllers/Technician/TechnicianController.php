@@ -193,7 +193,7 @@ class TechnicianController extends Controller
         $id = null;
         $last_date =  null;
 
-        $maintenanceDate = new Carbon($latestMaintenance->maintenance_date);
+        $maintenanceDate = new Carbon($latestMaintenance?->maintenance_date);  //changed line
 
         // Add the number of days specified by $asset->frequency_of_service
         $nextMaintenanceDue = $maintenanceDate->addDays($asset->frequency_of_service);
