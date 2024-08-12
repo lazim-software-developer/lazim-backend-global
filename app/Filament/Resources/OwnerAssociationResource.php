@@ -94,7 +94,7 @@ class OwnerAssociationResource extends Resource
                         ->disabled()
                         ->placeholder('TRN Number'),
                     TextInput::make('phone')
-                        ->rules(['regex:/^(971)(50|51|52|55|56|58|02|03|04|06|07|09)\d{7}$/',function (Model $record) {
+                        ->rules(['regex:/^\+?(971)(50|51|52|55|56|58|02|03|04|06|07|09)\d{7}$/',function (Model $record) {
                             return function (string $attribute, $value, Closure $fail) use($record) {
                                 if (DB::table('owner_associations')->whereNot('id',$record->id)->where('phone', $value)->count() > 0) {
                                     $fail('The phone is already taken by a OA.');
@@ -182,6 +182,7 @@ class OwnerAssociationResource extends Resource
                     FileUpload::make('profile_photo')
                         ->disk('s3')
                         ->directory('dev')
+                        ->previewable(true)
                         ->image()
                         ->maxSize(2048)
                         ->rules('file|mimes:jpeg,jpg,png|max:2048')
