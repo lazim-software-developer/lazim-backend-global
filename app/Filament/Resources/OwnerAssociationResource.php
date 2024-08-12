@@ -42,7 +42,7 @@ class OwnerAssociationResource extends Resource
                     'lg' => 2,
                 ])->schema([
                     TextInput::make('name')
-                        ->rules(['regex:/^[a-zA-Z\s]*$/'])
+                        ->rules(['regex:/^[a-zA-Z0-9\s]*$/'])
                         ->required()
                         ->disabled(function (callable $get) {
                             return DB::table('owner_associations')
