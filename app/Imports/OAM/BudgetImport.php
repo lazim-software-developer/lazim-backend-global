@@ -32,6 +32,15 @@ class BudgetImport implements ToCollection, WithHeadingRow
         // Define the expected headings
         $expectedHeadings = ['servicecode', 'servicename', 'budget', 'budgetvat', 'category', 'subcategory'];
 
+        if($rows->first()== null){
+            Notification::make()
+                ->title("Upload valid excel file.")
+                ->danger()
+                ->body("You have uploaded an empty file")
+                ->send();
+            return 'failure';
+        }
+ 
         // Extract the headings from the first row
         if ($rows->first()->filter()->isEmpty()) {
             Notification::make()
