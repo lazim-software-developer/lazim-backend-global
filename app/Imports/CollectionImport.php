@@ -25,6 +25,15 @@ class CollectionImport implements ToCollection, WithHeadingRow
             'amount',
         ];
 
+        if($rows->first()== null){
+            Notification::make()
+                ->title("Upload valid excel file.")
+                ->danger()
+                ->body("You have uploaded an empty file")
+                ->send();
+            return 'failure';
+        }
+
         // Define the required fields for each section type
         $sectionRequiredFields = [
             'by_method' => ['payment_method_id', 'amount'],

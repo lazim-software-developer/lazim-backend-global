@@ -55,84 +55,41 @@ class FetchOwnersForFlat implements ShouldQueue
                     ]);
 
                     
-                    // $building = Building::find($this->flat->building_id);
-                    // $connection = DB::connection('lazim_accounts');
+                    $building = Building::find($this->flat->building_id);
+                    $connection = DB::connection('lazim_accounts');
                     // $created_by = $connection->table('users')->where('owner_association_id', $this->flat->owner_association_id)->where('type', 'company')->first()?->id;
-                    // $customer = $connection->table('customers')->where('created_by', $created_by)->orderByDesc('customer_id')->first();
-                    // $customerId = $customer ? $customer->customer_id + 1 : 1;
-                    // $name = $ownerData['name']['englishName'] . ' - ' . $this->flat->property_number;
+                    $buildingUser = $connection->table('users')->where(['type' => 'building', 'building_id' => $building->id])->first();
+                    $customer = $connection->table('customers')->where('created_by', $buildingUser->id)->orderByDesc('customer_id')->first();
+                    $customerId = $customer ? $customer->customer_id + 1 : 1;
+                    $name = $ownerData['name']['englishName'] . ' - ' . $this->flat->property_number;
 
-                    // try {
-                    //     $url = 'api/customer';
-                    //     $body = [
-                    //         'name' => $name,
-                    //         'email' => $ownerData['email'],
-                    //         'contact' => $phone,
-                    //         'type' => 'Owner',
-                    //         'customer_id' => $customerId,
-                    //         'billing_name' => $name,
-                    //         'billing_country' => 'UAE',
-                    //         'billing_city' => 'Dubai',
-                    //         'billing_phone' => $phone,
-                    //         'billing_address' => $building->address_line1 . ', ' . $building->area,
-                    //         'shipping_name' => $name,
-                    //         'shipping_country' => 'UAE',
-                    //         'shipping_city' => 'Dubai',
-                    //         'shipping_phone' => $phone,
-                    //         'shipping_address' => $building->address_line1 . ', ' . $building->area,
-                    //         'created_by_lazim' => true,
-                    //         'flat_id' => $this->flat->id,
-                    //         'building_id' => $this->flat->building_id,
-                    //         'created_by' => $created_by,
-                    //     ];
-                    //     $httpRequest  = Http::withOptions(['verify' => false])
-                    //         ->withHeaders([
-                    //             'Content-Type' => 'application/json',
-                    //         ]);
-                    //     $response = $httpRequest->post(env('ACCOUNTING_URL') . $url, $body);
-                    //     Log::info([$response->json()]);
-                    // } catch (\Exception $e) {
-                    //     Log::error('Error ' . $e->getMessage());
-                    // }
-                    // $connection->table('customers')->insert([
-                    //     'customer_id' => $customerId,
-                    //     'name' => $name,
-                    //     'email'                => $ownerData['email'],
-                    //     'contact' => $phone,
-                    //     'type' => 'Owner',
-                    //     'lang' => 'en',
-                    //     'created_by' => $created_by,
-                    //     'is_enable_login' => 0,
-                    //     'billing_name' => $name,
-                    //     'billing_country' => 'UAE',
-                    //     'billing_city' => 'Dubai',
-                    //     'billing_phone' => $phone,
-                    //     'billing_address' => $building->address_line1 . ', ' . $building->area,
-                    //     'shipping_name' => $name,
-                    //     'shipping_country' => 'UAE',
-                    //     'shipping_city' => 'Dubai',
-                    //     'shipping_phone' => $phone,
-                    //     'shipping_address' => $building->address_line1 . ', ' . $building->area,
-                    //     'created_by_lazim' => true,
-                    //     'flat_id' => $this->flat->id,
-                    //     'building_id' => $this->flat->building_id,
-                    // ]);
-                    Log::info('owner',[$owner]);
-                    CustomerCreationJob::dispatch($this->flat, $owner);
+                    
+                    $connection->table('customers')->insert([
+                        'customer_id' => $customerId,
+                        'name' => $name,
+                        'email'                => $ownerData['email'],
+                        'contact' => $phone,
+                        'type' => 'Owner',
+                        'lang' => 'en',
+                        'created_by' => $buildingUser->id,
+                        'is_enable_login' => 0,
+                        'billing_name' => $name,
+                        'billing_country' => 'UAE',
+                        'billing_city' => 'Dubai',
+                        'billing_phone' => $phone,
+                        'billing_address' => $building->address_line1 . ', ' . $building->area,
+                        'shipping_name' => $name,
+                        'shipping_country' => 'UAE',
+                        'shipping_city' => 'Dubai',
+                        'shipping_phone' => $phone,
+                        'shipping_address' => $building->address_line1 . ', ' . $building->area,
+                        'created_by_lazim' => true,
+                        'flat_id' => $this->flat->id,
+                        'building_id' => $this->flat->building_id,
+                    ]);
+                    // Log::info('owner',[$owner]);
                     // Attach the owner to the flat
                     $this->flat->owners()->syncWithoutDetaching($owner->id);
-
-
-                    // $customer = $connection->table('customers')->where([
-                    //     'email' => $ownerData['email'],
-                    //     'contact' => $phone
-                    // ])->first();
-                    // $connection->table('customer_flat')->insert([
-                    //     'customer_id' => $customer?->id,
-                    //     'flat_id' => $this->flat->id,
-                    //     'building_id' => $this->flat->building_id,
-                    //     'property_number' => $this->flat->property_number
-                    // ]);
                 }
             }
         }
