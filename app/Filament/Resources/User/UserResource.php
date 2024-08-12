@@ -163,14 +163,15 @@ class UserResource extends Resource
     {
         return [
             // UserResource\RelationManagers\AttendancesRelationManager::class,
-            UserResource\RelationManagers\BuildingPocsRelationManager::class,
-            UserResource\RelationManagers\DocumentsRelationManager::class,
-            UserResource\RelationManagers\ComplaintsRelationManager::class,
-            UserResource\RelationManagers\FacilityBookingsRelationManager::class,
-            UserResource\RelationManagers\FlatTenantsRelationManager::class,
-            UserResource\RelationManagers\FlatVisitorsRelationManager::class,
             // UserResource\RelationManagers\VendorsRelationManager::class,
-            UserResource\RelationManagers\FlatsRelationManager::class,
+
+            // UserResource\RelationManagers\BuildingPocsRelationManager::class,
+            // UserResource\RelationManagers\DocumentsRelationManager::class,
+            // UserResource\RelationManagers\ComplaintsRelationManager::class,
+            // UserResource\RelationManagers\FacilityBookingsRelationManager::class,
+            // UserResource\RelationManagers\FlatTenantsRelationManager::class,
+            // UserResource\RelationManagers\FlatVisitorsRelationManager::class,
+            // UserResource\RelationManagers\FlatsRelationManager::class,
         ];
     }
 
