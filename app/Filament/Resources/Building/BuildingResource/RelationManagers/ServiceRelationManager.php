@@ -52,6 +52,7 @@ class ServiceRelationManager extends RelationManager
                 //Tables\Actions\CreateAction::make(),
                 Tables\Actions\AttachAction::make()
                     ->label('Add')
+                    ->attachAnother(false)
                     ->recordSelect(function (RelationManager $livewire) {
                         $buildingId = $livewire->ownerRecord->id;
 
@@ -63,6 +64,7 @@ class ServiceRelationManager extends RelationManager
                         $allFacilities = Service::all()->whereNotIn('id', $existingServices)->where('type', 'vendor_service')->pluck('name', 'id')->toArray();
                         return Select::make('recordId')
                             ->label('Service')
+                            ->multiple()
                             ->options($allFacilities)
                             ->searchable()
                             ->required()
