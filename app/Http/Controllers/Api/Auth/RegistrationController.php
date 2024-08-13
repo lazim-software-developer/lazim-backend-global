@@ -266,7 +266,7 @@ class RegistrationController extends Controller
         $connection->table('customers')->insert([
             'customer_id' => $customerId,
             'name' => $request->name,
-            'email'                => $request->email,
+            'email'  => $request->email,
             'contact' => $request->mobile,
             'type' => $type,
             'lang' => 'en',
