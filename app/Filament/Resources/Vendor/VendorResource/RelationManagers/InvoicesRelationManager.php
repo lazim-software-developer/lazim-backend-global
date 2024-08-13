@@ -356,7 +356,6 @@ class InvoicesRelationManager extends RelationManager
                                 $product_services = $connection->table('product_services')->where('name', $record->contract->service->name)->first();
                                 if ($connection->table('bills')->where('lazim_invoice_id', $record->id)->count() == 0) {
                                     $creator = $connection->table('users')->where(['type' => 'building', 'building_id' => $this->record->contract->building_id])->first();
-                                    $vendor_Id = $connection->table('venders')->where('created_by', $creator->id)->orderByDesc('vender_id')->first()?->vender_id + 1;
                                     $httpRequest = Http::withOptions(['verify' => false])
                                         ->withHeaders([
                                             'Content-Type' => 'application/json',
@@ -364,7 +363,7 @@ class InvoicesRelationManager extends RelationManager
                                         'created_by'     => $creator->id,
                                         'buildingId'     => $record->contract->building_id,
                                         'invoiceId'      => $record->id,
-                                        'venderId'       => $vendor_Id,
+                                        'venderId'       => $connection->table('venders')->where(['lazim_vendor_id'=> $record->vendor_id,'building_id' => $this->record->contract->building_id])->first()?->id,
                                         'billDate'       => $record->date,
                                         'dueDate'        => Carbon::parse($record->date)->addDays(30),
                                         'categoryId'     => $product_services?->category_id,
