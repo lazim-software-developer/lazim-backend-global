@@ -175,6 +175,11 @@ class EditInvoice extends EditRecord
                     'active'     => true,
                 ]);
 
+                $product_services = $connection->table('product_services')
+                    ->where(['name'=> $this->record->contract->service->name,'building_id'=>$this->record->contract->building_id])
+                    ->first();
+                $category = $connection->table('product_service_categories')
+                    ->where(['name'=> $this->record->contract->service->subcategory->name,'building_id'=>$this->record->contract->building_id])->first();
                 $product_services = $connection->table('product_services')->where('name', $this->record->contract->service->name)->first();
                 if ($connection->table('bills')->where('lazim_invoice_id', $this->record->id)->count() == 0) {
                     $creator = $connection->table('users')->where(['type' => 'building', 'building_id' => $this->record->contract->building_id])->first();
@@ -188,7 +193,7 @@ class EditInvoice extends EditRecord
                         'venderId'       => $connection->table('venders')->where(['lazim_vendor_id' => $this->record->vendor_id,'building_id' => $this->record->contract->building_id])->first()?->id,
                         'billDate'       => $this->record->date,
                         'dueDate'        => Carbon::parse($this->record->date)->addDays(30),
-                        'categoryId'     => $product_services?->category_id,
+                        'categoryId'     => $category->id,
                         'chartAccountId' => null,
                         'items'          => [
                             [
