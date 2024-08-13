@@ -178,7 +178,6 @@ class EditInvoice extends EditRecord
                 $product_services = $connection->table('product_services')->where('name', $this->record->contract->service->name)->first();
                 if ($connection->table('bills')->where('lazim_invoice_id', $this->record->id)->count() == 0) {
                     $creator = $connection->table('users')->where(['type' => 'building', 'building_id' => $this->record->contract->building_id])->first();
-                    $vendor_Id = $connection->table('venders')->where('created_by', $creator->id)->orderByDesc('vender_id')->first()?->vender_id + 1;
                     $httpRequest = Http::withOptions(['verify' => false])
                         ->withHeaders([
                             'Content-Type' => 'application/json',
@@ -186,7 +185,7 @@ class EditInvoice extends EditRecord
                         'created_by'     => $creator->id,
                         'buildingId'     => $this->record->contract->building_id,
                         'invoiceId'      => $this->record->id,
-                        'venderId'       => $vendor_Id,
+                        'venderId'       => $connection->table('venders')->where(['lazim_vendor_id' => $this->record->vendor_id,'building_id' => $this->record->contract->building_id])->first()?->id,
                         'billDate'       => $this->record->date,
                         'dueDate'        => Carbon::parse($this->record->date)->addDays(30),
                         'categoryId'     => $product_services?->category_id,
