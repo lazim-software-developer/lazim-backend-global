@@ -177,7 +177,7 @@ class ProposalsRelationManager extends RelationManager
 
                             if (isset($contract, $vendor, $creator) && $exists==0) {
                                 $connection->table('venders')->insert([
-                                    'vender_id'       => $connection->table('venders')->latest()->first()?->id + 1,
+                                    'vender_id'       => $connection->table('venders')->where('created_by', $creator->id)->orderByDesc('vender_id')->first()?->vender_id + 1,
                                     'name'            => $vendor->name,
                                     'email'           => substr($creator->name, 0, 2) . $user->email,
                                     'password'        => '',
