@@ -353,20 +353,26 @@ class InvoicesRelationManager extends RelationManager
                                     'active'     => true,
                                 ]);
 
-                                $product_services = $connection->table('product_services')->where('name', $record->contract->service->name)->first();
+
+                                $product_services = $connection->table('product_services')
+                                    ->where(['name' => $record->contract->service->name, 'building_id' => $record->contract->building_id])
+                                    ->first();
+                                $category = $connection->table('product_service_categories')
+                                    ->where(['name' => $record->contract->service->subcategory->name, 'building_id' => $record->contract->building_id])->first();
+
                                 if ($connection->table('bills')->where('lazim_invoice_id', $record->id)->count() == 0) {
-                                    $creator = $connection->table('users')->where(['type' => 'building', 'building_id' => $this->record->contract->building_id])->first();
+                                    $creator     = $connection->table('users')->where(['type' => 'building', 'building_id' => $record->contract->building_id])->first();
                                     $httpRequest = Http::withOptions(['verify' => false])
                                         ->withHeaders([
                                             'Content-Type' => 'application/json',
-                                        ])->post(env('ACCOUNTING_CREATE_BILL_API','http://localhost:8000/api/bill/create'), [
+                                        ])->post(env('ACCOUNTING_CREATE_BILL_API', 'http://localhost:8000/api/bill/create'), [
                                         'created_by'     => $creator->id,
                                         'buildingId'     => $record->contract->building_id,
                                         'invoiceId'      => $record->id,
-                                        'venderId'       => $connection->table('venders')->where(['lazim_vendor_id'=> $record->vendor_id,'building_id' => $this->record->contract->building_id])->first()?->id,
+                                        'venderId'       => $connection->table('venders')->where(['lazim_vendor_id' => $record->vendor_id, 'building_id' => $record->contract->building_id])->first()?->id,
                                         'billDate'       => $record->date,
                                         'dueDate'        => Carbon::parse($record->date)->addDays(30),
-                                        'categoryId'     => $product_services?->category_id,
+                                        'categoryId'     => $category?->id,
                                         'chartAccountId' => null,
                                         'items'          => [
                                             [
