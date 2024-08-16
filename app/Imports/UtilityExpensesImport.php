@@ -48,7 +48,7 @@ class UtilityExpensesImport implements ToCollection, WithHeadingRow
         }
 
         $filteredRows = $rows->filter(function ($row) {
-            !empty($row['amount']) ||
+            return !empty($row['amount']) ||
             !empty($row['utility_name']) ||
             !empty($row['provider_name']) ||
             !empty($row['duration']) ||
