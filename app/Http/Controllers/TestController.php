@@ -148,17 +148,31 @@ class TestController extends Controller
     private function handleErrors($response)
     {
         $errorMessages = '';
+
         if (isset($response->validationErrorsList)) {
             $errors = array_map(function ($validationError) {
+                $errorItems = $validationError->items ?? [];
+
+                if (empty($errorItems) && isset($validationError->errorMessage)) {
+                    // Handle general error message when items are not available
+                    $errorItems[] = "Failed to upload files: " . $validationError->errorMessage;
+                }
+
                 return array_map(function ($item) use ($validationError) {
-                    return "Failed to upload file: " . $item->key . ", There was an issue with the: " . $validationError->errorMessage;
-                }, $validationError->items ?? ['Failed to upload files: ' . $validationError->errorMessage]);
+                    $filename = $item->key ?? 'Unknown file';
+                    $errorMessage = $validationError->errorMessage ?? 'Unknown error';
+                    return "Failed to upload file: $filename. Issue: $errorMessage";
+                }, $errorItems);
             }, $response->validationErrorsList);
 
+            // Flatten the array of error messages
             $errors = array_merge(...$errors);
+
+            // Combine errors into a single string
             $errorMessages = implode("\n", $errors);
         }
 
+        // Send notification with error details
         Notification::make()
             ->title("Upload failed")
             ->danger()
