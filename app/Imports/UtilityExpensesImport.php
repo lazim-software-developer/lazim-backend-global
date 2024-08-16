@@ -114,6 +114,8 @@ class UtilityExpensesImport implements ToCollection, WithHeadingRow
             }
         }
 
+        $this->data = array_values($this->data);
+
     }
 
     public function getResults(): array
