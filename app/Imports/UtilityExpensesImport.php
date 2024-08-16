@@ -88,12 +88,12 @@ class UtilityExpensesImport implements ToCollection, WithHeadingRow
             // Create a unique key based on 'utility_name' and 'provider_name'
             $uniqueKey = $row['utility_name'] . '_' . $row['provider_name'];
 
+            // Initialize the utility if it's not yet in our data array
             if (!isset($this->data[$uniqueKey])) {
-                if (isset($row['amount']) && isset($row['utility_name']) && isset($row['provider_name'])) {
-                    // Initialize the utility if it's not yet in our data array
+                if (isset($row['utility_name']) && isset($row['provider_name'])) {
                     $this->data[$uniqueKey] = [
                         'utility_reference' => isset($row['utility_reference']) ? (string) $row['utility_reference'] : null,
-                        'amount'            => (float) $row['amount'],
+                        'amount'            => 0.0,  // Initialize amount to 0
                         'utility_name'      => (string) $row['utility_name'],
                         'provider_name'     => (string) $row['provider_name'],
                         'trend'             => [],
@@ -101,13 +101,16 @@ class UtilityExpensesImport implements ToCollection, WithHeadingRow
                 }
             }
 
-            // Append to the trend for the respective utility
+            // Accumulate amount from trend
             if (isset($row['duration']) && isset($row['duration_str']) && isset($row['trend_amount'])) {
                 $this->data[$uniqueKey]['trend'][] = [
                     'duration'     => (string) $row['duration'],
                     'duration_str' => (string) $row['duration_str'],
                     'amount'       => (float) $row['trend_amount'],
                 ];
+
+                // Update the total amount
+                $this->data[$uniqueKey]['amount'] += (float) $row['trend_amount'];
             }
         }
 
