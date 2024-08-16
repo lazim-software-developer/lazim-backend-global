@@ -67,7 +67,8 @@ class TestController extends Controller
                 Storage::disk('s3')->put($folderPath . '/' . $key . '.' . $mimeType,
                     file_get_contents($request->file($key)));
             } else {
-                $data->{ucfirst(Str::camel($key))} = $this->getDefaultData($key);
+                $propertyName = $this->mapKeyToProperty($key);
+                $data->$propertyName = $this->getDefaultData($key) ?? [];
             }
         }
 
@@ -179,6 +180,28 @@ class TestController extends Controller
             ->body($errorMessages ?: "There seems to be some issue with the files you are uploading. Please check and try again!")
             ->send();
     }
+
+    private function mapKeyToProperty($key)
+    {
+        $mapping = [
+            'accounts_payables' => 'AccountsPayable',
+            'general_fund_statement' => 'GeneralFund',
+            'reserve_fund' => 'ReservedFund',
+            'collections' => 'Collection',
+            'asset_list_and_expenses' => 'Assets',
+            'delinquents' => 'Delinquents',
+            'e_services' => 'Eservices',
+            'happiness_center' => 'HappinessCenter',
+            'balance_sheet' => 'BalanceSheet',
+            'work_orders' => 'WorkOrders',
+            'bank_balance' => 'BankBalance',
+            'utility_expenses' => 'UtilityExpenses',
+            'budget_vs_actual' => 'BudgetVsActual'
+        ];
+
+        return $mapping[$key] ?? ucfirst(Str::camel($key));
+    }
+
 
     public function serviceParameters()
     {
