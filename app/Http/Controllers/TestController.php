@@ -62,7 +62,8 @@ class TestController extends Controller
             if ($request->has($key)) {
                 $importInstance = new $importClass;
                 Excel::import($importInstance, $request->file($key));
-                $data->{ucfirst(Str::camel($key))} = $importInstance->data ?? $importInstance->getResults();
+                $propertyName = $this->mapKeyToProperty($key);
+                $data->$propertyName = $importInstance->data ?? $importInstance->getResults();
 
                 Storage::disk('s3')->put($folderPath . '/' . $key . '.' . $mimeType,
                     file_get_contents($request->file($key)));
