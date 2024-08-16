@@ -161,7 +161,7 @@ class TestController extends Controller
                 return array_map(function ($item) use ($validationError) {
                     $filename = $item->key ?? 'Unknown file';
                     $errorMessage = $validationError->errorMessage ?? 'Unknown error';
-                    return "Failed to upload file: $filename. Issue: $errorMessage";
+                    return $filename ? "Failed to upload file: $filename. Issue: $errorMessage" : "Issue: $errorMessage";
                 }, $errorItems);
             }, $response->validationErrorsList);
 
