@@ -58,7 +58,7 @@
         <div>
         <h2>QR Code:</h2>
         <h2>@if($data)
-            {!! $data['qr_code'] !!}
+        <img src="{{ $data['qr_code'] }}" alt="QR Code">
             @else
             {{'NA'}}
             @endif</h2>         

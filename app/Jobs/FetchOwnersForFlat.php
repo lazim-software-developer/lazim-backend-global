@@ -12,6 +12,7 @@ use App\Models\Building\Flat;
 use App\Models\ApartmentOwner;
 use App\Models\Building\Building;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class FetchOwnersForFlat implements ShouldQueue
 {
@@ -53,12 +54,16 @@ class FetchOwnersForFlat implements ShouldQueue
                         'trade_license' => $ownerData['tradeLicence'],
                     ]);
 
+                    
                     $building = Building::find($this->flat->building_id);
                     $connection = DB::connection('lazim_accounts');
-                    $created_by = $connection->table('users')->where('owner_association_id', $this->flat->owner_association_id)->where('type', 'company')->first()?->id;
-                    $customer = $connection->table('customers')->where('created_by', $created_by)->orderByDesc('customer_id')->first();
+                    // $created_by = $connection->table('users')->where('owner_association_id', $this->flat->owner_association_id)->where('type', 'company')->first()?->id;
+                    $buildingUser = $connection->table('users')->where(['type' => 'building', 'building_id' => $building->id])->first();
+                    $customer = $connection->table('customers')->where('created_by', $buildingUser->id)->orderByDesc('customer_id')->first();
                     $customerId = $customer ? $customer->customer_id + 1 : 1;
                     $name = $ownerData['name']['englishName'] . ' - ' . $this->flat->property_number;
+
+                    
                     $connection->table('customers')->insert([
                         'customer_id' => $customerId,
                         'name' => $name,
@@ -66,7 +71,7 @@ class FetchOwnersForFlat implements ShouldQueue
                         'contact' => $phone,
                         'type' => 'Owner',
                         'lang' => 'en',
-                        'created_by' => $created_by,
+                        'created_by' => $buildingUser->id,
                         'is_enable_login' => 0,
                         'billing_name' => $name,
                         'billing_country' => 'UAE',
@@ -82,20 +87,9 @@ class FetchOwnersForFlat implements ShouldQueue
                         'flat_id' => $this->flat->id,
                         'building_id' => $this->flat->building_id,
                     ]);
-
+                    // Log::info('owner',[$owner]);
                     // Attach the owner to the flat
                     $this->flat->owners()->syncWithoutDetaching($owner->id);
-
-                    // $customer = $connection->table('customers')->where([
-                    //     'email' => $ownerData['email'],
-                    //     'contact' => $phone
-                    // ])->first();
-                    // $connection->table('customer_flat')->insert([
-                    //     'customer_id' => $customer?->id,
-                    //     'flat_id' => $this->flat->id,
-                    //     'building_id' => $this->flat->building_id,
-                    //     'property_number' => $this->flat->property_number
-                    // ]);
                 }
             }
         }

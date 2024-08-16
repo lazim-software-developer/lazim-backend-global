@@ -131,7 +131,7 @@ class RegistrationController extends Controller
             'owner_id' => $request->owner_id ?: null,
         ]);
         $connection = DB::connection('lazim_accounts');
-        $created_by = $connection->table('users')->where('owner_association_id', $owner_association_id)->where('type', 'company')->first()?->id;
+        $created_by = $connection->table('users')->where(['type' => 'building', 'building_id' => $request->building_id])->first()->id;
         $customerId = $connection->table('customers')->where('created_by', $created_by)->orderByDesc('customer_id')->first()?->customer_id + 1;
         $connection->table('customers')->insert([
             'customer_id' => $customerId,
@@ -261,12 +261,12 @@ class RegistrationController extends Controller
         ]);
 
         $connection = DB::connection('lazim_accounts');
-        $created_by = $connection->table('users')->where('owner_association_id', $owner_association_id)->where('type', 'company')->first()?->id;
+        $created_by = $connection->table('users')->where(['type' => 'building', 'building_id' => $request->building_id])->first()->id;
         $customerId = $connection->table('customers')->where('created_by', $created_by)->orderByDesc('customer_id')->first()?->customer_id + 1;
         $connection->table('customers')->insert([
             'customer_id' => $customerId,
             'name' => $request->name,
-            'email'                => $request->email,
+            'email'  => $request->email,
             'contact' => $request->mobile,
             'type' => $type,
             'lang' => 'en',
