@@ -186,7 +186,7 @@ class OwnerAssociationResource extends Resource
                         ->image()
                         ->maxSize(2048)
                         ->rules('file|mimes:jpeg,jpg,png|max:2048')
-                        ->label('Profile Photo')
+                        ->label('Logo')
                         ->disabled(function (callable $get) {
                             if(Role::where('id',auth()->user()->role_id)->first()->name == 'Admin')
                             {
