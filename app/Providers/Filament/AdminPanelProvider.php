@@ -268,7 +268,7 @@ class AdminPanelProvider extends PanelProvider
                                     ->icon('heroicon-o-magnifying-glass-circle')
                                     ->activeIcon('heroicon-o-magnifying-glass-circle')
                                     ->sort(5),
-                                NavigationItem::make('Oa Complaint Reports')
+                                NavigationItem::make('OA Complaint Reports')
                                     ->url(OacomplaintReportsResource::getUrl('index'))
                                     ->visible($user->can('view_any_oacomplaint::reports'))
                                     ->icon('heroicon-c-clipboard-document')
