@@ -183,6 +183,7 @@ class AdminPanelProvider extends PanelProvider
                                 ->activeIcon('heroicon-o-user-circle')
                                 ->sort(9),
                             NavigationItem::make('Facilities')
+                                ->label('Amenities')
                                 ->hidden(!$user->can('view_any_master::facility'))
                                 ->url('/admin/master/facilities')
                                 ->icon('heroicon-o-cube-transparent')
@@ -251,6 +252,7 @@ class AdminPanelProvider extends PanelProvider
                                     ->activeIcon('heroicon-o-home')
                                     ->sort(2),
                                 NavigationItem::make('Facility bookings')
+                                    ->label('Amenity Bookings')
                                     ->url('/admin/building/facility-bookings')
                                     ->visible($user->can('view_any_building::facility::booking'))
                                     ->icon('heroicon-o-cube-transparent')

@@ -25,6 +25,7 @@ use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 class FacilityResource extends Resource
 {
     protected static ?string $model = Facility::class;
+    protected static ?string $modelLabel = 'Amenities';
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
     protected static ?string $navigationGroup = 'Master';
@@ -63,7 +64,8 @@ class FacilityResource extends Resource
                             ->default(1)
                             ->rules(['boolean']),
 
-                    ]),
+                    ])
+                    ->Columns(1),
             ]);
     }
 
