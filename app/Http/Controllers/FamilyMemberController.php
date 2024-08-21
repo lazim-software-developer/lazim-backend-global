@@ -17,7 +17,8 @@ class FamilyMemberController extends Controller
         $oa_id = DB::table('building_owner_association')->where('building_id', $building->id)->where('active', true)->first()?->owner_association_id;
         $request->merge([
             'user_id' => $userId,
-            'owner_association_id' => $oa_id
+            'owner_association_id' => $oa_id,
+            'building_id' => $building->id
         ]);
 
         $family = FamilyMember::create($request->all());
