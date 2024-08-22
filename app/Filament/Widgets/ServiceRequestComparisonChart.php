@@ -9,10 +9,11 @@ use Illuminate\Support\Facades\DB;
 
 class ServiceRequestComparisonChart extends ChartWidget
 {
-    protected static ?int $sort = 4;
+    protected static ?int $sort = 10;
 
     protected static ?string $heading = 'Facility Vs Service Booking';
     protected static ?string $maxHeight = '200px';
+    protected int | string | array $columnSpan = 6;
 
     protected function getData(): array
     {

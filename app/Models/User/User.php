@@ -47,7 +47,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Spatie\Permission\Traits\HasRoles;
 
-class User extends Authenticatable implements FilamentUser, HasAvatar
+class User extends Authenticatable implements FilamentUser, HasAvatar, HasName
 {
     use HasRoles;
     // use HasPanelShield;
@@ -306,5 +306,10 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
     public function iteminventory()
     {
         return $this->hasMany(ItemInventory::class);
+    }
+
+    public function getFilamentName(): string
+    {
+        return "{$this->first_name} {$this->last_name}";
     }
 }

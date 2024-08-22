@@ -20,6 +20,7 @@ class FirstTileGroup extends BaseWidget
     protected static ?int $sort = 0;
     protected $role;
     protected $listeners = ['filtersUpdated' => 'applyFilters'];
+    protected int | string | array $columnSpan = 12;
 
     public $buildingId;
     public $startDate;
@@ -45,6 +46,17 @@ class FirstTileGroup extends BaseWidget
             $query->where('name', 'Owner');
         });
 
+        // Filter by building if a building is selected
+        if ($this->buildingId) {
+            $ownerQuery->whereHas('role', function ($q) {
+                $q->where('building_id', $this->buildingId);
+            });
+        }
+
+        if ($this->role != 'Admin') {
+            $ownerQuery->where('owner_association_id',  auth()->user()->owner_association_id);
+        }
+
         $this->applyBuildingAndRoleFilters($ownerQuery);
 
         // Prepare chart data for the last 4 months
@@ -66,7 +78,9 @@ class FirstTileGroup extends BaseWidget
         // Filter by building if a building is selected
         if ($this->buildingId) {
             $pendingApprovalQuery->whereHas('user', function ($query) {
-                $query->where('building_id', $this->buildingId);
+                $query->whereHas('role', function ($q) {
+                    $q->where('building_id', $this->buildingId);
+                });
             });
         }
 
@@ -79,7 +93,7 @@ class FirstTileGroup extends BaseWidget
         // Prepare chart data for the last 4 months
         $chartData = $this->getMonthlyChartData(clone $pendingApprovalQuery);
 
-        return Stat::make('Awaiting Resident Approvals', $pendingApprovalQuery->count())
+        return Stat::make('Pending Resident Approvals', $pendingApprovalQuery->count())
         ->descriptionIcon('heroicon-s-user-group')
         ->chart(array_values($chartData))
         ->color('danger');
@@ -95,7 +109,7 @@ class FirstTileGroup extends BaseWidget
         $chartData = $this->getMonthlyChartData(clone $openComplaintsQuery);
 
         // Return the Stat widget
-        return Stat::make('Awaiting Complaints', $openComplaintsQuery->count())
+        return Stat::make('Open Complaints', $openComplaintsQuery->count())
             ->descriptionIcon('heroicon-s-flag')
             ->chart(array_values($chartData))
             ->color('danger'); // Color to represent open complaints
