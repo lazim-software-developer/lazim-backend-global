@@ -39,13 +39,13 @@ class RecentOpenComplaints extends BaseWidget
         ];
     }
 
-    protected function getTableActions(): array
-    {
-        return [
-            Tables\Actions\EditAction::make()
-                ->url(fn(Complaint $record): string => route('filament.admin.resources.complaintscomplaints.edit', $record)),
-        ];
-    }
+    // protected function getTableActions(): array
+    // {
+    //     return [
+    //         Tables\Actions\EditAction::make()
+    //             ->url(fn(Complaint $record): string => route('filament.admin.resources.complaintscomplaints.edit', $record)),
+    //     ];
+    // }
 
     protected function isTablePaginationEnabled(): bool
     {
