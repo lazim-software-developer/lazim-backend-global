@@ -263,6 +263,49 @@ class ComplaintController extends Controller
         // Create the complaint and assign it the vendor
         // TODO: Assign ticket automatically to technician
         $complaint = Complaint::create($request->all());
+
+
+        // sending push notification for security
+
+        if( $request->category == Service::where('name', 'Security Services')->first()?->id){
+
+            $isActiveSecurity = BuildingPoc::where([
+                'role_name'   => 'security',
+                'building_id' => $building->id,
+                'active'      => 1,
+            ])->first();
+            $expoPushToken = ExpoPushNotification::where('user_id', $isActiveSecurity?->user_id)->first()?->token;
+                    if ($expoPushToken) {
+                        $message = [
+                            'to'    => $expoPushToken,
+                            'sound' => 'default',
+                            'title' => 'Task Assigned',
+                            'body'  => 'Task has been assigned',
+                            'data'  => ['notificationType' => 'AssignedToMe'],
+                        ];
+                        $this->expoNotification($message);
+                    }
+                        DB::table('notifications')->insert([
+                            'id'              => (string) \Ramsey\Uuid\Uuid::uuid4(),
+                            'type'            => 'Filament\Notifications\DatabaseNotification',
+                            'notifiable_type' => 'App\Models\User\User',
+                            'notifiable_id'   => $isActiveSecurity?->user_id,
+                            'data'            => json_encode([
+                                'actions'   => [],
+                                'body'      => 'Task has been assigned',
+                                'duration'  => 'persistent',
+                                'icon'      => 'heroicon-o-document-text',
+                                'iconColor' => 'warning',
+                                'title'     => 'Task Assigned',
+                                'view'      => 'notifications::notification',
+                                'viewData'  => [],
+                                'format'    => 'filament',
+                                'url'       => 'AssignedToMe',
+                            ]),
+                            'created_at'      => now()->format('Y-m-d H:i:s'),
+                            'updated_at'      => now()->format('Y-m-d H:i:s'),
+                        ]);
+        }
         $credentials = AccountCredentials::where('oa_id', $complaint->owner_association_id)->where('active', true)->latest()->first();
         $mailCredentials = [
             'mail_host' => $credentials->host ?? env('MAIL_HOST'),
