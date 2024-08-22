@@ -52,7 +52,7 @@ class FetchAndSaveReceipts implements ShouldQueue
                 $url = env("MOLLAK_API_URL") . '/sync/receipts/' . $propertyGroupId . '/' . $startOfWeek . '/' . $endOfWeek;
                 // $url = env("MOLLAK_API_URL") . '/sync/receipts/' . $propertyGroupId . '/' . $dateRange;
             }
-            $response = Http::withoutVerifying()->withHeaders([
+            $response = Http::withoutVerifying()->retry(2, 500)->timeout(60)->withHeaders([
                 'content-type' => 'application/json',
                 'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
             ])->get($url);
