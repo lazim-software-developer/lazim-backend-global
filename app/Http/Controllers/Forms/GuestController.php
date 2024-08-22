@@ -160,22 +160,21 @@ class GuestController extends Controller
             }
         }
 
-        $code = generateAlphanumericOTP();
-        $visitor->update([
-            'verification_code' => $code,
-        ]);
-        $tenant           = $ownerAssociationId;
-        // $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()->email ?? env('MAIL_FROM_ADDRESS');
-        $credentials = AccountCredentials::where('oa_id', $tenant)->where('active', true)->latest()->first();
-        $mailCredentials = [
-            'mail_host' => $credentials->host ?? env('MAIL_HOST'),
-            'mail_port' => $credentials->port ?? env('MAIL_PORT'),
-            'mail_username' => $credentials->username ?? env('MAIL_USERNAME'),
-            'mail_password' => $credentials->password ?? env('MAIL_PASSWORD'),
-            'mail_encryption' => $credentials->encryption ?? env('MAIL_ENCRYPTION'),
-            'mail_from_address' => $credentials->email ?? env('MAIL_FROM_ADDRESS'),
-        ];
-        FlatVisitorMailJob::dispatch($visitor, $code, $mailCredentials);
+        // $code = generateAlphanumericOTP();
+        // $visitor->update([
+        //     'verification_code' => $code,
+        // ]);
+        // $tenant           = $ownerAssociationId;
+        // $credentials = AccountCredentials::where('oa_id', $tenant)->where('active', true)->latest()->first();
+        // $mailCredentials = [
+        //     'mail_host' => $credentials->host ?? env('MAIL_HOST'),
+        //     'mail_port' => $credentials->port ?? env('MAIL_PORT'),
+        //     'mail_username' => $credentials->username ?? env('MAIL_USERNAME'),
+        //     'mail_password' => $credentials->password ?? env('MAIL_PASSWORD'),
+        //     'mail_encryption' => $credentials->encryption ?? env('MAIL_ENCRYPTION'),
+        //     'mail_from_address' => $credentials->email ?? env('MAIL_FROM_ADDRESS'),
+        // ];
+        // FlatVisitorMailJob::dispatch($visitor, $code, $mailCredentials);
 
         return (new CustomResponseResource([
             'title'   => 'Success',
@@ -238,7 +237,7 @@ class GuestController extends Controller
     {
         // List only approved requests from flat_visitors table
         $futureVisits = FlatVisitor::where('building_id', $building->id)
-            ->whereRaw("CONCAT(DATE(start_time), ' ', time_of_viewing) > ?", [now()])
+            // ->whereRaw("CONCAT(DATE(start_time), ' ', time_of_viewing) > ?", [now()])
             ->where('type', 'visitor')
             ->where('status','approved')
             ->orderBy(DB::raw("CONCAT(DATE(start_time), ' ', time_of_viewing)"))

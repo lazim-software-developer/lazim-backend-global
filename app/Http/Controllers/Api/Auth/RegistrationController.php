@@ -157,15 +157,15 @@ class RegistrationController extends Controller
             'owner_association_id' => $building->owner_association_id,
         ]);
 
-        $customer = $connection->table('customers')->where(['email'=> $request->email,
-            'contact' => $request->mobile])->first();
-        $property = Flat::find($request->flat_id)?->property_number;
-        $connection->table('customer_flat')->insert([
-            'customer_id' => $customer?->id,
-            'flat_id' => $request->flat_id,
-            'building_id' => $request->building_id,
-            'property_number' => $property
-        ]);
+        // $customer = $connection->table('customers')->where(['email'=> $request->email,
+        //     'contact' => $request->mobile])->first();
+        // $property = Flat::find($request->flat_id)?->property_number;
+        // $connection->table('customer_flat')->insert([
+        //     'customer_id' => $customer?->id,
+        //     'flat_id' => $request->flat_id,
+        //     'building_id' => $request->building_id,
+        //     'property_number' => $property
+        // ]);
 
         // Send email after 5 seconds
         SendVerificationOtp::dispatch($user)->delay(now()->addSeconds(5));

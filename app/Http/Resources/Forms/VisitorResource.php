@@ -20,9 +20,12 @@ class VisitorResource extends JsonResource
             'flat' => $this->flat->property_number,
             'name' => $this->name,
             'email' => $this->email,
+            'phone' => $this->phone,
             'date' => $this->start_time->format('d-m-Y'),
             'time' => Carbon::parse($this->time_of_viewing)->format('h:i A'),
-            'no_of_visitors' => $this->number_of_visitors
+            'no_of_visitors' => $this->number_of_visitors,
+            'verified' => $this->verified,
+            // 'status' => $this->status?:'not approved',
         ];
     }
 }
