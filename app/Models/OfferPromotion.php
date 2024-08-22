@@ -17,6 +17,7 @@ class OfferPromotion extends Model
         'end_date',
         'link',
         'building_id',
+        'active'
     ];
 
     protected $table = 'offer_promotions';
