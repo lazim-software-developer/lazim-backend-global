@@ -30,6 +30,7 @@ class FamilyMemberRequest extends FormRequest
             'emirates_expiry_date' => 'required|date_format:Y-m-d',
             'gender' => 'required|string|in:Male,Female,Others',
             'relation' => 'required|string',
+            'flat_id' => 'required|exists:flats,id',
         ];
     }
 }
