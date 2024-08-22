@@ -11,7 +11,7 @@ class UserApproval extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'document_type', 'status', 'remarks', 'document', 'updated_by','emirates_document','passport','owner_association_id'];
+    protected $fillable = ['user_id', 'document_type', 'status', 'remarks', 'document', 'updated_by','emirates_document','passport','owner_association_id','flat_id'];
 
     public function ownerAssociation()
     {

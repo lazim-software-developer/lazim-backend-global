@@ -12,7 +12,11 @@ class ListVendorServices extends ListRecords
     protected static string $resource = VendorServiceResource::class;
     protected function getTableQuery(): Builder
     {
-        return parent::getTableQuery()->where('type', '!=', 'inhouse')->orWhereNull('type');
+        return parent::getTableQuery()
+            ->where(function ($query) {
+                $query->where('type', '!=', 'inhouse')
+                  ->orWhereNull('type');
+            });
     }
 
     protected function getHeaderActions(): array

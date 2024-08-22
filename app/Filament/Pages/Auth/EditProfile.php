@@ -83,10 +83,10 @@ class EditProfile extends BaseEditProfile
                         return false;
                     })
                     ->label('Confirm new password'),
-                FileUpload::make('profile_photo')
-                    ->disk('s3')
-                    ->directory('dev')
-                    ->label('Profile Picture')
+                // FileUpload::make('profile_photo')
+                //     ->disk('s3')
+                //     ->directory('dev')
+                //     ->label('Profile Picture')
             ]);
     }
     public function save(): void
@@ -104,14 +104,14 @@ class EditProfile extends BaseEditProfile
                 $user->Update([
                     'first_name'    => $data['first_name'],
                     'phone'   => '971'.$data['phone'],
-                    'profile_photo'   => $data['profile_photo'],
+                    // 'profile_photo'   => $data['profile_photo'],
                 ]);
             } else {
                 $ownerassociation = OwnerAssociation::find(auth()->user()?->owner_association_id);
                 $ownerassociation->Update([
                     'name'    => $data['first_name'],
                     'phone'   => '971'.$data['phone'],
-                    'profile_photo'   => $data['profile_photo'],
+                    // 'profile_photo'   => $data['profile_photo'],
                 ]);
                 $user = User::find(auth()->user()->id);
                 if($data['password']!=null){
@@ -122,7 +122,7 @@ class EditProfile extends BaseEditProfile
                 $user->Update([
                     'first_name'    => $data['first_name'],
                     'phone'   => '971'.$data['phone'],
-                    'profile_photo'   => $data['profile_photo'],
+                    // 'profile_photo'   => $data['profile_photo'],
                 ]);
             }
             redirect('/');
