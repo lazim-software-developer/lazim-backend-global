@@ -11,6 +11,7 @@ use Filament\Support\Colors\Color;
 use Illuminate\Support\Facades\DB;
 use Filament\Navigation\NavigationItem;
 use App\Filament\Pages\Auth\EditProfile;
+use App\Filament\Pages\Dashboard;
 use App\Filament\Resources\AgingReportResource;
 use App\Filament\Resources\AssetMaintenanceResource;
 use App\Filament\Resources\BankStatementResource;
@@ -65,7 +66,7 @@ class AdminPanelProvider extends PanelProvider
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->pages([
-                Pages\Dashboard::class,
+                Dashboard::class,
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
@@ -86,7 +87,8 @@ class AdminPanelProvider extends PanelProvider
                                     ->icon('heroicon-o-home')
                                     ->activeIcon('heroicon-s-home')
                                     ->url('/admin'),
-                            ]),
+                            ])
+                            ->collapsed(true),
                     ]);
                 // }
                     $user = User::find(auth()->user()->id) ;
@@ -213,7 +215,8 @@ class AdminPanelProvider extends PanelProvider
                                 ->icon('heroicon-s-document-text')
                                 ->activeIcon('heroicon-s-document-text')
                                 ->sort(15),
-                        ]),
+                        ])
+                        ->collapsed(true),
                 ]);
             }
 
@@ -264,7 +267,7 @@ class AdminPanelProvider extends PanelProvider
                                     ->icon('heroicon-c-clipboard-document')
                                     ->activeIcon('heroicon-c-clipboard-document')
                                     ->sort(6),
-                            ]),
+                            ])->collapsed(),
                     ]);
                 }
                     // || Role::where('id', auth()->user()->role_id)->first()->name != 'Admin'
@@ -290,7 +293,8 @@ class AdminPanelProvider extends PanelProvider
                                     ->icon('heroicon-m-building-office-2')
                                     ->activeIcon('heroicon-m-building-office-2')
                                     ->sort(3),
-                            ]),
+                            ])
+                            ->collapsed(true),
                     ]);
                 }
 
@@ -361,7 +365,8 @@ class AdminPanelProvider extends PanelProvider
                                     ->icon('heroicon-s-document-magnifying-glass')
                                     ->activeIcon('heroicon-s-document-magnifying-glass')
                                     ->sort(9),
-                            ]),
+                            ])
+                            ->collapsed(true),
                     ]);
                 }
 
@@ -455,7 +460,8 @@ class AdminPanelProvider extends PanelProvider
                                     ->activeIcon('heroicon-m-clipboard-document-list')
                                     ->sort(12),
 
-                                ]),
+                                ])
+                                ->collapsed(true),
                     ]);
                 }
                 if ($user->can('view_any_ledgers')||$user->can('view_any_vendor::ledgers')||$user->can('view_any_cooling::account')) {
@@ -480,7 +486,8 @@ class AdminPanelProvider extends PanelProvider
                                     ->icon('heroicon-o-cube-transparent')
                                     ->activeIcon('heroicon-o-cube-transparent')
                                     ->sort(3),
-                            ]),
+                            ])
+                            ->collapsed(true),
                     ]);
                 }
 
@@ -545,7 +552,8 @@ class AdminPanelProvider extends PanelProvider
                                     ->icon('heroicon-o-users')
                                     ->activeIcon('heroicon-o-users')
                                     ->sort(8),
-                            ]),
+                            ])
+                            ->collapsed(true),
                     ]);
                 }
 
@@ -571,7 +579,8 @@ class AdminPanelProvider extends PanelProvider
                                 ->visible($user->can('view_any_poll'))
                                 ->activeIcon('heroicon-s-hand-thumb-up')
                                 ->sort(3),
-                        ]),
+                        ])
+                        ->collapsed(true),
                 ]);
 
                }
@@ -586,7 +595,8 @@ class AdminPanelProvider extends PanelProvider
                                     ->hidden(!$user->can('view_any_building::flat::tenant'))
                                     ->activeIcon('heroicon-o-user-circle')
                                     ->sort(1),
-                            ]),
+                            ])
+                            ->collapsed(true),
                     ]);
                 }
 
@@ -606,7 +616,8 @@ class AdminPanelProvider extends PanelProvider
                                     ->icon('heroicon-m-arrow-down-on-square-stack')
                                     ->activeIcon('heroicon-m-arrow-down-on-square-stack')
                                     ->sort(2),
-                            ]),
+                            ])
+                            ->collapsed(true),
                     ]);
                 }
                 // if (DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] != 'Admin') {
@@ -652,7 +663,8 @@ class AdminPanelProvider extends PanelProvider
                                     ->icon('heroicon-s-pencil-square')
                                     ->activeIcon('heroicon-s-pencil-square')
                                     ->sort(3),
-                            ]),
+                            ])
+                            ->collapsed(true),
                     ]);
                 }
                 if ($user->can('view_any_helpdeskcomplaint')) {
@@ -665,7 +677,8 @@ class AdminPanelProvider extends PanelProvider
                                     ->icon('heroicon-m-clipboard-document-list')
                                     ->activeIcon('heroicon-m-clipboard-document-list')
                                     ->sort(1),
-                            ]),
+                            ])
+                            ->collapsed(true),
                     ]);
                 }
                 if ($user->can('view_any_snags')){
@@ -678,7 +691,8 @@ class AdminPanelProvider extends PanelProvider
                                     ->icon('heroicon-s-swatch')
                                     ->activeIcon('heroicon-s-swatch')
                                     ->sort(1),
-                            ]),
+                            ])
+                            ->collapsed(true),
                     ]);
                 }
                 return $builder;
