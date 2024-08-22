@@ -28,6 +28,7 @@ use App\Models\Building\FlatTenant;
 use App\Models\FlatOwners;
 use App\Models\LegalNotice;
 use App\Models\MollakTenant;
+use App\Models\Visitor\FlatVisitor;
 use App\Models\WebhookResponse;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -184,6 +185,47 @@ class MollakController extends Controller
             User::where('phone', $request->phone)->update(['phone_verified' => true]);
             return response()->json([
                         'message' => 'Phone successfully verified.',
+                        'status' => 'success'
+                    ], 200);
+        }
+
+    }
+
+    public function verifyVisitor(Request $request, FlatVisitor $visitor)
+    {
+        $otp = $request->otp;
+
+        if(env('APP_ENV') == 'production'){
+            $response = Http::withOptions(['verify' => false])->withHeaders([
+                'content-type' => 'application/json',
+            ])->post(env("SMS_LINK") . "checkotp?username=" . env("SMS_USERNAME") . "&password=" . env("SMS_PASSWORD") . "&msisdn=" . $visitor->phone . "&otp=" . $otp);
+
+                if ($response->successful()) {
+                        $value = $response->json();
+
+                        if ($value == 101) {
+                            $visitor->update(['verified' => true]);
+
+                            return response()->json([
+                                'message' => 'Successfully verified.',
+                                'status' => 'success'
+                            ], 200);
+                        }
+                        return response()->json([
+                            'message' => 'We were unable to verify. Please try again!',
+                            'status' => 'error'
+                        ], 400);
+                } else {
+                        return response()->json([
+                            'message' => 'We were unable to verify. Please try again!',
+                            'status' => 'error'
+                        ], 400);
+                    }
+        }
+        else{
+            $visitor->update(['verified' => true]);
+            return response()->json([
+                        'message' => 'Successfully verified.',
                         'status' => 'success'
                     ], 200);
         }
