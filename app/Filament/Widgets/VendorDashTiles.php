@@ -19,6 +19,7 @@ class VendorDashTiles extends BaseWidget
     protected static ?int $sort = 1;
     protected $role;
     protected $listeners = ['filtersUpdated' => 'applyFilters'];
+    protected int | string | array $columnSpan = 12;
 
     public $buildingId;
     public $startDate;

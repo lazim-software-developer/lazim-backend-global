@@ -10,8 +10,9 @@ class ComplaintCategoriesChart extends ChartWidget
 {
     protected static ?string $heading = 'Complaints';
     protected static ?string $maxHeight = '300px';
+    protected int | string | array $columnSpan = 6;
 
-    protected static ?int $sort = 6;
+    protected static ?int $sort = 8;
     public function getData(): array
     {
         // Fetch complaint data

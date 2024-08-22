@@ -10,9 +10,9 @@ class PatrollingActivitiesChart extends ChartWidget
 {
     protected static ?string $heading = 'Patrolling Activities';
     protected static ?string $maxHeight = '200px';
-    protected int | string | array $columnSpan = 'full';
+    protected int | string | array $columnSpan = 8;
 
-    protected static ?int $sort = 5;
+    protected static ?int $sort = 7;
 
     // Predefined color palette
     private array $colorPalette = [

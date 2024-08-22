@@ -13,9 +13,10 @@ use Filament\Widgets\ChartWidget;
 
 class FormsChart extends ChartWidget
 {
-    protected static ?string $heading = 'Resident Requests';
+    protected static ?string $heading = 'Resident Request Forms';
     protected static ?string $maxHeight = '300px';  // Adjusted height for better visibility
-    protected static ?int $sort = 6;
+    protected static ?int $sort = 8;
+    protected int | string | array $columnSpan = 6;
 
     protected function getData(): array
     {

@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 class NewOwnerRegistrationsChart extends ChartWidget
 {
     protected static ?int $sort = 4;
+    protected int | string | array $columnSpan = 6;
 
     protected static ?string $heading = 'New Owner Registrations';
     protected static ?string $maxHeight = '200px';

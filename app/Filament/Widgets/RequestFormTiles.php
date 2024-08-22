@@ -23,6 +23,7 @@ class RequestFormTiles extends BaseWidget
     protected static ?int $sort = 3;
     protected $role;
     protected $listeners = ['filtersUpdated' => 'applyFilters'];
+    protected int | string | array $columnSpan = 12;
 
     public $buildingId;
     public $startDate;
