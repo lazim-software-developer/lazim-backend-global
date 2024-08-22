@@ -41,7 +41,7 @@ class FamilyMemberController extends Controller
         $familyQuery = FamilyMember::where('user_id', $userId)->where(['owner_association_id' => $oa_id, 'building_id' => $building->id]);
 
         if($unit) {
-            $familyQuery->where ('unit_id', $unit);
+            $familyQuery->where('flat_id', $unit);
         }
 
         $family = $familyQuery->get();
