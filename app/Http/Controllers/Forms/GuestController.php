@@ -246,7 +246,7 @@ class GuestController extends Controller
             ->orderBy(DB::raw("CONCAT(DATE(start_time), ' ', time_of_viewing)"))
             ->get();
 
-        return VisitorResource::collection($futureVisits);
+        return VisitorResource::collection($futureVisits->paginate(10));
     }
 
     // Notify tenant on visitor's visit

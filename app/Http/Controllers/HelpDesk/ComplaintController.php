@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\HelpDesk;
 
+use App\Filament\Resources\IncidentResource;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Helpdesk\ComplaintStoreRequest;
 use App\Http\Requests\Helpdesk\ComplaintUpdateRequest;
@@ -15,14 +16,18 @@ use App\Models\Building\BuildingPoc;
 use App\Models\Building\Complaint;
 use App\Models\Building\FlatTenant;
 use App\Models\ExpoPushNotification;
+use App\Models\Master\Role;
 use App\Models\Master\Service;
 use App\Models\Media;
+use App\Models\OwnerAssociation;
 use App\Models\TechnicianVendor;
 use App\Models\User\User;
 use App\Models\Vendor\Contract;
 use App\Models\Vendor\ServiceVendor;
 use App\Traits\UtilsTrait;
 use Carbon\Carbon;
+use Filament\Actions\Action;
+use Filament\Notifications\Notification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -143,7 +148,23 @@ class ComplaintController extends Controller
                 $complaint->media()->save($media);
             }
         }
-
+        $notifyTo = User::where('owner_association_id', $building->owner_association_id)->whereHas('role', function ($query) use ($building) {
+            $query->where('name', 'OA')
+                  ->where('owner_association_id', $building->owner_association_id);
+        })
+        ->get();
+        Notification::make()
+            ->success()
+            ->title("Incident")
+            ->icon('heroicon-o-document-text')
+            ->iconColor('warning')
+            ->body('Incident created!')
+            ->actions([
+                Action::make('view')
+                    ->button()
+                    ->url(fn () => IncidentResource::getUrl('edit', [OwnerAssociation::where('id',$building->owner_association_id)->first()?->slug,$complaint->id])),
+            ])
+            ->sendToDatabase($notifyTo);
 
         // Assign complaint to a technician
         // AssignTechnicianToComplaint::dispatch($complaint);
@@ -267,7 +288,7 @@ class ComplaintController extends Controller
 
         // sending push notification for security
 
-        if( $request->category == Service::where('name', 'Security Services')->first()?->id){
+        if( $categoryName == 'Security Services'){
 
             $isActiveSecurity = BuildingPoc::where([
                 'role_name'   => 'security',
