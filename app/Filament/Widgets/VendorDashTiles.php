@@ -81,7 +81,7 @@ class VendorDashTiles extends BaseWidget
         $chartData = $this->getMonthlyChartData(clone $query);
 
         return Stat::make('Pending Invoices', $query->count())
-            ->icon('heroicon-s-receipt-tax')
+            ->icon('heroicon-s-credit-card')
             ->chart(array_values($chartData))
             ->color('danger');
     }
