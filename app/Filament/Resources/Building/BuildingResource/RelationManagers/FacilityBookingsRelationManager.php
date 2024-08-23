@@ -31,6 +31,9 @@ class FacilityBookingsRelationManager extends RelationManager
 {
     use UtilsTrait;
     protected static string $relationship = 'facilityBookings';
+    
+    protected static ?string $title       = 'Amenity Bookings';
+    protected static ?string $modelLabel       = 'Amenity Booking';
 
     public function form(Form $form): Form
     {
@@ -59,10 +62,9 @@ class FacilityBookingsRelationManager extends RelationManager
                                 ->toArray();
                              })
                             ->searchable()
-                            ->label('Facility')
+                            ->label('Amenities')
                             ->disabledOn('edit')
-                            ->preload()
-                            ->label('Facility'),
+                            ->preload(),
 
                         Hidden::make('bookable_type')
                             ->default('App\Models\Master\Facility'),
@@ -114,12 +116,12 @@ class FacilityBookingsRelationManager extends RelationManager
     {
         return $table
             ->modifyQueryUsing(fn (Builder $query) => $query->where('bookable_type', 'App\Models\Master\Facility')->withoutGlobalScopes())
-            ->recordTitleAttribute('building_id')
+            // ->recordTitleAttribute('building_id')
             ->columns([
                 TextColumn::make('bookable.name')
                     ->searchable()
                     ->default('NA')
-                    ->label('Facility'),
+                    ->label('Amenity'),
                 TextColumn::make('user.first_name')
                     ->searchable()
                     ->default('NA')
