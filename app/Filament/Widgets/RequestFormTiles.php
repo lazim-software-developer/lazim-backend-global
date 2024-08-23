@@ -56,7 +56,7 @@ class RequestFormTiles extends BaseWidget
 
         // Return the Stat widget
         return Stat::make('Pending Move-In Requests', $query->count())
-            ->descriptionIcon('heroicon-s-flag')
+            ->icon('heroicon-s-home')
             ->chart(array_values($chartData))
             ->color('info'); // Color to represent open complaints
     }
@@ -75,7 +75,7 @@ class RequestFormTiles extends BaseWidget
         $chartData = $this->getMonthlyChartData(clone $query);
 
         return Stat::make('Pending Fitout Requests', $query->count())
-            ->descriptionIcon('heroicon-s-user-group')
+            ->icon('heroicon-s-cog')
             ->chart(array_values($chartData))
             ->color('warning');
     }
@@ -94,7 +94,7 @@ class RequestFormTiles extends BaseWidget
         $chartData = $this->getMonthlyChartData(clone $query);
 
         return Stat::make('Pending Sale NOC', $query->count())
-            ->descriptionIcon('heroicon-s-user-group')
+            ->icon('heroicon-s-document-check')
             ->chart(array_values($chartData))
             ->color('warning');
     }
