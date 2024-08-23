@@ -72,6 +72,7 @@ class VehicleResource extends Resource
                     ->disabled(),
 
                 Select::make('flat_id')
+                    ->searchable()
                     ->required()
                     ->label('Flat')
                     ->options(function (callable $get) {
@@ -84,7 +85,7 @@ class VehicleResource extends Resource
                     ->disabledOn('edit')
                     ->native(false),
 
-                Select::make('user_id')->label('Owner')->searchable()->preload()->required()->disabledOn('edit')
+                Select::make('user_id')->label('Resident')->searchable()->preload()->required()->disabledOn('edit')
                     ->options(function () {
                         if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
                             return User::all()->whereIn('role_id', Role::whereIn('name', ['Tenant', 'Owner'])->pluck('id'))->pluck('first_name', 'id');
