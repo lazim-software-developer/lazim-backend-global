@@ -288,7 +288,7 @@ class ComplaintController extends Controller
 
         // sending push notification for security
 
-        if( $request->category == Service::where('name', 'Security Services')->first()?->id){
+        if( $categoryName == 'Security Services'){
 
             $isActiveSecurity = BuildingPoc::where([
                 'role_name'   => 'security',
