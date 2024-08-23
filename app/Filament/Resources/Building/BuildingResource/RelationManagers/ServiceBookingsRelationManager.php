@@ -31,6 +31,9 @@ class ServiceBookingsRelationManager extends RelationManager
     use UtilsTrait;
     protected static string $relationship = 'facilityBookings';
 
+    protected static ?string $title       = 'Personal Service Bookings';
+    protected static ?string $modelLabel       = 'Personal Service Booking';
+
     public function form(Form $form): Form
     {
         return $form
@@ -140,7 +143,7 @@ class ServiceBookingsRelationManager extends RelationManager
                 //
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make()->label('Create Service Booking'),
+                Tables\Actions\CreateAction::make()->label('Create Personal Service Booking'),
             ])
             ->actions([
                 Tables\Actions\EditAction::make()
@@ -232,6 +235,6 @@ class ServiceBookingsRelationManager extends RelationManager
 
     public static function getTitle(Model $ownerRecord, string $pageClass): string
     {
-        return 'Service Bookings';
+        return 'Personal Service Bookings';
     }
 }
