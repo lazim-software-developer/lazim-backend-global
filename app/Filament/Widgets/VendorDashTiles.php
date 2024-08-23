@@ -49,7 +49,7 @@ class VendorDashTiles extends BaseWidget
 
         // Return the Stat widget
         return Stat::make('Total Contracts', $query->count())
-            ->descriptionIcon('heroicon-s-flag')
+            ->icon('heroicon-s-document-text')
             ->chart(array_values($chartData))
             ->color('danger'); // Color to represent open complaints
     }
@@ -65,7 +65,7 @@ class VendorDashTiles extends BaseWidget
         $chartData = $this->getMonthlyChartData(clone $query);
 
         return Stat::make('Pending WDA', $query->count())
-            ->descriptionIcon('heroicon-s-user-group')
+            ->icon('heroicon-s-check-circle')
             ->chart(array_values($chartData))
             ->color('warning');
     }
@@ -81,7 +81,7 @@ class VendorDashTiles extends BaseWidget
         $chartData = $this->getMonthlyChartData(clone $query);
 
         return Stat::make('Pending Invoices', $query->count())
-            ->descriptionIcon('heroicon-s-user-group')
+            ->icon('heroicon-s-receipt-tax')
             ->chart(array_values($chartData))
             ->color('danger');
     }
