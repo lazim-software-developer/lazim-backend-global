@@ -32,9 +32,9 @@ class FacilityBookingResource extends Resource
     protected static ?string $model = FacilityBooking::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-    protected static ?string $navigationLabel = 'Facility Bookings';
+    protected static ?string $navigationLabel = 'Amenity Bookings';
     protected static ?string $navigationGroup = 'Property Management';
-    protected static ?string $modelLabel      = 'Facility Bookings';
+    protected static ?string $modelLabel      = 'Amenity Bookings';
 
     public static function form(Form $form): Form
     {
@@ -67,7 +67,6 @@ class FacilityBookingResource extends Resource
                             ->placeholder('Building'),
 
                         Select::make('bookable_id')
-                            ->label('Facility ')
                             ->required()
                             ->disabledOn('edit')
                             ->options(
@@ -77,7 +76,7 @@ class FacilityBookingResource extends Resource
                             )
                             ->searchable()
                             ->preload()
-                            ->label('Facility'),
+                            ->label('Amenity'),
 
                         Hidden::make('bookable_type')
                             ->default('App\Models\Master\Facility'),
@@ -150,7 +149,7 @@ class FacilityBookingResource extends Resource
                     ->default('NA')
                     ->searchable()
                     ->limit(50)
-                    ->label('Facility'),
+                    ->label('Amenity'),
                 Tables\Columns\TextColumn::make('user.first_name')
                     ->searchable()
                     ->default('NA')

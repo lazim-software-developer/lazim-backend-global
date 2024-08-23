@@ -139,7 +139,7 @@ class BuildingResource extends Resource
                                 ->label('Allow post-upload'),
                             Toggle::make('show_inhouse_services')
                                 ->rules(['boolean'])
-                                ->label('Show in-house services'),
+                                ->label('Show Personal services'),
 
 
                             // TextInput::make('lat')
