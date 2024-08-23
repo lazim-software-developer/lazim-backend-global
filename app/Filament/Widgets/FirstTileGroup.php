@@ -63,7 +63,7 @@ class FirstTileGroup extends BaseWidget
         $chartData = $this->getMonthlyChartData(clone $ownerQuery);
 
         return Stat::make('Total Owners', $ownerQuery->count())
-        ->descriptionIcon('heroicon-s-user-group')
+        ->icon('heroicon-s-user-group')
         ->chart(array_values($chartData))
         ->color('info');
     }
@@ -94,7 +94,7 @@ class FirstTileGroup extends BaseWidget
         $chartData = $this->getMonthlyChartData(clone $pendingApprovalQuery);
 
         return Stat::make('Pending Resident Approvals', $pendingApprovalQuery->count())
-        ->descriptionIcon('heroicon-s-user-group')
+        ->icon('heroicon-s-user-add')
         ->chart(array_values($chartData))
         ->color('danger');
     }
@@ -110,7 +110,7 @@ class FirstTileGroup extends BaseWidget
 
         // Return the Stat widget
         return Stat::make('Open Complaints', $openComplaintsQuery->count())
-            ->descriptionIcon('heroicon-s-flag')
+            ->icon('heroicon-s-exclamation-circle')
             ->chart(array_values($chartData))
             ->color('danger'); // Color to represent open complaints
     }
@@ -126,7 +126,7 @@ class FirstTileGroup extends BaseWidget
 
         // Return the Stat widget
         return Stat::make('Pending Facility Bookings', $pendingFacilityBookingQuery->count())
-            ->descriptionIcon('heroicon-s-calendar')
+            ->icon('heroicon-s-clock')
             ->chart(array_values($chartData))
             ->color('warning'); // Color to represent pending bookings
     }
