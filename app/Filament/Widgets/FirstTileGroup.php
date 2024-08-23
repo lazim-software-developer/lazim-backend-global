@@ -94,7 +94,7 @@ class FirstTileGroup extends BaseWidget
         $chartData = $this->getMonthlyChartData(clone $pendingApprovalQuery);
 
         return Stat::make('Pending Resident Approvals', $pendingApprovalQuery->count())
-        ->icon('heroicon-s-user-add')
+        ->icon('heroicon-s-user')
         ->chart(array_values($chartData))
         ->color('danger');
     }
