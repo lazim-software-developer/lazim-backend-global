@@ -742,7 +742,7 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->plugins([
                 FilamentShieldPlugin::make(),
-                FilamentApexChartsPlugin::make()
+                // FilamentApexChartsPlugin::make()
             ]);
     }
 }

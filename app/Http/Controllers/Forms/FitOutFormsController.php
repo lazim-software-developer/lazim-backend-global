@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Forms;
 
 use App\Filament\Resources\FitOutFormsDocumentResource;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ContractorFormRequest;
 use App\Http\Requests\Forms\CreateFitOutFormsRequest;
 use App\Http\Resources\CustomResponseResource;
 use App\Jobs\FitOutContractorMailJob;
@@ -89,13 +90,9 @@ class FitOutFormsController extends Controller
         return "Request is not rejected";
     }
 
-    public function contractorRequest(Request $request, FitOutForm $fitout)
+    public function contractorRequest(ContractorFormRequest $request, FitOutForm $fitout)
     {
 
-        $request->validate([
-            'work_type' => 'required|in:major,minor',
-            'work_name' => 'required',
-        ]);
         if ($fitout->contractorRequest) {
             return (new CustomResponseResource([
                 'title'   => 'Request already exists!',
