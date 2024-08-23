@@ -184,6 +184,7 @@ class AdminPanelProvider extends PanelProvider
                                 ->activeIcon('heroicon-o-user-circle')
                                 ->sort(9),
                             NavigationItem::make('Facilities')
+                                ->label('Amenities')
                                 ->hidden(!$user->can('view_any_master::facility'))
                                 ->url('/admin/master/facilities')
                                 ->icon('heroicon-o-cube-transparent')
@@ -201,6 +202,7 @@ class AdminPanelProvider extends PanelProvider
                                 ->activeIcon('heroicon-s-user-group')
                                 ->sort(11),
                             NavigationItem::make('In-house services')
+                                ->label('Personal services')
                                 ->hidden(!$user->can('view_any_master::service'))
                                 ->url('/admin/master/services')
                                 ->icon('heroicon-m-wrench')
@@ -253,12 +255,13 @@ class AdminPanelProvider extends PanelProvider
                                     ->activeIcon('heroicon-o-home')
                                     ->sort(2),
                                 NavigationItem::make('Facility bookings')
+                                    ->label('Amenity Bookings')
                                     ->url('/admin/building/facility-bookings')
                                     ->visible($user->can('view_any_building::facility::booking'))
                                     ->icon('heroicon-o-cube-transparent')
                                     ->activeIcon('heroicon-o-cube-transparent')
                                     ->sort(3),
-                                NavigationItem::make('Service Bookings')
+                                NavigationItem::make('Personal Service Bookings')
                                     ->url('/admin/building/service-bookings')
                                     ->visible($user->can('view_any_building::service::booking'))
                                     ->icon('heroicon-m-wrench')
@@ -532,7 +535,7 @@ class AdminPanelProvider extends PanelProvider
                                     ->icon('heroicon-s-arrow-left-circle')
                                     ->activeIcon('heroicon-s-arrow-left-circle')
                                     ->sort(3),
-                                NavigationItem::make('Fit out')
+                                NavigationItem::make('Fitout')
                                     ->url('/admin/fit-out-forms-documents')
                                     ->hidden(!$user->can('view_any_fit::out::forms::document'))
                                     ->icon('heroicon-s-face-smile')

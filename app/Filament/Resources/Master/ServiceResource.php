@@ -27,7 +27,7 @@ class ServiceResource extends Resource
     protected static ?string $model = Service::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-    protected static ?string $modelLabel = 'Inhouse Service';
+    protected static ?string $modelLabel = 'Personal Service';
     protected static ?string $navigationGroup = 'Master';
 
     protected static bool $isScopedToTenant = false;
