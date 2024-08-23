@@ -68,8 +68,8 @@ class AppPanelProvider extends PanelProvider
             ])
             ->favicon(asset('images/favicon.png'))
             ->darkMode(false)
-            // ->databaseNotifications()
-            // ->databaseNotificationsPolling('5s')
+            ->databaseNotifications()
+            ->databaseNotificationsPolling('5s')
             ->sidebarCollapsibleOnDesktop()
             ->navigation(function (NavigationBuilder $builder): NavigationBuilder {
                 // if (DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] != 'Admin') {
