@@ -176,7 +176,7 @@ class AccessCardController extends Controller
             ],
             [
                 'id'              => $guestRegistration ? $guestRegistration->id : null,
-                'name'            => 'Guest Registration Form',
+                'name'            => 'Holiday Homes Guest Registration Form',
                 'status'          => $guest ? $guest->status : 'not_submitted',
                 'created_at'      => $guestRegistration ? Carbon::parse($guestRegistration->created_at)->diffForHumans() : null,
                 'rejected_reason' => $guest ? $guest->remarks : null,
