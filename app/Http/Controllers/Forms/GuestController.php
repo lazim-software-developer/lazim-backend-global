@@ -243,8 +243,7 @@ class GuestController extends Controller
             ->when($request->has('verified'), function ($query) use ($request) {
                 return $query->where('verified', $request->verified);
             })
-            ->orderBy(DB::raw("CONCAT(DATE(start_time), ' ', time_of_viewing)"))
-            ->get();
+            ->orderBy(DB::raw("CONCAT(DATE(start_time), ' ', time_of_viewing)"));
 
         return VisitorResource::collection($futureVisits->paginate(10));
     }
