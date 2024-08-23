@@ -28,7 +28,7 @@ class OacomplaintReportsResource extends Resource
 {
     protected static ?string $model = OacomplaintReports::class;
 
-    protected static ?string $modelLabel = 'Oa Complaint Reports';
+    protected static ?string $modelLabel = 'OA Complaint Report';
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 

@@ -36,7 +36,7 @@ class ServiceBookingResource extends Resource
     protected static ?string $model = FacilityBooking::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-    protected static ?string $modelLabel = 'Service Bookings';
+    protected static ?string $modelLabel = 'Personal Service Booking';
     protected static ?string $navigationGroup = 'Property Management';
     public static function form(Form $form): Form
     {
