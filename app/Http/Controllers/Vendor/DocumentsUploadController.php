@@ -68,6 +68,18 @@ class DocumentsUploadController extends Controller
     public function updateRiskPolicy(Request $request,Vendor $vendor){
 
         $document = Document::where('documentable_id',$vendor->id)->where('name','risk_policy')->latest()->first();
+        if(empty($document)){
+            $document = Document::create([
+                "name" => "risk_policy",
+                "document_library_id" => DocumentLibrary::where('name','Risk policy')->where('type', 'vendor')->first()->id,
+                "owner_association_id" => $vendor->owner_association_id,
+                "status" => 'pending',
+                "documentable_id" => $vendor->id,
+                "expiry_date" => $request->risk_policy_expiry,
+                "documentable_type" => Vendor::class,
+            ]);
+        }
+
         $document->update([
             'url' => optimizeDocumentAndUpload($request->file('risk_policy_document')),
             'expiry_date' => $request->risk_policy_expiry,
