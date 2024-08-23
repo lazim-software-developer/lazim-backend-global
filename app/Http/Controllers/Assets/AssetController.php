@@ -36,12 +36,11 @@ class AssetController extends Controller
             $latestMaintenance = $technicianAsset->assetMaintenances->last();
             $status = 'not-started';
             $id = null;
-            $last_date =  null;
+            $last_date =  $latestMaintenance?->maintenance_date;
 
             if ($latestMaintenance && Carbon::parse($latestMaintenance->maintenance_date)->addDays($technicianAsset->asset->frequency_of_service) > now()->toDateString()) {
                 $status = $latestMaintenance->status;
                 $id = $latestMaintenance->id;
-                $last_date = $latestMaintenance->maintenance_date;
             }
 
             return [
@@ -54,7 +53,8 @@ class AssetController extends Controller
                 'building_id' => $technicianAsset->building->id,
                 'location' => $technicianAsset->asset->location,
                 'description' => $technicianAsset->asset->description,
-                'last_service_on' => $last_date
+                'last_service_on' => $last_date,
+                'frequency_of_service' => $technicianAsset->asset->frequency_of_service
             ];
         });
 
