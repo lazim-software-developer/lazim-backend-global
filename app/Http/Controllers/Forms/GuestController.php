@@ -233,13 +233,16 @@ class GuestController extends Controller
     }
 
     // List all future visits for a building
-    public function futureVisits(Building $building)
+    public function futureVisits(Request $request, Building $building)
     {
         // List only approved requests from flat_visitors table
         $futureVisits = FlatVisitor::where('building_id', $building->id)
             // ->whereRaw("CONCAT(DATE(start_time), ' ', time_of_viewing) > ?", [now()])
             ->where('type', 'visitor')
             ->where('status','approved')
+            ->when($request->has('verified'), function ($query) use ($request) {
+                return $query->where('verified', $request->verified);
+            })
             ->orderBy(DB::raw("CONCAT(DATE(start_time), ' ', time_of_viewing)"))
             ->get();
 
