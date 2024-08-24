@@ -2,31 +2,34 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\OacomplaintReportsResource\Pages;
-use App\Models\BuildingVendor;
-use App\Models\Building\Building;
-use App\Models\Building\BuildingPoc;
-use App\Models\Master\Role;
-use App\Models\OacomplaintReports;
-use App\Models\TechnicianVendor;
-use App\Models\User\User;
-use App\Models\Vendor\Vendor;
-use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Form;
+use Filament\Tables;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
-use Filament\Resources\Resource;
-use Filament\Tables;
-use Filament\Tables\Columns\ImageColumn;
-use Filament\Tables\Columns\TextColumn;
+use Filament\Forms\Form;
+use App\Models\User\User;
 use Filament\Tables\Table;
+use App\Models\Master\Role;
+use App\Models\Vendor\Vendor;
+use App\Models\BuildingVendor;
+use App\Models\TechnicianVendor;
+use Filament\Resources\Resource;
+use App\Models\Building\Building;
+use App\Models\Building\Complaint;
+use App\Models\OacomplaintReports;
+use App\Models\Building\BuildingPoc;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Forms\Components\TextInput;
+use Filament\Tables\Columns\ImageColumn;
+use Filament\Forms\Components\FileUpload;
+use App\Filament\Resources\OacomplaintReportsResource\Pages;
+use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Repeater;
 
 class OacomplaintReportsResource extends Resource
 {
-    protected static ?string $model = OacomplaintReports::class;
+    protected static ?string $model = Complaint::class;
 
     protected static ?string $modelLabel = 'OA Complaint Report';
 
@@ -53,6 +56,7 @@ class OacomplaintReportsResource extends Resource
                     ->searchable()
                     ->live()
                     ->required(),
+
                 Select::make('building_id')
                     ->relationship('building', 'name')
                     ->preload()
@@ -70,8 +74,9 @@ class OacomplaintReportsResource extends Resource
                     })
                     ->live()
                     ->searchable(),
-                Select::make('user_id')
-                    ->relationship('user', 'first_name')
+
+                Select::make('user_id')->label('User')
+                    // ->relationship('user', 'first_name')
                     ->options(function (Get $get) {
                         if ($get('type') === 'Technician') {
                             $buildingVendor   = BuildingVendor::where('building_id', $get('building_id'))->where('active', 1)->pluck('vendor_id');
@@ -80,8 +85,8 @@ class OacomplaintReportsResource extends Resource
                         }
                         if ($get('type') === 'Vendor') {
                             $buildingVendor = BuildingVendor::where('building_id', $get('building_id'))->where('active', 1)->pluck('vendor_id');
-                            $Vendors        = Vendor::whereIn('id', $buildingVendor)->where('status', 'approved')->pluck('owner_id');
-                            return User::whereIn('id', $Vendors)->pluck('first_name', 'id');
+                            return Vendor::whereIn('id', $buildingVendor)->where('status', 'approved')->pluck('name','id');
+                            // return User::whereIn('id', $Vendors)->pluck('first_name', 'id');
                         }
                         if ($get('type') === 'Gatekeeper') {
                             $user = BuildingPoc::where('building_id', $get('building_id'))->where('active', 1)->pluck('user_id');
@@ -90,24 +95,73 @@ class OacomplaintReportsResource extends Resource
                     })
                     ->searchable()
                     ->preload()
+                    ->dehydrateStateUsing(function ($state, $get, $set) {
+                        if ($get('type') === 'Technician') {
+                            $set('technician_id', $state);
+                            return null; 
+                        } elseif ($get('type') === 'Vendor') {
+                            $set('vendor_id', $state);
+                            return null; 
+                        } elseif ($get('type') === 'Gatekeeper') {
+                            return $state; 
+                        }
+                    })
                     ->live()
                     ->required()
                     ->columnSpanFull(),
-                Textarea::make('issue')
+
+                Textarea::make('complaint')->label('Issue')
                     ->maxLength(350)
                     ->required()
                     ->columnSpanFull(),
-                FileUpload::make('image')
-                    ->disk('s3')
-                    ->rules('file|mimes:jpeg,jpg,png|max:2048')
-                    ->directory('dev')
-                    ->openable(true)
-                    ->downloadable(true)
-                    ->image()
-                    ->maxSize(2048)
-                    ->required()
-                    ->label('Image')
-                    ->columnSpanFull(),
+                // FileUpload::make('image')
+                //     ->disk('s3')
+                //     ->rules('file|mimes:jpeg,jpg,png|max:2048')
+                //     ->directory('dev')
+                //     ->openable(true)
+                //     ->downloadable(true)
+                //     ->image()
+                //     ->maxSize(2048)
+                //     ->required()
+                //     ->label('Image')
+                //     ->columnSpanFull(),
+                Repeater::make('media')->label('')
+                            ->relationship()
+                            ->schema([
+                                FileUpload::make('url')
+                                    ->disk('s3')
+                                    ->rules('file|mimes:jpeg,jpg,png|max:2048')
+                                    ->directory('dev')
+                                    ->openable(true)
+                                    ->downloadable(true)
+                                    ->image()
+                                    ->maxSize(2048)
+                                    ->required()
+                                    ->label('Image')
+                                    ->columnSpanFull()
+                            ])
+                            ->columnSpan([
+                                'sm' => 1,
+                                'md' => 1,
+                                'lg' => 2
+                            ])
+                            ->addable(false)
+                            ->deletable(false),
+
+                Hidden::make('complaintable_type')
+                    ->default('App\Models\User\User'),
+
+                Hidden::make('complaintable_id')
+                    ->default(auth()->user()->id),
+
+                Hidden::make('technician_id'),
+                Hidden::make('vendor_id'),
+                Hidden::make('owner_association_id')
+                ->default(auth()->user()->owner_association_id),
+                Hidden::make('status')
+                ->default('open'),
+                Hidden::make('category')
+                ->default('oa-complaint-report')
             ]);
     }
 
@@ -118,9 +172,9 @@ class OacomplaintReportsResource extends Resource
                 TextColumn::make('ticket_number')->searchable()->default("NA"),
                 TextColumn::make('type')->searchable(),
                 TextColumn::make('building.name')->searchable(),
-                TextColumn::make('user.first_name')->searchable(),
-                TextColumn::make('issue')->searchable()->limit(20),
-                ImageColumn::make('image')->disk('s3'),
+                // TextColumn::make('user.first_name')->searchable(),
+                // TextColumn::make('issue')->searchable()->limit(20),
+                // ImageColumn::make('image')->disk('s3'),
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
@@ -129,11 +183,11 @@ class OacomplaintReportsResource extends Resource
             ->actions([
                 Tables\Actions\EditAction::make(),
             ]);
-            // ->bulkActions([
-            //     Tables\Actions\BulkActionGroup::make([
-            //         Tables\Actions\DeleteBulkAction::make(),
-            //     ]),
-            // ]);
+        // ->bulkActions([
+        //     Tables\Actions\BulkActionGroup::make([
+        //         Tables\Actions\DeleteBulkAction::make(),
+        //     ]),
+        // ]);
     }
 
     public static function getRelations(): array
