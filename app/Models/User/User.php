@@ -97,8 +97,8 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasTenant
     // }
     public function getFilamentAvatarUrl(): ?string
     {
-        $profile_photo = OwnerAssociation::where('id',auth()->user()->owner_association_id)->value('profile_photo');
-        return $profile_photo ? env('AWS_URL') . '/' . $profile_photo : env('DEFAULT_AVATAR');
+        // $profile_photo = OwnerAssociation::where('id',auth()->user()->owner_association_id)->value('profile_photo');
+        return $this->profile_photo ? env('AWS_URL') . '/' . $this->profile_photo : env('DEFAULT_AVATAR');
     }
     public function getFilamentName(): string
     {

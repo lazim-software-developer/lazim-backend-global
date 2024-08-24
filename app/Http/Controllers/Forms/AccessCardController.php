@@ -132,7 +132,7 @@ class AccessCardController extends Controller
             ],
             [
                 'id'              => $fitOutForm ? $fitOutForm->id : null,
-                'name'            => 'Fit Out Form',
+                'name'            => 'Fitout Form',
                 'status'          => $fitOutForm ? $fitOutForm->status : 'not_submitted',
                 'created_at'      => $fitOutForm ? Carbon::parse($fitOutForm->created_at)->diffForHumans() : null,
                 'rejected_reason' => $fitOutForm ? $fitOutForm->remarks : null,
