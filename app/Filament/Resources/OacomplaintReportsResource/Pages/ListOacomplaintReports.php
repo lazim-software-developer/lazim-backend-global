@@ -14,12 +14,16 @@ class ListOacomplaintReports extends ListRecords
     protected static string $resource = OacomplaintReportsResource::class;
     protected function getTableQuery(): Builder
     {
-        $buildings = Building::all()->where('owner_association_id', auth()->user()?->owner_association_id)->pluck('id')->toArray();
+        $buildings = Building::where('owner_association_id', auth()->user()?->owner_association_id)->pluck('id')->toArray();
+
+        $query = parent::getTableQuery()->where('category', 'oa-complaint-report');
 
         if (Role::where('id', auth()->user()->role_id)->first()->name != 'Admin') {
-            return parent::getTableQuery()->whereIn('building_id', $buildings);
+            $query->whereIn('building_id', $buildings);
         }
-        return parent::getTableQuery();
+
+        return $query;
+
     }
 
     protected function getHeaderActions(): array
