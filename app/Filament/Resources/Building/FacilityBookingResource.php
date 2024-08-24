@@ -34,7 +34,7 @@ class FacilityBookingResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
     protected static ?string $navigationLabel = 'Amenity Bookings';
     protected static ?string $navigationGroup = 'Property Management';
-    protected static ?string $modelLabel      = 'Amenity Bookings';
+    protected static ?string $modelLabel      = 'Amenity Booking';
 
     public static function form(Form $form): Form
     {
@@ -210,7 +210,7 @@ class FacilityBookingResource extends Resource
                 ]),
             ])
             ->emptyStateActions([
-                Tables\Actions\CreateAction::make(),
+                Tables\Actions\CreateAction::make()->label('New Amenity Booking'),
             ]);
     }
 
