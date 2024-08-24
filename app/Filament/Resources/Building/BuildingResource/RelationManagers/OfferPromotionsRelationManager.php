@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Building\BuildingResource\RelationManagers;
 
+use App\Models\OfferPromotion;
 use Closure;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
@@ -105,7 +106,9 @@ class OfferPromotionsRelationManager extends RelationManager
                 //
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make(),
+                Tables\Actions\CreateAction::make()->hidden(function(RelationManager $livewire){
+                    return OfferPromotion::where('building_id',$livewire->ownerRecord->id)->count() < 10;
+                }),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

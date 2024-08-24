@@ -25,18 +25,26 @@ class ComplaintController extends Controller
 
         // Fetch service_id of "Security Services" from subcategories table 
 
-        $securityServiceId = SubCategory::where('name' , 'Security Services')->value('id');
+        $securityServiceId = SubCategory::where('name', 'Security Services')->value('id');
 
         $services = Service::where('subcategory_id', $securityServiceId)->pluck('id');
 
         // Fetch complaints
-        $complaints = Complaint::whereIn('service_id', $services)
-        ->where([
-            'building_id' => $buildingId,
-            'status' => 'open',
-        ])->latest();
+        $complaints1 = Complaint::whereIn('service_id', $services)
+            ->where([
+                'building_id' => $buildingId,
+                'status' => 'open',
+            ]);
+
+        $complaints2 = Complaint::where('complaint_type', 'oa_complaint_report')
+            ->where('building_id', $buildingId)
+            ->where('type', 'Gatekeeper');
+
+        $mergedComplaints = $complaints1->union($complaints2)
+            ->orderBy('created_at', 'desc') // Adjust the order by clause as needed
+            ->paginate(10);
 
 
-        return Complaintresource::collection($complaints->paginate(10));
+        return Complaintresource::collection($mergedComplaints->paginate(10));
     }
 }
