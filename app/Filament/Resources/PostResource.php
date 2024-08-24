@@ -57,7 +57,7 @@ class PostResource extends Resource
                 'md' => 1,
                 'lg' => 2,
             ])->schema([
-                MarkdownEditor::make('content')
+                RichEditor::make('content')
                     ->toolbarButtons([
                         'bold',
                         'bulletList',
