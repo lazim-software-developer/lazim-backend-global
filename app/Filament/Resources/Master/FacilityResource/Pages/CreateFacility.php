@@ -12,6 +12,11 @@ class CreateFacility extends CreateRecord
 {
     protected static string $resource = FacilityResource::class;
 
+    public function getTitle(): string
+    {
+        return 'Create Amenity';
+    }
+
     protected function afterCreate(){
 
         Facility::where('id', $this->record->id)
