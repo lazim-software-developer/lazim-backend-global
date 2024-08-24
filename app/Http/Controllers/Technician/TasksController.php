@@ -15,7 +15,8 @@ class TasksController extends Controller
             ->where(function ($query) {
                 $query->where('complaint_type', 'tenant_complaint')
                 ->orWhere('complaint_type', 'help_desk')
-                ->orWhere('complaint_type', 'snag');
+                ->orWhere('complaint_type', 'snag')
+                ->orWhere('complaint_type', 'oa_complaint_report');
             })
             ->when($request->filled('status'), function ($query) use ($request) {
                 $query->where('status', $request->status);

@@ -161,7 +161,9 @@ class OacomplaintReportsResource extends Resource
                 Hidden::make('status')
                 ->default('open'),
                 Hidden::make('category')
-                ->default('oa-complaint-report')
+                ->default('oa_complaint_report'),
+                Hidden::make('complaint_type')
+                ->default('oa_complaint_report')
             ]);
     }
 
