@@ -25,6 +25,7 @@ use App\Filament\Resources\AnnouncementResource\Pages;
 use App\Models\OwnerAssociation;
 use App\Models\User\User;
 use Filament\Facades\Filament;
+use Filament\Forms\Components\RichEditor;
 use Illuminate\Database\Eloquent\Model;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
@@ -43,7 +44,7 @@ class AnnouncementResource extends Resource
                 'md' => 1,
                 'lg' => 2,
             ])->schema([
-                MarkdownEditor::make('content')
+                RichEditor::make('content')
                     ->toolbarButtons([
                         'bold',
                         'bulletList',
