@@ -13,7 +13,7 @@ class InvoiceChart extends ChartWidget
     use InteractsWithPageFilters;
 
     protected static ?string $heading = 'Invoice';
-    protected static ?string $maxHeight = '200px';
+    protected static ?string $maxHeight = '400px';
     protected static ?int $sort = 5;
 
     protected function getData(): array
@@ -43,12 +43,16 @@ class InvoiceChart extends ChartWidget
                 [
                     'label' => 'Approved',
                     'data' => [$approvedInvoice],
-                    'backgroundColor' => '#4CAF50', // Soft green
+                    'backgroundColor' => '#2ad84c', 
+                    'borderColor' => '#ffffff', 
+                    'borderWidth' => 2,
                 ],
                 [
                     'label' => 'Pending',
                     'data' => [$pendingInvoice],
-                    'backgroundColor' => '#FF7043', // Soft orange
+                    'backgroundColor' => '#f5fa5a',
+                    'borderColor' => '#ffffff', 
+                    'borderWidth' => 2,
                 ],
             ],
             'labels' => ['Invoices'],

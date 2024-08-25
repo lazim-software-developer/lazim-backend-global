@@ -19,7 +19,7 @@ class FormsChart extends ChartWidget
     use InteractsWithPageFilters;
 
     protected static ?string $heading = 'Forms';
-    protected static ?string $maxHeight = '400px';
+    protected static ?string $maxHeight = '300px';
     protected static ?int $sort = 3;
 
     protected function getData(): array
