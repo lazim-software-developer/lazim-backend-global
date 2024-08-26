@@ -156,6 +156,6 @@ class FitOutFormsController extends Controller
             ]))->response()->setStatusCode(403);
         }
 
-        return response();
+        return response()->noContent();
     }
 }
