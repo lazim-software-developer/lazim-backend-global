@@ -19,13 +19,19 @@ class Dashboard extends BaseDashboard
     {
         return $form
             ->schema([
-                Section::make()
+                Section::make('Filters')
                     ->schema([
-                        DatePicker::make('startDate'),
-                        DatePicker::make('endDate'),
-                        
+                        Select::make('building')
+                            ->label('Select Building')
+                            ->options(Building::where('owner_association_id', auth()->user()->owner_association_id)
+                                ->pluck('name', 'id')) // Fetch building names and IDs
+                            ->searchable(),
+                        DatePicker::make('startDate')
+                            ->label('Start Date'),
+                        DatePicker::make('endDate')
+                            ->label('End Date'),
                     ])
-                    ->columns(2),
+                    ->columns(3), // Adjust the layout to accommodate three columns
             ]);
     }
 

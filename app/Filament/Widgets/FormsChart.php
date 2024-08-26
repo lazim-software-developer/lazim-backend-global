@@ -3,7 +3,6 @@
 namespace App\Filament\Widgets;
 
 use App\Models\Forms\Guest;
-use App\Models\Master\Role;
 use App\Models\Forms\SaleNOC;
 use App\Models\Forms\MoveInOut;
 use App\Models\ResidentialForm;
@@ -26,8 +25,9 @@ class FormsChart extends ChartWidget
     {
         $startDate = $this->filters['startDate'] ?? null;
         $endDate = $this->filters['endDate'] ?? null;
-        
-        // Initialize queries for each model
+        $buildingId = $this->filters['building'] ?? null;
+
+        // Initialize queries for each model with optional building filter
         $saleNOCQuery = SaleNOC::where('owner_association_id', auth()->user()->owner_association_id);
         $accessCardQuery = AccessCard::where('owner_association_id', auth()->user()->owner_association_id);
         $guestsQuery = Guest::where('owner_association_id', auth()->user()->owner_association_id);
@@ -36,7 +36,23 @@ class FormsChart extends ChartWidget
         $moveInQuery = MoveInOut::where('owner_association_id', auth()->user()->owner_association_id)->where('type', 'move-in');
         $moveOutQuery = MoveInOut::where('owner_association_id', auth()->user()->owner_association_id)->where('type', 'move-out');
         $visitorQuery = Visitor::where('owner_association_id', auth()->user()->owner_association_id);
-        
+
+        if ($buildingId) {
+            // Apply building filter to the queries that have direct building_id
+            $saleNOCQuery->where('building_id', $buildingId);
+            $accessCardQuery->where('building_id', $buildingId);
+            $fitOutQuery->where('building_id', $buildingId);
+            $residentialQuery->where('building_id', $buildingId);
+            $moveInQuery->where('building_id', $buildingId);
+            $moveOutQuery->where('building_id', $buildingId);
+            $visitorQuery->where('building_id', $buildingId);
+
+            // Apply building filter to the Guests query via a join on FlatVisitor
+            $guestsQuery->whereHas('flatVisitor', function($query) use ($buildingId) {
+                $query->where('building_id', $buildingId);
+            });
+        }
+
         if ($startDate) {
             $startOfDay = Carbon::createFromFormat('Y-m-d', $startDate)->startOfDay();
             $saleNOCQuery->where('created_at', '>=', $startOfDay);
@@ -48,7 +64,7 @@ class FormsChart extends ChartWidget
             $moveOutQuery->where('created_at', '>=', $startOfDay);
             $visitorQuery->where('created_at', '>=', $startOfDay);
         }
-        
+
         if ($endDate) {
             $endOfDay = Carbon::createFromFormat('Y-m-d', $endDate)->endOfDay();
             $saleNOCQuery->where('created_at', '<=', $endOfDay);
@@ -60,8 +76,8 @@ class FormsChart extends ChartWidget
             $moveOutQuery->where('created_at', '<=', $endOfDay);
             $visitorQuery->where('created_at', '<=', $endOfDay);
         }
-        
-        $saleNOCCount = $saleNOCQuery->count();
+
+        $saleNocCount = $saleNOCQuery->count();
         $accessCardCount = $accessCardQuery->count();
         $guestsCount = $guestsQuery->count();
         $fitOutCount = $fitOutQuery->count();
@@ -76,7 +92,7 @@ class FormsChart extends ChartWidget
                     'label' => 'Forms',
                     'data' => [
                         $accessCardCount, 
-                        $saleNOCCount, 
+                        $saleNocCount, 
                         $guestsCount, 
                         $moveInCount, 
                         $moveOutCount, 
