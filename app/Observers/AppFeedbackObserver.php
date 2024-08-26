@@ -30,7 +30,7 @@ class AppFeedbackObserver
         ->actions([
             Action::make('View')
             ->button()
-            ->url( AppFeedbackResource::getUrl('view',[$appFeedback->id])),
+            ->url(AppFeedbackResource::getUrl('view',['',$appFeedback->id])),
         ])
         ->sendToDatabase($notifyTo);
     }
