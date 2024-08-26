@@ -5,12 +5,14 @@ namespace App\Filament\Resources\PollResource\Pages;
 use App\Filament\Resources\PollResource;
 use App\Models\Building\FlatTenant;
 use App\Models\ExpoPushNotification;
+use App\Traits\UtilsTrait;
 use Filament\Actions;
 use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Support\Facades\DB;
 
 class CreatePoll extends CreateRecord
 {
+    use UtilsTrait;
     protected static string $resource = PollResource::class;
 
     protected function  afterCreate()
