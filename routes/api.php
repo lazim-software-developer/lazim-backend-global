@@ -550,6 +550,8 @@ Route::post('/store-visitor', [GuestController::class, 'saveFlatVisitors']);
 Route::post('/send-sms', [MollakController::class, 'sendSMS']);
 Route::post('/verify-sms-otp', [MollakController::class, 'verifyOTP']);
 
+Route::get('/verify-contractor-request/{fitout}',[FitOutFormsController::class, 'verifyContractorRequest']);
+
 //Webhooks
 Route::post('/budget-budget_items',[MollakController::class, 'fetchbudget']);
 
