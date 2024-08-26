@@ -19,7 +19,7 @@ use Filament\Tables\Table;
 class OfferPromotionsRelationManager extends RelationManager
 {
     protected static string $relationship = 'offerPromotions';
-    protected static ?string $modelLabel  = 'Offer & Promotions';
+    protected static ?string $modelLabel  = 'Exclusive Offers';
     protected static ?string $title       = 'Exclusive Offers';
 
     public function form(Form $form): Form
