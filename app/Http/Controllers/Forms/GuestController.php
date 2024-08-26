@@ -115,7 +115,7 @@ class GuestController extends Controller
             'phone'                => $request->phone,
             'email'                => $request->email,
             'owner_association_id' => $ownerAssociationId,
-            'type'                 => 'visitor',
+            'type'                 => $request->type ?:'visitor',
         ]);
 
         $requiredPermissions = ['view_any_visitor::form'];
