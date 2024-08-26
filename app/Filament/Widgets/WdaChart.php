@@ -44,7 +44,7 @@ class WdaChart extends ChartWidget
                 [
                     'label' => 'Approved',
                     'data' => [$approvedWda],
-                    'backgroundColor' => '#007bff',
+                    'backgroundColor' => '#4DB6AC',
                     'borderColor' => '#ffffff',
                     'stack' => 'Status', // Enable stacking
                 ],

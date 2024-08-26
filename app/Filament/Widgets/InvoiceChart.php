@@ -50,7 +50,7 @@ class InvoiceChart extends ChartWidget
                 [
                     'label' => 'Pending',
                     'data' => [$pendingInvoice],
-                    'backgroundColor' => '#f5fa5a',
+                    'backgroundColor' => '#fa5a5a',
                     'borderColor' => '#ffffff', 
                     'borderWidth' => 2,
                 ],
