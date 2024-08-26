@@ -95,7 +95,7 @@ class ComplaintscomplaintResource extends Resource
                             })
                             ->live()
                             ->searchable()
-                            ->label('vendor Name'),
+                            ->label('Vendor Name'),
                         Select::make('flat_id')
                             ->rules(['exists:flats,id'])
                             ->required()
