@@ -13,7 +13,7 @@ class ComplaintsChart extends ChartWidget
 
     protected static ?string $heading = 'Complaints';
     protected static ?string $maxHeight = '500px';
-    protected static ?int $sort = 7;
+    protected static ?int $sort = 5;
 
     // protected int | string | array $columnSpan = 6;
 

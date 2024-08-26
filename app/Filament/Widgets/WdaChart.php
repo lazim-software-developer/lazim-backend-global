@@ -3,6 +3,7 @@
 namespace App\Filament\Widgets;
 
 use App\Models\Accounting\WDA;
+use App\Models\Vendor\Vendor;
 use Carbon\Carbon;
 use Filament\Facades\Filament;
 use Filament\Widgets\ChartWidget;
@@ -13,9 +14,10 @@ class WdaChart extends ChartWidget
     use InteractsWithPageFilters;
 
     protected static ?string $heading = 'WDA';
-    protected static ?string $maxHeight = '400px'; // Increase the height of the chart
-    protected static ?string $maxWidth = '20px';
-    protected static ?int $sort = 4;
+    protected static ?string $maxHeight = '400px';
+    // protected static ?string $maxWidth = '100%';
+    protected static ?int $sort = 10;
+    protected int | string | array $columnSpan = 'full';
 
     protected function getData(): array
     {
@@ -33,30 +35,46 @@ class WdaChart extends ChartWidget
             $query->where('created_at', '<=', $endOfDay);
         }
 
-        $approvedWdaQuery = clone $query;
-        $pendingWdaQuery = clone $query; 
+        $vendors = Vendor::where('owner_association_id', Filament::getTenant()->id)->get();
 
-        $approvedWda = $approvedWdaQuery->where('status', 'approved')->count();
-        $pendingWda = $pendingWdaQuery->where('status', 'pending')->count();
+        $vendorNames = [];
+        $approvedCounts = [];
+        $pendingCounts = [];
+
+        foreach ($vendors as $vendor) {
+            $vendorNames[] = $vendor->name;
+
+            $approvedCount = $query->clone()
+                ->where('vendor_id', $vendor->id)
+                ->where('status', 'approved')
+                ->count();
+            $pendingCount = $query->clone()
+                ->where('vendor_id', $vendor->id)
+                ->where('status', 'pending')
+                ->count();
+
+            $approvedCounts[] = $approvedCount;
+            $pendingCounts[] = $pendingCount;
+        }
 
         return [
             'datasets' => [
                 [
                     'label' => 'Approved',
-                    'data' => [$approvedWda],
+                    'data' => $approvedCounts,
                     'backgroundColor' => '#4DB6AC',
                     'borderColor' => '#ffffff',
                     'stack' => 'Status', // Enable stacking
                 ],
                 [
                     'label' => 'Pending',
-                    'data' => [$pendingWda],
+                    'data' => $pendingCounts,
                     'backgroundColor' => '#fd7e14',
                     'borderColor' => '#ffffff',
                     'stack' => 'Status', // Enable stacking
                 ],
             ],
-            'labels' => ['WDA Status'],
+            'labels' => $vendorNames,
         ];
     }
 

@@ -17,7 +17,7 @@ class VendorChart extends ChartWidget
 
     protected function getData(): array
     {
-        // Get the start date from filters or use current year if no filter is provided
+        // Get the start date from filters or use the current year if no filter is provided
         $startDate = $this->filters['startDate'] ?? null;
 
         // Determine the year based on the start date or use the current year
@@ -26,11 +26,21 @@ class VendorChart extends ChartWidget
         // Initialize an array to hold the registration count for each month
         $monthlyRegistrations = array_fill(0, 12, 0);
 
-        // Fetch vendor registrations grouped by month for the determined year
-        $vendors = Vendor::whereYear('created_at', $year)
+        // Start building the query
+        $vendorQuery = Vendor::whereYear('created_at', $year)
             ->selectRaw('MONTH(created_at) as month, COUNT(*) as count')
-            ->groupBy('month')
-            ->get();
+            ->groupBy('month');
+
+        // Apply building filter if selected
+        $buildingId = $this->filters['building'] ?? null;
+        if ($buildingId) {
+            $vendorQuery->whereHas('buildingvendor', function ($query) use ($buildingId) {
+                $query->where('building_id', $buildingId);
+            });
+        }
+
+        // Fetch vendor registrations grouped by month for the determined year
+        $vendors = $vendorQuery->get();
 
         // Populate the $monthlyRegistrations array with the count of registrations per month
         foreach ($vendors as $vendor) {
