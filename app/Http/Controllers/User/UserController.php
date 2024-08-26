@@ -25,7 +25,7 @@ class UserController extends Controller
             $flats = Flat::whereIn('id',$flatIds)->get();
         }
         else{
-            $flats = $user->residences->where('active', true)->get();
+            $flats = $user->residences;
         }
         return  UserFlatResource::collection($flats);
     }
