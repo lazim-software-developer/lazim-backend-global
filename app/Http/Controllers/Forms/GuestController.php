@@ -112,7 +112,7 @@ class GuestController extends Controller
         $request->merge([
             'start_time'           => $request->start_date,
             'end_time'             => $request->start_date,
-            'phone'                => "NA",
+            'phone'                => $request->phone,
             'email'                => $request->email,
             'owner_association_id' => $ownerAssociationId,
             'type'                 => 'visitor',
