@@ -34,7 +34,7 @@ class EditVisitorForm extends EditRecord
         {
             if ($this->record->status == 'approved')
             {
-                $security= BuildingPoc::where('building_id',$this->record->building_id)->where('active',true)->first()->user_id;
+                $security= BuildingPoc::where('building_id',$this->record->building_id)->where('active',true)->first()?->user_id;
                 $expoPushTokens = ExpoPushNotification::where('user_id', $security)->pluck('token');
             if ($expoPushTokens->count() > 0) {
                 $date= $this->record->start_time->toDateString();
