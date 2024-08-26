@@ -27,7 +27,7 @@ class UserController extends Controller
         else{
             $flats = $user->residences->where('active', true);
         }
-        return UserFlatResource::collection($flats);
+        return $flats ? UserFlatResource::collection($flats) : response()->setStatusCode(401);
     }
 
     // List all flats for the logged in user
