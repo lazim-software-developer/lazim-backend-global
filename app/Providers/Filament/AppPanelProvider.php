@@ -2,42 +2,43 @@
 
 namespace App\Providers\Filament;
 
-use App\Filament\Resources\AgingReportResource;
-use App\Filament\Resources\AssetMaintenanceResource;
-use App\Filament\Resources\BankStatementResource;
-use App\Filament\Resources\DelinquentOwnerResource;
-use App\Filament\Resources\DemoResource;
-use App\Filament\Resources\FamilyMemberResource;
-use App\Filament\Resources\IncidentResource;
-use App\Filament\Resources\OacomplaintReportsResource;
-use App\Filament\Resources\OwnerAssociationInvoiceResource;
-use App\Filament\Resources\OwnerAssociationReceiptResource;
-use App\Filament\Resources\PatrollingResource;
-use App\Filament\Resources\User\UserResource;
-use App\Filament\Resources\UserApprovalResource;
-use App\Filament\Resources\VehicleResource;
-use App\Models\Master\Role;
-use App\Models\User\User;
-use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
-use Filament\Http\Middleware\Authenticate;
-use Filament\Http\Middleware\DisableBladeIconComponents;
-use Filament\Http\Middleware\DispatchServingFilamentEvent;
-use Filament\Navigation\NavigationBuilder;
-use Filament\Navigation\NavigationGroup;
-use Filament\Navigation\NavigationItem;
 use Filament\Pages;
 use Filament\Panel;
+use Filament\Widgets;
+use App\Models\User\User;
+use App\Models\Master\Role;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
-use Filament\Widgets;
 use Illuminate\Contracts\View\View;
-use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
-use Illuminate\Cookie\Middleware\EncryptCookies;
-use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
-use Illuminate\Routing\Middleware\SubstituteBindings;
-use Illuminate\Session\Middleware\AuthenticateSession;
+use Filament\Navigation\NavigationItem;
+use App\Filament\Resources\DemoResource;
+use Filament\Navigation\NavigationGroup;
+use Filament\Http\Middleware\Authenticate;
+use Filament\Navigation\NavigationBuilder;
+use App\Filament\Resources\VehicleResource;
+use App\Filament\Resources\IncidentResource;
+use App\Filament\Resources\User\UserResource;
+use App\Filament\Resources\PatrollingResource;
+use App\Filament\Resources\AgingReportResource;
+use App\Filament\Resources\AppFeedbackResource;
 use Illuminate\Session\Middleware\StartSession;
+use App\Filament\Resources\FamilyMemberResource;
+use App\Filament\Resources\UserApprovalResource;
+use Illuminate\Cookie\Middleware\EncryptCookies;
+use App\Filament\Resources\BankStatementResource;
+use App\Filament\Resources\DelinquentOwnerResource;
+use App\Filament\Resources\AssetMaintenanceResource;
+use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
+use Illuminate\Routing\Middleware\SubstituteBindings;
+use App\Filament\Resources\OacomplaintReportsResource;
+use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use Filament\Http\Middleware\DisableBladeIconComponents;
+use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
+use App\Filament\Resources\OwnerAssociationInvoiceResource;
+use App\Filament\Resources\OwnerAssociationReceiptResource;
+use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 
 class AppPanelProvider extends PanelProvider
 {
@@ -686,6 +687,16 @@ class AppPanelProvider extends PanelProvider
                                     ->icon('heroicon-c-map-pin')
                                     ->activeIcon('heroicon-c-map-pin')
                                     ->sort(2),
+                            ]),
+                    ]);
+                }
+                if ($user->can('view_any_app::feedback')){
+                    $builder->groups([
+                        NavigationGroup::make('App Feedback')
+                            ->items([
+                                NavigationItem::make('App Feedback')
+                                    ->url(AppFeedbackResource::getUrl('index'))
+                                    ->icon('heroicon-s-pencil-square')
                             ]),
                     ]);
                 }

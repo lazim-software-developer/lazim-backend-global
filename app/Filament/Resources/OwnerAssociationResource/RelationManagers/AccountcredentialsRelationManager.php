@@ -5,15 +5,19 @@ namespace App\Filament\Resources\OwnerAssociationResource\RelationManagers;
 use Closure;
 use Filament\Tables;
 use Filament\Forms\Form;
+use App\Jobs\TestMailJob;
 use Filament\Tables\Table;
+use App\Models\Master\Role;
 use Filament\Facades\Filament;
 use App\Models\AccountCredentials;
-use App\Models\Master\Role;
+use Filament\Tables\Actions\Action;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
+use Filament\Actions\Action as ActionsAction;
+use Filament\Notifications\Notification;
 use Filament\Resources\RelationManagers\RelationManager;
 
 class AccountcredentialsRelationManager extends RelationManager
@@ -26,12 +30,11 @@ class AccountcredentialsRelationManager extends RelationManager
 
     public function canCreate(): bool
     {
-        if(Role::where('id', auth()->user()->role_id)->first()->name !== 'Admin'){
+        if (Role::where('id', auth()->user()->role_id)->first()->name !== 'Admin') {
 
-            $isActiveExists = AccountCredentials::Where('oa_id',Filament::getTenant()->id)->where('active', true)->exists();
-            return !$isActiveExists;    
+            $isActiveExists = AccountCredentials::Where('oa_id', Filament::getTenant()->id)->where('active', true)->exists();
+            return !$isActiveExists;
         }
-
     }
 
     public function form(Form $form): Form
@@ -72,39 +75,39 @@ class AccountcredentialsRelationManager extends RelationManager
                 Select::make('port')
                     ->options([
                         '2525' => '2525',
-                        '25'=>'25',
-                        '465'=>'465',
-                        '587'=>'587'
+                        '25' => '25',
+                        '465' => '465',
+                        '587' => '587'
                     ])
                     ->required()
-                    // ->integer()
-                    // ->maxValue(9999)
-                    // ->placeholder('MAIL_PORT')
-                    ,
+                // ->integer()
+                // ->maxValue(9999)
+                // ->placeholder('MAIL_PORT')
+                ,
                 Select::make('encryption')
                     ->options([
-                        'tls'=>'tls',
-                        'ssl'=>'ssl'
+                        'tls' => 'tls',
+                        'ssl' => 'ssl'
                     ])
                     ->required()
-                    // ->string()
-                    // ->minLength(3)
-                    // ->maxLength(30)
-                    // ->placeholder('MAIL_ENCRYPTION')
-                    ,
+                // ->string()
+                // ->minLength(3)
+                // ->maxLength(30)
+                // ->placeholder('MAIL_ENCRYPTION')
+                ,
                 Toggle::make('active')
-                ->rules(['boolean', function (?Model $record) {
-                    return function (string $attribute, $value, Closure $fail) use ($record) {
-                            if (AccountCredentials::where('oa_id', Filament::getTenant()->id)->where('active', true)->whereNotIn('id',[$record?->id])->exists() && $record != null && $value) {
+                    ->rules(['boolean', function (?Model $record) {
+                        return function (string $attribute, $value, Closure $fail) use ($record) {
+                            if (AccountCredentials::where('oa_id', Filament::getTenant()->id)->where('active', true)->whereNotIn('id', [$record?->id])->exists() && $record != null && $value) {
                                 $fail('A Active Security already exists for this building.');
                             }
                             if (AccountCredentials::where('oa_id', Filament::getTenant()->id)->where('active', true)->exists() && $record == null && $value) {
                                 $fail('A Active Security already exists for this building.');
                             }
-                    };
-                }])
-                ->reactive(),   
-                
+                        };
+                    }])
+                    ->reactive(),
+
                 Hidden::make('oa_id')
                     ->default(Filament::getTenant()?->id ?? auth()->user()?->owner_association_id),
                 Hidden::make('created_by')
@@ -130,16 +133,53 @@ class AccountcredentialsRelationManager extends RelationManager
                 //
             ])
             ->headerActions([
+
+                Action::make('sendTestEmail')
+                    ->visible(fn() => Role::where('id', auth()->user()->role_id)->first()->name !== 'Admin')
+                    ->label('Test Mail')
+                    ->form([
+                        TextInput::make('email')
+                            ->rules(['min:6', 'max:30', 'regex:/^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/'])
+                            ->label('Email Address')
+                            ->required()
+                            ->email(),
+                    ])
+                    ->action(function (array $data) {
+                        $email = $data['email'];
+
+                        $tenant           = Filament::getTenant()?->id ?? auth()->user()?->owner_association_id;
+
+                        $credentials = AccountCredentials::where('oa_id', $tenant)->where('active', true)->latest()->first();
+                        $mailCredentials = [
+                            'mail_host' => $credentials->host ?? env('MAIL_HOST'),
+                            'mail_port' => $credentials->port ?? env('MAIL_PORT'),
+                            'mail_username' => $credentials->username ?? env('MAIL_USERNAME'),
+                            'mail_password' => $credentials->password ?? env('MAIL_PASSWORD'),
+                            'mail_encryption' => $credentials->encryption ?? env('MAIL_ENCRYPTION'),
+                            'mail_from_address' => $credentials->email ?? env('MAIL_FROM_ADDRESS'),
+                        ];
+
+                        $OaName = Filament::getTenant()?->name ?? 'Admin';
+
+                        TestMailJob::dispatch($email, $mailCredentials, $OaName);
+
+                        Notification::make()
+                            ->title('Email Sent')
+                            ->body('A Test Email has been sent to ' . $email)
+                            ->success()
+                            ->duration(4000)
+                            ->send();
+                    }),
+
                 Tables\Actions\CreateAction::make()
-                ->label('Create')
-                ->visible(fn () => Role::where('id', auth()->user()->role_id)->first()->name !== 'Admin'),
+                    ->label('Create')
+                    ->visible(fn() => Role::where('id', auth()->user()->role_id)->first()->name !== 'Admin'),
 
             ])
             ->actions([
                 Tables\Actions\EditAction::make()
-                ->visible(fn () => Role::where('id', auth()->user()->role_id)->first()->name !== 'Admin'),
+                    ->visible(fn() => Role::where('id', auth()->user()->role_id)->first()->name !== 'Admin'),
 
-                // Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
