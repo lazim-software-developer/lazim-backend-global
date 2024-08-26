@@ -98,7 +98,7 @@ class SnagsResource extends Resource
                         Select::make('vendor_id')
                             ->relationship('vendor', 'name')
                             ->preload()
-                            ->required()
+                            // ->required()
                             ->disabledOn('edit')
                             ->options(function ( Get $get) {
                                 $serviceVendor = ServiceVendor::where('service_id',$get('service_id'))->pluck('vendor_id');
@@ -113,22 +113,22 @@ class SnagsResource extends Resource
                             // })
                             ->live()
                             ->searchable()
-                            ->label('vendor Name'),
-                        Select::make('flat_id')
-                            ->label('Flat')
-                            ->rules(['exists:flats,id'])
-                            ->disabledOn('edit')
-                            // ->relationship('flat', 'property_number')
-                            ->options(function(Get $get){
-                                if (is_null($get('building_id'))) {
-                                    return [];
-                                }else{
-                                    return Flat::where('building_id',$get('building_id'))->pluck('property_number','id');
-                                }
-                            })
-                            ->searchable()
-                            ->preload()
-                            ->placeholder('Unit Number'),
+                            ->label('Vendor Name'),
+                        // Select::make('flat_id')
+                        //     ->label('Flat')
+                        //     ->rules(['exists:flats,id'])
+                        //     ->disabledOn('edit')
+                        //     // ->relationship('flat', 'property_number')
+                        //     ->options(function(Get $get){
+                        //         if (is_null($get('building_id'))) {
+                        //             return [];
+                        //         }else{
+                        //             return Flat::where('building_id',$get('building_id'))->pluck('property_number','id');
+                        //         }
+                        //     })
+                        //     ->searchable()
+                        //     ->preload()
+                        //     ->placeholder('Unit Number'),
                         Select::make('technician_id')
                             ->relationship('technician', 'first_name')
                             ->options(function ( Get $get) {
@@ -204,12 +204,13 @@ class SnagsResource extends Resource
                             ->native(false),
                         DateTimePicker::make('open_time')
                         ->visibleOn('edit')
-                        ->disabled(function (callable $get) {
-                            if ($get('status') == 'closed') {
-                                return true;
-                            }
-                            return false;
-                        }),
+                        // ->disabled(function (callable $get) {
+                        //     if ($get('status') == 'closed') {
+                        //         return true;
+                        //     }
+                        //     return false;
+                        // })
+                        ->disabled(),
 
                         DateTimePicker::make('close_time')
                         ->visibleOn('edit')
