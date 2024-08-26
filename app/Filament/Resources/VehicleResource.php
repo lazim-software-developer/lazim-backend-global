@@ -79,6 +79,7 @@ class VehicleResource extends Resource
 
                         return Flat::where('building_id', $get('building'))->pluck('property_number', 'id');
                     })
+                    ->getSearchResultsUsing(fn (string $search,callable $get): array => Flat::where('building_id', $get('building'))->where('property_number', 'like', "%{$search}%")->pluck('property_number', 'id')->toArray())
                     ->formatStateUsing(function ($state) {
                         return Flat::where('id', $state)->value('property_number');
                     })
