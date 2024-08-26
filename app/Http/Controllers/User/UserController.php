@@ -27,7 +27,7 @@ class UserController extends Controller
         else{
             $flats = $user->residences->where('active', true);
         }
-        return $flats->count() > 0 ? UserFlatResource::collection($flats) : response()->setStatusCode(401);
+        return $flats->count() > 0 ? UserFlatResource::collection($flats) : response()->json(['error' => 'Unauthorized'], 401);;
     }
 
     // List all flats for the logged in user
