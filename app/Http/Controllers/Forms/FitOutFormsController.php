@@ -141,9 +141,21 @@ class FitOutFormsController extends Controller
 
         return (new CustomResponseResource([
             'title'   => 'Successful!',
-            'message' => "",
+            'message' => "Contractor request submitted successfully",
             'code'    => 201,
             'status'  => 'success',
         ]))->response()->setStatusCode(201);
+    }
+
+    public function verifyContractorRequest(FitOutForm $fitout){
+        if ($fitout->contractorRequest) {
+            return (new CustomResponseResource([
+                'title'   => 'Request already exists!',
+                'message' => 'Request already exists for this FitOut form!',
+                'code'    => 403,
+            ]))->response()->setStatusCode(403);
+        }
+
+        return response();
     }
 }
