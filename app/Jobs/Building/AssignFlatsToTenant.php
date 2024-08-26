@@ -19,7 +19,7 @@ class AssignFlatsToTenant implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
 
-    public function __construct(protected $email, protected $mobile, protected $owner_id, protected $customerId)
+    public function __construct(protected $email, protected $mobile, protected $owner_id, protected $customerId,protected $type)
     {
 
     }
@@ -55,10 +55,11 @@ class AssignFlatsToTenant implements ShouldQueue
                     'building_id' => $flatDetails->building_id,
                     'owner_association_id' => $flatDetails->owner_association_id,
                     'start_date' => now(),
-                    'active' => 1
+                    'active' => 1,
+                    'role' => $this->type,
                 ]
             );
-            
+
             $connection->table('customer_flat')->insert([
                 'customer_id' => $this->customerId,
                 'flat_id' => $flat->flat_id,
