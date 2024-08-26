@@ -45,6 +45,6 @@ class ComplaintController extends Controller
             ->paginate(10);
 
 
-        return Complaintresource::collection($mergedComplaints->paginate(10));
+        return Complaintresource::collection($mergedComplaints);
     }
 }
