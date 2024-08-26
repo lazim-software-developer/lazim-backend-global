@@ -106,7 +106,7 @@ class OfferPromotionsRelationManager extends RelationManager
                 //
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make()->hidden(function(RelationManager $livewire){
+                Tables\Actions\CreateAction::make()->visible(function(RelationManager $livewire){
                     return OfferPromotion::where('building_id',$livewire->ownerRecord->id)->count() < 10;
                 }),
             ])
