@@ -6,6 +6,7 @@ use App\Filament\Resources\AnnouncementResource;
 use App\Filament\Resources\PostResource;
 use App\Models\Community\Post;
 use App\Models\Master\Role;
+use App\Models\OwnerAssociation;
 use App\Models\User\User;
 use App\Traits\UtilsTrait;
 use Filament\Notifications\Actions\Action;
@@ -31,14 +32,14 @@ class AnnouncementObserver
                     });
                     Notification::make()
                         ->success()
-                        ->title("Announcement created")
+                        ->title("Notice created")
                         ->icon('heroicon-o-document-text')
                         ->iconColor('warning')
-                        ->body('New Announcement has been created.')
+                        ->body('New Notice has been created.')
                         ->actions([
                             Action::make('view')
                                 ->button()
-                                ->url(fn () => PostResource::getUrl('edit', [$post->id])),
+                                ->url(fn () => PostResource::getUrl('edit', [OwnerAssociation::where('id', $post->owner_association_id)->first()?->slug,$post->id])),
                         ])
                         ->sendToDatabase($notifyTo);
                 } else {
@@ -55,7 +56,7 @@ class AnnouncementObserver
                         ->actions([
                             Action::make('view')
                                 ->button()
-                                ->url(fn () => PostResource::getUrl('edit', [$post->id])),
+                                ->url(fn () => PostResource::getUrl('edit', [OwnerAssociation::where('id', $post->owner_association_id)->first()?->slug,$post->id])),
                         ])
                         ->sendToDatabase($notifyTo);
                 }
