@@ -70,6 +70,10 @@ class EditFitOutFormsDocument extends EditRecord
     }
     public function afterSave()
     {
+        Log::info('Record',[$this->record->status]);
+        Log::info('Data',[$this->data['status']]);
+        Log::info('Condition 1',[$this->record->status == 'approved']);
+        Log::info('Condition 2',[$this->record->status != $this->data['status']]);
         if ($this->record->status == 'approved' && $this->record->status != $this->data['status']) {
             $this->record->contractorRequest->update(['status' => $this->record->status]);
 
