@@ -18,8 +18,10 @@ use Filament\Forms\Components\FileUpload;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\NocFormResource\Pages;
+use App\Models\Order;
 use Closure;
 use Filament\Facades\Filament;
+use Illuminate\Database\Eloquent\Model;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class NocFormResource extends Resource
@@ -265,7 +267,7 @@ class NocFormResource extends Resource
                         ->live(),
                     TextInput::make('id')
                         ->formatStateUsing(function (?Model $record){
-                            $orderpayment_status = Order::where(['orderable_id'=>$record->id,'orderable_type'=>AccessCard::class])->first()?->payment_status;
+                            $orderpayment_status = Order::where(['orderable_id'=>$record->id,'orderable_type'=>SaleNOC::class])->first()?->payment_status;
                             if($orderpayment_status){
                                 return $orderpayment_status == 'requires_payment_method' ? 'Payment Failed' : $orderpayment_status;
                             }
