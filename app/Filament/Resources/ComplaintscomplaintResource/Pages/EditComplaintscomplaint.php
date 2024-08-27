@@ -9,6 +9,7 @@ use App\Traits\UtilsTrait;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class EditComplaintscomplaint extends EditRecord
 {
@@ -25,6 +26,13 @@ class EditComplaintscomplaint extends EditRecord
     {
         return $this->getResource()::getUrl('index');
     }
+
+    protected function mutateFormDataBeforeFill(array $data): array
+    {
+        $data['type'] = Str::ucfirst($data['type']);
+        return $data;
+    }
+
     public function afterSave()
     {
         $role = Role::where('id', auth()->user()->role_id)->first();
@@ -93,7 +101,7 @@ class EditComplaintscomplaint extends EditRecord
                                 'view' => 'notifications::notification',
                                 'viewData' => [],
                                 'format' => 'filament',
-                                'url' => 'HelpDeskTab',
+                                'url' => 'InAppNotficationScreen',
                             ]),
                             'created_at' => now()->format('Y-m-d H:i:s'),
                             'updated_at' => now()->format('Y-m-d H:i:s'),
