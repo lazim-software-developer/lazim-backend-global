@@ -2,10 +2,13 @@
 
 namespace App\Observers;
 
+use App\Filament\Resources\AnnouncementResource;
+use App\Filament\Resources\PostResource;
 use App\Models\Community\Post;
 use App\Models\Master\Role;
 use App\Models\User\User;
 use App\Traits\UtilsTrait;
+use Filament\Notifications\Actions\Action;
 use Filament\Notifications\Notification;
 
 class AnnouncementObserver
@@ -32,6 +35,11 @@ class AnnouncementObserver
                         ->icon('heroicon-o-document-text')
                         ->iconColor('warning')
                         ->body('New Announcement has been created.')
+                        ->actions([
+                            Action::make('view')
+                                ->button()
+                                ->url(fn () => PostResource::getUrl('edit', [$post->id])),
+                        ])
                         ->sendToDatabase($notifyTo);
                 } else {
                     $requiredPermissions = ['view_any_post'];
@@ -44,6 +52,11 @@ class AnnouncementObserver
                         ->icon('heroicon-o-document-text')
                         ->iconColor('warning')
                         ->body('New Post has been created.')
+                        ->actions([
+                            Action::make('view')
+                                ->button()
+                                ->url(fn () => PostResource::getUrl('edit', [$post->id])),
+                        ])
                         ->sendToDatabase($notifyTo);
                 }
             }

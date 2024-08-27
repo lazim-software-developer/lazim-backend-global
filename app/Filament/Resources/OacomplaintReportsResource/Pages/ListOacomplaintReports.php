@@ -16,7 +16,7 @@ class ListOacomplaintReports extends ListRecords
     {
         $buildings = Building::where('owner_association_id', auth()->user()?->owner_association_id)->pluck('id')->toArray();
 
-        $query = parent::getTableQuery()->where('category', 'oa-complaint-report');
+        $query = parent::getTableQuery()->where('complaint_type', 'oa_complaint_report');
 
         if (Role::where('id', auth()->user()->role_id)->first()->name != 'Admin') {
             $query->whereIn('building_id', $buildings);
