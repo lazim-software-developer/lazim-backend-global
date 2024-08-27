@@ -8,17 +8,18 @@ use Filament\Forms\Get;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use App\Models\UserApproval;
+use App\Models\Building\Flat;
 use Filament\Resources\Resource;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Forms\Components\DateTimePicker;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\UserApprovalResource\Pages;
-use App\Filament\Resources\UserApprovalResource\RelationManagers;
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\DateTimePicker;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
+use App\Filament\Resources\UserApprovalResource\RelationManagers;
 
 class UserApprovalResource extends Resource
 {
@@ -45,6 +46,15 @@ class UserApprovalResource extends Resource
                 //     ->disabled(),
                 TextInput::make('user')->disabledOn('edit'),
                 TextInput::make('email')->disabledOn('edit'),
+                Select::make('flat_id')->label('Flat Number')
+                    ->relationship('flat','property_number')
+                    ->disabled()
+                    ->live(),
+                TextInput::make('building')
+                ->formatStateUsing(function($record){
+                    return Flat::where('id',$record->flat_id)->first()->building->name;
+                })
+                ->disabled(),
                 TextInput::make('phone')->disabledOn('edit'),
                 FileUpload::make('document')
                     ->label(function (Get $get) {
