@@ -25,7 +25,7 @@ class DocumentLibraryResource extends JsonResource
                 ->where([
                     'documentable_type'   => User::class,
                     'document_library_id' => $this->id,
-                    'documentable_id'     => 34,
+                    'documentable_id'     => auth()->user()->id,
                     'flat_id'             => $flatId,
                 ])
                 ->orderBy('id', 'desc')
@@ -36,7 +36,7 @@ class DocumentLibraryResource extends JsonResource
                 ->where([
                     'documentable_type'   => User::class,
                     'document_library_id' => $this->id,
-                    'documentable_id'     => 34,
+                    'documentable_id'     => auth()->user()->id,
                 ])
                 ->orderBy('id', 'desc')
                 ->first();
