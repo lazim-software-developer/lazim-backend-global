@@ -41,8 +41,8 @@ class EditOwnerAssociation extends EditRecord
         // $phone = OwnerAssociation::where('id',$this->data['id'])->pluck('phone');
         // dd($phone->first() == $this->data['phone']);
 
-        if($this->record->profile_photo != User::where('owner_association_id', $this->data['id'])->where('role_id', Role::where('name', 'OA')->where('owner_association_id', $this->record->id)->first()->id)->first()->profile_photo){
-            $user = User::where('owner_association_id', $this->data['id'])->where('role_id', Role::where('name', 'OA')->where('owner_association_id', $this->record->id)->first()->id)
+        if($this->record->profile_photo != User::where('owner_association_id', $this->record->id)->where('role_id', Role::where('name', 'OA')->where('owner_association_id', $this->record->id)->first()->id)->first()->profile_photo){
+            $user = User::where('owner_association_id', $this->record->id)->where('role_id', Role::where('name', 'OA')->where('owner_association_id', $this->record->id)->first()->id)
                 ->update([
                     'profile_photo' => $this->record->profile_photo,
                 ]);
