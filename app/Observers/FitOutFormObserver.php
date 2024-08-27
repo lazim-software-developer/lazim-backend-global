@@ -28,7 +28,7 @@ class FitOutFormObserver
         });
         Notification::make()
         ->success()
-        ->title("New FitOut Form Submission")
+        ->title("New Fitout Form Submission")
         ->icon('heroicon-o-document-text')
         ->iconColor('warning')
         ->body('New form submission by '.auth()->user()->first_name)

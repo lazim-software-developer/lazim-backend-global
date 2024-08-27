@@ -48,7 +48,7 @@ class FacilityController extends Controller
         if ($existingBooking) {
             return (new CustomResponseResource([
                 'title' => 'Booking Error',
-                'message' => 'The facility is already booked for the specified time range.',
+                'message' => 'The amenity is already booked for the specified time range.',
                 'code' => 400,
             ]))->response()->setStatusCode(400);
         }
@@ -66,7 +66,7 @@ class FacilityController extends Controller
 
         return new CustomResponseResource([
             'title' => 'Booking Successful',
-            'message' => 'Facility booking has been successfully created.',
+            'message' => 'Amenity booking has been successfully created.',
             'code' => 200,
         ]);
     }

@@ -162,7 +162,7 @@ class FacilityBookingsRelationManager extends RelationManager
                                                 'to' => $expoPushToken,
                                                 'sound' => 'default',
                                                 'title' => $facilityName->name . ' Booking Status.',
-                                                'body' => 'Your facility booking request for ' . $facilityName->name . ' is approved',
+                                                'body' => 'Your amenity booking request for ' . $facilityName->name . ' is approved',
                                                 'data' => ['notificationType' => 'MyBookingsFacility'],
                                             ];
                                             $this->expoNotification($message);
@@ -175,7 +175,7 @@ class FacilityBookingsRelationManager extends RelationManager
                                                 'notifiable_id' => $user->user_id,
                                                 'data' => json_encode([
                                                     'actions' => [],
-                                                    'body' => 'Your facility booking request for ' . $facilityName->name . ' is approved',
+                                                    'body' => 'Your amenity booking request for ' . $facilityName->name . ' is approved',
                                                     'duration' => 'persistent',
                                                     'icon' => 'heroicon-o-document-text',
                                                     'iconColor' => 'warning',
@@ -198,7 +198,7 @@ class FacilityBookingsRelationManager extends RelationManager
                                                 'to' => $expoPushToken,
                                                 'sound' => 'default',
                                                 'title' =>  $facilityName->name . ' Booking Status.',
-                                                'body' => 'Your facility booking request for ' . $facilityName->name . ' is rejected',
+                                                'body' => 'Your amenity booking request for ' . $facilityName->name . ' is rejected',
                                                 'data' => ['notificationType' => 'MyBookingsFacility'],
                                             ];
                                             $this->expoNotification($message);
@@ -211,7 +211,7 @@ class FacilityBookingsRelationManager extends RelationManager
                                                 'notifiable_id' => $user->user_id,
                                                 'data' => json_encode([
                                                     'actions' => [],
-                                                    'body' => 'Your facility booking request for ' . $facilityName->name . ' is rejected',
+                                                    'body' => 'Your amenity booking request for ' . $facilityName->name . ' is rejected',
                                                     'duration' => 'persistent',
                                                     'icon' => 'heroicon-o-document-text',
                                                     'iconColor' => 'danger',

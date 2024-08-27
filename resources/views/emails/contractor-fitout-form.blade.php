@@ -13,7 +13,7 @@
 </tr>
 <tr>
 	<td class="paragraph">
-		FitOut request has been submitted, you will find a link below.
+		Fitout request has been submitted, you will find a link below.
 	</td>
 </tr>
 <tr>
