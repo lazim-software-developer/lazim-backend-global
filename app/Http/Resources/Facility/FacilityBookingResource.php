@@ -21,8 +21,8 @@ class FacilityBookingResource extends JsonResource
             'facility_id' => $this->bookable->id,
             'facility_icon' => $this->bookable->icon,
             'date' => Carbon::parse($this->date)->format('jS M Y'),
-            'start_time' => Carbon::parse($this->start_time)->format('ha'),
-            'end_time' => Carbon::parse($this->end_time)->format('ha'),
+            'start_time' => Carbon::parse($this->start_time)->format('h:ia'),
+            'end_time' => Carbon::parse($this->end_time)->format('h:ia'),
             'approved' =>(bool) $this->approved
         ];
     }
