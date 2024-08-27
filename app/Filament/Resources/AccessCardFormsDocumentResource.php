@@ -17,9 +17,10 @@ use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\CheckboxList;
 use App\Filament\Resources\AccessCardFormsDocumentResource\Pages;
+use App\Models\Order;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 use Filament\Tables;
-
+use Illuminate\Database\Eloquent\Model;
 
 class AccessCardFormsDocumentResource extends Resource
 {
@@ -140,6 +141,16 @@ class AccessCardFormsDocumentResource extends Resource
                         ->required()
                         ->searchable()
                         ->live(),
+                    TextInput::make('reason')
+                        ->formatStateUsing(function (?Model $record){
+                            $orderpayment_status = Order::where(['orderable_id'=>$record->id,'orderable_type'=>AccessCard::class])->first()?->payment_status;
+                            if($orderpayment_status){
+                                return $orderpayment_status == 'requires_payment_method' ? 'Payment Failed' : $orderpayment_status;
+                            }
+                            return 'NA';
+                        })
+                        ->label('Payment Status')
+                        ->readOnly(),
                     TextInput::make('remarks')
                         ->rules(['max:150'])
                         ->visible(function (callable $get) {
@@ -216,6 +227,11 @@ class AccessCardFormsDocumentResource extends Resource
                 //     ->disk('s3'),
                 TextColumn::make('status')
                     ->searchable()
+                    ->default('NA')
+                    ->limit(50),
+                TextColumn::make('orders')
+                    ->formatStateUsing(fn ($state) => json_decode($state)? (json_decode($state)->payment_status == 'requires_payment_method' ? 'Payment Failed' : json_decode($state)->payment_status): 'NA')
+                    ->label('Payment Status')
                     ->default('NA')
                     ->limit(50),
                 TextColumn::make('remarks')
