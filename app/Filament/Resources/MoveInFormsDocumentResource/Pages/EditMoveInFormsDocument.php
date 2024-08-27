@@ -76,7 +76,7 @@ class EditMoveInFormsDocument extends EditRecord
                             'to' => $expoPushToken,
                             'sound' => 'default',
                             'title' => 'Move-in',
-                            'body' => 'New move-in.',
+                            'body' => 'New move-in form received.',
                             'data' => ['notificationType' => 'Move-in'],
                         ];
                         $this->expoNotification($message);
@@ -89,7 +89,7 @@ class EditMoveInFormsDocument extends EditRecord
                             'notifiable_id' => $id,
                             'data' => json_encode([
                                 'actions' => [],
-                                'body' => 'New move-in.',
+                                'body' => 'New move-in form received.',
                                 'duration' => 'persistent',
                                 'icon' => 'heroicon-o-document-text',
                                 'iconColor' => 'warning',
