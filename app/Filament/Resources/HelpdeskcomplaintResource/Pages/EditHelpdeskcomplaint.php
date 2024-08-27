@@ -10,6 +10,7 @@ use App\Traits\UtilsTrait;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class EditHelpdeskcomplaint extends EditRecord
 {
@@ -26,6 +27,13 @@ class EditHelpdeskcomplaint extends EditRecord
     {
         return $this->getResource()::getUrl('index');
     }
+
+    protected function mutateFormDataBeforeFill(array $data): array
+    {
+        $data['type'] = Str::ucfirst($data['type']);
+        return $data;
+    }
+
     public function afterSave()
     {
         $role = Role::where('id', auth()->user()->role_id)->first();
