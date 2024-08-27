@@ -15,8 +15,8 @@ class WdaChart extends ChartWidget
 
     protected static ?string $heading = 'WDA';
     protected static ?string $maxHeight = '400px';
-    protected static ?int $sort = 10;
-    protected int | string | array $columnSpan = 'full';
+    protected static ?int $sort = 8;
+    // protected int | string | array $columnSpan = 'full';
 
     protected function getData(): array
     {
