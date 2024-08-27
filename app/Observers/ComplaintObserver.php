@@ -98,7 +98,41 @@ class ComplaintObserver
                 ->button()
                 ->url(fn () => SnagsResource::getUrl('edit', [OwnerAssociation::where('id',$complaint->owner_association_id)->first()?->slug,$complaint->id]))
             ])
-        ->sendToDatabase($notifyTo);
+            ->sendToDatabase($notifyTo);
+            if($complaint->technician_id){
+                $expoPushTokens = ExpoPushNotification::where('user_id', $complaint->technician_id)->pluck('token');
+                if ($expoPushTokens->count() > 0) {
+                    foreach ($expoPushTokens as $expoPushToken) {
+                        $message = [
+                            'to' => $expoPushToken,
+                            'sound' => 'default',
+                            'title' => 'New Complaint Assigned',
+                            'body' => 'A new complaint assigned to you.',
+                            'data' => ['notificationType' => 'PendingRequests'],
+                        ];
+                        $this->expoNotification($message);
+                        DB::table('notifications')->insert([
+                            'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
+                            'type' => 'Filament\Notifications\DatabaseNotification',
+                            'notifiable_type' => 'App\Models\User\User',
+                            'notifiable_id' => $complaint->technician_id,
+                            'data' => json_encode([
+                                'actions' => [],
+                                'body' => 'A new complaint assigned to you.',
+                                'duration' => 'persistent',
+                                'icon' => 'heroicon-o-document-text',
+                                'iconColor' => 'warning',
+                                'title' => 'New Complaint Assigned',
+                                'view' => 'notifications::notification',
+                                'viewData' => [],
+                                'format' => 'filament',
+                                'url' => 'PendingRequests',
+                            ]),
+                            'created_at' => now()->format('Y-m-d H:i:s'),
+                            'updated_at' => now()->format('Y-m-d H:i:s'),
+                        ]);
+                    }
+                }
         }
         else {
             $requiredPermissions = ['view_any_helpdeskcomplaint'];
