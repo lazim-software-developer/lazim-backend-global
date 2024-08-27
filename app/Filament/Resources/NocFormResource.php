@@ -263,6 +263,11 @@ class NocFormResource extends Resource
                         ->required()
                         ->searchable()
                         ->live(),
+                    TextColumn::make('orders')
+                        ->formatStateUsing(fn ($state) => json_decode($state)? (json_decode($state)->payment_status == 'requires_payment_method' ? 'Payment Failed' : json_decode($state)->payment_status): 'NA')
+                        ->label('Payment Status')
+                        ->default('NA')
+                        ->limit(50),
                     TextInput::make('remarks')
                         ->rules(['max:150'])
                         ->visible(function (callable $get) {
@@ -322,6 +327,11 @@ class NocFormResource extends Resource
                 TextColumn::make('status')
                     ->searchable()
                     ->default('NA'),
+                TextColumn::make('orders')
+                    ->formatStateUsing(fn ($state) => json_decode($state)? (json_decode($state)->payment_status == 'requires_payment_method' ? 'Payment Failed' : json_decode($state)->payment_status): 'NA')
+                    ->label('Payment Status')
+                    ->default('NA')
+                    ->limit(50),
                 TextColumn::make('remarks')
                     ->searchable()
                     ->default('NA'),
