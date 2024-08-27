@@ -33,7 +33,7 @@ class AnnouncementNotifications extends Command
     public function handle()
     {
         $scheduledAt = Post::whereRaw("DATE_FORMAT(scheduled_at, '%Y-%m-%d %H:%i') = ?", [now()->format('Y-m-d H:i')])
-        ->where('status','published')->get();
+        ->where('status','published')->where('active',true)->get();
         
         foreach($scheduledAt as $post){
             $buildings = $post->building->pluck('id');
