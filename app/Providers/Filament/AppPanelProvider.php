@@ -237,12 +237,13 @@ class AppPanelProvider extends PanelProvider
                                     ->activeIcon('heroicon-o-home')
                                     ->sort(2),
                                 NavigationItem::make('Facility bookings')
+                                    ->label('Amenity Bookings')
                                     ->url('/app/building/facility-bookings')
                                     ->visible($user->can('view_any_building::facility::booking'))
                                     ->icon('heroicon-o-cube-transparent')
                                     ->activeIcon('heroicon-o-cube-transparent')
                                     ->sort(3),
-                                NavigationItem::make('Service Bookings')
+                                NavigationItem::make('Personal Service Bookings')
                                     ->url('/app/building/service-bookings')
                                     ->visible($user->can('view_any_building::service::booking'))
                                     ->icon('heroicon-m-wrench')
@@ -492,9 +493,9 @@ class AppPanelProvider extends PanelProvider
                 ) {
                     $builder->groups([
                         //DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] == 'Admin' ? true : false view_any_building::building
-                        NavigationGroup::make('Forms')
+                        NavigationGroup::make('Request Forms')
                             ->items([
-                                NavigationItem::make('Guest registration')
+                                NavigationItem::make('Holiday Homes Guest registration')
                                     ->url('/app/guest-registrations')
                                     ->hidden(!$user->can('view_any_guest::registration'))
                                     ->icon('heroicon-m-identification')
