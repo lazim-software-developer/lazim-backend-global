@@ -6,6 +6,7 @@ use App\Filament\Resources\VisitorFormResource\Pages;
 use App\Filament\Resources\VisitorFormResource\RelationManagers;
 use App\Models\Visitor\FlatVisitor;
 use Filament\Forms;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
@@ -34,7 +35,7 @@ class VisitorFormResource extends Resource
                 ->relationship('flat', 'property_number')->disabled(),
                 TextInput::make('name')->disabled(),
                 TextInput::make('email')->disabled(),
-                TextInput::make('start_time')->label('Date')->disabled(),
+                DatePicker::make('start_time')->label('Date')->disabled(),
                 TextInput::make('time_of_viewing')->label('Time')->disabled(),
                 TextInput::make('number_of_visitors')->disabled(),
                 Select::make('status')
@@ -87,7 +88,7 @@ class VisitorFormResource extends Resource
                 ->label('Unit'),
                 TextColumn::make('name'),
                 TextColumn::make('email'),
-                TextColumn::make('start_time')
+                TextColumn::make('start_time')->date('Y-m-d')
                     ->label('Date')
                     // ->date()
                     ->default('NA'),
