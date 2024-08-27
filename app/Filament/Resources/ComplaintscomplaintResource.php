@@ -194,6 +194,10 @@ class ComplaintscomplaintResource extends Resource
                                 return $record->status != 'open';
                             })
                             ->required(),
+                        
+                        TextInput::make('type')->label('Type')
+                            ->disabled()
+                            ->default('NA'),
 
                         Toggle::make('Urgent')
                             ->disabled()
@@ -214,6 +218,7 @@ class ComplaintscomplaintResource extends Resource
                                 }
                             })
                             ->disabled(),
+                        
                         
 
                     ])

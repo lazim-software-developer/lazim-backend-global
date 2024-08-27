@@ -198,6 +198,9 @@ class HelpdeskcomplaintResource extends Resource
                                 return $record->status != 'open';
                             })
                             ->required(),
+                        TextInput::make('type')->label('Type')
+                            ->disabled()
+                            ->default('NA'),
                         Toggle::make('Urgent')
                             ->disabled()
                             ->formatStateUsing(function($record){
@@ -217,6 +220,7 @@ class HelpdeskcomplaintResource extends Resource
                                 }
                             })
                             ->disabled(),
+                        
                         
 
                     ])
