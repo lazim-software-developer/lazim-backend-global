@@ -66,7 +66,7 @@ class EditMoveInFormsDocument extends EditRecord
                         'created_at' => now()->format('Y-m-d H:i:s'),
                         'updated_at' => now()->format('Y-m-d H:i:s'),
                     ]);
-            $security= $this->record->building->buildingPocs->where('active',true)->where('role_name','security')->first();
+            $security= $this->record->building->buildingPocs->where('active',true)->where('role_name','security');
             if($security->exists()) {
                 $id = $security->first()->user_id;
                 $expoPushTokens = ExpoPushNotification::where('user_id', $id)->pluck('token');
