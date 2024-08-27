@@ -26,6 +26,8 @@ class MoveInFormsDocumentResource extends Resource
 {
     protected static ?string $model = MoveInOut::class;
     protected static ?string $modelLabel = 'Move in';
+    protected static ?string $pluralModelLabel = 'Move in';
+
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
     protected static ?string $navigationGroup = 'Forms Document';
     public static function form(Form $form): Form
