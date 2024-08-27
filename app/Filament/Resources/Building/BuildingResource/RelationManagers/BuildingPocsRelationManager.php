@@ -183,7 +183,7 @@ class BuildingPocsRelationManager extends RelationManager
                             'phone'                => '971' . $data['phone'],
                             'profile_photo'        => $data['profile_photo'],
                             'active'               => $data['active'],
-                            'role_id'              => 12,
+                            'role_id'              => Role::where('owner_association_id',$oa_id)->where('name','Security')->first()?->id,
                             'owner_association_id' => $oa_id,
                             'email_verified'       => 1,
                             'phone_verified'       => 1,
