@@ -101,14 +101,14 @@ class FormsChart extends ChartWidget
                         $visitorCount
                     ],
                     'backgroundColor' => [
-                        '#f5fa5a', 
-                        '#5a82fa', 
-                        '#5afaa7', 
-                        '#fa5a92', 
-                        '#fa5a5a', 
-                        '#fa9a5a', 
-                        '#bbf76d', 
-                        '#5a82fa'
+                        '#5581DD', 
+                        '#51CEA4', 
+                        '#BB86FC', 
+                        '#E49B50', 
+                        '#E57373', 
+                        '#FFD54F', 
+                        '#4DB6AC', 
+                        '#90CAF9'
                     ],
                     'borderColor' => '#ffffff',
                 ],

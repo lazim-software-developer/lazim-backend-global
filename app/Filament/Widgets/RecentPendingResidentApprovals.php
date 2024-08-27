@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Builder;
 
 class RecentPendingResidentApprovals extends BaseWidget
 {
-    protected static ?int $sort = 5;
+    protected static ?int $sort = 8;
     protected static ?string $minHeight = '400px';
     protected static ?string $maxHeight = '400px';
     protected static ?string $heading = 'Recent Pending Resident Approvals';

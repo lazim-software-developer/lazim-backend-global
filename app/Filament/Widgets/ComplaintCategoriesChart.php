@@ -9,10 +9,10 @@ use Illuminate\Support\Facades\DB;
 class ComplaintCategoriesChart extends ChartWidget
 {
     protected static ?string $heading = 'Complaints';
-    protected static ?string $maxHeight = '500px';
+    protected static ?string $maxHeight = '400px';
     // protected int | string | array $columnSpan = 6;
 
-    protected static ?int $sort = 8;
+    protected static ?int $sort = 9;
     public function getData(): array
     {
         // Fetch complaint data
@@ -56,7 +56,7 @@ class ComplaintCategoriesChart extends ChartWidget
                     'position' => 'top',
                     'labels' => [
                         'font' => [
-                            'size' => 14,
+                            'size' => 12,
                         ],
                     ],
                 ],
