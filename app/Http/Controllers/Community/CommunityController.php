@@ -27,7 +27,7 @@ class CommunityController extends Controller
     public function emergencyHotline(Building $building)
     {
         if($building->emergencyNumbers->isEmpty()){
-            return response()->json(['message' => 'No Emergency numbers currently available. Please try again later.'], 200);
+            return response()->json(['message' => 'No Emergency numbers currently available. Please try again later.'], 404);
         }
         return $building->emergencyNumbers;
     }
@@ -36,7 +36,7 @@ class CommunityController extends Controller
     {
         $activeOfferPromotion = OfferPromotion::where('building_id', $building->id)->whereDate('end_date', '>=', now())->where('active',true)->get();
         if($activeOfferPromotion->isEmpty()){
-            return response()->json(['message' => 'No active offer promotions currently available. Please try again later.'], 200);
+            return response()->json(['message' => 'No active offer promotions currently available. Please try again later.'], 404);
         }
         return  OfferPromotionsResource::collection($activeOfferPromotion);
     }
