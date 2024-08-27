@@ -133,6 +133,7 @@ class ComplaintObserver
                         ]);
                     }
                 }
+            }
         }
         else {
             $requiredPermissions = ['view_any_helpdeskcomplaint'];
