@@ -97,84 +97,84 @@ class FlatsRelationManager extends RelationManager
                 //
             ])
             ->actions([
-                Tables\Actions\ViewAction::make()
-                ->form([
-                    TextInput::make('property_number')
-                        ->rules(['numeric'])
-                        ->numeric()
-                        ->placeholder('Property Number')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
-                    TextInput::make('description')
-                        ->placeholder('Description')
-                        ->default('NA')
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
-                        Select::make('building_id')
-                            ->rules(['exists:buildings,id'])
-                            ->relationship('building', 'name')
-                            ->reactive()
-                            ->default('NA')
-                            ->preload()
-                            ->searchable()
-                            ->placeholder('Building')
-                            ->columnSpan([
-                                'default' => 12,
-                                'md' => 12,
-                                'lg' => 12,
-                            ]),
-                        TextInput::make('suit_area')
-                            ->placeholder('NA')->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                            ]),
-                        TextInput::make('actual_area')
-                            ->placeholder('NA')->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                            ]),
-                        TextInput::make('balcony_area')
-                            ->placeholder('NA')->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                            ]),
-                        TextInput::make('applicable_area')
-                            ->placeholder('NA')->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                            ]),
-                        TextInput::make('virtual_account_number')
-                            ->placeholder('NA')->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                            ]),
-                        TextInput::make('parking_count')
-                            ->placeholder('NA')->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                            ]),
-                        TextInput::make('plot_number')
-                            ->placeholder('NA')->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                            ]),
-                ])
-                ->fillForm(fn (Flat $record): array => [
-                    'property_number' => $record->property_number,
-                ]),
+                // Tables\Actions\ViewAction::make()
+                // ->form([
+                //     TextInput::make('property_number')
+                //         ->rules(['numeric'])
+                //         ->numeric()
+                //         ->placeholder('Property Number')
+                //         ->columnSpan([
+                //             'default' => 12,
+                //             'md' => 12,
+                //             'lg' => 12,
+                //         ]),
+                //     TextInput::make('description')
+                //         ->placeholder('Description')
+                //         ->default('NA')
+                //         ->columnSpan([
+                //             'default' => 12,
+                //             'md' => 12,
+                //             'lg' => 12,
+                //         ]),
+                //         Select::make('building_id')
+                //             ->rules(['exists:buildings,id'])
+                //             ->relationship('building', 'name')
+                //             ->reactive()
+                //             ->default('NA')
+                //             ->preload()
+                //             ->searchable()
+                //             ->placeholder('Building')
+                //             ->columnSpan([
+                //                 'default' => 12,
+                //                 'md' => 12,
+                //                 'lg' => 12,
+                //             ]),
+                //         TextInput::make('suit_area')
+                //             ->placeholder('NA')->columnSpan([
+                //             'default' => 12,
+                //             'md' => 12,
+                //             'lg' => 12,
+                //             ]),
+                //         TextInput::make('actual_area')
+                //             ->placeholder('NA')->columnSpan([
+                //             'default' => 12,
+                //             'md' => 12,
+                //             'lg' => 12,
+                //             ]),
+                //         TextInput::make('balcony_area')
+                //             ->placeholder('NA')->columnSpan([
+                //             'default' => 12,
+                //             'md' => 12,
+                //             'lg' => 12,
+                //             ]),
+                //         TextInput::make('applicable_area')
+                //             ->placeholder('NA')->columnSpan([
+                //             'default' => 12,
+                //             'md' => 12,
+                //             'lg' => 12,
+                //             ]),
+                //         TextInput::make('virtual_account_number')
+                //             ->placeholder('NA')->columnSpan([
+                //             'default' => 12,
+                //             'md' => 12,
+                //             'lg' => 12,
+                //             ]),
+                //         TextInput::make('parking_count')
+                //             ->placeholder('NA')->columnSpan([
+                //             'default' => 12,
+                //             'md' => 12,
+                //             'lg' => 12,
+                //             ]),
+                //         TextInput::make('plot_number')
+                //             ->placeholder('NA')->columnSpan([
+                //             'default' => 12,
+                //             'md' => 12,
+                //             'lg' => 12,
+                //             ]),
+                // ])
+                // ->fillForm(fn (Flat $record): array => [
+                //     'property_number' => $record->property_number,
+                // ]),
             ]);
     }
 }
