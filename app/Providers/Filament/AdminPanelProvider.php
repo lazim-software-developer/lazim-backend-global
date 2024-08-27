@@ -516,9 +516,9 @@ class AdminPanelProvider extends PanelProvider
                 ) {
                     $builder->groups([
                         //DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] == 'Admin' ? true : false view_any_building::building
-                        NavigationGroup::make('Forms')
+                        NavigationGroup::make('Request Forms')
                             ->items([
-                                NavigationItem::make('Guest registration')
+                                NavigationItem::make('Holiday Homes Guest registration')
                                     ->url('/admin/guest-registrations')
                                     ->hidden(!$user->can('view_any_guest::registration'))
                                     ->icon('heroicon-m-identification')
