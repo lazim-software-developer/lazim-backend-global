@@ -137,9 +137,9 @@ class AccessCardController extends Controller
                 'created_at'      => $fitOutForm ? Carbon::parse($fitOutForm->created_at)->diffForHumans() : null,
                 'rejected_reason' => $fitOutForm ? $fitOutForm->remarks : null,
                 'message'         => null,
-                'payment_link'    => null,
-                'order_id'        => null,
-                'order_status'    => null,
+                'payment_link'    => $fitOutForm?->payment_link,
+                'order_id'        => $fitOutForm?->orders[0]->id ?? null,
+                'order_status'    => $fitOutForm?->orders[0]->payment_status ?? null,
             ],
             [
                 'id'              => $moveInForm ? $moveInForm->id : null,
