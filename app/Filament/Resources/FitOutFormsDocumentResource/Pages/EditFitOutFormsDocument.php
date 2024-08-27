@@ -70,11 +70,7 @@ class EditFitOutFormsDocument extends EditRecord
     }
     public function afterSave()
     {
-        Log::info('Record',[$this->record->status]);
-        Log::info('Data',[$this->data['status']]);
-        Log::info('Condition 1',[$this->record->status == 'approved']);
-        Log::info('Condition 2',[$this->record->status != $this->data['status']]);
-        if ($this->record->status == 'approved' && $this->record->status != $this->data['status']) {
+        if ($this->record->status == 'approved') {
             $this->record->contractorRequest->update(['status' => $this->record->status]);
 
             try {
@@ -131,7 +127,7 @@ class EditFitOutFormsDocument extends EditRecord
                 'updated_at'      => now()->format('Y-m-d H:i:s'),
             ]);
         }
-        if ($this->record->status == 'rejected' && $this->record->status != $this->data['status']) {
+        if ($this->record->status == 'rejected') {
             $this->record->contractorRequest->update(['status' => $this->record->status]);
             $expoPushTokens = ExpoPushNotification::where('user_id', $this->record->user_id)->pluck('token');
             if ($expoPushTokens->count() > 0) {
