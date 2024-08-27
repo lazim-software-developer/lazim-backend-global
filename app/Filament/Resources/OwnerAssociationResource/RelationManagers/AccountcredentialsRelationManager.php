@@ -32,7 +32,7 @@ class AccountcredentialsRelationManager extends RelationManager
     {
         if (Role::where('id', auth()->user()->role_id)->first()->name !== 'Admin') {
 
-            $isActiveExists = AccountCredentials::Where('oa_id', Filament::getTenant()->id)->where('active', true)->exists();
+            $isActiveExists = AccountCredentials::Where('oa_id', Filament::getTenant()->id)->exists();
             return !$isActiveExists;
         }
     }
@@ -95,18 +95,18 @@ class AccountcredentialsRelationManager extends RelationManager
                 // ->maxLength(30)
                 // ->placeholder('MAIL_ENCRYPTION')
                 ,
-                Toggle::make('active')
-                    ->rules(['boolean', function (?Model $record) {
-                        return function (string $attribute, $value, Closure $fail) use ($record) {
-                            if (AccountCredentials::where('oa_id', Filament::getTenant()->id)->where('active', true)->whereNotIn('id', [$record?->id])->exists() && $record != null && $value) {
-                                $fail('A Active Security already exists for this building.');
-                            }
-                            if (AccountCredentials::where('oa_id', Filament::getTenant()->id)->where('active', true)->exists() && $record == null && $value) {
-                                $fail('A Active Security already exists for this building.');
-                            }
-                        };
-                    }])
-                    ->reactive(),
+                // Toggle::make('active')
+                //     ->rules(['boolean', function (?Model $record) {
+                //         return function (string $attribute, $value, Closure $fail) use ($record) {
+                //             if (AccountCredentials::where('oa_id', Filament::getTenant()->id)->where('active', true)->whereNotIn('id', [$record?->id])->exists() && $record != null && $value) {
+                //                 $fail('A Active Security already exists for this building.');
+                //             }
+                //             if (AccountCredentials::where('oa_id', Filament::getTenant()->id)->where('active', true)->exists() && $record == null && $value) {
+                //                 $fail('A Active Security already exists for this building.');
+                //             }
+                //         };
+                //     }])
+                //     ->reactive(),
 
                 Hidden::make('oa_id')
                     ->default(Filament::getTenant()?->id ?? auth()->user()?->owner_association_id),
@@ -124,10 +124,10 @@ class AccountcredentialsRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('email'),
                 Tables\Columns\TextColumn::make('host'),
                 Tables\Columns\TextColumn::make('mailer'),
-                Tables\Columns\IconColumn::make('active')
-                    ->boolean()
-                    ->trueIcon('heroicon-o-check-badge')
-                    ->falseIcon('heroicon-o-x-mark'),
+                // Tables\Columns\IconColumn::make('active')
+                //     ->boolean()
+                //     ->trueIcon('heroicon-o-check-badge')
+                //     ->falseIcon('heroicon-o-x-mark'),
             ])
             ->filters([
                 //
@@ -135,7 +135,13 @@ class AccountcredentialsRelationManager extends RelationManager
             ->headerActions([
 
                 Action::make('sendTestEmail')
-                    ->visible(fn() => Role::where('id', auth()->user()->role_id)->first()->name !== 'Admin')
+                    ->visible(function(){
+                        $roleName = Role::where('id', auth()->user()->role_id)->first()->name;
+                        $credentialsExist = AccountCredentials::where('oa_id', auth()->user()->owner_association_id)->exists();
+                        
+                        return $roleName !== 'Admin' && $credentialsExist;
+                        
+                    })
                     ->label('Test Mail')
                     ->form([
                         TextInput::make('email')
@@ -149,14 +155,14 @@ class AccountcredentialsRelationManager extends RelationManager
 
                         $tenant           = Filament::getTenant()?->id ?? auth()->user()?->owner_association_id;
 
-                        $credentials = AccountCredentials::where('oa_id', $tenant)->where('active', true)->latest()->first();
+                        $credentials = AccountCredentials::where('oa_id', $tenant)->first();
                         $mailCredentials = [
-                            'mail_host' => $credentials->host ?? env('MAIL_HOST'),
-                            'mail_port' => $credentials->port ?? env('MAIL_PORT'),
-                            'mail_username' => $credentials->username ?? env('MAIL_USERNAME'),
-                            'mail_password' => $credentials->password ?? env('MAIL_PASSWORD'),
-                            'mail_encryption' => $credentials->encryption ?? env('MAIL_ENCRYPTION'),
-                            'mail_from_address' => $credentials->email ?? env('MAIL_FROM_ADDRESS'),
+                            'mail_host' => $credentials->host ,
+                            'mail_port' => $credentials->port ,
+                            'mail_username' => $credentials->username ,
+                            'mail_password' => $credentials->password ,
+                            'mail_encryption' => $credentials->encryption ,
+                            'mail_from_address' => $credentials->email ,
                         ];
 
                         $OaName = Filament::getTenant()?->name ?? 'Admin';
@@ -165,9 +171,9 @@ class AccountcredentialsRelationManager extends RelationManager
 
                         Notification::make()
                             ->title('Email Sent')
-                            ->body('A Test Email has been sent to ' . $email)
+                            ->body('If you haven’t received the mail, please check your Mail Credentials')
                             ->success()
-                            ->duration(4000)
+                            ->duration(5000)
                             ->send();
                     }),
 
