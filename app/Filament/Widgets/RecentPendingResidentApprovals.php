@@ -9,11 +9,11 @@ use Illuminate\Database\Eloquent\Builder;
 
 class RecentPendingResidentApprovals extends BaseWidget
 {
-    protected static ?int $sort = 5;
-    protected static ?string $minHeight = '200px';
-    protected static ?string $maxHeight = '200px';
+    protected static ?int $sort = 8;
+    protected static ?string $minHeight = '400px';
+    protected static ?string $maxHeight = '400px';
     protected static ?string $heading = 'Recent Pending Resident Approvals';
-    protected int | string | array $columnSpan = 6;
+    // protected int | string | array $columnSpan = 6;
 
     protected function getTableQuery(): Builder
     {
