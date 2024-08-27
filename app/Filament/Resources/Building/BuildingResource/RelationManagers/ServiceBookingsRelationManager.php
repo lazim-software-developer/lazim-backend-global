@@ -160,7 +160,7 @@ class ServiceBookingsRelationManager extends RelationManager
                                             'to' => $expoPushToken,
                                             'sound' => 'default',
                                             'title' => $serviceName->name . ' Booking Status.',
-                                            'body' => 'Your service booking request for '.$serviceName->name.' is approved',
+                                            'body' => 'Your personal service booking request for '.$serviceName->name.' is approved',
                                             'data' => ['notificationType' => 'MyBookingsService'],
                                         ];
                                         $this->expoNotification($message);
@@ -173,11 +173,11 @@ class ServiceBookingsRelationManager extends RelationManager
                                             'notifiable_id' => $user->user_id,
                                             'data' => json_encode([
                                                 'actions' => [],
-                                                'body' => 'Your service booking request for '.$serviceName->name.' is approved',
+                                                'body' => 'Your personal service booking request for '.$serviceName->name.' is approved',
                                                 'duration' => 'persistent',
                                                 'icon' => 'heroicon-o-document-text',
                                                 'iconColor' => 'warning',
-                                                'title' => 'service booking form Updated!',
+                                                'title' => 'Personal Service Booking Status.',
                                                 'view' => 'notifications::notification',
                                                 'viewData' => [],
                                                 'format' => 'filament',
@@ -198,7 +198,7 @@ class ServiceBookingsRelationManager extends RelationManager
                                             'to' => $expoPushToken,
                                             'sound' => 'default',
                                             'title' => $serviceName->name . ' Booking Status.',
-                                            'body' => 'Your service booking request for '.$serviceName->name.' is rejected',
+                                            'body' => 'Your personal service booking request for '.$serviceName->name.' is rejected',
                                             'data' => ['notificationType' => 'MyBookingsService'],
                                         ];
                                         $this->expoNotification($message);
@@ -211,7 +211,7 @@ class ServiceBookingsRelationManager extends RelationManager
                                             'notifiable_id' => $user->user_id,
                                             'data' => json_encode([
                                                 'actions' => [],
-                                                'body' => 'Your service booking request for '.$serviceName->name.' is rejected',
+                                                'body' => 'Your personal service booking request for '.$serviceName->name.' is rejected',
                                                 'duration' => 'persistent',
                                                 'icon' => 'heroicon-o-document-text',
                                                 'iconColor' => 'danger',
