@@ -3,13 +3,14 @@
 namespace App\Filament\Widgets;
 
 use App\Models\UserApproval;
+use Filament\Facades\Filament;
 use Filament\Widgets\TableWidget as BaseWidget;
 use Filament\Tables;
 use Illuminate\Database\Eloquent\Builder;
 
 class RecentPendingResidentApprovals extends BaseWidget
 {
-    protected static ?int $sort = 8;
+    protected static ?int $sort = 10;
     protected static ?string $minHeight = '400px';
     protected static ?string $maxHeight = '400px';
     protected static ?string $heading = 'Recent Pending Resident Approvals';
@@ -47,9 +48,11 @@ class RecentPendingResidentApprovals extends BaseWidget
     protected function getTableActions(): array
     {
         return [
-            Tables\Actions\ViewAction::make()
-                ->url(fn(UserApproval $record): string => route('filament.admin.resources.user-approvals.view', $record)),
-        ];
+            Tables\Actions\EditAction::make()
+            ->url(fn(UserApproval $record): string => route('filament.admin.resources.user-approvals.edit', [
+                'tenant' => Filament::getTenant()->slug,
+                'record' => $record->id,
+            ])),        ];
     }
 
     protected function isTablePaginationEnabled(): bool
