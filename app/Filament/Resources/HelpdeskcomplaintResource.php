@@ -31,15 +31,16 @@ use Filament\Facades\Filament;
 use Filament\Forms\Components\Toggle;
 use Illuminate\Database\Eloquent\Model;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
+use Illuminate\Support\Str;
 
 class HelpdeskcomplaintResource extends Resource
 {
     protected static ?string $model = Complaint::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-    protected static ?string $modelLabel = 'Help Desk Complaints';
+    protected static ?string $modelLabel = 'Facility Support Complaints';
 
-    protected static ?string $navigationGroup = 'Help Desk';
+    protected static ?string $navigationGroup = 'Facility Support';
 
     public static function form(Form $form): Form
     {
@@ -240,6 +241,7 @@ class HelpdeskcomplaintResource extends Resource
                     ->searchable()
                     ->limit(50),
                 TextColumn::make('type')
+                    ->formatStateUsing(fn (string $state) => Str::ucfirst($state))
                     ->default('NA'),
                 TextColumn::make('user.first_name')
                     ->toggleable()
