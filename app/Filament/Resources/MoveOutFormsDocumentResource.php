@@ -24,7 +24,9 @@ use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 class MoveOutFormsDocumentResource extends Resource
 {
     protected static ?string $model = MoveInOut::class;
-    protected static ?string $modelLabel = 'MoveOut';
+    protected static ?string $modelLabel = 'Move Out';
+    protected static ?string $pluralModelLabel = 'Move Out';
+
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
     protected static ?string $navigationGroup = 'Forms Document';
     public static function form(Form $form): Form
