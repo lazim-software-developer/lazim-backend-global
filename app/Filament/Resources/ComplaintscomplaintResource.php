@@ -36,6 +36,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 use App\Filament\Resources\ComplaintscomplaintResource\Pages;
 use App\Filament\Resources\ComplaintscomplaintResource\RelationManagers;
+use Illuminate\Support\Str;
 
 class ComplaintscomplaintResource extends Resource
 {
@@ -238,7 +239,8 @@ class ComplaintscomplaintResource extends Resource
                     ->default('NA')
                     ->searchable()
                     ->limit(50),
-                TextColumn::make('type')->label('Type')
+                TextColumn::make('type')
+                    ->formatStateUsing(fn (string $state) => Str::ucfirst($state))
                     ->default('NA'),
                 TextColumn::make('user.first_name')
                     ->toggleable()
