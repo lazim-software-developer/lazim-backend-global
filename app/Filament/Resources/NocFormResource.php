@@ -263,11 +263,16 @@ class NocFormResource extends Resource
                         ->required()
                         ->searchable()
                         ->live(),
-                    TextColumn::make('orders')
-                        ->formatStateUsing(fn ($state) => json_decode($state)? (json_decode($state)->payment_status == 'requires_payment_method' ? 'Payment Failed' : json_decode($state)->payment_status): 'NA')
+                    TextInput::make('id')
+                        ->formatStateUsing(function (?Model $record){
+                            $orderpayment_status = Order::where(['orderable_id'=>$record->id,'orderable_type'=>AccessCard::class])->first()?->payment_status;
+                            if($orderpayment_status){
+                                return $orderpayment_status == 'requires_payment_method' ? 'Payment Failed' : $orderpayment_status;
+                            }
+                            return 'NA';
+                        })
                         ->label('Payment Status')
-                        ->default('NA')
-                        ->limit(50),
+                        ->readOnly(),
                     TextInput::make('remarks')
                         ->rules(['max:150'])
                         ->visible(function (callable $get) {
