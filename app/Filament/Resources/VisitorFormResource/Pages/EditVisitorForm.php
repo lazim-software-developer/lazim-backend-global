@@ -45,8 +45,8 @@ class EditVisitorForm extends EditRecord
                     $message = [
                         'to' => $expoPushToken,
                         'sound' => 'default',
-                        'title' => 'Visitors',
-                        'body' => "Flat Visitor form has been approved \nVisitors for $date at $time\n No. of visitors: $visitorCount\n Unit:$unit ",
+                        'title' => 'Visitor form status.',
+                        'body' => "Flat Visitor form has been approved \nfor $date at $time\n No. of visitors: $visitorCount\n Unit:$unit ",
                         'data' => ['notificationType' => 'InAppNotfication'],
                     ];
                     $this->expoNotification($message);
@@ -57,11 +57,11 @@ class EditVisitorForm extends EditRecord
                         'notifiable_id' => $security,
                         'data' => json_encode([
                             'actions' => [],
-                            'body' => "Flat Visitor form has been approved \nVisitors for $date at $time\n No. of visitors: $visitorCount\n Unit:$unit ",
+                            'body' => "Flat Visitor form has been approved \nfor $date at $time\n No. of visitors: $visitorCount\n Unit:$unit ",
                             'duration' => 'persistent',
                             'icon' => 'heroicon-o-document-text',
                             'iconColor' => 'warning',
-                            'title' => 'Visitors',
+                            'title' => 'Visitor form status.',
                             'view' => 'notifications::notification',
                             'viewData' => [],
                             'format' => 'filament',
