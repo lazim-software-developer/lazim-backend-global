@@ -197,6 +197,9 @@ class HelpdeskcomplaintResource extends Resource
                                 return $record->status != 'open';
                             })
                             ->required(),
+                        TextInput::make('type')->label('Type')
+                            ->disabled()
+                            ->default('NA'),
                         Toggle::make('Urgent')
                             ->disabled()
                             ->formatStateUsing(function($record){
@@ -216,6 +219,7 @@ class HelpdeskcomplaintResource extends Resource
                                 }
                             })
                             ->disabled(),
+                        
                         
 
                     ])
@@ -239,7 +243,7 @@ class HelpdeskcomplaintResource extends Resource
                     ->default('NA')
                     ->searchable()
                     ->limit(50),
-                TextColumn::make('type')
+                TextColumn::make('type')->label('Type')
                     ->default('NA'),
                 TextColumn::make('user.first_name')
                     ->toggleable()
