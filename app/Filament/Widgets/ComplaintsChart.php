@@ -13,7 +13,7 @@ class ComplaintsChart extends ChartWidget
 
     protected static ?string $heading = 'Complaints';
     protected static ?string $maxHeight = '500px';
-    protected static ?int $sort = 5;
+    protected static ?int $sort = 6;
 
     // protected int | string | array $columnSpan = 6;
 
@@ -59,14 +59,14 @@ class ComplaintsChart extends ChartWidget
                 [
                     'label' => 'Open Complaints',
                     'data' => $openComplaints,
-                    'backgroundColor' => '#FF6F61',
+                    'backgroundColor' => '#4DB6AC',
                     'borderColor' => '#ffffff',
                     'stack' => 'Complaints', // Stack the data
                 ],
                 [
                     'label' => 'Closed Complaints',
                     'data' => $closedComplaints,
-                    'backgroundColor' => '#008080',
+                    'backgroundColor' => '#E57373',
                     'borderColor' => '#ffffff',
                     'stack' => 'Complaints', // Stack the data
                 ],

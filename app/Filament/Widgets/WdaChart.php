@@ -15,7 +15,6 @@ class WdaChart extends ChartWidget
 
     protected static ?string $heading = 'WDA';
     protected static ?string $maxHeight = '400px';
-    // protected static ?string $maxWidth = '100%';
     protected static ?int $sort = 10;
     protected int | string | array $columnSpan = 'full';
 
@@ -23,6 +22,7 @@ class WdaChart extends ChartWidget
     {
         $startDate = $this->filters['startDate'] ?? null;
         $endDate = $this->filters['endDate'] ?? null;
+        $buildingId = $this->filters['building'] ?? null;
 
         $query = WDA::query()->where('owner_association_id', Filament::getTenant()->id);
 
@@ -35,6 +35,10 @@ class WdaChart extends ChartWidget
             $query->where('created_at', '<=', $endOfDay);
         }
 
+        if ($buildingId) {
+            $query->where('building_id', $buildingId);
+        }
+
         $vendors = Vendor::where('owner_association_id', Filament::getTenant()->id)->get();
 
         $vendorNames = [];
@@ -42,19 +46,22 @@ class WdaChart extends ChartWidget
         $pendingCounts = [];
 
         foreach ($vendors as $vendor) {
-            $vendorNames[] = $vendor->name;
-
-            $approvedCount = $query->clone()
+            // Count approved and pending WDAs for each vendor
+            $approvedCount = (clone $query)
                 ->where('vendor_id', $vendor->id)
                 ->where('status', 'approved')
                 ->count();
-            $pendingCount = $query->clone()
+            $pendingCount = (clone $query)
                 ->where('vendor_id', $vendor->id)
                 ->where('status', 'pending')
                 ->count();
 
-            $approvedCounts[] = $approvedCount;
-            $pendingCounts[] = $pendingCount;
+            // Only include vendors with at least one approved or pending WDA
+            if ($approvedCount > 0 || $pendingCount > 0) {
+                $vendorNames[] = $vendor->name;
+                $approvedCounts[] = $approvedCount;
+                $pendingCounts[] = $pendingCount;
+            }
         }
 
         return [
@@ -64,14 +71,14 @@ class WdaChart extends ChartWidget
                     'data' => $approvedCounts,
                     'backgroundColor' => '#4DB6AC',
                     'borderColor' => '#ffffff',
-                    'stack' => 'Status', // Enable stacking
+                    'stack' => 'Status',
                 ],
                 [
                     'label' => 'Pending',
                     'data' => $pendingCounts,
                     'backgroundColor' => '#fd7e14',
                     'borderColor' => '#ffffff',
-                    'stack' => 'Status', // Enable stacking
+                    'stack' => 'Status',
                 ],
             ],
             'labels' => $vendorNames,

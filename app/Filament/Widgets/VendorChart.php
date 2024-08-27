@@ -13,7 +13,7 @@ class VendorChart extends ChartWidget
     
     protected static ?string $heading = 'Vendor Registrations';
     protected static ?string $maxHeight = '400px';
-    protected static ?int $sort = 6;
+    protected static ?int $sort = 5;
 
     protected function getData(): array
     {
