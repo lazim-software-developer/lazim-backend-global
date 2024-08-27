@@ -172,6 +172,9 @@ class ComplaintscomplaintResource extends Resource
                         // Textarea::make('complaint_details')
                         //     ->disabled()
                         //     ->placeholder('Complaint Details'),
+                        TextInput::make('type')->label('Type')
+                            ->disabled()
+                            ->default('NA'),
                         Select::make('status')
                             ->options([
                                 'open' => 'Open',
@@ -195,9 +198,6 @@ class ComplaintscomplaintResource extends Resource
                             })
                             ->required(),
                         
-                        TextInput::make('type')->label('Type')
-                            ->disabled()
-                            ->default('NA'),
 
                         Toggle::make('Urgent')
                             ->disabled()
