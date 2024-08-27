@@ -36,7 +36,7 @@ class FacilityServiceBookingObserver
             $facilityName = Facility::where('id', $facilityBooking->bookable_id)->first();
             Notification::make()
             ->success()
-            ->title("Facility Booking")
+            ->title("Amenity Booking")
             ->icon('heroicon-o-document-text')
             ->iconColor('warning')
             ->body('A new '. $facilityName->name.' booking by '.auth()->user()->first_name)
@@ -55,7 +55,7 @@ class FacilityServiceBookingObserver
             $serviceName = Service::where('id', $facilityBooking->bookable_id)->first();
             Notification::make()
             ->success()
-            ->title("Service Booking")
+            ->title("Personal Service Booking")
             ->icon('heroicon-o-document-text')
             ->iconColor('warning')
             ->body('A new '. $serviceName->name.' booking by '.auth()->user()->first_name)
