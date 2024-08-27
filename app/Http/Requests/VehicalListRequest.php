@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\Facility;
+namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class FacilityBookingRequest extends FormRequest
+class VehicalListRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,11 +22,7 @@ class FacilityBookingRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'facility_id' => 'required|exists:facilities,id',
-            'date' => 'required|date',
-            'start_time' => 'required|date_format:H:i',
-            'end_time' => 'required|date_format:H:i|after:start_time',
-            'flat_id' => 'required|exists:flats,id',
+                    'flat_id' => 'required|exists:flats,id',
         ];
     }
 }
