@@ -52,7 +52,7 @@ class AnnouncementNotifications extends Command
                             'sound' => 'default',
                             'url' => 'ComunityPostTab',
                             'title' => $post->is_announcement ? 'New Notice!' : 'New Post!',
-                            'body' => $post->content,
+                            'body' => strip_tags($post->content),
                             'data' => ['notificationType' => $post->is_announcement ? 'ComunityPostTabNotice' : 'ComunityPostTabPost'],
                         ];
                         $this->expoNotification($message);
@@ -63,7 +63,7 @@ class AnnouncementNotifications extends Command
                             'notifiable_id' => $user,
                             'data' => json_encode([
                                 'actions' => [],
-                                'body' => $post->content,
+                                'body' => strip_tags($post->content),
                                 'duration' => 'persistent',
                                 'icon' => 'heroicon-o-document-text',
                                 'iconColor' => 'warning',
