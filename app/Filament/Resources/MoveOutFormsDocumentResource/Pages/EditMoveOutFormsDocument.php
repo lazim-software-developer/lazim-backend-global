@@ -71,7 +71,7 @@ class EditMoveOutFormsDocument extends EditRecord
                                 'to' => $expoPushToken,
                                 'sound' => 'default',
                                 'title' => 'Move-out',
-                                'body' => 'New move-out.',
+                                'body' => 'New move-out form received.',
                                 'data' => ['notificationType' => 'Move-out'],
                             ];
                             $this->expoNotification($message);
@@ -84,7 +84,7 @@ class EditMoveOutFormsDocument extends EditRecord
                                 'notifiable_id' => $id,
                                 'data' => json_encode([
                                     'actions' => [],
-                                    'body' => 'New move-out.',
+                                    'body' => 'New move-out form received.',
                                     'duration' => 'persistent',
                                     'icon' => 'heroicon-o-document-text',
                                     'iconColor' => 'warning',
