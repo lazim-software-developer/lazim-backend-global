@@ -128,10 +128,10 @@ class FitOutFormsController extends Controller
             }); //->where('role_id',Role::where('name','OA')->first()->id)->first();
         Notification::make()
             ->success()
-            ->title("FitOut Contractor Request! ")
+            ->title("Fitout Contractor Request! ")
             ->icon('heroicon-o-document-text')
             ->iconColor('warning')
-            ->body('New Contractor FitOut Request ')
+            ->body('New Contractor Fitout Request ')
             ->actions([
                 Action::make('view')
                     ->button()
