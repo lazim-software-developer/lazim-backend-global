@@ -93,7 +93,7 @@ class VisitorFormResource extends Resource
                     // ->date()
                     ->default('NA'),
                 TextColumn::make('time_of_viewing')
-                    ->label('time')
+                    ->label('Time')
                     // ->time()
                     ->default('NA'),
                 TextColumn::make('number_of_visitors')->default('NA'),
