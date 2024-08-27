@@ -31,10 +31,10 @@ class AnnouncementObserver
                     });
                     Notification::make()
                         ->success()
-                        ->title("Announcement created")
+                        ->title("Notice created")
                         ->icon('heroicon-o-document-text')
                         ->iconColor('warning')
-                        ->body('New Announcement has been created.')
+                        ->body('New Notice has been created.')
                         ->actions([
                             Action::make('view')
                                 ->button()
