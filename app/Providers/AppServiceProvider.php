@@ -31,6 +31,7 @@ use App\Observers\CommentObserver;
 use App\Observers\InvoiceObserver;
 use App\Observers\SaleNOCObserver;
 use App\Models\Accounting\Proposal;
+use App\Models\AppFeedback;
 use App\Observers\BuildingObserver;
 use App\Observers\ContractObserver;
 use App\Observers\DocumentObserver;
@@ -50,6 +51,7 @@ use App\Models\Item;
 use App\Models\Order;
 use App\Models\UserApproval;
 use App\Models\Vendor\Vendor;
+use App\Observers\AppFeedbackObserver;
 use App\Observers\ResidentialFormObserver;
 use Filament\Support\Facades\FilamentView;
 use App\Observers\OwnerAssociationObserver;
@@ -117,6 +119,7 @@ class AppServiceProvider extends ServiceProvider
         Item::observe(ItemObserver::class);
         // Complaint::observe(SnagsObserver::class);
         PollResponse::observe(PollResponseObserver::class);
+        AppFeedback::observe(AppFeedbackObserver::class);
 
         // Resource::scopeToTenant(false);
 

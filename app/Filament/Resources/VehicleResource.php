@@ -104,7 +104,7 @@ class VehicleResource extends Resource
             ->columns([
                 TextColumn::make('vehicle_number')->searchable(),
                 TextColumn::make('makani_number'),
-                TextColumn::make('user.first_name')->label('Owner'),
+                TextColumn::make('user.first_name')->label('Resident')->searchable(),
                 TextColumn::make('Building')
                     ->getStateUsing(function ($record) {
                         $building = Flat::where('id', $record->flat_id)->value('building_id');
@@ -150,7 +150,8 @@ class VehicleResource extends Resource
             ])
             ->emptyStateActions([
                 Tables\Actions\CreateAction::make(),
-            ]);
+            ])
+            ->searchPlaceholder('Search Vehicle/Resident');
     }
 
     public static function getRelations(): array

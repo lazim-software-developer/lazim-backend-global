@@ -28,6 +28,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\HelpdeskcomplaintResource\Pages;
 use Filament\Facades\Filament;
+use Filament\Forms\Components\Toggle;
 use Illuminate\Database\Eloquent\Model;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
@@ -98,7 +99,7 @@ class HelpdeskcomplaintResource extends Resource
                             })
                             ->live()
                             ->searchable()
-                            ->label('vendor Name'),
+                            ->label('Vendor Name'),
                         Select::make('flat_id')
                             ->rules(['exists:flats,id'])
                             ->required()
@@ -196,6 +197,26 @@ class HelpdeskcomplaintResource extends Resource
                                 return $record->status != 'open';
                             })
                             ->required(),
+                        Toggle::make('Urgent')
+                            ->disabled()
+                            ->formatStateUsing(function($record){
+                                // dd($record->priority);
+                                if($record->priority==1){
+                                    return true;
+                                }else{
+                                    return false;
+                                }
+                            })
+                            ->default(false)
+                            ->hidden(function($record){
+                                if($record->type == 'personal'){
+                                    return false;
+                                }else{
+                                    return true;
+                                }
+                            })
+                            ->disabled(),
+                        
 
                     ])
             ]);
@@ -218,6 +239,8 @@ class HelpdeskcomplaintResource extends Resource
                     ->default('NA')
                     ->searchable()
                     ->limit(50),
+                TextColumn::make('type')
+                    ->default('NA'),
                 TextColumn::make('user.first_name')
                     ->toggleable()
                     ->searchable()
