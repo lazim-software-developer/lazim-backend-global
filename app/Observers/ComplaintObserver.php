@@ -107,7 +107,7 @@ class ComplaintObserver
                     });
             Notification::make()
                 ->success()
-                ->title("Help Desk Ticket Received")
+                ->title("Facility support Ticket Received")
                 ->icon('heroicon-o-document-text')
                 ->iconColor('warning')
                 ->body('A new Ticket is raised by ' . auth()->user()->first_name)
@@ -189,7 +189,7 @@ class ComplaintObserver
                     });
                 Notification::make()
                     ->success()
-                    ->title("Help Desk Complaint Resolution ")
+                    ->title("Facility Support Complaint Resolution ")
                     ->icon('heroicon-o-document-text')
                     ->iconColor('warning')
                     ->body('Complaint has been resolved by a ' . $user->role->name . ' ' . auth()->user()->first_name)
