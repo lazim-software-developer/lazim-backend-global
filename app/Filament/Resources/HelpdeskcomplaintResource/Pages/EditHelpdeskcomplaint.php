@@ -41,7 +41,7 @@ class EditHelpdeskcomplaint extends EditRecord
                     $message = [
                         'to' => $expoPushToken,
                         'sound' => 'default',
-                        'title' => 'Help Desk complaint status',
+                        'title' => 'Facility support complaint status',
                         'body' => 'A complaint has been resolved by a ' . $role->name . ' ' . auth()->user()->first_name,
                         'data' => ['notificationType' => $this->record->complaint_type == 'help_desk'? 'HelpDeskTabResolved':'InAppNotficationScreen'],
                     ];
@@ -59,7 +59,7 @@ class EditHelpdeskcomplaint extends EditRecord
                             'duration' => 'persistent',
                             'icon' => 'heroicon-o-document-text',
                             'iconColor' => 'warning',
-                            'title' => 'Help Desk complaint status',
+                            'title' => 'Facility support complaint status',
                             'view' => 'notifications::notification',
                             'viewData' => [],
                             'format' => 'filament',
