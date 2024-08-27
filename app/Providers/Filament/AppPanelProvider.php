@@ -660,7 +660,7 @@ class AppPanelProvider extends PanelProvider
                 }
                 if ($user->can('view_any_helpdeskcomplaint')) {
                     $builder->groups([
-                        NavigationGroup::make('Help desk')
+                        NavigationGroup::make('Facility Support')
                             ->items([
                                 NavigationItem::make('Complaints')
                                     ->url('/app/helpdeskcomplaints')
