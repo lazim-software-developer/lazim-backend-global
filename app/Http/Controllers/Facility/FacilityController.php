@@ -52,12 +52,13 @@ class FacilityController extends Controller
                 'code' => 400,
             ]))->response()->setStatusCode(400);
         }
-
+        $flat_id = $request->input('flat_id');
         $booking = FacilityBooking::create([
             'bookable_id' => $request->facility_id,
             'bookable_type' => 'App\Models\Master\Facility',
             'user_id' => auth()->user()->id,
             'building_id' => $building->id,
+            'flat_id' => $flat_id,
             'date' => $request->date,
             'start_time' => $request->start_time,
             'end_time' => $request->end_time,
@@ -75,15 +76,16 @@ class FacilityController extends Controller
     public function userBookings(Request $request, Building $building)
     {
         $type = $request->input('type');
-        
+        $flat_id = $request->input('flat_id');
+
         $query = FacilityBooking::where('user_id', auth()->user()->id)
-            ->where('building_id', $building->id);
+            ->where(['building_id'=>$building->id,'flat_id'=>$flat_id]);
 
         if ($type === 'facilities') {
             $query->where('bookable_type', 'App\Models\Master\Facility');
         } elseif ($type === 'services') {
             $query->where('bookable_type', 'App\Models\Master\Service');
-        } 
+        }
         $bookings = $query->latest()->paginate(10);
 
         return FacilityBookingResource::collection($bookings);
