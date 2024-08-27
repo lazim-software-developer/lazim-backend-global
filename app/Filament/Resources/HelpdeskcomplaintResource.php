@@ -176,6 +176,9 @@ class HelpdeskcomplaintResource extends Resource
                         // Textarea::make('complaint_details')
                         //     ->disabled()
                         //     ->placeholder('Complaint Details'),
+                        TextInput::make('type')->label('Type')
+                            ->disabled()
+                            ->default('NA'),
                         Select::make('status')
                             ->options([
                                 'open' => 'Open',
@@ -198,9 +201,7 @@ class HelpdeskcomplaintResource extends Resource
                                 return $record->status != 'open';
                             })
                             ->required(),
-                        TextInput::make('type')->label('Type')
-                            ->disabled()
-                            ->default('NA'),
+
                         Toggle::make('Urgent')
                             ->disabled()
                             ->formatStateUsing(function($record){
