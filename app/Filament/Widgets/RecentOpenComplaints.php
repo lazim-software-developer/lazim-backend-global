@@ -11,7 +11,7 @@ class RecentOpenComplaints extends BaseWidget
 {
     protected static ?int $sort = 7;
     protected static ?string $heading = 'Recent Open Complaints';
-    protected int | string | array $columnSpan = 4;
+    // protected int | string | array $columnSpan = 4;
 
     protected function getTableQuery(): Builder
     {
