@@ -15,12 +15,14 @@ class OwnerTenantRegistrationChart extends ChartWidget
 
     protected static ?string $heading = 'Owners and Tenants Over Time';
     protected static ?string $maxHeight = '400px';
-    protected static ?string $maxWidth = '100%';
+    // protected static ?string $maxWidth = '100%';
     protected static ?int $sort = 4;
 
     protected function getData(): array
     {
-        $year = now()->year;
+        $startDate = $this->filters['startDate'] ?? null;
+
+        $year = $startDate ? Carbon::createFromFormat('Y-m-d', $startDate)->year : now()->year;
         $buildingId = $this->filters['building'] ?? null; // Using building filter from the dashboard
 
         // Initialize arrays for storing counts per month

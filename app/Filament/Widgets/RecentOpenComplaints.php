@@ -3,14 +3,16 @@
 namespace App\Filament\Widgets;
 
 use App\Models\Building\Complaint;
+use Filament\Facades\Filament;
 use Filament\Widgets\TableWidget as BaseWidget;
 use Filament\Tables;
 use Illuminate\Database\Eloquent\Builder;
 
 class RecentOpenComplaints extends BaseWidget
 {
-    protected static ?int $sort = 7;
+    protected static ?int $sort = 9;
     protected static ?string $heading = 'Recent Open Complaints';
+    protected static ?string $maxHeight = '200px';
     // protected int | string | array $columnSpan = 4;
 
     protected function getTableQuery(): Builder
@@ -39,13 +41,16 @@ class RecentOpenComplaints extends BaseWidget
         ];
     }
 
-    // protected function getTableActions(): array
-    // {
-    //     return [
-    //         Tables\Actions\EditAction::make()
-    //             ->url(fn(Complaint $record): string => route('filament.admin.resources.complaintscomplaints.edit', $record)),
-    //     ];
-    // }
+    protected function getTableActions(): array
+    {
+        return [
+            Tables\Actions\EditAction::make()
+                ->url(fn(Complaint $record): string => route('filament.admin.resources.complaintscomplaints.edit', [
+                    'tenant' => Filament::getTenant()->slug,
+                    'record' => $record->id,
+                ])),
+        ];
+    }
 
     protected function isTablePaginationEnabled(): bool
     {

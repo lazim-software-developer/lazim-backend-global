@@ -3,25 +3,52 @@
 namespace App\Filament\Widgets;
 
 use App\Models\Building\Complaint;
+use Filament\Facades\Filament;
 use Filament\Widgets\ChartWidget;
+use Filament\Widgets\Concerns\InteractsWithPageFilters;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class ComplaintCategoriesChart extends ChartWidget
 {
+    use InteractsWithPageFilters;
+    
     protected static ?string $heading = 'Complaints';
     protected static ?string $maxHeight = '400px';
-    // protected int | string | array $columnSpan = 6;
+    protected static ?int $sort = 7;
 
-    protected static ?int $sort = 9;
     public function getData(): array
     {
         // Fetch complaint data
-        $complaintData = Complaint::select(
+        $startDate = $this->filters['startDate'] ?? null;
+        $endDate = $this->filters['endDate'] ?? null;
+        $buildingId = $this->filters['building'] ?? null;
+
+        $complaintQuery = Complaint::select(
             'category',
             DB::raw('COUNT(*) as count')
-        )->whereNotNull('category')
-            ->groupBy('category')
-            ->get();
+        )
+            ->where('owner_association_id', Filament::getTenant()->id) // Filter by owner association ID
+            ->whereNotNull('category');
+
+        // Apply building filter if selected
+        if ($buildingId) {
+            $complaintQuery->where('building_id', $buildingId);
+        }
+
+        // Apply date filters if provided
+        if ($startDate) {
+            $startOfDay = Carbon::createFromFormat('Y-m-d', $startDate)->startOfDay();
+            $complaintQuery->where('created_at', '>=', $startOfDay);
+        }
+
+        if ($endDate) {
+            $endOfDay = Carbon::createFromFormat('Y-m-d', $endDate)->endOfDay();
+            $complaintQuery->where('created_at', '<=', $endOfDay);
+        }
+
+        // Group by category and get the results
+        $complaintData = $complaintQuery->groupBy('category')->get();
 
         $categories = $complaintData->pluck('category');
         $data = $complaintData->pluck('count');
@@ -58,13 +85,6 @@ class ComplaintCategoriesChart extends ChartWidget
                         'font' => [
                             'size' => 12,
                         ],
-                    ],
-                ],
-                'tooltip' => [
-                    'callbacks' => [
-                        'label' => function ($tooltipItem) {
-                            return $tooltipItem->label . ': ' . $tooltipItem->raw . ' complaints';
-                        },
                     ],
                 ],
             ],
