@@ -16,6 +16,8 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\UserApprovalResource\Pages;
 use App\Filament\Resources\UserApprovalResource\RelationManagers;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\DateTimePicker;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class UserApprovalResource extends Resource
@@ -74,6 +76,9 @@ class UserApprovalResource extends Resource
                     ->required()
                     ->disabled()
                     ->columnSpanFull(),
+                DateTimePicker::make('created_at')
+                    ->label('Date of Creation')
+                    ->disabled(),
                 Select::make('status')
                     ->options([
                         'approved' => 'Approve',
@@ -109,14 +114,15 @@ class UserApprovalResource extends Resource
                     ->searchable()
                     ->default('NA'),
                 Tables\Columns\TextColumn::make('flat.property_number')->label('Flat Number')->default('NA'),
-                Tables\Columns\TextColumn::make('flat.building.name')->label('Building')->default('NA')
+                Tables\Columns\TextColumn::make('flat.building.name')->label('Building')->default('NA'),
+                Tables\Columns\TextColumn::make('created_at')->label('Date of Creation')->default('NA')
             ])
             ->filters([
                 //
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\ViewAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
