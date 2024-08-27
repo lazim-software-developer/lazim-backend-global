@@ -69,7 +69,7 @@ class AccessCardController extends Controller
 
     public function fetchFormStatus(Building $building, FetchFormStatusRequest $request)
     {
-        $flat_id = $request->input('flat_id')
+        $flat_id = $request->input('flat_id');
         // Fetch status of all forms
         $accessCard = auth()->user()->accessCard()->where('building_id', $building->id)->where('flat_id',$flat_id)->latest()->first();
 
