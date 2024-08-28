@@ -145,7 +145,7 @@ class ComplaintObserver
                 ->title("Facility support Ticket Received")
                 ->icon('heroicon-o-document-text')
                 ->iconColor('warning')
-                ->body('A new Ticket is raised by ' . auth()->user()->first_name)
+                ->body('A new ticket is raised by ' . auth()->user()->first_name)
                 ->actions([
                     Action::make('view')
                         ->button()
