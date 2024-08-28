@@ -38,6 +38,7 @@ class VisitorFormResource extends Resource
                 DatePicker::make('start_time')->label('Date')->disabled(),
                 TextInput::make('time_of_viewing')->label('Time')->disabled(),
                 TextInput::make('number_of_visitors')->disabled(),
+                Select::make('building_id')->relationship('building','name')->label('Building')->disabled()->default('NA'),
                 Select::make('status')
                                 ->options([
                                     'approved' => 'Approve',
@@ -84,6 +85,9 @@ class VisitorFormResource extends Resource
                 ->searchable()
                 ->default('NA')
                 ->label('Ticket Number'),
+                TextColumn::make('building.name')
+                ->label('Building')
+                ->default('NA'),
                 TextColumn::make('flat.property_number')
                 ->label('Unit'),
                 TextColumn::make('name'),
