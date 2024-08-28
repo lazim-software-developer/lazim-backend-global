@@ -36,6 +36,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 use App\Filament\Resources\ComplaintscomplaintResource\Pages;
 use App\Filament\Resources\ComplaintscomplaintResource\RelationManagers;
+use App\Models\Master\Service;
 
 class ComplaintscomplaintResource extends Resource
 {
@@ -159,10 +160,12 @@ class ComplaintscomplaintResource extends Resource
                         Select::make('service_id')
                             ->relationship('service', 'name')
                             ->preload()
-                            ->disabled()
+                            ->reactive()
                             ->searchable()
-                            ->label('Service'),
-                        TextInput::make('category')->disabled(),
+                            ->label('Service')
+                            ->afterStateUpdated(fn ($set, $state) => $set('category', Service::where('id', $state)->value('name') ?? '')), // Update category after state change
+                        TextInput::make('category')
+                            ->disabled(),
                         TextInput::make('open_time')->disabled(),
                         TextInput::make('close_time')->disabled()->default('NA'),
                         Textarea::make('complaint')
@@ -213,7 +216,7 @@ class ComplaintscomplaintResource extends Resource
                                 }
                             })
                             ->disabled(),
-                        
+
 
                     ])
             ]);
