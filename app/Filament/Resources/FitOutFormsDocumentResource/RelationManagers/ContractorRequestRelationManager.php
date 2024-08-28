@@ -74,6 +74,7 @@ class ContractorRequestRelationManager extends RelationManager
             ])
             ->emptyStateActions([
                 // Tables\Actions\CreateAction::make(),
-            ]);
+            ])
+            ->emptyStateHeading('No Fitout form contractor requests');
     }
 }

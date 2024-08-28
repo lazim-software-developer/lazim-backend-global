@@ -13,7 +13,7 @@
 		</tr>
 		<tr>
 			<td class="paragraph">
-            A signed document is sent by OA.
+            Fitout form signed document is sent by OA.
 			</td>
 		</tr>
 		<tr>
