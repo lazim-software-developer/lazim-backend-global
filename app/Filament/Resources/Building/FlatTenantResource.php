@@ -98,7 +98,6 @@ class FlatTenantResource extends Resource
 
                 TextColumn::make('start_date')
                     ->label('Created Date')
-                    ->default('NA')
                     ->date(),
                 TextColumn::make('building.name')
                     ->default('NA')
