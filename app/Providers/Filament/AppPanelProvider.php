@@ -169,6 +169,7 @@ class AppPanelProvider extends PanelProvider
                                 ->activeIcon('heroicon-o-user-circle')
                                 ->sort(9),
                             NavigationItem::make('Facilities')
+                                ->label('Amenities')
                                 ->hidden(!$user->can('view_any_master::facility'))
                                 ->url('/app/master/facilities')
                                 ->icon('heroicon-o-cube-transparent')
@@ -186,6 +187,7 @@ class AppPanelProvider extends PanelProvider
                                 ->activeIcon('heroicon-s-user-group')
                                 ->sort(11),
                             NavigationItem::make('In-house services')
+                                ->label('Personal services')
                                 ->hidden(!$user->can('view_any_master::service'))
                                 ->url('/app/master/services')
                                 ->icon('heroicon-m-wrench')
@@ -255,7 +257,7 @@ class AppPanelProvider extends PanelProvider
                                     ->icon('heroicon-o-magnifying-glass-circle')
                                     ->activeIcon('heroicon-o-magnifying-glass-circle')
                                     ->sort(5),
-                                NavigationItem::make('Oa Complaint Reports')
+                                NavigationItem::make('OA Complaint Reports')
                                     ->url(OacomplaintReportsResource::getUrl('index'))
                                     ->visible($user->can('view_any_oacomplaint::reports'))
                                     ->icon('heroicon-c-clipboard-document')
@@ -513,7 +515,7 @@ class AppPanelProvider extends PanelProvider
                                     ->icon('heroicon-s-arrow-left-circle')
                                     ->activeIcon('heroicon-s-arrow-left-circle')
                                     ->sort(3),
-                                NavigationItem::make('Fit out')
+                                NavigationItem::make('Fitout')
                                     ->url('/app/fit-out-forms-documents')
                                     ->hidden(!$user->can('view_any_fit::out::forms::document'))
                                     ->icon('heroicon-s-face-smile')

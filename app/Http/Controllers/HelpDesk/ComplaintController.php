@@ -155,10 +155,10 @@ class ComplaintController extends Controller
         ->get();
         Notification::make()
             ->success()
-            ->title("Incident")
+            ->title("New Incident")
             ->icon('heroicon-o-document-text')
             ->iconColor('warning')
-            ->body('Incident created!')
+            ->body('New Incident created!')
             ->actions([
                 Action::make('view')
                     ->button()
