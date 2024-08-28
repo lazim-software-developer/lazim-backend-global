@@ -32,7 +32,7 @@ class AnnouncementObserver
                     });
                     Notification::make()
                         ->success()
-                        ->title("Notice created")
+                        ->title("Notice Created")
                         ->icon('heroicon-o-document-text')
                         ->iconColor('warning')
                         ->body('New Notice has been created.')

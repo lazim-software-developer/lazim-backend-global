@@ -63,7 +63,7 @@ class ContractObserver
                     'duration' => 'persistent',
                     'icon' => 'heroicon-o-document-text',
                     'iconColor' => 'warning',
-                    'title' => 'Contract document updates!',
+                    'title' => 'Contract Document Updates!',
                     'view' => 'notifications::notification',
                     'viewData' => [],
                     'format' => 'filament',
