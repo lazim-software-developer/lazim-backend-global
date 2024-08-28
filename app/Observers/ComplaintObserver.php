@@ -90,7 +90,7 @@ class ComplaintObserver
             Notification::make()
             ->success()
             ->title('New Snag')
-            ->body('New Snag Received')
+            ->body('New Snag Created')
             ->icon('heroicon-o-document-text')
             ->iconColor('warning')
             ->actions([
