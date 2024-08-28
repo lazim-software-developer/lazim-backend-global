@@ -97,7 +97,7 @@ class VehicleResource extends Resource
                             // $user_id =  User::where('owner_association_id', auth()->user()?->owner_association_id)->whereIn('role_id', Role::whereIn('name', ['Tenant', 'Owner'])->pluck('id'))->pluck('id');
                             $flatResidentsId = FlatTenant::where('flat_id',$get('flat_id'))->pluck('tenant_id');
 
-                            return User::whereIn('id',$flatResidentsId)->pluck('first_name');
+                            return User::whereIn('id',$flatResidentsId)->pluck('first_name','id');
                         }
                     }),
 
