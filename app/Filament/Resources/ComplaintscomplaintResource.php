@@ -155,10 +155,12 @@ class ComplaintscomplaintResource extends Resource
                         Select::make('service_id')
                             ->relationship('service', 'name')
                             ->preload()
-                            ->disabled()
+                            ->reactive()
                             ->searchable()
-                            ->label('Service'),
-                        TextInput::make('category')->disabled(),
+                            ->label('Service')
+                            ->afterStateUpdated(fn ($set, $state) => $set('category', Service::where('id', $state)->value('name') ?? '')), // Update category after state change
+                        TextInput::make('category')
+                            ->disabled(),
                         TextInput::make('open_time')->disabled(),
                         TextInput::make('close_time')->disabled()->default('NA'),
                         Textarea::make('complaint')
