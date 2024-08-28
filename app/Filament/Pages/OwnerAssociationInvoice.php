@@ -12,6 +12,7 @@ use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\ViewField;
 use Filament\Forms\Concerns\InteractsWithForms;
@@ -110,7 +111,7 @@ class OwnerAssociationInvoice extends Page implements HasForms
                     'november' =>'November',
                     'december' =>'December'
                 ]),
-            TextInput::make('description')
+            Textarea::make('description')
             ->rules(['max:100'])
             ->required(),
             TextInput::make('quantity')->numeric()->rules([

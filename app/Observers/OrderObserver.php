@@ -30,7 +30,7 @@ class OrderObserver
             if ($user) {
                 Notification::make()
                     ->success()
-                    ->title("Payment update")
+                    ->title("Payment Update")
                     ->icon('heroicon-o-document-text')
                     ->iconColor('success')
                     ->body('Payment is done for ' . class_basename($order->orderable_type))
