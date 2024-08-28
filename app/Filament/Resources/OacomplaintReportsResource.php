@@ -135,6 +135,7 @@ class OacomplaintReportsResource extends Resource
                                     ->openable(true)
                                     ->downloadable(true)
                                     ->image()
+                                    ->required()
                                     ->maxSize(2048)
                                     ->label('Image')
                                     ->columnSpanFull()
