@@ -74,9 +74,9 @@ class FlatTenantResource extends Resource
                         TextInput::make('role')
                             ->disabled()
                             ->placeholder('NA'),
-                        Toggle::make('primary')
-                            ->disabled()
-                            ->rules(['boolean']),
+                        // Toggle::make('primary')
+                        //     ->disabled()
+                        //     ->rules(['boolean']),
                     ]),
             ]);
     }
