@@ -32,6 +32,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\ComplaintscomplaintResource\Pages;
 use App\Filament\Resources\ComplaintscomplaintResource\RelationManagers;
+use App\Models\Master\Service;
 use Illuminate\Database\Eloquent\Model;
 
 class ComplaintscomplaintResource extends Resource
