@@ -26,6 +26,7 @@ class CreateOacomplaintReports extends CreateRecord
         $data['due_date'] = now()->addDay(3);
         $data['open_time'] = now();
         $data['status'] = 'open';
+        $data['priority'] = 1;
         return $data;
     }
 
