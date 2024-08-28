@@ -44,7 +44,7 @@ class FetchAndSaveReceipts implements ShouldQueue
             $endOfWeek = (clone $now)->modify('sunday this week')->format('d-M-Y');
 
             if($this->receiptId){
-                $url = 'https://qagate.dubailand.gov.ae/mollak/external/sync/receipts/' .$propertyGroupId."/".$mollakPropertyId."/".$receiptId."/id";
+                $url = env("MOLLAK_API_URL") . '/sync/receipts/' .$propertyGroupId."/".$mollakPropertyId."/".$receiptId."/id";
 
                 Log::info('RECEIPTID', [$url]);
             }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\VehicalListRequest;
 use App\Http\Requests\VehicleRequest;
 use App\Http\Resources\CustomResponseResource;
 use App\Models\Building\Flat;
@@ -26,8 +27,8 @@ class VehicleController extends Controller
         ]))->response()->setStatusCode(201);
     }
 
-    public function index(Request $request){
-        $vehicles = Vehicle::where('user_id', auth()->user()->id)->get();
+    public function index(VehicalListRequest $request){
+        $vehicles = Vehicle::where(['user_id'=>auth()->user()->id,'flat_id'=>$request->flat_id])->get();
         return $vehicles;
     }
 }

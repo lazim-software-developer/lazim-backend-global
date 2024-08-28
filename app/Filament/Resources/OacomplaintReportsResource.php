@@ -54,12 +54,12 @@ class OacomplaintReportsResource extends Resource
                         $set('user_id', null);
                     })
                     ->searchable()
-                    ->live()
+                    ->live()->disabledOn('edit')
                     ->required(),
 
                 Select::make('building_id')
                     ->relationship('building', 'name')
-                    ->preload()
+                    ->preload()->disabledOn('edit')
                     ->required()
                     ->live()
                     ->options(function () {
@@ -75,7 +75,7 @@ class OacomplaintReportsResource extends Resource
                     ->live()
                     ->searchable(),
 
-                Select::make('user_id')->label('User')
+                Select::make('user_id')->label('User')->disabledOn('edit')
                     // ->relationship('user', 'first_name')
                     ->options(function (Get $get) {
                         if ($get('type') === 'Technician') {
@@ -112,7 +112,7 @@ class OacomplaintReportsResource extends Resource
 
                 Textarea::make('complaint')->label('Issue')
                     ->maxLength(350)
-                    ->required()
+                    ->required()->disabledOn('edit')
                     ->columnSpanFull(),
                 // FileUpload::make('image')
                 //     ->disk('s3')
@@ -136,7 +136,6 @@ class OacomplaintReportsResource extends Resource
                                     ->downloadable(true)
                                     ->image()
                                     ->maxSize(2048)
-                                    ->required()
                                     ->label('Image')
                                     ->columnSpanFull()
                             ])
@@ -145,7 +144,7 @@ class OacomplaintReportsResource extends Resource
                                 'md' => 1,
                                 'lg' => 2
                             ])
-                            ->addable(false)
+                            ->addable(false)->disabledOn('edit')
                             ->deletable(false),
 
                 Hidden::make('complaintable_type')
@@ -158,8 +157,14 @@ class OacomplaintReportsResource extends Resource
                 Hidden::make('vendor_id'),
                 Hidden::make('owner_association_id')
                 ->default(auth()->user()->owner_association_id),
-                Hidden::make('status')
-                ->default('open'),
+                Select::make('status')
+                ->options([
+                    'open' => 'Open',
+                    'closed' => 'Closed'
+                ])->hiddenOn('create')
+                ->disabled(function (?Complaint $record) {
+                    return $record?->status == 'closed';
+                }),
                 Hidden::make('category')
                 ->default('OA Complaint'),
                 Hidden::make('complaint_type')

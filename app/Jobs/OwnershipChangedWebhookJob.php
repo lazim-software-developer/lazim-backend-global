@@ -36,7 +36,7 @@ class OwnershipChangedWebhookJob implements ShouldQueue
         $results = Http::withOptions(['verify' => false])->withHeaders([
             'content-type' => 'application/json',
             'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
-        ])->get("https://qagate.dubailand.gov.ae/mollak/external/sync/owners/".$propertyGroupId."/".$mollakPropertyId);
+        ])->get(env("MOLLAK_API_URL") . "/sync/owners/".$propertyGroupId."/".$mollakPropertyId);
         $responce = $results->json()['response'];
         Log::info($results->json());
         foreach($responce['properties'] as $property){
@@ -59,7 +59,7 @@ class OwnershipChangedWebhookJob implements ShouldQueue
                     'flat_id'=> $flat?->id,
                     'active' => true
                 ]);
-            }   
+            }
         }
     } catch (\Exception $e) {
         Log::error('Failed to fetch ownership changed ');
