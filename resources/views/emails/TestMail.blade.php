@@ -66,7 +66,7 @@
             <h3>Hello {{$OaName}},</h3>
             <p>This is a test email to verify that the email system is working correctly.</p>
             <br>
-            <img src="{{ asset('images\Lazim horizontl.png') }}" alt="Logo" class="header-image">
+            <img src="https://lazim-dev.s3.ap-south-1.amazonaws.com/dev/01J6BWZ55SXMP8AK6XW93CWJAM.png" alt="Logo" class="header-image">
         </div>
         <div class="bottom-half">
             <h3>Email System Test Successful!</h3>

@@ -78,7 +78,7 @@
 			<h3>Dear {{$name}},</h3>
 			<br>
 			<!-- Image appears here with the top half gray -->
-			<img src="{{ asset('images\Lazim horizontl.png') }}" alt="Logo" class="header-image">
+			<img src="https://lazim-dev.s3.ap-south-1.amazonaws.com/dev/01J6BWZ55SXMP8AK6XW93CWJAM.png" alt="Logo" class="header-image">
 		</div>
 		<div class="bottom-half">
 			<!-- The bottom half of the image will appear to continue here -->
