@@ -45,12 +45,13 @@ class ServiceController extends Controller
                 'code' => 400,
             ]))->response()->setStatusCode(400);
         }
-
+        $flat_id = $request->input('flat_id');
         FacilityBooking::create([
             'bookable_id' => $request->service_id,
             'bookable_type' => 'App\Models\Master\Service',
             'user_id' => auth()->user()->id,
             'building_id' => $building->id,
+            'flat_id' => $flat_id,
             'date' => $request->date,
             'start_time' => $request->start_time,
             'end_time' => now()->addDays(7), //TODO: NEEDS TO CHANGE

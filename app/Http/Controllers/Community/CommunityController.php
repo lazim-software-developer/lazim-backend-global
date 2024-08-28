@@ -31,7 +31,7 @@ class CommunityController extends Controller
         }
         return $building->emergencyNumbers;
     }
- 
+
     public function offerPromotions(Building $building)
     {
         $activeOfferPromotion = OfferPromotion::where('building_id', $building->id)->whereDate('end_date', '>=', now())->where('active',true)->get();
