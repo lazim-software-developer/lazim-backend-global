@@ -13,7 +13,7 @@ class OwnerTenantRegistrationChart extends ChartWidget
 {
     use InteractsWithPageFilters;
 
-    protected static ?string $heading = 'Owners and Tenants Over Time';
+    protected static ?string $heading = 'Owners and Tenants Registrations';
     protected static ?string $maxHeight = '400px';
     // protected static ?string $maxWidth = '100%';
     protected static ?int $sort = 4;
@@ -38,6 +38,7 @@ class OwnerTenantRegistrationChart extends ChartWidget
 
             // Count distinct owners created in this month
             $ownerCount = DB::table('flat_tenants')
+                ->where('owner_association_id',auth()->user()->owner_association_id)
                 ->where('role', 'Owner')
                 ->whereYear('created_at', $year)
                 ->whereMonth('created_at', $month)
@@ -49,6 +50,7 @@ class OwnerTenantRegistrationChart extends ChartWidget
 
             // Count distinct tenants created in this month
             $tenantCount = DB::table('flat_tenants')
+                ->where('owner_association_id',auth()->user()->owner_association_id)
                 ->where('role', 'Tenant')
                 ->whereYear('created_at', $year)
                 ->whereMonth('created_at', $month)
