@@ -37,21 +37,21 @@ class Dashboard extends BaseDashboard
             ]);
     }
 
-    protected function getActions(): array
-    {
-        return [
-            Action::make('resetFilters')
-                ->label('Reset Filters')
-                ->color('danger')
-                ->action(fn () => $this->resetFilters()),
-        ];
-    }
+    // protected function getActions(): array
+    // {
+    //     return [
+    //         Action::make('resetFilters')
+    //             ->label('Reset Filters')
+    //             ->color('danger')
+    //             ->action(fn () => $this->resetFilters()),
+    //     ];
+    // }
 
-    public function resetFilters()
-    {
-        $this->filters = []; // Reset the filters to an empty array
-        // $this->redirect($this->getUrl()); 
+    // public function resetFilters()
+    // {
+    //     $this->filters = []; // Reset the filters to an empty array
+    //     // $this->redirect($this->getUrl()); 
 
-    }
+    // }
 
 }
