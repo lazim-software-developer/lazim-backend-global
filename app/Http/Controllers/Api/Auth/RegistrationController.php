@@ -297,7 +297,7 @@ class RegistrationController extends Controller
             'tenant_id' => $user->id,
             'primary' => true,
             'building_id' => $request->building_id,
-            'start_date' =>  null,
+            'start_date' =>  now(),
             'end_date' => null,
             'active' => 1,
             'role' => $type,
