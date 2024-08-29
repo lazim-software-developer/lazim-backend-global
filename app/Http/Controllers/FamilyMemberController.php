@@ -8,6 +8,7 @@ use App\Models\Building\Building;
 use App\Models\FamilyMember;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class FamilyMemberController extends Controller
 {
@@ -34,6 +35,7 @@ class FamilyMemberController extends Controller
 
     public function index(Building $building, $unit = null)
     {
+        Log::info($unit);
         $userId = auth()->user()?->id;
 
         $oa_id = DB::table('building_owner_association')->where('building_id', $building->id)->where('active', true)->first()?->owner_association_id;
