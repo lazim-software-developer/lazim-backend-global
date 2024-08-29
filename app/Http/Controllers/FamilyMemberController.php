@@ -35,15 +35,13 @@ class FamilyMemberController extends Controller
 
     public function index(Request $request,Building $building, $unit = null)
     {
-        Log::info($unit);
-        Log::info($request->unit);
         $userId = auth()->user()?->id;
 
         $oa_id = DB::table('building_owner_association')->where('building_id', $building->id)->where('active', true)->first()?->owner_association_id;
 
         $familyQuery = FamilyMember::where('user_id', $userId)->where(['owner_association_id' => $oa_id, 'building_id' => $building->id]);
 
-        if($unit) {
+        if($request->unit) {
             $familyQuery->where('flat_id', $request->unit);
         }
 
