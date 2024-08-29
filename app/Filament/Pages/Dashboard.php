@@ -2,10 +2,12 @@
 namespace App\Filament\Pages;
 
 use App\Models\Building\Building;
+use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Form;
+use Filament\Pages\Actions\Modal\Actions\ButtonAction;
 use Filament\Pages\Dashboard as BaseDashboard;
 use Filament\Pages\Dashboard\Actions\FilterAction;
 use Filament\Pages\Dashboard\Concerns\HasFiltersAction;
@@ -34,5 +36,22 @@ class Dashboard extends BaseDashboard
                     ->columns(3), // Adjust the layout to accommodate three columns
             ]);
     }
+
+    // protected function getActions(): array
+    // {
+    //     return [
+    //         Action::make('resetFilters')
+    //             ->label('Reset Filters')
+    //             ->color('danger')
+    //             ->action(fn () => $this->resetFilters()),
+    //     ];
+    // }
+
+    // public function resetFilters()
+    // {
+    //     $this->filters = []; // Reset the filters to an empty array
+    //     // $this->redirect($this->getUrl()); 
+
+    // }
 
 }
