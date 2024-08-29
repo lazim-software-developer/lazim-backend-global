@@ -16,9 +16,8 @@ return new class extends Migration
             $table->unsignedBigInteger('building_id');
             $table->unsignedBigInteger('vendor_id');
             $table->boolean('active')->default(true);
-            $table->foreign('vendor_id')->references('id')->on('vendors')->onDelete('cascade');
-            $table->foreign('building_id')->references('id')->on('buildings')->onDelete('cascade');
-
+            $table->foreign('vendor_id')->references('id')->on('vendors');
+            $table->foreign('building_id')->references('id')->on('buildings');
         });
     }
 

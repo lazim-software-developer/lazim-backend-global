@@ -22,11 +22,6 @@ class Facility extends Model
         'active' => 'boolean',
     ];
 
-    public function bookings()
-    {
-        return $this->hasMany(FacilityBooking::class);
-    }
-
     public function buildings()
     {
         return $this->belongsToMany(Building::class,'building_facility','facility_id','building_id');
@@ -35,6 +30,8 @@ class Facility extends Model
     {
         return $this->belongsTo(OaUserRegistration::class);
     }
-
-
+    public function bookings()
+    {
+        return $this->morphMany(FacilityBooking::class, 'bookable');
+    }
 }

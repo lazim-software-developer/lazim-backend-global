@@ -9,11 +9,11 @@ use Filament\Resources\Pages\EditRecord;
 class EditBuildingPoc extends EditRecord
 {
     protected static string $resource = BuildingPocResource::class;
-    protected ?string $heading        = 'Building Manager';
+    protected ?string $heading        = 'Security';
     protected function getHeaderActions(): array
     {
         return [
-            Actions\DeleteAction::make(),
+            // Actions\DeleteAction::make(),
         ];
     }
 }

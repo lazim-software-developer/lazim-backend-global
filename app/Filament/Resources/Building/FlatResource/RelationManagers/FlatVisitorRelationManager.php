@@ -15,6 +15,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class FlatVisitorRelationManager extends RelationManager
 {
@@ -33,7 +34,7 @@ class FlatVisitorRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     TextInput::make('phone')
                         ->rules(['max:10', 'string'])
                         ->unique(
@@ -47,7 +48,7 @@ class FlatVisitorRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     TextInput::make('type')
                         ->rules(['max:50', 'string'])
                         ->placeholder('Type')
@@ -56,7 +57,7 @@ class FlatVisitorRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     DateTimePicker::make('start_time')
                         ->rules(['date'])
                         ->placeholder('Start Time')
@@ -65,7 +66,7 @@ class FlatVisitorRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     DateTimePicker::make('end_time')
                         ->rules(['date'])
                         ->placeholder('End Time')
@@ -74,7 +75,7 @@ class FlatVisitorRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     TextInput::make('verification_code')
                         ->rules(['numeric'])
                         ->unique(
@@ -89,7 +90,7 @@ class FlatVisitorRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     Select::make('initiated_by')
                         ->rules(['exists:users,id'])
                         ->relationship('userInitiatedBy', 'first_name')
@@ -100,7 +101,7 @@ class FlatVisitorRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     Select::make('approved_by')
                         ->rules(['exists:users,id'])
                         ->relationship('userApprovedBy', 'first_name')
@@ -111,7 +112,7 @@ class FlatVisitorRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     KeyValue::make('remarks')
                         ->required()
                         ->columnSpan([
@@ -119,7 +120,7 @@ class FlatVisitorRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     TextInput::make('number_of_visitors')
                         ->rules(['numeric'])
                         ->numeric()
@@ -152,6 +153,7 @@ class FlatVisitorRelationManager extends RelationManager
                 )->limit(50),
                 Tables\Columns\TextColumn::make('number_of_visitors'),
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])
@@ -164,7 +166,7 @@ class FlatVisitorRelationManager extends RelationManager
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    // Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ])
             ->emptyStateActions([

@@ -19,6 +19,7 @@ use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\Relationship;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class ComplaintResource extends Resource
 {
@@ -26,7 +27,7 @@ class ComplaintResource extends Resource
 
     protected static ?string $navigationIcon  = 'heroicon-o-rectangle-stack';
     protected static ?string $navigationLabel = 'Incident Reports';
-
+    protected static bool $shouldRegisterNavigation = false;
     protected static ?string $navigationGroup = 'Property Management';
     public static function form(Form $form): Form
     {
@@ -110,6 +111,7 @@ class ComplaintResource extends Resource
                     ->searchable()
                     ->limit(50),
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
 
             ])
@@ -118,7 +120,7 @@ class ComplaintResource extends Resource
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    // Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ])
             ->emptyStateActions([

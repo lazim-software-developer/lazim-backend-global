@@ -15,12 +15,6 @@ class BuildingPocPolicy
      */
     public function viewAny(User $user): bool
     {
-        $role = $user->role->name == 'Admin';
-
-        if($role)
-        {
-            return false;
-        }
         return true;
     }
 
@@ -29,9 +23,7 @@ class BuildingPocPolicy
      */
     public function view(User $user, BuildingPoc $model): bool
     {
-        $role = $user->role;
-
-        return $role && $role->name == 'Admin';
+       return true;
 
     }
 
@@ -40,9 +32,7 @@ class BuildingPocPolicy
      */
     public function create(User $user): bool
     {
-        $role = $user->role;
-
-        return $role && $role->name == 'Admin';
+        return true;
 
     }
 
@@ -51,9 +41,7 @@ class BuildingPocPolicy
      */
     public function update(User $user, BuildingPoc $model): bool
     {
-        $role = $user->role;
-
-        return $role && $role->name == 'Admin';
+       return true;
 
     }
 

@@ -14,12 +14,12 @@ class UserPolicy
      */
     public function viewAny(User $user): bool
     {
-        $role = $user->role->name == 'Admin';
+        // $role = $user->role->name == 'Admin';
 
-        if($role)
-        {
-            return false;
-        }
+        // if($role)
+        // {
+        //     return false;
+        // }
         return true;
     }
 
@@ -28,9 +28,13 @@ class UserPolicy
      */
     public function view(User $user, User $model): bool
     {
-        $role = $user->role;
+        // $role = $user->role->name == 'Admin';
 
-        return $role && $role->name == 'Admin';
+        // if($role)
+        // {
+        //     return false;
+        // }
+        return true;
 
     }
 
@@ -39,9 +43,13 @@ class UserPolicy
      */
     public function create(User $user): bool
     {
-        $role = $user->role;
+        // $role = $user->role->name == 'Admin';
 
-        return $role && $role->name == 'Admin';
+        // if($role)
+        // {
+        //     return false;
+        // }
+        return true;
 
     }
 
@@ -50,9 +58,13 @@ class UserPolicy
      */
     public function update(User $user, User $model): bool
     {
-        $role = $user->role;
+        // $role = $user->role->name == 'Admin';
 
-        return $role && $role->name == 'Admin';
+        // if($role)
+        // {
+        //     return false;
+        // }
+        return true;
 
     }
 

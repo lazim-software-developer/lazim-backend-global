@@ -13,7 +13,7 @@
         </tr>
         <tr>
             <td class="paragraph">
-                Thank you for registering with Lazim! To complete your registration, please verify your email and mobile number using the OTPs provided below.
+                Thank you for registering with Lazim! To complete your registration, please verify your email using the OTP provided below.
             </td>
         </tr>
         <tr>
@@ -21,7 +21,7 @@
         </tr>
         <tr>
             <td class="title">
-                Your OTPs:
+                Your OTP:
             </td>
         </tr>
 
@@ -38,20 +38,20 @@
         @endif
 
         
-        @if($data['phoneOtp'])
+        <!-- @if($data['phoneOtp'])
             <tr>
                 <td class="paragraph">
                     <strong>Mobile OTP: </strong> {{$data['phoneOtp']}}
                 </td>
             </tr>
-        @endif
+        @endif -->
         <tr>
             <td width="100%" height="25"></td>
         </tr>
 
         <tr>
             <td class="paragraph">
-                Please enter these OTPs in the verification fields to verify your email and mobile number.
+                Please enter these OTP in the verification fields to verify your email.
             </td>
         </tr>
         <tr>

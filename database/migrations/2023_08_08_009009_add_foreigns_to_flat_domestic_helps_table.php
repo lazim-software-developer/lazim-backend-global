@@ -15,16 +15,12 @@ return new class extends Migration
             $table
                 ->foreign('flat_id')
                 ->references('id')
-                ->on('flats')
-                ->onUpdate('CASCADE')
-                ->onDelete('CASCADE');
+                ->on('flats');
 
             $table
                 ->foreign('building_id')
                 ->references('id')
-                ->on('buildings')
-                ->onUpdate('CASCADE')
-                ->onDelete('CASCADE');
+                ->on('buildings');
         });
     }
 

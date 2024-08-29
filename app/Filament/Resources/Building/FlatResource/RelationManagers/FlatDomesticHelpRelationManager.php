@@ -15,6 +15,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class FlatDomesticHelpRelationManager extends RelationManager
 {
@@ -33,7 +34,7 @@ class FlatDomesticHelpRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     TextInput::make('last_name')
                         ->rules(['max:50', 'string'])
                         ->placeholder('Last Name')
@@ -42,7 +43,7 @@ class FlatDomesticHelpRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     TextInput::make('phone')
                         ->rules(['max:10', 'string'])
                         ->unique(
@@ -56,13 +57,13 @@ class FlatDomesticHelpRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     KeyValue::make('profile_photo')->columnSpan([
                         'default' => 12,
                         'md' => 12,
                         'lg' => 12,
                     ]),
-    
+
                     DateTimePicker::make('start_date')
                         ->rules(['date'])
                         ->placeholder('Start Date')
@@ -71,7 +72,7 @@ class FlatDomesticHelpRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     DateTimePicker::make('end_date')
                         ->rules(['date'])
                         ->placeholder('End Date')
@@ -80,7 +81,7 @@ class FlatDomesticHelpRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     TextInput::make('role_name')
                         ->rules(['max:50', 'string'])
                         ->placeholder('Role Name')
@@ -89,7 +90,7 @@ class FlatDomesticHelpRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     Toggle::make('active')
                         ->rules(['boolean'])
                         ->columnSpan([
@@ -114,6 +115,7 @@ class FlatDomesticHelpRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('role_name')->limit(50),
                 Tables\Columns\IconColumn::make('active'),
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])
@@ -126,7 +128,7 @@ class FlatDomesticHelpRelationManager extends RelationManager
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    // Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ])
             ->emptyStateActions([

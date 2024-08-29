@@ -13,6 +13,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class FlatTenantRelationManager extends RelationManager
 {
@@ -33,7 +34,7 @@ class FlatTenantRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     Toggle::make('primary')
                         ->rules(['boolean'])
                         ->columnSpan([
@@ -41,7 +42,7 @@ class FlatTenantRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     DateTimePicker::make('start_date')
                         ->rules(['date'])
                         ->placeholder('Start Date')
@@ -50,7 +51,7 @@ class FlatTenantRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     DateTimePicker::make('end_date')
                         ->rules(['date'])
                         ->placeholder('End Date')
@@ -59,7 +60,7 @@ class FlatTenantRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     Toggle::make('active')
                         ->rules(['boolean'])
                         ->columnSpan([
@@ -82,6 +83,7 @@ class FlatTenantRelationManager extends RelationManager
             Tables\Columns\TextColumn::make('end_date')->dateTime(),
             Tables\Columns\IconColumn::make('active'),
         ])
+        ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])
@@ -94,7 +96,7 @@ class FlatTenantRelationManager extends RelationManager
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    // Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ])
             ->emptyStateActions([

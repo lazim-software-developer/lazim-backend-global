@@ -15,6 +15,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 use Spatie\FlareClient\Time\Time;
 
 class AttendanceRelationManager extends RelationManager
@@ -36,7 +37,7 @@ class AttendanceRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     DatePicker::make('date')
                         ->rules(['date'])
                         ->placeholder('Date')
@@ -45,7 +46,7 @@ class AttendanceRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     DatePicker::make('entry_time')
                         ->rules(['date_format:H:i:s'])
                         ->placeholder('Entry Time')
@@ -54,7 +55,7 @@ class AttendanceRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     DatePicker::make('exit_time')
                         ->rules(['date_format:H:i:s'])
                         ->placeholder('Exit Time')
@@ -63,7 +64,7 @@ class AttendanceRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     Toggle::make('attendance')
                         ->rules(['boolean'])
                         ->columnSpan([
@@ -71,7 +72,7 @@ class AttendanceRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     Select::make('approved_by')
                         ->rules(['exists:users,id'])
                         ->relationship('userAttendanceApprove', 'first_name')
@@ -82,7 +83,7 @@ class AttendanceRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     DateTimePicker::make('approved_on')
                         ->rules(['date'])
                         ->placeholder('Approved On')
@@ -112,6 +113,7 @@ class AttendanceRelationManager extends RelationManager
                 )->limit(50),
                 Tables\Columns\TextColumn::make('approved_on')->dateTime(),
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])
@@ -124,7 +126,7 @@ class AttendanceRelationManager extends RelationManager
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    // Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ])
             ->emptyStateActions([

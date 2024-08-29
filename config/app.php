@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Facade;
 use Illuminate\Support\ServiceProvider;
+use NotificationChannels\ExpoPushNotifications\ExpoPushNotificationsServiceProvider;
 
 return [
 
@@ -55,7 +56,7 @@ return [
     |
     */
 
-    'url' => env('APP_URL', 'http://localhost'),
+    'url' => env('APP_URL', 'https://qa-admin.lazim.ae/'),
 
     'asset_url' => env('ASSET_URL'),
 
@@ -70,7 +71,7 @@ return [
     |
     */
 
-    'timezone' => 'Asia/Kolkata',
+    'timezone' => env('TIME_ZONE','Asia/Dubai'),
 
     /*
     |--------------------------------------------------------------------------
@@ -168,10 +169,14 @@ return [
         // App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\Filament\AdminPanelProvider::class,
+        App\Providers\Filament\AppPanelProvider::class,
         App\Providers\RouteServiceProvider::class,
+        App\Providers\TelescopeServiceProvider::class,
         App\Providers\FortifyServiceProvider::class,
         App\Providers\JetstreamServiceProvider::class,
         Intervention\Image\ImageServiceProvider::class,
+        SimpleSoftwareIO\QrCode\QrCodeServiceProvider::class,
+        // ExpoPushNotificationsServiceProvider::class,
     ])->toArray(),
 
     /*

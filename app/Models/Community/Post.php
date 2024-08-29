@@ -8,6 +8,7 @@ use App\Models\User\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Community\PostLike;
+use App\Models\OwnerAssociation;
 use Carbon\Carbon;
 
 class Post extends Model
@@ -15,13 +16,18 @@ class Post extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id', 'content', 'status', 'scheduled_at', 'building_id', 'is_announcement'
+        'user_id', 'content', 'status', 'scheduled_at', 'building_id', 'is_announcement', 'owner_association_id','allow_comment','allow_like','active'
     ];
     protected $casts = [
         'is_announcement' => 'boolean',
+        'building_id' => 'array',
     ];
     protected $appends = ['is_liked_by_user'];
 
+    public function ownerAssociation()
+    {
+        return $this->belongsTo(OwnerAssociation::class);
+    }
     public function user()
     {
         return $this->belongsTo(User::class);
@@ -29,7 +35,7 @@ class Post extends Model
 
     public function building()
     {
-        return $this->belongsTo(Building::class);
+        return $this->belongsToMany(Building::class)->withPivot('owner_association_id');
     }
 
     public function media()

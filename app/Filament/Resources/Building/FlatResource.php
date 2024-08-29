@@ -4,7 +4,11 @@ namespace App\Filament\Resources\Building;
 
 use App\Filament\Resources\Building\FlatResource\Pages;
 use App\Filament\Resources\Building\FlatResource\RelationManagers;
+use App\Filament\Resources\FlatResource\Pages\ViewFlat;
+use App\Models\Building\Building;
 use App\Models\Building\Flat;
+use App\Models\Master\Role;
+use Filament\Facades\Filament;
 use Filament\Forms;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Select;
@@ -12,6 +16,8 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -21,7 +27,7 @@ class FlatResource extends Resource
     protected static ?string $model = Flat::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-    protected static ?string $navigationLabel = 'Flats';
+    protected static ?string $modelLabel = 'Units';
     protected static ?string $navigationGroup = 'Flat Management';
 
 
@@ -34,19 +40,30 @@ class FlatResource extends Resource
                     'md' => 1,
                     'lg' => 2,])
                     ->schema([
-                    TextInput::make('number')
-                        ->rules(['numeric'])
+                    TextInput::make('property_number')->label('Unit')
                         ->required()
-                        ->numeric()
-                        ->placeholder('Number'),
-                    TextInput::make('floor')
-                        ->rules(['numeric'])
-                        ->required()
-                        ->numeric()
-                        ->placeholder('Floor'),
-                    TextInput::make('description')
-                        ->rules(['max:50', 'string'])
-                        ->placeholder('Description'),
+                        ->placeholder('Unit Number'),
+                    Select::make('building_id')
+                        ->rules(['exists:buildings,id'])
+                        ->relationship('building', 'name')
+                        ->reactive()
+                        ->preload()
+                        ->searchable()
+                        ->placeholder('Building'),
+                    TextInput::make('suit_area')
+                        ->default('NA')->placeholder('NA'),
+                    TextInput::make('actual_area')
+                        ->default('NA')->placeholder('NA'),
+                    TextInput::make('balcony_area')
+                        ->default('NA')->placeholder('NA'),
+                    TextInput::make('applicable_area')
+                        ->default('NA')->placeholder('NA'),
+                    TextInput::make('virtual_account_number')
+                        ->default('NA')->placeholder('NA'),
+                    TextInput::make('parking_count')
+                        ->default('NA')->placeholder('NA'),
+                    TextInput::make('plot_number')
+                        ->default('NA')->placeholder('NA'),
                 ]),
             ]);
     }
@@ -56,40 +73,86 @@ class FlatResource extends Resource
         return $table
             ->poll('60s')
             ->columns([
-                Tables\Columns\TextColumn::make('number')
-                    ->toggleable()
-                    ->searchable(true, null, true),
-                Tables\Columns\TextColumn::make('floor')
-                    ->toggleable()
-                    ->searchable(true, null, true),
-                Tables\Columns\TextColumn::make('description')
-                    ->toggleable()
-                    ->searchable(true, null, true)
+                TextColumn::make('property_number')
+                    ->default('NA')
+                    ->searchable()
+                    ->label('Unit Number'),
+                TextColumn::make('building.name')
+                    ->default('NA')
+                    ->searchable()
                     ->limit(50),
+                TextColumn::make('suit_area')
+                    ->formatStateUsing(fn ($record) => number_format($record->suit_area, 2))
+                    ->default('NA')
+                    ->searchable()
+                    ->limit(50),
+                TextColumn::make('actual_area')
+                    ->formatStateUsing(fn ($record) => number_format($record->actual_area, 2))
+                    ->default('NA')
+                    ->searchable()
+                    ->limit(50),
+                TextColumn::make('balcony_area')
+                    ->formatStateUsing(fn ($record) => number_format($record->balcony_area, 2))
+                    ->default('NA')
+                    ->searchable()
+                    ->limit(50),
+                TextColumn::make('applicable_area')
+                    ->formatStateUsing(fn ($record) => number_format($record->applicable_area, 2))
+                    ->default('NA')
+                    ->searchable()
+                    ->limit(50),
+                TextColumn::make('virtual_account_number')
+                    ->default('NA')
+                    ->searchable()
+                    ->limit(50),
+                TextColumn::make('parking_count')
+                    ->default('NA')
+                    ->searchable()
+                    ->limit(50),
+                TextColumn::make('plot_number')
+                    ->default('NA')
+                    ->searchable()
+                    ->limit(50),
+                TextColumn::make('tenants.role')
+                    ->label('Occupied By')
+                    ->default('NA')
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
-                //
+                SelectFilter::make('building_id')
+                    ->options(function () {
+                        if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
+                            return Building::all()->pluck('name', 'id');
+                        }
+                        else{
+                             return Building::where('owner_association_id', auth()->user()?->owner_association_id)
+                            ->pluck('name', 'id');
+                    }    
+                    })
+                    ->searchable()
+                    ->label('Building')
+                    ->preload()
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                // Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    //Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ])
             ->emptyStateActions([
-                Tables\Actions\CreateAction::make(),
+                //Tables\Actions\CreateAction::make(),
             ]);
     }
 
     public static function getRelations(): array
     {
         return [
-            FlatResource\RelationManagers\FlatDomesticHelpRelationManager::class,
-            FlatResource\RelationManagers\FlatTenantRelationManager::class,
-            FlatResource\RelationManagers\FlatVisitorRelationManager::class,
-            FlatResource\RelationManagers\UserRelationManager::class,
+            // FlatResource\RelationManagers\FlatDomesticHelpRelationManager::class,
+            // FlatResource\RelationManagers\FlatTenantRelationManager::class,
+            // FlatResource\RelationManagers\FlatVisitorRelationManager::class,
+            // FlatResource\RelationManagers\UserRelationManager::class,
         ];
     }
 
@@ -97,8 +160,9 @@ class FlatResource extends Resource
     {
         return [
             'index' => Pages\ListFlats::route('/'),
-            'create' => Pages\CreateFlat::route('/create'),
-            'edit' => Pages\EditFlat::route('/{record}/edit'),
+            'view' => ViewFlat::route('/{record}')
+            //'create' => Pages\CreateFlat::route('/create'),
+            // 'edit' => Pages\EditFlat::route('/{record}/edit'),
         ];
     }
 }

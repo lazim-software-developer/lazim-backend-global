@@ -1,0 +1,204 @@
+<?php
+
+namespace App\Filament\Resources\User;
+
+use App\Filament\Resources\User\TenantResource\Pages;
+use App\Models\Building\Building;
+use App\Models\Master\Role;
+use App\Models\MollakTenant;
+use App\Models\User\User;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Form;
+use Filament\Resources\Resource;
+use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+
+class TenantResource extends Resource
+{
+    protected static ?string $model           = MollakTenant::class;
+    protected static ?string $modelLabel      = 'Tenants';
+    protected static ?string $navigationGroup = 'User Management';
+    protected static ?string $navigationIcon  = 'heroicon-o-rectangle-stack';
+
+    public static function form(Form $form): Form
+    {
+        return $form->schema([
+            Grid::make([
+                'sm' => 1,
+                'md' => 1,
+                'lg' => 2,
+            ])
+                ->schema([
+                    TextInput::make('name')
+                        ->rules(['max:50', 'string'])
+                        ->required()
+                        ->placeholder('Name'),
+                    TextInput::make('contract_number')
+                        ->numeric()
+                        ->required()
+                        ->placeholder('Contract Number'),
+                    TextInput::make('emirates_id')
+                        ->numeric()
+                        ->required()
+                        ->placeholder('Emirates Id'),
+                    TextInput::make('mobile')
+                        ->rules(['regex:/^(971)(50|51|52|55|56|58|02|03|04|06|07|09)\d{7}$/'])
+                        ->required()
+                        ->placeholder('Mobile'),
+                    TextInput::make('email')
+                        ->rules(['min:6', 'max:30', 'regex:/^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/'])
+                        ->required()
+                        ->label('Email'),
+                    Select::make('flat_id')
+                        ->rules(['exists:flats,id'])
+                        ->required()
+                        ->relationship('flat', 'property_number')
+                        ->searchable()
+                        ->preload()
+                        ->label('Unit Number'),
+                    Select::make('building_id')
+                        ->rules(['exists:buildings,id'])
+                        ->relationship('building', 'name')
+                        ->reactive()
+                        ->preload()
+                        ->searchable()
+                        ->placeholder('Building'),
+                    DatePicker::make('start_date')
+                        ->rules(['date'])
+                        ->required()
+                        ->placeholder('Start Date'),
+                    DatePicker::make('end_date')
+                        ->rules(['date'])
+                        ->placeholder('End Date'),
+                    Select::make('contract_status')
+                        ->options([
+                            'pass auditing'  => 'Pass Auditing',
+                            'active'         => 'Active',
+                            'under auditing' => 'Under Auditing',
+                        ])
+                        ->searchable()
+                        ->live(),
+                ]),
+
+        ]);
+    }
+
+    public static function table(Table $table): Table
+    {
+        return $table
+            ->defaultGroup('name')
+            ->columns([
+                Tables\Columns\TextColumn::make('name')
+                    ->searchable()
+                    ->default('NA')
+                    ->label('Name')
+                    ->limit(50),
+                Tables\Columns\TextColumn::make('mobile')
+                    ->searchable()
+                    ->default('NA')
+                    ->label('Mobile')
+                    ->limit(50),
+                Tables\Columns\TextColumn::make('email')
+                    ->searchable()
+                    ->default('NA')
+                    ->label('Email')
+                    ->limit(50),
+                TextColumn::make('building.name')
+                    ->searchable()
+                    ->default('NA')
+                    ->label('Buildings'),
+                TextColumn::make('flat.property_number')
+                    ->searchable()
+                    ->default('NA')
+                    ->label('Unit Number'),
+                Tables\Columns\TextColumn::make('contract_status')
+                    ->searchable()
+                    ->default('NA')
+                    ->label('Contract Status')
+                    ->limit(50),
+            ])
+            ->actions([
+                // Action::make('Notify Tenant')
+                // ->button()
+                // ->action(function ($record){
+                //     $buildingname = $record->building->name;
+                //     $tenant           = Filament::getTenant()?->id ?? auth()->user()?->owner_association_id;
+                //     $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
+                //     $OaName = Filament::getTenant()->name;
+
+                //     if($record->email==null){
+                //         Notification::make()
+                //         ->title('Email not found')
+                //         ->success()
+                //         ->send();
+                //     }else{
+                //        WelcomeNotificationJob::dispatch($record->email, $record->name,$buildingname,$emailCredentials,$OaName);
+                //         Notification::make()
+                //         ->title("Successfully Sent Mail")
+                //         ->success()
+                //         ->body("Sent mail to tenant asking him to download the app.")
+                //         ->send();
+                //     }
+                // })
+            ])
+            ->defaultSort('created_at', 'desc')
+            ->filters([
+                SelectFilter::make('building_id')
+                    ->options(function () {
+                        if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+                            return Building::all()->pluck('name', 'id');
+                        } else {
+                            return Building::where('owner_association_id', auth()->user()?->owner_association_id)
+                                ->pluck('name', 'id');
+                        }
+                    })
+                    ->searchable()
+                    ->preload()
+                    ->label('Building'),
+                Filter::make('Property Number')
+                    ->form([
+                        TextInput::make('property_number')
+                            ->placeholder('Search Unit Number')->label('Unit'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        if (!empty($data['property_number'])) {
+                            return $query->whereHas('flat', function ($query) use ($data) {
+                                $query->where('property_number', $data['property_number']);
+                            });
+                        }
+                        return $query;
+                    }),
+            ])
+            ->bulkActions([
+                Tables\Actions\BulkActionGroup::make([
+                    //Tables\Actions\DeleteBulkAction::make(),
+                ]),
+            ])
+            ->emptyStateActions([
+                //Tables\Actions\CreateAction::make(),
+            ]);
+    }
+
+    public static function getRelations(): array
+    {
+        return [
+            // UserDocumentsRelationManager::class,
+        ];
+    }
+
+    public static function getPages(): array
+    {
+        return [
+            'index' => Pages\ListTenants::route('/'),
+            //'create' => Pages\CreateTenant::route('/create'),
+            'view'  => Pages\ViewTenant::route('/{record}'),
+        ];
+    }
+}
