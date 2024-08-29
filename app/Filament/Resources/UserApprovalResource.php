@@ -52,7 +52,7 @@ class UserApprovalResource extends Resource
                     ->live(),
                 TextInput::make('building')
                 ->formatStateUsing(function($record){
-                    return Flat::where('id',$record->flat_id)->first()->building->name;
+                    return Flat::where('id',$record->flat_id)->first()?->building->name;
                 })
                 ->disabled(),
                 TextInput::make('phone')->disabledOn('edit'),
