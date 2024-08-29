@@ -82,21 +82,21 @@ class StatsOverview extends BaseWidget
 
         return [
             Stat::make('Total Buildings', $buildings)
-                ->description('Buildings under management')
+                ->description('Buildings')
                 ->icon('heroicon-s-building-office-2')
                 ->color('blue')
                 ->chart([12, 22, 32, 42, 52])
                 ->extraAttributes(['style' => 'background: linear-gradient(135deg, #E0F2FF, #90CDF4); color: #1D4ED8;']),
 
             Stat::make('Total Owners', $ownerCount)
-                ->description('Registered Property Owners')
+                ->description('Owners')
                 ->icon('heroicon-o-user-group')
                 ->color('green')
                 ->chart([10, 30, 50, 70, 90])
                 ->extraAttributes(['style' => 'background: linear-gradient(135deg, #E6F4EA, #A7F3D0); color: #10B981;']),
 
             Stat::make('Total Tenants', $tenantCount)
-                ->description('Tenants currently occupying Flats')
+                ->description('Tenants')
                 ->icon('heroicon-o-users')
                 ->color('orange')
                 ->chart([15, 25, 35, 45, 55])
