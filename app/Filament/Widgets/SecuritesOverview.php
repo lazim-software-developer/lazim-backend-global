@@ -81,21 +81,21 @@ class SecuritesOverview extends BaseWidget
 
         return [
             Stat::make('Total Vendors', $vendorsCount)
-                ->description('Associated Vendors')
+                ->description('Vendors')
                 ->icon('heroicon-o-briefcase')
                 ->color('emerald-200')
                 ->chart([10, 20, 30, 40, 50])
                 ->extraAttributes(['style' => 'background-color: #E6F4EA; color: #006400;']),
             
             Stat::make('Total Technicians', $technicianCount)
-                ->description('Technicians in the System')
+                ->description('Technicians')
                 ->icon('heroicon-o-wrench')
                 ->color('blue')
                 ->chart([12, 22, 32, 42, 52])
                 ->extraAttributes(['style' => 'background: linear-gradient(135deg, #E0F2FF, #90CDF4); color: #1D4ED8;']),
             
-            Stat::make('Total Securities', $securityCount)
-                ->description('Security Personal')
+            Stat::make('Total Gatekeepers', $securityCount)
+                ->description('Gatekeepers')
                 ->icon('heroicon-s-shield-check')
                 ->color('red-200')
                 ->chart([3, 13, 23, 33, 43])
