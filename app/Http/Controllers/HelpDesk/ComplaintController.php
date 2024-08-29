@@ -295,6 +295,7 @@ class ComplaintController extends Controller
                 'building_id' => $building->id,
                 'active'      => 1,
             ])->first();
+            if($isActiveSecurity){
             $expoPushToken = ExpoPushNotification::where('user_id', $isActiveSecurity?->user_id)->first()?->token;
                     if ($expoPushToken) {
                         $message = [
@@ -326,6 +327,7 @@ class ComplaintController extends Controller
                             'created_at'      => now()->format('Y-m-d H:i:s'),
                             'updated_at'      => now()->format('Y-m-d H:i:s'),
                         ]);
+            }
         }
         $credentials = AccountCredentials::where('oa_id', $complaint->owner_association_id)->where('active', true)->latest()->first();
         $mailCredentials = [
