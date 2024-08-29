@@ -43,7 +43,6 @@ class EmergencyNumbersRelationManager extends RelationManager
                         };
 
                     }])
-                    ->prefix('+971')
                     ->numeric()
                     ->required()
                     ->label('Phone Number')
@@ -56,7 +55,7 @@ class EmergencyNumbersRelationManager extends RelationManager
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')->searchable(),
-                Tables\Columns\TextColumn::make('number')->label('Phone Number')->prefix('+971')->searchable(),
+                Tables\Columns\TextColumn::make('number')->label('Phone Number')->searchable(),
             ])
             ->filters([
                 //
