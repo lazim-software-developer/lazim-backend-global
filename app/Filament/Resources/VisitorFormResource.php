@@ -23,7 +23,7 @@ use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 class VisitorFormResource extends Resource
 {
     protected static ?string $model = FlatVisitor::class;
-    protected static ?string $title = 'Flat visitor';
+    protected static ?string $title = 'Visitor';
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
     protected static ?string $modelLabel = 'Visitors';
 
