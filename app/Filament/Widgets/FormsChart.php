@@ -114,12 +114,12 @@ class FormsChart extends ChartWidget
                 ],
             ],
             'labels' => [
-                'AccessCard', 
-                'SaleNOC', 
-                'GuestRegistration', 
-                'MovingIn', 
-                'MovingOut', 
-                'FitOut', 
+                'Access card', 
+                'Sale NOC', 
+                'Holiday Homes Guest Registration', 
+                'Move in', 
+                'Move out', 
+                'Fitout', 
                 'Residential', 
                 'Visitors'
             ],

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Widgets;
 
+use App\Models\Building\BuildingPoc;
 use App\Models\Building\Complaint;
 use App\Models\Master\Role;
 use App\Models\User\User;
@@ -26,7 +27,10 @@ class SecuritesOverview extends BaseWidget
 
         $role = Role::where('owner_association_id', Filament::getTenant()->id);
     
-        $securityCount = User::where('role_id', $role->where('name', 'Security')->value('id'))->count();
+        $securityCount = BuildingPoc::where('owner_association_id',auth()->user()->owner_association_id)->where('active',true)->count();
+        if($buildingId){
+            $securityCount = BuildingPoc::where('owner_association_id',auth()->user()->owner_association_id)->where('building_id',$buildingId)->where('active',true)->count();
+        }
 
         $vendorsQuery = Vendor::where('owner_association_id', Filament::getTenant()->id);
 
