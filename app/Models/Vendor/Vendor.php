@@ -2,13 +2,22 @@
 
 namespace App\Models\Vendor;
 
+use App\Models\Accounting\Invoice;
+use App\Models\Accounting\WDA;
+use App\Models\Asset;
+use App\Models\BuildingVendor;
 use App\Models\OaUserRegistration;
+use App\Models\OwnerAssociation;
+use App\Models\TechnicianVendor;
 use App\Models\User\User;
 use App\Models\Master\Service;
 use App\Models\Vendor\Contact;
 use App\Models\Building\Building;
 use App\Models\Building\Document;
+use App\Models\Item;
 use App\Models\Scopes\Searchable;
+use App\Models\Vendor\Contract;
+use App\Models\Vendor\VendorEscalationMatrix;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -25,6 +34,14 @@ class Vendor extends Model
         'tl_expiry',
         'status',
         'remarks',
+        'owner_association_id',
+        'phone',
+        'address_line_1',
+        'address_line_2',
+        'landline_number',
+        'website',
+        'fax',
+        'active',
     ];
 
     protected $searchableFields = ['*'];
@@ -34,6 +51,10 @@ class Vendor extends Model
         'remarks' => 'array',
     ];
 
+    public function ownerAssociation()
+    {
+        return $this->belongsToMany(OwnerAssociation::class);
+    }
     public function user()
     {
         return $this->belongsTo(User::class, 'owner_id');
@@ -74,10 +95,56 @@ class Vendor extends Model
     }
     public function buildings()
     {
-        return $this->belongsToMany(Building::class, 'building_vendor', 'building_id','vendor_id');
+        return $this->belongsToMany(Building::class, 'building_vendor', 'vendor_id','building_id')
+                ->withPivot(['contract_id', 'active','start_date','end_date']);
+    }
+    public function buildingvendor()
+    {
+        return $this->hasMany(BuildingVendor::class);
     }
     public function oaUserRegistration()
     {
         return $this->belongsTo(OaUserRegistration::class);
+    }
+
+    public function managers()
+    {
+        return $this->hasMany(VendorManager::class);
+    }
+
+    public function escalationMatrix()
+    {
+        return $this->hasMany(VendorEscalationMatrix::class);
+    }
+
+    public function technicianVendors()
+    {
+        return $this->hasMany(TechnicianVendor::class,'vendor_id')->where('active', true);
+    }
+    public function contracts()
+    {
+        return $this->hasMany(Contract::class,'vendor_id');
+    }
+    public function wdas()
+    {
+        return $this->hasMany(WDA::class,'vendor_id');
+    }
+    public function invoices()
+    {
+        return $this->hasMany(Invoice::class,'vendor_id');
+    }
+    public function assets()
+    {
+        return $this->belongsToMany(Asset::class);
+    }
+
+    public function OA()
+    {
+        return $this->belongsTo(OwnerAssociation::class,'owner_association_id');
+    }
+
+    public function items()
+    {
+        return $this->belongsToMany(Item::class);
     }
 }

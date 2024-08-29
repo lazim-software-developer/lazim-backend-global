@@ -2,27 +2,35 @@
 
 namespace App\Filament\Resources\Master;
 
-use App\Filament\Resources\Master\ServiceResource\Pages\CreateService;
+use Filament\Forms\Form;
+use Filament\Tables\Table;
+use App\Models\Master\Service;
+use Filament\Resources\Resource;
+use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Toggle;
+use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\FileUpload;
+use Filament\Tables\Actions\CreateAction;
+use Filament\Tables\Actions\BulkActionGroup;
+use Filament\Tables\Actions\DeleteBulkAction;
 use App\Filament\Resources\Master\ServiceResource\Pages\EditService;
 use App\Filament\Resources\Master\ServiceResource\Pages\ListServices;
-use App\Models\Master\Service;
-use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
-use Filament\Tables\Actions\BulkActionGroup;
-use Filament\Tables\Actions\CreateAction;
-use Filament\Tables\Actions\DeleteBulkAction;
-use Filament\Tables\Actions\EditAction;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Table;
+use App\Filament\Resources\Master\ServiceResource\Pages\CreateService;
 
 class ServiceResource extends Resource
 {
     protected static ?string $model = Service::class;
 
-    protected static ?string $navigationIcon  = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $modelLabel = 'Personal Service';
     protected static ?string $navigationGroup = 'Master';
+
+    protected static bool $isScopedToTenant = false;
 
     public static function form(Form $form): Form
     {
@@ -31,12 +39,38 @@ class ServiceResource extends Resource
                 Grid::make([
                     'sm' => 1,
                     'md' => 1,
-                    'lg' => 2])
+                    'lg' => 1,
+                ])
                     ->schema([
                         TextInput::make('name')
                             ->rules(['max:50', 'string'])
                             ->required()
                             ->placeholder('Name'),
+                        Hidden::make('type')
+                            ->default('inhouse'),
+                        TextInput::make('code')
+                            ->alphaDash()
+                            ->required()
+                            ->placeholder('NA'),
+                        TextInput::make('payment_link')
+                            ->placeholder('NA')
+                            ->url(),
+                        TextInput::make('price')
+                            ->prefix('AED')
+                            ->numeric()
+                            ->minValue(1)
+                            ->maxValue(10000)
+                            ->placeholder('NA'),
+                        FileUpload::make('icon')
+                            ->acceptedFileTypes(['image/jpeg', 'image/png'])
+                            ->disk('s3')
+                            ->directory('dev')
+                            ->required()
+                            ->maxSize(2048),
+                        Toggle::make('active')
+                            ->label('Active')
+                            ->default(1)
+                            ->rules(['boolean']),
 
                     ]),
             ]);
@@ -44,18 +78,17 @@ class ServiceResource extends Resource
 
     public static function table(Table $table): Table
     {
-        $query = Service::where('custom',[0,NULL]);
-
         return $table
-            ->query($query)
-            ->poll('60s')
             ->columns([
                 TextColumn::make('name')
-                    ->toggleable()
-                    ->searchable(true, null, true)
+                    ->searchable()
                     ->limit(50),
-
+                IconColumn::make('active')
+                    ->boolean()
+                    ->trueIcon('heroicon-o-check-badge')
+                    ->falseIcon('heroicon-o-x-mark'),
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])
@@ -64,27 +97,27 @@ class ServiceResource extends Resource
             ])
             ->bulkActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
+                    //DeleteBulkAction::make(),
                 ]),
             ])
             ->emptyStateActions([
-                CreateAction::make(),
+                //CreateAction::make(),
             ]);
     }
 
     public static function getRelations(): array
     {
         return [
-            ServiceResource\RelationManagers\VendorsRelationManager::class,
+            //ServiceResource\RelationManagers\VendorsRelationManager::class,
         ];
     }
 
     public static function getPages(): array
     {
         return [
-            'index'  => ListServices::route('/'),
+            'index' => ListServices::route('/'),
             'create' => CreateService::route('/create'),
-            'edit'   => EditService::route('/{record}/edit'),
+            'edit' => EditService::route('/{record}/edit'),
         ];
     }
 }

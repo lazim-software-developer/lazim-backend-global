@@ -2,7 +2,6 @@
 
 namespace App\Filament\Resources\Master\RoleResource\RelationManagers;
 
-use Filament\Forms;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -10,9 +9,7 @@ use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class UsersRelationManager extends RelationManager
 {
@@ -26,76 +23,54 @@ class UsersRelationManager extends RelationManager
                     TextInput::make('first_name')
                         ->rules(['max:50', 'string'])
                         ->placeholder('First Name')
+                        ->required()
+                        ->default('NA')
                         ->columnSpan([
                             'default' => 12,
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     TextInput::make('last_name')
                         ->rules(['max:50', 'string'])
                         ->placeholder('Last Name')
+                        ->required()
+                        ->default('NA')
                         ->columnSpan([
                             'default' => 12,
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     TextInput::make('email')
                         ->rules(['email'])
-                        ->unique('users', 'email', fn(?Model $record) => $record)
+                        ->unique('users', 'email', fn (?Model $record) => $record)
                         ->email()
+                        ->required()
+                        ->default('NA')
                         ->placeholder('Email')
                         ->columnSpan([
                             'default' => 12,
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     TextInput::make('phone')
                         ->rules(['max:10', 'string'])
-                        ->unique('users', 'phone', fn(?Model $record) => $record)
+                        ->unique('users', 'phone', fn (?Model $record) => $record)
                         ->placeholder('Phone')
+                        ->required()
+                        ->default('NA')
                         ->columnSpan([
                             'default' => 12,
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
-                    // TextInput::make('password')
-                    //     ->password()
-                    //     ->dehydrateStateUsing(fn($state) => \Hash::make($state))
-                    //     ->required(
-                    //         fn(Component $livewire) => $livewire instanceof
-                    //             Pages\CreateUser
-                    //     )
-                    //     ->placeholder('Password')
-                    //     ->columnSpan([
-                    //         'default' => 12,
-                    //         'md' => 12,
-                    //         'lg' => 12,
-                    //     ]),
-    
-                    Toggle::make('phone_verified')
-                        ->rules(['boolean'])
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
-    
+
                     Toggle::make('active')
                         ->rules(['boolean'])
-                        ->columnSpan([
-                            'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
-                        ]),
-    
-                    TextInput::make('lazim_id')
-                        ->rules(['max:50', 'string'])
-                        ->unique('users', 'lazim_id', fn(?Model $record) => $record)
-                        ->placeholder('Lazim Id')
+                        ->required()
+                        ->default(0)
                         ->columnSpan([
                             'default' => 12,
                             'md' => 12,
@@ -108,33 +83,31 @@ class UsersRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
-        ->columns([
-            Tables\Columns\TextColumn::make('first_name')->limit(50),
-            Tables\Columns\TextColumn::make('last_name')->limit(50),
-            Tables\Columns\TextColumn::make('email')->limit(50),
-            Tables\Columns\TextColumn::make('phone')->limit(50),
-            Tables\Columns\IconColumn::make('phone_verified'),
-            Tables\Columns\IconColumn::make('active'),
-            Tables\Columns\TextColumn::make('lazim_id')->limit(50),
-            Tables\Columns\TextColumn::make('role.name')->limit(50),
-        ])
+            ->columns([
+                Tables\Columns\TextColumn::make('first_name')
+                    ->default('NA')
+                    ->limit(50),
+                Tables\Columns\TextColumn::make('last_name')
+                    ->default('NA')
+                    ->limit(50),
+                Tables\Columns\TextColumn::make('email')
+                    ->default('NA')
+                    ->limit(50),
+                Tables\Columns\TextColumn::make('phone')
+                    ->default('NA')
+                    ->limit(50),
+                Tables\Columns\IconColumn::make('active')
+                    ->boolean()
+                    ->default(0)
+                    ->trueIcon('heroicon-o-check-badge')
+                    ->falseIcon('heroicon-o-x-mark'),
+            ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])
-            ->headerActions([
-                Tables\Actions\CreateAction::make(),
-            ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ])
-            ->emptyStateActions([
-                Tables\Actions\CreateAction::make(),
+                Tables\Actions\ViewAction::make(),
             ]);
     }
 }

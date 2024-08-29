@@ -12,24 +12,24 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class AssignFlatsToTenant implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected $email;
 
-    public function __construct($email)
+    public function __construct(protected $email, protected $mobile, protected $owner_id, protected $customerId,protected $type)
     {
-        $this->email = $email;
+
     }
 
     public function handle()
     {
         // Fetch the owner using the provided email
-        $owner = ApartmentOwner::where('email', $this->email)->first();
+        $owner = ApartmentOwner::where('id', $this->owner_id)->first();
 
-        $user = User::where('email', $this->email)->first();
+        $user = User::where('email', $this->email)->where('phone',$this->mobile)->where('owner_id', $this->owner_id)->first();
 
         if (!$owner) {
             // No owner found with the given email
@@ -43,6 +43,7 @@ class AssignFlatsToTenant implements ShouldQueue
             ->groupBy('flats.building_id', 'flats.property_number')
             ->get();
 
+        $connection = DB::connection('lazim_accounts');
         foreach ($flats as $flat) {
             // Add an entry in the flat_tenant table for each flat
             $flatDetails = Flat::find($flat->flat_id);
@@ -54,9 +55,17 @@ class AssignFlatsToTenant implements ShouldQueue
                     'building_id' => $flatDetails->building_id,
                     'owner_association_id' => $flatDetails->owner_association_id,
                     'start_date' => now(),
-                    'active' => 1
+                    'active' => 1,
+                    'role' => $this->type,
                 ]
             );
+
+            $connection->table('customer_flat')->insert([
+                'customer_id' => $this->customerId,
+                'flat_id' => $flat->flat_id,
+                'building_id' => $flatDetails->building_id,
+                'property_number' =>$flatDetails->property_number
+            ]);
         }
     }
 }

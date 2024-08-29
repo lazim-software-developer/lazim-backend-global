@@ -15,12 +15,22 @@ class ProfileResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return [
+        return[
+            'id'=>$this->id,
             'first_name' => $this->first_name,
             'last_name' => $this->last_name,
             'email' => $this->email,
             'phone' => $this->phone,
-            'profile_pic' => $this->profile_photo ? Storage::disk('s3')->url($this->profile_photo) : null
+            'profile_pic' => $this->profile_photo ? Storage::disk('s3')->url($this->profile_photo) : null,
+            'email_verified'=>$this->email_verified,
+            'phone_verified'=>$this->phone_verified,
+            'active'=>$this->active,
+            'lazim_id'=>$this->lazim_id,
+            'role_id'=>$this->role_id,
+            'owner_association_id'=>$this->owner_association_id,
+            'created_at'=>$this->created_at,
+            'updated_at'=>$this->updated_at,
+            'remember_token'=>$this->remember_token,
         ];
     }
 }

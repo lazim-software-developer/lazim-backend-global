@@ -32,7 +32,7 @@ class ComplaintsRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     TextInput::make('complaintable_id')
                         ->rules(['max:255'])
                         ->placeholder('Complaintable Id')
@@ -41,7 +41,7 @@ class ComplaintsRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     TextInput::make('complaint_type')
                         ->rules(['max:50', 'string'])
                         ->placeholder('Complaint Type')
@@ -50,7 +50,7 @@ class ComplaintsRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     TextInput::make('category')
                         ->rules(['max:50', 'string'])
                         ->placeholder('Category')
@@ -59,7 +59,7 @@ class ComplaintsRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     DateTimePicker::make('open_time')
                         ->rules(['date'])
                         ->placeholder('Open Time')
@@ -68,7 +68,7 @@ class ComplaintsRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     DateTimePicker::make('close_time')
                         ->rules(['date'])
                         ->placeholder('Close Time')
@@ -77,13 +77,13 @@ class ComplaintsRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     FileUpload::make('photo')->columnSpan([
                         'default' => 12,
                         'md' => 12,
                         'lg' => 12,
                     ]),
-    
+
                     KeyValue::make('remarks')
                         ->required()
                         ->columnSpan([
@@ -91,7 +91,7 @@ class ComplaintsRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     TextInput::make('status')
                         ->rules(['max:50', 'string'])
                         ->placeholder('Status')
@@ -131,7 +131,7 @@ class ComplaintsRelationManager extends RelationManager
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    // Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ])
             ->emptyStateActions([

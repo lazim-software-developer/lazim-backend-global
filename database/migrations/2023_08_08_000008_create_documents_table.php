@@ -16,7 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('document_library_id');
             $table->unsignedBigInteger('building_id')->nullable();
             $table->unsignedBigInteger('owner_association_id')->nullable();
-            $table->longText('url');
+            $table->string('url');
             $table->string('status', 50);
             $table->json('comments')->nullable();
             $table->date('expiry_date');

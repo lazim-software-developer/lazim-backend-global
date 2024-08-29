@@ -58,11 +58,12 @@ class ProfileController extends Controller
 
         // Check if the provided current password matches the one in the database
         if (!Hash::check($request->current_password, $user->password)) {
-            return new CustomResponseResource([
+            return (new CustomResponseResource([
                 'title' => 'Password Update Failed',
                 'message' => 'The provided current password does not match our records.',
-                'errorCode' => 422,
-            ]);
+                'code' => 422,
+                'status' => 'error',
+            ]))->response()->setStatusCode(422);
         }
 
         // Update the user's password

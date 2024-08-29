@@ -25,6 +25,11 @@ return [
 
     ],
 
+    'pages' => [
+        // ...
+        App\Filament\Pages\BudgetListing::class,
+    ],
+
     /*
     |--------------------------------------------------------------------------
     | Default Filesystem Disk
