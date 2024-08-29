@@ -31,7 +31,7 @@ class EmergencyNumbersRelationManager extends RelationManager
                     ->required()
                     ->maxLength(50),
                 TextInput::make('number')
-                    ->rules(['regex:/^\d{10}$/',function (?Model $record) {
+                    ->rules(['regex:/^\d{1,10}$/',function (?Model $record) {
                         return function (string $attribute, $value, Closure $fail) use ($record){
                             $exists = EmergencyNumber::where('building_id',$this->ownerRecord->id)->where('number',$value)->exists();
                             if($record === null && $exists){
