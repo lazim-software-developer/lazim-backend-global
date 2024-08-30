@@ -50,6 +50,7 @@ class OrderObserver
                 $oaId = SaleNOC::where('id', $order->id)->first()->owner_association_id;
                 $link = NocFormResource::getUrl('edit', [OwnerAssociation::where('id', $oaId)->first()?->slug, $order->id]);
             }
+            Log::info($baseClass);
 
             $user = User::where('role_id', Role::where('name', 'OA')->first()->id)->where('owner_association_id',$oaId)->first();
             if ($user) {
