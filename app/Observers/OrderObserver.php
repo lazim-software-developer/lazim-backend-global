@@ -32,7 +32,25 @@ class OrderObserver
     public function updated(Order $order): void
     {
         if ($order->payment_status == 'succeeded') {
-            $oaId = $order->orderable->owner_association_id;
+
+            $baseClass = class_basename($order->orderable_type);
+            Log::info($baseClass);
+            $oaId = 1;
+            $link = '';
+
+            if ($baseClass == 'AccessCard') {
+                $oaId = AccessCard::where('id', $order->id)->first()->owner_association_id;
+                $link = AccessCardFormsDocumentResource::getUrl('edit', [OwnerAssociation::where('id', $oaId)->first()?->slug, $order->id]);
+            }
+            if ($baseClass == 'FitOutForm') {
+                $oaId = FitOutForm::where('id', $order->id)->first()->owner_association_id;
+                $link = FitOutFormsDocumentResource::getUrl('edit', [OwnerAssociation::where('id', $oaId)->first()?->slug, $order->id]);
+            }
+            if ($baseClass == 'SaleNOC') {
+                $oaId = SaleNOC::where('id', $order->id)->first()->owner_association_id;
+                $link = NocFormResource::getUrl('edit', [OwnerAssociation::where('id', $oaId)->first()?->slug, $order->id]);
+            }
+
             $user = User::where('role_id', Role::where('name', 'OA')->first()->id)->where('owner_association_id',$oaId)->first();
             if ($user) {
                 Notification::make()
@@ -45,17 +63,7 @@ class OrderObserver
                     ->actions([
                         Action::make('View')
                             ->button()
-                            ->url(function ($order,$oaId){
-                                if($order->orderable_type == AccessCard::class){
-                                   return AccessCardFormsDocumentResource::getUrl('edit', [OwnerAssociation::where('id',$oaId)->first()?->slug,$order->id]);
-                                }
-                                if($order->orderable_type == FitOutForm::class){
-                                   return FitOutFormsDocumentResource::getUrl('edit', [OwnerAssociation::where('id',$oaId)->first()?->slug,$order->id]);
-                                }
-                                if($order->orderable_type == SaleNOC::class){
-                                   return NocFormResource::getUrl('edit', [OwnerAssociation::where('id',$oaId)->first()?->slug,$order->id]);
-                                }
-                            }),
+                            ->url(fn () => $link),
                     ]);
             }
         }
