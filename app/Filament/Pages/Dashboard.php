@@ -29,9 +29,15 @@ class Dashboard extends BaseDashboard
                                 ->pluck('name', 'id')) // Fetch building names and IDs
                             ->searchable(),
                         DatePicker::make('startDate')
-                            ->label('Start Date'),
+                            ->reactive()
+                            ->label('Start Date')
+                            ->afterStateUpdated(function ($state, callable $set) {
+                                $set('endDate', null); // Clear the end date when the start date changes
+                            }),
                         DatePicker::make('endDate')
-                            ->label('End Date'),
+                            ->label('End Date')
+                            ->reactive()
+                            ->minDate(fn (callable $get) => $get('startDate')),
                     ])
                     ->columns(3), // Adjust the layout to accommodate three columns
             ]);
@@ -49,8 +55,14 @@ class Dashboard extends BaseDashboard
 
     public function resetFilters()
     {
-        $this->filters = []; // Reset the filters to an empty array
-        // $this->redirect($this->getUrl()); 
+        // $this->filters = [];
+        $this->filters['building'] = null;
+        $this->filters['startDate'] = null; 
+        $this->filters['endDate'] = null; 
+
+        session()->forget('filters');
+        // $this->redirect('/admin'); 
+        // $this->dispatchBrowserEvent('filters-reset');
 
     }
 
