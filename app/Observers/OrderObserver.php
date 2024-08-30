@@ -34,8 +34,7 @@ class OrderObserver
         if ($order->payment_status == 'succeeded') {
 
             $baseClass = class_basename($order->orderable_type);
-            Log::info($baseClass);
-            $oaId = 1;
+            $oaId = null;
             $link = '';
 
             if ($baseClass == 'AccessCard') {
@@ -50,8 +49,6 @@ class OrderObserver
                 $oaId = SaleNOC::where('id', $order->id)->first()->owner_association_id;
                 $link = NocFormResource::getUrl('edit', [OwnerAssociation::where('id', $oaId)->first()?->slug, $order->id]);
             }
-            Log::info($oaId);
-            Log::info($link);
 
             $user = User::where('role_id', Role::where('name', 'OA')->first()->id)->where('owner_association_id',$oaId)->first();
             if ($user) {
