@@ -9,6 +9,7 @@ use App\Models\ResidentialForm;
 use App\Models\Forms\AccessCard;
 use App\Models\Forms\FitOutForm;
 use App\Models\Visitor;
+use App\Models\Visitor\FlatVisitor;
 use Carbon\Carbon;
 use Filament\Widgets\ChartWidget;
 use Filament\Widgets\Concerns\InteractsWithPageFilters;
@@ -35,7 +36,7 @@ class FormsChart extends ChartWidget
         $residentialQuery = ResidentialForm::where('owner_association_id', auth()->user()->owner_association_id);
         $moveInQuery = MoveInOut::where('owner_association_id', auth()->user()->owner_association_id)->where('type', 'move-in');
         $moveOutQuery = MoveInOut::where('owner_association_id', auth()->user()->owner_association_id)->where('type', 'move-out');
-        $visitorQuery = Visitor::where('owner_association_id', auth()->user()->owner_association_id);
+        $visitorQuery = FlatVisitor::where('owner_association_id', auth()->user()->owner_association_id);
 
         if ($buildingId) {
             // Apply building filter to the queries that have direct building_id
