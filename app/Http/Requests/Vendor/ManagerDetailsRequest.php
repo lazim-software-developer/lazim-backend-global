@@ -24,7 +24,7 @@ class ManagerDetailsRequest extends FormRequest
         return [
             'name'          =>  'required|string|min:3|max:50',
             'email'         =>  'required|regex:/^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/',
-            'phone'         =>  'required|string|',
+            'phone'         =>  'required|string',
         ];
     }
 }
