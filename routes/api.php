@@ -392,6 +392,7 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('vendor')->group(function 
     // List vendor details of logged in user
     Route::get('/details', [VendorRegistrationController::class, 'showVendorDetails']);
     Route::get('/{vendor}/view-manager', [VendorRegistrationController::class, 'showManagerDetails']);
+    Route::patch('/managers-deatils/{vendor}',[VendorRegistrationController::class, 'updateManagerDetails']);
     Route::get('/{vendor}/services', [SelectServicesController::class, 'showServices']);
     Route::get('/{vendor}/show-documents', [DocumentsUploadController::class, 'showDocuments']);
     Route::post('/{vendor}/escalation-matrix', [EscalationMatrixController::class, 'store']);
