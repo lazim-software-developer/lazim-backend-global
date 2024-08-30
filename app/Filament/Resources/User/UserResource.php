@@ -81,10 +81,14 @@ class UserResource extends Resource
                     ->relationship('roles', 'name')
                     // ->multiple()
                     ->options(function () {
-                                $oaId = auth()->user()?->owner_association_id;
-                                return Role::whereNotIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'OA', 'Owner', 'Managing Director', 'Vendor'])
-                                ->where('owner_association_id',$oaId)
-                                    ->pluck('name', 'id');
+                        if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+                            return Role::where('name', 'Admin')->pluck('name', 'id');
+                        } else {
+                            $oaId = auth()->user()?->owner_association_id;
+                            return Role::whereNotIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'OA', 'Owner', 'Managing Director', 'Vendor'])
+                                ->where('owner_association_id', $oaId)
+                                ->pluck('name', 'id');
+                        }
                             })
                     ->preload()->required()
                     ->searchable(),
