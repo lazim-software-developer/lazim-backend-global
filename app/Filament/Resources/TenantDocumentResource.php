@@ -139,7 +139,6 @@ class TenantDocumentResource extends Resource
                     ->label('Building Name')
                     ->limit(50),
                 TextColumn::make('unit')
-                    ->searchable()
                     ->default('NA')
                     ->label('Unit Number')
                     ->getStateUsing(function(Get $get,$record){
