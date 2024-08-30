@@ -50,7 +50,8 @@ class OrderObserver
                 $oaId = SaleNOC::where('id', $order->id)->first()->owner_association_id;
                 $link = NocFormResource::getUrl('edit', [OwnerAssociation::where('id', $oaId)->first()?->slug, $order->id]);
             }
-            Log::info($baseClass);
+            Log::info($oaId);
+            Log::info($link);
 
             $user = User::where('role_id', Role::where('name', 'OA')->first()->id)->where('owner_association_id',$oaId)->first();
             if ($user) {
@@ -59,13 +60,13 @@ class OrderObserver
                     ->title("Payment Update")
                     ->icon('heroicon-o-document-text')
                     ->iconColor('success')
-                    ->body('Payment is done for ' . class_basename($order->orderable_type))
-                    ->sendToDatabase($user)
                     ->actions([
                         Action::make('View')
                             ->button()
                             ->url(fn () => $link),
-                    ]);
+                    ])
+                    ->body('Payment is done for ' . class_basename($order->orderable_type))
+                    ->sendToDatabase($user);
             }
         }
     }
