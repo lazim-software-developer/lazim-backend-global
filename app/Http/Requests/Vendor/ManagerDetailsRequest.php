@@ -23,8 +23,8 @@ class ManagerDetailsRequest extends FormRequest
     {
         return [
             'name'          =>  'required|string|min:3|max:50',
-            'email'         =>  'required|unique:vendor_managers,email|regex:/^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/',
-            'phone'         =>  'required|string|unique:vendor_managers,phone',
+            'email'         =>  'required|regex:/^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/',
+            'phone'         =>  'required|string',
         ];
     }
 }
