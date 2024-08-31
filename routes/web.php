@@ -46,7 +46,7 @@ Route::prefix('/')
 Route::get('/vendors/create', VendorRegistration::class);
 
 
-// Service chanrge 
+// Service chanrge
 Route::get('service-charge/{saleNOC}/generate-pdf/', [PDFController::class, 'serviceChargePDF']);
 // // ROutes for PDF links
 // Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active'])->group(function () {
@@ -98,3 +98,5 @@ Route::get('/filament/custom/asset-fetch-data', function () {
     $data = Session::get('data');
     return view('filament.custom.asset-fetch-data', ['data' => $data]);
 })->name('asset-fetch-data');
+
+Route::get('/redirect-os', [TestController::class, 'redirectBasedOnOS'])->name('redirect.os');
