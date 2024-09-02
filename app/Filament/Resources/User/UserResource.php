@@ -124,7 +124,7 @@ class UserResource extends Resource
             $roles = Role::whereNotIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'OA', 'Owner', 'Managing Director', 'Vendor'])->pluck('id');
         }
         return $table
-            ->modifyQueryUsing(fn(Builder $query) => $query->where('owner_association_id',auth()->user()?->owner_association_id)->whereIn('role_id',$roles))
+            ->modifyQueryUsing(fn(Builder $query) => $query->where('owner_association_id',auth()->user()?->owner_association_id)->whereIn('role_id',$roles)->where('id', '!=', auth()->user()->id))
             ->poll('60s')
             ->columns([
                 Tables\Columns\TextColumn::make('first_name')
