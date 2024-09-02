@@ -325,6 +325,46 @@ class RegistrationController extends Controller
         ]))->response()->setStatusCode(201);
     }
 
+    public function reuploadDocument(Request $request,UserApproval $resident){
+        if($resident->status == null){
+            return (new CustomResponseResource([
+                'title' => 'Error',
+                'message' => 'Your last changes is not yet approved!',
+                'code' => 400,
+            ]))->response()->setStatusCode(400);
+        }
+        if($resident->status == 'approved'){
+            return (new CustomResponseResource([
+                'title' => 'Error',
+                'message' => 'Your account is already approved!',
+                'code' => 400,
+            ]))->response()->setStatusCode(400);
+        }
+        $request->validate([
+            'document' => 'required|file|max:2048|mimes:pdf,jpg,jpeg,png,doc,docx',
+            'emirates_document' => 'required|file|max:2048|mimes:pdf,jpg,jpeg,png,doc,docx',
+            'passport_document' => 'required|file|max:2048|mimes:pdf,jpg,jpeg,png,doc,docx',
+        ]);
+        
+        $imagePath = optimizeDocumentAndUpload($request->document, 'dev');
+        $emirates = optimizeDocumentAndUpload($request->emirates_document, 'dev');
+        $passport = optimizeDocumentAndUpload($request->passport_document, 'dev');
+
+        $userApproval = $resident->update([
+            'document' => $imagePath,
+            'emirates_document' => $emirates,
+            'passport_document' => $passport,
+            'status' => null,
+            'remarks' => null,
+        ]);
+
+        return (new CustomResponseResource([
+            'title' => 'Document submitted!',
+            'message' => "Document submitted succesfully!",
+            'code' => 201,
+        ]))->response()->setStatusCode(201);
+    }
+
     public function resendOtp(ResendOtpRequest $request)
     {
         // Validate the type and contact_value
