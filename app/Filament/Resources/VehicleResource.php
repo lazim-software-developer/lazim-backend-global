@@ -2,27 +2,29 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\VehicleResource\Pages;
-use App\Filament\Resources\VehicleResource\RelationManagers;
-use App\Models\Building\Building;
-use App\Models\Building\Flat;
-use App\Models\Master\Role;
-use App\Models\User\User;
-use App\Models\Vehicle;
 use Filament\Forms;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
 use Filament\Tables;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\Filter;
-use Filament\Tables\Filters\SelectFilter;
+use App\Models\Vehicle;
+use Filament\Forms\Get;
+use Filament\Forms\Form;
+use App\Models\User\User;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
+use App\Models\Master\Role;
+use App\Models\Building\Flat;
+use Filament\Resources\Resource;
+use App\Models\Building\Building;
+use App\Models\Building\FlatTenant;
+use Filament\Tables\Filters\Filter;
+use Filament\Forms\Components\Select;
+use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Model;
+use Filament\Forms\Components\TextInput;
+use Filament\Tables\Filters\SelectFilter;
+use Illuminate\Database\Eloquent\Builder;
+use App\Filament\Resources\VehicleResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
+use App\Filament\Resources\VehicleResource\RelationManagers;
 
 class VehicleResource extends Resource
 {
@@ -84,14 +86,18 @@ class VehicleResource extends Resource
                         return Flat::where('id', $state)->value('property_number');
                     })
                     ->disabledOn('edit')
-                    ->native(false),
+                    ->native(false)
+                    ->live(),
 
                 Select::make('user_id')->label('Resident')->searchable()->preload()->required()->disabledOn('edit')
-                    ->options(function () {
+                    ->options(function (Get $get) {
                         if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
                             return User::all()->whereIn('role_id', Role::whereIn('name', ['Tenant', 'Owner'])->pluck('id'))->pluck('first_name', 'id');
                         } else {
-                            return User::where('owner_association_id', auth()->user()?->owner_association_id)->whereIn('role_id', Role::whereIn('name', ['Tenant', 'Owner'])->pluck('id'))->pluck('first_name', 'id');
+                            // $user_id =  User::where('owner_association_id', auth()->user()?->owner_association_id)->whereIn('role_id', Role::whereIn('name', ['Tenant', 'Owner'])->pluck('id'))->pluck('id');
+                            $flatResidentsId = FlatTenant::where('flat_id',$get('flat_id'))->pluck('tenant_id');
+
+                            return User::whereIn('id',$flatResidentsId)->pluck('first_name','id');
                         }
                     }),
 

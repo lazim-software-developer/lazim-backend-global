@@ -14,7 +14,7 @@ class EditVisitorForm extends EditRecord
 {
     use UtilsTrait;
     protected static string $resource = VisitorFormResource::class;
-    protected static ?string $title = 'Flat visitor';
+    protected static ?string $title = 'Visitor';
 
     protected function getHeaderActions(): array
     {
@@ -46,7 +46,7 @@ class EditVisitorForm extends EditRecord
                         'to' => $expoPushToken,
                         'sound' => 'default',
                         'title' => 'Visitor form status.',
-                        'body' => "Flat Visitor form has been approved \nfor $date at $time\n No. of visitors: $visitorCount\n Unit:$unit ",
+                        'body' => "Visitor form has been approved \nfor $date at $time\n No. of visitors: $visitorCount\n Unit:$unit ",
                         'data' => ['notificationType' => 'InAppNotfication'],
                     ];
                     $this->expoNotification($message);
@@ -57,7 +57,7 @@ class EditVisitorForm extends EditRecord
                         'notifiable_id' => $security,
                         'data' => json_encode([
                             'actions' => [],
-                            'body' => "Flat Visitor form has been approved \nfor $date at $time\n No. of visitors: $visitorCount\n Unit:$unit ",
+                            'body' => "Visitor form has been approved \nfor $date at $time\n No. of visitors: $visitorCount\n Unit:$unit ",
                             'duration' => 'persistent',
                             'icon' => 'heroicon-o-document-text',
                             'iconColor' => 'warning',

@@ -45,7 +45,7 @@ class CommentController extends Controller
 
         Notification::make()
             ->success()
-            ->title("comments")
+            ->title("Comments")
             ->icon('heroicon-o-document-text')
             ->iconColor('warning')
             ->body(auth()->user()->first_name . ' commented on the post!')

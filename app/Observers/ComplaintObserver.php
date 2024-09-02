@@ -6,6 +6,7 @@ use App\Filament\Resources\ComplaintscomplaintResource;
 use App\Filament\Resources\ComplaintsenquiryResource;
 use App\Filament\Resources\ComplaintssuggessionResource;
 use App\Filament\Resources\HelpdeskcomplaintResource;
+use App\Filament\Resources\OacomplaintReportsResource;
 use App\Filament\Resources\SnagsResource;
 use App\Models\Building\Building;
 use App\Models\Building\Complaint;
@@ -90,7 +91,7 @@ class ComplaintObserver
             Notification::make()
             ->success()
             ->title('New Snag')
-            ->body('New Snag Received')
+            ->body('New Snag Created')
             ->icon('heroicon-o-document-text')
             ->iconColor('warning')
             ->actions([
@@ -234,7 +235,25 @@ class ComplaintObserver
                             ->url(fn () => HelpdeskcomplaintResource::getUrl('edit', [OwnerAssociation::where('id',$complaint->owner_association_id)->first()?->slug,$complaint->id])),
                     ])
                     ->sendToDatabase($notifyTo);
-            } else {
+            } elseif ($complaint->complaint_type == 'oa_complaint_report'){
+                $requiredPermissions = ['view_any_oacomplaint::reports'];
+                $notifyTo->filter(function ($notifyTo) use ($requiredPermissions) {
+                    return $notifyTo->can($requiredPermissions);
+                });
+                Notification::make()
+                    ->success()
+                    ->title("Complaints Resolved")
+                    ->icon('heroicon-o-document-text')
+                    ->iconColor('warning')
+                    ->body('Complaint has been resolved by a ' . $user->role->name . ' ' . auth()->user()->first_name)
+                    ->actions([
+                        Action::make('view')
+                            ->button()
+                            ->url(fn() => OacomplaintReportsResource::getUrl('edit', [OwnerAssociation::where('id', $complaint->owner_association_id)->first()?->slug, $complaint->id])),
+                    ])
+                    ->sendToDatabase($notifyTo);
+            }
+            else {
                 // $requiredPermissions = ['view_any_helpdeskcomplaint'];
                     $notifyTo->where('role_id', Role::where('name', 'OA')->first()->id);
                 Notification::make()

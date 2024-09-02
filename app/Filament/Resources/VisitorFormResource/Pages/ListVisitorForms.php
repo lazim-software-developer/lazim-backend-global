@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\DB;
 class ListVisitorForms extends ListRecords
 {
     protected static string $resource = VisitorFormResource::class;
-    protected static ?string $title   = 'Flat visitors';
+    protected static ?string $title   = 'Visitors';
 
     protected function getHeaderActions(): array
     {

@@ -34,7 +34,7 @@ class AboutCommunityResource extends JsonResource
         });
 
         return [
-            "image" => $this->cover_photo ?  env('AWS_URL') . '/' . $this->cover_photo : env('AWS_URL') . '/' . 'dev/images/amenity.jpg',
+            "image" => $this->cover_photo ?  env('AWS_URL') . '/' . $this->cover_photo : 'https://lazim.s3.me-central-1.amazonaws.com/buildingLogo.png',
             "about" => $this->description,
             "facilities" => $facilitiesData,
             "services" => $servicesData,

@@ -29,11 +29,11 @@ class SnagDashboardController extends Controller
             $query->where('complaint_type', $request->complaint_type);
         },function ($query) {
             // Default to 'help_desk' and 'tenant_complaint' if complaint_type is not sent
-            $query->whereIn('complaint_type', ['help_desk', 'tenant_complaint','snag']);
+            $query->whereIn('complaint_type', ['help_desk', 'tenant_complaint','snag','oa_complaint_report']);
         })
         ->whereBetween('updated_at', [$start_date, $end_date])->get();
 
         return new SnagStatsResource($complaints);
-        
+
     }
 }
