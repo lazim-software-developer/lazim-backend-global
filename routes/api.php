@@ -77,6 +77,7 @@ Route::post('/login', [AuthController::class, 'login'])->name('api.login');
 Route::post('/register', [RegistrationController::class, 'registerWithEmailPhone']);
 // Resident registeration with Passport/Emirates id
 Route::post('/register-with-document', [RegistrationController::class, 'registerWithDocument']);
+Route::post('/documents-reupload/{resident}',[RegistrationController::class, 'reuploadDocument']);
 // owner list
 Route::get('/owner-list/{flat}', [RegistrationController::class,'ownerList']);
 Route::get('/all-owners', [RegistrationController::class, 'allOwners']);
