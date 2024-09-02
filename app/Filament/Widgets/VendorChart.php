@@ -28,6 +28,7 @@ class VendorChart extends ChartWidget
 
         // Start building the query
         $vendorQuery = Vendor::whereYear('created_at', $year)
+            ->where('owner_association_id', auth()->user()->owner_association_id)
             ->selectRaw('MONTH(created_at) as month, COUNT(*) as count')
             ->groupBy('month');
 

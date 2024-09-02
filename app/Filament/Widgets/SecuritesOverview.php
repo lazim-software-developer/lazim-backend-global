@@ -2,6 +2,7 @@
 
 namespace App\Filament\Widgets;
 
+use App\Models\Building\BuildingPoc;
 use App\Models\Building\Complaint;
 use App\Models\Master\Role;
 use App\Models\User\User;
@@ -26,7 +27,10 @@ class SecuritesOverview extends BaseWidget
 
         $role = Role::where('owner_association_id', Filament::getTenant()->id);
     
-        $securityCount = User::where('role_id', $role->where('name', 'Security')->value('id'))->count();
+        $securityCount = BuildingPoc::where('owner_association_id',auth()->user()->owner_association_id)->where('active',true)->count();
+        if($buildingId){
+            $securityCount = BuildingPoc::where('owner_association_id',auth()->user()->owner_association_id)->where('building_id',$buildingId)->where('active',true)->count();
+        }
 
         $vendorsQuery = Vendor::where('owner_association_id', Filament::getTenant()->id);
 
@@ -81,21 +85,21 @@ class SecuritesOverview extends BaseWidget
 
         return [
             Stat::make('Total Vendors', $vendorsCount)
-                ->description('Associated Vendors')
+                ->description('Vendors')
                 ->icon('heroicon-o-briefcase')
                 ->color('emerald-200')
                 ->chart([10, 20, 30, 40, 50])
                 ->extraAttributes(['style' => 'background-color: #E6F4EA; color: #006400;']),
             
             Stat::make('Total Technicians', $technicianCount)
-                ->description('Technicians in the System')
+                ->description('Technicians')
                 ->icon('heroicon-o-wrench')
                 ->color('blue')
                 ->chart([12, 22, 32, 42, 52])
                 ->extraAttributes(['style' => 'background: linear-gradient(135deg, #E0F2FF, #90CDF4); color: #1D4ED8;']),
             
-            Stat::make('Total Securities', $securityCount)
-                ->description('Security Personal')
+            Stat::make('Total Gatekeepers', $securityCount)
+                ->description('Gatekeepers')
                 ->icon('heroicon-s-shield-check')
                 ->color('red-200')
                 ->chart([3, 13, 23, 33, 43])

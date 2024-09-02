@@ -8,6 +8,7 @@ use App\Models\Building\Building;
 use App\Models\FamilyMember;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class FamilyMemberController extends Controller
 {
@@ -32,7 +33,7 @@ class FamilyMemberController extends Controller
         ]))->response()->setStatusCode(201);
     }
 
-    public function index(Building $building, $unit = null)
+    public function index(Request $request,Building $building, $unit = null)
     {
         $userId = auth()->user()?->id;
 
@@ -40,8 +41,8 @@ class FamilyMemberController extends Controller
 
         $familyQuery = FamilyMember::where('user_id', $userId)->where(['owner_association_id' => $oa_id, 'building_id' => $building->id]);
 
-        if($unit) {
-            $familyQuery->where('flat_id', $unit);
+        if($request->unit) {
+            $familyQuery->where('flat_id', $request->unit);
         }
 
         $family = $familyQuery->get();

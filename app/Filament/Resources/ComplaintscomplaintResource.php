@@ -224,6 +224,7 @@ class ComplaintscomplaintResource extends Resource
 
 
 
+
                     ])
             ]);
     }

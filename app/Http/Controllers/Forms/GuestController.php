@@ -127,8 +127,8 @@ class GuestController extends Controller
             });
         Notification::make()
             ->success()
-            ->title('Flat Visit Request')
-            ->body("Flat visit request received for $request->start_date")
+            ->title('Visitor Request')
+            ->body("visitor request received for $request->start_date")
             ->actions([
                 Action::make('View')
                     ->button()
