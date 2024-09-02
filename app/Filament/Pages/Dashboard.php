@@ -37,7 +37,8 @@ class Dashboard extends BaseDashboard
                         DatePicker::make('endDate')
                             ->label('End Date')
                             ->reactive()
-                            ->minDate(fn (callable $get) => $get('startDate')),
+                            ->minDate(fn (callable $get) => $get('startDate'))
+                            ->maxDate(now())
                     ])
                     ->columns(3), // Adjust the layout to accommodate three columns
             ]);
