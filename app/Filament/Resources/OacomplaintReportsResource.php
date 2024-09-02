@@ -93,12 +93,14 @@ class OacomplaintReportsResource extends Resource
                         return false;
                     }),
                 Select::make('service_id')
-                    ->searchable()->required()
+                    ->searchable()
+                    ->required()->preload()
                     ->relationship('service','name')
                     ->label('Service')->disabledOn('edit')
+                    ->getSearchResultsUsing(fn (string $search,callable $get): array => Service::where('subcategory_id', $get('Category'))->where('type', 'vendor_service')->where('active',true)->where('name', 'like', "%{$search}%")->pluck('name', 'id')->toArray())
                     ->options(
                         function (Get $get) {
-                            return Service::where('subcategory_id', $get('Category'))->where('type', 'vendor_service')->where('active',true)->pluck('name','id');
+                            return Service::where('subcategory_id', $get('Category'))->where('type', 'vendor_service')->where('active',true)->pluck('name','id')->toArray();
                         }
                     )->visible(function (Get $get) {
                         if ($get('type') == 'Technician' || $get('type') == 'Vendor') {
