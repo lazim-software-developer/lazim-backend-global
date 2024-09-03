@@ -11,6 +11,7 @@ use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
 use App\Filament\Resources\UserApprovalResource;
 use App\Jobs\Residentapproval;
+use App\Jobs\ResidentRejection;
 use App\Models\AccountCredentials;
 use App\Models\Master\Role;
 use App\Models\OwnerAssociation;
@@ -72,6 +73,7 @@ class EditUserApproval extends EditRecord
                 ->send();
         }
         if ($this->data['status'] == 'rejected' && $this->record->status == null) {
+            ResidentRejection::dispatch($user, $mailCredentials,$this->record);
             Notification::make()
                 ->title("Resident Rejected")
                 ->danger()
@@ -82,5 +84,10 @@ class EditUserApproval extends EditRecord
     protected function getRedirectUrl(): string
     {
         return $this->getResource()::getUrl('index');
+    }
+
+    protected function getSavedNotificationTitle(): ?string
+    {
+    return null;
     }
 }

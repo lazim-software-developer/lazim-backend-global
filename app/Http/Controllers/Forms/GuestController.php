@@ -112,10 +112,10 @@ class GuestController extends Controller
         $request->merge([
             'start_time'           => $request->start_date,
             'end_time'             => $request->start_date,
-            'phone'                => "NA",
+            'phone'                => $request->phone,
             'email'                => $request->email,
             'owner_association_id' => $ownerAssociationId,
-            'type'                 => 'visitor',
+            'type'                 => $request->type ?:'visitor',
         ]);
 
         $requiredPermissions = ['view_any_visitor::form'];
@@ -127,8 +127,8 @@ class GuestController extends Controller
             });
         Notification::make()
             ->success()
-            ->title('Flat Visit Request')
-            ->body("Flat visit request received for $request->start_date")
+            ->title('Visitor Request')
+            ->body("visitor request received for $request->start_date")
             ->actions([
                 Action::make('View')
                     ->button()
@@ -160,26 +160,25 @@ class GuestController extends Controller
             }
         }
 
-        $code = generateAlphanumericOTP();
-        $visitor->update([
-            'verification_code' => $code,
-        ]);
-        $tenant           = $ownerAssociationId;
-        // $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()->email ?? env('MAIL_FROM_ADDRESS');
-        $credentials = AccountCredentials::where('oa_id', $tenant)->where('active', true)->latest()->first();
-        $mailCredentials = [
-            'mail_host' => $credentials->host ?? env('MAIL_HOST'),
-            'mail_port' => $credentials->port ?? env('MAIL_PORT'),
-            'mail_username' => $credentials->username ?? env('MAIL_USERNAME'),
-            'mail_password' => $credentials->password ?? env('MAIL_PASSWORD'),
-            'mail_encryption' => $credentials->encryption ?? env('MAIL_ENCRYPTION'),
-            'mail_from_address' => $credentials->email ?? env('MAIL_FROM_ADDRESS'),
-        ];
-        FlatVisitorMailJob::dispatch($visitor, $code, $mailCredentials);
+        // $code = generateAlphanumericOTP();
+        // $visitor->update([
+        //     'verification_code' => $code,
+        // ]);
+        // $tenant           = $ownerAssociationId;
+        // $credentials = AccountCredentials::where('oa_id', $tenant)->where('active', true)->latest()->first();
+        // $mailCredentials = [
+        //     'mail_host' => $credentials->host ?? env('MAIL_HOST'),
+        //     'mail_port' => $credentials->port ?? env('MAIL_PORT'),
+        //     'mail_username' => $credentials->username ?? env('MAIL_USERNAME'),
+        //     'mail_password' => $credentials->password ?? env('MAIL_PASSWORD'),
+        //     'mail_encryption' => $credentials->encryption ?? env('MAIL_ENCRYPTION'),
+        //     'mail_from_address' => $credentials->email ?? env('MAIL_FROM_ADDRESS'),
+        // ];
+        // FlatVisitorMailJob::dispatch($visitor, $code, $mailCredentials);
 
         return (new CustomResponseResource([
             'title'   => 'Success',
-            'message' => ' created successfully!',
+            'message' => 'Form submited successfully!',
             'code'    => 201,
         ]))->response()->setStatusCode(201);
     }
@@ -234,16 +233,19 @@ class GuestController extends Controller
     }
 
     // List all future visits for a building
-    public function futureVisits(Building $building)
+    public function futureVisits(Request $request, Building $building)
     {
         // List only approved requests from flat_visitors table
         $futureVisits = FlatVisitor::where('building_id', $building->id)
-            ->where('start_time', '>', now())
-            ->where('type', 'visitor')->where('status', 'approved')
-            ->orderBy('start_time')
-            ->get();
+            // ->whereRaw("CONCAT(DATE(start_time), ' ', time_of_viewing) > ?", [now()])
+            ->where('type', 'visitor')
+            ->where('status','approved')
+            ->when($request->has('verified'), function ($query) use ($request) {
+                return $query->where('verified', $request->verified);
+            })
+            ->orderBy(DB::raw("CONCAT(DATE(start_time), ' ', time_of_viewing)"));
 
-        return VisitorResource::collection($futureVisits);
+        return VisitorResource::collection($futureVisits->paginate(10));
     }
 
     // Notify tenant on visitor's visit

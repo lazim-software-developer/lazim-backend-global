@@ -31,6 +31,9 @@ class ServiceBookingsRelationManager extends RelationManager
     use UtilsTrait;
     protected static string $relationship = 'facilityBookings';
 
+    protected static ?string $title       = 'Personal Service Bookings';
+    protected static ?string $modelLabel       = 'Personal Service Booking';
+
     public function form(Form $form): Form
     {
         return $form
@@ -140,7 +143,7 @@ class ServiceBookingsRelationManager extends RelationManager
                 //
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make()->label('Create Service Booking'),
+                Tables\Actions\CreateAction::make()->label('Create Personal Service Booking'),
             ])
             ->actions([
                 Tables\Actions\EditAction::make()
@@ -157,7 +160,7 @@ class ServiceBookingsRelationManager extends RelationManager
                                             'to' => $expoPushToken,
                                             'sound' => 'default',
                                             'title' => $serviceName->name . ' Booking Status.',
-                                            'body' => 'Your service booking request for '.$serviceName->name.' is approved',
+                                            'body' => 'Your personal service booking request for '.$serviceName->name.' is approved',
                                             'data' => ['notificationType' => 'MyBookingsService'],
                                         ];
                                         $this->expoNotification($message);
@@ -170,11 +173,11 @@ class ServiceBookingsRelationManager extends RelationManager
                                             'notifiable_id' => $user->user_id,
                                             'data' => json_encode([
                                                 'actions' => [],
-                                                'body' => 'Your service booking request for '.$serviceName->name.' is approved',
+                                                'body' => 'Your personal service booking request for '.$serviceName->name.' is approved',
                                                 'duration' => 'persistent',
                                                 'icon' => 'heroicon-o-document-text',
                                                 'iconColor' => 'warning',
-                                                'title' => 'service booking form Updated!',
+                                                'title' => 'Personal Service Booking Status.',
                                                 'view' => 'notifications::notification',
                                                 'viewData' => [],
                                                 'format' => 'filament',
@@ -195,7 +198,7 @@ class ServiceBookingsRelationManager extends RelationManager
                                             'to' => $expoPushToken,
                                             'sound' => 'default',
                                             'title' => $serviceName->name . ' Booking Status.',
-                                            'body' => 'Your service booking request for '.$serviceName->name.' is rejected',
+                                            'body' => 'Your personal service booking request for '.$serviceName->name.' is rejected',
                                             'data' => ['notificationType' => 'MyBookingsService'],
                                         ];
                                         $this->expoNotification($message);
@@ -208,7 +211,7 @@ class ServiceBookingsRelationManager extends RelationManager
                                             'notifiable_id' => $user->user_id,
                                             'data' => json_encode([
                                                 'actions' => [],
-                                                'body' => 'Your service booking request for '.$serviceName->name.' is rejected',
+                                                'body' => 'Your personal service booking request for '.$serviceName->name.' is rejected',
                                                 'duration' => 'persistent',
                                                 'icon' => 'heroicon-o-document-text',
                                                 'iconColor' => 'danger',
@@ -232,6 +235,6 @@ class ServiceBookingsRelationManager extends RelationManager
 
     public static function getTitle(Model $ownerRecord, string $pageClass): string
     {
-        return 'Service Bookings';
+        return 'Personal Service Bookings';
     }
 }

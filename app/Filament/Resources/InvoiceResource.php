@@ -25,6 +25,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\InvoiceResource\RelationManagers;
 use App\Models\InvoiceApproval;
 use Filament\Facades\Filament;
+use Illuminate\Database\Eloquent\Model;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class InvoiceResource extends Resource
@@ -90,22 +91,23 @@ class InvoiceResource extends Resource
                             ]),
                         TextInput::make('opening_balance')
                             ->prefix('AED')
-                            ->disabled()
+                            ->readOnly()
                             ->live(),
                         TextInput::make('payment')
                             ->prefix('AED')
                             ->numeric()
                             ->minValue(1)
-                            ->maxValue(function(Get $get){
-                                return $get('invoice_amount');
-                            })
+                            // ->maxValue(function(Get $get){
+                            //     return $get('opening_balance') ?? $get('invoice_amount');
+                            // })
                             ->disabled(function (Invoice $record) {
                                 if (Role::where('id', auth()->user()->role_id)->first()->name == 'OA') {
                                     return true;
                                 }
                                 if (Role::where('id', auth()->user()->role_id)->first()->name == 'Accounts Manager') {
-                                    $invoiceapproval = InvoiceApproval::where('invoice_id',$record->id)->where('active',true)->whereIn('updated_by',User::where('owner_association_id',auth()->user()?->owner_association_id)->whereIn('role_id',Role::whereIn('name',['Accounts Manager','MD'])->pluck('id'))->pluck('id'))->exists();
-                                    return $invoiceapproval;
+                                    // $invoiceapproval = InvoiceApproval::where('invoice_id',$record->id)->where('active',true)->whereIn('updated_by',User::where('owner_association_id',auth()->user()?->owner_association_id)->whereIn('role_id',Role::whereIn('name',['Accounts Manager','MD'])->pluck('id'))->pluck('id'))->exists();
+                                    // return $invoiceapproval && Invoice::where('id', $record->id)->first()?->opening_balance == 0;
+                                    return true;
                                 }
                                 if (Role::where('id', auth()->user()->role_id)->first()->name == 'MD') {
                                     return true;
@@ -116,16 +118,23 @@ class InvoiceResource extends Resource
                                     return false;
                                 }
                                 if (Role::where('id', auth()->user()->role_id)->first()->name == 'Accounts Manager') {
-                                    return true && $get('status') == 'approved';
+                                    return false; //true && $get('status') == 'approved'
                                 }
                                 if (Role::where('id', auth()->user()->role_id)->first()->name == 'MD') {
                                     return false;
                                 }
                             })
+                            //  ->rules([function (Get $get) {
+                            //     return function (string $attribute, $value, Closure $fail) use($get) {
+                            //         if ($get('status')==='rejected' && $value) {
+                            //             $fail('No need to input a payment amount when rejecting');
+                            //         }
+                            //     };
+                            // },])
                             ->live(),
                         TextInput::make('balance')
                             ->prefix('AED')
-                            ->disabled()
+                            ->readOnly()
                             ->live(),
                         TextInput::make('invoice_amount')
                             ->label('Invoice Amount')
@@ -144,7 +153,7 @@ class InvoiceResource extends Resource
                                 }
                                 if (Role::where('id', auth()->user()->role_id)->first()->name == 'Accounts Manager') {
                                     $invoiceapproval = InvoiceApproval::where('invoice_id',$record->id)->where('active',true)->whereIn('updated_by',User::where('owner_association_id',auth()->user()?->owner_association_id)->whereIn('role_id',Role::whereIn('name',['Accounts Manager','MD'])->pluck('id'))->pluck('id'))->exists();
-                                    return $invoiceapproval;
+                                    return $invoiceapproval; //  && Invoice::where('id', $record->id)->first()?->opening_balance == 0
                                 }
                                 if (Role::where('id', auth()->user()->role_id)->first()->name == 'MD') {
                                     $invoiceapproval = InvoiceApproval::where('invoice_id',$record->id)->where('active',true)->whereIn('updated_by',User::where('owner_association_id',auth()->user()?->owner_association_id)->whereIn('role_id',Role::whereIn('name',['MD'])->pluck('id'))->pluck('id'))->exists();
@@ -168,7 +177,7 @@ class InvoiceResource extends Resource
                                 }
                                 if (Role::where('id', auth()->user()->role_id)->first()->name == 'Accounts Manager') {
                                     $invoiceapproval = InvoiceApproval::where('invoice_id',$record->id)->where('active',true)->whereIn('updated_by',User::where('owner_association_id',auth()->user()?->owner_association_id)->whereIn('role_id',Role::whereIn('name',['Accounts Manager','MD'])->pluck('id'))->pluck('id'))->exists();
-                                    return $invoiceapproval;
+                                    return $invoiceapproval; // && Invoice::where('id', $record->id)->first()?->opening_balance == 0
                                 }
                                 if (Role::where('id', auth()->user()->role_id)->first()->name == 'MD') {
                                     $invoiceapproval = InvoiceApproval::where('invoice_id',$record->id)->where('active',true)->whereIn('updated_by',User::where('owner_association_id',auth()->user()?->owner_association_id)->whereIn('role_id',Role::whereIn('name',['MD'])->pluck('id'))->pluck('id'))->exists();
@@ -269,5 +278,29 @@ class InvoiceResource extends Resource
             'create' => Pages\CreateInvoice::route('/create'),
             'edit' => Pages\EditInvoice::route('/{record}/edit'),
         ];
+    }
+
+    public static function canViewAny(): bool
+    {
+        $user = User::find(auth()->user()->id);
+        return $user->can('view_any_invoice');
+    }
+
+    public static function canView(Model $record): bool
+    {
+        $user = User::find(auth()->user()->id);
+        return $user->can('view_invoice');
+    }
+
+    public static function canCreate(): bool
+    {
+        $user = User::find(auth()->user()->id);
+        return $user->can('create_invoice');
+    }
+
+    public static function canEdit(Model $record): bool
+    {
+        $user = User::find(auth()->user()->id);
+        return $user->can('update_invoice');
     }
 }

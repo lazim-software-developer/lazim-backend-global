@@ -24,7 +24,7 @@ class EditFitOutFormsDocument extends EditRecord
 {
     use UtilsTrait;
     protected static string $resource = FitOutFormsDocumentResource::class;
-    protected static ?string $title   = 'Fit out';
+    protected static ?string $title   = 'Fitout';
 
     protected function getHeaderActions(): array
     {
@@ -70,7 +70,7 @@ class EditFitOutFormsDocument extends EditRecord
     }
     public function afterSave()
     {
-        if ($this->record->status == 'approved' && $this->record->status != $this->data['status']) {
+        if ($this->record->status == 'approved') {
             $this->record->contractorRequest->update(['status' => $this->record->status]);
 
             try {
@@ -99,8 +99,8 @@ class EditFitOutFormsDocument extends EditRecord
                     $message = [
                         'to'    => $expoPushToken,
                         'sound' => 'default',
-                        'title' => 'Fit out form status',
-                        'body'  => 'Your fit out form has been approved.',
+                        'title' => 'Fitout form status',
+                        'body'  => 'Your fitout form has been approved.',
                         'data'  => ['notificationType' => 'MyRequest'],
                     ];
                     $this->expoNotification($message);
@@ -113,11 +113,11 @@ class EditFitOutFormsDocument extends EditRecord
                 'notifiable_id'   => $this->record->user_id,
                 'data'            => json_encode([
                     'actions'   => [],
-                    'body'      => 'Your fit out form has been approved.',
+                    'body'      => 'Your fitout form has been approved.',
                     'duration'  => 'persistent',
                     'icon'      => 'heroicon-o-document-text',
                     'iconColor' => 'warning',
-                    'title'     => 'Fit out form status',
+                    'title'     => 'Fitout form status',
                     'view'      => 'notifications::notification',
                     'viewData'  => [],
                     'format'    => 'filament',
@@ -127,7 +127,7 @@ class EditFitOutFormsDocument extends EditRecord
                 'updated_at'      => now()->format('Y-m-d H:i:s'),
             ]);
         }
-        if ($this->record->status == 'rejected' && $this->record->status != $this->data['status']) {
+        if ($this->record->status == 'rejected') {
             $this->record->contractorRequest->update(['status' => $this->record->status]);
             $expoPushTokens = ExpoPushNotification::where('user_id', $this->record->user_id)->pluck('token');
             if ($expoPushTokens->count() > 0) {
@@ -135,8 +135,8 @@ class EditFitOutFormsDocument extends EditRecord
                     $message = [
                         'to'    => $expoPushToken,
                         'sound' => 'default',
-                        'title' => 'Fit out form status',
-                        'body'  => 'Your fit out form has been rejected.',
+                        'title' => 'Fitout form status',
+                        'body'  => 'Your fitout form has been rejected.',
                         'data'  => ['notificationType' => 'MyRequest'],
                     ];
                     $this->expoNotification($message);
@@ -149,11 +149,11 @@ class EditFitOutFormsDocument extends EditRecord
                 'notifiable_id'   => $this->record->user_id,
                 'data'            => json_encode([
                     'actions'   => [],
-                    'body'      => 'Your fit out form has been rejected.',
+                    'body'      => 'Your fitout form has been rejected.',
                     'duration'  => 'persistent',
                     'icon'      => 'heroicon-o-document-text',
                     'iconColor' => 'danger',
-                    'title'     => 'Fit out form status',
+                    'title'     => 'Fitout form status',
                     'view'      => 'notifications::notification',
                     'viewData'  => [],
                     'format'    => 'filament',

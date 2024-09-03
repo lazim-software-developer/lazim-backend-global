@@ -12,12 +12,12 @@ use App\Http\Resources\Vendor\WdaInvoiceResource;
 use App\Models\Accounting\Invoice;
 use App\Models\Accounting\InvoiceAudit;
 use App\Models\Accounting\WDA;
-use App\Models\Building\Building;
 use App\Models\InvoiceApproval;
 use App\Models\Vendor\Vendor;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 
 class InvoiceController extends Controller
 {
@@ -28,7 +28,7 @@ class InvoiceController extends Controller
 
         // Parse the date filter to get the start and end of the month
         $startDate = Carbon::createFromFormat('F Y', $dateFilter)->startOfMonth();
-        $endDate = Carbon::createFromFormat('F Y', $dateFilter)->endOfMonth();
+        $endDate   = Carbon::createFromFormat('F Y', $dateFilter)->endOfMonth();
 
         // Start building the query
         $query = WDA::with('invoices')
@@ -46,7 +46,7 @@ class InvoiceController extends Controller
             $invoiceSubmitted = $wda->invoices->isNotEmpty();
             return [
                 'wda_id' => $wda->id,
-                'date' => Carbon::parse($wda->date)->format('Y-m-d'),
+                'date'   => Carbon::parse($wda->date)->format('Y-m-d'),
                 'status' => $invoiceSubmitted ? 'Invoice Submitted' : 'Submit Invoice',
             ];
         });
@@ -55,33 +55,69 @@ class InvoiceController extends Controller
 
     public function store(CreateInvoiceRequest $request, Vendor $vendor)
     {
-
+        $connection = DB::connection('lazim_accounts');
         $document = optimizeDocumentAndUpload($request->file);
 
-        $wda = WDA::find($request->wda_id);
-        $name = $vendor->OA->name;
+        $wda        = WDA::find($request->wda_id);
+        $name       = $vendor->OA->name;
         $invoice_id = strtoupper(substr($name, 0, 4)) . date('YmdHis');
-        $oa_id = DB::table('building_owner_association')->where('building_id', $wda->building_id)->where('active', true)->first()?->owner_association_id;
+        $oa_id      = DB::table('building_owner_association')->where('building_id', $wda->building_id)->where('active', true)->first()?->owner_association_id;
         $request->merge([
-            'building_id' => $wda->building_id,
-            'contract_id' => $wda->contract_id,
-            'invoice_number' => $invoice_id,
-            'document' => $document,
-            'created_by' => auth()->user()->id,
-            'status' => 'pending',
-            'vendor_id' => $vendor->id,
-            'owner_association_id' => $oa_id
+            'building_id'          => $wda->building_id,
+            'contract_id'          => $wda->contract_id,
+            'invoice_number'       => $invoice_id,
+            'document'             => $document,
+            'created_by'           => auth()->user()->id,
+            'status'               => 'pending',
+            'vendor_id'            => $vendor->id,
+            'owner_association_id' => $oa_id,
         ]);
 
         $invoice = Invoice::create($request->all());
         $wda->update(['invoice_status' => 'submitted']);
 
+
+        // //Inserting vendor record into lazim-accounts database
+        // $created_by = DB::connection('lazim_accounts')->table('users')->where(['owner_association_id' => $oa_id, 'type' => 'company'])->first()?->id;
+
+        // $accountsVendorId = DB::connection('lazim_accounts')->table('venders')->where('lazim_vendor_id', $vendor->id)->first()?->id;
+        // $service          = $wda->service;
+        // $subCategory      = $wda->service->subcategory;
+        // $category         = $wda->service->subcategory->category;
+
+        // if ($accountsVendorId) {
+        //     DB::connection('lazim_accounts')->table('bills')->insert([
+        //         'bill_id'          => DB::connection('lazim_accounts')->table('bills')->latest()->first()?->id + 1,
+        //         'vender_id'        => $accountsVendorId,
+        //         'bill_date'        => $request->date,
+        //         'due_date'         => Carbon::parse($request->date)->addDays(30),
+        //         'order_number'     => random_int(1000000, 9999999),
+        //         'status'           => 0,
+        //         'shipping_display' => 1,
+        //         'send_date'        => $request->date,
+        //         'category_id'      => 3,
+        //         'created_by'       => $created_by,
+        //         'created_at'       => now(),
+        //         'updated_at'       => now(),
+        //         'building_id'      => $wda->building_id,
+        //         'lazim_invoice_id' => $invoice->id,
+        //     ]);
+        //     DB::connection('lazim_accounts')->table('bill_products')->insert([
+        //         'bill_id' => DB::connection('lazim_accounts')->table('bills')->where('lazim_invoice_id', $invoice->id)->first()->id,
+        //         'product_id' => DB::connection('lazim_accounts')->table('product_services')->where('name',$wda->service->name)->first()?->id,
+        //         'quantity' => 1,
+        //         'tax' => DB::connection('lazim_accounts')->table('taxes')->where(['building_id'=>$wda->building_id,'name'=>'VAT'])->first()->id,
+        //         'discount' => 0,
+        //         'price' => $request->invoice_amount / (1 + 5 / 100),
+        //     ]);
+        // }
+
         return (new CustomResponseResource([
-            'title' => 'Success',
+            'title'   => 'Success',
             'message' => 'Invoice created successfully!',
-            'code' => 201,
-            'status' => 'success',
-            'data' => $invoice,
+            'code'    => 201,
+            'status'  => 'success',
+            'data'    => $invoice,
         ]))->response()->setStatusCode(201);
     }
 
@@ -92,7 +128,7 @@ class InvoiceController extends Controller
 
         // Parse the date filter to get the start and end of the month
         $startDate = Carbon::createFromFormat('F Y', $dateFilter)->startOfMonth();
-        $endDate = Carbon::createFromFormat('F Y', $dateFilter)->endOfMonth();
+        $endDate   = Carbon::createFromFormat('F Y', $dateFilter)->endOfMonth();
 
         $invoiceQuery = Invoice::where(['vendor_id' => $vendor->id])
             ->whereBetween('date', [$startDate, $endDate])->get();
@@ -109,38 +145,46 @@ class InvoiceController extends Controller
         $documentUrl = optimizeDocumentAndUpload($request->file);
 
         $audit = InvoiceAudit::create([
-            'invoice_id' => $invoice->id,
-            'building_id' => $invoice->building_id,
-            'contract_id' => $invoice->contract_id,
-            'invoice_number' => $invoice->invoice_number,
-            'wda_id' => $invoice->wda_id,
-            'date' => $invoice->date,
-            'document' => $invoice->document,
-            'created_by' => $invoice->created_by,
-            'status' => $invoice->status,
-            'remarks' => $invoice->remarks,
-            'status_updated_by' => $invoice->status_updated_by,
-            'vendor_id' => $invoice->vendor_id,
-            'invoice_amount' => $invoice->invoice_amount,
-            'owner_association_id' => $invoice?->owner_association_id
+            'invoice_id'           => $invoice->id,
+            'building_id'          => $invoice->building_id,
+            'contract_id'          => $invoice->contract_id,
+            'invoice_number'       => $invoice->invoice_number,
+            'wda_id'               => $invoice->wda_id,
+            'date'                 => $invoice->date,
+            'document'             => $invoice->document,
+            'created_by'           => $invoice->created_by,
+            'status'               => $invoice->status,
+            'remarks'              => $invoice->remarks,
+            'status_updated_by'    => $invoice->status_updated_by,
+            'vendor_id'            => $invoice->vendor_id,
+            'invoice_amount'       => $invoice->invoice_amount,
+            'owner_association_id' => $invoice?->owner_association_id,
 
         ]);
 
         $request->merge([
             'document' => $documentUrl,
-            'status' => 'pending',
+            'status'   => 'pending',
+            'opening_balance' => null,
+            'payment' => null,
+            'balance' => null,
+            'status_updated_by' => null,
         ]);
 
         $invoice->update($request->all());
-        $invoiceapproval = InvoiceApproval::where('invoice_id',$invoice->id)->get();
-        $invoiceapproval->map(function($item){
-            $item->update(['active'=>false]);
+        $invoiceapproval = InvoiceApproval::where('invoice_id', $invoice->id)->get();
+        $invoiceapproval->map(function ($item) {
+            $item->update(['active' => false]);
         });
 
+        // $bill = DB::connection('lazim_accounts')->table('bills')->where('lazim_invoice_id', $invoice->id);
+        // DB::connection('lazim_accounts')->table('bill_products')->where('bill_id', $bill->first()->id)->update(['price'=>$invoice->invoice_amount / (1 + 5 / 100)]);
+        // $bill->update(['deleted_at'=>null]);
+
         return (new CustomResponseResource([
-            'title' => 'Success',
+            'title'   => 'Success',
             'message' => 'Invoice resubmited successfully!',
-            'code' => 200,
+            'code'    => 200,
         ]))->response()->setStatusCode(200);
     }
 
@@ -152,7 +196,7 @@ class InvoiceController extends Controller
 
         // Parse the date filter to get the start and end of the month
         $startDate = Carbon::createFromFormat('F Y', $dateFilter)->startOfMonth();
-        $endDate = Carbon::createFromFormat('F Y', $dateFilter)->endOfMonth();
+        $endDate   = Carbon::createFromFormat('F Y', $dateFilter)->endOfMonth();
 
         $invoicesQuery = Invoice::where('vendor_id', $vendor->id)
             ->whereBetween('date', [$startDate, $endDate]);

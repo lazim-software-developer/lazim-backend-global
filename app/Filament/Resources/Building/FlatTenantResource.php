@@ -62,21 +62,21 @@ class FlatTenantResource extends Resource
                             ->preload()
                             ->searchable()
                             ->placeholder('Building'),
-                        DatePicker::make('start_date')
+                        DatePicker::make('start_date')->label('Created Date')
                             ->rules(['date'])
                             ->disabled()
                             ->required()
-                            ->placeholder('Start Date'),
-                        DatePicker::make('end_date')
-                            ->rules(['date'])
-                            ->disabled()
-                            ->placeholder('End Date'),
+                            ->placeholder('Created Date'),
+                        // DatePicker::make('end_date')
+                        //     ->rules(['date'])
+                        //     ->disabled()
+                        //     ->placeholder('End Date'),
                         TextInput::make('role')
                             ->disabled()
                             ->placeholder('NA'),
-                        Toggle::make('primary')
-                            ->disabled()
-                            ->rules(['boolean']),
+                        // Toggle::make('primary')
+                        //     ->disabled()
+                        //     ->rules(['boolean']),
                     ]),
             ]);
     }
@@ -97,6 +97,7 @@ class FlatTenantResource extends Resource
                     ->limit(50),
 
                 TextColumn::make('start_date')
+                    ->label('Created Date')
                     ->date(),
                 TextColumn::make('building.name')
                     ->default('NA')

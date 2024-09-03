@@ -26,7 +26,7 @@ class ResidentialFormObserver
         });
         Notification::make()
         ->success()
-        ->title("New ResidentialForm Submission")
+        ->title("New Residential Form Submission")
         ->icon('heroicon-o-document-text')
         ->iconColor('warning')
         ->body('New form submission by'.auth()->user()->first_name)

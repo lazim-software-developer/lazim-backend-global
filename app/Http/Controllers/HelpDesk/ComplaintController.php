@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\HelpDesk;
 
+use App\Filament\Resources\IncidentResource;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Helpdesk\ComplaintStoreRequest;
 use App\Http\Requests\Helpdesk\ComplaintUpdateRequest;
@@ -15,14 +16,18 @@ use App\Models\Building\BuildingPoc;
 use App\Models\Building\Complaint;
 use App\Models\Building\FlatTenant;
 use App\Models\ExpoPushNotification;
+use App\Models\Master\Role;
 use App\Models\Master\Service;
 use App\Models\Media;
+use App\Models\OwnerAssociation;
 use App\Models\TechnicianVendor;
 use App\Models\User\User;
 use App\Models\Vendor\Contract;
 use App\Models\Vendor\ServiceVendor;
 use App\Traits\UtilsTrait;
 use Carbon\Carbon;
+use Filament\Notifications\Actions\Action;
+use Filament\Notifications\Notification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -143,7 +148,23 @@ class ComplaintController extends Controller
                 $complaint->media()->save($media);
             }
         }
-
+        $notifyTo = User::where('owner_association_id', $building->owner_association_id)->whereHas('role', function ($query) use ($building) {
+            $query->where('name', 'OA')
+                  ->where('owner_association_id', $building->owner_association_id);
+        })
+        ->get();
+        Notification::make()
+            ->success()
+            ->title("New Incident")
+            ->icon('heroicon-o-document-text')
+            ->iconColor('warning')
+            ->body('New Incident created!')
+            ->actions([
+                Action::make('view')
+                    ->button()
+                    ->url(fn () => IncidentResource::getUrl('edit', [OwnerAssociation::where('id',$building->owner_association_id)->first()?->slug,$complaint->id])),
+            ])
+            ->sendToDatabase($notifyTo);
 
         // Assign complaint to a technician
         // AssignTechnicianToComplaint::dispatch($complaint);
@@ -252,7 +273,7 @@ class ComplaintController extends Controller
         // assign a vendor if the complaint type is tenant_complaint or help_desk
         if ($request->complaint_type == 'tenant_complaint' || $request->complaint_type == 'help_desk' || $request->complaint_type == 'snag') {
             $request->merge([
-                'priority'   => $request->urgent ? 1 : 3,
+                'priority'   => $request?->urgent != 'false' ? 1 : 3,
                 'due_date'   => now()->addDays(3),
                 'service_id' => $service_id,
                 'vendor_id'  => $vendor ? $vendor->vendor_id : null,
@@ -263,6 +284,51 @@ class ComplaintController extends Controller
         // Create the complaint and assign it the vendor
         // TODO: Assign ticket automatically to technician
         $complaint = Complaint::create($request->all());
+
+
+        // sending push notification for security
+
+        if( $categoryName == 'Security Services'){
+
+            $isActiveSecurity = BuildingPoc::where([
+                'role_name'   => 'security',
+                'building_id' => $building->id,
+                'active'      => 1,
+            ])->first();
+            if($isActiveSecurity){
+            $expoPushToken = ExpoPushNotification::where('user_id', $isActiveSecurity?->user_id)->first()?->token;
+                    if ($expoPushToken) {
+                        $message = [
+                            'to'    => $expoPushToken,
+                            'sound' => 'default',
+                            'title' => 'Task Assigned',
+                            'body'  => 'Task has been assigned',
+                            'data'  => ['notificationType' => 'AssignedToMe'],
+                        ];
+                        $this->expoNotification($message);
+                    }
+                        DB::table('notifications')->insert([
+                            'id'              => (string) \Ramsey\Uuid\Uuid::uuid4(),
+                            'type'            => 'Filament\Notifications\DatabaseNotification',
+                            'notifiable_type' => 'App\Models\User\User',
+                            'notifiable_id'   => $isActiveSecurity?->user_id,
+                            'data'            => json_encode([
+                                'actions'   => [],
+                                'body'      => 'Task has been assigned',
+                                'duration'  => 'persistent',
+                                'icon'      => 'heroicon-o-document-text',
+                                'iconColor' => 'warning',
+                                'title'     => 'Task Assigned',
+                                'view'      => 'notifications::notification',
+                                'viewData'  => [],
+                                'format'    => 'filament',
+                                'url'       => 'AssignedToMe',
+                            ]),
+                            'created_at'      => now()->format('Y-m-d H:i:s'),
+                            'updated_at'      => now()->format('Y-m-d H:i:s'),
+                        ]);
+            }
+        }
         $credentials = AccountCredentials::where('oa_id', $complaint->owner_association_id)->where('active', true)->latest()->first();
         $mailCredentials = [
             'mail_host' => $credentials->host ?? env('MAIL_HOST'),

@@ -39,18 +39,18 @@ class LegalNoticeIssuedJob implements ShouldQueue
         $results = Http::withOptions(['verify' => false])->withHeaders([
             'content-type' => 'application/json',
             'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
-        ])->get("https://qagate.dubailand.gov.ae/mollak/external/sync/legalnotice/".$propertyGroupId."/".$mollakPropertyId."/".$legalNoticeId);
+        ])->get(env("MOLLAK_API_URL") . "/sync/legalnotice/".$propertyGroupId."/".$mollakPropertyId."/".$legalNoticeId);
         // Log::info($results->json());
-        
+
         $responces = $results->json()['response']['propertyGroups'];
         foreach($responces as $responce){
             Log::info($responce);
             $building_id = Building::where('property_group_id',$responce['propertyGroup']['id'])->first();
             $oam_id = DB::table('building_owner_association')->where('building_id',$building_id?:null)->where('active', true)->first();
             foreach($responce['mollakProperties'] as $notice){
-    
+
                 $flat_id = Flat::where('mollak_property_id',$notice['mollakPropertyId'])->first();
-    
+
                 $legalNotice = LegalNotice::updateOrCreate([
                     'building_id' => $building_id?->id,
                     'flat_id' => $flat_id?->id,

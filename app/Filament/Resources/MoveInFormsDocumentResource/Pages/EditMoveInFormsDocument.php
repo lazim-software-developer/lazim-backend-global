@@ -67,8 +67,8 @@ class EditMoveInFormsDocument extends EditRecord
                         'updated_at' => now()->format('Y-m-d H:i:s'),
                     ]);
             $security= $this->record->building->buildingPocs->where('active',true)->where('role_name','security')->first();
-            if($security->exists()) {
-                $id = $security->first()->user_id;
+            if($security?->exists()) {
+                $id = $security?->first()?->user_id;
                 $expoPushTokens = ExpoPushNotification::where('user_id', $id)->pluck('token');
                 if ($expoPushTokens->count() > 0) {
                     foreach ($expoPushTokens as $expoPushToken) {
@@ -76,7 +76,7 @@ class EditMoveInFormsDocument extends EditRecord
                             'to' => $expoPushToken,
                             'sound' => 'default',
                             'title' => 'Move-in',
-                            'body' => 'New move-in.',
+                            'body' => 'New move-in form received.',
                             'data' => ['notificationType' => 'Move-in'],
                         ];
                         $this->expoNotification($message);
@@ -89,7 +89,7 @@ class EditMoveInFormsDocument extends EditRecord
                             'notifiable_id' => $id,
                             'data' => json_encode([
                                 'actions' => [],
-                                'body' => 'New move-in.',
+                                'body' => 'New move-in form received.',
                                 'duration' => 'persistent',
                                 'icon' => 'heroicon-o-document-text',
                                 'iconColor' => 'warning',

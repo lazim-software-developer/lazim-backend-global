@@ -36,7 +36,7 @@ class ContractChangedWebhookJob implements ShouldQueue
         $results = Http::withOptions(['verify' => false])->withHeaders([
             'content-type' => 'application/json',
             'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
-        ])->get("https://qagate.dubailand.gov.ae/mollak/external/sync/property/".$mollakPropertyId."/contract/".$contractNumber);
+        ])->get(env("MOLLAK_API_URL") . "/sync/property/".$mollakPropertyId."/contract/".$contractNumber);
         $responce = $results->json()['response'];
         Log::info($responce);
         $flat_id = Flat::where('mollak_property_id',$responce['property']['propertyId'])->first();

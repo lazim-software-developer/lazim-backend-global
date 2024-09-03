@@ -24,7 +24,8 @@ class DocumentRequest extends FormRequest
         return [
             'building_id' => 'required|exists:buildings,id',
             'name' => 'required|string',
-            'file' => 'required|file|max:2048|mimes:pdf,jpg,jpeg,png'
+            'file' => 'required|file|max:2048|mimes:pdf,jpg,jpeg,png',
+            'flat_id' => 'required|exists:flats,id'
         ];
     }
 

@@ -48,7 +48,7 @@ class FitOutContractorMailJob implements ShouldQueue
             $message
                 ->from($this->mailCredentials['mail_from_address'],env('MAIL_FROM_NAME'))
                 ->to($this->email, $this->name)
-                ->subject('Fit-out Request Submitted');
+                ->subject('Fitout Request Submitted');
         });
 
         Artisan::call('queue:restart');

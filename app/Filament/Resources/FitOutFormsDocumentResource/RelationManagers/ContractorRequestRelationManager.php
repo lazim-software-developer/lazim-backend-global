@@ -5,6 +5,7 @@ namespace App\Filament\Resources\FitOutFormsDocumentResource\RelationManagers;
 use Filament\Forms;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -23,7 +24,7 @@ class ContractorRequestRelationManager extends RelationManager
         return $form
             ->schema([
                 TextInput::make('work_type'),
-                TextInput::make('work_name'),
+                Textarea::make('work_name'),
                 TextInput::make('status'),
                 Repeater::make('documents')
                     ->relationship()
@@ -73,6 +74,7 @@ class ContractorRequestRelationManager extends RelationManager
             ])
             ->emptyStateActions([
                 // Tables\Actions\CreateAction::make(),
-            ]);
+            ])
+            ->emptyStateHeading('No Fitout form contractor requests');
     }
 }

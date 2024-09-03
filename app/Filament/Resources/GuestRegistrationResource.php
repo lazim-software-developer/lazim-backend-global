@@ -35,7 +35,7 @@ class GuestRegistrationResource extends Resource
 {
     protected static ?string $model = Guest::class;
 
-    protected static ?string $modelLabel = 'Guest Registration';
+    protected static ?string $modelLabel = 'Holiday Homes Guest Registration';
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
@@ -208,7 +208,6 @@ class GuestRegistrationResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('ticket_number')
-                    ->searchable()
                     ->default('NA')
                     ->label('Ticket Number'),
                 ViewColumn::make('Name')->view('tables.columns.name'),

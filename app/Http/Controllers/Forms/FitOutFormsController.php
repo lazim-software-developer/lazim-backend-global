@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Forms;
 
 use App\Filament\Resources\FitOutFormsDocumentResource;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ContractorFormRequest;
 use App\Http\Requests\Forms\CreateFitOutFormsRequest;
 use App\Http\Resources\CustomResponseResource;
 use App\Jobs\FitOutContractorMailJob;
@@ -89,13 +90,9 @@ class FitOutFormsController extends Controller
         return "Request is not rejected";
     }
 
-    public function contractorRequest(Request $request, FitOutForm $fitout)
+    public function contractorRequest(ContractorFormRequest $request, FitOutForm $fitout)
     {
 
-        $request->validate([
-            'work_type' => 'required|in:major,minor',
-            'work_name' => 'required',
-        ]);
         if ($fitout->contractorRequest) {
             return (new CustomResponseResource([
                 'title'   => 'Request already exists!',
@@ -131,10 +128,10 @@ class FitOutFormsController extends Controller
             }); //->where('role_id',Role::where('name','OA')->first()->id)->first();
         Notification::make()
             ->success()
-            ->title("FitOut Contractor Request! ")
+            ->title("Fitout Contractor Request! ")
             ->icon('heroicon-o-document-text')
             ->iconColor('warning')
-            ->body('New Contractor FitOut Request ')
+            ->body('New Contractor Fitout Request ')
             ->actions([
                 Action::make('view')
                     ->button()
@@ -144,9 +141,21 @@ class FitOutFormsController extends Controller
 
         return (new CustomResponseResource([
             'title'   => 'Successful!',
-            'message' => "",
+            'message' => "Contractor request submitted successfully",
             'code'    => 201,
             'status'  => 'success',
         ]))->response()->setStatusCode(201);
+    }
+
+    public function verifyContractorRequest(FitOutForm $fitout){
+        if ($fitout->contractorRequest) {
+            return (new CustomResponseResource([
+                'title'   => 'Request already exists!',
+                'message' => 'Request already exists for this FitOut form!',
+                'code'    => 403,
+            ]))->response()->setStatusCode(403);
+        }
+
+        return response()->noContent();
     }
 }

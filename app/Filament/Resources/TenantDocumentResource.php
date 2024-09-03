@@ -2,14 +2,17 @@
 
 namespace App\Filament\Resources;
 
+use Filament\Forms\Get;
 use Filament\Forms\Form;
 use App\Models\User\User;
 use Filament\Tables\Table;
 use App\Models\Master\Role;
 use Filament\Facades\Filament;
 use Filament\Resources\Resource;
+use App\Models\Building\Building;
 use App\Models\Building\Document;
 use Illuminate\Support\Facades\DB;
+use App\Models\Building\FlatTenant;
 use Filament\Forms\Components\Grid;
 use Filament\Tables\Actions\Action;
 use Filament\Forms\Components\Select;
@@ -23,7 +26,8 @@ use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Query\JoinClause;
 use App\Filament\Resources\TenantDocumentResource\Pages;
-use App\Models\Building\Building;
+use App\Models\Building\Flat;
+use Closure;
 
 class TenantDocumentResource extends Resource
 {
@@ -63,13 +67,16 @@ class TenantDocumentResource extends Resource
                                 ->default('NA')
                                 ->searchable()
                                 ->label('Building Name'),
-                            Select::make('flat_id')
-                                ->relationship('flat', 'property_number')
-                                ->preload()
-                                ->placeholder('NA')
-                                ->disabled()
-                                ->searchable()
-                                ->label('Unit Number'),
+                            TextInput::make('unit')
+                                ->label('Unit Number')
+                                ->default('NA')
+                                ->afterStateHydrated(function ($set, $record) {
+                                    $flatID = FlatTenant::where('tenant_id', $record->documentable_id)->value('flat_id');
+                                    $unitNumber = Flat::where('id', $flatID)->value('property_number') ?? 'NA';
+                                    $set('unit', $unitNumber);
+                                })
+                                ->disabled() 
+                                ->dehydrated(false),                          
                             FileUpload::make('url')
                                 ->disk('s3')
                                 ->directory('dev')
@@ -131,10 +138,13 @@ class TenantDocumentResource extends Resource
                     ->default('NA')
                     ->label('Building Name')
                     ->limit(50),
-                TextColumn::make('flat.property_number')
-                    ->searchable()
+                TextColumn::make('unit')
                     ->default('NA')
                     ->label('Unit Number')
+                    ->getStateUsing(function(Get $get,$record){
+                        $flatID = FlatTenant::where('tenant_id',$record->documentable_id)->value('flat_id');
+                        return Flat::where('id',$flatID)->value('property_number');
+                    })
                     ->limit(50),
                 TextColumn::make('status')
                     ->searchable()

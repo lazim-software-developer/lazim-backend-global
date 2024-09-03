@@ -22,6 +22,8 @@ use Illuminate\Support\Facades\DB;
 class FacilitiesRelationManager extends RelationManager
 {
     protected static string $relationship = 'facilities';
+    protected static ?string $title       = 'Amenities';
+    protected static ?string $modelLabel       = 'Amenities';
 
     public function form(Form $form): Form
     {
@@ -83,7 +85,7 @@ class FacilitiesRelationManager extends RelationManager
                             ->whereIn('facility_id', $allFacilities)->pluck('facility_id')->toArray();
                         $allFacilities = Facility::all()->whereNotIn('id', $existingFacility)->pluck('name', 'id')->toArray();
                         return Select::make('recordId')
-                            ->label('Facility')
+                            ->label('Amenities')
                             ->options($allFacilities)
                             ->searchable()
                             ->required()

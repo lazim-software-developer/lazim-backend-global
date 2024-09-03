@@ -2,22 +2,25 @@
 
 namespace App\Filament\Resources\Building\BuildingResource\RelationManagers;
 
+use App\Models\OfferPromotion;
 use Closure;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\MarkdownEditor;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
+use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Table;
 
 class OfferPromotionsRelationManager extends RelationManager
 {
     protected static string $relationship = 'offerPromotions';
-    protected static ?string $modelLabel  = 'Offer & Promotions';
-    protected static ?string $title       = 'Offer & Promotions';
+    protected static ?string $modelLabel  = 'Exclusive Offers';
+    protected static ?string $title       = 'Exclusive Offers';
 
     public function form(Form $form): Form
     {
@@ -84,6 +87,7 @@ class OfferPromotionsRelationManager extends RelationManager
                         ->rules(['date'])
                         ->minDate(now()->format('d-M-Y'))
                         ->label('End Date'),
+                    Toggle::make('active')
                 ]),
         ]);
     }
@@ -96,16 +100,19 @@ class OfferPromotionsRelationManager extends RelationManager
                 Tables\Columns\ImageColumn::make('image')->disk('s3'),
                 Tables\Columns\TextColumn::make('start_date'),
                 Tables\Columns\TextColumn::make('end_date'),
+                ToggleColumn::make('active')
             ])
             ->filters([
                 //
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make(),
+                Tables\Actions\CreateAction::make()->visible(function(RelationManager $livewire){
+                    return OfferPromotion::where('building_id',$livewire->ownerRecord->id)->count() < 10;
+                }),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                // Tables\Actions\DeleteAction::make(),
             ])
             // ->bulkActions([
             //     Tables\Actions\BulkActionGroup::make([

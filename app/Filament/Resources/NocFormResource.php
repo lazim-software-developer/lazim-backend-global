@@ -18,8 +18,10 @@ use Filament\Forms\Components\FileUpload;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\NocFormResource\Pages;
+use App\Models\Order;
 use Closure;
 use Filament\Facades\Filament;
+use Illuminate\Database\Eloquent\Model;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class NocFormResource extends Resource
@@ -263,6 +265,16 @@ class NocFormResource extends Resource
                         ->required()
                         ->searchable()
                         ->live(),
+                    TextInput::make('id')
+                        ->formatStateUsing(function (?Model $record){
+                            $orderpayment_status = Order::where(['orderable_id'=>$record->id,'orderable_type'=>SaleNOC::class])->first()?->payment_status;
+                            if($orderpayment_status){
+                                return $orderpayment_status == 'requires_payment_method' ? 'Payment Failed' : $orderpayment_status;
+                            }
+                            return 'NA';
+                        })
+                        ->label('Payment Status')
+                        ->readOnly(),
                     TextInput::make('remarks')
                         ->rules(['max:150'])
                         ->visible(function (callable $get) {
@@ -322,6 +334,11 @@ class NocFormResource extends Resource
                 TextColumn::make('status')
                     ->searchable()
                     ->default('NA'),
+                TextColumn::make('orders')
+                    ->formatStateUsing(fn ($state) => json_decode($state)? (json_decode($state)->payment_status == 'requires_payment_method' ? 'Payment Failed' : json_decode($state)->payment_status): 'NA')
+                    ->label('Payment Status')
+                    ->default('NA')
+                    ->limit(50),
                 TextColumn::make('remarks')
                     ->searchable()
                     ->default('NA'),

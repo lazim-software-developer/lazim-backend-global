@@ -97,6 +97,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasTenant
     // }
     public function getFilamentAvatarUrl(): ?string
     {
+        // $profile_photo = OwnerAssociation::where('id',auth()->user()->owner_association_id)->value('profile_photo');
         return $this->profile_photo ? env('AWS_URL') . '/' . $this->profile_photo : env('DEFAULT_AVATAR');
     }
     public function getFilamentName(): string
@@ -196,7 +197,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasTenant
 
         // Retrieve the role name using the provided method
         $userRoleName = Role::find($this->role_id)->name;
-        if ($panel->getId() === 'app' && $userRoleName == 'Admin') {
+        if ($panel->getId() === 'app' && $userRoleName == 'Admin' && $this->active) {
             return true;
         }
         else if($panel->getId() === 'admin' && !in_array($userRoleName, $allowedRoles) && $this->active) {

@@ -27,7 +27,7 @@ class SaleNOCObserver
         });
         Notification::make()
         ->success()
-        ->title("New SaleNoc Submission")
+        ->title("New Sale Noc Submission")
         ->icon('heroicon-o-document-text')
         ->iconColor('warning')
         ->body('New form submission by '.auth()->user()->first_name)

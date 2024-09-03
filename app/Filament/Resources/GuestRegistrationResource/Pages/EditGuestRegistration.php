@@ -37,8 +37,8 @@ class EditGuestRegistration extends EditRecord
                     $message = [
                         'to' => $expoPushToken,
                         'sound' => 'default',
-                        'title' => 'Guest registration form Updated!',
-                        'body' => 'Your guest registration form has been approved.',
+                        'title' => 'Holiday homes guest registration form status.',
+                        'body' => 'Your holiday homes guest registration form has been approved.',
                         'data' => ['notificationType' => 'InAppNotficationScreen'],
                     ];
                     $this->expoNotification($message);
@@ -49,11 +49,11 @@ class EditGuestRegistration extends EditRecord
                         'notifiable_id' => $this->record->flatVisitor->initiated_by,
                         'data' => json_encode([
                             'actions' => [],
-                            'body' => 'Your guest registration form has been approved.',
+                            'body' => 'Your holiday homes guest registration form has been approved.',
                             'duration' => 'persistent',
                             'icon' => 'heroicon-o-document-text',
                             'iconColor' => 'warning',
-                            'title' => 'Guest registration form status',
+                            'title' => 'Holiday homes guest registration form status',
                             'view' => 'notifications::notification',
                             'viewData' => [],
                             'format' => 'filament',
@@ -72,8 +72,8 @@ class EditGuestRegistration extends EditRecord
                     $message = [
                         'to' => $expoPushToken,
                         'sound' => 'default',
-                        'title' => 'Guest registration form status',
-                        'body' => 'Your guest registration form has been rejected.',
+                        'title' => 'Holiday homes guest registration form status.',
+                        'body' => 'Your holiday homes guest registration form has been rejected.',
                         'data' => ['notificationType' => 'InAppNotficationScreen'],
                     ];
                     $this->expoNotification($message);
@@ -84,11 +84,11 @@ class EditGuestRegistration extends EditRecord
                         'notifiable_id' => $this->record->flatVisitor->initiated_by,
                         'data' => json_encode([
                             'actions' => [],
-                            'body' => 'Your guest registration form has been rejected.',
+                            'body' => 'Your holiday homes guest registration form has been rejected.',
                             'duration' => 'persistent',
                             'icon' => 'heroicon-o-document-text',
                             'iconColor' => 'danger',
-                            'title' => 'Guest registration form status',
+                            'title' => 'Holiday homes guest registration form status',
                             'view' => 'notifications::notification',
                             'viewData' => [],
                             'format' => 'filament',

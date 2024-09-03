@@ -129,7 +129,7 @@ class AuthServiceProvider extends ServiceProvider
         Vendor::class => VendorPolicy::class,
         Contract::class =>ContractPolicy::class,
         WDA::class => WDAPolicy::class,
-        Invoice::class => InvoicePolicy::class,
+        // Invoice::class => InvoicePolicy::class,
         Tender::class => TenderPolicy::class,
         Proposal::class => ProposalPolicy::class,
         TechnicianAssets::class =>TechnicianAssetsPolicy::class,

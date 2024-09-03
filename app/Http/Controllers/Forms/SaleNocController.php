@@ -150,7 +150,7 @@ class SaleNocController extends Controller
 
         return (new CustomResponseResource([
             'title'   => 'Success',
-            'message' => 'document uploaded successfully',
+            'message' => 'Document uploaded successfully',
             'code'    => 200,
             'status'  => 'success',
         ]))->response()->setStatusCode(200);

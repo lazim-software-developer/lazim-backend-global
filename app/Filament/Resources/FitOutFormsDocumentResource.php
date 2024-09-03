@@ -21,16 +21,20 @@ use Filament\Forms\Components\CheckboxList;
 use Filament\Tables\Actions\BulkAction;
 use App\Filament\Resources\FitOutFormsDocumentResource\Pages;
 use App\Filament\Resources\FitOutFormsDocumentResource\RelationManagers\ContractorRequestRelationManager;
+use App\Models\Order;
 use Closure;
 use Filament\Facades\Filament;
 use Filament\Forms\Components\FileUpload;
+use Illuminate\Database\Eloquent\Model;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class FitOutFormsDocumentResource extends Resource
 {
     protected static ?string $model = FitOutForm::class;
 
-    protected static ?string $modelLabel = 'Fit out';
+    protected static ?string $modelLabel = 'Fitout';
+    protected static ?string $pluralModelLabel = 'Fitout';
+
     protected static ?string $navigationGroup = 'Forms Document';
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
@@ -90,6 +94,16 @@ class FitOutFormsDocumentResource extends Resource
                                 ->required()
                                 ->searchable()
                                 ->live(),
+                            TextInput::make('id')
+                                ->formatStateUsing(function (?Model $record){
+                                    $orderpayment_status = Order::where(['orderable_id'=>$record->id,'orderable_type'=>FitOutForm::class])->first()?->payment_status;
+                                    if($orderpayment_status){
+                                        return $orderpayment_status == 'requires_payment_method' ? 'Payment Failed' : $orderpayment_status;
+                                    }
+                                    return 'NA';
+                                })
+                                ->label('Payment Status')
+                                ->readOnly(),
                             TextInput::make('remarks')
                                 ->rules(['max:150'])
                                 ->visible(function (callable $get) {
@@ -168,6 +182,11 @@ class FitOutFormsDocumentResource extends Resource
                     ->limit(50),
                 TextColumn::make('status')
                     ->searchable()
+                    ->default('NA')
+                    ->limit(50),
+                TextColumn::make('orders')
+                    ->formatStateUsing(fn ($state) => json_decode($state)? (json_decode($state)->payment_status == 'requires_payment_method' ? 'Payment Failed' : json_decode($state)->payment_status): 'NA')
+                    ->label('Payment Status')
                     ->default('NA')
                     ->limit(50),
                 TextColumn::make('remarks')
