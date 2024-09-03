@@ -28,6 +28,7 @@ use App\Models\Building\FlatTenant;
 use App\Models\FlatOwners;
 use App\Models\LegalNotice;
 use App\Models\MollakTenant;
+use App\Models\Visitor\FlatVisitor;
 use App\Models\WebhookResponse;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -59,7 +60,7 @@ class MollakController extends Controller
             'content-type' => 'application/json',
             'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
         // ])->get(env("MOLLAK_API_URL") . "/sync/invoices/" . $propertyId . "/servicechargeperiods");
-        ])->get("https://qagate.dubailand.gov.ae/mollak/external/sync/invoices/" . $propertyId . "/servicechargeperiods");
+        ])->get(env("MOLLAK_API_URL") . "/sync/invoices/" . $propertyId . "/servicechargeperiods");
 
         // Assuming the API returns a JSON response, we'll decode it
         $data = $results->json();
@@ -108,7 +109,7 @@ class MollakController extends Controller
         $results = Http::withOptions(['verify' => false])->withHeaders([
                 'content-type' => 'application/json',
                 'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
-            ])->get("https://qagate.dubailand.gov.ae/mollak/external/sync/managementcompany/" . 54713 . "/propertygroups");
+            ])->get(env("MOLLAK_API_URL") . "/sync/managementcompany/" . 54713 . "/propertygroups");
 
         // $results = Http::withOptions(['verify' => false])->withHeaders([
         //         'content-type' => 'application/json',
@@ -140,6 +141,7 @@ class MollakController extends Controller
 
     public function sendSMS(Request $request)
     {
+        if(env('APP_ENV') == 'production'){
         $response = Http::withOptions(['verify' => false])->withHeaders([
             'content-type' => 'application/json',
         ])->post(env("SMS_LINK") . "otpgenerate?username=" . env("SMS_USERNAME") . "&password=" . env("SMS_PASSWORD") . "&msisdn=" . $request->phone . "&msg=Your%20one%20time%20OTP%20is%20%25m&source=ILAJ-LAZIM&tagname=" . env("SMS_TAG") . "&otplen=5&exptime=60");
@@ -147,6 +149,8 @@ class MollakController extends Controller
         Log::info('RESPONSEEE:-' . $response);
 
         return $response;
+        }
+        return '';
     }
 
     public function verifyOTP(Request $request)
@@ -184,6 +188,47 @@ class MollakController extends Controller
             User::where('phone', $request->phone)->update(['phone_verified' => true]);
             return response()->json([
                         'message' => 'Phone successfully verified.',
+                        'status' => 'success'
+                    ], 200);
+        }
+
+    }
+
+    public function verifyVisitor(Request $request, FlatVisitor $visitor)
+    {
+        $otp = $request->otp;
+
+        if(env('APP_ENV') == 'production'){
+            $response = Http::withOptions(['verify' => false])->withHeaders([
+                'content-type' => 'application/json',
+            ])->post(env("SMS_LINK") . "checkotp?username=" . env("SMS_USERNAME") . "&password=" . env("SMS_PASSWORD") . "&msisdn=" . $visitor->phone . "&otp=" . $otp);
+
+                if ($response->successful()) {
+                        $value = $response->json();
+
+                        if ($value == 101) {
+                            $visitor->update(['verified' => true]);
+
+                            return response()->json([
+                                'message' => 'Successfully verified.',
+                                'status' => 'success'
+                            ], 200);
+                        }
+                        return response()->json([
+                            'message' => 'We were unable to verify. Please try again!',
+                            'status' => 'error'
+                        ], 400);
+                } else {
+                        return response()->json([
+                            'message' => 'We were unable to verify. Please try again!',
+                            'status' => 'error'
+                        ], 400);
+                    }
+        }
+        else{
+            $visitor->update(['verified' => true]);
+            return response()->json([
+                        'message' => 'Successfully verified.',
                         'status' => 'success'
                     ], 200);
         }
@@ -292,7 +337,7 @@ class MollakController extends Controller
         $results = Http::withOptions(['verify' => false])->withHeaders([
             'content-type' => 'application/json',
             'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
-        ])->get("https://qagate.dubailand.gov.ae/mollak/external/sync/invoices/" . $propertyId . "/servicechargeperiods");
+        ])->get(env("MOLLAK_API_URL") . "/sync/invoices/" . $propertyId . "/servicechargeperiods");
 
         // Assuming the API returns a JSON response, we'll decode it
         $data = $results->json();
@@ -308,7 +353,7 @@ class MollakController extends Controller
         // ])->get("https://b2bgateway.dubailand.gov.ae/mollak/external/sync/managementcompany");
         // ])->get("https://qagate.dubailand.gov.ae/mollak/external/sync/propertygroups/235553/units");
         // ])->get("https://qagate.dubailand.gov.ae/mollak/external/sync/managementcompany");
-        // ])->get("https://qagate.dubailand.gov.ae/mollak/external/sync/propertygroups");0120130805004026 
+        // ])->get("https://qagate.dubailand.gov.ae/mollak/external/sync/propertygroups");0120130805004026
         // ])->get("https://qagate.dubailand.gov.ae/mollak/external/sync/owners/235553/17651626");
         ])->get("https://qagate.dubailand.gov.ae/mollak/external/sync/property/17651626/contract/0120210824004047");
 
@@ -367,8 +412,8 @@ class MollakController extends Controller
                     'response' => json_encode($request->parameters),
                     'reference_number' => $acknowledgeRef
                 ]);
-                
-                BudgetApprovedWebhookJob::dispatch($propertyGroupId,$periodCode);                
+
+                BudgetApprovedWebhookJob::dispatch($propertyGroupId,$periodCode);
                 break;
             case 'invoice_generated':
 
@@ -387,7 +432,7 @@ class MollakController extends Controller
                     'type' => 'invoice_generated',
                     'response' => json_encode($request->parameters),
                     'reference_number' => $acknowledgeRef
-                ]);                
+                ]);
 
                 FetchAndSaveInvoices::dispatch($building = null,$propertyGroupId,$serviceChargeGroupId,$quarterCode);
                 break;
@@ -450,7 +495,7 @@ class MollakController extends Controller
 
 
                 LegalNoticeIssuedJob::dispatch($propertyGroupId,$mollakPropertyId, $legalNoticeId);
-                
+
                 break;
             case 'owner_committee_formed':
                 $parameters = [];
@@ -575,8 +620,8 @@ class MollakController extends Controller
             'parameters.*.value' => 'required',
             ],[
             'parameters.*.key.in' => "Invalid key provided in parameters",
-            ]); 
-        
+            ]);
+
             if ($validator->fails()) {
                 return response()->json(['error' => $validator->errors()->first()], 400);
             }
@@ -591,7 +636,7 @@ class MollakController extends Controller
                 'isExecuted' => true,
                 'reference_number' => random_int(1111111,9999999)
             ];
-            
+
     }
 
     public function receiptWebhook(Request $request){
@@ -622,4 +667,3 @@ class MollakController extends Controller
     }
 
 }
-    

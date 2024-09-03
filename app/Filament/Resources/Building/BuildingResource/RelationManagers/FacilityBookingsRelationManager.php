@@ -31,6 +31,9 @@ class FacilityBookingsRelationManager extends RelationManager
 {
     use UtilsTrait;
     protected static string $relationship = 'facilityBookings';
+    
+    protected static ?string $title       = 'Amenity Bookings';
+    protected static ?string $modelLabel       = 'Amenity Booking';
 
     public function form(Form $form): Form
     {
@@ -49,16 +52,19 @@ class FacilityBookingsRelationManager extends RelationManager
 
                         Select::make('bookable_id')
                             ->required()
-                            ->options(
-                                DB::table('facilities')
-                                    ->pluck('name', 'id')
-                                    ->toArray()
-                            )
+                            ->options(function(RelationManager $livewire){
+
+                                $facilityId = DB::table('building_facility')->where('building_id',$livewire->ownerRecord->id)->pluck('facility_id');
+                                return DB::table('facilities')
+                                ->whereIn('id',$facilityId)
+                                ->where('active', true)
+                                ->pluck('name', 'id')
+                                ->toArray();
+                             })
                             ->searchable()
-                            ->label('Facility')
+                            ->label('Amenities')
                             ->disabledOn('edit')
-                            ->preload()
-                            ->label('Facility'),
+                            ->preload(),
 
                         Hidden::make('bookable_type')
                             ->default('App\Models\Master\Facility'),
@@ -110,12 +116,12 @@ class FacilityBookingsRelationManager extends RelationManager
     {
         return $table
             ->modifyQueryUsing(fn (Builder $query) => $query->where('bookable_type', 'App\Models\Master\Facility')->withoutGlobalScopes())
-            ->recordTitleAttribute('building_id')
+            // ->recordTitleAttribute('building_id')
             ->columns([
                 TextColumn::make('bookable.name')
                     ->searchable()
                     ->default('NA')
-                    ->label('Facility'),
+                    ->label('Amenity'),
                 TextColumn::make('user.first_name')
                     ->searchable()
                     ->default('NA')
@@ -156,7 +162,7 @@ class FacilityBookingsRelationManager extends RelationManager
                                                 'to' => $expoPushToken,
                                                 'sound' => 'default',
                                                 'title' => $facilityName->name . ' Booking Status.',
-                                                'body' => 'Your facility booking request for ' . $facilityName->name . ' is approved',
+                                                'body' => 'Your amenity booking request for ' . $facilityName->name . ' is approved',
                                                 'data' => ['notificationType' => 'MyBookingsFacility'],
                                             ];
                                             $this->expoNotification($message);
@@ -169,7 +175,7 @@ class FacilityBookingsRelationManager extends RelationManager
                                                 'notifiable_id' => $user->user_id,
                                                 'data' => json_encode([
                                                     'actions' => [],
-                                                    'body' => 'Your facility booking request for ' . $facilityName->name . ' is approved',
+                                                    'body' => 'Your amenity booking request for ' . $facilityName->name . ' is approved',
                                                     'duration' => 'persistent',
                                                     'icon' => 'heroicon-o-document-text',
                                                     'iconColor' => 'warning',
@@ -192,7 +198,7 @@ class FacilityBookingsRelationManager extends RelationManager
                                                 'to' => $expoPushToken,
                                                 'sound' => 'default',
                                                 'title' =>  $facilityName->name . ' Booking Status.',
-                                                'body' => 'Your facility booking request for ' . $facilityName->name . ' is rejected',
+                                                'body' => 'Your amenity booking request for ' . $facilityName->name . ' is rejected',
                                                 'data' => ['notificationType' => 'MyBookingsFacility'],
                                             ];
                                             $this->expoNotification($message);
@@ -205,7 +211,7 @@ class FacilityBookingsRelationManager extends RelationManager
                                                 'notifiable_id' => $user->user_id,
                                                 'data' => json_encode([
                                                     'actions' => [],
-                                                    'body' => 'Your facility booking request for ' . $facilityName->name . ' is rejected',
+                                                    'body' => 'Your amenity booking request for ' . $facilityName->name . ' is rejected',
                                                     'duration' => 'persistent',
                                                     'icon' => 'heroicon-o-document-text',
                                                     'iconColor' => 'danger',

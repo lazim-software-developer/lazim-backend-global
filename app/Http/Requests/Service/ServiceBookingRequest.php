@@ -25,6 +25,7 @@ class ServiceBookingRequest extends FormRequest
             'service_id' => 'required|exists:services,id',
             'date' => 'required|date',
             'start_time' => 'required|date_format:H:i',
+            'flat_id' => 'required|exists:flats,id',
         ];
     }
 }

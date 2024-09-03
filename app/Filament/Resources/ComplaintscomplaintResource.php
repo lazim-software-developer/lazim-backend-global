@@ -11,6 +11,7 @@ use App\Models\User\User;
 use Filament\Tables\Table;
 use App\Models\Master\Role;
 use App\Models\Vendor\Vendor;
+use Filament\Facades\Filament;
 use App\Models\TechnicianVendor;
 use Filament\Resources\Resource;
 use App\Models\Building\Complaint;
@@ -21,20 +22,22 @@ use Filament\Tables\Actions\Action;
 use App\Models\Vendor\ServiceVendor;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Textarea;
 use Filament\Tables\Columns\TextColumn;
+use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 use App\Filament\Resources\ComplaintscomplaintResource\Pages;
 use App\Filament\Resources\ComplaintscomplaintResource\RelationManagers;
-use Filament\Facades\Filament;
-use Illuminate\Database\Eloquent\Model;
-use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
+use Illuminate\Support\Str;
+use App\Models\Master\Service;
 
 class ComplaintscomplaintResource extends Resource
 {
@@ -94,7 +97,7 @@ class ComplaintscomplaintResource extends Resource
                             })
                             ->live()
                             ->searchable()
-                            ->label('vendor Name'),
+                            ->label('Vendor Name'),
                         Select::make('flat_id')
                             ->rules(['exists:flats,id'])
                             ->required()
@@ -158,10 +161,12 @@ class ComplaintscomplaintResource extends Resource
                         Select::make('service_id')
                             ->relationship('service', 'name')
                             ->preload()
-                            ->disabled()
+                            ->reactive()
                             ->searchable()
-                            ->label('Service'),
-                        TextInput::make('category')->disabled(),
+                            ->label('Service')
+                            ->afterStateUpdated(fn ($set, $state) => $set('category', Service::where('id', $state)->value('name') ?? '')), // Update category after state change
+                        TextInput::make('category')
+                            ->disabled(),
                         TextInput::make('open_time')->disabled(),
                         TextInput::make('close_time')->disabled()->default('NA'),
                         Textarea::make('complaint')
@@ -170,6 +175,9 @@ class ComplaintscomplaintResource extends Resource
                         // Textarea::make('complaint_details')
                         //     ->disabled()
                         //     ->placeholder('Complaint Details'),
+                        TextInput::make('type')->label('Type')
+                            ->disabled()
+                            ->default('NA'),
                         Select::make('status')
                             ->options([
                                 'open' => 'Open',
@@ -193,6 +201,30 @@ class ComplaintscomplaintResource extends Resource
                             })
                             ->required(),
 
+
+                        Toggle::make('Urgent')
+                            ->disabled()
+                            ->formatStateUsing(function($record){
+                                // dd($record->priority);
+                                if($record->priority==1){
+                                    return true;
+                                }else{
+                                    return false;
+                                }
+                            })
+                            ->default(false)
+                            ->hidden(function($record){
+                                if($record->type == 'personal'){
+                                    return false;
+                                }else{
+                                    return true;
+                                }
+                            })
+                            ->disabled(),
+
+
+
+
                     ])
             ]);
     }
@@ -211,6 +243,9 @@ class ComplaintscomplaintResource extends Resource
                     ->default('NA')
                     ->searchable()
                     ->limit(50),
+                TextColumn::make('type')
+                    ->formatStateUsing(fn (string $state) => Str::ucfirst($state))
+                    ->default('NA'),
                 TextColumn::make('user.first_name')
                     ->toggleable()
                     ->default('NA')

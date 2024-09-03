@@ -77,6 +77,7 @@ Route::post('/login', [AuthController::class, 'login'])->name('api.login');
 Route::post('/register', [RegistrationController::class, 'registerWithEmailPhone']);
 // Resident registeration with Passport/Emirates id
 Route::post('/register-with-document', [RegistrationController::class, 'registerWithDocument']);
+Route::post('/documents-reupload/{resident}',[RegistrationController::class, 'reuploadDocument']);
 // owner list
 Route::get('/owner-list/{flat}', [RegistrationController::class,'ownerList']);
 Route::get('/all-owners', [RegistrationController::class, 'allOwners']);
@@ -291,7 +292,7 @@ Route::middleware(['auth:sanctum', 'email.verified', 'active'])->group(function 
 
     // family members
     Route::post('/family-members/{building}',[FamilyMemberController::class, 'store']);
-    Route::get('/fetch-family-members/{building}',[FamilyMemberController::class, 'index']);
+    Route::get('/fetch-family-members/{building}/{unit?}',[FamilyMemberController::class, 'index']);
 });
 
 
@@ -392,6 +393,7 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('vendor')->group(function 
     // List vendor details of logged in user
     Route::get('/details', [VendorRegistrationController::class, 'showVendorDetails']);
     Route::get('/{vendor}/view-manager', [VendorRegistrationController::class, 'showManagerDetails']);
+    Route::patch('/managers-deatils/{vendor}',[VendorRegistrationController::class, 'updateManagerDetails']);
     Route::get('/{vendor}/services', [SelectServicesController::class, 'showServices']);
     Route::get('/{vendor}/show-documents', [DocumentsUploadController::class, 'showDocuments']);
     Route::post('/{vendor}/escalation-matrix', [EscalationMatrixController::class, 'store']);
@@ -523,6 +525,7 @@ Route::middleware(['auth:sanctum', 'active', 'active.gatekeeper'])->prefix('gate
 
     Route::get('/visitor-request',[GuestController::class, 'visitorRequest']);
     Route::post('/visitor-approval/{visitor}', [GuestController::class, 'visitorApproval']);
+    Route::post('/verify-visitor/{visitor}', [MollakController::class, 'verifyVisitor']);
 });
 // Approve visitor request
 Route::post('/gatekeeper/visitor-entry', [GuestController::class, 'visitorEntry'])->middleware(['auth:sanctum']);
@@ -548,6 +551,8 @@ Route::post('/store-visitor', [GuestController::class, 'saveFlatVisitors']);
 // Test Send SMS
 Route::post('/send-sms', [MollakController::class, 'sendSMS']);
 Route::post('/verify-sms-otp', [MollakController::class, 'verifyOTP']);
+
+Route::get('/verify-contractor-request/{fitout}',[FitOutFormsController::class, 'verifyContractorRequest']);
 
 //Webhooks
 Route::post('/budget-budget_items',[MollakController::class, 'fetchbudget']);

@@ -40,10 +40,10 @@ class BudgetApprovedWebhookJob implements ShouldQueue
         $results = Http::withOptions(['verify' => false])->withHeaders([
             'content-type' => 'application/json',
             'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
-        ])->get("https://qagate.dubailand.gov.ae/mollak/external/sync/budgets/".$propertyGroupId."/all/".$periodCode);
+        ])->get(env("MOLLAK_API_URL") . "/sync/budgets/".$propertyGroupId."/all/".$periodCode);
         $responce = $results->json()['response'];
         Log::info($responce);
-        
+
             $building = Building::where('property_group_id',$responce['propertyGroupId'])->first();
             foreach($responce['serviceChargeGroups'] as $group){
                 $budget = Budget::firstOrCreate([

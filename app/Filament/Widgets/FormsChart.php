@@ -3,137 +3,132 @@
 namespace App\Filament\Widgets;
 
 use App\Models\Forms\Guest;
-use App\Models\Master\Role;
 use App\Models\Forms\SaleNOC;
 use App\Models\Forms\MoveInOut;
 use App\Models\ResidentialForm;
 use App\Models\Forms\AccessCard;
 use App\Models\Forms\FitOutForm;
+use App\Models\Visitor;
+use App\Models\Visitor\FlatVisitor;
+use Carbon\Carbon;
 use Filament\Widgets\ChartWidget;
+use Filament\Widgets\Concerns\InteractsWithPageFilters;
 
 class FormsChart extends ChartWidget
 {
+    use InteractsWithPageFilters;
+
     protected static ?string $heading = 'Forms';
-    protected static ?string $maxHeight = '200px';
-    protected static ?int $sort = 6;
+    protected static ?string $maxHeight = '300px';
+    protected static ?int $sort = 3;
 
     protected function getData(): array
     {
-        if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
-            $saleNOC = SaleNOC::count();
-            $accessCard = AccessCard::count();
-            $guests = Guest::count();
-            $moveIn = MoveInOut::where('type', 'move-in')->count();
-            $moveOut = MoveInOut::where('type', 'move-out')->count();
-            $fitOut = FitOutForm::count();
-            $residential = ResidentialForm::count();
-            return [
-                'datasets' => [
-                    [
-                        'label' => 'AccessCard',
-                        'data' => [$accessCard],
-                        'backgroundColor' => '#f5fa5a',
-                        'borderColor' => '#ffffff',
-                    ],
-                    [
-                        'label' => 'SaleNOC',
-                        'data' => [$saleNOC],
-                        'backgroundColor' => '#5a82fa',
-                        'borderColor' => '#ffffff',
-                    ],
-                    [
-                        'label' => 'GuestRegistration',
-                        'data' => [$guests],
-                        'backgroundColor' => '#5afaa7',
-                        'borderColor' => '#ffffff',
-                    ],
-                    [
-                        'label' => 'MovingIn',
-                        'data' => [$moveIn],
-                        'backgroundColor' => '#fa5a92',
-                        'borderColor' => '#ffffff',
-                    ],
-                    [
-                        'label' => 'MovingOut',
-                        'data' => [$moveOut],
-                        'backgroundColor' => '#fa5a5a',
-                        'borderColor' => '#ffffff',
-                    ],
-                    [
-                        'label' => 'FitOut',
-                        'data' => [$fitOut],
-                        'backgroundColor' => '#fa9a5a',
-                        'borderColor' => '#ffffff',
-                    ],
-                    [
-                        'label' => 'Residential',
-                        'data' => [$residential],
-                        'backgroundColor' => '#bbf76d',
-                        'borderColor' => '#ffffff',
-                    ]
-                ],
-                'labels' => ['Forms'],
-            ];
-        } else {
-            $saleNOC = SaleNOC::where('owner_association_id', auth()->user()?->owner_association_id)->count();
-            $accessCard = AccessCard::where('owner_association_id', auth()->user()?->owner_association_id)->count();
-            $guests = Guest::where('owner_association_id', auth()->user()?->owner_association_id)->count();
-            $moveIn = MoveInOut::where('owner_association_id', auth()->user()?->owner_association_id)->where('type', 'move-in')->count();
-            $moveOut = MoveInOut::where('owner_association_id', auth()->user()?->owner_association_id)->where('type', 'move-out')->count();
-            $fitOut = FitOutForm::where('owner_association_id', auth()->user()?->owner_association_id)->count();
-            $residential = ResidentialForm::where('owner_association_id', auth()->user()?->owner_association_id)->count();
-            return [
-                'datasets' => [
-                    [
-                        'label' => 'AccessCard',
-                        'data' => [$accessCard],
-                        'backgroundColor' => '#f5fa5a',
-                        'borderColor' => '#ffffff',
-                    ],
-                    [
-                        'label' => 'SaleNOC',
-                        'data' => [$saleNOC],
-                        'backgroundColor' => '#5a82fa',
-                        'borderColor' => '#ffffff',
-                    ],
-                    [
-                        'label' => 'GuestRegistration',
-                        'data' => [$guests],
-                        'backgroundColor' => '#5afaa7',
-                        'borderColor' => '#ffffff',
-                    ],
-                    [
-                        'label' => 'MovingIn',
-                        'data' => [$moveIn],
-                        'backgroundColor' => '#fa5a92',
-                        'borderColor' => '#ffffff',
-                    ],
-                    [
-                        'label' => 'MovingOut',
-                        'data' => [$moveOut],
-                        'backgroundColor' => '#fa5a5a',
-                        'borderColor' => '#ffffff',
-                    ],
-                    [
-                        'label' => 'FitOut',
-                        'data' => [$fitOut],
-                        'backgroundColor' => '#fa9a5a',
-                        'borderColor' => '#ffffff',
-                    ],
-                    [
-                        'label' => 'Residential',
-                        'data' => [$residential],
-                        'backgroundColor' => '#bbf76d',
-                        'borderColor' => '#ffffff',
-                    ]
-                ],
-                'labels' => ['Forms'],
-            ];
+        $startDate = $this->filters['startDate'] ?? null;
+        $endDate = $this->filters['endDate'] ?? null;
+        $buildingId = $this->filters['building'] ?? null;
+
+        // Initialize queries for each model with optional building filter
+        $saleNOCQuery = SaleNOC::where('owner_association_id', auth()->user()->owner_association_id);
+        $accessCardQuery = AccessCard::where('owner_association_id', auth()->user()->owner_association_id);
+        $guestsQuery = Guest::where('owner_association_id', auth()->user()->owner_association_id);
+        $fitOutQuery = FitOutForm::where('owner_association_id', auth()->user()->owner_association_id);
+        $residentialQuery = ResidentialForm::where('owner_association_id', auth()->user()->owner_association_id);
+        $moveInQuery = MoveInOut::where('owner_association_id', auth()->user()->owner_association_id)->where('type', 'move-in');
+        $moveOutQuery = MoveInOut::where('owner_association_id', auth()->user()->owner_association_id)->where('type', 'move-out');
+        $visitorQuery = FlatVisitor::where('owner_association_id', auth()->user()->owner_association_id);
+
+        if ($buildingId) {
+            // Apply building filter to the queries that have direct building_id
+            $saleNOCQuery->where('building_id', $buildingId);
+            $accessCardQuery->where('building_id', $buildingId);
+            $fitOutQuery->where('building_id', $buildingId);
+            $residentialQuery->where('building_id', $buildingId);
+            $moveInQuery->where('building_id', $buildingId);
+            $moveOutQuery->where('building_id', $buildingId);
+            $visitorQuery->where('building_id', $buildingId);
+
+            // Apply building filter to the Guests query via a join on FlatVisitor
+            $guestsQuery->whereHas('flatVisitor', function($query) use ($buildingId) {
+                $query->where('building_id', $buildingId);
+            });
         }
+
+        if ($startDate) {
+            $startOfDay = Carbon::createFromFormat('Y-m-d', $startDate)->startOfDay();
+            $saleNOCQuery->where('created_at', '>=', $startOfDay);
+            $accessCardQuery->where('created_at', '>=', $startOfDay);
+            $guestsQuery->where('created_at', '>=', $startOfDay);
+            $fitOutQuery->where('created_at', '>=', $startOfDay);
+            $residentialQuery->where('created_at', '>=', $startOfDay);
+            $moveInQuery->where('created_at', '>=', $startOfDay);
+            $moveOutQuery->where('created_at', '>=', $startOfDay);
+            $visitorQuery->where('created_at', '>=', $startOfDay);
+        }
+
+        if ($endDate) {
+            $endOfDay = Carbon::createFromFormat('Y-m-d', $endDate)->endOfDay();
+            $saleNOCQuery->where('created_at', '<=', $endOfDay);
+            $accessCardQuery->where('created_at', '<=', $endOfDay);
+            $guestsQuery->where('created_at', '<=', $endOfDay);
+            $fitOutQuery->where('created_at', '<=', $endOfDay);
+            $residentialQuery->where('created_at', '<=', $endOfDay);
+            $moveInQuery->where('created_at', '<=', $endOfDay);
+            $moveOutQuery->where('created_at', '<=', $endOfDay);
+            $visitorQuery->where('created_at', '<=', $endOfDay);
+        }
+
+        $saleNocCount = $saleNOCQuery->count();
+        $accessCardCount = $accessCardQuery->count();
+        $guestsCount = $guestsQuery->count();
+        $fitOutCount = $fitOutQuery->count();
+        $residentialCount = $residentialQuery->count();
+        $moveInCount = $moveInQuery->count();
+        $moveOutCount = $moveOutQuery->count();
+        $visitorCount = $visitorQuery->count();
+
+        return [
+            'datasets' => [
+                [
+                    'label' => 'Forms',
+                    'data' => [
+                        $accessCardCount, 
+                        $saleNocCount, 
+                        $guestsCount, 
+                        $moveInCount, 
+                        $moveOutCount, 
+                        $fitOutCount, 
+                        $residentialCount, 
+                        $visitorCount
+                    ],
+                    'backgroundColor' => [
+                        '#5581DD', 
+                        '#51CEA4', 
+                        '#BB86FC', 
+                        '#E49B50', 
+                        '#E57373', 
+                        '#FFD54F', 
+                        '#4DB6AC', 
+                        '#90CAF9'
+                    ],
+                    'borderColor' => '#ffffff',
+                ],
+            ],
+            'labels' => [
+                'Access card', 
+                'Sale NOC', 
+                'Holiday Homes Guest Registration', 
+                'Move in', 
+                'Move out', 
+                'Fitout', 
+                'Residential', 
+                'Visitors'
+            ],
+        ];
     }
 
     protected function getType(): string
     {
-        return 'bar';
+        return 'pie';
     }
 }

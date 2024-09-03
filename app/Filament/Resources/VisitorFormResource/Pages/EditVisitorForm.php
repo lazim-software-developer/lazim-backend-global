@@ -14,7 +14,7 @@ class EditVisitorForm extends EditRecord
 {
     use UtilsTrait;
     protected static string $resource = VisitorFormResource::class;
-    protected static ?string $title = 'Flat visitor';
+    protected static ?string $title = 'Visitor';
 
     protected function getHeaderActions(): array
     {
@@ -34,7 +34,7 @@ class EditVisitorForm extends EditRecord
         {
             if ($this->record->status == 'approved')
             {
-                $security= BuildingPoc::where('building_id',$this->record->building_id)->where('active',true)->first()->user_id;
+                $security= BuildingPoc::where('building_id',$this->record->building_id)->where('active',true)->first()?->user_id;
                 $expoPushTokens = ExpoPushNotification::where('user_id', $security)->pluck('token');
             if ($expoPushTokens->count() > 0) {
                 $date= $this->record->start_time->toDateString();
@@ -45,8 +45,8 @@ class EditVisitorForm extends EditRecord
                     $message = [
                         'to' => $expoPushToken,
                         'sound' => 'default',
-                        'title' => 'Visitors',
-                        'body' => "Flat Visitor form has been approved \nVisitors for $date at $time\n No. of visitors: $visitorCount\n Unit:$unit ",
+                        'title' => 'Visitor form status.',
+                        'body' => "Visitor form has been approved \nfor $date at $time\n No. of visitors: $visitorCount\n Unit:$unit ",
                         'data' => ['notificationType' => 'InAppNotfication'],
                     ];
                     $this->expoNotification($message);
@@ -57,11 +57,11 @@ class EditVisitorForm extends EditRecord
                         'notifiable_id' => $security,
                         'data' => json_encode([
                             'actions' => [],
-                            'body' => "Flat Visitor form has been approved \nVisitors for $date at $time\n No. of visitors: $visitorCount\n Unit:$unit ",
+                            'body' => "Visitor form has been approved \nfor $date at $time\n No. of visitors: $visitorCount\n Unit:$unit ",
                             'duration' => 'persistent',
                             'icon' => 'heroicon-o-document-text',
                             'iconColor' => 'warning',
-                            'title' => 'Visitors',
+                            'title' => 'Visitor form status.',
                             'view' => 'notifications::notification',
                             'viewData' => [],
                             'format' => 'filament',

@@ -126,7 +126,7 @@ class PaymentController extends Controller
         }
     }
 
-    // Fetch payment status 
+    // Fetch payment status
     public function fetchPaymentStatus(Order $order)
     {
         Stripe::setApiKey(env('STRIPE_SECRET'));
@@ -152,15 +152,17 @@ class PaymentController extends Controller
     public function fecthInvoiceDetails(Flat $flat)
     {
         $invoice =  OAMInvoice::where('flat_id', $flat->id)->latest('invoice_date')->first();
-        $receipt = OAMReceipts::where('flat_id', $flat->id)->where('receipt_period',$invoice->invoice_period)->first();
+        $receipts = OAMReceipts::where('flat_id', $flat->id)
+        ->where('receipt_date', '>=', $invoice->invoice_date)
+        ->get();
         $balance = $invoice->due_amount;
-        if ($receipt){
-            $balance = $invoice->due_amount - $receipt->receipt_amount;
+        if ($receipts->isNotEmpty()) {
+            $balance = $invoice->due_amount - $receipts->sum('receipt_amount');
         }
         return [
             "data" =>[
                 'outstanding_balance' => $balance,
-                'virtual_account_number' => $flat->virtual_account_number,]            
+                'virtual_account_number' => $flat->virtual_account_number,]
         ];
     }
 }

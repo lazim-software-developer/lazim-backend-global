@@ -29,7 +29,7 @@ class MoveInOutObserver
             });
             Notification::make()
             ->success()
-            ->title("New MoveIn Submission")
+            ->title("New Move in Submission")
             ->icon('heroicon-o-document-text')
             ->iconColor('warning')
             ->body('New form submission by '.auth()->user()->first_name)
@@ -47,7 +47,7 @@ class MoveInOutObserver
             });
             Notification::make()
             ->success()
-            ->title("New MoveOut Submission")
+            ->title("New Move out Submission")
             ->icon('heroicon-o-document-text')
             ->iconColor('warning')
             ->body('New form submission by '.auth()->user()->first_name)

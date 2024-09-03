@@ -26,7 +26,7 @@ class AccessCardObserver
         });
             Notification::make()
                 ->success()
-                ->title("New AccessCard Submission")
+                ->title("New Access Card Submission")
                 ->icon('heroicon-o-document-text')
                 ->iconColor('warning')
                 ->body('New form submission by ' . auth()->user()->first_name)

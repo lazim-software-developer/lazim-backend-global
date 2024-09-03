@@ -16,6 +16,7 @@ use App\Models\Vendor\ServiceVendor;
 use App\Models\Accounting\Budgetitem;
 use Filament\Resources\Pages\EditRecord;
 use App\Filament\Resources\ProposalResource;
+use App\Models\Vendor\Vendor;
 
 class EditProposal extends EditRecord
 {
@@ -81,6 +82,41 @@ class EditProposal extends EditRecord
             $record->status_updated_on = now();
             $record->save();
 
+            //Inserting vendor record into lazim-accounts database
+            $connection = DB::connection('lazim_accounts');
+            $vendor = Vendor::find($record->vendor_id);
+            $user = User::find($vendor->owner_id);
+            $creator = $connection->table('users')->where(['type' => 'building', 'building_id' => $tender->building_id])->first();
+            $exists = $connection->table('venders')->where(['lazim_vendor_id'=>$vendor->id,
+                                                            'building_id'=>$tender->building_id]
+                                                        )->count();
+            if(isset($contract,$vendor,$creator) && $exists==0){
+                $connection->table('venders')->insert([
+                    'vender_id'       => $connection->table('venders')->where('created_by', $creator->id)->orderByDesc('vender_id')->first()?->vender_id + 1,
+                    'name'            => $vendor->name,
+                    'email'           => substr($creator->name, 0, 2).$user->email,
+                    'password'        => '',
+                    'contact'         => $user->phone,
+                    'created_by'      => $creator->id,
+                    'is_enable_login' => 0,
+                    'created_at'      => now(),
+                    'updated_at'      => now(),
+                    'billing_name'    => $tender->building->name,
+                    'billing_country' => 'UAE',
+                    'billing_city'    => 'Dubai',
+                    'billing_address' => $vendor->address_line_1,
+                    'shipping_name'    => $tender->building->name,
+                    'shipping_country' => 'UAE',
+                    'shipping_city'    => 'Dubai',
+                    'shipping_address' => $vendor->address_line_1,
+                    'lazim_vendor_id' => $vendor->id,
+                    'building_id'     => $tender->building_id,
+                ]);
+                $connection->table('oa_vendor')->insert([
+                    'lazim_owner_association_id' => $vendor->owner_association_id,
+                    'vendor_id'                  => $connection->table('venders')->where('lazim_vendor_id', $vendor->id)->first()?->id,
+                ]);
+            }
             $technicianVendorIds = DB::table('service_technician_vendor')
                 ->where('service_id', $contract->service_id)
                 ->pluck('technician_vendor_id');

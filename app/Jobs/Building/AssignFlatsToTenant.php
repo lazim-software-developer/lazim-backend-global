@@ -19,7 +19,7 @@ class AssignFlatsToTenant implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
 
-    public function __construct(protected $email, protected $mobile, protected $owner_id)
+    public function __construct(protected $email, protected $mobile, protected $owner_id, protected $customerId,protected $type)
     {
 
     }
@@ -43,6 +43,7 @@ class AssignFlatsToTenant implements ShouldQueue
             ->groupBy('flats.building_id', 'flats.property_number')
             ->get();
 
+        $connection = DB::connection('lazim_accounts');
         foreach ($flats as $flat) {
             // Add an entry in the flat_tenant table for each flat
             $flatDetails = Flat::find($flat->flat_id);
@@ -54,9 +55,17 @@ class AssignFlatsToTenant implements ShouldQueue
                     'building_id' => $flatDetails->building_id,
                     'owner_association_id' => $flatDetails->owner_association_id,
                     'start_date' => now(),
-                    'active' => 1
+                    'active' => 1,
+                    'role' => $this->type,
                 ]
             );
+
+            $connection->table('customer_flat')->insert([
+                'customer_id' => $this->customerId,
+                'flat_id' => $flat->flat_id,
+                'building_id' => $flatDetails->building_id,
+                'property_number' =>$flatDetails->property_number
+            ]);
         }
     }
 }

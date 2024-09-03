@@ -75,19 +75,19 @@ class BuildingResource extends Resource
                                 ),
 
                             TextInput::make('address_line1')
-                                ->rules(['max:255', 'string'])
+                                ->rules(['max:500', 'string'])
                                 ->required()
                                 ->placeholder('Address Line1'),
 
                             TextInput::make('address_line2')
-                                ->rules(['max:255', 'string'])
+                                ->rules(['max:500', 'string'])
                                 ->nullable()
                                 ->placeholder('Address Line2'),
                             Hidden::make('owner_association_id')
                                 ->default(auth()->user()?->owner_association_id),
 
                             TextInput::make('area')
-                                ->rules(['max:50', 'string'])
+                                ->rules(['max:100', 'string'])
                                 ->required()
                                 ->placeholder('Area'),
 
@@ -139,7 +139,7 @@ class BuildingResource extends Resource
                                 ->label('Allow post-upload'),
                             Toggle::make('show_inhouse_services')
                                 ->rules(['boolean'])
-                                ->label('Show in-house services'),
+                                ->label('Show Personal services'),
 
 
                             // TextInput::make('lat')
@@ -275,7 +275,8 @@ class BuildingResource extends Resource
             ])
             ->emptyStateActions([
                 // Tables\Actions\CreateAction::make(),
-            ]);
+            ])
+            ->defaultSort('created_at', 'desc');
     }
 
     public static function getRelations(): array

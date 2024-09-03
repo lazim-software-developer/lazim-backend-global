@@ -27,7 +27,7 @@ class UserController extends Controller
         else{
             $flats = $user->residences;
         }
-        return UserFlatResource::collection($flats);
+        return  UserFlatResource::collection($flats);
     }
 
     // List all flats for the logged in user

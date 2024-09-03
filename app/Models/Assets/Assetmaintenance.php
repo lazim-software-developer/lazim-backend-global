@@ -52,6 +52,6 @@ class Assetmaintenance extends Model
 
     public function getMaintenanceDateDiffAttribute()
     {
-        return Carbon::parse($this->attributes['maintenance_date'])->diffForHumans();
+        return Carbon::parse($this->attributes['created_at'])->diffForHumans();
     }
 }

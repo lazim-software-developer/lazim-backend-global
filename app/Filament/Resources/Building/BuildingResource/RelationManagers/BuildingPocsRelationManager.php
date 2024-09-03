@@ -17,6 +17,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Actions\Action;
@@ -182,7 +183,7 @@ class BuildingPocsRelationManager extends RelationManager
                             'phone'                => '971' . $data['phone'],
                             'profile_photo'        => $data['profile_photo'],
                             'active'               => $data['active'],
-                            'role_id'              => 12,
+                            'role_id'              => Role::where('owner_association_id',$oa_id)->where('name','Security')->first()?->id,
                             'owner_association_id' => $oa_id,
                             'email_verified'       => 1,
                             'phone_verified'       => 1,
@@ -335,6 +336,17 @@ class BuildingPocsRelationManager extends RelationManager
                     })
                     ->slideOver(),
 
+                    Action::make('delete')
+                    ->button()
+                    ->action(function($record){
+                        $record->delete();
+
+                        Notification::make()
+                        ->title('Security Deleted Successfully')
+                        ->success()
+                        ->send()
+                        ->duration('4000');
+                    })
                 //Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([

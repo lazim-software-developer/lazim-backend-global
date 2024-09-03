@@ -6,6 +6,7 @@ use App\Filament\Resources\VisitorFormResource\Pages;
 use App\Filament\Resources\VisitorFormResource\RelationManagers;
 use App\Models\Visitor\FlatVisitor;
 use Filament\Forms;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
@@ -22,7 +23,7 @@ use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 class VisitorFormResource extends Resource
 {
     protected static ?string $model = FlatVisitor::class;
-    protected static ?string $title = 'Flat visitor';
+    protected static ?string $title = 'Visitor';
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
     protected static ?string $modelLabel = 'Visitors';
 
@@ -34,9 +35,10 @@ class VisitorFormResource extends Resource
                 ->relationship('flat', 'property_number')->disabled(),
                 TextInput::make('name')->disabled(),
                 TextInput::make('email')->disabled(),
-                TextInput::make('start_time')->label('Date')->disabled(),
+                DatePicker::make('start_time')->label('Date')->disabled(),
                 TextInput::make('time_of_viewing')->label('Time')->disabled(),
                 TextInput::make('number_of_visitors')->disabled(),
+                Select::make('building_id')->relationship('building','name')->label('Building')->disabled()->default('NA'),
                 Select::make('status')
                                 ->options([
                                     'approved' => 'Approve',
@@ -83,16 +85,19 @@ class VisitorFormResource extends Resource
                 ->searchable()
                 ->default('NA')
                 ->label('Ticket Number'),
+                TextColumn::make('building.name')
+                ->label('Building')
+                ->default('NA'),
                 TextColumn::make('flat.property_number')
                 ->label('Unit'),
                 TextColumn::make('name'),
                 TextColumn::make('email'),
-                TextColumn::make('start_time')
+                TextColumn::make('start_time')->date('Y-m-d')
                     ->label('Date')
                     // ->date()
                     ->default('NA'),
                 TextColumn::make('time_of_viewing')
-                    ->label('time')
+                    ->label('Time')
                     // ->time()
                     ->default('NA'),
                 TextColumn::make('number_of_visitors')->default('NA'),

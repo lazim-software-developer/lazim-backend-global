@@ -2,42 +2,43 @@
 
 namespace App\Providers\Filament;
 
-use App\Filament\Resources\AgingReportResource;
-use App\Filament\Resources\AssetMaintenanceResource;
-use App\Filament\Resources\BankStatementResource;
-use App\Filament\Resources\DelinquentOwnerResource;
-use App\Filament\Resources\DemoResource;
-use App\Filament\Resources\FamilyMemberResource;
-use App\Filament\Resources\IncidentResource;
-use App\Filament\Resources\OacomplaintReportsResource;
-use App\Filament\Resources\OwnerAssociationInvoiceResource;
-use App\Filament\Resources\OwnerAssociationReceiptResource;
-use App\Filament\Resources\PatrollingResource;
-use App\Filament\Resources\User\UserResource;
-use App\Filament\Resources\UserApprovalResource;
-use App\Filament\Resources\VehicleResource;
-use App\Models\Master\Role;
-use App\Models\User\User;
-use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
-use Filament\Http\Middleware\Authenticate;
-use Filament\Http\Middleware\DisableBladeIconComponents;
-use Filament\Http\Middleware\DispatchServingFilamentEvent;
-use Filament\Navigation\NavigationBuilder;
-use Filament\Navigation\NavigationGroup;
-use Filament\Navigation\NavigationItem;
 use Filament\Pages;
 use Filament\Panel;
+use Filament\Widgets;
+use App\Models\User\User;
+use App\Models\Master\Role;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
-use Filament\Widgets;
 use Illuminate\Contracts\View\View;
-use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
-use Illuminate\Cookie\Middleware\EncryptCookies;
-use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
-use Illuminate\Routing\Middleware\SubstituteBindings;
-use Illuminate\Session\Middleware\AuthenticateSession;
+use Filament\Navigation\NavigationItem;
+use App\Filament\Resources\DemoResource;
+use Filament\Navigation\NavigationGroup;
+use Filament\Http\Middleware\Authenticate;
+use Filament\Navigation\NavigationBuilder;
+use App\Filament\Resources\VehicleResource;
+use App\Filament\Resources\IncidentResource;
+use App\Filament\Resources\User\UserResource;
+use App\Filament\Resources\PatrollingResource;
+use App\Filament\Resources\AgingReportResource;
+use App\Filament\Resources\AppFeedbackResource;
 use Illuminate\Session\Middleware\StartSession;
+use App\Filament\Resources\FamilyMemberResource;
+use App\Filament\Resources\UserApprovalResource;
+use Illuminate\Cookie\Middleware\EncryptCookies;
+use App\Filament\Resources\BankStatementResource;
+use App\Filament\Resources\DelinquentOwnerResource;
+use App\Filament\Resources\AssetMaintenanceResource;
+use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
+use Illuminate\Routing\Middleware\SubstituteBindings;
+use App\Filament\Resources\OacomplaintReportsResource;
+use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use Filament\Http\Middleware\DisableBladeIconComponents;
+use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
+use App\Filament\Resources\OwnerAssociationInvoiceResource;
+use App\Filament\Resources\OwnerAssociationReceiptResource;
+use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 
 class AppPanelProvider extends PanelProvider
 {
@@ -68,8 +69,8 @@ class AppPanelProvider extends PanelProvider
             ])
             ->favicon(asset('images/favicon.png'))
             ->darkMode(false)
-            // ->databaseNotifications()
-            // ->databaseNotificationsPolling('5s')
+            ->databaseNotifications()
+            ->databaseNotificationsPolling('5s')
             ->sidebarCollapsibleOnDesktop()
             ->navigation(function (NavigationBuilder $builder): NavigationBuilder {
                 // if (DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] != 'Admin') {
@@ -168,6 +169,7 @@ class AppPanelProvider extends PanelProvider
                                 ->activeIcon('heroicon-o-user-circle')
                                 ->sort(9),
                             NavigationItem::make('Facilities')
+                                ->label('Amenities')
                                 ->hidden(!$user->can('view_any_master::facility'))
                                 ->url('/app/master/facilities')
                                 ->icon('heroicon-o-cube-transparent')
@@ -185,6 +187,7 @@ class AppPanelProvider extends PanelProvider
                                 ->activeIcon('heroicon-s-user-group')
                                 ->sort(11),
                             NavigationItem::make('In-house services')
+                                ->label('Personal services')
                                 ->hidden(!$user->can('view_any_master::service'))
                                 ->url('/app/master/services')
                                 ->icon('heroicon-m-wrench')
@@ -236,12 +239,13 @@ class AppPanelProvider extends PanelProvider
                                     ->activeIcon('heroicon-o-home')
                                     ->sort(2),
                                 NavigationItem::make('Facility bookings')
+                                    ->label('Amenity Bookings')
                                     ->url('/app/building/facility-bookings')
                                     ->visible($user->can('view_any_building::facility::booking'))
                                     ->icon('heroicon-o-cube-transparent')
                                     ->activeIcon('heroicon-o-cube-transparent')
                                     ->sort(3),
-                                NavigationItem::make('Service Bookings')
+                                NavigationItem::make('Personal Service Bookings')
                                     ->url('/app/building/service-bookings')
                                     ->visible($user->can('view_any_building::service::booking'))
                                     ->icon('heroicon-m-wrench')
@@ -253,7 +257,7 @@ class AppPanelProvider extends PanelProvider
                                     ->icon('heroicon-o-magnifying-glass-circle')
                                     ->activeIcon('heroicon-o-magnifying-glass-circle')
                                     ->sort(5),
-                                NavigationItem::make('Oa Complaint Reports')
+                                NavigationItem::make('OA Complaint Reports')
                                     ->url(OacomplaintReportsResource::getUrl('index'))
                                     ->visible($user->can('view_any_oacomplaint::reports'))
                                     ->icon('heroicon-c-clipboard-document')
@@ -491,9 +495,9 @@ class AppPanelProvider extends PanelProvider
                 ) {
                     $builder->groups([
                         //DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] == 'Admin' ? true : false view_any_building::building
-                        NavigationGroup::make('Forms')
+                        NavigationGroup::make('Request Forms')
                             ->items([
-                                NavigationItem::make('Guest registration')
+                                NavigationItem::make('Holiday Homes Guest Registration')
                                     ->url('/app/guest-registrations')
                                     ->hidden(!$user->can('view_any_guest::registration'))
                                     ->icon('heroicon-m-identification')
@@ -511,7 +515,7 @@ class AppPanelProvider extends PanelProvider
                                     ->icon('heroicon-s-arrow-left-circle')
                                     ->activeIcon('heroicon-s-arrow-left-circle')
                                     ->sort(3),
-                                NavigationItem::make('Fit out')
+                                NavigationItem::make('Fitout')
                                     ->url('/app/fit-out-forms-documents')
                                     ->hidden(!$user->can('view_any_fit::out::forms::document'))
                                     ->icon('heroicon-s-face-smile')
@@ -659,7 +663,7 @@ class AppPanelProvider extends PanelProvider
                 }
                 if ($user->can('view_any_helpdeskcomplaint')) {
                     $builder->groups([
-                        NavigationGroup::make('Help desk')
+                        NavigationGroup::make('Facility Support')
                             ->items([
                                 NavigationItem::make('Complaints')
                                     ->url('/app/helpdeskcomplaints')
@@ -686,6 +690,16 @@ class AppPanelProvider extends PanelProvider
                                     ->icon('heroicon-c-map-pin')
                                     ->activeIcon('heroicon-c-map-pin')
                                     ->sort(2),
+                            ]),
+                    ]);
+                }
+                if ($user->can('view_any_app::feedback')){
+                    $builder->groups([
+                        NavigationGroup::make('App Feedback')
+                            ->items([
+                                NavigationItem::make('App Feedback')
+                                    ->url(AppFeedbackResource::getUrl('index'))
+                                    ->icon('heroicon-s-pencil-square')
                             ]),
                     ]);
                 }

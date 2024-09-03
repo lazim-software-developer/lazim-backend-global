@@ -25,7 +25,6 @@ class ViewAsset extends ViewRecord
                 // return $pdf->download('qrcode.pdf');
                 return redirect('/qr_code')->with('data',$data);
             })
-
         ];
     }
 }

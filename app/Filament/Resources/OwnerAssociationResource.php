@@ -42,7 +42,7 @@ class OwnerAssociationResource extends Resource
                     'lg' => 2,
                 ])->schema([
                     TextInput::make('name')
-                        ->rules(['regex:/^[a-zA-Z\s]*$/'])
+                        ->rules(['regex:/^[a-zA-Z0-9\s]*$/'])
                         ->required()
                         ->disabled(function (callable $get) {
                             return DB::table('owner_associations')
@@ -65,18 +65,26 @@ class OwnerAssociationResource extends Resource
                             'regex'=>'Slug format is Invalid. It can only accept Lowercase letters, Numbers and hyphen'
                         ])
                         ->unique('owner_associations','slug', ignoreRecord:true)
-                        ->helperText(function(){
+                        // ->helperText(function(){
+                        //     if(Role::where('id',auth()->user()->role_id)->first()->name == 'Admin'){
+                        //         return new HtmlString(' <strong>Note:</strong> Updating the slug will require you to re-authenticate using the new slug URL to ensure secure access to your resources.');
+                        //     }else{
+                        //         return '' ;
+                        //     }
+                        // })
+                        // ->afterStateUpdated(function($state){
+                        //     if(!(Role::where('id',auth()->user()->role_id)->first()->name == 'Admin')){
+                        //         request()->session()->invalidate();
+                        //     }
+                        // })
+                        ->disabled(function(){
                             if(Role::where('id',auth()->user()->role_id)->first()->name == 'Admin'){
-                                return '' ;
+                                return false;
                             }else{
-                                return new HtmlString(' <strong>Note:</strong> Updating the slug will require you to re-authenticate using the new slug URL to ensure secure access to your resources.');
+                                return true;
                             }
                         })
-                        ->afterStateUpdated(function($state){
-                            if(!(Role::where('id',auth()->user()->role_id)->first()->name == 'Admin')){
-                                request()->session()->invalidate();
-                            }
-                        }),
+                        ,
                     TextInput::make('mollak_id')->label('Oa Number')
                         ->required()
                         ->disabled()
@@ -86,7 +94,7 @@ class OwnerAssociationResource extends Resource
                         ->disabled()
                         ->placeholder('TRN Number'),
                     TextInput::make('phone')
-                        ->rules(['regex:/^(971)(50|51|52|55|56|58|02|03|04|06|07|09)\d{7}$/',function (Model $record) {
+                        ->rules(['regex:/^\+?(971)(50|51|52|55|56|58|02|03|04|06|07|09)\d{7}$/',function (Model $record) {
                             return function (string $attribute, $value, Closure $fail) use($record) {
                                 if (DB::table('owner_associations')->whereNot('id',$record->id)->where('phone', $value)->count() > 0) {
                                     $fail('The phone is already taken by a OA.');
@@ -174,10 +182,11 @@ class OwnerAssociationResource extends Resource
                     FileUpload::make('profile_photo')
                         ->disk('s3')
                         ->directory('dev')
+                        ->previewable(true)
                         ->image()
                         ->maxSize(2048)
                         ->rules('file|mimes:jpeg,jpg,png|max:2048')
-                        ->label('Profile Photo')
+                        ->label('Logo')
                         ->disabled(function (callable $get) {
                             if(Role::where('id',auth()->user()->role_id)->first()->name == 'Admin')
                             {

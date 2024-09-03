@@ -15,8 +15,10 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class TenantResource extends Resource
 {
@@ -160,6 +162,19 @@ class TenantResource extends Resource
                     ->searchable()
                     ->preload()
                     ->label('Building'),
+                Filter::make('Property Number')
+                    ->form([
+                        TextInput::make('property_number')
+                            ->placeholder('Search Unit Number')->label('Unit'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        if (!empty($data['property_number'])) {
+                            return $query->whereHas('flat', function ($query) use ($data) {
+                                $query->where('property_number', $data['property_number']);
+                            });
+                        }
+                        return $query;
+                    }),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

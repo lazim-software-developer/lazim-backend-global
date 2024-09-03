@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\DB;
 class ListVisitorForms extends ListRecords
 {
     protected static string $resource = VisitorFormResource::class;
-    protected static ?string $title   = 'Flat visitors';
+    protected static ?string $title   = 'Visitors';
 
     protected function getHeaderActions(): array
     {
@@ -20,7 +20,7 @@ class ListVisitorForms extends ListRecords
     }
     protected function getTableQuery(): Builder
     {
-        return auth()->user()->role->name == 'Admin' ? parent::getTableQuery() :
+        return auth()->user()->role->name == 'Admin' ? parent::getTableQuery():
         parent::getTableQuery()->where('owner_association_id', auth()->user()?->owner_association_id);
     }
 }

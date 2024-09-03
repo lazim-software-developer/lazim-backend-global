@@ -13,7 +13,7 @@
 </tr>
 <tr>
 	<td class="paragraph">
-		FitOut request has been submitted, you will find a link below.
+		Fitout request has been submitted, you will find a link below.
 	</td>
 </tr>
 <tr>
@@ -21,7 +21,7 @@
 </tr>
 <tr>
 	<td class="paragraph">
-		<a href="https://lazim-resident.vercel.app/forms/fitout/{{$id}}">Link</a>
+		<a href= "{{ env('CONTRACTOR_REQUEST_PAGE') . '/' . $id }}">Link</a>
 	</td>
 </tr>
 <tr>

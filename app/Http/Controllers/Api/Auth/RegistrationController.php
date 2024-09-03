@@ -25,14 +25,15 @@ use Illuminate\Support\Facades\DB;
 
 class RegistrationController extends Controller
 {
-    public function registerWithEmailPhone(RegisterRequest $request) {
+    public function registerWithEmailPhone(RegisterRequest $request)
+    {
 
         $userData = User::where(['email' => $request->get('email'), 'phone' => $request->get('mobile')]);
-        if ($request->type == 'Owner'){
-            $userData->where('owner_id' , $request->get('owner_id'));
+        if ($request->type == 'Owner') {
+            $userData->where('owner_id', $request->get('owner_id'));
         }
 
-        if($userData->exists() && ($userData->first()->email_verified == 0 )) {
+        if ($userData->exists() && ($userData->first()->email_verified == 0)) {
             return (new CustomResponseResource([
                 'title' => 'account_present',
                 'message' => "Your account is not verified. You'll be redirected to account verification page",
@@ -42,7 +43,7 @@ class RegistrationController extends Controller
         }
 
         // If email is verified,
-        if($userData->exists() && ( $userData->first()->phone_verified == 0)) {
+        if ($userData->exists() && ($userData->first()->phone_verified == 0)) {
             return (new CustomResponseResource([
                 'title' => 'account_present',
                 'message' => "Your account is not verified. You'll be redirected to account verification page",
@@ -88,9 +89,9 @@ class RegistrationController extends Controller
         }
 
         if ($type === 'Owner') {
-            $queryModel = $flat->owners()->where('apartment_owners.id',$request->owner_id);
+            $queryModel = $flat->owners()->where('apartment_owners.id', $request->owner_id);
         } else {
-            $queryModel = MollakTenant::where(['email' => $request->email, 'mobile' => $request->mobile, 'building_id'=> $request->building_id, 'flat_id' => $request->flat_id]);
+            $queryModel = MollakTenant::where(['email' => $request->email, 'mobile' => $request->mobile, 'building_id' => $request->building_id, 'flat_id' => $request->flat_id]);
         }
 
         if (!$queryModel->exists()) {
@@ -100,8 +101,7 @@ class RegistrationController extends Controller
                     'message' => "Your details are not matching with Mollak data. Please use your Title Deed instead",
                     'code' => 400,
                 ]))->response()->setStatusCode(400);
-            }
-            else{
+            } else {
                 return (new CustomResponseResource([
                     'title' => 'Error',
                     'message' => "Your details are not matching with Mollak data. Please use your Ejari document instead",
@@ -119,6 +119,7 @@ class RegistrationController extends Controller
 
         // If the check passes, store the user details in the users table
         // Fetch building
+        $owner_association_id = DB::table('building_owner_association')->where('building_id', $request->building_id)->where('active', true)->first()?->owner_association_id;
         $building = Building::where('id', $request->building_id)->first();
         $user = User::create([
             'email' => $request->email,
@@ -126,8 +127,21 @@ class RegistrationController extends Controller
             'phone' => $request->mobile,
             'role_id' => $role,
             'active' => 1,
-            'owner_association_id' => $building->owner_association_id,
-            'owner_id' => $request->owner_id?: null,
+            'owner_association_id' => $owner_association_id,
+            'owner_id' => $request->owner_id ?: null,
+        ]);
+        $connection = DB::connection('lazim_accounts');
+        $created_by = $connection->table('users')->where(['type' => 'building', 'building_id' => $request->building_id])->first()->id;
+        $customerId = $connection->table('customers')->where('created_by', $created_by)->orderByDesc('customer_id')->first()?->customer_id + 1;
+        $connection->table('customers')->insert([
+            'customer_id' => $customerId,
+            'name' => $firstName,
+            'email'                => $request->email,
+            'contact' => $request->mobile,
+            'type' => $type,
+            'lang' => 'en',
+            'created_by' => $created_by,
+            'is_enable_login' => 0,
         ]);
 
         // Store details to Flat tenants table
@@ -143,11 +157,21 @@ class RegistrationController extends Controller
             'owner_association_id' => $building->owner_association_id,
         ]);
 
+        // $customer = $connection->table('customers')->where(['email'=> $request->email,
+        //     'contact' => $request->mobile])->first();
+        // $property = Flat::find($request->flat_id)?->property_number;
+        // $connection->table('customer_flat')->insert([
+        //     'customer_id' => $customer?->id,
+        //     'flat_id' => $request->flat_id,
+        //     'building_id' => $request->building_id,
+        //     'property_number' => $property
+        // ]);
+
         // Send email after 5 seconds
         SendVerificationOtp::dispatch($user)->delay(now()->addSeconds(5));
 
         // Find all the flats that this user is owner of and attach them to flat_tenant table using the job
-        AssignFlatsToTenant::dispatch($request->email,$request->mobile,$request->owner_id)->delay(now()->addSeconds(5));
+        AssignFlatsToTenant::dispatch($request->email, $request->mobile, $request->owner_id, $customerId, $type)->delay(now()->addSeconds(5));
 
         return (new CustomResponseResource([
             'title' => 'Registration successful!',
@@ -157,14 +181,15 @@ class RegistrationController extends Controller
         ]))->response()->setStatusCode(201);
     }
 
-    public function registerWithDocument(RegisterWithEmiratesOrPassportRequest $request) {
+    public function registerWithDocument(RegisterWithEmiratesOrPassportRequest $request)
+    {
         $userData = User::where(['email' => $request->get('email'), 'phone' => $request->get('mobile')]);
-        if ($request->type == 'Owner'){
-            $userData->where('owner_id' , $request->get('owner_id'));
+        if ($request->type == 'Owner') {
+            $userData->where('owner_id', $request->get('owner_id'));
         }
 
 
-        if($userData->exists() && ($userData->first()->email_verified == 0 )) {
+        if ($userData->exists() && ($userData->first()->email_verified == 0)) {
             return (new CustomResponseResource([
                 'title' => 'account_present',
                 'message' => "Your account is not verified. You'll be redirected to account verification page",
@@ -174,7 +199,7 @@ class RegistrationController extends Controller
         }
 
         // If email is verified,
-        if($userData->exists() && ( $userData->first()->phone_verified == 0)) {
+        if ($userData->exists() && ($userData->first()->phone_verified == 0)) {
             return (new CustomResponseResource([
                 'title' => 'account_present',
                 'message' => "Your account is not verified. You'll be redirected to account verification page",
@@ -224,6 +249,7 @@ class RegistrationController extends Controller
 
         // If the check passes, store the user details in the users table
         $building = Building::where('id', $request->building_id)->first();
+        $owner_association_id = DB::table('building_owner_association')->where('building_id', $request->building_id)->where('active', true)->first()?->owner_association_id;
 
         $user = User::create([
             'email' => $request->email, // Assuming email is still provided for communication
@@ -231,20 +257,34 @@ class RegistrationController extends Controller
             'phone' => $request->mobile, // Assuming phone is still provided for communication
             'role_id' => $role,
             'active' => 0,
-            'owner_association_id' => $building->owner_association_id,
+            'owner_association_id' => $owner_association_id,
+        ]);
+
+        $connection = DB::connection('lazim_accounts');
+        $created_by = $connection->table('users')->where(['type' => 'building', 'building_id' => $request->building_id])->first()->id;
+        $customerId = $connection->table('customers')->where('created_by', $created_by)->orderByDesc('customer_id')->first()?->customer_id + 1;
+        $connection->table('customers')->insert([
+            'customer_id' => $customerId,
+            'name' => $request->name,
+            'email'  => $request->email,
+            'contact' => $request->mobile,
+            'type' => $type,
+            'lang' => 'en',
+            'created_by' => $created_by,
+            'is_enable_login' => 0,
         ]);
 
         $imagePath = optimizeDocumentAndUpload($request->document, 'dev');
         $emirates = optimizeDocumentAndUpload($request->emirates_document, 'dev');
         $passport = optimizeDocumentAndUpload($request->passport_document, 'dev');
 
-        $oam_id = DB::table('building_owner_association')->where('building_id',$request->building_id)->where('active', true)->first();
-        $oam = OwnerAssociation::find($oam_id->owner_association_id?:auth()->user()->ownerAssociation->id);
+        $oam_id = DB::table('building_owner_association')->where('building_id', $request->building_id)->where('active', true)->first();
+        $oam = OwnerAssociation::find($oam_id->owner_association_id ?: auth()->user()->ownerAssociation->id);
 
         $userApproval = UserApproval::create([
             'user_id' => $user->id,
             'document' => $imagePath,
-            'document_type' => $request->type == 'Owner'? 'Title Deed': 'Ejari',
+            'document_type' => $request->type == 'Owner' ? 'Title Deed' : 'Ejari',
             'emirates_document' => $emirates,
             'passport' => $passport,
             'flat_id' => $request->flat_id,
@@ -257,11 +297,21 @@ class RegistrationController extends Controller
             'tenant_id' => $user->id,
             'primary' => true,
             'building_id' => $request->building_id,
-            'start_date' =>  null,
+            'start_date' =>  now(),
             'end_date' => null,
             'active' => 1,
             'role' => $type,
-            'owner_association_id' => $building->owner_association_id,
+            'owner_association_id' => $owner_association_id,
+        ]);
+
+        $customer = $connection->table('customers')->where(['email'=> $request->email,
+            'contact' => $request->mobile])->first();
+        $property = Flat::find($request->flat_id)?->property_number;
+        $connection->table('customer_flat')->insert([
+            'customer_id' => $customer?->id,
+            'flat_id' => $request->flat_id,
+            'building_id' => $request->building_id,
+            'property_number' => $property
         ]);
 
         // Send email after 5 seconds
@@ -275,6 +325,46 @@ class RegistrationController extends Controller
         ]))->response()->setStatusCode(201);
     }
 
+    public function reuploadDocument(Request $request,UserApproval $resident){
+        if($resident->status == null){
+            return (new CustomResponseResource([
+                'title' => 'Error',
+                'message' => 'Your last changes is not yet approved!',
+                'code' => 400,
+            ]))->response()->setStatusCode(400);
+        }
+        if($resident->status == 'approved'){
+            return (new CustomResponseResource([
+                'title' => 'Error',
+                'message' => 'Your account is already approved!',
+                'code' => 400,
+            ]))->response()->setStatusCode(400);
+        }
+        $request->validate([
+            'document' => 'required|file|max:2048|mimes:pdf,jpg,jpeg,png,doc,docx',
+            'emirates_document' => 'required|file|max:2048|mimes:pdf,jpg,jpeg,png,doc,docx',
+            'passport_document' => 'required|file|max:2048|mimes:pdf,jpg,jpeg,png,doc,docx',
+        ]);
+        
+        $imagePath = optimizeDocumentAndUpload($request->document, 'dev');
+        $emirates = optimizeDocumentAndUpload($request->emirates_document, 'dev');
+        $passport = optimizeDocumentAndUpload($request->passport_document, 'dev');
+
+        $userApproval = $resident->update([
+            'document' => $imagePath,
+            'emirates_document' => $emirates,
+            'passport_document' => $passport,
+            'status' => null,
+            'remarks' => null,
+        ]);
+
+        return (new CustomResponseResource([
+            'title' => 'Document submitted!',
+            'message' => "Document submitted succesfully!",
+            'code' => 201,
+        ]))->response()->setStatusCode(201);
+    }
+
     public function resendOtp(ResendOtpRequest $request)
     {
         // Validate the type and contact_value
@@ -284,7 +374,7 @@ class RegistrationController extends Controller
         // Generate OTP
         $otp = rand(1000, 9999);
 
-        if($type == 'email') {
+        if ($type == 'email') {
             $user = user::where('email', $contactValue)->when($request->has('owner_id'), function ($query) use ($request) {
                 return $query->where('owner_id', $request->owner_id);
             })->first();
@@ -294,14 +384,14 @@ class RegistrationController extends Controller
             })->first();
         }
 
-        if($user) {
+        if ($user) {
 
             // Check if email or phone is already verified. If yes, don't need to verify again
 
-            if(($type == 'email' && $user->email_verified) || ($type == 'phone' && $user->phone_verified)) {
+            if (($type == 'email' && $user->email_verified) || ($type == 'phone' && $user->phone_verified)) {
                 return (new CustomResponseResource([
                     'title' => 'Error',
-                    'message' => 'The provided '.$type.' is already verified.',
+                    'message' => 'The provided ' . $type . ' is already verified.',
                     'code' => 404,
                 ]))->response()->setStatusCode(404);
             }
@@ -327,41 +417,42 @@ class RegistrationController extends Controller
 
         return (new CustomResponseResource([
             'title' => 'Error',
-            'message' => 'The provided '.$type.' is not registered in our system.',
+            'message' => 'The provided ' . $type . ' is not registered in our system.',
             'code' => 404,
         ]))->response()->setStatusCode(404);
     }
 
-    public function ownerList(Flat $flat){
+    public function ownerList(Flat $flat)
+    {
 
-        $owners =$flat->owners()->get();
+        $owners = $flat->owners()->get();
 
-        $owners = $owners->filter(function($owner){
-            if(!$owner->users()
-            ->where('email_verified', 1)
-            ->where('phone_verified', 1)
-            ->exists()){
+        $owners = $owners->filter(function ($owner) {
+            if (!$owner->users()
+                ->where('email_verified', 1)
+                ->where('phone_verified', 1)
+                ->exists()) {
                 return $owner;
             };
         });
 
         return RegisterOwnersList::collection($owners);
-
     }
 
-    public function ownerDetails(ApartmentOwner $owner){
+    public function ownerDetails(ApartmentOwner $owner)
+    {
         return ['data' => [
             'email' => $owner->email,
             'phone' => $owner->mobile
         ]];
     }
 
-    public function allOwners(Request $request){
+    public function allOwners(Request $request)
+    {
 
-        $users = User::where('email',$request->email)->pluck('owner_id');
-        $owners = ApartmentOwner::whereIn('id',$users)->get();
+        $users = User::where('email', $request->email)->pluck('owner_id');
+        $owners = ApartmentOwner::whereIn('id', $users)->get();
 
         return RegisterOwnersList::collection($owners);
     }
-
 }

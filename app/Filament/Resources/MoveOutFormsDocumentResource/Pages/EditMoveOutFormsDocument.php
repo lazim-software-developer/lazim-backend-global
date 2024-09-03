@@ -62,8 +62,8 @@ class EditMoveOutFormsDocument extends EditRecord
                         'updated_at' => now()->format('Y-m-d H:i:s'),
                     ]);
                 $security= $this->record->building->buildingPocs->where('active',true)->where('role_name','security')->first();
-                if($security->exists()) {
-                    $id = $security->first()->user_id;
+                if($security?->exists()) {
+                    $id = $security?->first()?->user_id;
                     $expoPushTokens = ExpoPushNotification::where('user_id', $id)->pluck('token');
                     if ($expoPushTokens->count() > 0) {
                         foreach ($expoPushTokens as $expoPushToken) {
@@ -71,7 +71,7 @@ class EditMoveOutFormsDocument extends EditRecord
                                 'to' => $expoPushToken,
                                 'sound' => 'default',
                                 'title' => 'Move-out',
-                                'body' => 'New move-out.',
+                                'body' => 'New move-out form received.',
                                 'data' => ['notificationType' => 'Move-out'],
                             ];
                             $this->expoNotification($message);
@@ -84,7 +84,7 @@ class EditMoveOutFormsDocument extends EditRecord
                                 'notifiable_id' => $id,
                                 'data' => json_encode([
                                     'actions' => [],
-                                    'body' => 'New move-out.',
+                                    'body' => 'New move-out form received.',
                                     'duration' => 'persistent',
                                     'icon' => 'heroicon-o-document-text',
                                     'iconColor' => 'warning',
