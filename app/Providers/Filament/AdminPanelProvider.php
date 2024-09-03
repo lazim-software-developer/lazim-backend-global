@@ -11,6 +11,7 @@ use Filament\Support\Colors\Color;
 use Illuminate\Support\Facades\DB;
 use Filament\Navigation\NavigationItem;
 use App\Filament\Pages\Auth\EditProfile;
+use App\Filament\Resources\ActivityResource;
 use App\Filament\Resources\AgingReportResource;
 use App\Filament\Resources\AssetMaintenanceResource;
 use App\Filament\Resources\BankStatementResource;
@@ -58,6 +59,9 @@ class AdminPanelProvider extends PanelProvider
             ->tenant(OwnerAssociation::class,ownershipRelationship: 'ownerAssociation', slugAttribute: 'slug')
             ->tenantDomain('{tenant:slug}.'.env('APP_URL'))
             ->login()
+             ->resources([
+                 config('filament-logger.activity_resource')
+                ])
             ->profile(EditProfile::class)
             ->colors([
 
@@ -498,7 +502,7 @@ class AdminPanelProvider extends PanelProvider
                 $user->can('view_any_access::card::forms::document')||
                 $user->can('view_any_residential::form')||
                 $user->can('view_any_noc::form')||
-                $user->can('view_any_visitor::form') || 
+                $user->can('view_any_visitor::form') ||
                 $user->can('view_any_family::member')
                 ) {
                     $builder->groups([
@@ -699,6 +703,18 @@ class AdminPanelProvider extends PanelProvider
                                     ->activeIcon('heroicon-c-map-pin')
                                     ->sort(2),
                             ]),
+
+                    ]);
+                }
+                if ($user->can('view_any_activity') || $user->can('view_activity')){
+                    $builder->groups([
+                        NavigationGroup::make('Activity Logs')
+                            ->items([
+                                NavigationItem::make('Activity')
+                                    ->url(ActivityResource::getUrl('index'))
+                                    ->icon('heroicon-o-clipboard-document-list')
+                            ])
+
                     ]);
                 }
                 return $builder;
