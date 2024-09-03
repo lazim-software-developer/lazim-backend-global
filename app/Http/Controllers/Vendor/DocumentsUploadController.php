@@ -43,7 +43,7 @@ class DocumentsUploadController extends Controller
 
         return (new CustomResponseResource([
             'title' => 'Documents upload successful!',
-            'message' => "",
+            'message' => "Documents uploaded successfully!",
             'code' => 201,
             'status' => 'success'
         ]))->response()->setStatusCode(201);
