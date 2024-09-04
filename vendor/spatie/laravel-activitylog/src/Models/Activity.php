@@ -136,39 +136,19 @@ class Activity extends Model implements ActivityContract
         parent::boot();
 
         static::creating(function ($activity) {
-            // Define the attributes that should be unique
-            $attributes = [
-                'log_name' => (string) $activity->log_name,
-                'description' => (string) $activity->description,
-                'subject_type' => (string) $activity->subject_type,
-                'event' => (string) $activity->event,
-                'subject_id' => (int) $activity->subject_id,
-                'causer_type' => (string) $activity->causer_type,
-                'causer_id' => (int) $activity->causer_id,
-                // 'properties' => json_encode($activity->properties),
-                'batch_uuid' => $activity->batch_uuid,
-            ];
-        
-            // Log the attributes for debugging
-            Log::info($attributes);
-        
             // Generate a hash of the JSON column
             $jsonHash = md5(json_encode($activity->properties));
-        
-            // Add the hash to the attributes array
-            $attributes['json_hash'] = $jsonHash;
-        
-            // Check if a record with these attributes already exists
-            $existingActivity = Activity::where($attributes)->first();
-        
+
+            // Check if a record with this hash already exists
+            $existingActivity = Activity::where('json_hash', $jsonHash)->first();
+
             if ($existingActivity) {
                 // If a duplicate is found, cancel the creation
                 return false;
             }
-        
+
             // Set the hash value to the activity
             $activity->json_hash = $jsonHash;
         });
-        
     }
 }
