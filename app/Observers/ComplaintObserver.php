@@ -225,10 +225,10 @@ class ComplaintObserver
                     });
                 Notification::make()
                     ->success()
-                    ->title("Facility Support Complaint Resolution ")
+                    ->title("Facility Support Issue Resolution")
                     ->icon('heroicon-o-document-text')
                     ->iconColor('warning')
-                    ->body('Complaint has been resolved by a ' . $user->role->name . ' ' . auth()->user()->first_name)
+                    ->body('Issue has been resolved by a ' . $user->role->name . ' ' . auth()->user()->first_name)
                     ->actions([
                         Action::make('view')
                             ->button()

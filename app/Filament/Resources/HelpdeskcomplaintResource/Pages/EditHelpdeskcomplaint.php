@@ -49,8 +49,8 @@ class EditHelpdeskcomplaint extends EditRecord
                     $message = [
                         'to' => $expoPushToken,
                         'sound' => 'default',
-                        'title' => 'Facility support complaint status',
-                        'body' => 'A complaint has been resolved by a ' . $role->name . ' ' . auth()->user()->first_name,
+                        'title' => 'Facility support issue status',
+                        'body' => 'A issue has been resolved by a ' . $role->name . ' ' . auth()->user()->first_name,
                         'data' => ['notificationType' => $this->record->complaint_type == 'help_desk'? 'HelpDeskTabResolved':'InAppNotficationScreen'],
                     ];
                     $this->expoNotification($message);
@@ -63,11 +63,11 @@ class EditHelpdeskcomplaint extends EditRecord
                         'notifiable_id' => $this->record->user_id,
                         'data' => json_encode([
                             'actions' => [],
-                            'body' => 'A complaint has been resolved by a ' . $role->name . ' ' . auth()->user()->first_name,
+                            'body' => 'A issue has been resolved by a ' . $role->name . ' ' . auth()->user()->first_name,
                             'duration' => 'persistent',
                             'icon' => 'heroicon-o-document-text',
                             'iconColor' => 'warning',
-                            'title' => 'Facility support complaint status',
+                            'title' => 'Facility support issue status',
                             'view' => 'notifications::notification',
                             'viewData' => [],
                             'format' => 'filament',
