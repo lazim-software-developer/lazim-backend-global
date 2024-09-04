@@ -691,7 +691,7 @@ class AdminPanelProvider extends PanelProvider
                     $builder->groups([
                         NavigationGroup::make('Facility Support')
                             ->items([
-                                NavigationItem::make('Complaints')
+                                NavigationItem::make('Issues')
                                     ->url('/admin/helpdeskcomplaints')
                                     ->hidden(!$user->can('view_any_helpdeskcomplaint'))
                                     ->icon('heroicon-m-clipboard-document-list')
