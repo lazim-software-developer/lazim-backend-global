@@ -42,12 +42,11 @@ class VehicleResource extends Resource
                     'vehicle_number',
                     fn(?Model $record) => $record
                 )->required(),
-                TextInput::make('makani_number')->alphaNum()->unique(
+                TextInput::make('parking_number')->alphaNum()->maxLength(10)->unique(
                     'vehicles',
-                    'makani_number',
+                    'parking_number',
                     fn(?Model $record) => $record
                 )->required(),
-
                 Select::make('building')
                     ->required()
                     ->options(function () {
@@ -90,6 +89,7 @@ class VehicleResource extends Resource
                     ->live(),
 
                 Select::make('user_id')->label('Resident')->searchable()->preload()->required()->disabledOn('edit')
+                    ->relationship('user','first_name')
                     ->options(function (Get $get) {
                         if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
                             return User::all()->whereIn('role_id', Role::whereIn('name', ['Tenant', 'Owner'])->pluck('id'))->pluck('first_name', 'id');
@@ -109,7 +109,7 @@ class VehicleResource extends Resource
         return $table->modifyQueryUsing(fn(Builder $query) => $query->orderBy('created_at', 'desc')->withoutGlobalScopes())
             ->columns([
                 TextColumn::make('vehicle_number')->searchable(),
-                TextColumn::make('makani_number'),
+                TextColumn::make('parking_number'),
                 TextColumn::make('user.first_name')->label('Resident')->searchable(),
                 TextColumn::make('Building')
                     ->getStateUsing(function ($record) {
