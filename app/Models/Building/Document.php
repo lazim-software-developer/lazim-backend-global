@@ -16,6 +16,8 @@ class Document extends Model
     use HasFactory;
     use Searchable;
 
+    protected $connection = 'mysql';
+
     protected $fillable = [
         'document_library_id',
         'owner_association_id',

@@ -13,6 +13,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Asset extends Model
 {
     use HasFactory;
+    protected $connection = 'mysql';
+    
     protected $fillable = [
         'building_id',
         'name',

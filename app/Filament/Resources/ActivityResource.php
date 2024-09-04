@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Models\User\User;
 use Filament\Facades\Filament;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Group;
@@ -126,7 +127,12 @@ class ActivityResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn(Builder $query) => $query->latest())
+        ->modifyQueryUsing(function (Builder $query) {
+            $userId = User::where('owner_association_id',auth()->user()->owner_association_id)->pluck('id');
+            $query->whereIn('causer_id',$userId);
+            
+            return $query->latest();
+        })
             ->columns([
                 // TextColumn::make('log_name')
                 //     ->badge()
@@ -141,8 +147,8 @@ class ActivityResource extends Resource
 
                 TextColumn::make('description')
                     ->label(__('filament-logger::filament-logger.resource.label.description'))
-                    ->toggleable()
-                    ->toggledHiddenByDefault()
+                    // ->toggleable()
+                    // ->toggledHiddenByDefault()
                     ->wrap(),
 
                 // TextColumn::make('subject_type')
@@ -164,7 +170,7 @@ class ActivityResource extends Resource
                         }
                         $subject     = $record->subject;
                         $subjectName = $subject ? ($subject->name ?? $subject->title ?? 'Unknown') : '-';
-                        return Str::of($state)->afterLast('\\')->headline() . ': ' . $subjectName;
+                        return Str::of($state)->afterLast('\\')->headline();
                     }),
 
                 TextColumn::make('causer.name')
@@ -178,55 +184,55 @@ class ActivityResource extends Resource
             ->defaultSort('created_at', 'desc')
             ->bulkActions([])
             ->filters([
-                SelectFilter::make('log_name')
-                    ->label(__('filament-logger::filament-logger.resource.label.type'))
-                    ->options(static::getLogNameList()),
+                // SelectFilter::make('log_name')
+                //     ->label(__('filament-logger::filament-logger.resource.label.type'))
+                //     ->options(static::getLogNameList()),
 
-                SelectFilter::make('subject_type')
-                    ->label(__('filament-logger::filament-logger.resource.label.subject_type'))
-                    ->options(static::getSubjectTypeList()),
+                // SelectFilter::make('subject_type')
+                //     ->label(__('filament-logger::filament-logger.resource.label.subject_type'))
+                //     ->options(static::getSubjectTypeList()),
 
-                Filter::make('properties->old')
-                    ->indicateUsing(function (array $data): ?string {
-                        if (!$data['old']) {
-                            return null;
-                        }
+                // Filter::make('properties->old')
+                //     ->indicateUsing(function (array $data): ?string {
+                //         if (!$data['old']) {
+                //             return null;
+                //         }
 
-                        return __('filament-logger::filament-logger.resource.label.old_attributes') . $data['old'];
-                    })
-                    ->form([
-                        TextInput::make('old')
-                            ->label(__('filament-logger::filament-logger.resource.label.old'))
-                            ->hint(__('filament-logger::filament-logger.resource.label.properties_hint')),
-                    ])
-                    ->query(function (Builder $query, array $data): Builder {
-                        if (!$data['old']) {
-                            return $query;
-                        }
+                //         return __('filament-logger::filament-logger.resource.label.old_attributes') . $data['old'];
+                //     })
+                //     ->form([
+                //         TextInput::make('old')
+                //             ->label(__('filament-logger::filament-logger.resource.label.old'))
+                //             ->hint(__('filament-logger::filament-logger.resource.label.properties_hint')),
+                //     ])
+                //     ->query(function (Builder $query, array $data): Builder {
+                //         if (!$data['old']) {
+                //             return $query;
+                //         }
 
-                        return $query->where('properties->old', 'like', "%{$data['old']}%");
-                    }),
+                //         return $query->where('properties->old', 'like', "%{$data['old']}%");
+                //     }),
 
-                Filter::make('properties->attributes')
-                    ->indicateUsing(function (array $data): ?string {
-                        if (!$data['new']) {
-                            return null;
-                        }
+                // Filter::make('properties->attributes')
+                //     ->indicateUsing(function (array $data): ?string {
+                //         if (!$data['new']) {
+                //             return null;
+                //         }
 
-                        return __('filament-logger::filament-logger.resource.label.new_attributes') . $data['new'];
-                    })
-                    ->form([
-                        TextInput::make('new')
-                            ->label(__('filament-logger::filament-logger.resource.label.new'))
-                            ->hint(__('filament-logger::filament-logger.resource.label.properties_hint')),
-                    ])
-                    ->query(function (Builder $query, array $data): Builder {
-                        if (!$data['new']) {
-                            return $query;
-                        }
+                //         return __('filament-logger::filament-logger.resource.label.new_attributes') . $data['new'];
+                //     })
+                //     ->form([
+                //         TextInput::make('new')
+                //             ->label(__('filament-logger::filament-logger.resource.label.new'))
+                //             ->hint(__('filament-logger::filament-logger.resource.label.properties_hint')),
+                //     ])
+                //     ->query(function (Builder $query, array $data): Builder {
+                //         if (!$data['new']) {
+                //             return $query;
+                //         }
 
-                        return $query->where('properties->attributes', 'like', "%{$data['new']}%");
-                    }),
+                //         return $query->where('properties->attributes', 'like', "%{$data['new']}%");
+                //     }),
 
                 Filter::make('created_at')
                     ->form([

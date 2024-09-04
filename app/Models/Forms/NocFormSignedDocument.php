@@ -10,6 +10,8 @@ class NocFormSignedDocument extends Model
 {
     use HasFactory;
 
+    protected $connection = 'mysql';
+
     protected $fillable = [
         'noc_form_id',
         'document',

@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Model;
 class MoveInOut extends Model
 {
     use HasFactory;
+    protected $connection = 'mysql';
     protected $fillable = [
         'name',
         'email',
