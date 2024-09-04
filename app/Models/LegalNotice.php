@@ -9,6 +9,8 @@ class LegalNotice extends Model
 {
     use HasFactory;
 
+    protected $connection = 'mysql';
+
     protected $table = 'legal_notice';
 
     protected $fillable = ['legalNoticeId', 'building_id', 'flat_id', 'owner_association_id', 'mollakPropertyId', 'registrationDate', 'registrationNumber',

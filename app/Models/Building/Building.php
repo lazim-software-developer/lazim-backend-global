@@ -53,6 +53,8 @@ class Building extends Model
 {
     use HasFactory, Searchable;
 
+    protected $connection = 'mysql';
+
     protected $fillable = [
         'name',
         'property_group_id',

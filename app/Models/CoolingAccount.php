@@ -12,6 +12,8 @@ class CoolingAccount extends Model
 {
     use HasFactory;
 
+    protected $connection = 'mysql';
+
     protected $table = 'cooling_accounts';
 
     protected $fillable = [
