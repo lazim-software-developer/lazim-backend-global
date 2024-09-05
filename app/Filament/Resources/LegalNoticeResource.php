@@ -111,12 +111,14 @@ class LegalNoticeResource extends Resource
                     ->label('Registration Number'),
 
                 TextColumn::make('invoiceNumber')
-                    ->label('Invoice Number'),
+                    ->label('Invoice Number')->searchable(),
 
                 TextColumn::make('invoicePeriod')
                     ->label('Invoice Period'),
 
-                TextColumn::make('building.name'),
+                TextColumn::make('building.name')->searchable(),
+
+                TextColumn::make('flat.property_number')->searchable(),
 
             ])
             ->filters([
@@ -176,8 +178,7 @@ class LegalNoticeResource extends Resource
                 Tables\Actions\BulkActionGroup::make([
                     // Tables\Actions\DeleteBulkAction::make(),
                 ]),
-            ])
-            ->searchPlaceholder('Search Legal Notice ID');;
+            ]);
     }
 
     public static function getRelations(): array
