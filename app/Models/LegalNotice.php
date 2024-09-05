@@ -12,7 +12,8 @@ class LegalNotice extends Model
     protected $table = 'legal_notice';
 
     protected $fillable = ['legalNoticeId', 'building_id', 'flat_id', 'owner_association_id', 'mollakPropertyId', 'registrationDate', 'registrationNumber',
-                            'invoiceNumber','invoicePeriod', 'previousBalance', 'invoiceAmount', 'approvedLegalAmount', 'legalNoticePDF', 'isRDCCaseStart', 'isRDCCaseEnd'];
+                            'invoiceNumber','due_date','case_status','case_number','case_type',
+                            'invoicePeriod', 'previousBalance', 'invoiceAmount', 'approvedLegalAmount', 'legalNoticePDF', 'isRDCCaseStart', 'isRDCCaseEnd'];
 
     protected $cast = ['isRDCCaseStart', 'isRDCCaseEnd'];
 }
