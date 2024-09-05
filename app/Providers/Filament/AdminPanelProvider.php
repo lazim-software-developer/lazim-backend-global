@@ -12,12 +12,12 @@ use App\Models\Master\Role;
 use Filament\PanelProvider;
 use App\Models\OwnerAssociation;
 // use App\Filament\Pages\Dashboard;
+use App\Filament\Pages\Dashboard;
 use Filament\Support\Colors\Color;
 use Illuminate\Support\Facades\DB;
 use App\Filament\Resources\WDAResource;
 use Filament\Navigation\NavigationItem;
 use App\Filament\Pages\Auth\EditProfile;
-use App\Filament\Pages\Dashboard;
 use App\Filament\Resources\DemoResource;
 use Filament\Navigation\NavigationGroup;
 use Filament\Http\Middleware\Authenticate;
@@ -27,6 +27,7 @@ use App\Filament\Resources\IncidentResource;
 use App\Filament\Resources\User\UserResource;
 use App\Filament\Resources\PatrollingResource;
 use App\Filament\Resources\AgingReportResource;
+use App\Filament\Resources\LegalNoticeResource;
 use Illuminate\Session\Middleware\StartSession;
 use App\Filament\Resources\FamilyMemberResource;
 use App\Filament\Resources\LegalOfficerResource;
@@ -46,10 +47,10 @@ use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use App\Filament\Resources\OwnerAssociationInvoiceResource;
-use App\Filament\Resources\OwnerAssociationReceiptResource;
 // use Filament\Pages\Dashboard;
-use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
+use App\Filament\Resources\OwnerAssociationReceiptResource;
 use Leandrocfe\FilamentApexCharts\FilamentApexChartsPlugin;
+use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -717,6 +718,17 @@ class AdminPanelProvider extends PanelProvider
                                     ->icon('heroicon-c-map-pin')
                                     ->activeIcon('heroicon-c-map-pin')
                                     ->sort(2),
+                            ])
+                            ->collapsed(true),
+                    ]);
+                }
+                if ($user->can('view_any_legal::notice')){
+                    $builder->groups([
+                        NavigationGroup::make('Leagal Notice')
+                            ->items([
+                                NavigationItem::make('Leagal Notice')
+                                    ->url(LegalNoticeResource::getUrl('index'))
+                                    ->icon('heroicon-s-swatch')
                             ])
                             ->collapsed(true),
                     ]);
