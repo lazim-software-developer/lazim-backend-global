@@ -6,6 +6,7 @@ use Filament\Tables;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use App\Models\Master\Role;
+use Filament\Facades\Filament;
 use Filament\Resources\Resource;
 use App\Models\Building\FlatTenant;
 use Filament\Forms\Components\Grid;
@@ -16,9 +17,9 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\DatePicker;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
-use App\Filament\Resources\Building\FlatTenantResource\Pages;
-use Filament\Facades\Filament;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
+use App\Filament\Resources\Building\FlatTenantResource\Pages;
+use App\Filament\Resources\FlatTenantResource\RelationManagers\FamilyMembersRelationManager;
 
 class FlatTenantResource extends Resource
 {
@@ -136,6 +137,7 @@ class FlatTenantResource extends Resource
         return [
             // FlatTenantResource\RelationManagers\DocumentsRelationManager::class,
             // FlatTenantResource\RelationManagers\ComplaintsRelationManager::class,
+            FamilyMembersRelationManager::class
         ];
     }
 
