@@ -44,6 +44,7 @@ use App\Models\Building\Complaint;
 use App\Models\Visitor\FlatVisitor;
 use App\Models\Building\BuildingPoc;
 use App\Models\Accounting\OAMInvoice;
+use App\Models\LegalNotice;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Visitor\FlatDomesticHelp;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -288,5 +289,10 @@ class Building extends Model
     public function offerPromotions()
     {
         return $this->hasMany(OfferPromotion::class);
+    }
+
+    public function legalNotices()
+    {
+        return $this->hasMany(LegalNotice::class);
     }
 }

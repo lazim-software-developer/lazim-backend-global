@@ -28,6 +28,7 @@ use App\Filament\Resources\IncidentResource;
 use App\Filament\Resources\User\UserResource;
 use App\Filament\Resources\PatrollingResource;
 use App\Filament\Resources\AgingReportResource;
+use App\Filament\Resources\LegalNoticeResource;
 use Illuminate\Session\Middleware\StartSession;
 use App\Filament\Resources\FamilyMemberResource;
 use App\Filament\Resources\LegalOfficerResource;
@@ -721,6 +722,17 @@ class AdminPanelProvider extends PanelProvider
                                     ->icon('heroicon-c-map-pin')
                                     ->activeIcon('heroicon-c-map-pin')
                                     ->sort(2),
+                            ])
+                            ->collapsed(true),
+                    ]);
+                }
+                if ($user->can('view_any_legal::notice')){
+                    $builder->groups([
+                        NavigationGroup::make('Leagal Notice')
+                            ->items([
+                                NavigationItem::make('Leagal Notice')
+                                    ->url(LegalNoticeResource::getUrl('index'))
+                                    ->icon('heroicon-s-swatch')
                             ])
                             ->collapsed(true),
                     ]);
