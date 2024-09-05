@@ -45,7 +45,7 @@ class SyncLegalNoticeJob implements ShouldQueue
                 foreach ($property['mollakProperties'] as $legalNotice) {
                     $flat = Flat::where('mollak_property_id', $legalNotice['mollakPropertyId'])->first();
                     LegalNotice::firstOrCreate([
-                        'legalNoticeId' => $legalNotice['$legalNotice']
+                        'legalNoticeId' => $legalNotice['legalNoticeId']
                     ],[
                         'building_id' => $this->building->id,
                         'flat_id' => $flat?->id,
