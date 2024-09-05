@@ -249,8 +249,8 @@ class VendorRegistrationController extends Controller
         }
 
         return (new CustomResponseResource([
-            'title' => 'Vendor Manager Details updated successful!',
-            'message' => "Vendor Manager Details updated successful!",
+            'title' => 'Manager Details updated successfully!',
+            'message' => "Manager Details updated successfully!",
             'code' => 200,
             'status' => 'success',
             'data' => $manager,
