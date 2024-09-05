@@ -36,6 +36,7 @@ class UpdateLegalNoticeJob implements ShouldQueue
                 'content-type' => 'application/json',
                 'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
             ])->get($url);
+            Log::info('RESPONSE', [$response->json()]);
 
             $data = $response->json()['response'];
 
