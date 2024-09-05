@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Jobs\UpdateLegalNoticeJob;
 use App\Models\LegalNotice;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 
 class UpdateLegalNoticeStatus extends Command
 {
@@ -27,7 +28,7 @@ class UpdateLegalNoticeStatus extends Command
      */
     public function handle()
     {
-        $legalNotices = LegalNotice::whereYear('due_date', now()->year)->whereNot('case_status','Closed')->get();
+        $legalNotices = LegalNotice::whereYear('due_date', now()->year)->where('case_status','!=','Closed')->orWhereNull('case_status')->get();
         foreach($legalNotices as $legalNotice){
             UpdateLegalNoticeJob::dispatch($legalNotice);
         }
