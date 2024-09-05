@@ -10,27 +10,38 @@ use Filament\Widgets\Concerns\InteractsWithPageFilters;
 class VendorChart extends ChartWidget
 {
     use InteractsWithPageFilters;
-    
+
     protected static ?string $heading = 'Vendor Registrations';
     protected static ?string $maxHeight = '400px';
     protected static ?int $sort = 5;
 
     protected function getData(): array
     {
-        // Get the start date from filters or use the current year if no filter is provided
-        $startDate = $this->filters['startDate'] ?? null;
+        // Get the start date and end date from filters
+        $startDate = $this->filters['startDate'] ?? Carbon::now()->startOfYear()->format('Y-m-d');
+        $endDate = $this->filters['endDate'] ?? Carbon::now()->endOfYear()->format('Y-m-d');
 
-        // Determine the year based on the start date or use the current year
-        $year = $startDate ? Carbon::createFromFormat('Y-m-d', $startDate)->year : Carbon::now()->year;
+        // Convert startDate and endDate to Carbon instances
+        $startDate = Carbon::createFromFormat('Y-m-d', $startDate)->startOfMonth();
+        $endDate = Carbon::createFromFormat('Y-m-d', $endDate)->endOfMonth();
+
+        // Determine the total number of months between start date and end date
+        $totalMonths = $startDate->diffInMonths($endDate) + 1;
 
         // Initialize an array to hold the registration count for each month
-        $monthlyRegistrations = array_fill(0, 12, 0);
+        $monthlyRegistrations = array_fill(0, $totalMonths, 0);
+
+        // Create an array of month labels between start date and end date
+        $monthLabels = [];
+        for ($i = 0; $i < $totalMonths; $i++) {
+            $monthLabels[] = $startDate->copy()->addMonths($i)->format('F');
+        }
 
         // Start building the query
-        $vendorQuery = Vendor::whereYear('created_at', $year)
+        $vendorQuery = Vendor::whereBetween('created_at', [$startDate, $endDate])
             ->where('owner_association_id', auth()->user()->owner_association_id)
-            ->selectRaw('MONTH(created_at) as month, COUNT(*) as count')
-            ->groupBy('month');
+            ->selectRaw('MONTH(created_at) as month, YEAR(created_at) as year, COUNT(*) as count')
+            ->groupBy('year', 'month');
 
         // Apply building filter if selected
         $buildingId = $this->filters['building'] ?? null;
@@ -40,12 +51,15 @@ class VendorChart extends ChartWidget
             });
         }
 
-        // Fetch vendor registrations grouped by month for the determined year
+        // Fetch vendor registrations grouped by month and year
         $vendors = $vendorQuery->get();
 
         // Populate the $monthlyRegistrations array with the count of registrations per month
         foreach ($vendors as $vendor) {
-            $monthlyRegistrations[$vendor->month - 1] = $vendor->count;
+            $monthIndex = Carbon::create($vendor->year, $vendor->month)->diffInMonths($startDate);
+            if (isset($monthlyRegistrations[$monthIndex])) {
+                $monthlyRegistrations[$monthIndex] = $vendor->count;
+            }
         }
 
         return [
@@ -57,10 +71,7 @@ class VendorChart extends ChartWidget
                     'backgroundColor' => 'rgba(0, 123, 255, 0.3)', // Light blue with transparency
                 ],
             ],
-            'labels' => [
-                'January', 'February', 'March', 'April', 'May', 'June', 
-                'July', 'August', 'September', 'October', 'November', 'December'
-            ],
+            'labels' => $monthLabels,
         ];
     }
 
