@@ -29,10 +29,11 @@ class UpdateLegalNoticeJob implements ShouldQueue
     public function handle(): void
     {
         $building = Building::find($this->legalNotice->building_id);
-        $url = env("MOLLAK_API_URL") . "/sync/legalnotice/" .$building->property_group_id.'/'. $this->legalNotice->mollakPropertyId.'/'.$this->legalNotice->registrationNumber.'/rdcdetail';
+        // $url = env("MOLLAK_API_URL") . "/sync/legalnotice/" .$building->property_group_id.'/'. $this->legalNotice->mollakPropertyId.'/'.$this->legalNotice->registrationNumber.'/rdcdetail';
+        $url =  env("MOLLAK_API_URL") .'/sync/legalnotice/235553/17651626/0622100004120104/rdcdetail';
         try {
 
-            $response = Http::withoutVerifying()->retry(2, 500)->timeout(60)->withHeaders([
+            $response = Http::withoutVerifying()->withHeaders([
                 'content-type' => 'application/json',
                 'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
             ])->get($url);
