@@ -67,7 +67,7 @@ class RegistrationController extends Controller
         // Check if flat exists
         if (!$flat) {
             return (new CustomResponseResource([
-                'title' => 'Error',
+                'title' => 'flat_error',
                 'message' => 'Flat selected by you doesnot exists',
                 'code' => 400,
             ]))->response()->setStatusCode(400);
@@ -82,7 +82,7 @@ class RegistrationController extends Controller
 
         if ($type === 'Tenant' && $flatOwner->exists()) {
             return (new CustomResponseResource([
-                'title' => 'Error',
+                'title' => 'flat_error',
                 'message' => 'Looks like this flat is already allocated to someone!',
                 'code' => 400,
             ]))->response()->setStatusCode(400);
@@ -97,13 +97,13 @@ class RegistrationController extends Controller
         if (!$queryModel->exists()) {
             if ($type === 'Owner') {
                 return (new CustomResponseResource([
-                    'title' => 'Error',
+                    'title' => 'mollak_error',
                     'message' => "Your details are not matching with Mollak data. Please use your Title Deed instead",
                     'code' => 400,
                 ]))->response()->setStatusCode(400);
             } else {
                 return (new CustomResponseResource([
-                    'title' => 'Error',
+                    'title' => 'mollak_error',
                     'message' => "Your details are not matching with Mollak data. Please use your Ejari document instead",
                     'status' => 'detailsNotMatching',
                     'code' => 400,
@@ -223,7 +223,7 @@ class RegistrationController extends Controller
         // Check if flat exists
         if (!$flat) {
             return (new CustomResponseResource([
-                'title' => 'Error',
+                'title' => 'flat_error',
                 'message' => 'Flat selected by you doesnot exists',
                 'code' => 400,
             ]))->response()->setStatusCode(400);
@@ -234,7 +234,7 @@ class RegistrationController extends Controller
 
         if ($flatOwner) {
             return (new CustomResponseResource([
-                'title' => 'Error',
+                'title' => 'flat_error',
                 'message' => 'Looks like this flat is already allocated to someone!',
                 'code' => 400,
             ]))->response()->setStatusCode(400);
