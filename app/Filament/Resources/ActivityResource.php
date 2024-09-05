@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Models\Activity;
 use Filament\Forms\Form;
 use App\Models\User\User;
 use Filament\Tables\Table;
@@ -15,14 +16,12 @@ use Filament\Forms\Components\KeyValue;
 use Filament\Forms\Components\Textarea;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Model;
-use Spatie\Activitylog\Models\Activity;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\DatePicker;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\Placeholder;
 use Spatie\Activitylog\ActivitylogServiceProvider;
-use Spatie\Activitylog\Models\Activity as ActivityModel;
 use Z3d0X\FilamentLogger\Resources\ActivityResource\Pages;
 
 class ActivityResource extends Resource
@@ -33,7 +32,7 @@ class ActivityResource extends Resource
 
     // protected static bool $isScopedToTenant = false;
 
-    protected static ?string $model = ActivityModel::class;
+    protected static ?string $model = Activity::class;
     protected static ?string $slug  = 'activity-logs';
 
     protected static ?string $navigationIcon = 'heroicon-o-clipboard-list';
