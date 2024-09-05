@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Models\Building\Building;
+use App\Models\Building\Flat;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -16,4 +18,17 @@ class LegalNotice extends Model
                             'invoicePeriod', 'previousBalance', 'invoiceAmount', 'approvedLegalAmount', 'legalNoticePDF', 'isRDCCaseStart', 'isRDCCaseEnd'];
 
     protected $cast = ['isRDCCaseStart', 'isRDCCaseEnd'];
+
+    public function ownerAssociation()
+    {
+        return $this->belongsTo(OwnerAssociation::class);
+    }
+
+    public function building() {
+        return $this->belongsTo(Building::class);
+    }
+
+    public function flat(){
+        return $this->belongsTo(Flat::class);
+    }
 }
