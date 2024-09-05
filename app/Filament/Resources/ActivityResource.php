@@ -2,26 +2,26 @@
 
 namespace App\Filament\Resources;
 
-use App\Models\User\User;
-use Filament\Facades\Filament;
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\Group;
-use Filament\Forms\Components\KeyValue;
-use Filament\Forms\Components\Placeholder;
-use Filament\Forms\Components\Section;
-use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
-use Filament\Resources\Resource;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\Filter;
-use Filament\Tables\Filters\SelectFilter;
+use App\Models\User\User;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
+use Filament\Facades\Filament;
+use Filament\Resources\Resource;
+use Filament\Tables\Filters\Filter;
+use Filament\Forms\Components\Group;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\KeyValue;
+use Filament\Forms\Components\Textarea;
+use Filament\Tables\Columns\TextColumn;
+use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\Models\Activity;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\DatePicker;
+use Filament\Tables\Filters\SelectFilter;
+use Illuminate\Database\Eloquent\Builder;
+use Filament\Forms\Components\Placeholder;
 use Spatie\Activitylog\ActivitylogServiceProvider;
-use Spatie\Activitylog\Contracts\Activity;
 use Spatie\Activitylog\Models\Activity as ActivityModel;
 use Z3d0X\FilamentLogger\Resources\ActivityResource\Pages;
 
@@ -56,7 +56,7 @@ class ActivityResource extends Resource
                                 /** @var Activity&ActivityModel $record */
                                 return $state ? $component->state(Str::of($state)->afterLast('\\')->headline() . ' # ' . $record->subject_id) : '-';
                             })
-                            ->label(__('filament-logger::filament-logger.resource.label.subject')),
+                            ->label('Feature'),
 
                         Textarea::make('description')
                             ->label(__('filament-logger::filament-logger.resource.label.description'))
@@ -81,7 +81,7 @@ class ActivityResource extends Resource
                                 /** @phpstan-ignore-next-line */
                                 return $record?->event ? ucwords($record?->event) : '-';
                             })
-                            ->label(__('filament-logger::filament-logger.resource.label.event')),
+                            ->label('Action'),
 
                         Placeholder::make('created_at')
                             ->label(__('filament-logger::filament-logger.resource.label.logged_at'))
@@ -102,7 +102,7 @@ class ActivityResource extends Resource
 
                         if ($properties->count()) {
                             $schema[] = KeyValue::make('properties')
-                                ->label(__('filament-logger::filament-logger.resource.label.properties'))
+                                ->label('Updated Data')
                                 ->columnSpan('full');
                         }
 
@@ -142,8 +142,7 @@ class ActivityResource extends Resource
                 //     ->sortable(),
 
                 TextColumn::make('event')
-                    ->label(__('filament-logger::filament-logger.resource.label.event'))
-                    ->sortable(),
+                    ->label('Action'),
 
                 TextColumn::make('description')
                     ->label(__('filament-logger::filament-logger.resource.label.description'))
@@ -162,7 +161,7 @@ class ActivityResource extends Resource
                 //     }),
 
                 TextColumn::make('subject_type')
-                    ->label(__('filament-logger::filament-logger.resource.label.subject'))
+                    ->label('Feature')
                     ->formatStateUsing(function ($state, Model $record) {
                         /** @var Activity&ActivityModel $record */
                         if (!$state) {
@@ -178,8 +177,7 @@ class ActivityResource extends Resource
 
                 TextColumn::make('created_at')
                     ->label(__('filament-logger::filament-logger.resource.label.logged_at'))
-                    ->dateTime(config('filament-logger.datetime_format', 'd/m/Y H:i:s'), config('app.timezone'))
-                    ->sortable(),
+                    ->dateTime(config('filament-logger.datetime_format', 'd/m/Y H:i:s'), config('app.timezone')),
             ])
             ->defaultSort('created_at', 'desc')
             ->bulkActions([])
@@ -233,6 +231,19 @@ class ActivityResource extends Resource
 
                 //         return $query->where('properties->attributes', 'like', "%{$data['new']}%");
                 //     }),
+                SelectFilter::make('causer_id')
+                ->label('User')
+                ->options(function(){
+                    $users  = Activity::select('causer_id')->distinct()->pluck('causer_id');
+                    return User::whereIn('id',$users)->where('owner_association_id',auth()->user()->owner_association_id)->pluck('name','id');
+                })
+                ->query(function (Builder $query, array $data) {
+                    
+                    if (!empty($data['value'])) { // Ensure that the value is present
+                        return $query->where('causer_id', $data['value']); // Filter by the user selected
+                    }
+                    return $query;
+                }),
 
                 Filter::make('created_at')
                     ->form([
@@ -242,7 +253,7 @@ class ActivityResource extends Resource
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         return $query
-                            ->whereNot('subject_type', 'App\Models\Building\Building')
+                            // ->whereNot('subject_type', 'App\Models\Building\Building')
                             ->when(
                                 $data['logged_at'],
                                 fn(Builder $query, $date): Builder => $query->whereDate('created_at', $date),
