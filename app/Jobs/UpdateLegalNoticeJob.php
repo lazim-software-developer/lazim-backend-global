@@ -39,9 +39,15 @@ class UpdateLegalNoticeJob implements ShouldQueue
 
             $data = $response->json()['response'];
 
-            $this->legalNotice->case_status = $data['caseStatus']['englishName'];
-            $this->legalNotice->case_number = $data['caseNo'];
-            $this->legalNotice->case_type = $data['caseType']['englishName'];
+            if (isset($data['caseStatus']['englishName'])) {
+                $this->legalNotice->case_status = $data['caseStatus']['englishName'];
+            }
+            if (isset($data['caseNo'])) {
+                $this->legalNotice->case_number = $data['caseNo'];
+            }
+            if (isset($data['caseType']['englishName'])) {
+                $this->legalNotice->case_type = $data['caseType']['englishName'];
+            }
             $this->legalNotice->save();
 
         } catch (\Exception $e) {
