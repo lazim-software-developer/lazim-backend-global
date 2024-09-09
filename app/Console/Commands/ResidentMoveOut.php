@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Building\FlatTenant;
 use App\Models\Forms\MoveInOut;
 use App\Models\User\User;
 use Illuminate\Console\Command;
@@ -32,11 +33,12 @@ class ResidentMoveOut extends Command
                 $query->where('moving_date', now()->toDateString())
                     ->where('moving_time', now()->format('H:i'))
                     ->orWhere('moving_date', '<', now()->toDateString());
-            })
-            ->pluck('user_id');
-
-        $user = User::whereIn('id', $moveouts)->update([
-            'active' => false
-        ]);
+            })->get();
+            // ->pluck('user_id');
+        foreach($moveouts as $moveout){
+            $flatTenant = FlatTenant::where('tenant_id',$moveout?->user_id)->where('flat_id',$moveout?->flat_id)->update([
+                'active' => false
+            ]);
+        }
     }
 }
