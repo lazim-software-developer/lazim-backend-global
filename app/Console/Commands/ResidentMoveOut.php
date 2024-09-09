@@ -27,7 +27,7 @@ class ResidentMoveOut extends Command
      */
     public function handle()
     {
-        $moveouts = MoveInOut::where('type', 'move-out')
+        $moveouts = MoveInOut::where('type', 'move-out')->where('status','approved')
             ->where(function ($query) {
                 $query->where('moving_date', now()->toDateString())
                     ->where('moving_time', now()->format('H:i'))
