@@ -214,7 +214,7 @@ class TechnicianController extends Controller
     public function listTechnicians(ServiceIdRequest $request, Vendor $vendor)
     {
         $assigned = DB::table('service_technician_vendor')->where('service_id', $request->service_id)->pluck('technician_vendor_id');
-        $technicians = TechnicianVendor::where('vendor_id', $vendor->id)->where('technician_vendors.active', true)->whereNotIn('id', $assigned)->get();
+        $technicians = TechnicianVendor::where('vendor_id', $vendor->id)->where('technician_vendors.active', true)->whereNotIn('technician_vendors.id', $assigned)->get();
         return ListTechnicianResource::collection($technicians);
     }
 
