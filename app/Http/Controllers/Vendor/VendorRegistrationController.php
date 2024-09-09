@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Vendor;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\EditTechnicianRequest;
 use App\Http\Requests\Vendor\CompanyDetailsRequest;
 use App\Http\Requests\Vendor\ManagerDetailsRequest;
 use App\Http\Requests\Vendor\VendorRegisterRequest;
@@ -268,6 +269,18 @@ class VendorRegistrationController extends Controller
     public function showVendorDetails()
     {
         return new VendorResource(auth()->user()->vendors()->first());
+    }
+
+    public function editVendorDetails(EditTechnicianRequest $request,Vendor $vendor)
+    {
+        $user = User::find($vendor?->owner_id)->update($request->all());
+
+        return (new CustomResponseResource([
+            'title' => 'Details updated successfully!',
+            'message' => "Details updated successfully!",
+            'code' => 200,
+            'status' => 'success',
+        ]))->response()->setStatusCode(200);
     }
 
     public function listOa()
