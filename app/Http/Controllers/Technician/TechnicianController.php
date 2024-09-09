@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Technician;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ActiveRequest;
+use App\Http\Requests\EditTechnicianRequest;
 use App\Http\Requests\Technician\AddTechnicianRequest;
 use App\Http\Requests\Technician\ServiceIdRequest;
 use App\Http\Requests\Technician\TechnicianIdRequest;
@@ -89,9 +90,21 @@ class TechnicianController extends Controller
     public function index(Service $service, Vendor $vendor)
     {
 
-        $technicians = $service->technicianVendors->where('vendor_id', $vendor->id);
+        $technicians = $service->technicianVendors->where('vendor_id', $vendor->id)->where('active',true);
 
         return ServiceTechnicianResource::collection($technicians);
+    }
+
+    public function edit(EditTechnicianRequest $request, User $technician)
+    {
+        $technician->update($request->all());
+
+        return (new CustomResponseResource([
+            'title' => 'Details updated!',
+            'message' => "Technician deatils updated successfully!",
+            'code' => 200,
+            'status' => 'success',
+        ]))->response()->setStatusCode(200);
     }
 
     public function technicianList(Service $service, Vendor $vendor)
@@ -99,18 +112,27 @@ class TechnicianController extends Controller
         $contract = Contract::where('vendor_id', $vendor->id)
             ->where('service_id', $service->id)->where('end_date', '>=', Carbon::now()->toDateString())->first()?->service_id;
         $serviceTechnician = DB::table('service_technician_vendor')->where('service_id', $contract)->pluck('technician_vendor_id');
-        $technicians = TechnicianVendor::whereIn('id', $serviceTechnician)->where('active', true)->where('vendor_id',$vendor->id)->get();
+        $technicians = TechnicianVendor::whereIn('id', $serviceTechnician)->where('active', true)->where('vendor_id', $vendor->id)->get();
         return ListTechnicianResource::collection($technicians);
     }
 
     public function activeDeactive(ActiveRequest $request, TechnicianVendor $technician)
     {
+        if (!$request->active && Complaint::where('technician_id', $technician?->technician_id)->where('status', 'open')->exists()) {
+            return (new CustomResponseResource([
+                'title' => 'Technician cannot be deactivated!',
+                'message' => "Technician has pending tasks, cannot deactivate!",
+                'code' => 403,
+            ]))->response()->setStatusCode(403);
+        }
         $technician->active = $request->active;
         $technician->save();
-
+        $user = User::find($technician?->technician_id)->update([
+            'active' => $request->active
+        ]);
         return (new CustomResponseResource([
             'title' => 'active status updated',
-            'message' => "",
+            'message' => "Technician status updated!",
             'code' => 200,
             'status' => 'success',
             'data' => $technician
@@ -127,8 +149,17 @@ class TechnicianController extends Controller
                 'code' => 403,
             ]))->response()->setStatusCode(403);
         }
+        // Check if the service is already attached but inactive
+        $existingService = $technician->services()->wherePivot('service_id', $request->service_id)->first();
 
-        $technician->services()->syncWithoutDetaching([$request->service_id]);
+        if ($existingService) {
+            // If the service exists, update the pivot table to set active to true
+            $technician->services()->updateExistingPivot($request->service_id, ['active' => true]);
+        } else {
+            // If the service does not exist, sync without detaching
+            $technician->services()->syncWithoutDetaching([$request->service_id]);
+        }
+
         $vendor = Vendor::where('owner_id', auth()->user()->id)->first();
         $assets = $vendor->assets->unique();
         foreach ($assets as $asset) {
@@ -146,6 +177,20 @@ class TechnicianController extends Controller
         return (new CustomResponseResource([
             'title' => 'Technician assigned',
             'message' => "Technician assigned to task successfully!",
+            'code' => 200,
+            'status' => 'success',
+        ]))->response()->setStatusCode(200);
+    }
+
+    public function detachTechnician(ServiceIdRequest $request, TechnicianVendor $technician)
+    {
+
+        $technician->services()->updateExistingPivot($request->service_id, ['active' => false]);
+
+
+        return (new CustomResponseResource([
+            'title' => 'Technician detached',
+            'message' => "Technician deatched from current service!",
             'code' => 200,
             'status' => 'success',
         ]))->response()->setStatusCode(200);
@@ -198,16 +243,15 @@ class TechnicianController extends Controller
 
         // Add the number of days specified by $asset->frequency_of_service
         $nextMaintenanceDue = $maintenanceDate->addDays($asset->frequency_of_service);
-        if ($latestMaintenance ) {
-            if($nextMaintenanceDue > now()){
+        if ($latestMaintenance) {
+            if ($nextMaintenanceDue > now()) {
                 $status = $latestMaintenance->status;
                 $id = $latestMaintenance->id;
                 $last_date = $latestMaintenance->maintenance_date;
-            }
-            else{
+            } else {
                 $id = $latestMaintenance->id;
                 $last_date = $latestMaintenance->maintenance_date;
-            }       
+            }
         }
 
         return [
