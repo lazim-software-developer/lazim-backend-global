@@ -34,9 +34,9 @@ class ResidentRejection implements ShouldQueue
         Config::set('mail.mailers.smtp.password', $this->mailCredentials['mail_password']);
         Config::set('mail.mailers.smtp.encryption', $this->mailCredentials['mail_encryption']);
         Config::set('mail.mailers.smtp.email', $this->mailCredentials['mail_from_address']);
-        
+        $role = $this->record->document_type =='Ejari' ? 'tenant':'owner';
         $beautymail = app()->make(Beautymail::class);
-        $beautymail->send('emails.Residentrejection', ['user' => $this->user, 'record' => $this->record], function ($message) {
+        $beautymail->send('emails.Residentrejection', ['user' => $this->user, 'record' => $this->record,'role' => $role], function ($message) {
             $message
                 ->from($this->mailCredentials['mail_from_address'],env('MAIL_FROM_NAME'))
                 ->to($this->user->email, $this->user->first_name)
