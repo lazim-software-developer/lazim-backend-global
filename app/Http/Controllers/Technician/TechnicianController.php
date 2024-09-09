@@ -26,6 +26,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Vinkla\Hashids\Facades\Hashids;
 
 class TechnicianController extends Controller
 {
@@ -46,7 +47,7 @@ class TechnicianController extends Controller
 
         $vendor = Vendor::where('owner_id', auth()->user()->id)->first();
         $name = $vendor->name;
-        $technician_number = strtoupper(substr($name, 0, 2)) . date('YmdHis');
+        $technician_number = strtoupper(substr($name, 0, 2)) . Hashids::encode($user->id);
         $password = Str::random(12);
         $user->password = Hash::make($password);
         $user->save();
