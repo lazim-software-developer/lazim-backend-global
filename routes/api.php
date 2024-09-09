@@ -397,6 +397,7 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('vendor')->group(function 
     Route::get('/{vendor}/services', [SelectServicesController::class, 'showServices']);
     Route::get('/{vendor}/show-documents', [DocumentsUploadController::class, 'showDocuments']);
     Route::post('/{vendor}/escalation-matrix', [EscalationMatrixController::class, 'store']);
+    Route::patch('/escalation-matrix/{escalationmatrix}', [EscalationMatrixController::class, 'edit']);
     Route::get('/{vendor}/escalation-matrix', [EscalationMatrixController::class, 'show']);
     Route::post('/escalation-matrix/{escalationmatrix}/delete', [EscalationMatrixController::class, 'delete']);
     Route::get('/{vendor}/tickets', [VendorComplaintController::class, 'listComplaints']);
@@ -465,6 +466,8 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('vendor')->group(function 
 Route::middleware(['auth:sanctum', 'active'])->prefix('technician')->group(function () {
     // Registration
     Route::post('/registration', [TechnicianController::class, 'registration']);
+    //edit technician details
+    Route::patch('/edit-details/{technician}', [TechnicianController::class, 'edit']);
     // List all buildings for logged in technician
     Route::get('/buildings', [TechnicianBuildingController::class, 'index']);
     Route::get('/tasks', [TasksController::class, 'index']);
@@ -473,6 +476,7 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('technician')->group(funct
     Route::get('/{vendor}/technicians', [TechnicianController::class, 'listTechnicians']);
     Route::patch('/active-deactive/{technician}', [TechnicianController::class, 'activeDeactive']);
     Route::post('/attach-technician/{technician}', [TechnicianController::class, 'attachTechnician']);
+    Route::post('/detach-technician/{technician}', [TechnicianController::class, 'detachTechnician']);
     Route::post('/assign-technician/{complaint}', [TechnicianController::class, 'assignTechnician']);
     Route::get('/{service}/list-technicians/{vendor}', [TechnicianController::class, 'technicianList']);
 });
