@@ -26,6 +26,6 @@ class TechnicianVendor extends Model
 
     public function services()
     {
-        return $this->belongsToMany(Service::class, 'service_technician_vendor', 'technician_vendor_id')->withPivot('active');
+        return $this->belongsToMany(Service::class, 'service_technician_vendor', 'technician_vendor_id')->withPivot('service_technician_vendor.active');
     }
 }
