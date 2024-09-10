@@ -97,6 +97,11 @@ class TechnicianController extends Controller
 
     public function edit(EditTechnicianRequest $request, User $technician)
     {
+        if(isset($request->name)){
+            $request->merge([
+                'first_name' => $request->name
+            ]);
+        }
         $technician->update($request->all());
 
         return (new CustomResponseResource([
