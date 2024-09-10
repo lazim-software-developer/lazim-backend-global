@@ -223,6 +223,11 @@ class TechnicianController extends Controller
         return ListTechnicianResource::collection($technicians);
     }
 
+    public function allTechnician(Vendor $vendor){
+        $technicians = TechnicianVendor::where('vendor_id', $vendor->id);
+        return ListTechnicianResource::collection($technicians->paginate(10));
+    }
+
     public function fetchTechnicianAssetDetails(Asset $asset)
     {
         // Check if asset assigned for the logged in user
