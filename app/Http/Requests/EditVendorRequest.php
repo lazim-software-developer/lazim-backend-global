@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class EditTechnicianRequest extends FormRequest
+class EditVendorRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,7 +23,7 @@ class EditTechnicianRequest extends FormRequest
     {
         return [
             'name' => 'nullable|string',
-            'phone' => 'nullable|string|unique:users,phone,'. $this->route('technician')->id,
+            'phone' => 'nullable|string|unique:users,phone',
         ];
     }
 }
