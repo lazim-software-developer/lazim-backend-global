@@ -10,6 +10,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class BuildingService extends Model
 {
     use HasFactory;
+
+    protected $connection = 'mysql';
+    
     protected $table = 'building_service';
     protected $fillable = ['building_id', 'service_id','active'];
 

@@ -26,6 +26,8 @@ class Vendor extends Model
     use HasFactory;
     use Searchable;
 
+    protected $connection = 'mysql';
+
     protected $fillable = [
         'name',
         'owner_id',

@@ -9,6 +9,8 @@ class Enquiry extends Model
 {
     use HasFactory;
 
+    protected $connection = 'mysql';
+
     protected $table = 'enquiries';
     protected $fillable = [
         'name',

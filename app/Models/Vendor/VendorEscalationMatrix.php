@@ -11,6 +11,8 @@ class VendorEscalationMatrix extends Model
     use HasFactory;
     use Searchable;
 
+    protected $connection = 'mysql';
+
     protected $table = 'vendor_escalation_matrix';
     protected $fillable = [
         'name',

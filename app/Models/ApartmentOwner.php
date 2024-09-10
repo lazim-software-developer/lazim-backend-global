@@ -12,6 +12,8 @@ class ApartmentOwner extends Model
 {
     use HasFactory;
 
+    protected $connection = 'mysql';
+
     protected $table = 'apartment_owners';
 
     protected $fillable = ['owner_number', 'email', 'name', 'mobile', 'passport', 'emirates_id', 'trade_license', 'flat_id','owner_association_id'];

@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 class ServiceVendor extends Model
 {
     use HasFactory;
+    protected $connection = 'mysql';
     public $timestamps = false;
     protected $table = 'service_vendor';
 

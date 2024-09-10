@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Proposal extends Model
 {
     use HasFactory;
+    protected $connection = 'mysql';
     protected $fillable = [
         'tender_id',
         'amount',

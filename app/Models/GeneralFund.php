@@ -10,6 +10,8 @@ class GeneralFund extends Model
 {
     use HasFactory;
 
+    protected $connection = 'mysql';
+
     protected $fillable = [
         'statement_date',
         'date',

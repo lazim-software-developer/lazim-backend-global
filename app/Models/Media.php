@@ -9,6 +9,9 @@ class Media extends Model
 {
     use HasFactory;
 
+    protected $connection = 'mysql';
+
+
     protected $fillable = ['name', 'url', 'mediaable_id', 'mediaable_type'];
 
     public function mediaable()
