@@ -15,6 +15,8 @@ class WDA extends Model
 {
     use HasFactory;
 
+    protected $connection = 'mysql';
+
     protected $table = 'wda';
 
     protected $fillable = [

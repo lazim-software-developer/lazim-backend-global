@@ -18,6 +18,8 @@ class FlatTenant extends Model
     use HasFactory;
     use Searchable;
 
+    protected $connection = 'mysql';
+
     protected $fillable = [
         'flat_id',
         'tenant_id',

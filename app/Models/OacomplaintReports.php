@@ -11,6 +11,8 @@ class OacomplaintReports extends Model
 {
     use HasFactory;
 
+    protected $connection = 'mysql';
+
     protected $table = 'oacomplaint_reports';
 
     protected $fillable = [

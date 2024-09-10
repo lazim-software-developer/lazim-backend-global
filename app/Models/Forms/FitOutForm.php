@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Model;
 class FitOutForm extends Model
 {
     use HasFactory;
+    protected $connection = 'mysql';
     protected $fillable = [
         'contractor_name',
         'flat_id',

@@ -16,6 +16,8 @@ class Attendance extends Model
     use HasFactory;
     use Searchable;
 
+    protected $connection = 'mysql';
+
     protected $fillable = [
         'building_id',
         'user_id',

@@ -14,6 +14,8 @@ class DocumentLibrary extends Model
     use HasFactory;
     use Searchable;
 
+    protected $connection = 'mysql';
+
     protected $fillable = ['name','url','type', 'label'];
 
     protected $searchableFields = ['*'];

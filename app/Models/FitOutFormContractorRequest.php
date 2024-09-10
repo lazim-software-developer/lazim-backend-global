@@ -10,6 +10,9 @@ use Illuminate\Database\Eloquent\Model;
 class FitOutFormContractorRequest extends Model
 {
     use HasFactory;
+
+    protected $connection = 'mysql';
+    
     protected $fillable = ['work_type', 'work_name', 'fit_out_form_id','status'];
 
     public function documents()

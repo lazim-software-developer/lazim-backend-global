@@ -29,6 +29,8 @@ class Flat extends Model
     use HasFactory;
     use Searchable;
 
+    protected $connection = 'mysql';
+
     protected $fillable = [
         'property_number',
         'floor',

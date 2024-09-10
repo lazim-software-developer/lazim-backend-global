@@ -9,6 +9,8 @@ class OwnerAssociationUser extends Model
 {
     use HasFactory;
 
+    protected $connection = 'mysql';
+
     protected $table = 'owner_association_user';
 
     protected $fillable = ['owner_association_id','user_id','active','from'];

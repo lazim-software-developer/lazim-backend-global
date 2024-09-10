@@ -10,6 +10,8 @@ class AgingReport extends Model
 {
     use HasFactory;
 
+    protected $connection = 'mysql';
+
     protected $fillable = [
         'building_id',
         'flat_id',

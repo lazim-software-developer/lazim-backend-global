@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 class SubCategory extends Model
 {
     use HasFactory;
+    protected $connection = 'mysql';
     protected $fillable = ['name', 'code', 'category_id'];
 
     protected $table = 'subcategories';
