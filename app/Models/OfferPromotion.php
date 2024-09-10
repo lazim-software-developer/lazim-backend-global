@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 class OfferPromotion extends Model
 {
     use HasFactory;
+    protected $connection = 'mysql';
     protected $fillable = [
         'name',
         'image',

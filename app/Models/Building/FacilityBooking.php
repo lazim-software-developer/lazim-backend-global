@@ -16,6 +16,8 @@ class FacilityBooking extends Model
     use HasFactory;
     use Searchable;
 
+    protected $connection = 'mysql';
+
     protected $fillable = [
         'bookable_id',
         'user_id',

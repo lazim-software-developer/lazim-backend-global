@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Budgetitem extends Model
 {
     use HasFactory;
+    protected $connection = 'mysql';
     protected $table = 'budget_items';
     protected $fillable = [
         

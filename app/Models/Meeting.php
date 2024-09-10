@@ -9,5 +9,7 @@ class Meeting extends Model
 {
     use HasFactory;
 
+    protected $connection = 'mysql';
+
     protected $fillable = ['date_time','agenda','meeting_summary','building_id'];
 }

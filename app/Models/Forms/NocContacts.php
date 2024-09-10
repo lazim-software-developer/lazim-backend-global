@@ -10,6 +10,7 @@ use App\Models\Forms\SaleNOC;
 class NocContacts extends Model
 {
     use HasFactory;
+    protected $connection = 'mysql';
     protected $fillable = [
         'type',
         'first_name',

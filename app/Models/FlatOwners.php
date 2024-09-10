@@ -12,6 +12,8 @@ class FlatOwners extends Pivot
 {
     use HasFactory;
 
+    protected $connection = 'mysql';
+
     protected $table = 'flat_owner';
 
     protected $fillable = ['flat_id', 'owner_id', 'active'];

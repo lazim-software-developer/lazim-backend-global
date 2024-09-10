@@ -23,6 +23,7 @@ use Filament\Navigation\NavigationGroup;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Navigation\NavigationBuilder;
 use App\Filament\Resources\VehicleResource;
+use App\Filament\Resources\ActivityResource;
 use App\Filament\Resources\IncidentResource;
 use App\Filament\Resources\User\UserResource;
 use App\Filament\Resources\PatrollingResource;
@@ -63,6 +64,9 @@ class AdminPanelProvider extends PanelProvider
             ->tenant(OwnerAssociation::class,ownershipRelationship: 'ownerAssociation', slugAttribute: 'slug')
             ->tenantDomain('{tenant:slug}.'.env('APP_URL'))
             ->login()
+             ->resources([
+                 config('filament-logger.activity_resource')
+                ])
             ->profile(EditProfile::class)
             ->colors([
 
@@ -729,6 +733,17 @@ class AdminPanelProvider extends PanelProvider
                                 NavigationItem::make('Leagal Notice')
                                     ->url(LegalNoticeResource::getUrl('index'))
                                     ->icon('heroicon-s-swatch')
+                            ])
+                            ->collapsed(true),
+                    ]);
+                }
+                if ($user->can('view_any_activity')){
+                    $builder->groups([
+                        NavigationGroup::make('Activity')
+                            ->items([
+                                NavigationItem::make('Activity Log')
+                                    ->url(ActivityResource::getUrl('index'))
+                                    ->Icon('heroicon-m-clipboard-document-list')
                             ])
                             ->collapsed(true),
                     ]);
