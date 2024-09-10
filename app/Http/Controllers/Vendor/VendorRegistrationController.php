@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Vendor;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\EditTechnicianRequest;
+use App\Http\Requests\EditVendorRequest;
 use App\Http\Requests\Vendor\CompanyDetailsRequest;
 use App\Http\Requests\Vendor\ManagerDetailsRequest;
 use App\Http\Requests\Vendor\VendorRegisterRequest;
@@ -271,7 +272,7 @@ class VendorRegistrationController extends Controller
         return new VendorResource(auth()->user()->vendors()->first());
     }
 
-    public function editVendorDetails(EditTechnicianRequest $request,Vendor $vendor)
+    public function editVendorDetails(EditVendorRequest $request,Vendor $vendor)
     {
         if(isset($request->name)){
             $request->merge([
