@@ -197,7 +197,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasTenant
 
         // Retrieve the role name using the provided method
         $userRoleName = Role::find($this->role_id)->name;
-        if ($panel->getId() === 'app' && $userRoleName == 'Admin') {
+        if ($panel->getId() === 'app' && in_array($userRoleName, ['Admin','Property Manager']) && $this->active) {
             return true;
         }
         else if($panel->getId() === 'admin' && !in_array($userRoleName, $allowedRoles) && $this->active) {
