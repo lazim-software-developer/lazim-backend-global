@@ -475,6 +475,7 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('technician')->group(funct
     //List all technicians for a service
     Route::get('/{service}/technicians/{vendor}', [TechnicianController::class, 'index']);
     Route::get('/{vendor}/technicians', [TechnicianController::class, 'listTechnicians']);
+    Route::get('/{vendor}/all-technicians', [TechnicianController::class, 'allTechnician']);
     Route::patch('/active-deactive/{technician}', [TechnicianController::class, 'activeDeactive']);
     Route::post('/attach-technician/{technician}', [TechnicianController::class, 'attachTechnician']);
     Route::post('/detach-technician/{technician}', [TechnicianController::class, 'detachTechnician']);
