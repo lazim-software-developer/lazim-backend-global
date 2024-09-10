@@ -89,8 +89,7 @@ class AssetResource extends Resource
                             ->required()
                             ->rules(['max:50']),
                         TextInput::make('frequency_of_service')
-                                ->required()->integer()->suffix('days')
-                                ->rules(['max:50']),
+                                ->required()->integer()->suffix('days')->minValue(1),
                         Textarea::make('description')
                             ->label('Description')
                             ->rules(['max:100', 'regex:/^(?=.*[a-zA-Z])[a-zA-Z0-9\s!@#$%^&*_+\-=,.]*$/']),

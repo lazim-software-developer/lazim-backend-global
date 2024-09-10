@@ -30,7 +30,11 @@
 
         img {
             max-width: 100%; /* Ensure the QR code image fits within the cell */
-            height: auto; /* Maintain the aspect ratio */
+            height: 100px; /* Maintain the aspect ratio */
+            width: auto;
+        }
+        .text{
+            height: 40px;
         }
     </style>
 </head>
@@ -52,7 +56,9 @@
             <tr>
         @endif
         <td>
-            <h5>Name: {{$qr['name']}}</h5>
+            <div class = "text">
+                <h5>Name: {{$qr['name']}}</h5>
+            </div>
             <h5 style="margin-top: -20px;">Code: {{ $qr['asset_code'] }}</h5>
             <img src="{{ $qr['qr_code'] }}" alt="QR Code">
         </td>   
