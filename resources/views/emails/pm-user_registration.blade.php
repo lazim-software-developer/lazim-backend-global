@@ -65,7 +65,7 @@
 
 <tr>
     <td class="paragraph">
-        To access your account and use our platform, click on <a href="http://localhost:8000/app/property-managers">this link</a>
+        To access your account and use our platform, click on <a href="http://localhost:8000/app/">this link</a>
     </td>
 </tr>
 <tr>
