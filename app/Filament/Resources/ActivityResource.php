@@ -234,7 +234,7 @@ class ActivityResource extends Resource
                 ->label('User')
                 ->options(function(){
                     $users  = Activity::select('causer_id')->distinct()->pluck('causer_id');
-                    return User::whereIn('id',$users)->where('owner_association_id',auth()->user()->owner_association_id)->pluck('name','id');
+                    return User::whereIn('id',$users)->where('owner_association_id',auth()->user()->owner_association_id)->pluck('first_name','id');
                 })
                 ->query(function (Builder $query, array $data) {
                     
