@@ -11,6 +11,8 @@ class MollakTenant extends Model
 {
     use HasFactory;
 
+    protected $connection = 'mysql';
+
     protected $fillable = [
         'name', 'contract_number', 'emirates_id', 'license_number', 'mobile', 'email', 'start_date',
         'end_date', 'contract_status', 'building_id', 'flat_id', 'owner_association_id'

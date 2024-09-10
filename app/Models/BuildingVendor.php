@@ -10,6 +10,9 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
 class BuildingVendor extends Pivot
 {
     public $timestamps = false;
+
+    protected $connection = 'mysql';
+    
     protected $table = 'building_vendor';
     protected $fillable = ['building_id', 'contract_id', 'vendor_id', 'start_date', 'end_date', 'active','owner_association_id'];
     public function building()

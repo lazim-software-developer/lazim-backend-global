@@ -9,6 +9,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Floor extends Model
 {
     use HasFactory;
+
+    protected $connection = 'mysql';
+    
     protected $fillable = [
         'floors',
         'building_id',
