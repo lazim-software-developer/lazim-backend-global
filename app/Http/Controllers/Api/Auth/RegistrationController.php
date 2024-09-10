@@ -362,6 +362,7 @@ class RegistrationController extends Controller
             'title' => 'Document submitted!',
             'message' => "Document submitted succesfully!",
             'code' => 201,
+            'status' => 'success',
         ]))->response()->setStatusCode(201);
     }
 
