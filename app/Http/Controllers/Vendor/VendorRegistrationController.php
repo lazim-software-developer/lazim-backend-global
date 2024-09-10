@@ -273,6 +273,11 @@ class VendorRegistrationController extends Controller
 
     public function editVendorDetails(EditTechnicianRequest $request,Vendor $vendor)
     {
+        if(isset($request->name)){
+            $request->merge([
+                'first_name' => $request->name
+            ]);
+        }
         $user = User::find($vendor?->owner_id)->update($request->all());
 
         return (new CustomResponseResource([
