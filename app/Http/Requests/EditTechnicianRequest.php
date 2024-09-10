@@ -23,7 +23,7 @@ class EditTechnicianRequest extends FormRequest
     {
         return [
             'name' => 'nullable|string',
-            'phone' => 'nullable|string|unique:users,phone,'. $this->route('technician')->id,
+            'phone' => 'nullable|string|unique:users,phone,'. $this->route('technician')->id ?? $this->route('vendor')->id,
         ];
     }
 }
