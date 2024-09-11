@@ -96,6 +96,17 @@ class VendorRegistrationController extends Controller
             }
 
             if($vendor){
+                $isAttached = $vendor->ownerAssociation()->wherePivot('owner_association_id', $request->owner_association_id)->exists();
+
+                if ($isAttached) {
+                    return (new CustomResponseResource([
+                        'title' => 'vendor_already_exists',
+                        'message' => "This vendor is already registered with this Owner Association.",
+                        'code' => 403, // Conflict status code
+                        'data' => $vendor,
+                    ]))->response()->setStatusCode(403);
+                }
+
                 $vendor->ownerAssociation()->attach($request->owner_association_id, ['from' => now()->toDateString()]);
                 return (new CustomResponseResource([
                     'title' => 'vendor_exists',

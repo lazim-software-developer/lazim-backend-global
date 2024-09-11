@@ -15,6 +15,18 @@ class VehicleController extends Controller
     {
         $flat = Flat::find($request->flat_id);
         $oa_id = $flat?->owner_association_id;
+
+        $vehicleCount = Vehicle::where('flat_id',$request->flat_id)->get()->count();
+
+        if ($vehicleCount > $flat->parking_count) {
+            return (new CustomResponseResource([
+                'title' => 'No Slots!',
+                'message' => "No Available parking slot for this flat.",
+                'code' => 403,
+                'type' => 'error'
+            ]))->response()->setStatusCode(403);
+        }
+
         $parking_number = $flat?->property_number . '-' . $request->parking_number;
         if (Vehicle::where('parking_number', $parking_number)->exists()){
             return (new CustomResponseResource([
