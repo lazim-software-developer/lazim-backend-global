@@ -322,9 +322,12 @@ class PropertyManagerResource extends Resource
 
     public static function getRelations(): array
     {
-        return [
-            BuildingRelationManager::class,
-        ];
+        if(auth()->user()?->role?->name === 'Admin'){
+            return [
+                BuildingRelationManager::class,
+            ];
+        }
+        return [];
     }
 
     public static function getPages(): array

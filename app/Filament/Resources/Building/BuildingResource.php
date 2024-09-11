@@ -128,7 +128,7 @@ class BuildingResource extends Resource
                         ->numeric()
                         ->minValue(1)
                         ->maxValue(999)
-                        ->disabled(function ($record) {
+                        ->disabled(function (?Model $record) {
                             if ($record?->floors == null) {
                                 return false;
                             }
@@ -142,7 +142,8 @@ class BuildingResource extends Resource
                         ->label('Allow post-upload'),
                     Toggle::make('show_inhouse_services')
                         ->rules(['boolean'])
-                        ->label('Show Personal services'),
+                        ->label('Show Personal services')
+                        ->hiddenOn('create'),
 
                     // TextInput::make('lat')
                     //     ->rules(['numeric'])
