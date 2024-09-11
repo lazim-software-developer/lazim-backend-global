@@ -23,7 +23,7 @@ class EditVendorRequest extends FormRequest
     {
         return [
             'name' => 'nullable|string',
-            'phone' => 'nullable|string|unique:users,phone',
+            'phone' => 'nullable|string|unique:users,phone,'. $this->route('vendor')->owner_id,
         ];
     }
 }
