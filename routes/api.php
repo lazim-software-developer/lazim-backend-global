@@ -79,6 +79,7 @@ Route::post('/register', [RegistrationController::class, 'registerWithEmailPhone
 Route::post('/register-with-document', [RegistrationController::class, 'registerWithDocument']);
 Route::post('/documents-reupload/{resident}',[RegistrationController::class, 'reuploadDocument']);
 Route::get('/documents-status/{resident}',[RegistrationController::class, 'documentStatus']);
+Route::get('/view-documents/{resident}',[RegistrationController::class, 'viewDocuments']);
 // owner list
 Route::get('/owner-list/{flat}', [RegistrationController::class,'ownerList']);
 Route::get('/all-owners', [RegistrationController::class, 'allOwners']);

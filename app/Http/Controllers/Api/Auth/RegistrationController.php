@@ -386,6 +386,16 @@ class RegistrationController extends Controller
         return response()->noContent();
     }
 
+    public function viewDocuments(UserApproval $resident)
+    {
+        return [
+            'document_type' => strtolower($resident->document_type),
+            'document' => $resident->document,
+            'emirates_document' => $resident->emirates_document,
+            'passport' => $resident->passport
+        ];
+    }
+
     public function resendOtp(ResendOtpRequest $request)
     {
         // Validate the type and contact_value
