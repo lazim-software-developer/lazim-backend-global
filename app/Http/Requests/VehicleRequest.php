@@ -24,7 +24,7 @@ class VehicleRequest extends FormRequest
         return [
             'flat_id' => 'required|integer',
             'vehicle_number' => 'required|unique:vehicles',
-            'makani_number' => 'required|unique:vehicles',
+            'parking_number' => 'required',
         ];
     }
 }
