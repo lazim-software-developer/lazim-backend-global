@@ -9,6 +9,7 @@ use App\Http\Requests\Technician\AddTechnicianRequest;
 use App\Http\Requests\Technician\ServiceIdRequest;
 use App\Http\Requests\Technician\TechnicianIdRequest;
 use App\Http\Resources\CustomResponseResource;
+use App\Http\Resources\ListAllTechnicianResource;
 use App\Http\Resources\Technician\ListTechnicianResource;
 use App\Http\Resources\Technician\ServiceTechnicianResource;
 use App\Jobs\AccountCreationJob;
@@ -225,7 +226,7 @@ class TechnicianController extends Controller
 
     public function allTechnician(Vendor $vendor){
         $technicians = TechnicianVendor::where('vendor_id', $vendor->id);
-        return ListTechnicianResource::collection($technicians->paginate(10));
+        return ListAllTechnicianResource::collection($technicians->paginate(10));
     }
 
     public function fetchTechnicianAssetDetails(Asset $asset)
