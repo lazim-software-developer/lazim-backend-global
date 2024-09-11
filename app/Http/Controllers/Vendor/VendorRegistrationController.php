@@ -94,6 +94,17 @@ class VendorRegistrationController extends Controller
                     'data' => $vendor,
                 ]))->response()->setStatusCode(403);
             }
+
+            if($vendor){
+                $vendor->ownerAssociation()->attach($request->owner_association_id, ['from' => now()->toDateString()]);
+                return (new CustomResponseResource([
+                    'title' => 'vendor_exists',
+                    'message' => "You have successfully registered with the new Owner Association. They will get back to you soon!",
+                    'code' => 403,
+                    'data' => $vendor,
+                ]))->response()->setStatusCode(403);
+            }
+
         } else {
             $existingEmail = User::where(['email' => $request->email])->first();
             $existingPhone = User::where(['phone' => $request->phone])->first();
