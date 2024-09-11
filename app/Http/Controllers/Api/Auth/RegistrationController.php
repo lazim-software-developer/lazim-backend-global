@@ -390,9 +390,9 @@ class RegistrationController extends Controller
     {
         return [
             'document_type' => strtolower($resident->document_type),
-            'document' => $resident->document,
-            'emirates_document' => $resident->emirates_document,
-            'passport' => $resident->passport
+            'document' => env('AWS_URL').'/'.$resident->document,
+            'emirates_document' => env('AWS_URL').'/'.$resident->emirates_document,
+            'passport' => env('AWS_URL').'/'.$resident->passport
         ];
     }
 
