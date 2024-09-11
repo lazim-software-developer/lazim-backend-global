@@ -372,15 +372,15 @@ class RegistrationController extends Controller
             return (new CustomResponseResource([
                 'title' => 'Error',
                 'message' => 'You have already uploaded documents, approve pending!',
-                'code' => 400,
-            ]))->response()->setStatusCode(400);
+                'code' => 403,
+            ]))->response()->setStatusCode(403);
         }
         if($resident->status == 'approved'){
             return (new CustomResponseResource([
                 'title' => 'Error',
                 'message' => 'Your account is already approved!',
-                'code' => 400,
-            ]))->response()->setStatusCode(400);
+                'code' => 403,
+            ]))->response()->setStatusCode(403);
         }
 
         return response()->noContent();
