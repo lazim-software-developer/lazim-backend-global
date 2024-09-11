@@ -56,6 +56,15 @@ class DocumentsUploadController extends Controller
         return VendorDocumentResource::collection($documents);
     }
 
+    public function listDocuments(Vendor $vendor)
+    {
+        $documents = Document::where('documentable_id', $vendor->id)->get();
+        $data = $documents->mapWithKeys(function ($document) {
+            return [$document->documentLibrary->name => env('AWS_URL') . '/' . $document->url];
+        });
+        return $data;
+    }
+
     public function showRiskPolicy(Vendor $vendor)
     {
         $document = Document::where('documentable_id',$vendor->id)->where('name','risk_policy')->latest()->first();
