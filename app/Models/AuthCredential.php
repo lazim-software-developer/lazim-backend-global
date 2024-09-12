@@ -9,6 +9,8 @@ class AuthCredential extends Model
 {
     use HasFactory;
 
+    protected $connection = 'mysql';
+
     const TALLY_MODULE = "TALLY";
     protected $table = 'auth_credentials';
 

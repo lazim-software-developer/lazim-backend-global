@@ -44,7 +44,7 @@
         </tr>
         <tr>
             <td class="paragraph">
-                <a href="{{ env('RESIDENT_DOCUMENT_PAGE') . '/' .$this->record->id}}">Click here to upload your documents</a>
+                <a href="{{ env('RESIDENT_DOCUMENT_PAGE') . '/' .encrypt($record->id).'/'.$role}}">Click here to upload your documents</a>
             </td>
         </tr>
         <tr>

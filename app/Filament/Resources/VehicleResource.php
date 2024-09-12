@@ -37,16 +37,7 @@ class VehicleResource extends Resource
     {
         return $form
             ->schema([
-                TextInput::make('vehicle_number')->alphaNum()->unique(
-                    'vehicles',
-                    'vehicle_number',
-                    fn(?Model $record) => $record
-                )->required(),
-                TextInput::make('parking_number')->alphaNum()->maxLength(10)->unique(
-                    'vehicles',
-                    'parking_number',
-                    fn(?Model $record) => $record
-                )->required(),
+
                 Select::make('building')
                     ->required()
                     ->options(function () {
@@ -75,29 +66,44 @@ class VehicleResource extends Resource
                 Select::make('flat_id')
                     ->searchable()
                     ->required()
-                    ->label('Flat')
+                    ->label('Unit')
                     ->options(function (callable $get) {
-
                         return Flat::where('building_id', $get('building'))->pluck('property_number', 'id');
                     })
-                    ->getSearchResultsUsing(fn (string $search,callable $get): array => Flat::where('building_id', $get('building'))->where('property_number', 'like', "%{$search}%")->pluck('property_number', 'id')->toArray())
+                    ->getSearchResultsUsing(fn(string $search, callable $get): array => Flat::where('building_id', $get('building'))->where('property_number', 'like', "%{$search}%")->pluck('property_number', 'id')->toArray())
                     ->formatStateUsing(function ($state) {
                         return Flat::where('id', $state)->value('property_number');
                     })
                     ->disabledOn('edit')
                     ->native(false)
                     ->live(),
-
+                TextInput::make('vehicle_number')->alphaNum()->unique(
+                    'vehicles',
+                    'vehicle_number',
+                    fn(?Model $record) => $record
+                )->required(),
+                TextInput::make('parking_number')
+                // ->prefix(function (Get $get) {                
+                //         return Flat::find($get('flat_id'))?->property_number . ' -';
+                // })
+                ->helperText('Unit no. would be added as prefix')
+                ->alphaNum()->maxLength(10)->disabledOn('edit')
+                ->unique(
+                    'vehicles',
+                    'parking_number',
+                    fn(?Model $record) => $record
+                )
+                ->required(),
                 Select::make('user_id')->label('Resident')->searchable()->preload()->required()->disabledOn('edit')
-                    ->relationship('user','first_name')
+                    ->relationship('user', 'first_name')
                     ->options(function (Get $get) {
                         if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
                             return User::all()->whereIn('role_id', Role::whereIn('name', ['Tenant', 'Owner'])->pluck('id'))->pluck('first_name', 'id');
                         } else {
                             // $user_id =  User::where('owner_association_id', auth()->user()?->owner_association_id)->whereIn('role_id', Role::whereIn('name', ['Tenant', 'Owner'])->pluck('id'))->pluck('id');
-                            $flatResidentsId = FlatTenant::where('flat_id',$get('flat_id'))->pluck('tenant_id');
+                            $flatResidentsId = FlatTenant::where('flat_id', $get('flat_id'))->pluck('tenant_id');
 
-                            return User::whereIn('id',$flatResidentsId)->pluck('first_name','id');
+                            return User::whereIn('id', $flatResidentsId)->pluck('first_name', 'id');
                         }
                     }),
 
@@ -109,7 +115,7 @@ class VehicleResource extends Resource
         return $table->modifyQueryUsing(fn(Builder $query) => $query->orderBy('created_at', 'desc')->withoutGlobalScopes())
             ->columns([
                 TextColumn::make('vehicle_number')->searchable(),
-                TextColumn::make('parking_number'),
+                TextColumn::make('parking_number')->searchable(),
                 TextColumn::make('user.first_name')->label('Resident')->searchable(),
                 TextColumn::make('Building')
                     ->getStateUsing(function ($record) {

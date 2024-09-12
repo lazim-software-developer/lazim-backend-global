@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Visitor extends Model
 {
     use HasFactory;
+    protected $connection = 'mysql';
 
     protected $fillable = ['name', 'type', 'status', 'remarks', 'building_id', 'flat_id', 'approved_by','owner_association_id'];
 }
