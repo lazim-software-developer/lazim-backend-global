@@ -231,7 +231,8 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasTenant
 
     public function residences()
     {
-        return $this->belongsToMany(Flat::class, 'flat_tenants', 'tenant_id');
+        return $this->belongsToMany(Flat::class, 'flat_tenants', 'tenant_id')
+        ->wherePivot('active', true);
     }
 
     public function likedPosts()
