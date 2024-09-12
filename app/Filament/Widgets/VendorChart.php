@@ -2,6 +2,7 @@
 
 namespace App\Filament\Widgets;
 
+use App\Models\User\User;
 use Carbon\Carbon;
 use App\Models\Vendor\Vendor;
 use Filament\Widgets\ChartWidget;
@@ -14,6 +15,12 @@ class VendorChart extends ChartWidget
     protected static ?string $heading = 'Vendor Registrations';
     protected static ?string $maxHeight = '400px';
     protected static ?int $sort = 5;
+
+    public static function canView(): bool
+    {
+        $user = User::find(auth()->user()->id);
+        return $user->can('view_any_vendor::vendor');
+    }
 
     protected function getData(): array
     {

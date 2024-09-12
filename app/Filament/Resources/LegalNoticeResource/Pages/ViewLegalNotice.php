@@ -7,6 +7,7 @@ use App\Models\Building\Building;
 use App\Models\LegalNotice;
 use Filament\Actions;
 use Filament\Actions\Action;
+use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ViewRecord;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -53,10 +54,17 @@ class ViewLegalNotice extends ViewRecord
 
             $legalNotice->save();
 
-            $this->notify('success', 'Data refreshed successfully.');
+            if($response->status() == 200 || $response->status() == 201){
+
+                Notification::make()
+                ->title('Details Updated successfully');
+            }else{
+                Notification::make()
+                ->title('Failed to Update Details');
+            }
         } catch (\Exception $e) {
-            // $this->notify('error', 'Failed to refresh data: ' . $e->getMessage());
-            Log::info('Error in Legal Notice');
+            Notification::make()
+                ->title('Failed to Update Details');
         }
     }
 }

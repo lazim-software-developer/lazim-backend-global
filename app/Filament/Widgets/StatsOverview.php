@@ -8,6 +8,7 @@ use App\Models\Building\Flat;
 use App\Models\Building\FlatTenant;
 use App\Models\FlatOwners;
 use App\Models\MollakTenant;
+use App\Models\User\User;
 use Filament\Facades\Filament;
 use Filament\Widgets\Concerns\InteractsWithPageFilters;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
@@ -80,35 +81,46 @@ class StatsOverview extends BaseWidget
 
         $wdaCount = $wdaQuery->count();
 
-        return [
-            Stat::make('Total Buildings', $buildings)
+
+        $user = User::find(auth()->user()->id);
+        $stats = [];
+
+        if ($user->can('view_any_building::building')) {
+            $stats[] = Stat::make('Total Buildings', $buildings)
                 ->description('Buildings')
                 ->icon('heroicon-s-building-office-2')
                 ->color('blue')
                 ->chart([12, 22, 32, 42, 52])
-                ->extraAttributes(['style' => 'background: linear-gradient(135deg, #E0F2FF, #90CDF4); color: #1D4ED8;']),
+                ->extraAttributes(['style' => 'background: linear-gradient(135deg, #E0F2FF, #90CDF4); color: #1D4ED8;']);
+        }
 
-            Stat::make('Total Owners', $ownerCount)
+        if ($user->can('view_any_user::owner')) {
+            $stats[] = Stat::make('Total Owners', $ownerCount)
                 ->description('Owners')
                 ->icon('heroicon-o-user-group')
                 ->color('green')
                 ->chart([10, 30, 50, 70, 90])
-                ->extraAttributes(['style' => 'background: linear-gradient(135deg, #E6F4EA, #A7F3D0); color: #10B981;']),
+                ->extraAttributes(['style' => 'background: linear-gradient(135deg, #E6F4EA, #A7F3D0); color: #10B981;']);
+        }
 
-            Stat::make('Total Tenants', $tenantCount)
+        if ($user->can('view_any_user::tenant')) {
+            $stats[] = Stat::make('Total Tenants', $tenantCount)
                 ->description('Tenants')
                 ->icon('heroicon-o-users')
                 ->color('orange')
                 ->chart([15, 25, 35, 45, 55])
-                ->extraAttributes(['style' => 'background: linear-gradient(135deg, #FFF7E0, #FED7AA); color: #F97316;']),
+                ->extraAttributes(['style' => 'background: linear-gradient(135deg, #FFF7E0, #FED7AA); color: #F97316;']);
+        }
 
-            Stat::make('WDA', $wdaCount)
+        if ($user->can('view_any_w::d::a')) {
+            $stats[] = Stat::make('WDA', $wdaCount)
                 ->description('Pending WDA')
                 ->icon('heroicon-o-chart-bar-square')
                 ->color('purple')
                 ->chart([15, 25, 35, 45, 55])
-                ->extraAttributes(['style' => 'background: linear-gradient(135deg, #EDE9FE, #C4B5FD); color: #8B5CF6;']),
+                ->extraAttributes(['style' => 'background: linear-gradient(135deg, #EDE9FE, #C4B5FD); color: #8B5CF6;']);
+        }
 
-        ];
+        return $stats;
     }
 }
