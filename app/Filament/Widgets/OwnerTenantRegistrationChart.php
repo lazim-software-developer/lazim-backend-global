@@ -18,6 +18,12 @@ class OwnerTenantRegistrationChart extends ChartWidget
     // protected static ?string $maxWidth = '100%';
     protected static ?int $sort = 4;
 
+    public static function canView(): bool
+    {
+        $user = User::find(auth()->user()->id);
+        return ($user->can('view_any_user::owner')|| $user->can('view_any_user::tenant'));
+    }
+
     protected function getData(): array
 {
     // Get the start date and end date from filters
