@@ -9,10 +9,9 @@
             max-width: 1200px;
             padding: 20px;
             overflow: hidden;
-            page-break-after: always; /* Ensure each set of 25 QR codes starts on a new page */
         }
 
-        .headding {
+        .heading {
             padding-bottom: 20px;
         }
 
@@ -33,7 +32,8 @@
             height: 100px; /* Maintain the aspect ratio */
             width: auto;
         }
-        .text{
+        
+        .text {
             height: 40px;
         }
     </style>
@@ -45,7 +45,7 @@
         window.location = "/admin/assets";
     </script>
     @else
-    <!-- <h2 class="headding">Assets QR Code:</h2> -->
+    <!-- <h2 class="heading">Assets QR Code:</h2> -->
     <table>
     @php $i = 0; @endphp
     @foreach($data as $qr)
@@ -56,7 +56,7 @@
             <tr>
         @endif
         <td>
-            <div class = "text">
+            <div class="text">
                 <h5>Name: {{$qr['name']}}</h5>
             </div>
             <h5 style="margin-top: -20px;">Code: {{ $qr['asset_code'] }}</h5>
