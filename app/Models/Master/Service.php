@@ -73,7 +73,7 @@ class Service extends Model
 
     public function technicianVendors()
     {
-        return $this->belongsToMany(TechnicianVendor::class, 'service_technician_vendor','service_id')->where('active', true);
+        return $this->belongsToMany(TechnicianVendor::class, 'service_technician_vendor','service_id')->where('service_technician_vendor.active', true);
     }
     public function contracts()
     {

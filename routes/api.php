@@ -78,6 +78,8 @@ Route::post('/register', [RegistrationController::class, 'registerWithEmailPhone
 // Resident registeration with Passport/Emirates id
 Route::post('/register-with-document', [RegistrationController::class, 'registerWithDocument']);
 Route::post('/documents-reupload/{resident}',[RegistrationController::class, 'reuploadDocument']);
+Route::get('/documents-status/{resident}',[RegistrationController::class, 'documentStatus']);
+Route::get('/view-documents/{resident}',[RegistrationController::class, 'viewDocuments']);
 // owner list
 Route::get('/owner-list/{flat}', [RegistrationController::class,'ownerList']);
 Route::get('/all-owners', [RegistrationController::class, 'allOwners']);
@@ -392,11 +394,14 @@ Route::middleware([])->prefix('vendor')->group(function () {
 Route::middleware(['auth:sanctum', 'active'])->prefix('vendor')->group(function () {
     // List vendor details of logged in user
     Route::get('/details', [VendorRegistrationController::class, 'showVendorDetails']);
+    Route::post('/{vendor}/edit-details', [VendorRegistrationController::class, 'editVendorDetails']);
     Route::get('/{vendor}/view-manager', [VendorRegistrationController::class, 'showManagerDetails']);
     Route::patch('/managers-deatils/{vendor}',[VendorRegistrationController::class, 'updateManagerDetails']);
     Route::get('/{vendor}/services', [SelectServicesController::class, 'showServices']);
     Route::get('/{vendor}/show-documents', [DocumentsUploadController::class, 'showDocuments']);
+    Route::get('/{vendor}/list-documents', [DocumentsUploadController::class, 'listDocuments']);
     Route::post('/{vendor}/escalation-matrix', [EscalationMatrixController::class, 'store']);
+    Route::patch('/escalation-matrix/{escalationmatrix}', [EscalationMatrixController::class, 'edit']);
     Route::get('/{vendor}/escalation-matrix', [EscalationMatrixController::class, 'show']);
     Route::post('/escalation-matrix/{escalationmatrix}/delete', [EscalationMatrixController::class, 'delete']);
     Route::get('/{vendor}/tickets', [VendorComplaintController::class, 'listComplaints']);
@@ -465,14 +470,18 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('vendor')->group(function 
 Route::middleware(['auth:sanctum', 'active'])->prefix('technician')->group(function () {
     // Registration
     Route::post('/registration', [TechnicianController::class, 'registration']);
+    //edit technician details
+    Route::patch('/edit-details/{technician}', [TechnicianController::class, 'edit']);
     // List all buildings for logged in technician
     Route::get('/buildings', [TechnicianBuildingController::class, 'index']);
     Route::get('/tasks', [TasksController::class, 'index']);
     //List all technicians for a service
     Route::get('/{service}/technicians/{vendor}', [TechnicianController::class, 'index']);
     Route::get('/{vendor}/technicians', [TechnicianController::class, 'listTechnicians']);
+    Route::get('/{vendor}/all-technicians', [TechnicianController::class, 'allTechnician']);
     Route::patch('/active-deactive/{technician}', [TechnicianController::class, 'activeDeactive']);
     Route::post('/attach-technician/{technician}', [TechnicianController::class, 'attachTechnician']);
+    Route::post('/detach-technician/{technician}', [TechnicianController::class, 'detachTechnician']);
     Route::post('/assign-technician/{complaint}', [TechnicianController::class, 'assignTechnician']);
     Route::get('/{service}/list-technicians/{vendor}', [TechnicianController::class, 'technicianList']);
 });

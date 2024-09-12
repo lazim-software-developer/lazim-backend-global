@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class VehicleRequest extends FormRequest
+class EditVendorRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,9 +22,8 @@ class VehicleRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'flat_id' => 'required|integer',
-            'vehicle_number' => 'required|unique:vehicles',
-            'parking_number' => 'required',
+            'name' => 'nullable|string',
+            'phone' => 'nullable|string|unique:users,phone,'. $this->route('vendor')->owner_id,
         ];
     }
 }

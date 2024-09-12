@@ -21,7 +21,7 @@
 </tr>
 <tr>
 	<td class="paragraph">
-		<a href= "{{ env('CONTRACTOR_REQUEST_PAGE') . '/' . $id }}">Link</a>
+		<a href= "{{ env('CONTRACTOR_REQUEST_PAGE') . '/' .encrypt($id) }}">Link</a>
 	</td>
 </tr>
 <tr>

@@ -362,7 +362,38 @@ class RegistrationController extends Controller
             'title' => 'Document submitted!',
             'message' => "Document submitted succesfully!",
             'code' => 201,
+            'status' => 'success',
         ]))->response()->setStatusCode(201);
+    }
+
+    public function documentStatus(UserApproval $resident)
+    {
+        if($resident->status == null){
+            return (new CustomResponseResource([
+                'title' => 'Error',
+                'message' => 'You have already uploaded documents, approve pending!',
+                'code' => 403,
+            ]))->response()->setStatusCode(403);
+        }
+        if($resident->status == 'approved'){
+            return (new CustomResponseResource([
+                'title' => 'Error',
+                'message' => 'Your account is already approved!',
+                'code' => 403,
+            ]))->response()->setStatusCode(403);
+        }
+
+        return response()->noContent();
+    }
+
+    public function viewDocuments(UserApproval $resident)
+    {
+        return [
+            'document_type' => strtolower($resident->document_type),
+            'document' => env('AWS_URL').'/'.$resident->document,
+            'emirates_document' => env('AWS_URL').'/'.$resident->emirates_document,
+            'passport' => env('AWS_URL').'/'.$resident->passport
+        ];
     }
 
     public function resendOtp(ResendOtpRequest $request)
