@@ -91,9 +91,9 @@ class TechnicianController extends Controller
     public function index(Service $service, Vendor $vendor)
     {
 
-        // $technicians = $service->technicianVendors->where('vendor_id', $vendor->id)->where('active',true);
-        $serviceTechnician = DB::table('service_technician_vendor')->where('service_id', $service?->id)->pluck('technician_vendor_id');
-        $technicians = TechnicianVendor::whereIn('id', $serviceTechnician)->where('active', true)->where('vendor_id', $vendor->id);
+        $technicians = $service->technicianVendors->where('vendor_id', $vendor->id)->where('active',true)->pluck('id');
+        // $serviceTechnician = DB::table('service_technician_vendor')->where('service_id', $service?->id)->pluck('technician_vendor_id');
+        $technicians = TechnicianVendor::whereIn('id', $technicians);
 
         return ServiceTechnicianResource::collection($technicians->paginate(10));
     }
