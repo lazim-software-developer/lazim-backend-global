@@ -18,7 +18,7 @@ class ListTechnicianResource extends JsonResource
         $user = User::find($this->technician_id);
         return [
             'id' => $this->id,
-            'technician_name' => $user->first_name,
+            'technician_name' => $this->user->first_name,
         ];
     }
 }
