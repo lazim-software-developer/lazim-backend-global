@@ -111,9 +111,10 @@ class VendorRegistrationController extends Controller
                 return (new CustomResponseResource([
                     'title' => 'vendor_exists',
                     'message' => "You have successfully registered with the new Owner Association. They will get back to you soon!",
-                    'code' => 403,
+                    'code' => 200,
+                    'status' => 'success',
                     'data' => $vendor,
-                ]))->response()->setStatusCode(403);
+                ]))->response()->setStatusCode(200);
             }
 
         } else {
