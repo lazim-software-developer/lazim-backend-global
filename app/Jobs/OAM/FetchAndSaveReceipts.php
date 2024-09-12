@@ -163,10 +163,16 @@ class FetchAndSaveReceipts implements ShouldQueue
         $toDate = DateTime::createFromFormat('d-M-Y', $endMonthDay . '-' . $currentYear)->format('Y-m-d');
         $receiptPeriod = str_replace('-', ' ', $startMonthDay) . ' To ' . str_replace('-', ' ', $endMonthDay) . '-' . $currentYear;
 
+        // return [
+        //     'from_date' => '2024-01-01',
+        //     'to_date' => '2024-03-31',
+        //     'receipt_period' => '01-Jan-2024 To 31-Mar-2024'
+        // ];
+
         return [
-            'from_date' => '2024-01-01',
-            'to_date' => '2024-03-31',
-            'receipt_period' => '01-Jan-2024 To 31-Mar-2024'
+            'from_date' => $fromDate,
+            'to_date' => $toDate,
+            'receipt_period' => $receiptPeriod
         ];
     }
 }
