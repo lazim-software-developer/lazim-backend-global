@@ -12,7 +12,7 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        // $schedule->command('sync:owner-associations')->hourly();
+        $schedule->command('sync:owner-associations')->daily();
         $schedule->command('telescope:prune')->daily();
         $schedule->command('app:deactivate-vendor')->daily();
         $schedule->command('budget:clean-imports')->daily();
@@ -23,6 +23,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('app:update-delinquent-owners-receipts')->dailyAt('02:00');
         $schedule->command('app:announcement-notifications')->everyMinute();
         $schedule->command('app:poll-notifications')->everyMinute()->withoutOverlapping();
+        $schedule->command('fetch:invoices')->daily();
+        $schedule->command('dispatch:receipt-fetch')->daily();
 
     }
 
