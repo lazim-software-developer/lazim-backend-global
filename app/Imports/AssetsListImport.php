@@ -11,6 +11,7 @@ use App\Models\User\User;
 use App\Models\Vendor\Contract;
 use Carbon\Carbon;
 use Filament\Notifications\Notification;
+use GuzzleHttp\Client;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -150,10 +151,39 @@ class AssetsListImport implements ToCollection, WithHeadingRow
                 ];
 
                 // Generate a QR code using the QrCode library
-                $qrCode = QrCode::format('svg')->size(200)->generate(json_encode($qrCodeContent));
+                $qrCode = QrCode::size(200)->generate(json_encode($qrCodeContent));
+
+                $client = new Client();
+                $apiKey = env('AWS_LAMBDA_API_KEY');
+
+                try {
+                    $response = $client->request('GET', env('AWS_LAMBDA_URL'), [
+                        'headers' => [
+                            'x-api-key'    => $apiKey,
+                            'Content-Type' => 'application/json',
+                        ],
+                        'json'    => [
+                            'file_name' => $asset->name.'-'.$assetCode,
+                            'svg'       => $qrCode->toHtml(),
+                        ],
+                        'verify'=>false,
+                    ]);
+        
+                    $content = json_decode($response->getBody()->getContents());
+                    
+                    // $this->record->qr_code = $content->url;  
+                      // pass this url to database 
+                    // $this->record->save();
+                    $asset->update([
+                        'qr_code' => $content->url,
+                        'asset_code' => $assetCode
+                    ]);
+                } catch (\Exception $e) {
+                    Log::error($e->getMessage());
+                }
 
                 // Update the newly created asset record with the generated QR code
-                Asset::where('id', $asset->id)->update(['qr_code' => $qrCode, 'asset_code' => $assetCode]);
+                // Asset::where('id', $asset->id)->update(['qr_code' => $qrCode, 'asset_code' => $assetCode]);
 
                 $buildingId = $asset->building_id;
                 $serviceId  = $asset->service_id;
