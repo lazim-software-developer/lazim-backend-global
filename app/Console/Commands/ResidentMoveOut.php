@@ -28,15 +28,19 @@ class ResidentMoveOut extends Command
      */
     public function handle()
     {
-        $moveouts = MoveInOut::where('type', 'move-out')->where('status','approved')
+        $moveouts = MoveInOut::where('type', 'move-out')->where('status', 'approved')
             ->where(function ($query) {
                 $query->where('moving_date', now()->toDateString())
-                    ->where('moving_time', now()->format('H:i'))
+                    ->where(function ($query) {
+                        $query->where('moving_time', now()->format('H:i'))
+                            ->orWhere('moving_time', '<', now()->format('H:i'));
+                    })
                     ->orWhere('moving_date', '<', now()->toDateString());
             })->get();
-            // ->pluck('user_id');
-        foreach($moveouts as $moveout){
-            $flatTenant = FlatTenant::where('tenant_id',$moveout?->user_id)->where('flat_id',$moveout?->flat_id)->update([
+
+        // ->pluck('user_id');
+        foreach ($moveouts as $moveout) {
+            $flatTenant = FlatTenant::where('tenant_id', $moveout?->user_id)->where('flat_id', $moveout?->flat_id)->update([
                 'active' => false
             ]);
         }
