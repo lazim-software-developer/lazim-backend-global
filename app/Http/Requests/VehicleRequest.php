@@ -23,8 +23,8 @@ class VehicleRequest extends FormRequest
     {
         return [
             'flat_id' => 'required|integer',
-            'vehicle_number' => 'required|unique:vehicles',
-            'parking_number' => 'required',
+            'vehicle_number' => 'required|unique:vehicles|min:2|max:10',
+            'parking_number' => 'required|min:2|max:10',
         ];
     }
 }

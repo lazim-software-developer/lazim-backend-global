@@ -18,7 +18,7 @@ class VehicleController extends Controller
 
         $vehicleCount = Vehicle::where('flat_id',$request->flat_id)->get()->count();
 
-        if ($vehicleCount > $flat->parking_count) {
+        if ($vehicleCount >= $flat->parking_count) {
             return (new CustomResponseResource([
                 'title' => 'No Slots!',
                 'message' => "No Available parking slot for this flat.",
