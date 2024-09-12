@@ -9,6 +9,9 @@ use Illuminate\Database\Eloquent\Model;
 class EmergencyNumber extends Model
 {
     use HasFactory;
+
+    protected $connection = 'mysql';
+    
     protected $table = 'emergency_numbers';
 
      protected $fillable = [

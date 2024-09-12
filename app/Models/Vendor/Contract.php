@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Contract extends Model
 {
     use HasFactory;
+    protected $connection = 'mysql';
     protected $fillable = [
         'start_date',
         'end_date',

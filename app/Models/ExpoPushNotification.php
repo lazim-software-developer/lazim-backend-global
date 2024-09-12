@@ -10,6 +10,8 @@ class ExpoPushNotification extends Model
 {
     use HasFactory;
 
+    protected $connection = 'mysql';
+
     protected $table = 'expo_push_notifications';
 
     public $timestamps = false;

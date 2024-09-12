@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class OaServiceRequest extends Model
 {
     use HasFactory;
+    protected $connection = 'mysql';
     protected $fillable = [
         'service_parameter_id',
         'property_group',

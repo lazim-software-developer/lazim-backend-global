@@ -15,6 +15,8 @@ class Tender extends Model
 {
     use HasFactory;
 
+    protected $connection = 'mysql';
+
     protected $fillable = ['date', 'created_by', 'building_id', 'budget_id', 'owner_association_id', 'end_date', 'document', 'service_id', 'tender_type'];
 
     // Tender has many services through TenderService

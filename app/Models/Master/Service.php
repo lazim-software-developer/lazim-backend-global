@@ -19,6 +19,8 @@ class Service extends Model
     use HasFactory;
     use Searchable;
 
+    protected $connection = 'mysql';
+
     protected $fillable = ['name','type', 'building_id','icon','active', 'subcategory_id','custom','owner_association_id', 'code', 'price', 'payment_link'];
 
     protected $searchableFields = ['*'];
@@ -71,7 +73,7 @@ class Service extends Model
 
     public function technicianVendors()
     {
-        return $this->belongsToMany(TechnicianVendor::class, 'service_technician_vendor','service_id')->where('active', true);
+        return $this->belongsToMany(TechnicianVendor::class, 'service_technician_vendor','service_id')->where('service_technician_vendor.active', true);
     }
     public function contracts()
     {
