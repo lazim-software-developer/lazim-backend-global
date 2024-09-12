@@ -26,7 +26,7 @@ class CreateVehicle extends CreateRecord
 
         $data['parking_number']=$flat?->property_number.'-'.$data['parking_number'];
 
-        if ($vehicleCount > $flat->parking_count) {
+        if ($vehicleCount >= $flat->parking_count || $flat->parking_count == null) {
             Notification::make()
                 ->warning()
                 ->title('No Slots!')
