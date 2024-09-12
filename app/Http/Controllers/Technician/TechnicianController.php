@@ -93,7 +93,7 @@ class TechnicianController extends Controller
 
         $technicians = $service->technicianVendors->where('vendor_id', $vendor->id)->where('active',true);
 
-        return ServiceTechnicianResource::collection($technicians);
+        return ServiceTechnicianResource::collection($technicians->paginate(10));
     }
 
     public function edit(EditTechnicianRequest $request, User $technician)
@@ -220,8 +220,8 @@ class TechnicianController extends Controller
     public function listTechnicians(ServiceIdRequest $request, Vendor $vendor)
     {
         $assigned = DB::table('service_technician_vendor')->where('service_id', $request->service_id)->pluck('technician_vendor_id');
-        $technicians = TechnicianVendor::where('vendor_id', $vendor->id)->where('technician_vendors.active', true)->whereNotIn('technician_vendors.id', $assigned);
-        return ListTechnicianResource::collection($technicians->paginate(10));
+        $technicians = TechnicianVendor::where('vendor_id', $vendor->id)->where('technician_vendors.active', true)->whereNotIn('technician_vendors.id', $assigned)->get();
+        return ListTechnicianResource::collection($technicians);
     }
 
     public function allTechnician(Vendor $vendor){
