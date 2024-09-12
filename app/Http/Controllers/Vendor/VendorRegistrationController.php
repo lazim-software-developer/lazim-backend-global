@@ -44,13 +44,13 @@ class VendorRegistrationController extends Controller
             }
 
             //&& $userData->first()->phone_verified
-            if ($userData->first()->email_verified) {
-                return (new CustomResponseResource([
-                    'title' => 'account_present',
-                    'message' => 'Your details is already registered in our application. Please try login instead!',
-                    'code' => 400,
-                ]))->response()->setStatusCode(400);
-            }
+            // if ($userData->first()->email_verified) {
+            //     return (new CustomResponseResource([
+            //         'title' => 'account_present',
+            //         'message' => 'Your details is already registered in our application. Please try login instead!',
+            //         'code' => 400,
+            //     ]))->response()->setStatusCode(400);
+            // }
 
             // Check if company details are already added. If not redirect to company details page
             if (!$userData->first()->vendors()->exists()) {
