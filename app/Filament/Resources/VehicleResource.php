@@ -81,13 +81,13 @@ class VehicleResource extends Resource
                     'vehicles',
                     'vehicle_number',
                     fn(?Model $record) => $record
-                )->required(),
+                )->required()->minLength(2)->maxLength(10),
                 TextInput::make('parking_number')
                 // ->prefix(function (Get $get) {                
                 //         return Flat::find($get('flat_id'))?->property_number . ' -';
                 // })
                 ->helperText('Unit no. would be added as prefix')
-                ->alphaNum()->maxLength(10)->disabledOn('edit')
+                ->alphaNum()->minLength(2)->maxLength(10)->disabledOn('edit')
                 ->unique(
                     'vehicles',
                     'parking_number',
