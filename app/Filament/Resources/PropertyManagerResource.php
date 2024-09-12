@@ -7,6 +7,7 @@ use App\Filament\Resources\PropertyManagerResource\RelationManagers\BuildingRela
 use App\Models\Master\Role;
 use App\Models\OwnerAssociation;
 use App\Models\User;
+use Closure;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\TextInput;
@@ -42,12 +43,12 @@ class PropertyManagerResource extends Resource
                     TextInput::make('name')
                         ->rules(['regex:/^[a-zA-Z0-9\s]*$/'])
                         ->required()
-                        ->disabled(function (callable $get) {
-                            return DB::table('owner_associations')
-                                ->where('email', $get('email'))
-                                ->where('verified', 1)
-                                ->exists();
-                        })
+                        // ->disabled(function (callable $get) {
+                        //     return DB::table('owner_associations')
+                        //         ->where('email', $get('email'))
+                        //         ->where('verified', 1)
+                        //         ->exists();
+                        // })
                         ->placeholder('User'),
 
                     TextInput::make('mollak_id')->label('Oa Number')
@@ -59,56 +60,56 @@ class PropertyManagerResource extends Resource
                     // ->disabled()
                         ->placeholder('TRN Number'),
                     TextInput::make('phone')
-                    // ->rules(['regex:/^\+?(971)(50|51|52|55|56|58|02|03|04|06|07|09)\d{7}$/',
-                    //     // function ($state) {
-                    //     //     return function ($value, Closure $fail) use ($state) {
-                    //     //         dd($value);
-                    //     //         if (DB::table('owner_associations')
-                    //     //             ->where('phone', $value)->count() > 0) {
-                    //     //             $fail('The phone is already taken by a Property Manager.');
-                    //     //         }
-                    //     //         if (DB::table('owner_associations')
-                    //     //             ->where('id', $record->id)
-                    //     //             ->where('verified', 1)->count() > 0) {
-                    //     //             $role_id = Role::where('owner_association_id', $record->id)
-                    //     //                 ->where('name', 'Property Manager')->first();
-                    //     //             $getuserecord = User::where('owner_association_id', $record->id)
-                    //     //                 ->where('role_id', $role_id?->id)->first()?->id;
+                    ->rules(['regex:/^\+?(971)(50|51|52|55|56|58|02|03|04|06|07|09)\d{7}$/',
+                        function ($state) {
+                            return function ($value, Closure $fail) use ($state) {
+                                dd($value);
+                                if (DB::table('owner_associations')
+                                    ->where('phone', $value)->count() > 0) {
+                                    $fail('The phone is already taken by a Property Manager.');
+                                }
+                                if (DB::table('owner_associations')
+                                    ->where('id', $record->id)
+                                    ->where('verified', 1)->count() > 0) {
+                                    $role_id = Role::where('owner_association_id', $record->id)
+                                        ->where('name', 'Property Manager')->first();
+                                    $getuserecord = User::where('owner_association_id', $record->id)
+                                        ->where('role_id', $role_id?->id)->first()?->id;
 
-                    //     //             if (DB::table('users')
-                    //     //                 ->whereNot('id', $getuserecord)
-                    //     //                 ->where('phone', $value)->exists()) {
-                    //     //                 $fail('The phone is already taken by a user.');
-                    //     //             }
-                    //     //         } else {
-                    //     //             if (DB::table('users')->where('phone', $value)->exists()) {
-                    //     //                 $fail('The phone is already taken by a user.');
-                    //     //             }
-                    //     //         }
-                    //     //     };
-                    //     // },
-                    // ])
+                                    if (DB::table('users')
+                                        ->whereNot('id', $getuserecord)
+                                        ->where('phone', $value)->exists()) {
+                                        $fail('The phone is already taken by a user.');
+                                    }
+                                } else {
+                                    if (DB::table('users')->where('phone', $value)->exists()) {
+                                        $fail('The phone is already taken by a user.');
+                                    }
+                                }
+                            };
+                        },
+                    ])
                         ->required()
                         ->live()
-                        ->disabled(function (callable $get) {
-                            return DB::table('owner_associations')
-                                ->where('email', $get('email'))
-                                ->where('verified', 1)
-                                ->exists();
-                        })
+                        // ->disabled(function (callable $get) {
+                        //     return DB::table('owner_associations')
+                        //         ->where('email', $get('email'))
+                        //         ->where('verified', 1)
+                        //         ->exists();
+                        // })
                         ->placeholder('Contact Number'),
 
                     TextInput::make('address')
                         ->required()
-                        ->disabled(function (callable $get) {
-                            if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
-                                return DB::table('owner_associations')
-                                    ->where('email', $get('email'))
-                                    ->where('verified', 1)
-                                    ->exists();
-                            }
+                        // ->disabled(function (callable $get) {
+                        //     if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+                        //         return DB::table('owner_associations')
+                        //             ->where('email', $get('email'))
+                        //             ->where('verified', 1)
+                        //             ->exists();
+                        //     }
 
-                        })
+                        // })
                         ->placeholder('Address'),
 
                     TextInput::make('email')
@@ -141,26 +142,26 @@ class PropertyManagerResource extends Resource
                         ])
                         ->required()
                         ->live()
-                        ->disabled(function (callable $get) {
-                            return DB::table('owner_associations')
-                                ->where('phone', $get('phone'))
-                                ->where('verified', 1)
-                                ->exists();
-                        })
+                        // ->disabled(function (callable $get) {
+                        //     return DB::table('owner_associations')
+                        //         ->where('phone', $get('phone'))
+                        //         ->where('verified', 1)
+                        //         ->exists();
+                        // })
                         ->placeholder('Email'),
 
                     TextInput::make('bank_account_number')
                         ->label('Bank Account Number')
                         ->numeric()
-                        ->disabled(function (callable $get) {
-                            if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
-                                return DB::table('owner_associations')
-                                    ->where('email', $get('email'))
-                                    ->where('verified', 1)
-                                    ->exists();
-                            }
+                        // ->disabled(function (callable $get) {
+                        //     if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+                        //         return DB::table('owner_associations')
+                        //             ->where('email', $get('email'))
+                        //             ->where('verified', 1)
+                        //             ->exists();
+                        //     }
 
-                        })
+                        // })
                         ->placeholder('account number'),
 
                     FileUpload::make('profile_photo')
@@ -171,15 +172,15 @@ class PropertyManagerResource extends Resource
                         ->maxSize(2048)
                         ->rules('file|mimes:jpeg,jpg,png|max:2048')
                         ->label('Logo')
-                        ->disabled(function (callable $get) {
-                            if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
-                                return DB::table('owner_associations')
-                                    ->where('email', $get('email'))
-                                    ->where('verified', 1)
-                                    ->exists();
-                            }
+                        // ->disabled(function (callable $get) {
+                        //     if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+                        //         return DB::table('owner_associations')
+                        //             ->where('email', $get('email'))
+                        //             ->where('verified', 1)
+                        //             ->exists();
+                        //     }
 
-                        })
+                        // })
                         ->columnSpan([
                             'sm' => 1,
                             'md' => 2,

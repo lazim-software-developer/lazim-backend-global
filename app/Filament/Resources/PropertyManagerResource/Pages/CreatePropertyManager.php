@@ -9,6 +9,7 @@ use App\Models\User\User;
 use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class CreatePropertyManager extends CreateRecord
@@ -33,24 +34,24 @@ class CreatePropertyManager extends CreateRecord
         $pmId = $this->record->id;
 
         $roles = [
-            ['name' => 'Owner', 'owner_association_id' => $pmId, 'guard_name' => 'web'],
-            ['name' => 'Vendor', 'owner_association_id' => $pmId, 'guard_name' => 'web'],
-            ['name' => 'Managing Director', 'owner_association_id' => $pmId, 'guard_name' => 'web'],
-            ['name' => 'Financial Manager', 'owner_association_id' => $pmId, 'guard_name' => 'web'],
-            ['name' => 'Building Engineer', 'owner_association_id' => $pmId, 'guard_name' => 'web'],
-            ['name' => 'Operations Engineer', 'owner_association_id' => $pmId, 'guard_name' => 'web'],
-            ['name' => 'Operations Manager', 'owner_association_id' => $pmId, 'guard_name' => 'web'],
-            ['name' => 'Staff', 'owner_association_id' => $pmId, 'guard_name' => 'web'],
+            // ['name' => 'Owner', 'owner_association_id' => $pmId, 'guard_name' => 'web'],
+            // ['name' => 'Vendor', 'owner_association_id' => $pmId, 'guard_name' => 'web'],
+            // ['name' => 'Managing Director', 'owner_association_id' => $pmId, 'guard_name' => 'web'],
+            // ['name' => 'Financial Manager', 'owner_association_id' => $pmId, 'guard_name' => 'web'],
+            // ['name' => 'Building Engineer', 'owner_association_id' => $pmId, 'guard_name' => 'web'],
+            // ['name' => 'Operations Engineer', 'owner_association_id' => $pmId, 'guard_name' => 'web'],
+            // ['name' => 'Operations Manager', 'owner_association_id' => $pmId, 'guard_name' => 'web'],
+            // ['name' => 'Staff', 'owner_association_id' => $pmId, 'guard_name' => 'web'],
             // ['name' => 'Admin', 'owner_association_id' => $pmId,'guard_name' => 'web'],
-            ['name' => 'Property Manager', 'owner_association_id' => $pmId, 'guard_name' => 'web'],
-            ['name' => 'Tenant', 'owner_association_id' => $pmId, 'guard_name' => 'web'],
-            ['name' => 'Security', 'owner_association_id' => $pmId, 'guard_name' => 'web'],
-            ['name' => 'Technician', 'owner_association_id' => $pmId, 'guard_name' => 'web'],
-            ['name' => 'Accounts Manager', 'owner_association_id' => $pmId, 'guard_name' => 'web'],
-            ['name' => 'MD', 'owner_association_id' => $pmId, 'guard_name' => 'web'],
-            ['name' => 'Complaint Officer', 'owner_association_id' => $pmId, 'guard_name' => 'web'],
-            ['name' => 'Legal Officer', 'owner_association_id' => $pmId, 'guard_name' => 'web'],
+            // ['name' => 'Tenant', 'owner_association_id' => $pmId, 'guard_name' => 'web'],
+            // ['name' => 'Security', 'owner_association_id' => $pmId, 'guard_name' => 'web'],
+            // ['name' => 'Technician', 'owner_association_id' => $pmId, 'guard_name' => 'web'],
+            // ['name' => 'Accounts Manager', 'owner_association_id' => $pmId, 'guard_name' => 'web'],
+            // ['name' => 'MD', 'owner_association_id' => $pmId, 'guard_name' => 'web'],
+            // ['name' => 'Complaint Officer', 'owner_association_id' => $pmId, 'guard_name' => 'web'],
+            // ['name' => 'Legal Officer', 'owner_association_id' => $pmId, 'guard_name' => 'web'],
             ['name' => 'Facility Manager', 'owner_association_id' => $pmId, 'guard_name' => 'web'],
+            ['name' => 'Property Manager', 'owner_association_id' => $pmId, 'guard_name' => 'web'],
 
         ];
 
@@ -87,6 +88,20 @@ class CreatePropertyManager extends CreateRecord
                 'model_type' => User::class,
                 'model_id'   => $user->id,
             ]);
+
+            $permissionsConfig = config('pm-role-permission');
+
+            Log::info('pm_id', [$this->record->id]);
+
+            foreach ($permissionsConfig['roles'] as $roleName => $roleConfig) {
+                $role = Role::where('name', $roleName)
+                    ->where('owner_association_id', $this->record->id)->first();
+                Log::info('Role' . $role);
+
+                if (isset($roleConfig['permissions'])) {
+                    $role->syncPermissions($roleConfig['permissions']);
+                }
+            }
 
         }
 

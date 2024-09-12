@@ -20,4 +20,11 @@ class ListPropertyManagers extends ListRecords
             Actions\CreateAction::make(),
         ];
     }
+     protected function getTableQuery(): Builder
+    {
+        if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+            return parent::getTableQuery()->where('role','Property Manager');
+        }
+        return parent::getTableQuery()->where('id', auth()->user()?->owner_association_id)->where('role','Property Manager');
+    }
 }
