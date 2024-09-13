@@ -96,14 +96,16 @@ class SecuritesOverview extends BaseWidget
                 ->extraAttributes(['style' => 'background-color: #E6F4EA; color: #006400;']);
         }
 
+        if (Role::where('id', auth()->user()->role_id)->whereIn('name', ['OA', 'MD'])->exists()) {
             $stats[] = Stat::make('Total Technicians', $technicianCount)
                 ->description('Technicians')
                 ->icon('heroicon-o-wrench')
                 ->color('blue')
                 ->chart([12, 22, 32, 42, 52])
                 ->extraAttributes(['style' => 'background: linear-gradient(135deg, #E0F2FF, #90CDF4); color: #1D4ED8;']);
+        }
 
-        if ($user->can('view_any_patrolling')) {
+        if (Role::where('id', auth()->user()->role_id)->whereIn('name', ['OA', 'MD'])->exists()) {
             $stats[] = Stat::make('Total Gatekeepers', $securityCount)
                 ->description('Gatekeepers')
                 ->icon('heroicon-s-shield-check')
