@@ -50,7 +50,8 @@ class OrderObserver
                 $link = NocFormResource::getUrl('edit', [OwnerAssociation::where('id', $oaId)->first()?->slug, $order->id]);
             }
 
-            $user = User::where('role_id', Role::where('name', 'OA')->first()->id)->where('owner_association_id',$oaId)->first();
+            $user = User::where('role_id', Role::where('name', 'OA')->where('owner_association_id',$oaId)->first()->id)
+            ->where('owner_association_id',$oaId)->get();
             if ($user) {
                 Notification::make()
                     ->success()
