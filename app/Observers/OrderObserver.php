@@ -35,7 +35,9 @@ class OrderObserver
 
             $baseClass = class_basename($order->orderable_type);
             $oaId = null;
-            $link = '';
+            $link = ''; 
+            Log::info('base'.class_basename($order->orderable_type));
+            Log::info('class'.$order->orderable_type);
 
             if ($order->orderable_type == AccessCard::class) {
                 $oaId = AccessCard::where('id', $order->id)->first()?->owner_association_id;
@@ -49,9 +51,11 @@ class OrderObserver
                 $oaId = SaleNOC::where('id', $order->id)->first()?->owner_association_id;
                 $link = NocFormResource::getUrl('edit', [OwnerAssociation::where('id', $oaId)->first()?->slug, $order->id]);
             }
-
+            Log::info('oa'.$oaId);
+            Log::info('link'.$link);
             $user = User::where('role_id', Role::where('name', 'OA')->where('owner_association_id',$oaId)->first()->id)
             ->where('owner_association_id',$oaId)->get();
+            Log::info('user'.$user);
             if ($user) {
                 Notification::make()
                     ->success()
