@@ -34,6 +34,7 @@ use Filament\Forms\Components\FileUpload;
 use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\Vendor\VendorResource\Pages;
 use App\Filament\Resources\Vendor\VendorResource\RelationManagers\BuildingvendorRelationManager;
+use Filament\Forms\Components\Textarea;
 
 class VendorResource extends Resource
 {
@@ -111,8 +112,9 @@ class VendorResource extends Resource
                                 ->visible(fn($record) => $record->status === null && $record->documents()->count() > 0 && $record->services()->count() > 0 && $record->managers()->count() > 0)
                                 ->searchable()
                                 ->live(),
-                            TextInput::make('remarks')
-                                ->rules(['max:150'])
+                            Textarea::make('remarks')
+                                ->maxLength(250)
+                                ->rows(5)
                                 ->required()
                                 ->visible(function (callable $get) {
                                     if ($get('status') == 'rejected') {
@@ -152,10 +154,10 @@ class VendorResource extends Resource
                     ->searchable()
                     ->default('NA')
                     ->label('Status'),
-                TextColumn::make('remarks')
-                    ->searchable()
-                    ->default('NA')
-                    ->label('Remarks'),
+                // TextColumn::make('remarks')
+                //     ->searchable()
+                //     ->default('NA')
+                //     ->label('Remarks'),
                 ViewColumn::make('Services')->view('tables.columns.vendor-service'),
                 ViewColumn::make('Documents')->view('tables.columns.vendordocument'),
                 ViewColumn::make('Managers')->view('tables.columns.vendormanager'),
