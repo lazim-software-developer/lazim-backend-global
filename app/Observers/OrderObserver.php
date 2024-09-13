@@ -37,15 +37,15 @@ class OrderObserver
             $oaId = null;
             $link = '';
 
-            if ($baseClass == 'AccessCard') {
+            if ($order->orderable_type == AccessCard::class) {
                 $oaId = AccessCard::where('id', $order->id)->first()->owner_association_id;
                 $link = AccessCardFormsDocumentResource::getUrl('edit', [OwnerAssociation::where('id', $oaId)->first()?->slug, $order->id]);
             }
-            if ($baseClass == 'FitOutForm') {
+            if ($order->orderable_type == FitOutForm::class) {
                 $oaId = FitOutForm::where('id', $order->id)->first()->owner_association_id;
                 $link = FitOutFormsDocumentResource::getUrl('edit', [OwnerAssociation::where('id', $oaId)->first()?->slug, $order->id]);
             }
-            if ($baseClass == 'SaleNOC') {
+            if ($order->orderable_type == SaleNOC::class) {
                 $oaId = SaleNOC::where('id', $order->id)->first()->owner_association_id;
                 $link = NocFormResource::getUrl('edit', [OwnerAssociation::where('id', $oaId)->first()?->slug, $order->id]);
             }
