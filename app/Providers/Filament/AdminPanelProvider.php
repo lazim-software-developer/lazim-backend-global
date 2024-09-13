@@ -95,11 +95,15 @@ class AdminPanelProvider extends PanelProvider
             ->sidebarCollapsibleOnDesktop()
             ->navigation(function (NavigationBuilder $builder): NavigationBuilder {
                 // if (DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] != 'Admin') {
-                    $builder->items([
-                        NavigationItem::make('Dashboard')
-                            ->icon('heroicon-o-home')
-                            ->activeIcon('heroicon-s-home')
-                            ->url('/admin'),
+                    $builder->groups([
+                        NavigationGroup::make('Dashboard')
+                            ->items([
+                                NavigationItem::make('Dashboard')
+                                    ->icon('heroicon-o-home')
+                                    ->activeIcon('heroicon-s-home')
+                                    ->url('/admin'),
+                            ])
+                            ->collapsed(true),
                     ]);
                 // }
                     $user = User::find(auth()->user()->id) ;
