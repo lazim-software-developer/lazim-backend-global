@@ -387,6 +387,7 @@ Route::middleware([])->prefix('vendor')->group(function () {
     Route::post('/{vendor}/tag-services', [SelectServicesController::class, 'tagServices']);
     Route::post('/{vendor}/untag-services', [SelectServicesController::class, 'untagServices']);
     Route::post('/{vendor}/documents-upload', [DocumentsUploadController::class, 'documentsUpload']);
+    Route::get('/{vendor}/list-documents', [DocumentsUploadController::class, 'listDocuments']);
     Route::get('/owner-associations', [VendorRegistrationController::class, 'listOa']);
 });
 
@@ -399,7 +400,7 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('vendor')->group(function 
     Route::patch('/managers-deatils/{vendor}',[VendorRegistrationController::class, 'updateManagerDetails']);
     Route::get('/{vendor}/services', [SelectServicesController::class, 'showServices']);
     Route::get('/{vendor}/show-documents', [DocumentsUploadController::class, 'showDocuments']);
-    Route::get('/{vendor}/list-documents', [DocumentsUploadController::class, 'listDocuments']);
+    
     Route::post('/{vendor}/escalation-matrix', [EscalationMatrixController::class, 'store']);
     Route::patch('/escalation-matrix/{escalationmatrix}', [EscalationMatrixController::class, 'edit']);
     Route::get('/{vendor}/escalation-matrix', [EscalationMatrixController::class, 'show']);
