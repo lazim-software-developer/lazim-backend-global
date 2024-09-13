@@ -37,7 +37,7 @@ return [
         'alternative' => [
             'salt' => '',
             'length' => 4,
-            'alphabet' => '1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
+            'alphabet' => '1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ'
         ],
 
     ],
