@@ -2,28 +2,16 @@
 
 namespace App\Http\Controllers\User;
 
-use App\Filament\Resources\AccessCardFormsDocumentResource;
-use App\Filament\Resources\FitOutFormsDocumentResource;
-use App\Filament\Resources\NocFormResource;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ServiceChargeResource;
 use App\Models\Accounting\OAMInvoice;
 use App\Models\Accounting\OAMReceipts;
 use App\Models\Building\Flat;
-use App\Models\Forms\AccessCard;
-use App\Models\Forms\FitOutForm;
-use App\Models\Forms\SaleNOC;
-use App\Models\Master\Role;
 use App\Models\Order;
-use App\Models\OwnerAssociation;
-use App\Models\User\User;
 use Carbon\Carbon;
-use Filament\Notifications\Actions\Action;
-use Filament\Notifications\Notification;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
 use Stripe\PaymentIntent;
 use Stripe\Stripe;
 
@@ -150,47 +138,6 @@ class PaymentController extends Controller
             $order->update([
                 'payment_status' =>  $paymentIntent->status
             ]);
-
-            if ($order->payment_status == 'succeeded') {
-
-                $baseClass = class_basename($order->orderable_type);
-                $oaId = null;
-                $link = ''; 
-                Log::info('base'.class_basename($order->orderable_type));
-                Log::info('class'.$order->orderable_type.'//');
-    
-                if ($order->orderable_type == AccessCard::class) {
-                    $oaId = AccessCard::where('id', $order->id)->first()?->owner_association_id;
-                    $link = AccessCardFormsDocumentResource::getUrl('edit', [OwnerAssociation::where('id', $oaId)->first()?->slug, $order->id]);
-                }
-                if ($order->orderable_type == FitOutForm::class) {
-                    $oaId = FitOutForm::where('id', $order->id)->first()?->owner_association_id;
-                    $link = FitOutFormsDocumentResource::getUrl('edit', [OwnerAssociation::where('id', $oaId)->first()?->slug, $order->id]);
-                }
-                if ($order->orderable_type == SaleNOC::class) {
-                    $oaId = SaleNOC::where('id', $order->id)->first()?->owner_association_id;
-                    $link = NocFormResource::getUrl('edit', [OwnerAssociation::where('id', $oaId)->first()?->slug, $order->id]);
-                }
-                Log::info('oa'.$oaId);
-                Log::info('link'.$link);
-                $user = User::where('role_id', Role::where('name', 'OA')->where('owner_association_id',$oaId)->first()->id)
-                ->where('owner_association_id',$oaId)->get();
-                Log::info('user'.$user);
-                if ($user) {
-                    Notification::make()
-                        ->success()
-                        ->title("Payment Update")
-                        ->icon('heroicon-o-document-text')
-                        ->iconColor('success')
-                        ->actions([
-                            Action::make('View')
-                                ->button()
-                                ->url(fn () => $link),
-                        ])
-                        ->body('Payment is done for ' . class_basename($order->orderable_type))
-                        ->sendToDatabase($user);
-                }
-            }
 
             return response()->json([
                 'status' => $paymentIntent->status,
