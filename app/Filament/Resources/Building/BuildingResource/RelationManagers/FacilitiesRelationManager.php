@@ -80,6 +80,7 @@ class FacilitiesRelationManager extends RelationManager
 
                         // Get all the facilities
                         $allFacilities = Facility::all()->pluck('id')->toArray();
+
                         $existingFacility =  DB::table('building_facility')
                             ->where('building_id', $buildingId)
                             ->whereIn('facility_id', $allFacilities)->pluck('facility_id')->toArray();
@@ -97,9 +98,9 @@ class FacilitiesRelationManager extends RelationManager
                             $buildingId = $livewire->ownerRecord->id;
                             $oa_id = DB::table('building_owner_association')->where('building_id', $buildingId)->where('active', true)->first()?->owner_association_id;
                             return $oa_id;
-                        }),   
+                        }),
                     ])
-                    
+
 
             ]);
     }

@@ -2,52 +2,47 @@
 
 namespace App\Filament\Resources\Building;
 
-use Closure;
-use Filament\Forms;
-use Filament\Tables;
-use Filament\Forms\Form;
-use Filament\Tables\Table;
-use Filament\Resources\Resource;
-use App\Imports\OAM\BudgetImport;
-use App\Models\Building\Building;
-use Filament\Forms\Components\Grid;
-use Filament\Tables\Actions\Action;
-use Illuminate\Support\Facades\Log;
-use Maatwebsite\Excel\Facades\Excel;
-use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Toggle;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Session;
-use Illuminate\Validation\Rules\Unique;
-use Filament\Forms\Components\TextInput;
-use Filament\Notifications\Notification;
-use Filament\Forms\Components\FileUpload;
-use EightyNine\ExcelImport\ExcelImportAction;
-use Filament\Forms\Components\MarkdownEditor;
-use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
-use App\Filament\Resources\Building\BuildingResource\Pages;
-use App\Filament\Resources\Building\BuildingResource\RelationManagers;
-use App\Filament\Resources\BuildingResource\RelationManagers\VendorRelationManager;
 use App\Filament\Resources\BuildingResource\RelationManagers\ContractsRelationManager;
-use App\Filament\Resources\Building\BuildingResource\RelationManagers\FloorsRelationManager;
-use App\Filament\Resources\Building\BuildingResource\RelationManagers\MeetingsRelationManager;
-use App\Filament\Resources\Building\BuildingResource\RelationManagers\IncidentsRelationManager;
-use App\Filament\Resources\Building\BuildingResource\RelationManagers\BuildingvendorRelationManager;
+use App\Filament\Resources\BuildingResource\RelationManagers\VendorRelationManager;
+use App\Filament\Resources\Building\BuildingResource\Pages;
 use App\Filament\Resources\Building\BuildingResource\RelationManagers\BuildingserviceRelationManager;
+use App\Filament\Resources\Building\BuildingResource\RelationManagers\BuildingvendorRelationManager;
+use App\Filament\Resources\Building\BuildingResource\RelationManagers\EmergencyNumbersRelationManager;
+use App\Filament\Resources\Building\BuildingResource\RelationManagers\FloorsRelationManager;
+use App\Filament\Resources\Building\BuildingResource\RelationManagers\IncidentsRelationManager;
+use App\Filament\Resources\Building\BuildingResource\RelationManagers\MeetingsRelationManager;
 use App\Filament\Resources\Building\BuildingResource\RelationManagers\OfferPromotionsRelationManager;
 use App\Filament\Resources\Building\BuildingResource\RelationManagers\OwnercommitteesRelationManager;
 use App\Filament\Resources\Building\BuildingResource\RelationManagers\RuleregulationsRelationManager;
-use App\Filament\Resources\Building\BuildingResource\RelationManagers\EmergencyNumbersRelationManager;
+use App\Imports\OAM\BudgetImport;
+use App\Models\Building\Building;
+use Closure;
+use Filament\Forms;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\MarkdownEditor;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
+use Filament\Forms\Form;
+use Filament\Resources\Resource;
+use Filament\Tables;
+use Filament\Tables\Actions\Action;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\Rules\Unique;
+use Maatwebsite\Excel\Facades\Excel;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class BuildingResource extends Resource
 {
     protected static ?string $model = Building::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-    protected static ?string $navigationGroup = 'Property Management';
+    protected static ?string $navigationIcon        = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationGroup       = 'Property Management';
     protected static bool $shouldRegisterNavigation = true;
-    protected static ?string $modelLabel      = 'Buildings';
+    protected static ?string $modelLabel            = 'Buildings';
     public static function form(Form $form): Form
     {
         return $form
@@ -57,104 +52,112 @@ class BuildingResource extends Resource
                     'md' => 1,
                     'lg' => 1,
                 ])->schema([
-                            TextInput::make('name')
-                                ->rules(['max:50', 'string'])
-                                ->required()
-                                ->disabled()
-                                ->placeholder('Name'),
+                    TextInput::make('name')
+                        ->rules(['max:50', 'string'])
+                        ->required()
+                        ->disabled(function () {
+                            if (auth()->user()->role->name !== 'Admin') {
+                                return true;
+                            }
+                        })
+                        ->placeholder('Name'),
 
-                            TextInput::make('property_group_id')
-                                ->rules(['max:50', 'string'])
-                                ->required()
-                                ->disabled()
-                                ->placeholder('Property Group Id')
-                                ->unique(
-                                    'buildings',
-                                    'property_group_id',
-                                    fn(?Model $record) => $record,
-                                ),
+                    TextInput::make('property_group_id')
+                        ->rules(['max:50', 'string'])
+                        ->required()
+                        ->disabled(function () {
+                            if (auth()->user()->role->name !== 'Admin') {
+                                return true;
+                            }
+                        })
+                        ->placeholder('Property Group Id')
+                        ->unique(
+                            'buildings',
+                            'property_group_id',
+                            fn(?Model $record) => $record,
+                        ),
 
-                            TextInput::make('address_line1')
-                                ->rules(['max:500', 'string'])
-                                ->required()
-                                ->placeholder('Address Line1'),
+                    TextInput::make('address_line1')
+                        ->rules(['max:500', 'string'])
+                        ->required()
+                        ->placeholder('Address Line1'),
 
-                            TextInput::make('address_line2')
-                                ->rules(['max:500', 'string'])
-                                ->nullable()
-                                ->placeholder('Address Line2'),
-                            Hidden::make('owner_association_id')
-                                ->default(auth()->user()?->owner_association_id),
+                    TextInput::make('address_line2')
+                        ->rules(['max:500', 'string'])
+                        ->nullable()
+                        ->placeholder('Address Line2'),
+                    Hidden::make('owner_association_id')
+                        ->default(auth()->user()?->owner_association_id),
 
-                            TextInput::make('area')
-                                ->rules(['max:100', 'string'])
-                                ->required()
-                                ->placeholder('Area'),
+                    TextInput::make('area')
+                        ->rules(['max:100', 'string'])
+                        ->required()
+                        ->placeholder('Area'),
 
-                            // Select::make('city_id')
-                            //     ->rules(['exists:cities,id'])
-                            //     ->preload()
-                            //     ->relationship('cities', 'name')
-                            //     ->searchable()
-                            //     ->placeholder('NA'),
-                            MarkdownEditor::make('description')
-                            ->toolbarButtons([
-                                'bold',
-                                'bulletList',
-                                'italic',
-                                'link',
-                                'orderedList',
-                                'redo',
-                                'undo',
-                            ])
-                            ->label('About'),
-                            FileUpload::make('cover_photo')
-                                ->disk('s3')
-                                ->rules(['file','mimes:jpeg,jpg,png',function () {
-                                    return function (string $attribute, $value, Closure $fail) {
-                                        if($value->getSize()/ 1024 > 2048){
-                                            $fail('The cover Photo field must not be greater than 2MB.');
-                                        }
-                                    };
-                                },])
-                                ->directory('dev')
-                                ->image()
-                                ->maxSize(2048)
-                                ->label('Cover Photo'),
-                            TextInput::make('floors')
-                                ->numeric()
-                                ->minValue(1)
-                                ->maxValue(999)
-                                ->disabled(function ($record) {
-                                    if($record?->floors == null){
-                                        return false;
-                                    }
-                                    return true;
-                                })
-                                ->placeholder('Floors')
-                                ->label('Floor'),
+                    // Select::make('city_id')
+                    //     ->rules(['exists:cities,id'])
+                    //     ->preload()
+                    //     ->relationship('cities', 'name')
+                    //     ->searchable()
+                    //     ->placeholder('NA'),
+                    MarkdownEditor::make('description')
+                        ->toolbarButtons([
+                            'bold',
+                            'bulletList',
+                            'italic',
+                            'link',
+                            'orderedList',
+                            'redo',
+                            'undo',
+                        ])
+                        ->label('About'),
+                    FileUpload::make('cover_photo')
+                        ->disk('s3')
+                        ->rules(['file', 'mimes:jpeg,jpg,png', function () {
+                            return function (string $attribute, $value, Closure $fail) {
+                                if ($value->getSize() / 1024 > 2048) {
+                                    $fail('The cover Photo field must not be greater than 2MB.');
+                                }
+                            };
+                        }])
+                        ->directory('dev')
+                        ->image()
+                        ->maxSize(2048)
+                        ->label('Cover Photo'),
+                    TextInput::make('floors')
+                        ->numeric()
+                        ->minValue(1)
+                        ->maxValue(999)
+                        ->disabled(function (?Model $record) {
+                            if ($record?->floors == null) {
+                                return false;
+                            }
+                            return true;
+                        })
+                        ->placeholder('Floors')
+                        ->label('Floor'),
 
-                            Toggle::make('allow_postupload')
-                                ->rules(['boolean'])
-                                ->label('Allow post-upload'),
-                            Toggle::make('show_inhouse_services')
-                                ->rules(['boolean'])
-                                ->label('Show Personal services'),
+                    Toggle::make('allow_postupload')
+                        ->rules(['boolean'])
+                        ->label('Allow post-upload'),
+                    Toggle::make('show_inhouse_services')
+                        ->rules(['boolean'])
+                        ->label('Show Personal services')
+                        ->hiddenOn('create'),
 
+                    // TextInput::make('lat')
+                    //     ->rules(['numeric'])
+                    //     ->placeholder('Lat'),
 
-                            // TextInput::make('lat')
-                            //     ->rules(['numeric'])
-                            //     ->placeholder('Lat'),
+                    // TextInput::make('lng')
+                    //     ->rules(['numeric'])
+                    //     ->placeholder('Lng'),
 
-                            // TextInput::make('lng')
-                            //     ->rules(['numeric'])
-                            //     ->placeholder('Lng'),
+                    // TextInput::make('description')
+                    //     ->rules(['max:255', 'string'])
+                    //     ->placeholder('Description'),
 
-                            // TextInput::make('description')
-                            //     ->rules(['max:255', 'string'])
-                            //     ->placeholder('Description'),
-
-                        ]),
+                ]),
             ]);
     }
 
@@ -248,8 +251,8 @@ class BuildingResource extends Resource
                     ->action(function ($record, array $data, $livewire) {
                         // try {
                         $budgetPeriod = $data['budget_period'];
-                        $filePath = $data['excel_file'];
-                        $fullPath = storage_path('app/' . $filePath);
+                        $filePath     = $data['excel_file'];
+                        $fullPath     = storage_path('app/' . $filePath);
 
                         if (!file_exists($fullPath)) {
                             Log::error("File not found at path: ", [$fullPath]);
@@ -284,7 +287,7 @@ class BuildingResource extends Resource
         return [
             BuildingResource\RelationManagers\FacilityBookingsRelationManager::class,
             BuildingResource\RelationManagers\ServiceBookingsRelationManager::class,
-                // BuildingResource\RelationManagers\BudgetRelationManager::class,
+            // BuildingResource\RelationManagers\BudgetRelationManager::class,
             BuildingResource\RelationManagers\BuildingPocsRelationManager::class,
             FloorsRelationManager::class,
             RuleregulationsRelationManager::class,
@@ -303,16 +306,16 @@ class BuildingResource extends Resource
             BuildingvendorRelationManager::class,
             BuildingResource\RelationManagers\AssetsRelationManager::class,
             ContractsRelationManager::class,
-            VendorRelationManager::class
+            VendorRelationManager::class,
         ];
     }
 
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListBuildings::route('/'),
-            'create' => Pages\CreateBuilding::route('/create'),
-            'edit' => Pages\EditBuilding::route('/{record}/edit'),
+            'index'    => Pages\ListBuildings::route('/'),
+            'create'   => Pages\CreateBuilding::route('/create'),
+            'edit'     => Pages\EditBuilding::route('/{record}/edit'),
             'services' => Pages\ShowServices::route('services'),
         ];
     }

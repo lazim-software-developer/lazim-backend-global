@@ -550,6 +550,7 @@ class AdminPanelProvider extends PanelProvider
                                     ->sort(5),
                                 NavigationItem::make('Residential')
                                     ->url('/admin/residential-forms')
+                                    // ->hidden(auth()->user()->role->name !== 'Admin')
                                     ->hidden(!$user->can('view_any_residential::form'))
                                     ->icon('heroicon-s-building-library')
                                     ->activeIcon('heroicon-s-building-library')
