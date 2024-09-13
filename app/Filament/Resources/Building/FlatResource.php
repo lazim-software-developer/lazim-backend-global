@@ -2,25 +2,29 @@
 
 namespace App\Filament\Resources\Building;
 
-use App\Filament\Resources\Building\FlatResource\Pages;
-use App\Filament\Resources\Building\FlatResource\RelationManagers;
-use App\Filament\Resources\FlatResource\Pages\ViewFlat;
-use App\Models\Building\Building;
-use App\Models\Building\Flat;
-use App\Models\Master\Role;
-use Filament\Facades\Filament;
 use Filament\Forms;
+use Filament\Tables;
+use Filament\Forms\Get;
+use Filament\Forms\Form;
+use Filament\Tables\Table;
+use App\Models\Master\Role;
+use App\Models\Building\Flat;
+use Filament\Facades\Filament;
+use App\Models\OwnerAssociation;
+use Filament\Resources\Resource;
+use App\Models\Building\Building;
+use Illuminate\Support\Facades\DB;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
-use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Forms\Components\TextInput;
 use Filament\Tables\Filters\SelectFilter;
-use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Filament\Resources\Building\FlatResource\Pages;
+use App\Filament\Resources\FlatResource\Pages\ViewFlat;
+use App\Filament\Resources\Building\FlatResource\RelationManagers;
+use App\Filament\Resources\Building\FlatResource\RelationManagers\DocumentsRelationManager;
 
 class FlatResource extends Resource
 {
@@ -42,28 +46,66 @@ class FlatResource extends Resource
                     ->schema([
                     TextInput::make('property_number')->label('Unit')
                         ->required()
-                        ->placeholder('Unit Number'),
+                        ->alphaDash()
+                        ->placeholder('Unit Number')
+                        ->disabledOn('edit'),
+                    Select::make('owner_association_id')
+                        ->required()
+                        ->visibleOn('create')
+                        ->options(function(){
+                            return OwnerAssociation::where('role','Property Manager')->pluck('name','id');
+                        })
+                        ->live()
+                        ->preload()
+                        ->searchable()
+                        ->disabledOn('edit')
+                        ->label('Select Property Manager'),
                     Select::make('building_id')
                         ->rules(['exists:buildings,id'])
                         ->relationship('building', 'name')
+                        ->options(function(Get $get){
+                            $buildings = DB::table('building_owner_association')->where('owner_association_id',$get('owner_association_id'))
+                                            ->pluck('building_id');
+                            return Building::whereIn('id',$buildings)->pluck('name','id');
+                        })
                         ->reactive()
                         ->preload()
+                        ->required()
                         ->searchable()
-                        ->placeholder('Building'),
+                        ->placeholder('Building')
+                        ->disabledOn('edit')
+                        ->label('Select Building'),
+                    Select::make('property_type')
+                        ->options([
+                            'Shop' => 'Shop',
+                            'Office' => 'Office',
+                            'Unit' => 'Unit',
+                        ])
+                        ->required()
+                        ->visibleOn('create')
+                        ->searchable()
+                        ->disabledOn('edit'),
                     TextInput::make('suit_area')
-                        ->default('NA')->placeholder('NA'),
+                        ->placeholder('NA')
+                        ->disabledOn('edit'),
                     TextInput::make('actual_area')
-                        ->default('NA')->placeholder('NA'),
+                        ->placeholder('NA')
+                        ->disabledOn('edit'),
                     TextInput::make('balcony_area')
-                        ->default('NA')->placeholder('NA'),
+                        ->placeholder('NA')
+                        ->disabledOn('edit'),
                     TextInput::make('applicable_area')
-                        ->default('NA')->placeholder('NA'),
+                        ->placeholder('NA')
+                        ->disabledOn('edit'),
                     TextInput::make('virtual_account_number')
-                        ->default('NA')->placeholder('NA'),
+                        ->placeholder('NA')
+                        ->disabledOn('edit'),
                     TextInput::make('parking_count')
-                        ->default('NA')->placeholder('NA'),
+                        ->placeholder('NA')
+                        ->disabledOn('edit'),
                     TextInput::make('plot_number')
-                        ->default('NA')->placeholder('NA'),
+                        ->placeholder('NA')
+                        ->disabledOn('edit'),
                 ]),
             ]);
     }
@@ -127,7 +169,7 @@ class FlatResource extends Resource
                         else{
                              return Building::where('owner_association_id', auth()->user()?->owner_association_id)
                             ->pluck('name', 'id');
-                    }    
+                    }
                     })
                     ->searchable()
                     ->label('Building')
@@ -148,21 +190,25 @@ class FlatResource extends Resource
 
     public static function getRelations(): array
     {
-        return [
-            // FlatResource\RelationManagers\FlatDomesticHelpRelationManager::class,
-            // FlatResource\RelationManagers\FlatTenantRelationManager::class,
-            // FlatResource\RelationManagers\FlatVisitorRelationManager::class,
-            // FlatResource\RelationManagers\UserRelationManager::class,
-        ];
+        if(auth()->user()?->role?->name === 'Property Manager'){
+            return [
+                // FlatResource\RelationManagers\FlatDomesticHelpRelationManager::class,
+                // FlatResource\RelationManagers\FlatTenantRelationManager::class,
+                // FlatResource\RelationManagers\FlatVisitorRelationManager::class,
+                // FlatResource\RelationManagers\UserRelationManager::class,
+                DocumentsRelationManager::class,
+            ];
+        }
+        return [];
     }
 
     public static function getPages(): array
     {
         return [
             'index' => Pages\ListFlats::route('/'),
-            'view' => ViewFlat::route('/{record}')
-            //'create' => Pages\CreateFlat::route('/create'),
-            // 'edit' => Pages\EditFlat::route('/{record}/edit'),
+            'create' => Pages\CreateFlat::route('/create'),
+            'edit' => Pages\EditFlat::route('/{record}/edit'),
+            // 'view' => ViewFlat::route('/{record}'),
         ];
     }
 }
