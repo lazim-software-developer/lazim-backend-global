@@ -95,15 +95,11 @@ class AdminPanelProvider extends PanelProvider
             ->sidebarCollapsibleOnDesktop()
             ->navigation(function (NavigationBuilder $builder): NavigationBuilder {
                 // if (DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] != 'Admin') {
-                    $builder->groups([
-                        NavigationGroup::make('Dashboard')
-                            ->items([
-                                NavigationItem::make('Dashboard')
-                                    ->icon('heroicon-o-home')
-                                    ->activeIcon('heroicon-s-home')
-                                    ->url('/admin'),
-                            ])
-                            ->collapsed(true),
+                    $builder->items([
+                        NavigationItem::make('Dashboard')
+                            ->icon('heroicon-o-home')
+                            ->activeIcon('heroicon-s-home')
+                            ->url('/admin'),
                     ]);
                 // }
                     $user = User::find(auth()->user()->id) ;
@@ -728,9 +724,9 @@ class AdminPanelProvider extends PanelProvider
                 }
                 // if ($user->can('view_any_legal::notice')){
                 //     $builder->groups([
-                //         NavigationGroup::make('Legal Notice')
+                //         NavigationGroup::make('Leagal Notice')
                 //             ->items([
-                //                 NavigationItem::make('Legal Notice')
+                //                 NavigationItem::make('Leagal Notice')
                 //                     ->url(LegalNoticeResource::getUrl('index'))
                 //                     ->icon('heroicon-s-swatch')
                 //             ])
