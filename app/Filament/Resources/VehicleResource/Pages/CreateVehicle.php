@@ -35,7 +35,7 @@ class CreateVehicle extends CreateRecord
         
             $this->halt();
         }
-        elseif(Vehicle::where('parking_number',$data['parking_number'])->exists()){
+        elseif(Vehicle::where('parking_number',$data['parking_number'])->whereNot('flat_id',$data['flat_id'])->exists()){
             Notification::make()
                 ->warning()
                 ->title('Dulpicate')
