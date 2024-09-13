@@ -28,7 +28,7 @@ class VehicleController extends Controller
         }
 
         $parking_number = $flat?->property_number . '-' . $request->parking_number;
-        if (Vehicle::where('parking_number', $parking_number)->exists()){
+        if (Vehicle::where('parking_number', $parking_number)->whereNot('flat_id',$request->flat_id)->exists()){
             return (new CustomResponseResource([
                 'title' => 'parking number exists',
                 'message' => "parking number you have entered is already being used.",
