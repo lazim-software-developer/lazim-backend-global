@@ -31,46 +31,46 @@ class OrderObserver
      */
     public function updated(Order $order): void
     {
-        // if ($order->payment_status == 'succeeded') {
+        if ($order->payment_status == 'succeeded') {
 
-        //     $baseClass = class_basename($order->orderable_type);
-        //     $oaId = null;
-        //     $link = ''; 
-        //     Log::info('base'.class_basename($order->orderable_type));
-        //     Log::info('class'.$order->orderable_type);
+            $baseClass = class_basename($order->orderable_type);
+            $oaId = null;
+            $link = ''; 
+            Log::info('base'.class_basename($order->orderable_type));
+            Log::info('class'.$order->orderable_type);
 
-        //     if ($order->orderable_type == AccessCard::class) {
-        //         $oaId = AccessCard::where('id', $order->id)->first()?->owner_association_id;
-        //         $link = AccessCardFormsDocumentResource::getUrl('edit', [OwnerAssociation::where('id', $oaId)->first()?->slug, $order->id]);
-        //     }
-        //     if ($order->orderable_type == FitOutForm::class) {
-        //         $oaId = FitOutForm::where('id', $order->id)->first()?->owner_association_id;
-        //         $link = FitOutFormsDocumentResource::getUrl('edit', [OwnerAssociation::where('id', $oaId)->first()?->slug, $order->id]);
-        //     }
-        //     if ($order->orderable_type == SaleNOC::class) {
-        //         $oaId = SaleNOC::where('id', $order->id)->first()?->owner_association_id;
-        //         $link = NocFormResource::getUrl('edit', [OwnerAssociation::where('id', $oaId)->first()?->slug, $order->id]);
-        //     }
-        //     Log::info('oa'.$oaId);
-        //     Log::info('link'.$link);
-        //     $user = User::where('role_id', Role::where('name', 'OA')->where('owner_association_id',$oaId)->first()->id)
-        //     ->where('owner_association_id',$oaId)->get();
-        //     Log::info('user'.$user);
-        //     if ($user) {
-        //         Notification::make()
-        //             ->success()
-        //             ->title("Payment Update")
-        //             ->icon('heroicon-o-document-text')
-        //             ->iconColor('success')
-        //             ->actions([
-        //                 Action::make('View')
-        //                     ->button()
-        //                     ->url(fn () => $link),
-        //             ])
-        //             ->body('Payment is done for ' . class_basename($order->orderable_type))
-        //             ->sendToDatabase($user);
-        //     }
-        // }
+            if ($order->orderable_type == AccessCard::class) {
+                $oaId = AccessCard::where('id', $order->id)->first()?->owner_association_id;
+                $link = AccessCardFormsDocumentResource::getUrl('edit', [OwnerAssociation::where('id', $oaId)->first()?->slug, $order->orderable_id]);
+            }
+            if ($order->orderable_type == FitOutForm::class) {
+                $oaId = FitOutForm::where('id', $order->id)->first()?->owner_association_id;
+                $link = FitOutFormsDocumentResource::getUrl('edit', [OwnerAssociation::where('id', $oaId)->first()?->slug, $order->orderable_id]);
+            }
+            if ($order->orderable_type == SaleNOC::class) {
+                $oaId = SaleNOC::where('id', $order->id)->first()?->owner_association_id;
+                $link = NocFormResource::getUrl('edit', [OwnerAssociation::where('id', $oaId)->first()?->slug, $order->orderable_id]);
+            }
+            Log::info('oa'.$oaId);
+            Log::info('link'.$link);
+            $user = User::where('role_id', Role::where('name', 'OA')->where('owner_association_id',$oaId)->first()->id)
+            ->where('owner_association_id',$oaId)->get();
+            Log::info('user'.$user);
+            if ($user) {
+                Notification::make()
+                    ->success()
+                    ->title("Payment Update")
+                    ->icon('heroicon-o-document-text')
+                    ->iconColor('success')
+                    ->actions([
+                        Action::make('View')
+                            ->button()
+                            ->url(fn () => $link),
+                    ])
+                    ->body('Payment is done for ' . class_basename($order->orderable_type))
+                    ->sendToDatabase($user);
+            }
+        }
     }
 
     /**
