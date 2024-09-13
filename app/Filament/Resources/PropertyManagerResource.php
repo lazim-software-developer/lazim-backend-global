@@ -61,33 +61,33 @@ class PropertyManagerResource extends Resource
                         ->placeholder('TRN Number'),
                     TextInput::make('phone')
                     ->rules(['regex:/^\+?(971)(50|51|52|55|56|58|02|03|04|06|07|09)\d{7}$/',
-                        function ($state) {
-                            return function ($value, Closure $fail) use ($state) {
-                                dd($value);
-                                if (DB::table('owner_associations')
-                                    ->where('phone', $value)->count() > 0) {
-                                    $fail('The phone is already taken by a Property Manager.');
-                                }
-                                if (DB::table('owner_associations')
-                                    ->where('id', $record->id)
-                                    ->where('verified', 1)->count() > 0) {
-                                    $role_id = Role::where('owner_association_id', $record->id)
-                                        ->where('name', 'Property Manager')->first();
-                                    $getuserecord = User::where('owner_association_id', $record->id)
-                                        ->where('role_id', $role_id?->id)->first()?->id;
+                        // function ($state) {
+                        //     return function ($value, Closure $fail) use ($state) {
+                        //         dd($value);
+                        //         if (DB::table('owner_associations')
+                        //             ->where('phone', $value)->count() > 0) {
+                        //             $fail('The phone is already taken by a Property Manager.');
+                        //         }
+                        //         if (DB::table('owner_associations')
+                        //             ->where('id', $record->id)
+                        //             ->where('verified', 1)->count() > 0) {
+                        //             $role_id = Role::where('owner_association_id', $record->id)
+                        //                 ->where('name', 'Property Manager')->first();
+                        //             $getuserecord = User::where('owner_association_id', $record->id)
+                        //                 ->where('role_id', $role_id?->id)->first()?->id;
 
-                                    if (DB::table('users')
-                                        ->whereNot('id', $getuserecord)
-                                        ->where('phone', $value)->exists()) {
-                                        $fail('The phone is already taken by a user.');
-                                    }
-                                } else {
-                                    if (DB::table('users')->where('phone', $value)->exists()) {
-                                        $fail('The phone is already taken by a user.');
-                                    }
-                                }
-                            };
-                        },
+                        //             if (DB::table('users')
+                        //                 ->whereNot('id', $getuserecord)
+                        //                 ->where('phone', $value)->exists()) {
+                        //                 $fail('The phone is already taken by a user.');
+                        //             }
+                        //         } else {
+                        //             if (DB::table('users')->where('phone', $value)->exists()) {
+                        //                 $fail('The phone is already taken by a user.');
+                        //             }
+                        //         }
+                        //     };
+                        // },
                     ])
                         ->required()
                         ->live()
