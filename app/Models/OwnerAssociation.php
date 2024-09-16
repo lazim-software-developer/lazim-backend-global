@@ -25,7 +25,7 @@ class OwnerAssociation extends Model
     protected $fillable = [
         'name', 'phone', 'email', 'trn_number',
         'address', 'mollak_id', 'verified', 'verified_by', 'active', 'profile_photo','bank_account_number','trn_certificate',
-        'trade_license','dubai_chamber_document','memorandum_of_association','slug'
+        'trade_license','dubai_chamber_document','memorandum_of_association','slug', 'role'
     ];
 
     /**
@@ -55,6 +55,11 @@ class OwnerAssociation extends Model
 
     public function building(){
         return $this->belongsToMany(Building::class, 'building_owner_association');
+    }
+
+    public function buildings(){
+        return $this->belongsToMany(Building::class, 'building_owner_association')
+        ->withPivot(['from', 'to', 'active']);
     }
 
     public function facilityBookings(){

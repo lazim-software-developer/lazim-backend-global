@@ -38,6 +38,7 @@ use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use App\Filament\Resources\OwnerAssociationInvoiceResource;
 use App\Filament\Resources\OwnerAssociationReceiptResource;
+use App\Filament\Resources\PropertyManagerResource;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 
 class AppPanelProvider extends PanelProvider
@@ -85,7 +86,7 @@ class AppPanelProvider extends PanelProvider
                     ]);
                 // }
                     $user = User::find(auth()->user()->id) ;
-              if( 
+              if(
                 $user->can('view_any_mollak::tenant')||
                 $user->can('view_any_user::approval') ||
                 $user->can('view_any_owner::association')||
@@ -101,7 +102,7 @@ class AppPanelProvider extends PanelProvider
                 $builder->groups([
                     NavigationGroup::make('Master')
                         ->items([
-                            
+
                             NavigationItem::make('Tenants')
                                 ->url('/app/mollak-tenants')
                                 ->hidden(!$user->can('view_any_mollak::tenant'))
@@ -150,6 +151,14 @@ class AppPanelProvider extends PanelProvider
                             //     ->icon('heroicon-m-photo')
                             //     ->activeIcon('heroicon-m-photo')
                             //     ->sort(2),
+
+                            NavigationItem::make('Property Management')
+                                ->url('/app/property-managers')
+                                ->hidden(!$user->can('view_any_owner::association'))
+                                ->icon('heroicon-o-building-office')
+                                ->activeIcon('heroicon-o-building-office')
+                                ->sort(8),
+
                             NavigationItem::make('Owner association')
                                 ->url('/app/owner-associations')
                                 ->hidden(!$user->can('view_any_owner::association'))
@@ -179,7 +188,7 @@ class AppPanelProvider extends PanelProvider
                                 ->hidden(function () {
                                     $userRoleId = auth()->user()->role_id;
                                     $adminRoleIds = Role::whereIn('name', ['OA', 'MD'])->pluck('id')->toArray();
-                                    
+
                                     return !in_array($userRoleId, $adminRoleIds);
                                 })
                                 ->url('/app/shield/roles')
@@ -216,7 +225,7 @@ class AppPanelProvider extends PanelProvider
             }
 
 
-                if($user->can('view_any_building::building') || 
+                if($user->can('view_any_building::building') ||
                 $user->can('view_any_building::flat') ||
                 $user->can('view_any_building::facility::booking') ||
                 $user->can('view_any_building::service::booking')  ||

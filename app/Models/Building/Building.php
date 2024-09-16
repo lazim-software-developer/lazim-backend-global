@@ -72,6 +72,8 @@ class Building extends Model
         'slug',
         'cover_photo',
         'show_inhouse_services',
+        'mollak_property_id',
+        'managed_by'
         'address'
     ];
 
@@ -184,6 +186,13 @@ class Building extends Model
     {
         return $this->belongsToMany(OwnerAssociation::class, 'building_owner_association');
     }
+
+    public function ownerAssociations()
+    {
+        return $this->belongsToMany(OwnerAssociation::class, 'building_owner_association')
+        ->withPivot(['from', 'to', 'active']);
+    }
+
     public function posts()
     {
         return $this->belongsToMany(Post::class);
