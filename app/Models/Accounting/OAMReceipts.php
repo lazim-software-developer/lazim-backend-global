@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 class OAMReceipts extends Model
 {
     use HasFactory;
+    protected $connection = 'mysql';
 
     protected $table = 'oam_receipts';
 

@@ -10,6 +10,8 @@ class OwnerAssociationInvoice extends Model
 {
     use HasFactory;
 
+    protected $connection = 'mysql';
+
     protected $table = 'owner_association_invoices';
 
     protected $fillable = [

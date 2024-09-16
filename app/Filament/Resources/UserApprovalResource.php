@@ -11,6 +11,7 @@ use App\Models\UserApproval;
 use App\Models\Building\Flat;
 use Filament\Resources\Resource;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
@@ -100,8 +101,9 @@ class UserApprovalResource extends Resource
                     ->searchable()
                     ->live()
                     ->required(),
-                TextInput::make('remarks')
-                    ->maxLength(50)
+                Textarea::make('remarks')
+                    ->maxLength(250)
+                    ->rows(5)
                     ->required()
                     ->visible(function (Get $get) {
                         if ($get('status') == 'rejected') {

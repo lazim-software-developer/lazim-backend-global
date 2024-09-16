@@ -2,23 +2,24 @@
 
 namespace App\Models\Building;
 
-use App\Models\Accounting\OAMReceipts;
-use App\Models\CoolingAccount;
 use App\Models\User\User;
 use App\Models\Forms\Guest;
+use App\Models\LegalNotice;
 use App\Models\MollakTenant;
+use App\Models\UserApproval;
 use App\Models\Forms\SaleNOC;
 use App\Models\ApartmentOwner;
+use App\Models\CoolingAccount;
 use App\Models\Forms\AccessCard;
 use App\Models\Forms\FitOutForm;
+use App\Models\OwnerAssociation;
 use App\Models\Building\Building;
 use App\Models\Scopes\Searchable;
 use App\Models\OaUserRegistration;
 use App\Models\Building\FlatTenant;
 use App\Models\Visitor\FlatVisitor;
 use App\Models\Accounting\OAMInvoice;
-use App\Models\UserApproval;
-use App\Models\OwnerAssociation;
+use App\Models\Accounting\OAMReceipts;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Visitor\FlatDomesticHelp;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -27,6 +28,8 @@ class Flat extends Model
 {
     use HasFactory;
     use Searchable;
+
+    protected $connection = 'mysql';
 
     protected $fillable = [
         'property_number',
@@ -129,5 +132,10 @@ class Flat extends Model
     public function userApprovals()
     {
         return $this->hasMany(UserApproval::class);
+    }
+
+    public function legalNotices()
+    {
+        return $this->hasMany(LegalNotice::class);
     }
 }

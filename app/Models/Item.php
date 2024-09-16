@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Item extends Model
 {
     use HasFactory;
+    protected $connection = 'mysql';
     protected $fillable = ['name','quantity','building_id','description'];
 
     public function ownerAssociation()

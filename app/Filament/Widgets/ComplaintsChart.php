@@ -3,6 +3,7 @@ namespace App\Filament\Widgets;
 
 use App\Models\Building\Building;
 use App\Models\Building\Complaint;
+use App\Models\User\User;
 use Filament\Widgets\ChartWidget;
 use Filament\Widgets\Concerns\InteractsWithPageFilters;
 use Carbon\Carbon;
@@ -16,6 +17,12 @@ class ComplaintsChart extends ChartWidget
     protected static ?int $sort = 6;
 
     // protected int | string | array $columnSpan = 6;
+
+    public static function canView(): bool
+    {
+        $user = User::find(auth()->user()->id);
+        return ($user->can('view_any_complaintscomplaint')||$user->can('view_any_helpdeskcomplaint'));
+    }
 
     protected function getData(): array
     {

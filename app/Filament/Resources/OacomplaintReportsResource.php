@@ -24,6 +24,8 @@ use Filament\Forms\Components\TextInput;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Forms\Components\FileUpload;
 use App\Filament\Resources\OacomplaintReportsResource\Pages;
+use App\Models\Accounting\SubCategory;
+use App\Models\Master\Service;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Repeater;
 
@@ -75,6 +77,37 @@ class OacomplaintReportsResource extends Resource
                     ->live()
                     ->searchable(),
 
+                Select::make('Category')
+                    ->preload()->required()
+                    ->searchable()->live()->hiddenOn('edit')
+                    ->options(function () {
+                        return SubCategory::whereNot('name','Security Services')->pluck('name', 'id');
+                    })
+                    ->afterStateUpdated(
+                        function (Set $set) {
+                            $set('service_id', null);
+                        })->visible(function (Get $get) {
+                        if ($get('type') == 'Technician' || $get('type') == 'Vendor') {
+                            return true;
+                        }
+                        return false;
+                    }),
+                Select::make('service_id')
+                    ->searchable()
+                    ->required()->preload()
+                    ->relationship('service','name')
+                    ->label('Service')->disabledOn('edit')
+                    ->getSearchResultsUsing(fn (string $search,callable $get): array => Service::where('subcategory_id', $get('Category'))->where('type', 'vendor_service')->where('active',true)->where('name', 'like', "%{$search}%")->pluck('name', 'id')->toArray())
+                    ->options(
+                        function (Get $get) {
+                            return Service::where('subcategory_id', $get('Category'))->where('type', 'vendor_service')->where('active',true)->pluck('name','id')->toArray();
+                        }
+                    )->visible(function (Get $get) {
+                        if ($get('type') == 'Technician' || $get('type') == 'Vendor') {
+                            return true;
+                        }
+                        return false;
+                    }),
                 Select::make('user_id')->label('User')->disabledOn('edit')
                     // ->relationship('user', 'first_name')
                     ->options(function (Get $get) {
@@ -85,7 +118,7 @@ class OacomplaintReportsResource extends Resource
                         }
                         if ($get('type') === 'Vendor') {
                             $buildingVendor = BuildingVendor::where('building_id', $get('building_id'))->where('active', 1)->pluck('vendor_id');
-                            return Vendor::whereIn('id', $buildingVendor)->where('status', 'approved')->pluck('name','id');
+                            return Vendor::whereIn('id', $buildingVendor)->where('status', 'approved')->pluck('name', 'id');
                             // return User::whereIn('id', $Vendors)->pluck('first_name', 'id');
                         }
                         if ($get('type') === 'Gatekeeper') {
@@ -98,12 +131,12 @@ class OacomplaintReportsResource extends Resource
                     ->dehydrateStateUsing(function ($state, $get, $set) {
                         if ($get('type') === 'Technician') {
                             $set('technician_id', $state);
-                            return null; 
+                            return null;
                         } elseif ($get('type') === 'Vendor') {
                             $set('vendor_id', $state);
-                            return null; 
+                            return null;
                         } elseif ($get('type') === 'Gatekeeper') {
-                            return $state; 
+                            return $state;
                         }
                     })
                     ->live()
@@ -126,27 +159,27 @@ class OacomplaintReportsResource extends Resource
                 //     ->label('Image')
                 //     ->columnSpanFull(),
                 Repeater::make('media')->label('')
-                            ->relationship()
-                            ->schema([
-                                FileUpload::make('url')
-                                    ->disk('s3')
-                                    ->rules('file|mimes:jpeg,jpg,png|max:2048')
-                                    ->directory('dev')
-                                    ->openable(true)
-                                    ->downloadable(true)
-                                    ->image()
-                                    ->required()
-                                    ->maxSize(2048)
-                                    ->label('Image')
-                                    ->columnSpanFull()
-                            ])
-                            ->columnSpan([
-                                'sm' => 1,
-                                'md' => 1,
-                                'lg' => 2
-                            ])
-                            ->addable(false)->disabledOn('edit')
-                            ->deletable(false),
+                    ->relationship()
+                    ->schema([
+                        FileUpload::make('url')
+                            ->disk('s3')
+                            ->rules('file|mimes:jpeg,jpg,png|max:2048')
+                            ->directory('dev')
+                            ->openable(true)
+                            ->downloadable(true)
+                            ->image()
+                            ->required()
+                            ->maxSize(2048)
+                            ->label('Image')
+                            ->columnSpanFull()
+                    ])
+                    ->columnSpan([
+                        'sm' => 1,
+                        'md' => 1,
+                        'lg' => 2
+                    ])
+                    ->addable(false)->disabledOn('edit')
+                    ->deletable(false),
 
                 Hidden::make('complaintable_type')
                     ->default('App\Models\User\User'),
@@ -157,19 +190,19 @@ class OacomplaintReportsResource extends Resource
                 Hidden::make('technician_id'),
                 Hidden::make('vendor_id'),
                 Hidden::make('owner_association_id')
-                ->default(auth()->user()->owner_association_id),
+                    ->default(auth()->user()->owner_association_id),
                 Select::make('status')
-                ->options([
-                    'open' => 'Open',
-                    'closed' => 'Closed'
-                ])->hiddenOn('create')
-                ->disabled(function (?Complaint $record) {
-                    return $record?->status == 'closed';
-                }),
+                    ->options([
+                        'open' => 'Open',
+                        'closed' => 'Closed'
+                    ])->hiddenOn('create')
+                    ->disabled(function (?Complaint $record) {
+                        return $record?->status == 'closed';
+                    }),
                 Hidden::make('category')
-                ->default('OA Complaint'),
+                    ->default('OA Complaint'),
                 Hidden::make('complaint_type')
-                ->default('oa_complaint_report')
+                    ->default('oa_complaint_report')
             ]);
     }
 

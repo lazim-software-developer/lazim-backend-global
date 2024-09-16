@@ -34,6 +34,24 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rules\Unique;
 use Maatwebsite\Excel\Facades\Excel;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
+use App\Filament\Resources\Building\BuildingResource\Pages;
+use App\Filament\Resources\Building\BuildingResource\RelationManagers;
+use App\Filament\Resources\BuildingResource\RelationManagers\VendorRelationManager;
+use App\Filament\Resources\BuildingResource\RelationManagers\ContractsRelationManager;
+use App\Filament\Resources\Building\BuildingResource\RelationManagers\FloorsRelationManager;
+use App\Filament\Resources\Building\BuildingResource\RelationManagers\MeetingsRelationManager;
+use App\Filament\Resources\Building\BuildingResource\RelationManagers\IncidentsRelationManager;
+use App\Filament\Resources\Building\BuildingResource\RelationManagers\BuildingvendorRelationManager;
+use App\Filament\Resources\Building\BuildingResource\RelationManagers\BuildingserviceRelationManager;
+use App\Filament\Resources\Building\BuildingResource\RelationManagers\OfferPromotionsRelationManager;
+use App\Filament\Resources\Building\BuildingResource\RelationManagers\OwnercommitteesRelationManager;
+use App\Filament\Resources\Building\BuildingResource\RelationManagers\RuleregulationsRelationManager;
+use App\Filament\Resources\Building\BuildingResource\RelationManagers\EmergencyNumbersRelationManager;
+use Cheesegrits\FilamentGoogleMaps\Fields\Geocomplete;
+use Filament\Forms\Components\Fieldset;
+use Cheesegrits\FilamentGoogleMaps\Fields\Map;
+use Filament\Forms\Get;
+use Filament\Forms\Set;
 
 class BuildingResource extends Resource
 {
@@ -145,19 +163,134 @@ class BuildingResource extends Resource
                         ->label('Show Personal services')
                         ->hiddenOn('create'),
 
-                    // TextInput::make('lat')
-                    //     ->rules(['numeric'])
-                    //     ->placeholder('Lat'),
+                // TextInput::make('lat')
+                //     ->rules(['numeric'])
+                //     ->placeholder('Lat'),
 
-                    // TextInput::make('lng')
-                    //     ->rules(['numeric'])
-                    //     ->placeholder('Lng'),
+                // TextInput::make('lng')
+                //     ->rules(['numeric'])
+                //     ->placeholder('Lng'),
 
-                    // TextInput::make('description')
-                    //     ->rules(['max:255', 'string'])
-                    //     ->placeholder('Description'),
+                // TextInput::make('description')
+                //     ->rules(['max:255', 'string'])
+                //     ->placeholder('Description'),
 
-                ]),
+                Fieldset::make('Location')
+                ->columns(1)
+                    ->schema([
+
+                        Geocomplete::make('search')
+                        ->afterStateUpdated(function ($state, Set $set) {
+                            if ($state == null) {
+                                $set('lat', null);
+                                $set('lng', null);
+                                $set('pincode', null);
+                            }
+                        })
+                            // ->label('Address')
+                            ->placeholder('Enter location')
+                            ->maxLength(256)
+                            ->updateLatLng(true)
+                            ->reactive()
+                            ->types(['establishment'])
+                            // ->countries(['IN'])
+                            // ->Regex('/^[^!@#$]*$/')
+                            ->validationMessages([
+                                // 'Regex'     => 'Enter valid search location',
+                                'countries' => 'International places not allowed',
+                            ])
+                            ->required()
+                            ->live(),
+
+                        Grid::make(['default' => 2])
+                        ->columns(2)
+                        ->schema([
+                            TextInput::make('lat')
+                            ->extraAttributes([
+                                'style' => 'background-color: #f0f0f0; color: #6c757d; pointer-events: none;'
+                            ])
+                            // ->hidden()
+                            ->label('Latitude')
+                            ->required()
+                            ->rules(['max:255'])
+                            ->placeholder('Lat')
+                            ->reactive()
+                            ->afterStateUpdated(function ($state, callable $get, callable $set) {
+                                $set('location', [
+                                    'lat' => floatVal($state),
+                                    'lng' => floatVal($get('lng')),
+                                ]);
+                            })
+                                ->readOnly()
+                                // ->disabled(function (callable $get) {
+                                // if ($get('Search') == true) {
+                                //     return false;
+                                // }
+                                // return true;
+                                // })
+                                ->lazy(),
+
+                            TextInput::make('lng')
+                            ->extraAttributes([
+                                'style' => 'background-color: #f0f0f0; color: #6c757d; pointer-events: none;'
+                            ])
+                            // ->hidden()
+                            ->label('Longitude')
+                            ->required()
+                            ->rules(['max:255'])
+                            ->nullable()
+                            ->placeholder('Long')
+                            ->reactive()
+                            ->afterStateUpdated(function ($state, callable $get, callable $set) {
+                                $set('location', [
+                                    'lat' => floatval($get('lat')),
+                                    'lng' => floatVal($state),
+                                ]);
+                                $location = $get('location');
+                            })
+                                ->readonly()
+                                //     ->disabled(function (callable $get) {
+                                //     if ($get('Search') == true) {
+                                //         return false;
+                                //     }
+                                //     return true;
+                                // })
+                                ->lazy(),
+                        ]),
+
+                        Map::make('location')
+                        ->autocomplete('search')
+                        ->autocompleteReverse(true)
+                        ->mapControls([
+                            'mapTypeControl'    => true,
+                            'scaleControl'      => true,
+                            'streetViewControl' => true,
+                            'rotateControl'     => true,
+                            'fullscreenControl' => true,
+                            'searchBoxControl'  => false, // creates geocomplete field inside map
+                            'zoomControl' => false,
+                        ])
+                            ->reactive()
+                            ->afterStateUpdated(function ($state, Set $set, Get $get) {
+                                $set('lat', $state['lat']);
+                                $set('lng', $state['lng']);
+                            })
+                            ->height(fn() => '400px')
+                            ->defaultZoom(15)
+                            ->reverseGeocode([
+                                'street' => '%n %S',
+                                'city'   => '%L',
+                                'state'  => '%A1',
+                                'zip'    => '%z',
+                            ])
+                            ->draggable()
+                            ->clickable(true)
+                            ->geolocate()
+                            ->geolocateLabel('Get Location')
+                        // ->geolocateOnLoad(true, false)
+                        ,
+                    ]),
+                        ]),
             ]);
     }
 

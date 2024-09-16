@@ -3,6 +3,7 @@
 namespace App\Filament\Widgets;
 
 use App\Models\Building\Complaint;
+use App\Models\User\User;
 use Filament\Facades\Filament;
 use Filament\Widgets\ChartWidget;
 use Filament\Widgets\Concerns\InteractsWithPageFilters;
@@ -16,6 +17,12 @@ class ComplaintCategoriesChart extends ChartWidget
     protected static ?string $heading = 'Complaints';
     protected static ?string $maxHeight = '400px';
     protected static ?int $sort = 7;
+
+    public static function canView(): bool
+    {
+        $user = User::find(auth()->user()->id);
+        return ($user->can('view_any_complaintscomplaint')||$user->can('view_any_helpdeskcomplaint'));
+    }
 
     public function getData(): array
     {

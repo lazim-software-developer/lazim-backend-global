@@ -11,7 +11,21 @@ class UserApproval extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'document_type', 'status', 'remarks', 'document', 'updated_by','emirates_document','passport','owner_association_id','flat_id'];
+    protected $connection = 'mysql';
+
+    protected $fillable = ['user_id', 'document_type', 'status', 'remarks', 'document', 'updated_by', 'emirates_document', 'passport', 'owner_association_id', 'flat_id'];
+
+    /**
+     * Resolve the route binding for the model.
+     *
+     * @param  mixed  $value
+     * @return \Illuminate\Database\Eloquent\Model|null
+     */
+    public function resolveRouteBinding($value, $field = null)
+    {
+        $data = is_numeric($value) ? $value : decrypt($value);
+        return $this->where('id',$data)->firstOrFail();
+    }
 
     public function ownerAssociation()
     {

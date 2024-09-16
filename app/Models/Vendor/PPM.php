@@ -12,6 +12,8 @@ class PPM extends Model
 {
     use HasFactory;
 
+    protected $connection = 'mysql';
+
     protected $table = 'ppm';
 
     protected $fillable = [
