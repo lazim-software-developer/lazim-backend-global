@@ -27,6 +27,7 @@ use App\Models\User\User;
 use Filament\Facades\Filament;
 use Filament\Forms\Components\RichEditor;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class AnnouncementResource extends Resource
@@ -112,6 +113,10 @@ class AnnouncementResource extends Resource
                     ->options(function () {
                         if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
                             return Building::all()->pluck('name', 'id');
+                        }
+                        if (Role::where('id', auth()->user()->role_id)->first()->name == 'Property Manager') {
+                            $buildings = DB::table('building_owner_association')->where('owner_association_id', auth()->user()?->owner_association_id)->pluck('building_id');
+                            return Building::whereIn('id',$buildings)->pluck('name', 'id');
                         }
                         return Building::where('owner_association_id', auth()->user()?->owner_association_id)->pluck('name', 'id');
                     })
