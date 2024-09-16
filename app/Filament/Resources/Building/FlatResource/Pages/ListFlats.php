@@ -28,15 +28,16 @@ class ListFlats extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make()->visible(auth()->user()->role->name === 'Admin'),
+            Actions\CreateAction::make()->visible(in_array(auth()->user()->role->name, ['Admin','Property Manager'])),
             Action::make('feature')
-                ->label('Upload Buildings') // Set a label for your action
-                ->visible(auth()->user()->role->name === 'Admin')
+                ->label('Upload Flats') // Set a label for your action
+                ->visible(in_array(auth()->user()->role->name, ['Admin','Property Manager']))
                 ->form([
                       Select::make('owner_association_id')
                       ->options(function(){
                           return OwnerAssociation::where('role','Property Manager')->pluck('name','id');
                         })
+                        ->visible(auth()->user()->role->name === 'Admin')
                         ->required()
                         ->live()
                         ->preload()
@@ -44,8 +45,7 @@ class ListFlats extends ListRecords
                         ->label('Select Property Manager'),
                     Select::make('building_id')
                         ->options(function(Get $get){
-                            $buildings = DB::table('building_owner_association')->where('owner_association_id',$get('owner_association_id'))
-                                            ->pluck('building_id');
+                            $buildings = DB::table('building_owner_association')->where('owner_association_id',$get('owner_association_id') ?? auth()->user()->owner_association_id)->pluck('building_id');
                             return Building::whereIn('id',$buildings)->pluck('name','id');
                         })
                         ->required()
@@ -67,7 +67,7 @@ class ListFlats extends ListRecords
 
                     $filePath = $data['excel_file'];
                     $fullPath = storage_path('app/' . $filePath);
-                    $oaId     = $data['owner_association_id'];
+                    $oaId     = $data['owner_association_id'] ?? auth()->user()->owner_association_id;
                     $buildingId     = $data['building_id'];
 
                     if (!file_exists($fullPath)) {
@@ -90,7 +90,9 @@ class ListFlats extends ListRecords
                         Column::make('applicable_area'),
                         Column::make('parking_count'),
                     ]),
-            ])->label('Download sample format file'),
+            ])
+            ->visible(in_array(auth()->user()->role->name, ['Admin','Property Manager']))
+            ->label('Download sample format file'),
         ];
     }
     protected function getTableQuery(): Builder

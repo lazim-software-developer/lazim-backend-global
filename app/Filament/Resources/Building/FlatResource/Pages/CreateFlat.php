@@ -16,5 +16,10 @@ class CreateFlat extends CreateRecord
     {
         return $this->getResource()::getUrl('index');
     }
+     protected function mutateFormDataBeforeCreate(array $data): array
+    {
+        $data['owner_association_id'] ?? $data['owner_association_id'] = auth()->user()->owner_association_id;
+        return $data;
+    }
 
 }
