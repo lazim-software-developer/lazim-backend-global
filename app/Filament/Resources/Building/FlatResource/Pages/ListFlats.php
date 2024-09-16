@@ -81,7 +81,7 @@ class ListFlats extends ListRecords
                 ExcelExport::make()
                     ->modifyQueryUsing(fn(Builder $query) => $query->where('id', 0))
                     ->withColumns([
-                        Column::make('property_number'),
+                        Column::make('unit_number'),
                         Column::make('property_type'),
                         Column::make('mollak_property_id'),
                         Column::make('suit_area'),
@@ -89,6 +89,10 @@ class ListFlats extends ListRecords
                         Column::make('balcony_area'),
                         Column::make('applicable_area'),
                         Column::make('parking_count'),
+                        Column::make('makhani_number'),
+                        Column::make('dewa_number'),
+                        Column::make('etisalat/du_number'),
+                        Column::make('btu/ac_number'),
                     ]),
             ])
             ->visible(in_array(auth()->user()->role->name, ['Admin','Property Manager']))

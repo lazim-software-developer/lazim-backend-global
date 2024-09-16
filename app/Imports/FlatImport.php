@@ -22,7 +22,8 @@ class FlatImport implements ToCollection, WithHeadingRow
     public function collection(Collection $rows)
     {
         // Define the expected headings
-        $expectedHeadings = ['property_number', 'property_type', 'mollak_property_id', 'suit_area', 'actual_area', 'balcony_area', 'applicable_area', 'parking_count'];
+        $expectedHeadings = ['unit_number', 'property_type', 'mollak_property_id', 'suit_area', 'actual_area', 'balcony_area',
+                'applicable_area', 'parking_count', 'makhani_number', 'dewa_number', 'etisalat/du_number','btu/ac_number'];
 
         if ($rows->first() == null) {
             Notification::make()
@@ -59,10 +60,7 @@ class FlatImport implements ToCollection, WithHeadingRow
         $notImported = [];
         foreach ($rows as $row) {
             $exists         = Flat::where(['property_number' => $row['property_number'], 'owner_association_id' => $this->oaId, 'building_id' => $this->buildingId])->exists();
-            Log::info($exists);
-            Log::info($row['property_number'] != null);
-            Log::info(in_array($row['property_type'], ['Shop', 'Office', 'Unit']));
-            Log::info(is_numeric($row['parking_count']));
+            
             $requiredFields = $row['property_number'] != null && in_array($row['property_type'], ['Shop', 'Office', 'Unit'])
                                 && is_numeric($row['parking_count']) ? true : false;
 
@@ -72,7 +70,7 @@ class FlatImport implements ToCollection, WithHeadingRow
                 Flat::create([
                     'owner_association_id' => $this->oaId,
                     'building_id'          => $this->buildingId,
-                    'property_number'      => $row['property_number'],
+                    'property_number'      => $row['unit_number'],
                     'property_type'        => $row['property_type'],
                     'mollak_property_id'   => $row['mollak_property_id'],
                     'suit_area'            => $row['suit_area'],
@@ -80,6 +78,10 @@ class FlatImport implements ToCollection, WithHeadingRow
                     'balcony_area'         => $row['balcony_area'],
                     'applicable_area'      => $row['applicable_area'],
                     'parking_count'        => $row['parking_count'],
+                    'makhani_number'       => $row['makhani_number'],
+                    'dewa_number'          => $row['dewa_number'],
+                    'etisalat/du_number'   => $row['etisalat/du_number'],
+                    'btu/ac_number'        => $row['btu/ac_number'],
                 ]);
             }
         }
