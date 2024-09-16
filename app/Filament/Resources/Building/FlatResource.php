@@ -51,10 +51,11 @@ class FlatResource extends Resource
                         ->disabledOn('edit'),
                     Select::make('owner_association_id')
                         ->required()
-                        ->visibleOn('create')
+                        ->hiddenOn('edit')
                         ->options(function(){
                             return OwnerAssociation::where('role','Property Manager')->pluck('name','id');
                         })
+                        ->visible(auth()->user()->role->name === 'Admin')
                         ->live()
                         ->preload()
                         ->searchable()
@@ -64,8 +65,7 @@ class FlatResource extends Resource
                         ->rules(['exists:buildings,id'])
                         ->relationship('building', 'name')
                         ->options(function(Get $get){
-                            $buildings = DB::table('building_owner_association')->where('owner_association_id',$get('owner_association_id'))
-                                            ->pluck('building_id');
+                            $buildings = DB::table('building_owner_association')->where('owner_association_id',$get('owner_association_id') ?? auth()->user()->owner_association_id)->pluck('building_id');
                             return Building::whereIn('id',$buildings)->pluck('name','id');
                         })
                         ->reactive()
