@@ -72,6 +72,7 @@ class Building extends Model
         'slug',
         'cover_photo',
         'show_inhouse_services',
+        'address'
     ];
 
     protected $casts = [
@@ -295,4 +296,33 @@ class Building extends Model
     {
         return $this->hasMany(LegalNotice::class);
     }
+
+    public function getLocationAttribute(): array
+    {
+        return [
+            "lat" => (float)$this->lat,
+            "lng" => (float)$this->lng,
+        ];
+    }
+
+    public function setLocationAttribute(?array $location): void
+    {
+        if (is_array($location))
+        {
+            $this->attributes['lat'] = $location['lat'];
+            $this->attributes['lng'] = $location['lng'];
+            unset($this->attributes['location']);
+        }
+    }
+
+    public static function getLatLngAttributes(): array
+    {
+        return [
+            'lat' => 'lat',
+            'lng' => 'lng',
+        ];
+    }
+
+
+
 }

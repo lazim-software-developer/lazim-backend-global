@@ -43,4 +43,18 @@ class EditBuilding extends EditRecord
             }
         }
     }
+
+    protected function mutateFormDataBeforeSave(array $data): array
+    {
+            $data['address'] = $data['search'];
+            return $data;
+    }
+
+    protected function mutateFormDataBeforeFill(array $data): array
+    {
+        $address= $this->record->address;
+        $data['search'] = $address;
+        
+        return $data;  
+    }
 }
