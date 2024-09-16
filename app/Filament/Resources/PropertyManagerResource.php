@@ -7,7 +7,6 @@ use App\Filament\Resources\PropertyManagerResource\RelationManagers\BuildingRela
 use App\Models\Master\Role;
 use App\Models\OwnerAssociation;
 use App\Models\User;
-use Closure;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\TextInput;
@@ -16,7 +15,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Eloquent\Model;
 
 //
 class PropertyManagerResource extends Resource
@@ -40,129 +39,56 @@ class PropertyManagerResource extends Resource
                     'md' => 1,
                     'lg' => 2,
                 ])->schema([
+
+                    // Name Field
                     TextInput::make('name')
                         ->rules(['regex:/^[a-zA-Z0-9\s]*$/'])
                         ->required()
-                        // ->disabled(function (callable $get) {
-                        //     return DB::table('owner_associations')
-                        //         ->where('email', $get('email'))
-                        //         ->where('verified', 1)
-                        //         ->exists();
-                        // })
                         ->placeholder('User'),
 
-                    TextInput::make('mollak_id')->label('Oa Number')
-                        ->required()
-                    // ->disabled()
-                        ->placeholder('OA Number'),
-                    TextInput::make('trn_number')->label('TRN Number')
-                        ->required()
-                    // ->disabled()
+                    TextInput::make('trn_number')
+                        ->label('TRN Number')
                         ->placeholder('TRN Number'),
+
+                    TextInput::make('emirates_id')
+                        ->label('Emirates Id')
+                        ->required()
+                        ->placeholder('Emirates Id'),
+
+                    TextInput::make('trade_license_number')
+                        ->label('Trade License Number')
+                        ->required()
+                        ->placeholder('Trade License Number'),
+                    // Phone Field with Unique Validation
                     TextInput::make('phone')
-                    ->rules(['regex:/^\+?(971)(50|51|52|55|56|58|02|03|04|06|07|09)\d{7}$/',
-                        // function ($state) {
-                        //     return function ($value, Closure $fail) use ($state) {
-                        //         dd($value);
-                        //         if (DB::table('owner_associations')
-                        //             ->where('phone', $value)->count() > 0) {
-                        //             $fail('The phone is already taken by a Property Manager.');
-                        //         }
-                        //         if (DB::table('owner_associations')
-                        //             ->where('id', $record->id)
-                        //             ->where('verified', 1)->count() > 0) {
-                        //             $role_id = Role::where('owner_association_id', $record->id)
-                        //                 ->where('name', 'Property Manager')->first();
-                        //             $getuserecord = User::where('owner_association_id', $record->id)
-                        //                 ->where('role_id', $role_id?->id)->first()?->id;
-
-                        //             if (DB::table('users')
-                        //                 ->whereNot('id', $getuserecord)
-                        //                 ->where('phone', $value)->exists()) {
-                        //                 $fail('The phone is already taken by a user.');
-                        //             }
-                        //         } else {
-                        //             if (DB::table('users')->where('phone', $value)->exists()) {
-                        //                 $fail('The phone is already taken by a user.');
-                        //             }
-                        //         }
-                        //     };
-                        // },
-                    ])
                         ->required()
-                        ->live()
-                        // ->disabled(function (callable $get) {
-                        //     return DB::table('owner_associations')
-                        //         ->where('email', $get('email'))
-                        //         ->where('verified', 1)
-                        //         ->exists();
-                        // })
-                        ->placeholder('Contact Number'),
-
-                    TextInput::make('address')
-                        ->required()
-                        // ->disabled(function (callable $get) {
-                        //     if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
-                        //         return DB::table('owner_associations')
-                        //             ->where('email', $get('email'))
-                        //             ->where('verified', 1)
-                        //             ->exists();
-                        //     }
-
-                        // })
-                        ->placeholder('Address'),
+                        ->rules([
+                            'regex:/^\+?(50|51|52|55|56|58|02|03|04|06|07|09)\d{7}$/',
+                        ])
+                        ->placeholder('Contact Number')
+                        ->unique('owner_associations','phone',fn (?Model $record) => $record),
 
                     TextInput::make('email')
-                        ->rules(['min:6', 'max:30',
-                            'regex:/^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/',
-                            // function (Model $record) {
-                            //     return function ($value, Closure $fail) use ($record) {
-                            //         if (DB::table('owner_associations')
-                            //             ->where('email', $value)->count() > 0) {
-                            //             $fail('The email is already taken by a OA.');
-                            //         }
-                            //         if (DB::table('owner_associations')
-                            //             ->where('id', $record->id)
-                            //             ->where('verified', 1)->count() > 0) {
-                            //             $role_id = Role::where('owner_association_id', $record->id)
-                            //                 ->where('name', 'Property Manager')->first();
-                            //             $getuserecord = User::where('owner_association_id', $record->id)
-                            //                 ->where('role_id', $role_id?->id)->first()?->id;
-                            //             if (DB::table('users')
-                            //                 ->whereNot('id', $getuserecord)
-                            //                 ->where('email', $value)->exists()) {
-                            //                 $fail('The email is already taken by a USER.');
-                            //             }
-                            //         } else {
-                            //             if (DB::table('users')->where('email', $value)->exists()) {
-                            //                 $fail('The email is already taken by a user.');
-                            //             }
-                            //         }
-                            //     };
-                        ])
                         ->required()
-                        ->live()
-                        // ->disabled(function (callable $get) {
-                        //     return DB::table('owner_associations')
-                        //         ->where('phone', $get('phone'))
-                        //         ->where('verified', 1)
-                        //         ->exists();
-                        // })
-                        ->placeholder('Email'),
+                        ->rules([
+                            'required',
+                            'email',
+                            'min:6',
+                            'max:30',
+                            'regex:/^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/',
+                        ])
+                        ->placeholder('Email')
+                        ->unique('owner_associations','email',fn (?Model $record) => $record),
+
+                    // Additional Fields
+                    TextInput::make('address')
+                        ->required()
+                        ->placeholder('Address'),
 
                     TextInput::make('bank_account_number')
                         ->label('Bank Account Number')
                         ->numeric()
-                        // ->disabled(function (callable $get) {
-                        //     if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
-                        //         return DB::table('owner_associations')
-                        //             ->where('email', $get('email'))
-                        //             ->where('verified', 1)
-                        //             ->exists();
-                        //     }
-
-                        // })
-                        ->placeholder('account number'),
+                        ->placeholder('Account Number'),
 
                     FileUpload::make('profile_photo')
                         ->disk('s3')
@@ -172,94 +98,44 @@ class PropertyManagerResource extends Resource
                         ->maxSize(2048)
                         ->rules('file|mimes:jpeg,jpg,png|max:2048')
                         ->label('Logo')
-                        // ->disabled(function (callable $get) {
-                        //     if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
-                        //         return DB::table('owner_associations')
-                        //             ->where('email', $get('email'))
-                        //             ->where('verified', 1)
-                        //             ->exists();
-                        //     }
-
-                        // })
                         ->columnSpan([
                             'sm' => 1,
                             'md' => 2,
                             'lg' => 2,
                         ]),
 
+                    // Other File Uploads
                     FileUpload::make('trn_certificate')
                         ->disk('s3')
                         ->directory('dev')
                         ->rules('file|mimes:jpeg,jpg,png,pdf|max:2048')
-                    // ->validationMessages([
-                    //     'max' => 'The TRN Certificate must not be  has already been registered.',
-                    // ])
                         ->maxSize(2048)
-                        ->label('TRN Certificate')
-                        ->disabled(function (callable $get) {
-                            if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
-                                return DB::table('owner_associations')
-                                    ->where('email', $get('email'))
-                                    ->where('verified', 1)
-                                    ->exists();
-                            }
-
-                        }),
+                        ->label('TRN Certificate'),
 
                     FileUpload::make('trade_license')
                         ->disk('s3')
                         ->directory('dev')
                         ->rules('file|mimes:jpeg,jpg,png,pdf|max:2048')
                         ->maxSize(2048)
-                        ->label('Trade License')
-                        ->disabled(function (callable $get) {
-                            if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
-                                return DB::table('owner_associations')
-                                    ->where('email', $get('email'))
-                                    ->where('verified', 1)
-                                    ->exists();
-                            }
-
-                        }),
+                        ->label('Trade License'),
 
                     FileUpload::make('dubai_chamber_document')
                         ->disk('s3')
                         ->directory('dev')
                         ->rules('file|mimes:jpeg,jpg,png,pdf|max:2048')
                         ->maxSize(2048)
-                        ->label('Dubai Chamber Document')
-                        ->disabled(function (callable $get) {
-                            if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
-                                return DB::table('owner_associations')
-                                    ->where('email', $get('email'))
-                                    ->where('verified', 1)
-                                    ->exists();
-                            }
-
-                        }),
+                        ->label('Dubai Chamber Document'),
 
                     FileUpload::make('memorandum_of_association')
                         ->disk('s3')
                         ->directory('dev')
                         ->rules('file|mimes:jpeg,jpg,png,pdf|max:2048')
                         ->maxSize(2048)
-                        ->label('Memorandum of Association')
-                        ->disabled(function (callable $get) {
-                            if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
-                                return DB::table('owner_associations')
-                                    ->where('email', $get('email'))
-                                    ->where('verified', 1)
-                                    ->exists();
-                            }
-
-                        }),
+                        ->label('Memorandum of Association'),
 
                     Toggle::make('verified')
                         ->hidden()
                         ->rules(['boolean']),
-                    // ->hidden(function ($record) {
-                    //     return $record->verified;
-                    // }),
 
                     Toggle::make('active')
                         ->label('Active')
@@ -278,10 +154,7 @@ class PropertyManagerResource extends Resource
             //     $user = User::where('id', $this->data->)
             // })
             ->columns([
-                Tables\Columns\TextColumn::make('mollak_id')
-                    ->searchable()
-                    ->default('NA')
-                    ->limit(50),
+
                 Tables\Columns\TextColumn::make('name')
                     ->searchable()
                     ->default('NA')
@@ -301,6 +174,7 @@ class PropertyManagerResource extends Resource
                     ->limit(50),
                 Tables\Columns\TextColumn::make('address')
                     ->default('NA')
+                    ->limit(50)
                     ->searchable(),
             ])
             ->defaultSort('created_at', 'desc')
@@ -323,7 +197,7 @@ class PropertyManagerResource extends Resource
 
     public static function getRelations(): array
     {
-        if(auth()->user()?->role?->name === 'Admin'){
+        if (auth()->user()?->role?->name === 'Admin') {
             return [
                 BuildingRelationManager::class,
             ];

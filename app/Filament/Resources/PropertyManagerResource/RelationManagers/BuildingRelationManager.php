@@ -40,7 +40,8 @@ class BuildingRelationManager extends RelationManager
                     ->form(fn(AttachAction $action): array => [
                         $action->getRecordSelect()->required(),
                         DatePicker::make('from')->default(Carbon::now()->format('d-M-Y')),
-                    ]),
+                    ])
+                    ->label('Add existing building'),
                 Action::make('feature')
                     ->label('Upload Buildings') // Set a label for your action
                     ->form([

@@ -7,10 +7,12 @@ use App\Jobs\PropertyManagerAccountCreationJob;
 use App\Models\Master\Role;
 use App\Models\User\User;
 use Filament\Resources\Pages\CreateRecord;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 class CreatePropertyManager extends CreateRecord
 {
@@ -27,6 +29,35 @@ class CreatePropertyManager extends CreateRecord
         $data['verified']    = 1;
         $data['role']        = 'Property Manager';
         return $data;
+    }
+
+    public static function beforeSave(Model $record): void
+    {
+        // Check if the phone number is already used by another user or owner association
+        $phoneExists = DB::table('owner_associations')
+            ->where('phone', $record->phone)
+            ->where('id', '!=', $record->id)
+            ->exists() ||
+        DB::table('users')
+            ->where('phone', $record->phone)
+            ->exists();
+
+        if ($phoneExists) {
+            throw ValidationException::withMessages(['phone' => 'The phone number is already taken.']);
+        }
+
+        // Check if the email is already used by another user or owner association
+        $emailExists = DB::table('owner_associations')
+            ->where('email', $record->email)
+            ->where('id', '!=', $record->id)
+            ->exists() ||
+        DB::table('users')
+            ->where('email', $record->email)
+            ->exists();
+
+        if ($emailExists) {
+            throw ValidationException::withMessages(['email' => 'The email address is already taken.']);
+        }
     }
 
     protected function afterCreate()

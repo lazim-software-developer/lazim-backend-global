@@ -30,7 +30,7 @@ class ListFlats extends ListRecords
         return [
             Actions\CreateAction::make()->visible(in_array(auth()->user()->role->name, ['Admin','Property Manager'])),
             Action::make('feature')
-                ->label('Upload Flats') // Set a label for your action
+                ->label('Upload Units') // Set a label for your action
                 ->visible(in_array(auth()->user()->role->name, ['Admin','Property Manager']))
                 ->form([
                       Select::make('owner_association_id')

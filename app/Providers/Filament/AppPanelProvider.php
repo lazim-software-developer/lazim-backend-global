@@ -152,13 +152,6 @@ class AppPanelProvider extends PanelProvider
                             //     ->activeIcon('heroicon-m-photo')
                             //     ->sort(2),
 
-                            NavigationItem::make('Property Management')
-                                ->url('/app/property-managers')
-                                ->hidden(!$user->can('view_any_owner::association'))
-                                ->icon('heroicon-o-building-office')
-                                ->activeIcon('heroicon-o-building-office')
-                                ->sort(8),
-
                             NavigationItem::make('Owner association')
                                 ->url('/app/owner-associations')
                                 ->hidden(!$user->can('view_any_owner::association'))
@@ -187,7 +180,7 @@ class AppPanelProvider extends PanelProvider
                             NavigationItem::make('Roles')
                                 ->hidden(function () {
                                     $userRoleId = auth()->user()->role_id;
-                                    $adminRoleIds = Role::whereIn('name', ['OA', 'MD'])->pluck('id')->toArray();
+                                    $adminRoleIds = Role::whereIn('name', ['OA', 'MD', 'Property Manager'])->pluck('id')->toArray();
 
                                     return !in_array($userRoleId, $adminRoleIds);
                                 })
@@ -223,6 +216,21 @@ class AppPanelProvider extends PanelProvider
                         ]),
                 ]);
             }
+              if(
+                $user->can('view_any_property::manager')
+              ){
+                $builder->groups([
+                    NavigationGroup::make('Property management')
+                        ->items([
+                            NavigationItem::make('Property Manager')
+                                ->url('/app/property-managers')
+                                ->hidden(!$user->can('view_any_property::manager'))
+                                ->icon('heroicon-o-building-office')
+                                ->activeIcon('heroicon-o-building-office')
+                                ->sort(1),
+                        ]),
+                ]);
+            }
 
 
                 if($user->can('view_any_building::building') ||
@@ -233,7 +241,7 @@ class AppPanelProvider extends PanelProvider
                 $user->can('view_any_oacomplaint::reports')
                  ){
                     $builder->groups([
-                        NavigationGroup::make('Property management')
+                        NavigationGroup::make('Building management')
                             ->items([
                                 NavigationItem::make('Buildings')
                                     ->url('/app/building/buildings')
