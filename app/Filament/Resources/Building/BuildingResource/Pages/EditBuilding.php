@@ -46,14 +46,20 @@ class EditBuilding extends EditRecord
 
     protected function mutateFormDataBeforeSave(array $data): array
     {
+        if(array_key_exists('search',$data)){
             $data['address'] = $data['search'];
-            return $data;
+        }
+        
+        return $data;
     }
 
     protected function mutateFormDataBeforeFill(array $data): array
     {
-        $address= $this->record->address;
-        $data['search'] = $address;
+        if (isset($this->record) && !empty($this->record->address)) {
+            $data['search'] = $this->record->address;
+        } else {
+            $data['search'] = null;
+        }
         
         return $data;  
     }
