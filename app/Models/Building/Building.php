@@ -73,7 +73,7 @@ class Building extends Model
         'cover_photo',
         'show_inhouse_services',
         'mollak_property_id',
-        'managed_by'
+        'managed_by',
         'address'
     ];
 
