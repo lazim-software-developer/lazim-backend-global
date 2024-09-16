@@ -8,7 +8,9 @@ use App\Models\Forms\MoveInOut;
 use App\Models\ResidentialForm;
 use App\Models\Forms\AccessCard;
 use App\Models\Forms\FitOutForm;
+use App\Models\User\User;
 use App\Models\Visitor;
+use App\Models\Visitor\FlatVisitor;
 use Carbon\Carbon;
 use Filament\Widgets\ChartWidget;
 use Filament\Widgets\Concerns\InteractsWithPageFilters;
@@ -20,6 +22,26 @@ class FormsChart extends ChartWidget
     protected static ?string $heading = 'Forms';
     protected static ?string $maxHeight = '300px';
     protected static ?int $sort = 3;
+
+    public static function canView(): bool
+    {
+        $user = User::find(auth()->user()->id);
+        if (
+            $user->can('view_any_guest::registration') ||
+            $user->can('view_any_move::in::forms::document') ||
+            $user->can('view_any_move::out::forms::document') ||
+            $user->can('view_any_fit::out::forms::document') ||
+            $user->can('view_any_access::card::forms::document') ||
+            $user->can('view_any_residential::form') ||
+            $user->can('view_any_noc::form') ||
+            $user->can('view_any_visitor::form') ||
+            $user->can('view_any_family::member')
+        ) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 
     protected function getData(): array
     {
@@ -35,7 +57,7 @@ class FormsChart extends ChartWidget
         $residentialQuery = ResidentialForm::where('owner_association_id', auth()->user()->owner_association_id);
         $moveInQuery = MoveInOut::where('owner_association_id', auth()->user()->owner_association_id)->where('type', 'move-in');
         $moveOutQuery = MoveInOut::where('owner_association_id', auth()->user()->owner_association_id)->where('type', 'move-out');
-        $visitorQuery = Visitor::where('owner_association_id', auth()->user()->owner_association_id);
+        $visitorQuery = FlatVisitor::where('owner_association_id', auth()->user()->owner_association_id);
 
         if ($buildingId) {
             // Apply building filter to the queries that have direct building_id
@@ -48,7 +70,7 @@ class FormsChart extends ChartWidget
             $visitorQuery->where('building_id', $buildingId);
 
             // Apply building filter to the Guests query via a join on FlatVisitor
-            $guestsQuery->whereHas('flatVisitor', function($query) use ($buildingId) {
+            $guestsQuery->whereHas('flatVisitor', function ($query) use ($buildingId) {
                 $query->where('building_id', $buildingId);
             });
         }
@@ -91,36 +113,36 @@ class FormsChart extends ChartWidget
                 [
                     'label' => 'Forms',
                     'data' => [
-                        $accessCardCount, 
-                        $saleNocCount, 
-                        $guestsCount, 
-                        $moveInCount, 
-                        $moveOutCount, 
-                        $fitOutCount, 
-                        $residentialCount, 
+                        $accessCardCount,
+                        $saleNocCount,
+                        $guestsCount,
+                        $moveInCount,
+                        $moveOutCount,
+                        $fitOutCount,
+                        $residentialCount,
                         $visitorCount
                     ],
                     'backgroundColor' => [
-                        '#5581DD', 
-                        '#51CEA4', 
-                        '#BB86FC', 
-                        '#E49B50', 
-                        '#E57373', 
-                        '#FFD54F', 
-                        '#4DB6AC', 
+                        '#5581DD',
+                        '#51CEA4',
+                        '#BB86FC',
+                        '#E49B50',
+                        '#E57373',
+                        '#FFD54F',
+                        '#4DB6AC',
                         '#90CAF9'
                     ],
                     'borderColor' => '#ffffff',
                 ],
             ],
             'labels' => [
-                'Access card', 
-                'Sale NOC', 
-                'Holiday Homes Guest Registration', 
-                'Move in', 
-                'Move out', 
-                'Fitout', 
-                'Residential', 
+                'Access card',
+                'Sale NOC',
+                'Holiday Homes Guest Registration',
+                'Move in',
+                'Move out',
+                'Fitout',
+                'Residential',
                 'Visitors'
             ],
         ];

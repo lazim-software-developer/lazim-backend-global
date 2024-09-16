@@ -195,7 +195,7 @@ class SnagsResource extends Resource
                         //     ->disabled()
                         //     ->searchable()
                         //     ->label('Service'),
-                        Select::make('category')
+                        Select::make('category')->required()
                             ->disabledOn('edit')
                             ->options(function(){
                                 return DB::table('services')->pluck('name','name')->toArray();

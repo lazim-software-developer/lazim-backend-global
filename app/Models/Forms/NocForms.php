@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 class NocForms extends Model
 {
     use HasFactory;
+    protected $connection = 'mysql';
     protected $fillable = [
         'unit_occupied_by',
         'applicant',

@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class OAMInvoice extends Model
 {
     use HasFactory;
+    protected $connection = 'mysql';
 
     protected $table = 'oam_invoices';
 

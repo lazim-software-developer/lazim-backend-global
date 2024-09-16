@@ -35,22 +35,27 @@ class OrderObserver
 
             $baseClass = class_basename($order->orderable_type);
             $oaId = null;
-            $link = '';
+            $link = ''; 
+            Log::info('base'.class_basename($order->orderable_type));
+            Log::info('class'.$order->orderable_type);
 
-            if ($baseClass == 'AccessCard') {
-                $oaId = AccessCard::where('id', $order->id)->first()->owner_association_id;
-                $link = AccessCardFormsDocumentResource::getUrl('edit', [OwnerAssociation::where('id', $oaId)->first()?->slug, $order->id]);
+            if ($order->orderable_type == AccessCard::class) {
+                $oaId = AccessCard::where('id', $order->orderable_id)->first()?->owner_association_id;
+                $link = AccessCardFormsDocumentResource::getUrl('edit', [OwnerAssociation::where('id', $oaId)->first()?->slug, $order->orderable_id]);
             }
-            if ($baseClass == 'FitOutForm') {
-                $oaId = FitOutForm::where('id', $order->id)->first()->owner_association_id;
-                $link = FitOutFormsDocumentResource::getUrl('edit', [OwnerAssociation::where('id', $oaId)->first()?->slug, $order->id]);
+            if ($order->orderable_type == FitOutForm::class) {
+                $oaId = FitOutForm::where('id', $order->orderable_id)->first()?->owner_association_id;
+                $link = FitOutFormsDocumentResource::getUrl('edit', [OwnerAssociation::where('id', $oaId)->first()?->slug, $order->orderable_id]);
             }
-            if ($baseClass == 'SaleNOC') {
-                $oaId = SaleNOC::where('id', $order->id)->first()->owner_association_id;
-                $link = NocFormResource::getUrl('edit', [OwnerAssociation::where('id', $oaId)->first()?->slug, $order->id]);
+            if ($order->orderable_type == SaleNOC::class) {
+                $oaId = SaleNOC::where('id', $order->orderable_id)->first()?->owner_association_id;
+                $link = NocFormResource::getUrl('edit', [OwnerAssociation::where('id', $oaId)->first()?->slug, $order->orderable_id]);
             }
-
-            $user = User::where('role_id', Role::where('name', 'OA')->first()->id)->where('owner_association_id',$oaId)->first();
+            Log::info('oa'.$oaId);
+            Log::info('link'.$link);
+            $user = User::where('role_id', Role::where('name', 'OA')->where('owner_association_id',$oaId)->first()->id)
+            ->where('owner_association_id',$oaId)->get();
+            Log::info('user'.$user);
             if ($user) {
                 Notification::make()
                     ->success()

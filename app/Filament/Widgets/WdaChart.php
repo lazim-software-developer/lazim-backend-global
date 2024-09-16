@@ -3,6 +3,7 @@
 namespace App\Filament\Widgets;
 
 use App\Models\Accounting\WDA;
+use App\Models\User\User;
 use App\Models\Vendor\Vendor;
 use Carbon\Carbon;
 use Filament\Facades\Filament;
@@ -17,6 +18,12 @@ class WdaChart extends ChartWidget
     protected static ?string $maxHeight = '400px';
     protected static ?int $sort = 8;
     // protected int | string | array $columnSpan = 'full';
+    
+    public static function canView(): bool
+    {
+        $user = User::find(auth()->user()->id);
+        return $user->can('view_any_w::d::a');
+    }
 
     protected function getData(): array
     {

@@ -8,16 +8,11 @@
         .container {
             max-width: 1200px;
             padding: 20px;
-            overflow: hidden; /* Clean up overflow */
+            overflow: hidden;
         }
 
-        .headding {
+        .heading {
             padding-bottom: 20px;
-        }
-
-        .asset {
-            display: flex;
-            justify-content: space-between; /* Aligns items to the left */
         }
 
         table {
@@ -29,6 +24,17 @@
         td {
             text-align: center; /* Centers the content within the cell */
             vertical-align: top; /* Aligns content to the top of the cell */
+            width: 20%; /* Ensures 5 QR codes per row */
+        }
+
+        img {
+            max-width: 100%; /* Ensure the QR code image fits within the cell */
+            height: 100px; /* Maintain the aspect ratio */
+            width: auto;
+        }
+        
+        .text {
+            height: 40px;
         }
     </style>
 </head>
@@ -39,26 +45,26 @@
         window.location = "/admin/assets";
     </script>
     @else
-    <h1 class="headding">Assets QR Code:</h1>
+    <!-- <h2 class="heading">Assets QR Code:</h2> -->
     <table>
     @php $i = 0; @endphp
     @foreach($data as $qr)
-        @if ($i % 3 == 0) <!-- Adjust to make 3 QR codes per row -->
+        @if ($i % 5 == 0) <!-- Adjust to make 5 QR codes per row -->
             @if ($i != 0) 
                 </tr>
             @endif
             <tr>
         @endif
-        @php
-            $qrCodeData = $qr['qr_code'];
-        @endphp
         <td>
-            <h4>Name: {{$qr['name']}}</h4>
-            <h4 style="margin-top: -20px;">Code: {{ $qr['asset_code'] }}</h4>
-            <img src="{{ $qr['qr_code'] }}" alt="QR Code">        </td>   
+            <div class="text">
+                <h5>Name: {{$qr['name']}}</h5>
+            </div>
+            <h5 style="margin-top: -20px;">Code: {{ $qr['asset_code'] }}</h5>
+            <img src="{{ $qr['qr_code'] }}" alt="QR Code">
+        </td>   
         @php $i++; @endphp
     @endforeach
-    @if ($i % 3 != 0) <!-- Ensures the last row is closed properly -->
+    @if ($i % 5 != 0) <!-- Ensures the last row is closed properly -->
         </tr>
     @endif
     </table>

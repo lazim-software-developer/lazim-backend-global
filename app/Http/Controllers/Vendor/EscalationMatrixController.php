@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Vendor;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\EditEscalationMatrixRequest;
 use App\Http\Requests\Vendor\EscalationMatrixRequest;
 use App\Http\Resources\CustomResponseResource;
 use App\Http\Resources\Vendor\VendorEscalationMatrixResource;
@@ -33,6 +34,24 @@ class EscalationMatrixController extends Controller
             'code' => 201,
             'status' => 'success',
         ]))->response()->setStatusCode(201);
+    }
+
+    public function edit(EditEscalationMatrixRequest $request,VendorEscalationMatrix $escalationmatrix){
+        if (VendorEscalationMatrix::where('id','!=',$escalationmatrix->id)->where('vendor_id', $escalationmatrix->vendor_id)->where('active', 1)->where('escalation_level', $request->escalation_level)->exists()) {
+            return (new CustomResponseResource([
+                'title' => 'Escalation Level exists!',
+                'message' => " Escalation Level already exists, please enter a different level",
+                'code' => 400,
+                'status' => 'error',
+            ]))->response()->setStatusCode(400);
+        }
+        $escalationmatrix->update($request->all());
+        return (new CustomResponseResource([
+            'title' => 'Escalation Matrix updated!',
+            'message' => "Escalation Matrix details has been updated!",
+            'code' => 200,
+            'status' => 'success',
+        ]))->response()->setStatusCode(200);
     }
 
     public function show(Vendor $vendor)

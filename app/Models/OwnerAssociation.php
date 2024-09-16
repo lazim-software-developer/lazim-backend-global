@@ -20,6 +20,8 @@ class OwnerAssociation extends Model
 {
     use HasFactory;//, HasSlug;
 
+    protected $connection = 'mysql';
+
     protected $fillable = [
         'name', 'phone', 'email', 'trn_number',
         'address', 'mollak_id', 'verified', 'verified_by', 'active', 'profile_photo','bank_account_number','trn_certificate',

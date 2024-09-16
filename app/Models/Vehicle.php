@@ -10,7 +10,9 @@ class Vehicle extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'vehicle_number', 'makani_number','flat_id', 'owner_association_id'];
+    protected $connection = 'mysql';
+
+    protected $fillable = ['user_id', 'vehicle_number', 'parking_number','flat_id', 'owner_association_id'];
 
     public function ownerAssociation()
     {

@@ -43,7 +43,7 @@ class DocumentsUploadController extends Controller
 
         return (new CustomResponseResource([
             'title' => 'Documents upload successful!',
-            'message' => "",
+            'message' => "Documents uploaded successfully!",
             'code' => 201,
             'status' => 'success'
         ]))->response()->setStatusCode(201);
@@ -54,6 +54,15 @@ class DocumentsUploadController extends Controller
         $documents = Document::where('documentable_id', $vendor->id)->get();
 
         return VendorDocumentResource::collection($documents);
+    }
+
+    public function listDocuments(Vendor $vendor)
+    {
+        $documents = Document::where('documentable_id', $vendor->id)->get();
+        $data = $documents->mapWithKeys(function ($document) {
+            return [$document->documentLibrary->name => env('AWS_URL') . '/' . $document->url];
+        });
+        return $data;
     }
 
     public function showRiskPolicy(Vendor $vendor)

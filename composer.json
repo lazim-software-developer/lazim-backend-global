@@ -12,6 +12,7 @@
         "alymosul/laravel-exponent-push-notifications": "^4.0",
         "barryvdh/laravel-dompdf": "^2.0",
         "bezhansalleh/filament-shield": "^3.1",
+        "cheesegrits/filament-google-maps": "^3.0",
         "coolsam/flatpickr": "^3.0",
         "eightynine/filament-excel-import": "^3.0",
         "erusev/parsedown": "^1.7",
@@ -39,7 +40,8 @@
         "spatie/laravel-sluggable": "^3.5",
         "stripe/stripe-php": "^13.9",
         "symfony/http-client": "^6.3",
-        "vinkla/hashids": "^11.0"
+        "vinkla/hashids": "^11.0",
+        "z3d0x/filament-logger": "^0.7.2"
     },
     "require-dev": {
         "fakerphp/faker": "^1.9.1",

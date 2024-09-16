@@ -525,4 +525,22 @@ class TestController extends Controller
             'receipt_period' => '01-Jan-2024 To 31-Mar-2024'
         ];
     }
+
+    public function redirectBasedOnOS(Request $request)
+    {
+        // Get the User-Agent string
+        $userAgent = $request->header('User-Agent');
+
+        // Check the OS
+        if (preg_match('/Android/i', $userAgent)) {
+            // Redirect to Android-specific URL
+            return redirect('https://play.google.com/store/apps/details?id=com.punithgoud.lazim&hl=en_IN&gl=US');
+        } elseif (preg_match('/iPhone|iPad/i', $userAgent)) {
+            // Redirect to iOS-specific URL
+            return redirect('https://apps.apple.com/nz/app/lazim/id6475393837');
+        } else {
+            // Default redirection if OS is not recognized
+            return redirect('https://lazim.ae');
+        }
+    }
 }
