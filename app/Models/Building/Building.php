@@ -2,6 +2,7 @@
 
 namespace App\Models\Building;
 
+use App\Models\ApartmentSafety;
 use App\Models\BuildingVendor;
 use App\Models\EmergencyNumber;
 use App\Models\Item;
@@ -112,6 +113,10 @@ class Building extends Model
     public function ruleregulations()
     {
         return $this->hasMany(RuleRegulation::class);
+    }
+    public function appartmentsafety()
+    {
+        return $this->hasMany(ApartmentSafety::class);
     }
     public function saleNoc()
     {

@@ -35,6 +35,7 @@ use Illuminate\Validation\Rules\Unique;
 use Maatwebsite\Excel\Facades\Excel;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 use App\Filament\Resources\Building\BuildingResource\RelationManagers;
+use App\Filament\Resources\Building\BuildingResource\RelationManagers\AppartmentsafetyRelationManager;
 use Cheesegrits\FilamentGoogleMaps\Fields\Geocomplete;
 use Filament\Forms\Components\Fieldset;
 use Cheesegrits\FilamentGoogleMaps\Fields\Map;
@@ -412,6 +413,7 @@ class BuildingResource extends Resource
             BuildingResource\RelationManagers\BuildingPocsRelationManager::class,
             FloorsRelationManager::class,
             RuleregulationsRelationManager::class,
+            AppartmentsafetyRelationManager::class,
             EmergencyNumbersRelationManager::class,
             OfferPromotionsRelationManager::class,
             OwnercommitteesRelationManager::class,
