@@ -11,12 +11,6 @@ class EditFlat extends EditRecord
 {
     protected static string $resource = FlatResource::class;
 
-    public function getFormActions(): array
-    {
-        return [
-        ];
-    }
-
     // protected function getHeaderActions(): array
     // {
     //     return [

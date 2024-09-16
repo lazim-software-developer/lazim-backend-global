@@ -45,7 +45,11 @@ class Flat extends Model
         'applicable_area',
         'virtual_account_number',
         'parking_count',
-        'plot_number'
+        'plot_number',
+        'makhani_number',
+        'dewa_number',
+        'etisalat/du_number',
+        'btu/ac_number',
     ];
 
     protected $searchableFields = ['*'];

@@ -44,14 +44,13 @@ class FlatResource extends Resource
                     'md' => 1,
                     'lg' => 2,])
                     ->schema([
-                    TextInput::make('property_number')->label('Unit')
+                    TextInput::make('property_number')
+                        ->label('Unit Number')
                         ->required()
                         ->alphaDash()
-                        ->placeholder('Unit Number')
-                        ->disabledOn('edit'),
+                        ->placeholder('Unit Number'),
                     Select::make('owner_association_id')
                         ->required()
-                        ->hiddenOn('edit')
                         ->options(function(){
                             return OwnerAssociation::where('role','Property Manager')->pluck('name','id');
                         })
@@ -59,7 +58,6 @@ class FlatResource extends Resource
                         ->live()
                         ->preload()
                         ->searchable()
-                        ->disabledOn('edit')
                         ->label('Select Property Manager'),
                     Select::make('building_id')
                         ->rules(['exists:buildings,id'])
@@ -73,7 +71,6 @@ class FlatResource extends Resource
                         ->required()
                         ->searchable()
                         ->placeholder('Building')
-                        ->disabledOn('edit')
                         ->label('Select Building'),
                     Select::make('property_type')
                         ->options([
@@ -82,30 +79,44 @@ class FlatResource extends Resource
                             'Unit' => 'Unit',
                         ])
                         ->required()
-                        ->visibleOn('create')
-                        ->searchable()
-                        ->disabledOn('edit'),
+                        ->searchable(),
                     TextInput::make('suit_area')
                         ->placeholder('NA')
-                        ->disabledOn('edit'),
+                        ->numeric(),
                     TextInput::make('actual_area')
                         ->placeholder('NA')
-                        ->disabledOn('edit'),
+                        ->numeric(),
                     TextInput::make('balcony_area')
                         ->placeholder('NA')
-                        ->disabledOn('edit'),
+                        ->numeric(),
                     TextInput::make('applicable_area')
                         ->placeholder('NA')
-                        ->disabledOn('edit'),
+                        ->numeric(),
                     TextInput::make('virtual_account_number')
                         ->placeholder('NA')
-                        ->disabledOn('edit'),
+                        ->numeric(),
                     TextInput::make('parking_count')
                         ->placeholder('NA')
-                        ->disabledOn('edit'),
+                        ->numeric(),
                     TextInput::make('plot_number')
                         ->placeholder('NA')
-                        ->disabledOn('edit'),
+                        ->numeric(),
+                    TextInput::make('makhani_number')
+                        ->placeholder('NA')
+                        ->hidden(auth()->user()->role->name === 'OA')
+                        ->numeric(),
+                    TextInput::make('dewa_number')
+                        ->placeholder('NA')
+                        ->hidden(auth()->user()->role->name === 'OA')
+                        ->numeric(),
+                    TextInput::make('etisalat/du_number')
+                        ->placeholder('NA')
+                        ->hidden(auth()->user()->role->name === 'OA')
+                        ->numeric(),
+                    TextInput::make('btu/ac_number')
+                        ->placeholder('NA')
+                        ->hidden(auth()->user()->role->name === 'OA')
+                        ->numeric(),
                 ]),
             ]);
     }
@@ -176,7 +187,7 @@ class FlatResource extends Resource
                     ->preload()
             ])
             ->actions([
-                // Tables\Actions\EditAction::make(),
+                Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
