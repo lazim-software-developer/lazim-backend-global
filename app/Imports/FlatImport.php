@@ -59,8 +59,8 @@ class FlatImport implements ToCollection, WithHeadingRow
 
         $notImported = [];
         foreach ($rows as $row) {
-            $exists         = Flat::where(['property_number' => $row['property_number'], 'owner_association_id' => $this->oaId, 'building_id' => $this->buildingId])->exists();
-            
+            $exists         = Flat::where(['property_number' => $row['unit_number'], 'owner_association_id' => $this->oaId, 'building_id' => $this->buildingId])->exists();
+
             $requiredFields = $row['property_number'] != null && in_array($row['property_type'], ['Shop', 'Office', 'Unit'])
                                 && is_numeric($row['parking_count']) ? true : false;
 
