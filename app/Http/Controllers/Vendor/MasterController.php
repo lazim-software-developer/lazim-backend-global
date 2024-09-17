@@ -23,8 +23,9 @@ class MasterController extends Controller
         $vendors = Vendor::whereHas('services', function ($query) use ($serviceId) {
             $query->where('services.id', $serviceId); // Specify the table name here
         })->whereHas('ownerAssociation', function ($query) {
-            $query->where('owner_association_vendor.owner_association_id', Filament::getTenant()?->id)
-                  ->where('owner_association_vendor.status', 'approved')->where('owner_association_vendor.active', true);
+            $query->where('owner_association_vendor.owner_association_id', auth()->user()?->ownerAssociation)
+                  ->where('owner_association_vendor.status', 'approved')
+                  ->where('owner_association_vendor.active', true);
         })->get();
 
         // Return the view with the vendors
