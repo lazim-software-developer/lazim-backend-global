@@ -28,8 +28,6 @@ class MasterController extends Controller
                   ->where('owner_association_vendor.status', 'approved')
                   ->where('owner_association_vendor.active', true);
         })->get();
-        Log::info(auth()->user()?->owner_association_id);
-        Log::info(Filament::getTenant()?->id);
 
         // Return the view with the vendors
         return view('partials.vendors-list', compact('vendors'));
