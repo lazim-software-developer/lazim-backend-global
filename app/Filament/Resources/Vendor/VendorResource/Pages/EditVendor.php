@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Vendor\VendorResource\Pages;
 
 use App\Filament\Resources\Vendor\VendorResource;
 use App\Jobs\VendorAccountCreationJob;
+use App\Jobs\VendorApproveRejectMailJob;
 use App\Jobs\VendorRejectionJob;
 use App\Models\AccountCredentials;
 use App\Models\User\User;
@@ -60,18 +61,18 @@ class EditVendor extends EditRecord
     {
         $oa_id  = Vendor::where('id', $this->data['id'])->first();
         $tenant = Filament::getTenant()?->id ?? $oa_id?->owner_association_id;
+        $credentials     = AccountCredentials::where('oa_id', $tenant)->where('active', true)->latest()->first();
+        $mailCredentials = [
+            'mail_host'         => $credentials->host ?? env('MAIL_HOST'),
+            'mail_port'         => $credentials->port ?? env('MAIL_PORT'),
+            'mail_username'     => $credentials->username ?? env('MAIL_USERNAME'),
+            'mail_password'     => $credentials->password ?? env('MAIL_PASSWORD'),
+            'mail_encryption'   => $credentials->encryption ?? env('MAIL_ENCRYPTION'),
+            'mail_from_address' => $credentials->email ?? env('MAIL_FROM_ADDRESS'),
+        ];
         if ($this->record->status == null) {
             // $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
 
-            $credentials     = AccountCredentials::where('oa_id', $tenant)->where('active', true)->latest()->first();
-            $mailCredentials = [
-                'mail_host'         => $credentials->host ?? env('MAIL_HOST'),
-                'mail_port'         => $credentials->port ?? env('MAIL_PORT'),
-                'mail_username'     => $credentials->username ?? env('MAIL_USERNAME'),
-                'mail_password'     => $credentials->password ?? env('MAIL_PASSWORD'),
-                'mail_encryption'   => $credentials->encryption ?? env('MAIL_ENCRYPTION'),
-                'mail_from_address' => $credentials->email ?? env('MAIL_FROM_ADDRESS'),
-            ];
 
             if ($this->data['status'] == 'rejected') {
                 $vendor         = Vendor::where('id', $this->data['id'])->first();
@@ -101,13 +102,16 @@ class EditVendor extends EditRecord
         }
         if($this->record->ownerAssociation()->wherePivot('owner_association_id', $tenant)->first()?->pivot->status == null){
             $vendor         = Vendor::where('id', $this->data['id'])->first();
+            $user           = User::find($vendor->owner_id);
             if ($this->data['status'] == 'rejected') {
+                VendorApproveRejectMailJob::dispatch($user,$this->data['status'],$mailCredentials);
                 $vendor->ownerAssociation()->updateExistingPivot($tenant, [
                     'status' => $this->data['status'],
                     'remarks' => $this->data['remarks'],
                 ]);
             }
             if ($this->data['status'] == 'approved') {
+                VendorApproveRejectMailJob::dispatch($user,$this->data['status'],$mailCredentials);
                 $vendor->ownerAssociation()->updateExistingPivot($tenant, [
                     'status' => $this->data['status'],
                     'active' => true,
