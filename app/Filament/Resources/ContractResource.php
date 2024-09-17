@@ -36,8 +36,6 @@ class ContractResource extends Resource
 {
     protected static ?string $model = Contract::class;
 
-    public static $budgetAmount = null;
-    public static $balanceAmount = null;
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
     protected static ?string $navigationGroup = 'Oam';
 
@@ -136,7 +134,7 @@ class ContractResource extends Resource
                             ->placeholder('End Date'),
                         
                         
-                        TextInput::make('amount')
+                        TextInput::make('balance_amount')
                             ->label('Balance Amount')
                             ->numeric(true)
                             ->disabledOn('edit')
@@ -145,7 +143,7 @@ class ContractResource extends Resource
                             ->prefix('AED')
                             ->required()
                             ->reactive()
-                            ->visible(function ( callable $set, callable $get) {
+                            ->disabled(function ( callable $set, callable $get) {
                                 $buildingId = $get('building_id');
                                 $startDate = $get('start_date');
                                 $serviceId = $get('service_id');
@@ -168,34 +166,25 @@ class ContractResource extends Resource
                                 if ($contract) {
                                     $difference = abs($contract->budget_amount - $contract->amount);
                                     $difference = round($difference, 2);
-                        
-                                    if ($get('amount') === null ) {
-                                        $set('amount', $difference);
-                                        self::$balanceAmount = $difference;
-                                    }
+
+                                    $set('balance_amount', $difference);
                                 } else {
-                                    if ($get('amount') === null) {
-                                        $set('amount', null);
-                                    }
+                                    $budgetAmount = $get('budget_amount');
+                                    $set('balance_amount', $budgetAmount);
                                 }
 
-                                return true;
-                            })
-                            ->readOnly(function(callable $get) {
-                                if(self::$balanceAmount == null){
-                                    return false;
-                                }
                                 return true;
                             }),
                         TextInput::make('budget_amount')
                             ->numeric(true)
+                            ->live()
                             ->disabledOn('edit')
                             ->minValue(1)
                             ->maxValue(1000000)
                             ->prefix('AED')
                             ->required()
                             ->reactive()  // Make the field react to changes
-                            ->visible(function ( callable $set, callable $get) {
+                            ->disabled(function ( callable $set, callable $get) {
                                 $buildingId = $get('building_id');
                                 $startDate = $get('start_date');
                                 $serviceId = $get('service_id');
@@ -214,20 +203,21 @@ class ContractResource extends Resource
                                 $budget = Budgetitem::where('budget_id', $budgetId)
                                     ->where('service_id', $serviceId)
                                     ->value('total') ?? null;
-
-                                self::$budgetAmount = $budget;
-                        
-                                    if ($get('budget_amount') === null) {
-                                        $set('budget_amount', $budget);
-                                    }
-                                return true;
-                            })
-                            ->readOnly(function(callable $get) {
-                                if(self::$budgetAmount == null){
-                                    return false;
-                                }
+                                $set('budget_amount', $budget);
+                                    
                                 return true;
                             }),
+                        TextInput::make('amount')
+                            ->label('Contract Amount')
+                            ->numeric(true)
+                            ->disabledOn('edit')
+                            ->minValue(1)
+                            ->maxValue(function(callable $get){
+                                return $get('balance_amount');
+                            })
+                            ->prefix('AED')
+                            ->helperText('Contract Amount must be less than Balance Amount')
+                            ->required(),
 
                         FileUpload::make('document_url')
                             ->required()
