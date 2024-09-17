@@ -122,6 +122,7 @@ class ProposalsRelationManager extends RelationManager
                             $tenderId = $record->tender_id;
                             $tenderAmount = $record->amount;
                             $tender = Tender::find($tenderId);
+                            $oa_id = DB::table('building_owner_association')->where('building_id', $tender->building_id)->where('active', true)->first()?->owner_association_id;
                             $budget = Budget::find($tender->budget_id);
                             // dd($budget->budget_from);
                             $budgetamount = Budgetitem::where(['budget_id' => $tender->budget_id, 'service_id' => $tender->service_id])->first();
@@ -135,6 +136,7 @@ class ProposalsRelationManager extends RelationManager
                                 'vendor_id' => $record->vendor_id,
                                 'building_id' => $tender->building_id,
                                 'budget_amount' => $budgetamount ? $budgetamount->total : 0,
+                                'owner_association_id' => $oa_id
                             ]);
 
                             $servicefind = ServiceVendor::all()->where('service_id', $tender->service_id)->where('vendor_id', $record->vendor_id)->first();
@@ -161,6 +163,7 @@ class ProposalsRelationManager extends RelationManager
                                 'contract_id' => $contract->id,
                                 'start_date' => $budget->budget_from,
                                 'end_date' => $budget->budget_to,
+                                'owner_association_id' => $oa_id
                             ]);
                             $record->status_updated_by = auth()->user()->id;
                             $record->status_updated_on = now();
@@ -228,6 +231,7 @@ class ProposalsRelationManager extends RelationManager
                                             'vendor_id' => $contract->vendor_id,
                                             'building_id' => $asset->building_id,
                                             'active' => 1,
+                                            'owner_association_id' => $oa_id
                                         ]);
                                     } else {
                                         Log::info("No technicians to add", []);
