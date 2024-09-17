@@ -18,7 +18,7 @@ class VendorApproveRejectMailJob implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct(protected $user, protected $status, protected $mailCredentials)
+    public function __construct(protected $user, protected $status, protected $oa_name, protected $mailCredentials)
     {
         //
     }
@@ -36,11 +36,11 @@ class VendorApproveRejectMailJob implements ShouldQueue
         Config::set('mail.mailers.smtp.email', $this->mailCredentials['mail_from_address']);
         
         $beautymail = app()->make(Beautymail::class);
-        $beautymail->send('emails.vendor_status', ['user' => $this->user, 'status' => $this->status], function($message) {
+        $beautymail->send('emails.vendor_status', ['user' => $this->user, 'status' => $this->status, 'oa_name' => $this->oa_name], function($message) {
             $message
                 ->from($this->mailCredentials['mail_from_address'],env('MAIL_FROM_NAME'))
                 ->to($this->user->email, $this->user->first_name)
-                ->subject('Welcome to Lazim!');
+                ->subject('Account Status!');
         });
 
         Artisan::call('queue:restart');

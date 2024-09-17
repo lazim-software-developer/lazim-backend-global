@@ -7,6 +7,7 @@ use App\Jobs\VendorAccountCreationJob;
 use App\Jobs\VendorApproveRejectMailJob;
 use App\Jobs\VendorRejectionJob;
 use App\Models\AccountCredentials;
+use App\Models\OwnerAssociation;
 use App\Models\User\User;
 use App\Models\VendorRemarks;
 use App\Models\Vendor\Vendor;
@@ -103,15 +104,16 @@ class EditVendor extends EditRecord
         if($this->record->ownerAssociation()->wherePivot('owner_association_id', $tenant)->first()?->pivot->status == null){
             $vendor         = Vendor::where('id', $this->data['id'])->first();
             $user           = User::find($vendor->owner_id);
+            $oa_name        = OwnerAssociation::find($tenant)->name;
             if ($this->data['status'] == 'rejected') {
-                VendorApproveRejectMailJob::dispatch($user,$this->data['status'],$mailCredentials);
+                VendorApproveRejectMailJob::dispatch($user,$this->data['status'],$oa_name,$mailCredentials);
                 $vendor->ownerAssociation()->updateExistingPivot($tenant, [
                     'status' => $this->data['status'],
                     'remarks' => $this->data['remarks'],
                 ]);
             }
             if ($this->data['status'] == 'approved') {
-                VendorApproveRejectMailJob::dispatch($user,$this->data['status'],$mailCredentials);
+                VendorApproveRejectMailJob::dispatch($user,$this->data['status'],$oa_name,$mailCredentials);
                 $vendor->ownerAssociation()->updateExistingPivot($tenant, [
                     'status' => $this->data['status'],
                     'active' => true,
