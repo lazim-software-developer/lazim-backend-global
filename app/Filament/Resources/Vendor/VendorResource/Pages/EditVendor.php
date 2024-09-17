@@ -100,6 +100,7 @@ class EditVendor extends EditRecord
             }
         }
         if($this->record->ownerAssociation()->wherePivot('owner_association_id', $tenant)->first()?->pivot->status == null){
+            $vendor         = Vendor::where('id', $this->data['id'])->first();
             if ($this->data['status'] == 'rejected') {
                 $vendor->ownerAssociation()->updateExistingPivot($tenant, [
                     'status' => $this->data['status'],
