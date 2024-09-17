@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\PropertyManagerResource\Pages;
 use App\Filament\Resources\PropertyManagerResource\RelationManagers\BuildingRelationManager;
+use App\Jobs\SendInactiveStatusJob;
 use App\Models\Master\Role;
 use App\Models\OwnerAssociation;
 use App\Models\User;
@@ -66,10 +67,11 @@ class PropertyManagerResource extends Resource
                             'regex:/^\+?(50|51|52|55|56|58|02|03|04|06|07|09)\d{7}$/',
                         ])
                         ->placeholder('Contact Number')
-                        ->unique('owner_associations','phone',fn (?Model $record) => $record),
+                        ->unique('owner_associations', 'phone', fn(?Model $record) => $record),
 
                     TextInput::make('email')
                         ->required()
+                        ->disabledOn('edit')
                         ->rules([
                             'required',
                             'email',
@@ -78,7 +80,7 @@ class PropertyManagerResource extends Resource
                             'regex:/^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/',
                         ])
                         ->placeholder('Email')
-                        ->unique('owner_associations','email',fn (?Model $record) => $record),
+                        ->unique('owner_associations', 'email', fn(?Model $record) => $record),
 
                     // Additional Fields
                     TextInput::make('address')
@@ -116,6 +118,7 @@ class PropertyManagerResource extends Resource
                         ->disk('s3')
                         ->directory('dev')
                         ->rules('file|mimes:jpeg,jpg,png,pdf|max:2048')
+                        ->required()
                         ->maxSize(2048)
                         ->label('Trade License'),
 
@@ -140,6 +143,11 @@ class PropertyManagerResource extends Resource
                     Toggle::make('active')
                         ->label('Active')
                         ->rules(['boolean'])
+                        ->afterStateUpdated(function (bool $state, $record) {
+                            if ($state === false) {
+                                SendInactiveStatusJob::dispatch($record);
+                            }
+                        })
                         ->hidden(Role::where('id', auth()->user()->role_id)->first()->name != 'Admin'),
 
                 ]),
