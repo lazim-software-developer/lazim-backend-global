@@ -168,7 +168,8 @@ class ContractResource extends Resource
                                     $difference = round($difference, 2);
 
                                     $set('balance_amount', $difference);
-                                } else {
+                                } 
+                                if($contract == null) {
                                     $budgetAmount = $get('budget_amount');
                                     $set('balance_amount', $budgetAmount);
                                 }
