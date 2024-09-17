@@ -21,7 +21,10 @@ class MasterController extends Controller
         // Retrieve vendors related to the service ID
         $vendors = Vendor::whereHas('services', function ($query) use ($serviceId) {
             $query->where('services.id', $serviceId); // Specify the table name here
-        })->where('owner_association_id',auth()->user()?->owner_association_id)->where('status', 'approved')->get();
+        })->whereHas('owner_association_vendor', function ($query) {
+            $query->where('owner_association_id', auth()->user()?->owner_association_id)
+                  ->where('status', 'approved')->where('active', true);
+        })->get();
 
         // Return the view with the vendors
         return view('partials.vendors-list', compact('vendors'));

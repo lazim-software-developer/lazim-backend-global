@@ -108,9 +108,11 @@ class VendorResource extends Resource
                                     'approved' => 'Approve',
                                     'rejected' => 'Reject',
                                 ])
-                                ->visible(fn($record) => $record->status === null && $record->documents()->count() > 0 && $record->services()->count() > 0 && $record->managers()->count() > 0)
+                                ->visible(fn($record) => $record->ownerAssociation?->where('pivot.owner_association_id',Filament::getTenant()?->id)->first()?->pivot->status === null && $record->documents()->count() > 0 && $record->services()->count() > 0 && $record->managers()->count() > 0)
                                 ->searchable()
                                 ->live(),
+                            TextInput::make('status')->disabled()
+                            ->visible(fn($record) => $record->ownerAssociation?->where('pivot.owner_association_id',Filament::getTenant()?->id)->first()?->pivot->status != null),
                             TextInput::make('remarks')
                                 ->rules(['max:150'])
                                 ->required()
@@ -120,11 +122,11 @@ class VendorResource extends Resource
                                     }
                                     return false;
                                 })
-                                ->disabled(fn ($record) => $record->status !== null ),
+                                ->disabled(fn ($record) => $record->ownerAssociation?->where('pivot.owner_association_id',Filament::getTenant()?->id)->first()?->pivot->status !== null ),
                             Toggle::make('active')
                                 ->rules(['boolean'])
                                 ->required()
-                                ->visible(fn($record) => $record->status === 'approved')
+                                ->visible(fn($record) => $record->ownerAssociation?->where('pivot.owner_association_id',Filament::getTenant()?->id)->first()?->pivot->status === 'approved')
                                 ->inline(false)
                                 ->label('Active'),
                             // TextInput::make('remarks')
@@ -148,14 +150,15 @@ class VendorResource extends Resource
                     ->searchable()
                     ->default('NA')
                     ->label('TL Number'),
-                Tables\Columns\TextColumn::make('status')
-                    ->searchable()
-                    ->default('NA')
-                    ->label('Status'),
-                TextColumn::make('remarks')
-                    ->searchable()
-                    ->default('NA')
-                    ->label('Remarks'),
+                // Tables\Columns\TextColumn::make('status')
+                //     ->searchable()
+                //     ->default('NA')
+                //     ->label('Status'),
+                // TextColumn::make('remarks')
+                //     ->searchable()
+                //     ->limit(30)
+                //     ->default('NA')
+                //     ->label('Remarks'),
                 ViewColumn::make('Services')->view('tables.columns.vendor-service'),
                 ViewColumn::make('Documents')->view('tables.columns.vendordocument'),
                 ViewColumn::make('Managers')->view('tables.columns.vendormanager'),
