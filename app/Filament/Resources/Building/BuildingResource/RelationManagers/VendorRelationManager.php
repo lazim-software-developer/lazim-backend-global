@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Building\BuildingResource\RelationManagers;
 
 use App\Models\User\User;
 use App\Models\Vendor\Vendor;
+use Filament\Facades\Filament;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Select;
@@ -97,7 +98,9 @@ class VendorRelationManager extends RelationManager
                         $existingVendors =  DB::table('building_vendor')
                             ->where('building_id', $buildingId)
                             ->whereIn('vendor_id', $allVendors)->pluck('vendor_id')->toArray();
-                        $notSelectedVendors = Vendor::all()->where('owner_association_id',auth()->user()?->owner_association_id)->whereNotIn('id', $existingVendors)->pluck('name', 'id')->toArray();
+                        $notSelectedVendors = Vendor::whereHas('owner_association_vendor', function ($query) {
+                            $query->where('owner_association_id', Filament::getTenant()->id);
+                        })->whereNotIn('id', $existingVendors)->pluck('name', 'id')->toArray();
                         return Select::make('recordId')
                             ->label('Vendors')
                             ->options($notSelectedVendors)

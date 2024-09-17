@@ -22,6 +22,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\ItemResource\RelationManagers;
 use App\Models\Master\Role;
 use App\Models\Vendor\Vendor;
+use Filament\Facades\Filament;
 use Filament\Notifications\Notification;
 use Filament\Tables\Actions\BulkAction;
 use Illuminate\Database\Eloquent\Collection;
@@ -117,8 +118,10 @@ class ItemResource extends Resource
                         ->relationship('vendors', 'name')
                         ->options(function () {
                             $oaId = auth()->user()?->owner_association_id;
-                            return Vendor::where('owner_association_id', $oaId)->where('status', 'approved')
-                                ->pluck('name', 'id');
+                            return Vendor::whereHas('mapping_table', function ($query) {
+                                $query->where('owner_association_id', Filament::getTenant()->id)
+                                      ->where('status', 'approved');
+                            })->pluck('name', 'id');
                         })
                         ])
                         ->action(function (Collection $records,array $data){

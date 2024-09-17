@@ -35,6 +35,7 @@ use App\Filament\Resources\SnagsResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 use App\Filament\Resources\SnagsResource\RelationManagers;
+use Filament\Facades\Filament;
 
 class SnagsResource extends Resource
 {
@@ -102,7 +103,9 @@ class SnagsResource extends Resource
                             ->disabledOn('edit')
                             ->options(function ( Get $get) {
                                 $serviceVendor = ServiceVendor::where('service_id',$get('service_id'))->pluck('vendor_id');
-                                return Vendor::whereIn('id',$serviceVendor)->where('owner_association_id', auth()->user()?->owner_association_id)->pluck('name', 'id');
+                                return Vendor::whereHas('owner_association_vendor', function ($query) {
+                                    $query->where('owner_association_id', Filament::getTenant()->id);
+                                })->whereIn('id',$serviceVendor)->pluck('name', 'id');
                             })
                             // ->disabled(function (Complaint $record) {
                             //     if ($record->vendor_id == null) {
