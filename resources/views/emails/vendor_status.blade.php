@@ -22,7 +22,7 @@
 		</tr>
         <tr>
 			<td class="paragraph">
-            Status: Your account has been {{$status}} by {{$oa_name}} .
+            Your account has been {{$status}} by {{$oa_name}} .
 			</td>
 		</tr>
 
