@@ -87,7 +87,9 @@ class HelpdeskcomplaintResource extends Resource
                             })
                             ->options(function (Complaint $record, Get $get) {
                                 $serviceVendor = ServiceVendor::where('service_id', $get('service_id'))->pluck('vendor_id');
-                                return Vendor::whereIn('id', $serviceVendor)->where('owner_association_id', auth()->user()?->owner_association_id)->pluck('name', 'id');
+                                return Vendor::whereIn('id', $serviceVendor)->whereHas('mapping_table', function ($query) {
+                                    $query->where('owner_association_id', Filament::getTenant()->id);
+                                })->pluck('name', 'id');
                             })
                             ->disabled(function (Complaint $record) {
                                 if ($record->category=='Security Services') {

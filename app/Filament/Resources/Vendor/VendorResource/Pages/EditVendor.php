@@ -25,6 +25,16 @@ class EditVendor extends EditRecord
             // Actions\DeleteAction::make(),
         ];
     }
+
+    protected function mutateFormDataBeforeFill(array $data): array
+    {
+        $status= DB::connection('mysql')->table('owner_association_vendor')->where('vendor_id',$data['id'])->where('owner_association_id', Filament::getTenant()?->id)->select(['status','remarks'])->first();
+        $data['status'] = $status?->status;
+        $data['remarks'] = $status?->remarks;
+
+        return $data;
+    }
+
     public function afterSave()
     {
         $userId         = User::find($this->record->owner_id);
@@ -71,6 +81,10 @@ class EditVendor extends EditRecord
                 $user->save();
                 $remarks = $this->data['remarks'];
                 VendorRejectionJob::dispatch($user, $remarks, $password, $mailCredentials);
+                $vendor->ownerAssociation()->updateExistingPivot($tenant, [
+                    'status' => $this->data['status'],
+                    'remarks' => $this->data['remarks'],
+                ]);
             }
             if ($this->data['status'] == 'approved') {
                 $vendor         = Vendor::where('id', $this->data['id'])->first();
@@ -79,7 +93,24 @@ class EditVendor extends EditRecord
                 $user->password = Hash::make($password);
                 $user->save();
                 VendorAccountCreationJob::dispatch($user, $password, $mailCredentials);
-
+                $vendor->ownerAssociation()->updateExistingPivot($tenant, [
+                    'status' => $this->data['status'],
+                    'active' => true,
+                ]);
+            }
+        }
+        if($this->record->ownerAssociation()->wherePivot('owner_association_id', $tenant)->first()?->pivot->status == null){
+            if ($this->data['status'] == 'rejected') {
+                $vendor->ownerAssociation()->updateExistingPivot($tenant, [
+                    'status' => $this->data['status'],
+                    'remarks' => $this->data['remarks'],
+                ]);
+            }
+            if ($this->data['status'] == 'approved') {
+                $vendor->ownerAssociation()->updateExistingPivot($tenant, [
+                    'status' => $this->data['status'],
+                    'active' => true,
+                ]);
             }
         }
     }

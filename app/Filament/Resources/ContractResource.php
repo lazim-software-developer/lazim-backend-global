@@ -129,7 +129,10 @@ class ContractResource extends Resource
                                 if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
                                     return Vendor::where('status','approved')->pluck('name','id');
                                 }else{
-                                    return Vendor::where('owner_association_id',auth()->user()?->owner_association_id)->where('status','approved')->pluck('name','id');
+                                    return Vendor::whereHas('mapping_table', function ($query) {
+                                        $query->where('owner_association_id', Filament::getTenant()->id)
+                                              ->where('status', 'approved');
+                                    })->pluck('name','id');
                                 }
                             })
                             ->reactive()
