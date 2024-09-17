@@ -349,7 +349,7 @@ class BuildingResource extends Resource
                 Tables\Actions\EditAction::make(),
                 Action::make('feature')
                     ->label('Upload Budget') // Set a label for your action
-                    ->modalHeading('Upload Budget for Period') // Modal heading
+                    ->modalHeading('Upload Budget for Period') // Modal headin
                     ->form([
                         Forms\Components\Select::make('budget_period')
                             ->label('Select Budget Period')
