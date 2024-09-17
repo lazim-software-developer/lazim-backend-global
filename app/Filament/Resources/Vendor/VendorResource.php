@@ -34,6 +34,7 @@ use Filament\Forms\Components\FileUpload;
 use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\Vendor\VendorResource\Pages;
 use App\Filament\Resources\Vendor\VendorResource\RelationManagers\BuildingvendorRelationManager;
+use Filament\Forms\Components\Textarea;
 
 class VendorResource extends Resource
 {
@@ -113,8 +114,9 @@ class VendorResource extends Resource
                                 ->live(),
                             TextInput::make('status')->disabled()
                             ->visible(fn($record) => $record->ownerAssociation?->where('pivot.owner_association_id',Filament::getTenant()?->id)->first()?->pivot->status != null),
-                            TextInput::make('remarks')
-                                ->rules(['max:150'])
+                            Textarea::make('remarks')
+                                ->maxLength(250)
+                                ->rows(5)
                                 ->required()
                                 ->visible(function (callable $get) {
                                     if ($get('status') == 'rejected') {
