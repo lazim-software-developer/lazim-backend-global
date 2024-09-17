@@ -25,7 +25,7 @@ class PropertyManagerResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-building-office';
 
-    protected static ?string $modelLabel = 'Property Management';
+    protected static ?string $modelLabel = 'Property Manager';
 
     protected static bool $shouldRegisterNavigation = true;
 
