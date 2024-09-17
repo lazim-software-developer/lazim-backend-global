@@ -152,15 +152,27 @@ class VendorResource extends Resource
                     ->searchable()
                     ->default('NA')
                     ->label('TL Number'),
-                // Tables\Columns\TextColumn::make('status')
-                //     ->searchable()
-                //     ->default('NA')
-                //     ->label('Status'),
-                // TextColumn::make('remarks')
-                //     ->searchable()
-                //     ->limit(30)
-                //     ->default('NA')
-                //     ->label('Remarks'),
+                Tables\Columns\TextColumn::make('status')
+                    ->searchable()
+                    ->default('NA')
+                    ->label('Status')
+                    ->getStateUsing(function ($record) {
+                        $ownerAssociation = $record->ownerAssociation()
+                            ->wherePivot('owner_association_id', Filament::getTenant()?->id)
+                            ->first();
+                        return $ownerAssociation ? $ownerAssociation->pivot->status : 'NA';
+                    }),
+                TextColumn::make('remarks')
+                    ->searchable()
+                    ->limit(30)
+                    ->default('NA')
+                    ->label('Remarks')
+                    ->getStateUsing(function ($record) {
+                        $ownerAssociation = $record->ownerAssociation()
+                            ->wherePivot('owner_association_id', Filament::getTenant()?->id)
+                            ->first();
+                        return $ownerAssociation ? $ownerAssociation->pivot->remarks : 'NA';
+                    }),
                 ViewColumn::make('Services')->view('tables.columns.vendor-service'),
                 ViewColumn::make('Documents')->view('tables.columns.vendordocument'),
                 ViewColumn::make('Managers')->view('tables.columns.vendormanager'),
