@@ -17,6 +17,7 @@ use App\Http\Controllers\ReserveFundController;
 use App\Http\Controllers\TestController;
 use App\Http\Controllers\Vendor\MasterController;
 use App\Models\Master\Role;
+use Filament\Facades\Filament;
 use Filament\Pages\Page;
 use Illuminate\Support\Facades\Session;
 
@@ -33,6 +34,11 @@ use Illuminate\Support\Facades\Session;
 
 Route::get('/', function () {
     return redirect('/admin');
+});
+Route::post('/app/login', function () {
+    Filament::auth()->logout();
+
+    return redirect('/app/login');
 });
 
 Route::middleware(['auth:sanctum', 'verified'])
