@@ -15,6 +15,8 @@ class OwnerAssociationObserver
     {
         // FetchBuildingsJob::dispatch($ownerAssociation);
         $notifyTo = User::where('role_id',Role::where('name','Admin')->first()->id)->get();
+        $role = $ownerAssociation->role;
+        if($role === 'OA'){
         Notification::make()
             ->success()
             ->title("New Owner Association")
@@ -27,5 +29,6 @@ class OwnerAssociationObserver
             //         ->url(fn () => OwnerAssociation::getUrl('edit', [$ownerAssociation->id])),
             // ])
             ->sendToDatabase($notifyTo);
+        }
     }
 }
