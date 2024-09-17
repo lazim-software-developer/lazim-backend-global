@@ -41,6 +41,7 @@ use Filament\Forms\Components\Fieldset;
 use Cheesegrits\FilamentGoogleMaps\Fields\Map;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
+use App\Models\Master\Role;
 
 class BuildingResource extends Resource
 {
@@ -166,6 +167,7 @@ class BuildingResource extends Resource
 
                 Fieldset::make('Location')
                 ->columns(1)
+                ->visible(Role::where('id',auth()->user()->role_id)->first()->name == 'Property Manager')
                     ->schema([
 
                         Geocomplete::make('search')
