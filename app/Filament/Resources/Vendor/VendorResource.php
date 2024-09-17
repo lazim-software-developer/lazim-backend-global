@@ -108,11 +108,15 @@ class VendorResource extends Resource
                                 ->options([
                                     'approved' => 'Approve',
                                     'rejected' => 'Reject',
-                                ])
+                                ])->hidden(function(){
+                                    return Role::where('id', auth()->user()?->role_id)->first()?->name == 'Admin';
+                                })
                                 ->visible(fn($record) => $record->ownerAssociation?->where('pivot.owner_association_id',Filament::getTenant()?->id)->first()?->pivot->status === null && $record->documents()->count() > 0 && $record->services()->count() > 0 && $record->managers()->count() > 0)
                                 ->searchable()
                                 ->live(),
-                            TextInput::make('status')->disabled()
+                            TextInput::make('status')->disabled()->hidden(function(){
+                                return Role::where('id', auth()->user()?->role_id)->first()?->name == 'Admin';
+                            })
                             ->visible(fn($record) => $record->ownerAssociation?->where('pivot.owner_association_id',Filament::getTenant()?->id)->first()?->pivot->status != null),
                             Textarea::make('remarks')
                                 ->maxLength(250)
@@ -123,6 +127,8 @@ class VendorResource extends Resource
                                         return true;
                                     }
                                     return false;
+                                })->hidden(function(){
+                                    return Role::where('id', auth()->user()?->role_id)->first()?->name == 'Admin';
                                 })
                                 ->disabled(fn ($record) => $record->ownerAssociation?->where('pivot.owner_association_id',Filament::getTenant()?->id)->first()?->pivot->status !== null ),
                             Toggle::make('active')
@@ -156,6 +162,9 @@ class VendorResource extends Resource
                     ->searchable()
                     ->default('NA')
                     ->label('Status')
+                    ->hidden(function(){
+                        return Role::where('id', auth()->user()?->role_id)->first()?->name == 'Admin';
+                    })
                     ->getStateUsing(function ($record) {
                         $ownerAssociation = $record->ownerAssociation()
                             ->wherePivot('owner_association_id', Filament::getTenant()?->id)
@@ -167,6 +176,9 @@ class VendorResource extends Resource
                     ->limit(30)
                     ->default('NA')
                     ->label('Remarks')
+                    ->hidden(function(){
+                        return Role::where('id', auth()->user()?->role_id)->first()?->name == 'Admin';
+                    })
                     ->getStateUsing(function ($record) {
                         $ownerAssociation = $record->ownerAssociation()
                             ->wherePivot('owner_association_id', Filament::getTenant()?->id)
