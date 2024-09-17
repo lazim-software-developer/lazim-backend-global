@@ -103,19 +103,19 @@ class FlatResource extends Resource
                         ->numeric(),
                     TextInput::make('makhani_number')
                         ->placeholder('NA')
-                        ->hidden(auth()->user()->role->name === 'OA')
+                        ->visible(in_array(auth()->user()->role->name , ['Admin','Property Manager']))
                         ->numeric(),
                     TextInput::make('dewa_number')
                         ->placeholder('NA')
-                        ->hidden(auth()->user()->role->name === 'OA')
+                        ->visible(in_array(auth()->user()->role->name , ['Admin','Property Manager']))
                         ->numeric(),
                     TextInput::make('etisalat/du_number')
                         ->placeholder('NA')
-                        ->hidden(auth()->user()->role->name === 'OA')
+                        ->visible(in_array(auth()->user()->role->name , ['Admin','Property Manager']))
                         ->numeric(),
                     TextInput::make('btu/ac_number')
                         ->placeholder('NA')
-                        ->hidden(auth()->user()->role->name === 'OA')
+                        ->visible(in_array(auth()->user()->role->name , ['Admin','Property Manager']))
                         ->numeric(),
                 ]),
             ]);
