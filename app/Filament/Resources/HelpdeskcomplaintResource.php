@@ -87,7 +87,7 @@ class HelpdeskcomplaintResource extends Resource
                             })
                             ->options(function (Complaint $record, Get $get) {
                                 $serviceVendor = ServiceVendor::where('service_id', $get('service_id'))->pluck('vendor_id');
-                                return Vendor::whereIn('id', $serviceVendor)->whereHas('mapping_table', function ($query) {
+                                return Vendor::whereIn('id', $serviceVendor)->whereHas('ownerAssociation', function ($query) {
                                     $query->where('owner_association_id', Filament::getTenant()->id);
                                 })->pluck('name', 'id');
                             })

@@ -118,7 +118,7 @@ class ItemResource extends Resource
                         ->relationship('vendors', 'name')
                         ->options(function () {
                             $oaId = auth()->user()?->owner_association_id;
-                            return Vendor::whereHas('mapping_table', function ($query) {
+                            return Vendor::whereHas('ownerAssociation', function ($query) {
                                 $query->where('owner_association_id', Filament::getTenant()->id)
                                       ->where('status', 'approved');
                             })->pluck('name', 'id');
