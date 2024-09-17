@@ -22,11 +22,14 @@ class MasterController extends Controller
         // Retrieve vendors related to the service ID
         $vendors = Vendor::whereHas('services', function ($query) use ($serviceId) {
             $query->where('services.id', $serviceId); // Specify the table name here
-        })->whereHas('ownerAssociation', function ($query) {
-            $query->where('owner_association_vendor.owner_association_id', Filament::getTenant()?->id)
+        })->whereHas('ownerAssociation', function ($associaton) {
+            $associaton
+            ->where('owner_association_vendor.owner_association_id', auth()->user()?->owner_association_id)
                   ->where('owner_association_vendor.status', 'approved')
                   ->where('owner_association_vendor.active', true);
         })->get();
+        Log::info(auth()->user()?->owner_association_id);
+        Log::info(Filament::getTenant()?->id);
 
         // Return the view with the vendors
         return view('partials.vendors-list', compact('vendors'));
