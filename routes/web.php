@@ -19,6 +19,7 @@ use App\Http\Controllers\Vendor\MasterController;
 use App\Models\Master\Role;
 use Filament\Facades\Filament;
 use Filament\Pages\Page;
+use Filament\Panel;
 use Illuminate\Support\Facades\Session;
 
 /*
@@ -32,7 +33,11 @@ use Illuminate\Support\Facades\Session;
 |
 */
 
-Route::get('/', function () {
+Route::get('/', function (Panel $panel) {
+    if ($panel->getId() === 'app') {
+        return redirect('app/login');
+    }
+
     return redirect('/admin');
 });
 Route::post('/app/login', function () {
