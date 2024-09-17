@@ -726,17 +726,17 @@ class AdminPanelProvider extends PanelProvider
                             ->collapsed(true),
                     ]);
                 }
-                if ($user->can('view_any_legal::notice')){
-                    $builder->groups([
-                        NavigationGroup::make('Leagal Notice')
-                            ->items([
-                                NavigationItem::make('Leagal Notice')
-                                    ->url(LegalNoticeResource::getUrl('index'))
-                                    ->icon('heroicon-s-swatch')
-                            ])
-                            ->collapsed(true),
-                    ]);
-                }
+                // if ($user->can('view_any_legal::notice')){
+                //     $builder->groups([
+                //         NavigationGroup::make('Leagal Notice')
+                //             ->items([
+                //                 NavigationItem::make('Leagal Notice')
+                //                     ->url(LegalNoticeResource::getUrl('index'))
+                //                     ->icon('heroicon-s-swatch')
+                //             ])
+                //             ->collapsed(true),
+                //     ]);
+                // }
                 if ($user->can('view_any_activity')){
                     $builder->groups([
                         NavigationGroup::make('Activity')
