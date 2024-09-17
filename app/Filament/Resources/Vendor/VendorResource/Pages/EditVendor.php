@@ -58,9 +58,9 @@ class EditVendor extends EditRecord
     }
     protected function beforeSave(): void
     {
+        $oa_id  = Vendor::where('id', $this->data['id'])->first();
+        $tenant = Filament::getTenant()?->id ?? $oa_id?->owner_association_id;
         if ($this->record->status == null) {
-            $oa_id  = Vendor::where('id', $this->data['id'])->first();
-            $tenant = Filament::getTenant()?->id ?? $oa_id?->owner_association_id;
             // $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
 
             $credentials     = AccountCredentials::where('oa_id', $tenant)->where('active', true)->latest()->first();
