@@ -103,7 +103,7 @@ class SnagsResource extends Resource
                             ->disabledOn('edit')
                             ->options(function ( Get $get) {
                                 $serviceVendor = ServiceVendor::where('service_id',$get('service_id'))->pluck('vendor_id');
-                                return Vendor::whereHas('owner_association_vendor', function ($query) {
+                                return Vendor::whereHas('ownerAssociation', function ($query) {
                                     $query->where('owner_association_id', Filament::getTenant()->id);
                                 })->whereIn('id',$serviceVendor)->pluck('name', 'id');
                             })
