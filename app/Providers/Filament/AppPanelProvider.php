@@ -39,7 +39,10 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use App\Filament\Resources\OwnerAssociationInvoiceResource;
 use App\Filament\Resources\OwnerAssociationReceiptResource;
 use App\Filament\Resources\PropertyManagerResource;
+use Filament\Facades\Filament;
+use Filament\Navigation\MenuItem;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
+use Illuminate\Support\Facades\Log;
 
 class AppPanelProvider extends PanelProvider
 {
@@ -57,6 +60,15 @@ class AppPanelProvider extends PanelProvider
                 'success' => Color::Emerald,
                 'warning' => Color::Orange,
                 'pink' => Color::Pink
+            ])
+            ->userMenuItems([
+                'logout' => MenuItem::make()
+                                ->url(function () {
+                                    $panel = filament()->getId();
+                                    if($panel === 'app'){
+                                        return 'app/login';
+                                    }
+                                })->label('Log out'),
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
