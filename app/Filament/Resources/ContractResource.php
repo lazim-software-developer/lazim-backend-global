@@ -39,6 +39,8 @@ class ContractResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
     protected static ?string $navigationGroup = 'Oam';
 
+    public static $bm = null;
+
     public static function form(Form $form): Form
     {
         return $form
@@ -134,49 +136,51 @@ class ContractResource extends Resource
                             ->placeholder('End Date'),
                         
                         
-                        TextInput::make('balance_amount')
-                            ->label('Balance Amount')
-                            ->numeric(true)
-                            ->disabledOn('edit')
-                            ->minValue(1)
-                            ->maxValue(1000000)
-                            ->prefix('AED')
-                            ->required()
-                            ->reactive()
-                            ->disabled(function ( callable $set, callable $get) {
-                                $buildingId = $get('building_id');
-                                $startDate = $get('start_date');
-                                $serviceId = $get('service_id');
-                                $vendor_id = $get('vendor_id');
+                        // TextInput::make('balance_amount')
+                        //     ->label('Balance Amount')
+                        //     ->numeric(true)
+                        //     ->disabledOn('edit')
+                        //     ->minValue(1)
+                        //     ->maxValue(1000000)
+                        //     ->prefix('AED')
+                        //     ->required()
+                        //     ->reactive()
+                        //     ->disabled(function ( callable $set, callable $get) {
+                        //         $buildingId = $get('building_id');
+                        //         $startDate = $get('start_date');
+                        //         $serviceId = $get('service_id');
+                        //         $vendor_id = $get('vendor_id');
                         
-                                // Ensure all necessary fields are selected
-                                if (!$buildingId || !$startDate || !$serviceId || !$vendor_id) {
-                                    return false;
-                                }
+                        //         // Ensure all necessary fields are selected
+                        //         if (!$buildingId || !$startDate || !$serviceId || !$vendor_id) {
+                        //             return false;
+                        //         }
                         
-                                $contract = Contract::where([
-                                    ['building_id', $get('building_id')],
-                                    ['service_id', $get('service_id')],
-                                    ['vendor_id', $get('vendor_id')]
-                                ])
-                                ->orderBy('created_at', 'desc') 
-                                ->first();
+                        //         $contract = Contract::where([
+                        //             ['building_id', $get('building_id')],
+                        //             ['service_id', $get('service_id')],
+                        //             ['vendor_id', $get('vendor_id')]
+                        //         ])
+                        //         ->orderBy('created_at', 'desc') 
+                        //         ->first();
 
                                 
-                                if ($contract) {
-                                    $difference = abs($contract->budget_amount - $contract->amount);
-                                    $difference = round($difference, 2);
+                        //         if ($contract) {
+                        //             $difference = abs($contract->budget_amount - $contract->amount);
+                        //             $difference = round($difference, 2);
 
-                                    $set('balance_amount', $difference);
-                                    return true;
-                                } 
-                                if($contract == null) {
-                                    $budgetAmount = $get('budget_amount');
-                                    $set('balance_amount', $budgetAmount);
-                                    return true;
-                                }
+                        //             $set('balance_amount', $difference);
+                        //             self::$bm = $difference;
+                        //             return true;
+                        //         } 
+                        //         // if($contract == null) {
+                        //         //     $budgetAmount = $get('budget_amount');
+                        //         //     $set('balance_amount', $budgetAmount);
+                        //         //     return true;
+                        //         // }
+                        //         return false;
 
-                            }),
+                        //     }),
                         TextInput::make('budget_amount')
                             ->numeric(true)
                             ->live()
@@ -190,9 +194,10 @@ class ContractResource extends Resource
                                 $buildingId = $get('building_id');
                                 $startDate = $get('start_date');
                                 $serviceId = $get('service_id');
+                                $vendor_id = $get('vendor_id');
                         
                                 // Ensure all necessary fields are selected
-                                if (!$buildingId || !$startDate || !$serviceId) {
+                                if (!$buildingId || !$startDate || !$serviceId || !$vendor_id) {
                                     return false;
                                 }
                         
@@ -205,10 +210,38 @@ class ContractResource extends Resource
                                 $budget = Budgetitem::where('budget_id', $budgetId)
                                     ->where('service_id', $serviceId)
                                     ->value('total') ?? null;
+
+                                //contract
+                                
+                                $contract = Contract::where([
+                                    ['building_id', $get('building_id')],
+                                    ['service_id', $get('service_id')],
+                                    ['vendor_id', $get('vendor_id')]
+                                ])
+                                ->orderBy('created_at', 'desc') 
+                                ->first();
+
+                                if ($contract) {
+                                    $difference = abs($contract->budget_amount - $contract->amount);
+                                    $difference = round($difference, 2);
+
+                                    self::$bm = $difference;
+                                }else{
+                                    self::$bm = $budget;
+                                }
+                                // dd(self::$bm);
+
+                                $set('remaining_amount', self::$bm);
                                 $set('budget_amount', $budget);
                                     
                                 return true;
                             }),
+
+                        TextInput::make('remaining_amount')
+                        ->label('Balance Amount')
+                        ->prefix('AED')
+                        ->readOnly(),
+
                         TextInput::make('amount')
                             ->label('Contract Amount')
                             ->numeric(true)
