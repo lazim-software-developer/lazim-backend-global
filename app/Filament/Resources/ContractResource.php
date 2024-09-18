@@ -190,7 +190,7 @@ class ContractResource extends Resource
                             ->prefix('AED')
                             ->required()
                             ->reactive()  // Make the field react to changes
-                            ->disabled(function ( callable $set, callable $get) {
+                            ->readOnly(function ( callable $set, callable $get) {
                                 $buildingId = $get('building_id');
                                 $startDate = $get('start_date');
                                 $serviceId = $get('service_id');
@@ -213,23 +213,23 @@ class ContractResource extends Resource
 
                                 //contract
                                 
-                                $contract = Contract::where([
+                                $contractsQuery = Contract::where([
                                     ['building_id', $get('building_id')],
                                     ['service_id', $get('service_id')],
                                     ['vendor_id', $get('vendor_id')]
-                                ])
-                                ->orderBy('created_at', 'desc') 
-                                ->first();
-
-                                if ($contract) {
-                                    $difference = abs($contract->budget_amount - $contract->amount);
+                                ]);
+                                
+                                $contractAmountSum = $contractsQuery->sum('amount');
+                                
+                                if ($contractAmountSum > 0) {
+                                    $budgetAmount = $get('budget_amount'); 
+                                    $difference = abs($budgetAmount - $contractAmountSum);
                                     $difference = round($difference, 2);
-
-                                    self::$bm = $difference;
+                                
+                                    self::$bm = $difference; 
                                 }else{
                                     self::$bm = $budget;
                                 }
-                                // dd(self::$bm);
 
                                 $set('remaining_amount', self::$bm);
                                 $set('budget_amount', $budget);
