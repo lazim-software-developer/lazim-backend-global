@@ -248,7 +248,7 @@ class ContractResource extends Resource
                             ->disabledOn('edit')
                             ->minValue(1)
                             ->maxValue(function(callable $get){
-                                return $get('balance_amount');
+                                return $get('remaining_amount');
                             })
                             ->prefix('AED')
                             ->helperText('Contract Amount must be less than Balance Amount')
