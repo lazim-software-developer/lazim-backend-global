@@ -357,6 +357,15 @@ class AuthController extends Controller
                 'data' => $user->vendors->first()
             ]))->response()->setStatusCode(403);
         }
+
+        if ($user && $user->vendors->first()->status != 'approved') {
+            return (new CustomResponseResource([
+                'title' => 'Approve Pending',
+                'message' => 'Your Document approval is pending!',
+                'code' => 400,
+                'data' => $user->vendors->first()
+            ]))->response()->setStatusCode(400);
+        }
         // Create a new access token
         $token = $user->createToken($user->role->name)->plainTextToken;
 

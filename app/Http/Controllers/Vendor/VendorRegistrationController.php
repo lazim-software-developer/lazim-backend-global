@@ -107,7 +107,7 @@ class VendorRegistrationController extends Controller
                     ]))->response()->setStatusCode(403);
                 }
 
-                $vendor->ownerAssociation()->attach($request->owner_association_id, ['from' => now()->toDateString()]);
+                $vendor->ownerAssociation()->attach($request->owner_association_id, ['from' => now()->toDateString(),'active' =>false]);
                 return (new CustomResponseResource([
                     'title' => 'vendor_exists',
                     'message' => "You have successfully registered with the new Owner Association. They will get back to you soon!",

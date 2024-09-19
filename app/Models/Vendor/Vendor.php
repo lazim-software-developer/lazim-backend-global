@@ -55,7 +55,7 @@ class Vendor extends Model
 
     public function ownerAssociation()
     {
-        return $this->belongsToMany(OwnerAssociation::class);
+        return $this->belongsToMany(OwnerAssociation::class)->withPivot(['status','remarks']);
     }
     public function user()
     {

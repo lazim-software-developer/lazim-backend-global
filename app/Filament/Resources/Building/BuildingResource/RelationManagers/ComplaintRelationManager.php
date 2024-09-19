@@ -13,6 +13,7 @@ use App\Models\Vendor\Vendor;
 use App\Models\TechnicianVendor;
 use App\Models\Building\Complaint;
 use App\Models\Vendor\ServiceVendor;
+use Filament\Facades\Filament;
 use Illuminate\Support\Facades\DB;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Select;
@@ -78,7 +79,9 @@ class ComplaintRelationManager extends RelationManager
                             ->required()
                             ->options(function (Complaint $record, Get $get) {
                                 $serviceVendor = ServiceVendor::where('service_id',$get('service_id'))->pluck('vendor_id');
-                                return Vendor::whereIn('id',$serviceVendor)->where('owner_association_id', auth()->user()?->owner_association_id)->pluck('name', 'id');
+                                return Vendor::whereHas('ownerAssociation', function ($query) {
+                                    $query->where('owner_association_id', Filament::getTenant()->id);
+                                })->whereIn('id',$serviceVendor)->pluck('name', 'id');
                             })
                             ->disabled(function (Complaint $record) {
                                 if ($record->vendor_id == null) {
