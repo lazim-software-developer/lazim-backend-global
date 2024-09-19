@@ -16,5 +16,6 @@ class MyLogoutResponse implements LogoutResponseContract
             Filament::auth()->logout();
             return redirect()->to(env('APP_URL') . '/app/login');
         }
+        return redirect('/admin');
     }
 }
