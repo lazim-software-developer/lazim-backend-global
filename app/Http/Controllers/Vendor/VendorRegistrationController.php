@@ -21,6 +21,7 @@ use App\Models\User\User;
 use App\Models\Vendor\Vendor;
 use App\Models\Vendor\VendorManager;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
 
 class VendorRegistrationController extends Controller
 {
@@ -312,9 +313,12 @@ class VendorRegistrationController extends Controller
         ]))->response()->setStatusCode(200);
     }
 
-    public function listOa()
+    public function listOa(Request $request)
     {
-        $OwnerAssociations = OwnerAssociation::where('active', true)->get();
+        $request->validate([
+            'role' => 'required',
+        ]);
+        $OwnerAssociations = OwnerAssociation::where('active', true)->where('role',$request->role)->get();
 
         return ListOAResource::collection($OwnerAssociations);
     }
