@@ -7,7 +7,7 @@ use Filament\Http\Responses\Auth\Contracts\LogoutResponse as LogoutResponseContr
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Log;
 
-class MyLogoutResponse
+class MyLogoutResponse implements LogoutResponseContract
 {
     public function toResponse($request): RedirectResponse
     {
