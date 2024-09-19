@@ -38,7 +38,7 @@ Route::get('/', function () {
 Route::post('/app/login', function () {
     Filament::auth()->logout();
 
-    return redirect('/app/login');
+    return url(env('APP_URL').'/app/login');
 });
 
 Route::middleware(['auth:sanctum', 'verified'])
