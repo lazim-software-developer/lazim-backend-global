@@ -66,6 +66,9 @@ use App\Observers\UserApprovalObserver;
 use Filament\Resources\Resource;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Table;
+use Filament\Http\Responses\Auth\Contracts\LogoutResponse as LogoutResponseContract;
+use App\Filament\MyLogoutResponse;
+
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -129,5 +132,7 @@ class AppServiceProvider extends ServiceProvider
                 ->filtersLayout(FiltersLayout::AboveContentCollapsible)
                 ->paginationPageOptions([10, 25, 50]);
         });
+
+        $this->app->bind(LogoutResponseContract::class, MyLogoutResponse::class);
     }
 }

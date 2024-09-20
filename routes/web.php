@@ -1,24 +1,20 @@
 <?php
 
-use App\Filament\Resources\LedgersResource\Pages\ListReceipts;
-use App\Http\Controllers\OwnerAssociationReceipts;
-use App\Http\Controllers\TrialBalanceController;
-use App\Http\Controllers\Vendor\DelinquentController;
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\HomeController;
-use App\Http\Controllers\Master\PDFController;
-use App\Models\Vendor\Vendor;
-use App\Livewire\VendorRegistration;
 use App\Filament\Pages\BudgetListing;
 use App\Filament\Pages\OAM\CreateTender;
 use App\Http\Controllers\GeneralFundController;
+use App\Http\Controllers\Master\PDFController;
 use App\Http\Controllers\OwnerAssociationInvoice;
+use App\Http\Controllers\OwnerAssociationReceipts;
 use App\Http\Controllers\ReserveFundController;
 use App\Http\Controllers\TestController;
+use App\Http\Controllers\TrialBalanceController;
+use App\Http\Controllers\Vendor\DelinquentController;
 use App\Http\Controllers\Vendor\MasterController;
-use App\Models\Master\Role;
+use App\Livewire\VendorRegistration;
 use Filament\Facades\Filament;
-use Filament\Pages\Page;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Session;
 
 /*
@@ -34,11 +30,6 @@ use Illuminate\Support\Facades\Session;
 
 Route::get('/', function () {
     return redirect('/admin');
-});
-Route::post('/app/login', function () {
-    Filament::auth()->logout();
-
-    return redirect('/app/login');
 });
 
 Route::middleware(['auth:sanctum', 'verified'])
