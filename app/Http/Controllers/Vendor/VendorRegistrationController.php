@@ -107,8 +107,9 @@ class VendorRegistrationController extends Controller
                         'data' => $vendor,
                     ]))->response()->setStatusCode(403);
                 }
+                $type = OwnerAssociation::where('id', $request->owner_association_id)->first()?->role;
 
-                $vendor->ownerAssociation()->attach($request->owner_association_id, ['from' => now()->toDateString(),'active' =>false]);
+                $vendor->ownerAssociation()->attach($request->owner_association_id, ['from' => now()->toDateString(),'active' =>false,'type' => $type]);
                 return (new CustomResponseResource([
                     'title' => 'vendor_exists',
                     'message' => "You have successfully registered with the new Owner Association. They will get back to you soon!",
@@ -184,9 +185,10 @@ class VendorRegistrationController extends Controller
         ]);
         $user = User::find($request->owner_id);
         $vendor = Vendor::create($request->all());
+        $type = OwnerAssociation::where('id', $request->owner_association_id)->first()?->role;
 
         $user->ownerAssociation()->attach($request->owner_association_id, ['from' => now()->toDateString()]);
-        $vendor->ownerAssociation()->attach($request->owner_association_id, ['from' => now()->toDateString()]);
+        $vendor->ownerAssociation()->attach($request->owner_association_id, ['from' => now()->toDateString(),'type'=> $type]);
 
         $doc = Document::create([
             "name" => "risk_policy",
