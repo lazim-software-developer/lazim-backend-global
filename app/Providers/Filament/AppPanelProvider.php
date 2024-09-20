@@ -61,15 +61,6 @@ class AppPanelProvider extends PanelProvider
                 'warning' => Color::Orange,
                 'pink' => Color::Pink
             ])
-            ->userMenuItems([
-                'logout' => MenuItem::make()
-                                ->url(function () {
-                                    $panel = filament()->getId();
-                                    if($panel === 'app'){
-                                        return 'app/login';
-                                    }
-                                })->label('Log out'),
-            ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->pages([
