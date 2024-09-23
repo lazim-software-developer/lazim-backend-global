@@ -110,11 +110,13 @@ class FlatResource extends Resource
                         ->visible(in_array(auth()->user()->role->name , ['Admin','Property Manager']))
                         ->numeric(),
                     TextInput::make('etisalat/du_number')
+                        ->label('BTU/Etisalat Number')
                         ->placeholder('NA')
                         ->visible(in_array(auth()->user()->role->name , ['Admin','Property Manager']))
                         ->numeric(),
                     TextInput::make('btu/ac_number')
                         ->placeholder('NA')
+                        ->label('BTU/AC Number')
                         ->visible(in_array(auth()->user()->role->name , ['Admin','Property Manager']))
                         ->numeric(),
                 ]),
@@ -135,22 +137,31 @@ class FlatResource extends Resource
                     ->searchable()
                     ->limit(50),
                 TextColumn::make('suit_area')
-                    ->formatStateUsing(fn ($record) => number_format($record->suit_area, 2))
+                    ->formatStateUsing(fn ($record) => is_numeric($record->suit_area)
+                        ? number_format((float)$record->suit_area, 2)
+                        : 'NA')
                     ->default('NA')
                     ->searchable()
                     ->limit(50),
+
                 TextColumn::make('actual_area')
-                    ->formatStateUsing(fn ($record) => number_format($record->actual_area, 2))
+                     ->formatStateUsing(fn ($record) => is_numeric($record->suit_area)
+                        ? number_format((float)$record->suit_area, 2)
+                        : 'NA')
                     ->default('NA')
                     ->searchable()
                     ->limit(50),
                 TextColumn::make('balcony_area')
-                    ->formatStateUsing(fn ($record) => number_format($record->balcony_area, 2))
+                     ->formatStateUsing(fn ($record) => is_numeric($record->suit_area)
+                        ? number_format((float)$record->suit_area, 2)
+                        : 'NA')
                     ->default('NA')
                     ->searchable()
                     ->limit(50),
                 TextColumn::make('applicable_area')
-                    ->formatStateUsing(fn ($record) => number_format($record->applicable_area, 2))
+                     ->formatStateUsing(fn ($record) => is_numeric($record->suit_area)
+                        ? number_format((float)$record->suit_area, 2)
+                        : 'NA')
                     ->default('NA')
                     ->searchable()
                     ->limit(50),

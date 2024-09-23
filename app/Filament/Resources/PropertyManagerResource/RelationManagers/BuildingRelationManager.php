@@ -5,11 +5,12 @@ namespace App\Filament\Resources\PropertyManagerResource\RelationManagers;
 use App\Imports\BuildingImport;
 use App\Models\Building\Building;
 use App\Models\Master\Role;
-use Cheesegrits\FilamentGoogleMaps\Fields\Geocomplete;
-use Cheesegrits\FilamentGoogleMaps\Fields\Map;
+use App\Models\OwnerAssociation;
+use App\Models\User\User;
+use Carbon\Carbon;
 use Closure;
 use Filament\Forms;
-use Filament\Forms\Components\Fieldset;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
@@ -37,240 +38,6 @@ class BuildingRelationManager extends RelationManager
 
     protected static ?string $recordTitleAttribute = 'name';
 
-    // public function form(Forms\Form $form): Forms\Form
-    // {
-    //     return $form
-    //         ->schema([
-    //             Grid::make([
-    //                 'sm' => 1,
-    //                 'md' => 1,
-    //                 'lg' => 1,
-    //             ])->schema([
-    //                 TextInput::make('name')
-    //                     ->rules(['max:50', 'string'])
-    //                     ->required()
-    //                     ->disabled(function () {
-    //                         if (auth()->user()->role->name !== 'Admin') {
-    //                             return true;
-    //                         }
-    //                     })
-    //                     ->placeholder('Name'),
-
-    //                 TextInput::make('property_group_id')
-    //                     ->rules(['max:50', 'string'])
-    //                     ->required()
-    //                     ->disabled(function () {
-    //                         if (auth()->user()->role->name !== 'Admin') {
-    //                             return true;
-    //                         }
-    //                     })
-    //                     ->placeholder('Property Group Id')
-    //                     ->unique(
-    //                         'buildings',
-    //                         'property_group_id',
-    //                         fn(?Model $record) => $record,
-    //                     ),
-
-    //                 TextInput::make('address_line1')
-    //                     ->rules(['max:500', 'string'])
-    //                     ->required()
-    //                     ->placeholder('Address Line1'),
-
-    //                 TextInput::make('address_line2')
-    //                     ->rules(['max:500', 'string'])
-    //                     ->nullable()
-    //                     ->placeholder('Address Line2'),
-    //                 Hidden::make('owner_association_id')
-    //                     ->default(auth()->user()?->owner_association_id),
-
-    //                 TextInput::make('area')
-    //                     ->rules(['max:100', 'string'])
-    //                     ->required()
-    //                     ->placeholder('Area'),
-
-    //                 // Select::make('city_id')
-    //                 //     ->rules(['exists:cities,id'])
-    //                 //     ->preload()
-    //                 //     ->relationship('cities', 'name')
-    //                 //     ->searchable()
-    //                 //     ->placeholder('NA'),
-    //                 MarkdownEditor::make('description')
-    //                     ->toolbarButtons([
-    //                         'bold',
-    //                         'bulletList',
-    //                         'italic',
-    //                         'link',
-    //                         'orderedList',
-    //                         'redo',
-    //                         'undo',
-    //                     ])
-    //                     ->label('About'),
-    //                 FileUpload::make('cover_photo')
-    //                     ->disk('s3')
-    //                     ->rules(['file', 'mimes:jpeg,jpg,png', function () {
-    //                         return function (string $attribute, $value, Closure $fail) {
-    //                             if ($value->getSize() / 1024 > 2048) {
-    //                                 $fail('The cover Photo field must not be greater than 2MB.');
-    //                             }
-    //                         };
-    //                     }])
-    //                     ->directory('dev')
-    //                     ->image()
-    //                     ->maxSize(2048)
-    //                     ->label('Cover Photo'),
-    //                 TextInput::make('floors')
-    //                     ->numeric()
-    //                     ->minValue(1)
-    //                     ->maxValue(999)
-    //                     ->disabled(function (?Model $record) {
-    //                         if ($record?->floors == null) {
-    //                             return false;
-    //                         }
-    //                         return true;
-    //                     })
-    //                     ->placeholder('Floors')
-    //                     ->label('Floor'),
-
-    //                 Toggle::make('allow_postupload')
-    //                     ->rules(['boolean'])
-    //                     ->label('Allow post-upload'),
-    //                 Toggle::make('show_inhouse_services')
-    //                     ->rules(['boolean'])
-    //                     ->label('Show Personal services')
-    //                     ->hiddenOn('create'),
-
-    //                 // TextInput::make('lat')
-    //                 //     ->rules(['numeric'])
-    //                 //     ->placeholder('Lat'),
-
-    //                 // TextInput::make('lng')
-    //                 //     ->rules(['numeric'])
-    //                 //     ->placeholder('Lng'),
-
-    //                 // TextInput::make('description')
-    //                 //     ->rules(['max:255', 'string'])
-    //                 //     ->placeholder('Description'),
-
-    //                 Fieldset::make('Location')
-    //                     ->columns(1)
-    //                     ->visible(Role::where('id', auth()->user()->role_id)->first()->name == 'Property Manager')
-    //                     ->schema([
-
-    //                         Geocomplete::make('search')
-    //                             ->afterStateUpdated(function ($state, Set $set) {
-    //                                 if ($state == null) {
-    //                                     $set('lat', null);
-    //                                     $set('lng', null);
-    //                                     $set('pincode', null);
-    //                                 }
-    //                             })
-    //                         // ->label('Address')
-    //                             ->placeholder('Enter location')
-    //                             ->maxLength(256)
-    //                             ->updateLatLng(true)
-    //                             ->reactive()
-    //                             ->types(['establishment'])
-    //                         // ->countries(['IN'])
-    //                         // ->Regex('/^[^!@#$]*$/')
-    //                             ->validationMessages([
-    //                                 // 'Regex'     => 'Enter valid search location',
-    //                                 'countries' => 'International places not allowed',
-    //                             ])
-    //                             ->required()
-    //                             ->live(),
-
-    //                         Grid::make(['default' => 2])
-    //                             ->columns(2)
-    //                             ->schema([
-    //                                 TextInput::make('lat')
-    //                                     ->extraAttributes([
-    //                                         'style' => 'background-color: #f0f0f0; color: #6c757d; pointer-events: none;',
-    //                                     ])
-    //                                 // ->hidden()
-    //                                     ->label('Latitude')
-    //                                     ->required()
-    //                                     ->rules(['max:255'])
-    //                                     ->placeholder('Lat')
-    //                                     ->reactive()
-    //                                     ->afterStateUpdated(function ($state, callable $get, callable $set) {
-    //                                         $set('location', [
-    //                                             'lat' => floatVal($state),
-    //                                             'lng' => floatVal($get('lng')),
-    //                                         ]);
-    //                                     })
-    //                                     ->readOnly()
-    //                                 // ->disabled(function (callable $get) {
-    //                                 // if ($get('Search') == true) {
-    //                                 //     return false;
-    //                                 // }
-    //                                 // return true;
-    //                                 // })
-    //                                     ->lazy(),
-
-    //                                 TextInput::make('lng')
-    //                                     ->extraAttributes([
-    //                                         'style' => 'background-color: #f0f0f0; color: #6c757d; pointer-events: none;',
-    //                                     ])
-    //                                 // ->hidden()
-    //                                     ->label('Longitude')
-    //                                     ->required()
-    //                                     ->rules(['max:255'])
-    //                                     ->nullable()
-    //                                     ->placeholder('Long')
-    //                                     ->reactive()
-    //                                     ->afterStateUpdated(function ($state, callable $get, callable $set) {
-    //                                         $set('location', [
-    //                                             'lat' => floatval($get('lat')),
-    //                                             'lng' => floatVal($state),
-    //                                         ]);
-    //                                         $location = $get('location');
-    //                                     })
-    //                                     ->readonly()
-    //                                 //     ->disabled(function (callable $get) {
-    //                                 //     if ($get('Search') == true) {
-    //                                 //         return false;
-    //                                 //     }
-    //                                 //     return true;
-    //                                 // })
-    //                                     ->lazy(),
-    //                             ]),
-
-    //                         Map::make('location')
-    //                             ->autocomplete('search')
-    //                             ->autocompleteReverse(true)
-    //                             ->mapControls([
-    //                                 'mapTypeControl'    => true,
-    //                                 'scaleControl'      => true,
-    //                                 'streetViewControl' => true,
-    //                                 'rotateControl'     => true,
-    //                                 'fullscreenControl' => true,
-    //                                 'searchBoxControl'  => false, // creates geocomplete field inside map
-    //                                 'zoomControl' => false,
-    //                             ])
-    //                             ->reactive()
-    //                             ->afterStateUpdated(function ($state, Set $set, Get $get) {
-    //                                 $set('lat', $state['lat']);
-    //                                 $set('lng', $state['lng']);
-    //                             })
-    //                             ->height(fn() => '400px')
-    //                             ->defaultZoom(15)
-    //                             ->reverseGeocode([
-    //                                 'street' => '%n %S',
-    //                                 'city'   => '%L',
-    //                                 'state'  => '%A1',
-    //                                 'zip'    => '%z',
-    //                             ])
-    //                             ->draggable()
-    //                             ->clickable(true)
-    //                             ->geolocate()
-    //                             ->geolocateLabel('Get Location')
-    //                         // ->geolocateOnLoad(true, false)
-    //                         ,
-    //                     ]),
-    //             ]),
-    //         ]);
-
-    // }
     public function table(Table $table): Table
     {
         return $table
@@ -279,48 +46,31 @@ class BuildingRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('from')->label('From')->searchable(),
             ])
             ->headerActions([
-                // CreateAction::make()
-                //     ->label('Create Building')
-                //     ->slideOver()
-                //     ->after(function(Set $set){
-                //         dd($this->mountedTableActionForm->model);
-                //         // dd($this->ownerRecord->building);
-                //         $buildingRecord = DB::table('building_owner_association')
-                //         ->where('id', $this->id);
-                //         dd($buildingRecord);
-                //     }),
-                // AttachAction::make()
-                // ->preloadRecordSelect()
-                // ->recordSelectOptionsQuery(function (Builder $query) {
-                //     return $query->whereDoesntHave('ownerAssociations');
-                // })
-                // ->form(fn(AttachAction $action): array=> [
-                //     $action->getRecordSelect()->required(),
-                //     DatePicker::make('from')->default(Carbon::now()->format('d-M-Y')),
-                // ])
-                // ->label('Add existing building'),
-
                 Action::make('Attach Building')
                     ->slideOver()
                     ->form([
                         Select::make('building_id')
                             ->label('Building')
                             ->options(function (RelationManager $livewire) {
-                                $existingbuildingIds = DB::table('building_owner_association')
+
+                                $ownerAssociationIds = OwnerAssociation::where('role', 'Property Manager')
+                                    ->pluck('id');
+
+                                $existingBuildingIds = DB::table('building_owner_association')
+                                    ->whereIn('owner_association_id', $ownerAssociationIds)
                                     ->pluck('building_id');
 
-                                return Building::whereNotIn('id', $existingbuildingIds)->pluck('name');
-
+                                return Building::whereNotIn('id', $existingBuildingIds)
+                                    ->pluck('name', 'id');
                             })
+
                             ->searchable()
                             ->required()
                             ->reactive()
                             ->optionsLimit(500)
-                            ->required()
                             ->live()
                             ->createOptionForm([
                                 Grid::make(['default' => 2])
-
                                     ->schema([
                                         Grid::make([
                                             'sm' => 1,
@@ -331,9 +81,7 @@ class BuildingRelationManager extends RelationManager
                                                 ->rules(['max:50', 'string'])
                                                 ->required()
                                                 ->disabled(function () {
-                                                    if (auth()->user()->role->name !== 'Admin') {
-                                                        return true;
-                                                    }
+                                                    return auth()->user()->role->name !== 'Admin';
                                                 })
                                                 ->placeholder('Name'),
 
@@ -341,9 +89,7 @@ class BuildingRelationManager extends RelationManager
                                                 ->rules(['max:50', 'string'])
                                                 ->required()
                                                 ->disabled(function () {
-                                                    if (auth()->user()->role->name !== 'Admin') {
-                                                        return true;
-                                                    }
+                                                    return auth()->user()->role->name !== 'Admin';
                                                 })
                                                 ->placeholder('Property Group Id')
                                                 ->unique(
@@ -361,6 +107,7 @@ class BuildingRelationManager extends RelationManager
                                                 ->rules(['max:500', 'string'])
                                                 ->nullable()
                                                 ->placeholder('Address Line2'),
+
                                             Hidden::make('owner_association_id')
                                                 ->default(auth()->user()?->owner_association_id),
 
@@ -369,12 +116,6 @@ class BuildingRelationManager extends RelationManager
                                                 ->required()
                                                 ->placeholder('Area'),
 
-                                            // Select::make('city_id')
-                                            //     ->rules(['exists:cities,id'])
-                                            //     ->preload()
-                                            //     ->relationship('cities', 'name')
-                                            //     ->searchable()
-                                            //     ->placeholder('NA'),
                                             MarkdownEditor::make('description')
                                                 ->toolbarButtons([
                                                     'bold',
@@ -386,12 +127,13 @@ class BuildingRelationManager extends RelationManager
                                                     'undo',
                                                 ])
                                                 ->label('About'),
+
                                             FileUpload::make('cover_photo')
                                                 ->disk('s3')
                                                 ->rules(['file', 'mimes:jpeg,jpg,png', function () {
                                                     return function (string $attribute, $value, Closure $fail) {
                                                         if ($value->getSize() / 1024 > 2048) {
-                                                            $fail('The cover Photo field must not be greater than 2MB.');
+                                                            $fail('The cover photo must not be greater than 2MB.');
                                                         }
                                                     };
                                                 }])
@@ -399,15 +141,13 @@ class BuildingRelationManager extends RelationManager
                                                 ->image()
                                                 ->maxSize(2048)
                                                 ->label('Cover Photo'),
+
                                             TextInput::make('floors')
                                                 ->numeric()
                                                 ->minValue(1)
                                                 ->maxValue(999)
                                                 ->disabled(function (?Model $record) {
-                                                    if ($record?->floors == null) {
-                                                        return false;
-                                                    }
-                                                    return true;
+                                                    return $record?->floors != null;
                                                 })
                                                 ->placeholder('Floors')
                                                 ->label('Floor'),
@@ -415,180 +155,116 @@ class BuildingRelationManager extends RelationManager
                                             Toggle::make('allow_postupload')
                                                 ->rules(['boolean'])
                                                 ->label('Allow post-upload'),
+
                                             Toggle::make('show_inhouse_services')
                                                 ->rules(['boolean'])
                                                 ->label('Show Personal services')
                                                 ->hiddenOn('create'),
-
-                                            // TextInput::make('lat')
-                                            //     ->rules(['numeric'])
-                                            //     ->placeholder('Lat'),
-
-                                            // TextInput::make('lng')
-                                            //     ->rules(['numeric'])
-                                            //     ->placeholder('Lng'),
-
-                                            // TextInput::make('description')
-                                            //     ->rules(['max:255', 'string'])
-                                            //     ->placeholder('Description'),
-
-                                            Fieldset::make('Location')
-                                                ->columns(1)
-                                                ->visible(Role::where('id', auth()->user()->role_id)->first()->name == 'Property Manager')
-                                                ->schema([
-
-                                                    Geocomplete::make('search')
-                                                        ->afterStateUpdated(function ($state, Set $set) {
-                                                            if ($state == null) {
-                                                                $set('lat', null);
-                                                                $set('lng', null);
-                                                                $set('pincode', null);
-                                                            }
-                                                        })
-                                                    // ->label('Address')
-                                                        ->placeholder('Enter location')
-                                                        ->maxLength(256)
-                                                        ->updateLatLng(true)
-                                                        ->reactive()
-                                                        ->types(['establishment'])
-                                                    // ->countries(['IN'])
-                                                    // ->Regex('/^[^!@#$]*$/')
-                                                        ->validationMessages([
-                                                            // 'Regex'     => 'Enter valid search location',
-                                                            'countries' => 'International places not allowed',
-                                                        ])
-                                                        ->required()
-                                                        ->live(),
-
-                                                    Grid::make(['default' => 2])
-                                                        ->columns(2)
-                                                        ->schema([
-                                                            TextInput::make('lat')
-                                                                ->extraAttributes([
-                                                                    'style' => 'background-color: #f0f0f0; color: #6c757d; pointer-events: none;',
-                                                                ])
-                                                            // ->hidden()
-                                                                ->label('Latitude')
-                                                                ->required()
-                                                                ->rules(['max:255'])
-                                                                ->placeholder('Lat')
-                                                                ->reactive()
-                                                                ->afterStateUpdated(function ($state, callable $get, callable $set) {
-                                                                    $set('location', [
-                                                                        'lat' => floatVal($state),
-                                                                        'lng' => floatVal($get('lng')),
-                                                                    ]);
-                                                                })
-                                                                ->readOnly()
-                                                            // ->disabled(function (callable $get) {
-                                                            // if ($get('Search') == true) {
-                                                            //     return false;
-                                                            // }
-                                                            // return true;
-                                                            // })
-                                                                ->lazy(),
-
-                                                            TextInput::make('lng')
-                                                                ->extraAttributes([
-                                                                    'style' => 'background-color: #f0f0f0; color: #6c757d; pointer-events: none;',
-                                                                ])
-                                                            // ->hidden()
-                                                                ->label('Longitude')
-                                                                ->required()
-                                                                ->rules(['max:255'])
-                                                                ->nullable()
-                                                                ->placeholder('Long')
-                                                                ->reactive()
-                                                                ->afterStateUpdated(function ($state, callable $get, callable $set) {
-                                                                    $set('location', [
-                                                                        'lat' => floatval($get('lat')),
-                                                                        'lng' => floatVal($state),
-                                                                    ]);
-                                                                    $location = $get('location');
-                                                                })
-                                                                ->readonly()
-                                                            //     ->disabled(function (callable $get) {
-                                                            //     if ($get('Search') == true) {
-                                                            //         return false;
-                                                            //     }
-                                                            //     return true;
-                                                            // })
-                                                                ->lazy(),
-                                                        ]),
-
-                                                    Map::make('location')
-                                                        ->autocomplete('search')
-                                                        ->autocompleteReverse(true)
-                                                        ->mapControls([
-                                                            'mapTypeControl'    => true,
-                                                            'scaleControl'      => true,
-                                                            'streetViewControl' => true,
-                                                            'rotateControl'     => true,
-                                                            'fullscreenControl' => true,
-                                                            'searchBoxControl'  => false, // creates geocomplete field inside map
-                                                            'zoomControl' => false,
-                                                        ])
-                                                        ->reactive()
-                                                        ->afterStateUpdated(function ($state, Set $set) {
-                                                            $set('lat', $state['lat']);
-                                                            $set('lng', $state['lng']);
-                                                        })
-                                                        ->height(fn() => '400px')
-                                                        ->defaultZoom(15)
-                                                        ->reverseGeocode([
-                                                            'street' => '%n %S',
-                                                            'city'   => '%L',
-                                                            'state'  => '%A1',
-                                                            'zip'    => '%z',
-                                                        ])
-                                                        ->draggable()
-                                                        ->clickable(true)
-                                                        ->geolocate()
-                                                        ->geolocateLabel('Get Location')
-                                                    // ->geolocateOnLoad(true, false)
-                                                    ,
-                                                ]),
                                         ]),
                                     ]),
-                            ]),
-                    ]),
+                            ])
+                            ->createOptionModalHeading('Create Building')
+                            ->createOptionUsing(function (array $data) {
+                                $building = Building::create([
+                                    'name'                  => $data['name'],
+                                    'property_group_id'     => $data['property_group_id'],
+                                    'address_line1'         => $data['address_line1'],
+                                    'address_line2'         => $data['address_line2'],
+                                    'area'                  => $data['area'],
+                                    'description'           => $data['description'],
+                                    'floors'                => $data['floors'],
+                                    'allow_postupload'      => $data['allow_postupload'],
+                                    'show_inhouse_services' => $data['show_inhouse_services'],
+                                    'lat'                   => $data['lat'] ?? null,
+                                    'lng'                   => $data['lng'] ?? null,
+                                ]);
 
-                Action::make('feature')
-                    ->label('Upload Buildings') // Set a label for your action
+                                if (isset($data['cover_photo'])) {
+                                    $building->addMediaFromDisk($data['cover_photo'], 's3')
+                                        ->toMediaCollection('Buildings');
+                                }
+
+                                return $building->id;
+                            }),
+
+                        DatePicker::make('from')
+                            ->default(Carbon::now()->format('Y-m-d'))
+                            ->afterStateUpdated(function (Set $set) {
+                                $set('to', null);
+                            }),
+
+                        DatePicker::make('to')
+                            ->after('from')
+                            ->validationMessages([
+                                'after' => 'The "to" date must be after the "from" date.',
+                            ]),
+                    ])
+                    ->action(function (array $data, RelationManager $livewire): void {
+                        $buildingId = $data['building_id'];
+
+                        // Check if the building exists, if not, create it
+                        $building = Building::firstOrCreate(
+                            ['id' => $buildingId],
+                            [
+                                'name'                  => $data['name'] ?? '',
+                                'property_group_id'     => $data['property_group_id'] ?? '',
+                                'address_line1'         => $data['address_line1'] ?? '',
+                                'address_line2'         => $data['address_line2'] ?? '',
+                                'area'                  => $data['area'] ?? '',
+                                'description'           => $data['description'] ?? '',
+                                'floors'                => $data['floors'] ?? null,
+                                'allow_postupload'      => $data['allow_postupload'] ?? false,
+                                'show_inhouse_services' => $data['show_inhouse_services'] ?? false,
+                                'lat'                   => $data['lat'] ?? null,
+                                'lng'                   => $data['lng'] ?? null,
+                            ]
+                        );
+
+                        DB::table('building_owner_association')->insert([
+                            'owner_association_id' => $livewire->ownerRecord->id,
+                            'building_id'          => $building->id,
+                            'from'                 => $data['from'],
+                            'to'                   => $data['to'],
+                        ]);
+                    }),
+
+                Action::make('Upload Buildings')
                     ->form([
                         Forms\Components\FileUpload::make('excel_file')
                             ->label('Upload File')
                             ->acceptedFileTypes([
-                                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // for .xlsx
-                                'application/vnd.ms-excel', // for .xls
+                                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                                'application/vnd.ms-excel',
                             ])
                             ->required()
-                            ->disk('local') // or your preferred disk
-                            ->directory('budget_imports'), // or your preferred directory
+                            ->disk('local')
+                            ->directory('budget_imports'),
                     ])
                     ->action(function ($record, array $data, $livewire) {
-
                         $filePath = $data['excel_file'];
                         $fullPath = storage_path('app/' . $filePath);
                         $oaId     = $this->ownerRecord->id;
 
                         if (!file_exists($fullPath)) {
                             Log::error("File not found at path: ", [$fullPath]);
+                            return;
                         }
 
-                        // Now import using the file path
-                        Excel::import(new BuildingImport($oaId), $fullPath); // Notify user of success
+                        Excel::import(new BuildingImport($oaId), $fullPath);
                     }),
-                ExportAction::make('exporttemplate')->exports([
-                    ExcelExport::make()
-                        ->modifyQueryUsing(fn(Builder $query) => $query->where('id', 0))
-                        ->withColumns([
-                            Column::make('name'),
-                            Column::make('property_group_id'),
-                            Column::make('address_line1'),
-                            Column::make('area'),
-                        ]),
-                ])->label('Download sample format file'),
+
+                ExportAction::make('exporttemplate')
+                    ->exports([
+                        ExcelExport::make()
+                            ->modifyQueryUsing(fn(Builder $query) => $query->where('id', 0))
+                            ->withColumns([
+                                Column::make('name'),
+                                Column::make('property_group_id'),
+                                Column::make('address_line1'),
+                                Column::make('area'),
+                            ]),
+                    ])
+                    ->label('Download sample format file'),
             ])
             ->actions([
                 Tables\Actions\DetachAction::make(),

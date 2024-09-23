@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Resources\FlatsRelationManagerResource\RelationManagers\FlatsRelationManager;
 use App\Filament\Resources\PropertyManagerResource\Pages;
 use App\Filament\Resources\PropertyManagerResource\RelationManagers\BuildingRelationManager;
 use App\Jobs\SendInactiveStatusJob;
@@ -208,6 +209,7 @@ class PropertyManagerResource extends Resource
         if (auth()->user()?->role?->name === 'Admin') {
             return [
                 BuildingRelationManager::class,
+                FlatsRelationManager::class,
             ];
         }
         return [];
