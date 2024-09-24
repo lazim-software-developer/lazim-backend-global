@@ -2,6 +2,7 @@
 
 namespace App\Console;
 
+use App\Jobs\SendContractRenewalReminder;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -12,7 +13,7 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        // $schedule->command('sync:owner-associations')->hourly();
+        $schedule->command('sync:owner-associations')->hourly();
         $schedule->command('telescope:clear')->daily();
         $schedule->command('app:deactivate-vendor')->daily();
         $schedule->command('budget:clean-imports')->daily();
@@ -24,7 +25,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('app:announcement-notifications')->everyMinute();
         $schedule->command('app:poll-notifications')->everyMinute()->withoutOverlapping();
         $schedule->command('app:resident-move-out')->everyMinute();
-
+        $schedule->command('app:sub-contract-renewal-reminder')->daily();
     }
 
     /**
