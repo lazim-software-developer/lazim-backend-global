@@ -68,6 +68,7 @@ class BuildingResource extends Resource
                                 return true;
                             }
                         })
+                        ->unique('buildings','name',fn (?Model $record) => $record)
                         ->placeholder('Name'),
 
                     TextInput::make('property_group_id')
@@ -167,7 +168,7 @@ class BuildingResource extends Resource
 
                 Fieldset::make('Location')
                 ->columns(1)
-                ->visible(Role::where('id',auth()->user()->role_id)->first()->name == 'Property Manager')
+                ->visible(in_array(auth()->user()->role->name, ['Property Manager','Admin']))
                     ->schema([
 
                         Geocomplete::make('search')
@@ -300,11 +301,11 @@ class BuildingResource extends Resource
                     ->searchable()
                     ->default('NA')
                     ->limit(50),
-                // Tables\Columns\TextColumn::make('address_line1')
-                //     ->toggleable()
-                //     ->searchable()
-                //     ->default('NA')
-                //     ->limit(50),
+                Tables\Columns\TextColumn::make('address_line1')
+                    ->toggleable()
+                    ->searchable()
+                    ->default('NA')
+                    ->limit(50),
                 // Tables\Columns\TextColumn::make('address_line2')
                 //     ->toggleable()
                 //     ->searchable()
@@ -348,7 +349,7 @@ class BuildingResource extends Resource
                 Tables\Actions\EditAction::make(),
                 Action::make('feature')
                     ->label('Upload Budget') // Set a label for your action
-                    ->modalHeading('Upload Budget for Period') // Modal heading
+                    ->modalHeading('Upload Budget for Period') // Modal headin
                     ->form([
                         Forms\Components\Select::make('budget_period')
                             ->label('Select Budget Period')
