@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('owner_association_vendor', function (Blueprint $table) {
-            $table->string('type',50)->default('OA');
+            $table->string('type',50)->default('Vendor');
         });
     }
 

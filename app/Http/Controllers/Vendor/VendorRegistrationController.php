@@ -107,7 +107,7 @@ class VendorRegistrationController extends Controller
                         'data' => $vendor,
                     ]))->response()->setStatusCode(403);
                 }
-                $type = OwnerAssociation::where('id', $request->owner_association_id)->first()?->role;
+                $type = $userData->first()?->role->name;
 
                 $vendor->ownerAssociation()->attach($request->owner_association_id, ['from' => now()->toDateString(),'active' =>false,'type' => $type]);
                 return (new CustomResponseResource([
@@ -162,6 +162,9 @@ class VendorRegistrationController extends Controller
         }
 
         $role = Role::where('name', 'Vendor')->value('id');
+        if($request->has('role') && isset($request->role) && $request->role === 'Property Manager'){
+            $role = Role::where('name','Facility Manager')->value('id');
+        }
         $request->merge(['first_name' => $request->name, 'active' => 1, 'role_id' => $role]);
 
         $user = User::create($request->all());
@@ -185,7 +188,7 @@ class VendorRegistrationController extends Controller
         ]);
         $user = User::find($request->owner_id);
         $vendor = Vendor::create($request->all());
-        $type = OwnerAssociation::where('id', $request->owner_association_id)->first()?->role;
+        $type = $user?->role->name;
 
         $user->ownerAssociation()->attach($request->owner_association_id, ['from' => now()->toDateString()]);
         $vendor->ownerAssociation()->attach($request->owner_association_id, ['from' => now()->toDateString(),'type'=> $type]);
