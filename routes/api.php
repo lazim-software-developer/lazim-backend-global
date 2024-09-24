@@ -295,6 +295,9 @@ Route::middleware(['auth:sanctum', 'email.verified', 'active'])->group(function 
     // family members
     Route::post('/family-members/{building}',[FamilyMemberController::class, 'store']);
     Route::get('/fetch-family-members/{building}/{unit?}',[FamilyMemberController::class, 'index']);
+    Route::delete('/delete-family-members/{familyMember}',[FamilyMemberController::class, 'delete']);
+    Route::patch('/update-family-members/{familyMember}',[FamilyMemberController::class, 'update']);
+    Route::get('/show-family-members/{familyMember}',[FamilyMemberController::class, 'show']);
 });
 
 
