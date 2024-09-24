@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\FamilyMemberRequest;
 use App\Http\Resources\CustomResponseResource;
+use App\Http\Resources\FamilyMemberDetailsResource;
 use App\Models\Building\Building;
 use App\Models\FamilyMember;
 use Illuminate\Http\Request;
@@ -83,5 +84,11 @@ class FamilyMemberController extends Controller
             'code' => 200,
             'status' => 'success',
         ]))->response()->setStatusCode(200);
+    }
+
+    public function show(FamilyMember $familyMember)
+    {
+        return new FamilyMemberDetailsResource($familyMember);
+
     }
 }
