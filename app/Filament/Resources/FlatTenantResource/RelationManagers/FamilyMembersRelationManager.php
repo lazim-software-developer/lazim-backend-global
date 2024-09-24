@@ -30,7 +30,7 @@ class FamilyMembersRelationManager extends RelationManager
     {
         return $table
             ->recordTitleAttribute('id')
-            ->query(FamilyMember::where('user_id',$this->ownerRecord->tenant_id))
+            ->query(FamilyMember::where('user_id',$this->ownerRecord->tenant_id)->where('active',true))
             ->columns([
                 Tables\Columns\TextColumn::make('first_name')->label('Name')
                 ->formatStateUsing(function($record){
