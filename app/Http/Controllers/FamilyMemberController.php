@@ -39,7 +39,7 @@ class FamilyMemberController extends Controller
 
         $oa_id = DB::table('building_owner_association')->where('building_id', $building->id)->where('active', true)->first()?->owner_association_id;
 
-        $familyQuery = FamilyMember::where('user_id', $userId)->where(['owner_association_id' => $oa_id, 'building_id' => $building->id]);
+        $familyQuery = FamilyMember::where('user_id', $userId)->where(['owner_association_id' => $oa_id, 'building_id' => $building->id,'active'=>true]);
 
         if($request->unit) {
             $familyQuery->where('flat_id', $request->unit);
@@ -49,5 +49,39 @@ class FamilyMemberController extends Controller
         return [
             'data' => $family,
         ];
+    }
+
+    public function update(FamilyMemberRequest $request, FamilyMember $familyMember)
+    {
+        $familyMember->update($request->all());
+        $familyMember->save();
+
+        return (new CustomResponseResource([
+            'title' => 'Updated Successfully',
+            'message' => 'Family Member Updated Successfully',
+            'code' => 200,
+            'status' => 'success'
+        ]))->response()->setStatusCode(200);
+
+    }
+
+    public function delete(FamilyMember $familyMember)
+    {
+        if (!$familyMember) {
+            return (new CustomResponseResource([
+                'title' => 'Not Found',
+                'message' => 'Family member not found',
+                'code' => 404,
+                'status' => 'error',
+            ]))->response()->setStatusCode(404);
+        }
+        $familyMember->active = false;
+        $familyMember->save();
+        return (new CustomResponseResource([
+            'title' => 'Success',
+            'message' => 'Family member deactivated successfully',
+            'code' => 200,
+            'status' => 'success',
+        ]))->response()->setStatusCode(200);
     }
 }
