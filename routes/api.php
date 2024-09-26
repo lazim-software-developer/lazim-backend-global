@@ -474,6 +474,9 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('vendor')->group(function 
     Route::get('/{vendor}/sub-contractors',[SubContractorsController::class,'index']);
     Route::post('/{vendor}/sub-contractor',[SubContractorsController::class,'store']);
     Route::post('/{vendor}/sub-contractor/{subContract}',[SubContractorsController::class,'update']);
+
+    //Complaint create
+    Route::post('/{vendor}/complaint',[VendorComplaintController::class,'create']);
 });
 
 // Technician Related APIs

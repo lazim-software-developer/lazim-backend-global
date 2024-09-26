@@ -48,7 +48,7 @@ class ComplaintCreationJob implements ShouldQueue
                 'user' => $user,
                 'ticket_number' => $dataObj->ticket_number,
                 'building' => $dataObj->building->name,
-                'flat' => $dataObj->flat->property_number,
+                'flat' => $dataObj?->flat?->property_number ?? '',
                 'type' => 'Complaint'
             ], function ($message) use ($user) {
                 $message
@@ -68,7 +68,7 @@ class ComplaintCreationJob implements ShouldQueue
             'user' => $user,
             'ticket_number' => $dataObj->ticket_number,
             'building' => $dataObj->building->name,
-            'flat' => $dataObj->flat->property_number,
+            'flat' => $dataObj?->flat?->property_number ?? '',
             'type' => 'Task Assigned'
         ], function ($message) use ($user) {
             $message
