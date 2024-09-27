@@ -3,20 +3,29 @@
 namespace App\Http\Controllers\Assets;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\AssetCreateRequest;
 use App\Http\Requests\Assets\AssetAttachRequest;
 use App\Http\Requests\Assets\StoreAssetMaintenanceRequest;
 use App\Http\Requests\Assets\UpdateAssetMaintenanceBeforeRequest;
+use App\Http\Requests\AssetUpdateRequest;
+use App\Http\Resources\Asset\AssetResource;
 use App\Http\Resources\Assets\AssetMaintenanceResource;
 use App\Http\Resources\Assets\AssetTechniciansResource;
 use App\Http\Resources\CustomResponseResource;
 use App\Http\Resources\Vendor\AssetListResource;
 use App\Models\Asset;
 use App\Models\Assets\Assetmaintenance;
+use App\Models\Building\Building;
+use App\Models\OwnerAssociation;
 use App\Models\TechnicianAssets;
 use App\Models\Vendor\Vendor;
 use Carbon\Carbon;
+use GuzzleHttp\Client;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use Vinkla\Hashids\Facades\Hashids;
 
 class AssetController extends Controller
 {
@@ -160,5 +169,117 @@ class AssetController extends Controller
     public function listTechnicians(Asset $asset){
             $technicians = $asset->users;
             return AssetTechniciansResource::collection($technicians);
+    }
+
+    public function create(Vendor $vendor, AssetCreateRequest $request)
+    {
+        $request['owner_association_id'] = auth()->user()->owner_association_id;
+        $asset = Asset::create($request->all());
+        // Fetch Building name
+        $building_name        = Building::where('id', $asset->building_id)->first();
+        $ownerAssociationId   = DB::table('building_owner_association')->where('building_id', $asset->building_id)->where('active', true)->first()?->owner_association_id;
+        $ownerAssociationName = OwnerAssociation::findOrFail($ownerAssociationId)?->name;
+        $assetCode            = strtoupper(substr($ownerAssociationName, 0, 2)) . '-' . Hashids::encode($asset->id);
+
+        // Build an object with the required properties
+        $qrCodeContent = [
+            'id'                 => $asset->id,
+            'asset_code'         => $assetCode,
+            'asset_id'           => $asset->id,
+            'asset_name'         => $asset->name,
+            'maintenance_status' => 'not-started',
+            'building_name'      => $building_name->name,
+            'building_id'        => $asset->building_id,
+            'location'           => $asset->location,
+            'description'        => $asset->description,
+        ];
+
+        // Generate a QR code using the QrCode library
+        $qrCode = QrCode::size(200)->generate(json_encode($qrCodeContent));
+        $client = new Client();
+        $apiKey = env('AWS_LAMBDA_API_KEY');
+
+        try {
+            $response = $client->request('GET', env('AWS_LAMBDA_URL'), [
+                'headers' => [
+                    'x-api-key'    => $apiKey,
+                    'Content-Type' => 'application/json',
+                ],
+                'json'    => [
+                    'file_name' => $asset->name . '-' . $assetCode,
+                    'svg'       => $qrCode->toHtml(),
+                ],
+                'verify'  => false,
+            ]);
+
+            $content = json_decode($response->getBody()->getContents());
+            $asset->qr_code = $content->url;
+            $asset->asset_code = $assetCode;
+            $asset->save();
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
+        }
+
+        // Attaching to vendor
+        $asset->vendors()->attach($vendor->id);
+
+        return (new CustomResponseResource([
+            'title'   => 'Asset created successful!',
+            'message' => "",
+            'code'    => 201,
+            'status'  => 'success',
+        ]))->response()->setStatusCode(200);
+
+    }
+
+    public function showAsset(Vendor $vendor, Asset $asset)
+    {
+        return AssetResource::make($asset);
+    }
+    public function updateAsset(Vendor $vendor, Asset $asset, AssetUpdateRequest $request)
+    {
+        $asset->update($request->all());
+        $building_name = Building::where('id', $asset->building_id)->first();
+
+        // Build an object with the required properties
+        $qrCodeContent = [
+            'id'                 => $asset->id,
+            'asset_code'         => $asset->asset_code,
+            'asset_id'           => $asset->id,
+            'asset_name'         => $asset->name,
+            'maintenance_status' => 'not-started',
+            'building_name'      => $building_name->name,
+            'building_id'        => $asset->building_id,
+            'location'           => $asset->location,
+            'description'        => $asset->description,
+        ];
+
+        // Generate a QR code using the QrCode library
+        $qrCode = QrCode::size(200)->generate(json_encode($qrCodeContent));
+        $client = new Client();
+        $apiKey = env('AWS_LAMBDA_API_KEY');
+
+        try {
+            $response = $client->request('GET', env('AWS_LAMBDA_URL'), [
+                'headers' => [
+                    'x-api-key'    => $apiKey,
+                    'Content-Type' => 'application/json',
+                ],
+                'json'    => [
+                    'file_name' => $asset->name . '-' . $asset->asset_code,
+                    'svg'       => $qrCode->toHtml(),
+                ],
+                'verify'  => false,
+            ]);
+
+            $content           = json_decode($response->getBody()->getContents());
+            $asset->qr_code    = $content->url;
+            $asset->save();
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
+        }
+
+
+        return AssetResource::make($asset);
     }
 }

@@ -517,6 +517,9 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('assets')->group(function 
     Route::get('/vendor/{vendor}', [AssetController::class, 'listAssets']);
     Route::post('/attach-asset/{asset}', [AssetController::class, 'attachAsset']);
     Route::get('/{asset}/technicians', [AssetController::class, 'listTechnicians']);
+    Route::post('/vendor/{vendor}/create',[AssetController::class, 'create']);
+    Route::get('/vendor/{vendor}/asset/{asset}',[AssetController::class, 'showAsset']);
+    Route::post('/vendor/{vendor}/asset/{asset}',[AssetController::class, 'updateAsset']);
 
     //PPM APIs
     Route::post('/create/ppm', [PPMController::class, 'store']);
