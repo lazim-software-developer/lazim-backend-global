@@ -38,7 +38,11 @@ class DocumentsUploadController extends Controller
             }
         }
         if ($status == 1){
-            $vendor->update(['status' => null]);
+            $vendor->update(['status' => null, 'remarks' => null]);
+            $vendor->ownerAssociation()->updateExistingPivot($vendor->owner_association_id, [
+                'status' => null,
+                'remarks' => null,
+            ]);
         }
 
         return (new CustomResponseResource([

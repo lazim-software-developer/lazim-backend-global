@@ -21,6 +21,7 @@ use App\Models\User\User;
 use App\Models\Vendor\Vendor;
 use App\Models\Vendor\VendorManager;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
 
 class VendorRegistrationController extends Controller
 {
@@ -106,8 +107,9 @@ class VendorRegistrationController extends Controller
                         'data' => $vendor,
                     ]))->response()->setStatusCode(403);
                 }
+                $type = $userData->first()?->role->name;
 
-                $vendor->ownerAssociation()->attach($request->owner_association_id, ['from' => now()->toDateString()]);
+                $vendor->ownerAssociation()->attach($request->owner_association_id, ['from' => now()->toDateString(),'active' =>false,'type' => $type]);
                 return (new CustomResponseResource([
                     'title' => 'vendor_exists',
                     'message' => "You have successfully registered with the new Owner Association. They will get back to you soon!",
@@ -160,6 +162,9 @@ class VendorRegistrationController extends Controller
         }
 
         $role = Role::where('name', 'Vendor')->value('id');
+        if($request->has('role') && isset($request->role) && $request->role === 'Property Manager'){
+            $role = Role::where('name','Facility Manager')->value('id');
+        }
         $request->merge(['first_name' => $request->name, 'active' => 1, 'role_id' => $role]);
 
         $user = User::create($request->all());
@@ -183,9 +188,10 @@ class VendorRegistrationController extends Controller
         ]);
         $user = User::find($request->owner_id);
         $vendor = Vendor::create($request->all());
+        $type = $user?->role->name;
 
         $user->ownerAssociation()->attach($request->owner_association_id, ['from' => now()->toDateString()]);
-        $vendor->ownerAssociation()->attach($request->owner_association_id, ['from' => now()->toDateString()]);
+        $vendor->ownerAssociation()->attach($request->owner_association_id, ['from' => now()->toDateString(),'type'=> $type]);
 
         $doc = Document::create([
             "name" => "risk_policy",
@@ -312,9 +318,12 @@ class VendorRegistrationController extends Controller
         ]))->response()->setStatusCode(200);
     }
 
-    public function listOa()
+    public function listOa(Request $request)
     {
-        $OwnerAssociations = OwnerAssociation::where('active', true)->get();
+        $request->validate([
+            'role' => 'required',
+        ]);
+        $OwnerAssociations = OwnerAssociation::where('active', true)->where('role',$request->role)->get();
 
         return ListOAResource::collection($OwnerAssociations);
     }

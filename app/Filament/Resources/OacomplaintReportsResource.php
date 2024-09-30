@@ -118,7 +118,9 @@ class OacomplaintReportsResource extends Resource
                         }
                         if ($get('type') === 'Vendor') {
                             $buildingVendor = BuildingVendor::where('building_id', $get('building_id'))->where('active', 1)->pluck('vendor_id');
-                            return Vendor::whereIn('id', $buildingVendor)->where('status', 'approved')->pluck('name', 'id');
+                            return Vendor::whereIn('id', $buildingVendor)->whereHas('ownerAssociation', function ($query) {
+                                $query->where('status', 'approved');
+                            })->pluck('name', 'id');
                             // return User::whereIn('id', $Vendors)->pluck('first_name', 'id');
                         }
                         if ($get('type') === 'Gatekeeper') {
