@@ -4,6 +4,8 @@ namespace App\Filament\Resources\FacilityManagerResource\Pages;
 
 use App\Filament\Resources\FacilityManagerResource;
 use App\Jobs\FacilityManagerJob;
+use App\Models\Building\Document;
+use App\Models\Master\DocumentLibrary;
 use App\Models\Master\Role;
 use App\Models\User\User;
 use App\Models\Vendor\Vendor;
@@ -78,8 +80,19 @@ class CreateFacilityManager extends CreateRecord
                     'tl_number'            => $data['tl_number'],
                     'tl_expiry'            => $data['trade_license_expiry'],
                     'owner_association_id' => $data['oa_id'],
-                    'risk_policy_expiry'   => $data['risk_policy_expiry'],
                 ]);
+
+                if (isset($data['risk_policy_expiry'])) {
+                    Document::create([
+                        "name"                 => "risk_policy",
+                        "document_library_id"  => DocumentLibrary::where('name', 'Risk policy')->first()->id,
+                        'owner_association_id' => $data['oa_id'],
+                        "status"               => 'pending',
+                        "documentable_id"      => $vendor->id,
+                        "expiry_date"          => $data['risk_policy_expiry'],
+                        "documentable_type"    => Vendor::class,
+                    ]);
+                }
 
                 // Create VendorManager (Manager Details) - Optional
                 if (!empty($data['manager_name']) && !empty($data['manager_email'])) {

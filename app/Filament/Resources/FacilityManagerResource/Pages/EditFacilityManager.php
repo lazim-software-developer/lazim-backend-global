@@ -3,6 +3,8 @@
 namespace App\Filament\Resources\FacilityManagerResource\Pages;
 
 use App\Filament\Resources\FacilityManagerResource;
+use App\Models\Building\Document;
+use App\Models\Master\DocumentLibrary;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Database\Eloquent\Model;
@@ -24,6 +26,7 @@ class EditFacilityManager extends EditRecord
         $user          = $this->record;
         $vendor        = $user->vendors()->first();
         $vendorManager = $vendor ? $vendor->managers()->first() : null;
+        $riskPolicy    = $vendor ? $vendor->documents()->where('name', 'risk_policy')->first() : null;
 
         $data = array_merge($data, [
             'oa_id'        => $user->owner_association_id,
@@ -42,8 +45,11 @@ class EditFacilityManager extends EditRecord
                 'fax'                  => $vendor->fax ?? '',
                 'tl_number'            => $vendor->tl_number ?? '',
                 'trade_license_expiry' => $vendor->tl_expiry,
-                'risk_policy_expiry'   => $vendor->risk_policy_expiry,
             ]);
+        }
+
+        if ($riskPolicy) {
+            $data['risk_policy_expiry'] = $riskPolicy->expiry_date;
         }
 
         if ($vendorManager) {
@@ -95,13 +101,29 @@ class EditFacilityManager extends EditRecord
                 'tl_number'            => $data['tl_number'] ?? null,
                 'tl_expiry'            => $data['trade_license_expiry'] ?? null,
                 'owner_association_id' => $data['oa_id'] ?? null,
-                'risk_policy_expiry'   => $data['risk_policy_expiry'] ?? null,
             ]);
 
             $vendor = $record->vendors()->updateOrCreate(
                 ['owner_id' => $record->id],
                 $vendorUpdateData
             );
+
+            // Update or Create Document (Risk Policy)
+            if (isset($data['risk_policy_expiry'])) {
+                Document::updateOrCreate(
+                    [
+                        'documentable_id'   => $vendor->id,
+                        'documentable_type' => get_class($vendor),
+                        'name'              => 'risk_policy',
+                    ],
+                    [
+                        'document_library_id'  => DocumentLibrary::where('name', 'Risk policy')->first()->id,
+                        'owner_association_id' => $data['oa_id'],
+                        'status'               => 'pending',
+                        'expiry_date'          => $data['risk_policy_expiry'],
+                    ]
+                );
+            }
 
             // Update or Create VendorManager
             if (!empty($data['manager_name']) && !empty($data['manager_email'])) {
@@ -119,5 +141,10 @@ class EditFacilityManager extends EditRecord
 
             return $record;
         });
+    }
+
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
     }
 }
