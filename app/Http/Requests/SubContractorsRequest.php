@@ -34,7 +34,7 @@ class SubContractorsRequest extends FormRequest
             'contract_paper'   => 'required|file|mimes:png,jpg,pdf|max:2048',
             'agreement_letter' => 'required|file|mimes:png,jpg,pdf|max:2048',
             'additional_doc'   => 'sometimes|file|mimes:png,jpg,pdf|max:2048',
-            'active'           => 'required|in:0,1'
+            'active'           => 'sometimes|in:0,1'
         ];
     }
 }
