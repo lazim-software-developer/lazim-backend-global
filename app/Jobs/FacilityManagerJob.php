@@ -3,14 +3,13 @@
 namespace App\Jobs;
 
 use Illuminate\Bus\Queueable;
-use Snowfire\Beautymail\Beautymail;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Config;
+use Snowfire\Beautymail\Beautymail;
 
 class FacilityManagerJob implements ShouldQueue
 {
@@ -21,10 +20,20 @@ class FacilityManagerJob implements ShouldQueue
      */
     public $user;
     public $password;
-    public function __construct($user, $password, protected $mailCredentials)
+    protected $mailCredentials;
+
+    public function __construct($user, $password)
     {
-        $this->user = $user;
-        $this->password = $password;
+        $this->user            = $user;
+        $this->password        = $password;
+        $this->mailCredentials = [
+            'mail_host'         => config('mail.mailers.smtp.host'),
+            'mail_port'         => config('mail.mailers.smtp.port'),
+            'mail_username'     => config('mail.mailers.smtp.username'),
+            'mail_password'     => config('mail.mailers.smtp.password'),
+            'mail_encryption'   => config('mail.mailers.smtp.encryption'),
+            'mail_from_address' => config('mail.from.address'),
+        ];
     }
 
     /**
@@ -40,12 +49,13 @@ class FacilityManagerJob implements ShouldQueue
         Config::set('mail.mailers.smtp.email', $this->mailCredentials['mail_from_address']);
 
         $beautymail = app()->make(Beautymail::class);
-        $beautymail->send('emails.facilitymanager', ['user' => $this->user, 'password' => $this->password], function ($message) {
-            $message
-                ->from($this->mailCredentials['mail_from_address'],env('MAIL_FROM_NAME'))
-                ->to($this->user->email, $this->user->first_name)
-                ->subject('Welcome to Lazim!');
-        });
+        $beautymail->send('emails.facilitymanager',
+            ['user' => $this->user, 'password' => $this->password], function ($message) {
+                $message
+                    ->from($this->mailCredentials['mail_from_address'], env('MAIL_FROM_NAME'))
+                    ->to($this->user->email, $this->user->first_name)
+                    ->subject('Welcome to Lazim!');
+            });
 
         Artisan::call('queue:restart');
     }
