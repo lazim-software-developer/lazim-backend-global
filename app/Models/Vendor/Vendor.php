@@ -16,6 +16,7 @@ use App\Models\Building\Building;
 use App\Models\Building\Document;
 use App\Models\Item;
 use App\Models\Scopes\Searchable;
+use App\Models\SubContractor;
 use App\Models\Vendor\Contract;
 use App\Models\Vendor\VendorEscalationMatrix;
 use Illuminate\Database\Eloquent\Model;
@@ -148,5 +149,10 @@ class Vendor extends Model
     public function items()
     {
         return $this->belongsToMany(Item::class);
+    }
+
+    public function subContractors()
+    {
+        return $this->hasMany(SubContractor::class);
     }
 }

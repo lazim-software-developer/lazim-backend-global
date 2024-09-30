@@ -160,7 +160,7 @@ class AuthController extends Controller
         ], 200);
     }
 
-    // Refresh token 
+    // Refresh token
     public function refreshToken(Request $request)
     {
         $validatedData = $request->validate([
@@ -232,7 +232,7 @@ class AuthController extends Controller
         }
     }
 
-    // Gatekeeper login 
+    // Gatekeeper login
     public function gateKeeperLogin(GateKeeperLoginRequest $request)
     {
         $user = User::where('email', $request->email)->first();
@@ -315,7 +315,7 @@ class AuthController extends Controller
         }
         $user = User::where('email', $request->email)->first();
         // cehck if user is vendor
-        if ($user->role->name != 'Vendor') {
+        if (in_array($user->role->name, ['Vendor','Property Manager'])) {
             return (new CustomResponseResource([
                 'title' => 'Unauthorized!',
                 'message' => 'You are not authorized to login!',

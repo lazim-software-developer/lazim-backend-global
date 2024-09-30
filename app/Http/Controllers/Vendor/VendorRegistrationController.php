@@ -109,7 +109,7 @@ class VendorRegistrationController extends Controller
                 }
                 $type = $userData->first()?->role->name;
 
-                $vendor->ownerAssociation()->attach($request->owner_association_id, ['from' => now()->toDateString(),'active' =>false,'type' => $type]);
+                $vendor->ownerAssociation()->attach($request->owner_association_id, ['from' => now()->toDateString(),'active' =>false,'type' => $request->role]);
                 return (new CustomResponseResource([
                     'title' => 'vendor_exists',
                     'message' => "You have successfully registered with the new Owner Association. They will get back to you soon!",
@@ -188,7 +188,7 @@ class VendorRegistrationController extends Controller
         ]);
         $user = User::find($request->owner_id);
         $vendor = Vendor::create($request->all());
-        $type = $user?->role->name;
+        $type = OwnerAssociation::where('id',$request->owner_association_id)->first()?->role;
 
         $user->ownerAssociation()->attach($request->owner_association_id, ['from' => now()->toDateString()]);
         $vendor->ownerAssociation()->attach($request->owner_association_id, ['from' => now()->toDateString(),'type'=> $type]);
@@ -321,7 +321,7 @@ class VendorRegistrationController extends Controller
     public function listOa(Request $request)
     {
         $request->validate([
-            'role' => 'required',
+            'role' => 'required|in:OA,Property Manager',
         ]);
         $OwnerAssociations = OwnerAssociation::where('active', true)->where('role',$request->role)->get();
 

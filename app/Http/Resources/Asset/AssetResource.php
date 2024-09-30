@@ -15,7 +15,15 @@ class AssetResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'name' => $this->assets
+            'name'                 => $this->name,
+            'location'             => $this->location,
+            'description'          => $this->description,
+            // 'building_id'          => $this->building_id,
+            // 'service_id'           => $this->service_id,
+            'floor'                => $this->floor,
+            'division'             => $this->division,
+            'discipline'           => $this->discipline,
+            'frequency_of_service' => $this->frequency_of_service,
         ];
     }
 }

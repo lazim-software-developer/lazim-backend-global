@@ -26,7 +26,7 @@ class VendorRegisterRequest extends FormRequest
             'email'     => 'required|regex:/^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/',
             'phone'    => 'required|string',
             'owner_association_id' => 'required|integer',
-            'role'      => 'nullable|string',
+            'role'      => 'required|in:OA,Property Manager',
         ];
     }
 
