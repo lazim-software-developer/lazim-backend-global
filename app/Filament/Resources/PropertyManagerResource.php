@@ -44,26 +44,27 @@ class PropertyManagerResource extends Resource
 
                     // Name Field
                     TextInput::make('name')
+                        ->label('Company Name')
                         ->rules(['regex:/^[a-zA-Z0-9\s]*$/'])
                         ->required()
+                        ->disabledOn('edit')
                         ->placeholder('User'),
 
                     TextInput::make('trn_number')
                         ->label('TRN Number')
-                        ->placeholder('TRN Number'),
-
-                    TextInput::make('emirates_id')
-                        ->label('Emirates Id')
+                        ->disabledOn('edit')
                         ->required()
-                        ->placeholder('Emirates Id'),
+                        ->placeholder('TRN Number'),
 
                     TextInput::make('trade_license_number')
                         ->label('Trade License Number')
                         ->required()
+                        ->disabledOn('edit')
                         ->placeholder('Trade License Number'),
                     // Phone Field with Unique Validation
                     TextInput::make('phone')
                         ->required()
+                        ->disabledOn('edit')
                         ->rules([
                             'regex:/^\+?(50|51|52|55|56|58|02|03|04|06|07|09)\d{7}$/',
                         ])
@@ -120,6 +121,7 @@ class PropertyManagerResource extends Resource
                         ->directory('dev')
                         ->rules('file|mimes:jpeg,jpg,png,pdf|max:2048')
                         ->required()
+                        ->disabledOn('edit')
                         ->maxSize(2048)
                         ->label('Trade License'),
 
@@ -128,10 +130,11 @@ class PropertyManagerResource extends Resource
                         ->directory('dev')
                         ->rules('file|mimes:jpeg,jpg,png,pdf|max:2048')
                         ->maxSize(2048)
-                        ->label('Dubai Chamber Document'),
+                        ->label('Other Document'),
 
                     FileUpload::make('memorandum_of_association')
                         ->disk('s3')
+                        ->required()
                         ->directory('dev')
                         ->rules('file|mimes:jpeg,jpg,png,pdf|max:2048')
                         ->maxSize(2048)
@@ -144,6 +147,8 @@ class PropertyManagerResource extends Resource
                     Toggle::make('active')
                         ->label('Active')
                         ->rules(['boolean'])
+                        ->default(true)
+                        ->visibleOn('edit')
                         ->afterStateUpdated(function (bool $state, $record) {
                             if ($state === false) {
                                 SendInactiveStatusJob::dispatch($record);
@@ -165,6 +170,7 @@ class PropertyManagerResource extends Resource
             ->columns([
 
                 Tables\Columns\TextColumn::make('name')
+                    ->label('Property Name')
                     ->searchable()
                     ->default('NA')
                     ->limit(50),

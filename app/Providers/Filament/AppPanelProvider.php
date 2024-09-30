@@ -106,6 +106,12 @@ class AppPanelProvider extends PanelProvider
                     NavigationGroup::make('Master')
                         ->items([
 
+                            NavigationItem::make('Facility Managers')
+                                ->url('/app/facility-managers')
+                                // ->hidden(!$user->can('view_any_mollak::tenant'))
+                                ->icon('heroicon-o-user')
+                                ->activeIcon('heroicon-o-user')
+                                ->sort(1),
                             NavigationItem::make('Tenants')
                                 ->url('/app/mollak-tenants')
                                 ->hidden(!$user->can('view_any_mollak::tenant'))
