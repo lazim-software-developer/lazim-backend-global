@@ -31,7 +31,7 @@ class SubContractorsController extends Controller
 
         return SubContractorsResource::make($subContract);
     }
-    public function update(Vendor $vendor, SubContractor $subContract, SubContractorsRequest $request)
+    public function edit(Vendor $vendor, SubContractor $subContract, SubContractorsRequest $request)
     {
         $subContract->update($request->all());
 
@@ -43,6 +43,15 @@ class SubContractorsController extends Controller
             'contract_paper'   => optimizeDocumentAndUpload($request->contract_paper),
             'agreement_letter' => optimizeDocumentAndUpload($request->agreement_letter),
         ]);
+
+        return SubContractorsResource::make($subContract);
+    }
+    public function update(Vendor $vendor, SubContractor $subContract, Request $request)
+    {
+        if (isset($request->active) && $request->active) {
+            $subContract->update(['active'=>1]);
+        }
+        $subContract->update(['active'=>0]);
 
         return SubContractorsResource::make($subContract);
     }
