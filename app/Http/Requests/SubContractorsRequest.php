@@ -30,9 +30,9 @@ class SubContractorsRequest extends FormRequest
             'service_provided' => 'required',
             'start_date'       => 'required|date',
             'end_date'         => 'required|date',
-            'trade_licence'    => 'required|file|mimes:pdf|max:2048',
-            'contract_paper'   => 'required|file|mimes:png,jpg,pdf|max:2048',
-            'agreement_letter' => 'required|file|mimes:png,jpg,pdf|max:2048',
+            'trade_licence'    => 'sometimes|file|mimes:pdf|max:2048',
+            'contract_paper'   => 'sometimes|file|mimes:png,jpg,pdf|max:2048',
+            'agreement_letter' => 'sometimes|file|mimes:png,jpg,pdf|max:2048',
             'additional_doc'   => 'sometimes|file|mimes:png,jpg,pdf|max:2048',
             'active'           => 'sometimes|in:0,1'
         ];
