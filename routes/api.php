@@ -473,7 +473,9 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('vendor')->group(function 
     //Sub Contractor APIs
     Route::get('/{vendor}/sub-contractors',[SubContractorsController::class,'index']);
     Route::post('/{vendor}/sub-contractor',[SubContractorsController::class,'store']);
-    Route::post('/{vendor}/sub-contractor/{subContract}',[SubContractorsController::class,'update']);
+    Route::post('/{vendor}/sub-contractor/{subContract}',[SubContractorsController::class,'edit']);
+    Route::patch('/{vendor}/sub-contractor/{subContract}',[SubContractorsController::class,'update']);
+
 
     //Complaint create
     Route::post('/{vendor}/complaint',[VendorComplaintController::class,'create']);
