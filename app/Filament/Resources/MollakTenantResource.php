@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\MollakTenantResource\Pages;
 use App\Filament\Resources\MollakTenantResource\RelationManagers;
 use App\Models\Building\Building;
+use App\Models\Building\Flat;
 use App\Models\Master\Role;
 use App\Models\MollakTenant;
 use Filament\Forms;
@@ -14,6 +15,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -125,7 +127,29 @@ class MollakTenantResource extends Resource
                     ->searchable()
                     ->preload()
                     ->label('Building'),
-            ]);
+                Filter::make('Property Number')
+                    ->form([
+                        Select::make('property_number')
+                            ->placeholder('Search Unit Number')->label('Unit')
+                            ->options(function(){
+                                if(auth()->user()->role->first()->name == 'Admin'){
+                                    return Flat::pluck('property_number','property_number');
+                                }else{
+                                    return Flat::where('owner_association_id',auth()->user()->owner_association_id)->pluck('property_number','property_number');
+
+                                }
+                            })
+                            ->searchable(),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        if (!empty($data['property_number'])) {
+                            return $query->whereHas('flat', function ($query) use ($data) {
+                                $query->where('property_number', $data['property_number']);
+                            });
+                        }
+                        return $query;
+                    }),
+                ]);
     }
 
     public static function getRelations(): array
