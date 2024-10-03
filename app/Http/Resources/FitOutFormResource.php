@@ -32,7 +32,7 @@ class FitOutFormResource extends JsonResource
             'remarks'                      => $this->remarks,
             'admin_document'               => $this->admin_document ? env('AWS_URL') . '/' . $this->admin_document : null,
             'ticket_number'                => $this->ticket_number,
-            'payment_status'               => $this?->orders?->payment_status ?? null,
+            'payment_status'               => $this?->orders?->first()?->payment_status ?? null,
         ];
     }
 }

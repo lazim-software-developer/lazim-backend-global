@@ -3,6 +3,7 @@
 use App\Http\Controllers\AppController;
 use App\Http\Controllers\Assets\PPMController;
 use App\Http\Controllers\Community\CommunityController;
+use App\Http\Controllers\FlatVisitorController;
 use App\Http\Controllers\MollakController;
 use App\Http\Controllers\Technician\TechnicianController;
 use App\Http\Controllers\TestController;
@@ -481,12 +482,13 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('vendor')->group(function 
     Route::post('/{vendor}/complaint',[VendorComplaintController::class,'create']);
 
     //Form Requests
-    // Route::get('/{vendor}/guest-registration',[GuestController::class,'fmlist']);
+    Route::get('/{vendor}/guest-registration',[GuestController::class,'fmlist']);
     Route::get('/{vendor}/move-in-out',[MoveInOutController::class,'fmlist']);
     Route::get('/{vendor}/fit-out',[FitOutFormsController::class,'fmlist']);
     Route::get('/{vendor}/residential-form',[ResidentialFormController::class,'fmlist']);
     Route::get('/{vendor}/accesscard-form',[AccessCardController::class,'fmlist']);
-    Route::get('/{vendor}/accesscard-form',[AccessCardController::class,'fmlist']);
+    Route::get('/{vendor}/salenoc-form',[SaleNocController::class,'fmlist']);
+    Route::get('/{vendor}/flatvisitor-form',[FlatVisitorController::class,'index']);
 });
 
 // Technician Related APIs

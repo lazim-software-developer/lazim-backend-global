@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Forms;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Forms\SaleNocRequest;
 use App\Http\Resources\CustomResponseResource;
+use App\Http\Resources\SaleNocResource;
 use App\Jobs\Forms\SalesNocRequestJob;
 use App\Jobs\SendSaleNocEmail;
 use App\Models\AccountCredentials;
@@ -14,6 +15,7 @@ use App\Models\Forms\NocFormSignedDocument;
 use App\Models\Forms\SaleNOC;
 use App\Models\Order;
 use App\Models\OwnerAssociation;
+use App\Models\Vendor\Vendor;
 use Filament\Facades\Filament;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -113,7 +115,7 @@ class SaleNocController extends Controller
                 'mail_encryption' => $credentials->encryption ?? env('MAIL_ENCRYPTION'),
                 'mail_from_address' => $credentials->email ?? env('MAIL_FROM_ADDRESS'),
             ];
-            // Send email to buyers attaching the document 
+            // Send email to buyers attaching the document
             SendSaleNocEmail::dispatch($saleNoc, $document, $mailCredentials)->delay(5);
         } else if ($status == 'seller_uploaded') {
             $saleNoc->update(['submit_status' => 'buyer_uploaded']);
@@ -164,5 +166,17 @@ class SaleNocController extends Controller
         return response()->json([
             'path' => $path,
         ], 200);
+    }
+    public function fmlist(Vendor $vendor)
+    {
+        $ownerAssociationIds = DB::table('owner_association_vendor')
+            ->where('vendor_id', $vendor->id)->pluck('owner_association_id');
+
+        $buildingIds = DB::table('building_owner_association')
+            ->whereIn('owner_association_id', $ownerAssociationIds)->pluck('building_id');
+
+        $saleNocForms = SaleNOC::whereIn('building_id', $buildingIds);
+
+        return SaleNocResource::collection($saleNocForms->paginate(10));
     }
 }

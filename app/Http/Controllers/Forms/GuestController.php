@@ -8,6 +8,7 @@ use App\Http\Requests\Forms\CreateGuestRequest;
 use App\Http\Requests\Forms\FlatVisitorRequest;
 use App\Http\Resources\CustomResponseResource;
 use App\Http\Resources\Forms\VisitorResource;
+use App\Http\Resources\GuestResource;
 use App\Jobs\FlatVisitorMailJob;
 use App\Jobs\Forms\GuestRequestJob;
 use App\Models\AccountCredentials;
@@ -407,14 +408,19 @@ class GuestController extends Controller
             'code'    => 200,
         ]))->response()->setStatusCode(200);
     }
-    // public function fmlist(Vendor $vendor,Request $request)
-    // {
-    //     $ownerAssociationIds = DB::table('owner_association_vendor')
-    //         ->where('vendor_id',$vendor->id)->pluck('owner_association_id');
+    public function fmlist(Vendor $vendor,Request $request)
+    {
+        $ownerAssociationIds = DB::table('owner_association_vendor')
+            ->where('vendor_id', $vendor->id)->pluck('owner_association_id');
 
-    //     $moveInOut = Guest::whereIn('owner_association_id',$ownerAssociationIds);
+        $buildingIds = DB::table('building_owner_association')
+            ->whereIn('owner_association_id', $ownerAssociationIds)->pluck('building_id');
 
-    //     return GuestResource::collection($moveInOut->paginate(10));
+        $flatVisitorIds = FlatVisitor::whereIn('building_id', $buildingIds)->where('type', 'guest')->pluck('id');
 
-    // }
+        $guests = Guest::whereIn('flat_visitor_id',$flatVisitorIds);
+
+        return GuestResource::collection($guests->paginate(10));
+
+    }
 }

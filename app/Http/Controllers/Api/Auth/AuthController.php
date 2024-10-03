@@ -118,8 +118,8 @@ class AuthController extends Controller
                 'email' => ['The provided credentials are incorrect.'],
             ]);
         }
-        if ($user && $user?->role->name == 'Tenant') {
-            abort_if(FlatTenant::where('tenant_id', $user->id)->where('active', true)->count() < 1, 422, "Currently, you don't have any active contract");
+        if ($user && in_array($user?->role->name, ['Owner', 'Tenant'])) {
+            abort_if(FlatTenant::where('tenant_id', $user->id)->where('active', true)->count() < 1, 422, "Currently, you don't have any active units.");
         }
 
         // Check if the user's email and phone number is verified

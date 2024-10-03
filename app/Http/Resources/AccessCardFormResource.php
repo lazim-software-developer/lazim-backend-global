@@ -32,7 +32,7 @@ class AccessCardFormResource extends JsonResource
             'remarks'              => $this->remarks,
             'title_deed'           => $this->title_deed ? env('AWS_URL') . '/' . $this->title_deed : $this->title_deed,
             'passport'             => $this->passport ? env('AWS_URL') . '/' . $this->passport : $this->passport,
-            'payment_status'       => $this?->orders?->payment_status ?? null,
+            'payment_status'       => $this?->orders?->first()?->payment_status ?? null,
             'ticket_number'        => $this->ticket_number,
         ];
     }
