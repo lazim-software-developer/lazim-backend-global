@@ -12,6 +12,8 @@ class ResidentialForm extends Model
 {
     use HasFactory;
 
+    protected $connection = 'mysql';
+
     protected $fillable = [
         'unit_occupied_by',
         'name',

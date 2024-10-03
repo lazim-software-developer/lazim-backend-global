@@ -11,6 +11,8 @@ class OwnerCommittee extends Model
 {
     use HasFactory;
 
+    protected $connection = 'mysql';
+
     protected $fillable = ['building_id','user_id','active'];
     public function user(){
         return $this->belongsTo(User::class);

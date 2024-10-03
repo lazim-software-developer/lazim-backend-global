@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Model;
 class FitOutForm extends Model
 {
     use HasFactory;
+    protected $connection = 'mysql';
     protected $fillable = [
         'contractor_name',
         'flat_id',
@@ -37,6 +38,18 @@ class FitOutForm extends Model
         'no_objection'         => 'boolean',
         'undertaking_of_waterproofing'         => 'boolean',
     ];
+
+    /**
+     * Resolve the route binding for the model.
+     *
+     * @param  mixed  $value
+     * @return \Illuminate\Database\Eloquent\Model|null
+     */
+    public function resolveRouteBinding($value, $field = null)
+    {
+        $data = is_numeric($value) ? $value : decrypt($value);
+        return $this->where('id',$data)->firstOrFail();
+    }
 
     public function building()
     {

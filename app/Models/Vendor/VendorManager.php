@@ -12,6 +12,8 @@ class VendorManager extends Model
     use HasFactory;
     use Searchable;
 
+    protected $connection = 'mysql';
+
     protected $fillable = [
         'name',
         'email',

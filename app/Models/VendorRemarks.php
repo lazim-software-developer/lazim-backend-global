@@ -8,5 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 class VendorRemarks extends Model
 {
     use HasFactory;
+    protected $connection = 'mysql';
     protected $fillable = ['vendor_id','user_id','remarks','status'];
 }

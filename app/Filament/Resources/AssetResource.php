@@ -89,8 +89,7 @@ class AssetResource extends Resource
                             ->required()
                             ->rules(['max:50']),
                         TextInput::make('frequency_of_service')
-                                ->required()->integer()->suffix('days')
-                                ->rules(['max:50']),
+                                ->required()->integer()->suffix('days')->minValue(1),
                         Textarea::make('description')
                             ->label('Description')
                             ->rules(['max:100', 'regex:/^(?=.*[a-zA-Z])[a-zA-Z0-9\s!@#$%^&*_+\-=,.]*$/']),
@@ -168,7 +167,10 @@ class AssetResource extends Resource
                         ->relationship('vendors', 'name')
                         ->options(function () {
                             $oaId = auth()->user()?->owner_association_id;
-                            return Vendor::where('owner_association_id', $oaId)->where('status', 'approved')
+                            return Vendor::whereHas('ownerAssociation', function ($query) {
+                                $query->where('owner_association_id', Filament::getTenant()->id)
+                                      ->where('status', 'approved');
+                            })
                                 ->pluck('name', 'id');
                         })
                         ])

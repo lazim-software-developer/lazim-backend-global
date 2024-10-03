@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class ItemInventory extends Model
 {
     use HasFactory;
+    protected $connection = 'mysql';
     protected $table = 'item_inventory';
     protected $fillable = ['item_id','date','type','quantity','user_id','comments'];
 

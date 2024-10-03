@@ -14,6 +14,8 @@ class City extends Model
     use HasFactory;
     use Searchable;
 
+    protected $connection = 'mysql';
+
     protected $fillable = ['name'];
 
     protected $searchableFields = ['*'];

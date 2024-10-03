@@ -21,6 +21,8 @@ class Complaint extends Model
     use HasFactory;
     use Searchable;
 
+    protected $connection = 'mysql';
+
     protected $fillable = [
         'complaintable_type',
         'complaintable_id',

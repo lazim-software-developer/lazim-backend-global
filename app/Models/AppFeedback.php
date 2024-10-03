@@ -10,6 +10,8 @@ class AppFeedback extends Model
 {
     use HasFactory;
 
+    protected $connection = 'mysql';
+
     protected $table = 'app_feedback';
     protected $fillable = ['user_id', 'subject', 'comment'];
 

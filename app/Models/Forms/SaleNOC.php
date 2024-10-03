@@ -15,6 +15,8 @@ class SaleNOC extends Model
 {
     use HasFactory;
 
+    protected $connection = 'mysql';
+
     protected $table = 'sale_nocs';
 
     protected $fillable = [

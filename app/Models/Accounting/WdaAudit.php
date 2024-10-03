@@ -9,6 +9,8 @@ class WdaAudit extends Model
 {
     use HasFactory;
 
+    protected $connection = 'mysql';
+
     protected $table = 'wda_audit';
 
     protected $fillable = [

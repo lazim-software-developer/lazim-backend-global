@@ -3,6 +3,7 @@
 namespace App\Filament\Widgets;
 
 use App\Models\Building\Complaint;
+use App\Models\User\User;
 use Filament\Facades\Filament;
 use Filament\Widgets\TableWidget as BaseWidget;
 use Filament\Tables;
@@ -14,6 +15,12 @@ class RecentOpenComplaints extends BaseWidget
     protected static ?string $heading = 'Recent Open Complaints';
     protected static ?string $maxHeight = '200px';
     // protected int | string | array $columnSpan = 4;
+
+    public static function canView(): bool
+    {
+        $user = User::find(auth()->user()->id);
+        return ($user->can('view_any_complaintscomplaint')||$user->can('view_any_helpdeskcomplaint'));
+    }
 
     protected function getTableQuery(): Builder
     {

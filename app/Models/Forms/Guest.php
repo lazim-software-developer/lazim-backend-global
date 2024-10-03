@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Model;
 class Guest extends Model
 {
     use HasFactory;
+    protected $connection = 'mysql';
     protected $fillable = [
         'passport_number',
         'visa_validity_date',
