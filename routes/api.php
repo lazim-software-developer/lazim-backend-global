@@ -56,6 +56,7 @@ use App\Http\Controllers\Vendor\TenderController;
 use App\Http\Controllers\Vendor\WDAController;
 use App\Http\Controllers\Vendor\VendorBuildingController;
 use App\Http\Controllers\Gatekeeper\TenantsController;
+use App\Http\Controllers\SubContractorsController;
 use App\Http\Controllers\VehicleController;
 use App\Http\Controllers\Vendor\ItemsController;
 use App\Http\Controllers\Vendor\TLController;
@@ -403,7 +404,7 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('vendor')->group(function 
     Route::patch('/managers-deatils/{vendor}',[VendorRegistrationController::class, 'updateManagerDetails']);
     Route::get('/{vendor}/services', [SelectServicesController::class, 'showServices']);
     Route::get('/{vendor}/show-documents', [DocumentsUploadController::class, 'showDocuments']);
-    
+
     Route::post('/{vendor}/escalation-matrix', [EscalationMatrixController::class, 'store']);
     Route::patch('/escalation-matrix/{escalationmatrix}', [EscalationMatrixController::class, 'edit']);
     Route::get('/{vendor}/escalation-matrix', [EscalationMatrixController::class, 'show']);
@@ -468,6 +469,16 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('vendor')->group(function 
     Route::get('/{vendor}/items', [ItemsController::class, 'index']);
     Route::post('/{item}/item_management', [ItemsController::class,'updateItems']);
     Route::get('/{item}/view-item', [ItemsController::class,'viewItem']);
+
+    //Sub Contractor APIs
+    Route::get('/{vendor}/sub-contractors',[SubContractorsController::class,'index']);
+    Route::post('/{vendor}/sub-contractor',[SubContractorsController::class,'store']);
+    Route::post('/{vendor}/sub-contractor/{subContract}',[SubContractorsController::class,'edit']);
+    Route::patch('/{vendor}/sub-contractor/{subContract}',[SubContractorsController::class,'update']);
+
+
+    //Complaint create
+    Route::post('/{vendor}/complaint',[VendorComplaintController::class,'create']);
 });
 
 // Technician Related APIs
@@ -508,6 +519,9 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('assets')->group(function 
     Route::get('/vendor/{vendor}', [AssetController::class, 'listAssets']);
     Route::post('/attach-asset/{asset}', [AssetController::class, 'attachAsset']);
     Route::get('/{asset}/technicians', [AssetController::class, 'listTechnicians']);
+    Route::post('/vendor/{vendor}/create',[AssetController::class, 'create']);
+    Route::get('/vendor/{vendor}/asset/{asset}',[AssetController::class, 'showAsset']);
+    Route::post('/vendor/{vendor}/asset/{asset}',[AssetController::class, 'updateAsset']);
 
     //PPM APIs
     Route::post('/create/ppm', [PPMController::class, 'store']);
