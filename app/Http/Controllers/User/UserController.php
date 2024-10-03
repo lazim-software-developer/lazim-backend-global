@@ -28,7 +28,7 @@ class UserController extends Controller
             $flats = $user->residences;
         }
 
-        if ($flats->isEmpty()) {
+        if ($flats->first()) {
             // Handle the case where there are no flats
             return response()->json(['message' => 'No flats available'], 401);
         } else {
