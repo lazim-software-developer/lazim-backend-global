@@ -21,14 +21,15 @@ class EmergencyNumbersRelationManager extends RelationManager
         return $form
             ->schema([
                 Forms\Components\TextInput::make('name')
-                    ->rules([function () {
-                        return function (string $attribute, $value, Closure $fail) {
-                            if (!preg_match('/^[a-zA-Z]+(?:\s+[a-zA-Z]+)*$/', $value)) {
-                                $fail('The Name format is invalid. It must contain only alphabetic characters and spaces.');
-                            }
-                        };
-                    }])
+                    // ->rules([function () {
+                    //     return function (string $attribute, $value, Closure $fail) {
+                    //         if (!preg_match('/^[a-zA-Z]+(?:\s+[a-zA-Z]+)*$/', $value)) {
+                    //             $fail('The Name format is invalid. It must contain only alphabetic characters and spaces.');
+                    //         }
+                    //     };
+                    // }])
                     ->required()
+                    ->minLength(3)
                     ->maxLength(50),
                 TextInput::make('number')
                     ->rules(['regex:/^\d{1,10}$/',function (?Model $record) {
