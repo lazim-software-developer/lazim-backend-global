@@ -315,7 +315,7 @@ class AuthController extends Controller
         }
         $user = User::where('email', $request->email)->first();
         // cehck if user is vendor
-        if (!in_array($user->role->name, ['Vendor','Property Manager'])) {
+        if (!in_array($user->role->name, ['Vendor','Facility Manager'])) {
             return (new CustomResponseResource([
                 'title' => 'Unauthorized!',
                 'message' => 'You are not authorized to login!',

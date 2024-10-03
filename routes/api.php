@@ -479,6 +479,14 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('vendor')->group(function 
 
     //Complaint create
     Route::post('/{vendor}/complaint',[VendorComplaintController::class,'create']);
+
+    //Form Requests
+    // Route::get('/{vendor}/guest-registration',[GuestController::class,'fmlist']);
+    Route::get('/{vendor}/move-in-out',[MoveInOutController::class,'fmlist']);
+    Route::get('/{vendor}/fit-out',[FitOutFormsController::class,'fmlist']);
+    Route::get('/{vendor}/residential-form',[ResidentialFormController::class,'fmlist']);
+    Route::get('/{vendor}/accesscard-form',[AccessCardController::class,'fmlist']);
+    Route::get('/{vendor}/accesscard-form',[AccessCardController::class,'fmlist']);
 });
 
 // Technician Related APIs

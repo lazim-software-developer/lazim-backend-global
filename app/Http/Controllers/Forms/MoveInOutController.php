@@ -11,9 +11,11 @@ use App\Models\AccountCredentials;
 use App\Models\Building\Building;
 use App\Models\Forms\MoveInOut;
 use App\Models\OwnerAssociation;
+use App\Models\Vendor\Vendor;
 use App\Traits\UtilsTrait;
 use Filament\Facades\Filament;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 class MoveInOutController extends Controller
@@ -156,5 +158,19 @@ class MoveInOutController extends Controller
         ]);
         $mov = MoveInOut::where('status', 'approved')->where('moving_date', '>=', now()->toDateString())->where('building_id', $request->building_id)->orderBy('moving_date')->get();
         return MoveInOutResource::collection($mov);
+    }
+
+    public function fmlist(Vendor $vendor,Request $request)
+    {
+        $ownerAssociationIds = DB::table('owner_association_vendor')
+            ->where('vendor_id',$vendor->id)->pluck('owner_association_id');
+
+        $buildingIds = DB::table('building_owner_association')
+                ->whereIn('owner_association_id',$ownerAssociationIds)->pluck('building_id');
+
+        $moveInOut = MoveInOut::whereIn('building_id',$buildingIds)->where('type',$request->type);
+
+        return MoveInOutResource::collection($moveInOut->paginate(10));
+
     }
 }

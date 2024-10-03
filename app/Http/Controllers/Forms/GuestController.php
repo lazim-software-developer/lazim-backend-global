@@ -22,6 +22,7 @@ use App\Models\Master\DocumentLibrary;
 use App\Models\Master\Role;
 use App\Models\OwnerAssociation;
 use App\Models\User\User;
+use App\Models\Vendor\Vendor;
 use App\Models\Visitor;
 use App\Models\Visitor\FlatVisitor;
 use App\Traits\UtilsTrait;
@@ -406,4 +407,14 @@ class GuestController extends Controller
             'code'    => 200,
         ]))->response()->setStatusCode(200);
     }
+    // public function fmlist(Vendor $vendor,Request $request)
+    // {
+    //     $ownerAssociationIds = DB::table('owner_association_vendor')
+    //         ->where('vendor_id',$vendor->id)->pluck('owner_association_id');
+
+    //     $moveInOut = Guest::whereIn('owner_association_id',$ownerAssociationIds);
+
+    //     return GuestResource::collection($moveInOut->paginate(10));
+
+    // }
 }

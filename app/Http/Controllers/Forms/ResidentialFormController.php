@@ -4,12 +4,15 @@ namespace App\Http\Controllers\Forms;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Forms\ResidentialFormRequest;
+use App\Http\Resources\ResidentialFormResource;
 use App\Jobs\Forms\ResidentialFormRequestJob;
 use App\Models\AccountCredentials;
 use App\Models\Building\Building;
 use App\Models\OwnerAssociation;
 use App\Models\ResidentialForm;
+use App\Models\Vendor\Vendor;
 use Filament\Facades\Filament;
+use Illuminate\Support\Facades\DB;
 
 class ResidentialFormController extends Controller
 {
@@ -51,5 +54,17 @@ class ResidentialFormController extends Controller
             'message' => 'Form successfully created',
             'data'    => $residentialForm,
         ], 201);
+    }
+    public function fmlist(Vendor $vendor)
+    {
+        $ownerAssociationIds = DB::table('owner_association_vendor')
+            ->where('vendor_id', $vendor->id)->pluck('owner_association_id');
+
+        $buildingIds = DB::table('building_owner_association')
+            ->whereIn('owner_association_id', $ownerAssociationIds)->pluck('building_id');
+
+        $residentForms = ResidentialForm::whereIn('building_id', $buildingIds);
+
+        return ResidentialFormResource::collection($residentForms->paginate(10));
     }
 }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Forms;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\FetchFormStatusRequest;
 use App\Http\Requests\Forms\CreateAccessCardFormsRequest;
+use App\Http\Resources\AccessCardFormResource;
 use App\Http\Resources\CustomResponseResource;
 use App\Jobs\Forms\AccessCardRequestJob;
 use App\Models\AccountCredentials;
@@ -12,8 +13,10 @@ use App\Models\Building\Building;
 use App\Models\Forms\AccessCard;
 use App\Models\Forms\Guest;
 use App\Models\OwnerAssociation;
+use App\Models\Vendor\Vendor;
 use Carbon\Carbon;
 use Filament\Facades\Filament;
+use Illuminate\Support\Facades\DB;
 
 class AccessCardController extends Controller
 {
@@ -188,5 +191,17 @@ class AccessCardController extends Controller
                 'order_status'    => null,
             ],
         ];
+    }
+    public function fmlist(Vendor $vendor)
+    {
+        $ownerAssociationIds = DB::table('owner_association_vendor')
+            ->where('vendor_id', $vendor->id)->pluck('owner_association_id');
+
+        $buildingIds = DB::table('building_owner_association')
+            ->whereIn('owner_association_id', $ownerAssociationIds)->pluck('building_id');
+
+        $accessCardForms = AccessCard::whereIn('building_id', $buildingIds);
+
+        return AccessCardFormResource::collection($accessCardForms->paginate(10));
     }
 }
