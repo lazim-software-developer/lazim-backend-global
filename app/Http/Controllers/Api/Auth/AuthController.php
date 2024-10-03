@@ -118,8 +118,8 @@ class AuthController extends Controller
                 'email' => ['The provided credentials are incorrect.'],
             ]);
         }
-        if ($user && $user?->role->name == 'Tenant') {
-            abort_if(FlatTenant::where('tenant_id', $user->id)->where('active', true)->count() < 1, 422, "Currently, you don't have any active contract");
+        if ($user && in_array($user?->role->name, ['Owner', 'Tenant'])) {
+            abort_if(FlatTenant::where('tenant_id', $user->id)->where('active', true)->count() < 1, 422, "Currently, you don't have any active units.");
         }
 
         // Check if the user's email and phone number is verified
@@ -356,6 +356,15 @@ class AuthController extends Controller
                 'code' => 403,
                 'data' => $user->vendors->first()
             ]))->response()->setStatusCode(403);
+        }
+
+        if ($user && $user->vendors->first()->status != 'approved') {
+            return (new CustomResponseResource([
+                'title' => 'Approve Pending',
+                'message' => 'Your Document approval is pending!',
+                'code' => 400,
+                'data' => $user->vendors->first()
+            ]))->response()->setStatusCode(400);
         }
         // Create a new access token
         $token = $user->createToken($user->role->name)->plainTextToken;

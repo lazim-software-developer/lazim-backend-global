@@ -11,6 +11,8 @@ class AssetMaintenance extends Model
 {
     use HasFactory;
 
+    protected $connection = 'mysql';
+
     protected $table = 'asset_maintenance';
 
     public function ownerAssociation()

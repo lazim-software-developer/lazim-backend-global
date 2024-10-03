@@ -64,6 +64,8 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasTenant
     use HasProfilePhoto;
     use TwoFactorAuthenticatable;
 
+    protected $connection = 'mysql';
+
     protected $fillable = [
         'first_name',
         'last_name',
@@ -197,7 +199,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasTenant
 
         // Retrieve the role name using the provided method
         $userRoleName = Role::find($this->role_id)->name;
-        if ($panel->getId() === 'app' && $userRoleName == 'Admin') {
+        if ($panel->getId() === 'app' && $userRoleName == 'Admin' && $this->active) {
             return true;
         }
         else if($panel->getId() === 'admin' && !in_array($userRoleName, $allowedRoles) && $this->active) {
@@ -229,7 +231,8 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasTenant
 
     public function residences()
     {
-        return $this->belongsToMany(Flat::class, 'flat_tenants', 'tenant_id');
+        return $this->belongsToMany(Flat::class, 'flat_tenants', 'tenant_id')
+        ->wherePivot('active', true);
     }
 
     public function likedPosts()

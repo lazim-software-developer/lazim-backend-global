@@ -9,6 +9,7 @@ use App\Models\Accounting\SubCategory;
 class Category extends Model
 {
     use HasFactory;
+    protected $connection = 'mysql';
     protected $fillable = ['name', 'code'];
 
     public function subcategorys()

@@ -31,13 +31,13 @@ return [
         'main' => [
             'salt' => '',
             'length' => 4,
-            // 'alphabet' => 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890'
+            'alphabet' => 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890'
         ],
-
+        
         'alternative' => [
-            'salt' => 'your-salt-string',
-            'length' => 'your-length-integer',
-            // 'alphabet' => 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890'
+            'salt' => '',
+            'length' => 4,
+            'alphabet' => '1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ'
         ],
 
     ],

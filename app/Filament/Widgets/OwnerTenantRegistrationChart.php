@@ -18,69 +18,82 @@ class OwnerTenantRegistrationChart extends ChartWidget
     // protected static ?string $maxWidth = '100%';
     protected static ?int $sort = 4;
 
-    protected function getData(): array
+    public static function canView(): bool
     {
-        $startDate = $this->filters['startDate'] ?? null;
-
-        $year = $startDate ? Carbon::createFromFormat('Y-m-d', $startDate)->year : now()->year;
-        $buildingId = $this->filters['building'] ?? null; // Using building filter from the dashboard
-
-        // Initialize arrays for storing counts per month
-        $months = [];
-        $ownerCounts = [];
-        $tenantCounts = [];
-
-        // Loop through each month of the current year
-        for ($month = 1; $month <= 12; $month++) {
-            // Format the month for display
-            $monthName = Carbon::create()->month($month)->format('M');
-            $months[] = $monthName;
-
-            // Count distinct owners created in this month
-            $ownerCount = DB::table('flat_tenants')
-                ->where('owner_association_id',auth()->user()->owner_association_id)
-                ->where('role', 'Owner')
-                ->whereYear('created_at', $year)
-                ->whereMonth('created_at', $month)
-                ->when($buildingId, function ($query) use ($buildingId) {
-                    return $query->where('building_id', $buildingId);
-                })
-                ->count();
-            $ownerCounts[] = $ownerCount;
-
-            // Count distinct tenants created in this month
-            $tenantCount = DB::table('flat_tenants')
-                ->where('owner_association_id',auth()->user()->owner_association_id)
-                ->where('role', 'Tenant')
-                ->whereYear('created_at', $year)
-                ->whereMonth('created_at', $month)
-                ->when($buildingId, function ($query) use ($buildingId) {
-                    return $query->where('building_id', $buildingId);
-                })
-                ->count();
-            $tenantCounts[] = $tenantCount;
-        }
-
-        return [
-            'datasets' => [
-                [
-                    'label' => 'Owners',
-                    'data' => $ownerCounts,
-                    'borderColor' => '#4DB6AC',
-                    'borderWidth' => 2,
-                    'fill' => false,
-                ],
-                [
-                    'label' => 'Tenants',
-                    'data' => $tenantCounts,
-                    'borderColor' => '#fd7e14',
-                    'borderWidth' => 2,
-                    'fill' => false,
-                ],
-            ],
-            'labels' => $months,
-        ];
+        $user = User::find(auth()->user()->id);
+        return ($user->can('view_any_user::owner')|| $user->can('view_any_user::tenant'));
     }
+
+    protected function getData(): array
+{
+    // Get the start date and end date from filters
+    $startDate = $this->filters['startDate'] ?? Carbon::now()->startOfYear()->format('Y-m-d');
+    $endDate = $this->filters['endDate'] ?? Carbon::now()->endOfYear()->format('Y-m-d');
+
+    // Convert startDate and endDate to Carbon instances
+    $startDate = Carbon::createFromFormat('Y-m-d', $startDate)->startOfMonth();
+    $endDate = Carbon::createFromFormat('Y-m-d', $endDate)->endOfMonth();
+
+    // Determine the total number of months between start date and end date
+    $totalMonths = $startDate->diffInMonths($endDate) + 1;
+
+    // Initialize arrays for storing counts per month and month labels
+    $months = [];
+    $ownerCounts = [];
+    $tenantCounts = [];
+
+    // Loop through each month between start date and end date
+    for ($i = 0; $i < $totalMonths; $i++) {
+        // Get the current month in the loop
+        $currentMonth = $startDate->copy()->addMonths($i);
+        $monthName = $currentMonth->format('M');
+        $months[] = $monthName;
+
+        // Count distinct owners created in this month
+        $ownerCount = DB::table('flat_tenants')
+            ->where('owner_association_id', auth()->user()->owner_association_id)
+            ->where('role', 'Owner')
+            ->whereYear('created_at', $currentMonth->year)
+            ->whereMonth('created_at', $currentMonth->month)
+            ->when($this->filters['building'] ?? null, function ($query) {
+                return $query->where('building_id', $this->filters['building']);
+            })
+            ->count();
+        $ownerCounts[] = $ownerCount;
+
+        // Count distinct tenants created in this month
+        $tenantCount = DB::table('flat_tenants')
+            ->where('owner_association_id', auth()->user()->owner_association_id)
+            ->where('role', 'Tenant')
+            ->whereYear('created_at', $currentMonth->year)
+            ->whereMonth('created_at', $currentMonth->month)
+            ->when($this->filters['building'] ?? null, function ($query) {
+                return $query->where('building_id', $this->filters['building']);
+            })
+            ->count();
+        $tenantCounts[] = $tenantCount;
+    }
+
+    return [
+        'datasets' => [
+            [
+                'label' => 'Owners',
+                'data' => $ownerCounts,
+                'borderColor' => '#4DB6AC',
+                'borderWidth' => 2,
+                'fill' => false,
+            ],
+            [
+                'label' => 'Tenants',
+                'data' => $tenantCounts,
+                'borderColor' => '#fd7e14',
+                'borderWidth' => 2,
+                'fill' => false,
+            ],
+        ],
+        'labels' => $months,
+    ];
+}
 
     protected function getType(): string
     {

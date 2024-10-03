@@ -38,7 +38,7 @@ class HelpdeskcomplaintResource extends Resource
     protected static ?string $model = Complaint::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-    protected static ?string $modelLabel = 'Facility Support Complaints';
+    protected static ?string $modelLabel = 'Facility Support Issues';
 
     protected static ?string $navigationGroup = 'Facility Support';
 
@@ -87,7 +87,9 @@ class HelpdeskcomplaintResource extends Resource
                             })
                             ->options(function (Complaint $record, Get $get) {
                                 $serviceVendor = ServiceVendor::where('service_id', $get('service_id'))->pluck('vendor_id');
-                                return Vendor::whereIn('id', $serviceVendor)->where('owner_association_id', auth()->user()?->owner_association_id)->pluck('name', 'id');
+                                return Vendor::whereIn('id', $serviceVendor)->whereHas('ownerAssociation', function ($query) {
+                                    $query->where('owner_association_id', Filament::getTenant()->id);
+                                })->pluck('name', 'id');
                             })
                             ->disabled(function (Complaint $record) {
                                 if ($record->category=='Security Services') {

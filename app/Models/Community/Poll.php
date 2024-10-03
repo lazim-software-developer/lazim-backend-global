@@ -13,6 +13,8 @@ class Poll extends Model
 {
     use HasFactory;
 
+    protected $connection = 'mysql';
+
     protected $table = 'polls';
 
     protected $fillable = ['question', 'options', 'status', 'scheduled_at', 'ends_on', 'building_id', 'created_by', 'active'];

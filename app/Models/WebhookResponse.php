@@ -9,5 +9,7 @@ class WebhookResponse extends Model
 {
     use HasFactory;
 
+    protected $connection = 'mysql';
+
     protected $fillable = ['management_company_id', 'type', 'response','reference_number'];
 }

@@ -18,6 +18,8 @@ class FlatVisitor extends Model
     use HasFactory;
     use Searchable;
 
+    protected $connection = 'mysql';
+
     protected $fillable = [
         'flat_id',
         'name',

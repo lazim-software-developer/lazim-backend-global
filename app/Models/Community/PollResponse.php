@@ -11,6 +11,8 @@ class PollResponse extends Model
 {
     use HasFactory;
 
+    protected $connection = 'mysql';
+
     protected $table = 'poll_responses';
 
     protected $fillable = ['answer', 'submitted_at', 'polling_id', 'submitted_by','poll_id'];

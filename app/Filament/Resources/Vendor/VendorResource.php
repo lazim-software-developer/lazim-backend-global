@@ -34,6 +34,7 @@ use Filament\Forms\Components\FileUpload;
 use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\Vendor\VendorResource\Pages;
 use App\Filament\Resources\Vendor\VendorResource\RelationManagers\BuildingvendorRelationManager;
+use Filament\Forms\Components\Textarea;
 
 class VendorResource extends Resource
 {
@@ -107,24 +108,33 @@ class VendorResource extends Resource
                                 ->options([
                                     'approved' => 'Approve',
                                     'rejected' => 'Reject',
-                                ])
-                                ->visible(fn($record) => $record->status === null && $record->documents()->count() > 0 && $record->services()->count() > 0 && $record->managers()->count() > 0)
+                                ])->hidden(function(){
+                                    return Role::where('id', auth()->user()?->role_id)->first()?->name == 'Admin';
+                                })
+                                ->visible(fn($record) => $record->ownerAssociation?->where('pivot.owner_association_id',Filament::getTenant()?->id)->first()?->pivot->status === null && $record->documents()->count() > 0 && $record->services()->count() > 0 && $record->managers()->count() > 0)
                                 ->searchable()
                                 ->live(),
-                            TextInput::make('remarks')
-                                ->rules(['max:150'])
+                            TextInput::make('status')->disabled()->hidden(function(){
+                                return Role::where('id', auth()->user()?->role_id)->first()?->name == 'Admin';
+                            })
+                            ->visible(fn($record) => $record->ownerAssociation?->where('pivot.owner_association_id',Filament::getTenant()?->id)->first()?->pivot->status != null),
+                            Textarea::make('remarks')
+                                ->maxLength(250)
+                                ->rows(5)
                                 ->required()
                                 ->visible(function (callable $get) {
                                     if ($get('status') == 'rejected') {
                                         return true;
                                     }
                                     return false;
+                                })->hidden(function(){
+                                    return Role::where('id', auth()->user()?->role_id)->first()?->name == 'Admin';
                                 })
-                                ->disabled(fn ($record) => $record->status !== null ),
+                                ->disabled(fn ($record) => $record->ownerAssociation?->where('pivot.owner_association_id',Filament::getTenant()?->id)->first()?->pivot->status !== null ),
                             Toggle::make('active')
                                 ->rules(['boolean'])
                                 ->required()
-                                ->visible(fn($record) => $record->status === 'approved')
+                                ->visible(fn($record) => $record->ownerAssociation?->where('pivot.owner_association_id',Filament::getTenant()?->id)->first()?->pivot->status === 'approved')
                                 ->inline(false)
                                 ->label('Active'),
                             // TextInput::make('remarks')
@@ -151,11 +161,30 @@ class VendorResource extends Resource
                 Tables\Columns\TextColumn::make('status')
                     ->searchable()
                     ->default('NA')
-                    ->label('Status'),
+                    ->label('Status')
+                    ->hidden(function(){
+                        return Role::where('id', auth()->user()?->role_id)->first()?->name == 'Admin';
+                    })
+                    ->getStateUsing(function ($record) {
+                        $ownerAssociation = $record->ownerAssociation()
+                            ->wherePivot('owner_association_id', Filament::getTenant()?->id)
+                            ->first();
+                        return $ownerAssociation ? $ownerAssociation->pivot->status : 'NA';
+                    }),
                 TextColumn::make('remarks')
                     ->searchable()
+                    ->limit(30)
                     ->default('NA')
-                    ->label('Remarks'),
+                    ->label('Remarks')
+                    ->hidden(function(){
+                        return Role::where('id', auth()->user()?->role_id)->first()?->name == 'Admin';
+                    })
+                    ->getStateUsing(function ($record) {
+                        $ownerAssociation = $record->ownerAssociation()
+                            ->wherePivot('owner_association_id', Filament::getTenant()?->id)
+                            ->first();
+                        return $ownerAssociation ? $ownerAssociation->pivot->remarks : 'NA';
+                    }),
                 ViewColumn::make('Services')->view('tables.columns.vendor-service'),
                 ViewColumn::make('Documents')->view('tables.columns.vendordocument'),
                 ViewColumn::make('Managers')->view('tables.columns.vendormanager'),

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Widgets;
 
+use App\Models\User\User;
 use App\Models\UserApproval;
 use Filament\Facades\Filament;
 use Filament\Widgets\TableWidget as BaseWidget;
@@ -15,6 +16,12 @@ class RecentPendingResidentApprovals extends BaseWidget
     protected static ?string $maxHeight = '400px';
     protected static ?string $heading = 'Recent Pending Resident Approvals';
     // protected int | string | array $columnSpan = 6;
+
+    public static function canView(): bool
+    {
+        $user = User::find(auth()->user()->id);
+        return $user->can('view_any_user::approval');
+    }
 
     protected function getTableQuery(): Builder
     {
