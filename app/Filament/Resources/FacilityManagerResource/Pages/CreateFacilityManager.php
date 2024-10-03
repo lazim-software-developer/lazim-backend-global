@@ -18,99 +18,117 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
-use Spatie\Permission\Models\Permission;
 
 class CreateFacilityManager extends CreateRecord
 {
     protected static string $resource = FacilityManagerResource::class;
 
-    public function afterCreate()
-    {
-        $user = $this->record;
-        if (!$user) {
-            return;
-        }
-
-        $password       = Str::random(12);
-        $hashedPassword = Hash::make($password);
-        $user->password = $hashedPassword;
-        $user->save();
-
-        FacilityManagerJob::dispatch($user, $password);
-
-        $role = Role::where('name', 'Facility Manager')->first();
-
-        if ($role) {
-            $permissions = Permission::all();
-
-            $role->syncPermissions($permissions);
-
-            $user->assignRole($role);
-        }
-    }
-
     protected function handleRecordCreation(array $data): Model
     {
-        // $password = Str::random(12);
-
         try {
             return DB::transaction(function () use ($data) {
-                // Create User (Vendor Registration)
-                $user = User::create([
-                    'owner_association_id' => $data['oa_id'],
-                    'first_name'           => $data['company_name'],
-                    'email'                => $data['email'],
-                    'phone'                => $data['phone'],
-                    // 'password'             => Hash::make($password),
-                    'email_verified'       => true,
-                    'phone_verified'       => true,
-                    'active'               => true,
-                    'role_id'              => Role::where('name', 'Facility Manager')->value('id'),
-                ]);
+                Log::info('Starting transaction with data:', $data);
 
-                // Create Vendor (Company Details)
-                $vendor = Vendor::create([
-                    'user_id'              => $user->id,
-                    'address_line_1'       => $data['address'],
-                    'name'                 => $data['company_name'],
-                    'owner_id'             => $user->id,
-                    'landline_number'      => $data['landline'],
-                    'website'              => $data['website'],
-                    'fax'                  => $data['fax'],
-                    'tl_number'            => $data['tl_number'],
-                    'tl_expiry'            => $data['trade_license_expiry'],
-                    'owner_association_id' => $data['oa_id'],
-                ]);
+                // 1. Create User
+                $password = Str::random(12);
+                $userData = [
+                    'first_name' => $data['name'],
+                    'email' => $data['user']['email'],
+                    'phone' => $data['user']['phone'],
+                    'password' => Hash::make($password),
+                    'email_verified' => true,
+                    'phone_verified' => true,
+                    'active' => true,
+                    'role_id' => Role::where('name', 'Facility Manager')->value('id'),
+                    'owner_association_id' => $data['owner_association_id'],
+                ];
+                Log::info('Creating user with data:', $userData);
 
+                $user = User::create($userData);
+                Log::info('User created successfully:', ['user_id' => $user->id]);
+
+                // 2. Create Vendor
+                $vendorData = [
+                    'name' => $data['name'],
+                    'owner_id' => $user->id,
+                    'owner_association_id' => $data['owner_association_id'],
+                    'address_line_1' => $data['address_line_1'],
+                    'landline_number' => $data['landline_number'] ?? null,
+                    'website' => $data['website'] ?? null,
+                    'fax' => $data['fax'] ?? null,
+                    'tl_number' => $data['tl_number'],
+                    'tl_expiry' => $data['tl_expiry'],
+                ];
+                Log::info('Creating vendor with data:', $vendorData);
+
+                $vendor = Vendor::create($vendorData);
+                Log::info('Vendor created successfully:', ['vendor_id' => $vendor->id]);
+
+                // 3. Create Risk Policy Document
                 if (isset($data['risk_policy_expiry'])) {
-                    Document::create([
-                        "name"                 => "risk_policy",
-                        "document_library_id"  => DocumentLibrary::where('name', 'Risk policy')->first()->id,
-                        'owner_association_id' => $data['oa_id'],
-                        "status"               => 'pending',
-                        "documentable_id"      => $vendor->id,
-                        "expiry_date"          => $data['risk_policy_expiry'],
-                        "documentable_type"    => Vendor::class,
-                    ]);
+                    try {
+                        $documentData = [
+                            'name' => 'risk_policy',
+                            'document_library_id' => DocumentLibrary::where('name', 'Risk policy')->first()->id,
+                            'owner_association_id' => $data['owner_association_id'],
+                            'status' => 'pending',
+                            'documentable_id' => $vendor->id,
+                            'documentable_type' => Vendor::class,
+                            'expiry_date' => $data['risk_policy_expiry'],
+                        ];
+                        Log::info('Creating document with data:', $documentData);
+
+                        Document::create($documentData);
+                        Log::info('Document created successfully');
+                    } catch (\Exception $e) {
+                        Log::error('Error creating document:', ['error' => $e->getMessage()]);
+                        // Don't throw the error, just log it
+                    }
                 }
 
-                // Create VendorManager (Manager Details) - Optional
-                if (!empty($data['manager_name']) && !empty($data['manager_email'])) {
-                    VendorManager::create([
-                        'vendor_id' => $vendor->id,
-                        'name'      => $data['manager_name'],
-                        'email'     => $data['manager_email'],
-                        'phone'     => $data['manager_phone'],
-                    ]);
+                // 4. Create VendorManager if data provided
+                if (!empty($data['managers'][0]['name'] ?? null) && !empty($data['managers'][0]['email'] ?? null)) {
+                    try {
+                        $managerData = [
+                            'vendor_id' => $vendor->id,
+                            'name' => $data['managers'][0]['name'],
+                            'email' => $data['managers'][0]['email'],
+                            'phone' => $data['managers'][0]['phone'] ?? null,
+                        ];
+                        Log::info('Creating vendor manager with data:', $managerData);
+
+                        VendorManager::create($managerData);
+                        Log::info('Vendor manager created successfully');
+                    } catch (\Exception $e) {
+                        Log::error('Error creating vendor manager:', ['error' => $e->getMessage()]);
+                        // Don't throw the error, just log it
+                    }
                 }
 
-                return $user;
+                // 5. Dispatch job for sending credentials
+                try {
+                    FacilityManagerJob::dispatch($user, $password);
+                    Log::info('FacilityManagerJob dispatched successfully');
+                } catch (\Exception $e) {
+                    Log::error('Error dispatching FacilityManagerJob:', ['error' => $e->getMessage()]);
+                    // Don't throw the error, just log it
+                }
+
+                return $vendor;
             });
         } catch (QueryException $e) {
-            Log::error('Error creating records: ' . $e->getMessage());
-            Log::error('SQL: ' . $e->getSql());
-            Log::error('Bindings: ' . json_encode($e->getBindings()));
-            throw new Halt($e->getMessage());
+            Log::error('Database error in handleRecordCreation:', [
+                'message' => $e->getMessage(),
+                'sql' => $e->getSql(),
+                'bindings' => $e->getBindings(),
+            ]);
+            throw new Halt('Error creating facility manager: ' . $e->getMessage());
+        } catch (\Exception $e) {
+            Log::error('Unexpected error in handleRecordCreation:', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+            throw new Halt('Unexpected error: ' . $e->getMessage());
         }
     }
 

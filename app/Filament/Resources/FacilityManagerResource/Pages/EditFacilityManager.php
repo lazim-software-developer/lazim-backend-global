@@ -5,6 +5,7 @@ namespace App\Filament\Resources\FacilityManagerResource\Pages;
 use App\Filament\Resources\FacilityManagerResource;
 use App\Models\Building\Document;
 use App\Models\Master\DocumentLibrary;
+use App\Models\Vendor\Vendor;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Database\Eloquent\Model;
@@ -23,120 +24,86 @@ class EditFacilityManager extends EditRecord
 
     protected function mutateFormDataBeforeFill(array $data): array
     {
-        $user          = $this->record;
-        $vendor        = $user->vendors()->first();
-        $vendorManager = $vendor ? $vendor->managers()->first() : null;
-        $riskPolicy    = $vendor ? $vendor->documents()->where('name', 'risk_policy')->first() : null;
+        $vendor = $this->record;
+        $user = $vendor->user;
+        $manager = $vendor->managers->first();
+        $riskPolicy = $vendor ? $vendor->documents()->where('name', 'risk_policy')->first() : null;
 
-        $data = array_merge($data, [
-            'oa_id'        => $user->owner_association_id,
-            'company_name' => $user->first_name,
-            'email'        => $user->email,
-            'phone'        => $user->phone,
-            'active'       => $user->active,
-        ]);
 
-        if ($vendor) {
-            $data = array_merge($data, [
-                'name'                 => $vendor->name ?? '',
-                'address'              => $vendor->address_line_1 ?? '',
-                'landline'             => $vendor->landline_number ?? '',
-                'website'              => $vendor->website ?? '',
-                'fax'                  => $vendor->fax ?? '',
-                'tl_number'            => $vendor->tl_number ?? '',
-                'trade_license_expiry' => $vendor->tl_expiry,
-            ]);
-        }
-
-        if ($riskPolicy) {
-            $data['risk_policy_expiry'] = $riskPolicy->expiry_date;
-        }
-
-        if ($vendorManager) {
-            $data = array_merge($data, [
-                'manager_name'  => $vendorManager->name ?? '',
-                'manager_email' => $vendorManager->email ?? '',
-                'manager_phone' => $vendorManager->phone ?? '',
-            ]);
-        }
-
-        // Ensure all form fields have a value, even if it's an empty string
-        $formFields = [
-            'oa_id', 'company_name', 'email', 'phone', 'active',
-            'name', 'address', 'landline', 'website', 'fax', 'tl_number',
-            'trade_license_expiry', 'risk_policy_expiry',
-            'manager_name', 'manager_email', 'manager_phone',
+        return [
+            'owner_association_id' => $vendor->owner_association_id,
+            'name' => $vendor->name,
+            'user' => [
+                'email' => $user->email ?? '',
+                'phone' => $user->phone ?? '',
+            ],
+            'address_line_1' => $vendor->address_line_1 ?? '',
+            'landline_number' => $vendor->landline_number ?? '',
+            'website' => $vendor->website ?? '',
+            'fax' => $vendor->fax ?? '',
+            'tl_number' => $vendor->tl_number ?? '',
+            'tl_expiry' => $vendor->tl_expiry,
+            'risk_policy_expiry' => $riskPolicy->expiry_date ?? null,
+            'managers' => [[
+                'name' => $manager->name ?? '',
+                'email' => $manager->email ?? '',
+                'phone' => $manager->phone ?? '',
+            ]],
         ];
-
-        foreach ($formFields as $field) {
-            if (!isset($data[$field])) {
-                $data[$field] = '';
-            }
-        }
-
-        return $data;
     }
 
     protected function handleRecordUpdate(Model $record, array $data): Model
     {
         return DB::transaction(function () use ($record, $data) {
-            // Update User
-            $userUpdateData = array_filter([
-                'owner_association_id' => $data['oa_id'] ?? null,
-                'first_name'           => $data['company_name'] ?? null,
-                'email'                => $data['email'] ?? null,
-                'phone'                => $data['phone'] ?? null,
-                'active'               => $data['active'] ?? null,
+            // Update Vendor
+            $record->update([
+                'name' => $data['name'],
+                'owner_association_id' => $data['owner_association_id'],
+                'address_line_1' => $data['address_line_1'],
+                'landline_number' => $data['landline_number'] ?? null,
+                'website' => $data['website'] ?? null,
+                'fax' => $data['fax'] ?? null,
+                'tl_number' => $data['tl_number'],
+                'tl_expiry' => $data['tl_expiry'],
             ]);
 
-            $record->update($userUpdateData);
+            // Update related User
+            if ($record->user) {
+                $record->user->update([
+                    'first_name' => $data['name'],
+                    'owner_association_id' => $data['owner_association_id'],
+                ]);
+            }
 
-            // Update or Create Vendor
-            $vendorUpdateData = array_filter([
-                'address_line_1'       => $data['address'] ?? null,
-                'name'                 => $data['name'] ?? null,
-                'landline_number'      => $data['landline'] ?? null,
-                'website'              => $data['website'] ?? null,
-                'fax'                  => $data['fax'] ?? null,
-                'tl_number'            => $data['tl_number'] ?? null,
-                'tl_expiry'            => $data['trade_license_expiry'] ?? null,
-                'owner_association_id' => $data['oa_id'] ?? null,
-            ]);
-
-            $vendor = $record->vendors()->updateOrCreate(
-                ['owner_id' => $record->id],
-                $vendorUpdateData
-            );
-
-            // Update or Create Document (Risk Policy)
+            // Update or Create Risk Policy Document
             if (isset($data['risk_policy_expiry'])) {
                 Document::updateOrCreate(
                     [
-                        'documentable_id'   => $vendor->id,
-                        'documentable_type' => get_class($vendor),
-                        'name'              => 'risk_policy',
+                        'documentable_id' => $record->id,
+                        'documentable_type' => Vendor::class,
+                        'name' => 'risk_policy',
                     ],
                     [
-                        'document_library_id'  => DocumentLibrary::where('name', 'Risk policy')->first()->id,
-                        'owner_association_id' => $data['oa_id'],
-                        'status'               => 'pending',
-                        'expiry_date'          => $data['risk_policy_expiry'],
+                        'document_library_id' => DocumentLibrary::where('name', 'Risk policy')->first()->id,
+                        'owner_association_id' => $data['owner_association_id'],
+                        'status' => 'pending',
+                        'expiry_date' => $data['risk_policy_expiry'],
                     ]
                 );
             }
 
             // Update or Create VendorManager
-            if (!empty($data['manager_name']) && !empty($data['manager_email'])) {
-                $managerUpdateData = [
-                    'name'  => $data['manager_name'],
-                    'email' => $data['manager_email'],
-                    'phone' => $data['manager_phone'] ?? null,
-                ];
-
-                $vendor->managers()->updateOrCreate([], $managerUpdateData);
+            if (!empty($data['managers'][0]['name']) && !empty($data['managers'][0]['email'])) {
+                $record->managers()->updateOrCreate(
+                    [],
+                    [
+                        'name' => $data['managers'][0]['name'],
+                        'email' => $data['managers'][0]['email'],
+                        'phone' => $data['managers'][0]['phone'] ?? null,
+                    ]
+                );
             } else {
-                // If manager details are empty, delete all existing managers for this vendor
-                $vendor->managers()->delete();
+                $record->managers()->delete();
             }
 
             return $record;
