@@ -6,6 +6,7 @@ use App\Models\Accounting\Budget;
 use App\Models\Building\Building;
 use App\Models\Building\Complaint;
 use App\Models\Building\FacilityBooking;
+use App\Models\Building\Flat;
 use App\Models\Community\Poll;
 use App\Models\Community\Post;
 use App\Models\Forms\SaleNOC;
@@ -106,5 +107,10 @@ class OwnerAssociation extends Model
     public function complaints()
     {
         return $this->hasMany(Complaint::class);
+    }
+
+    public function flats()
+    {
+        return $this->hasMany(Flat::class);
     }
 }

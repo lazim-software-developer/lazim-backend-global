@@ -42,6 +42,8 @@ use Cheesegrits\FilamentGoogleMaps\Fields\Map;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
 use App\Models\Master\Role;
+use Filament\Forms\Components\Select;
+use Illuminate\Support\Facades\Auth;
 
 class BuildingResource extends Resource
 {
@@ -70,6 +72,13 @@ class BuildingResource extends Resource
                         })
                         ->unique('buildings','name',fn (?Model $record) => $record)
                         ->placeholder('Name'),
+
+                    Select::make('building_type')
+                        ->options([
+                            'commercial'  => 'Commercial',
+                            'residential' => 'Residential',
+                        ])
+                        ->hidden(fn () => !in_array(auth()->user()->role->name, ['Admin', 'Property Manager'])),
 
                     TextInput::make('property_group_id')
                         ->rules(['max:50', 'string'])
@@ -145,6 +154,14 @@ class BuildingResource extends Resource
                         })
                         ->placeholder('Floors')
                         ->label('Floor'),
+
+                    TextInput::make('parking_count')
+                        ->numeric()
+                        ->minValue(1)
+                        ->maxValue(999)
+                        ->hidden(fn () => !in_array(auth()->user()->role->name, ['Admin', 'Property Manager']))
+                        ->placeholder('Parking Count')
+                        ->label('Parking Count'),
 
                     Toggle::make('allow_postupload')
                         ->rules(['boolean'])
@@ -409,7 +426,10 @@ class BuildingResource extends Resource
 
     public static function getRelations(): array
     {
-        return [
+        $user = Auth::user();
+
+        // All available relations
+        $allRelations = [
             BuildingResource\RelationManagers\FacilityBookingsRelationManager::class,
             BuildingResource\RelationManagers\ServiceBookingsRelationManager::class,
             // BuildingResource\RelationManagers\BudgetRelationManager::class,
@@ -434,8 +454,38 @@ class BuildingResource extends Resource
             ContractsRelationManager::class,
             VendorRelationManager::class,
         ];
-    }
 
+        // If user is not logged in, has no role, or is not a Property Manager, show all relations
+        if (!$user || !$user->role || $user->role->name !== 'Property Manager') {
+            return $allRelations;
+        }
+
+        // Relations specifically for Property Manager
+        $propertyManagerRelations = [
+            BuildingResource\RelationManagers\FacilityBookingsRelationManager::class,
+            BuildingResource\RelationManagers\ServiceBookingsRelationManager::class,
+            // BuildingResource\RelationManagers\BudgetRelationManager::class,
+            BuildingResource\RelationManagers\BuildingPocsRelationManager::class,
+            FloorsRelationManager::class,
+            RuleregulationsRelationManager::class,
+            AppartmentsafetyRelationManager::class,
+            EmergencyNumbersRelationManager::class,
+            BuildingserviceRelationManager::class,
+            BuildingResource\RelationManagers\ComplaintRelationManager::class,
+            IncidentsRelationManager::class,
+            BuildingResource\RelationManagers\ServiceRelationManager::class,
+            // BuildingResource\RelationManagers\DocumentsRelationManager::class,
+            BuildingResource\RelationManagers\FacilitiesRelationManager::class,
+            BuildingResource\RelationManagers\FlatsRelationManager::class,
+            // BuildingResource\RelationManagers\VendorRelationManager::class,
+            BuildingvendorRelationManager::class,
+            BuildingResource\RelationManagers\AssetsRelationManager::class,
+            ContractsRelationManager::class,
+            VendorRelationManager::class,
+        ];
+
+        return $propertyManagerRelations;
+    }
     public static function getPages(): array
     {
         return [

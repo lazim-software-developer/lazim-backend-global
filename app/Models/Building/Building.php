@@ -75,7 +75,9 @@ class Building extends Model
         'show_inhouse_services',
         'mollak_property_id',
         'managed_by',
-        'address'
+        'address',
+        'building_type',
+        'parking_count'
     ];
 
     protected $casts = [

@@ -28,6 +28,8 @@ class CreatePropertyManager extends CreateRecord
         $data['verified_by'] = auth()->user()->id;
         $data['verified']    = 1;
         $data['role']        = 'Property Manager';
+        $data['active']      = true;
+
         return $data;
     }
 
@@ -63,6 +65,10 @@ class CreatePropertyManager extends CreateRecord
     protected function afterCreate()
     {
         $pmId = $this->record->id;
+
+        $user         = User::find($this->record->id);
+        $user->active = true;
+        $user->save();
 
         $roles = [
             // ['name' => 'Owner', 'owner_association_id' => $pmId, 'guard_name' => 'web'],

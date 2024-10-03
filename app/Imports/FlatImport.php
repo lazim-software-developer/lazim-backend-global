@@ -23,7 +23,7 @@ class FlatImport implements ToCollection, WithHeadingRow
     {
         // Define the expected headings
         $expectedHeadings = ['unit_number', 'property_type', 'mollak_property_id', 'suit_area', 'actual_area', 'balcony_area',
-                'applicable_area', 'parking_count', 'makhani_number', 'dewa_number', 'etisalat/du_number','btu/ac_number'];
+                'applicable_area', 'parking_count', 'makhani_number', 'dewa_number', 'etisalatdu_number','btuac_number'];
 
         if ($rows->first() == null) {
             Notification::make()
@@ -44,6 +44,7 @@ class FlatImport implements ToCollection, WithHeadingRow
             return 'failure';
         }
         $extractedHeadings = array_keys($rows->first()->toArray());
+        // dd($extractedHeadings);
 
         // Check if all expected headings are present in the extracted headings
         $missingHeadings = array_diff($expectedHeadings, $extractedHeadings);
@@ -61,11 +62,11 @@ class FlatImport implements ToCollection, WithHeadingRow
         foreach ($rows as $row) {
             $exists         = Flat::where(['property_number' => $row['unit_number'], 'owner_association_id' => $this->oaId, 'building_id' => $this->buildingId])->exists();
 
-            $requiredFields = $row['property_number'] != null && in_array($row['property_type'], ['Shop', 'Office', 'Unit'])
+            $requiredFields = $row['unit_number'] != null && in_array($row['property_type'], ['Shop', 'Office', 'Unit'])
                                 && is_numeric($row['parking_count']) ? true : false;
 
             if (!$requiredFields && $exists) {
-                $notImported[] = $row['property_number'];
+                $notImported[] = $row['unit_number'];
             } else {
                 Flat::create([
                     'owner_association_id' => $this->oaId,
@@ -80,22 +81,22 @@ class FlatImport implements ToCollection, WithHeadingRow
                     'parking_count'        => $row['parking_count'],
                     'makhani_number'       => $row['makhani_number'],
                     'dewa_number'          => $row['dewa_number'],
-                    'etisalat/du_number'   => $row['etisalat/du_number'],
-                    'btu/ac_number'        => $row['btu/ac_number'],
+                    'etisalat/du_number'   => $row['etisalatdu_number'],
+                    'btu/ac_number'        => $row['btuac_number'],
                 ]);
             }
         }
         if (!empty($notImported)) {
             Notification::make()
-                ->title("Buildings imported successfully.")
-                ->body('Not imported Buildings' . implode(', ', $notImported))
-                ->success()
+                ->title("Couldn't upload Flats.")
+                ->body('Not imported Flats '.'-' . implode(',  ', $notImported))
+                ->danger()
                 ->send();
 
             return 'success';
         } else {
             Notification::make()
-                ->title("Buildings imported successfully.")
+                ->title("Flats imported successfully.")
                 ->success()
                 ->send();
 

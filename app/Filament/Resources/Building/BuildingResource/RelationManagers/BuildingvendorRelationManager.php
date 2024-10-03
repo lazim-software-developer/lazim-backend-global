@@ -14,15 +14,40 @@ use Filament\Forms\Components\TextInput;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Resources\RelationManagers\RelationManager;
+use Illuminate\Support\Facades\Auth;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class BuildingvendorRelationManager extends RelationManager
 {
     protected static string $relationship = 'buildingvendor';
-    protected static ?string $modelLabel = 'Vendors';
+    // protected static ?string $modelLabel = 'Vendors';
+
+    protected static function getModelLabel(): string
+    {
+        $user = Auth::user();
+
+        if (!$user || !$user->role) {
+            return 'Vendors';
+        }
+
+        return match ($user->role->name) {
+            'Property Manager' => 'Facility Manager',
+            default => 'Vendors',
+        };
+    }
     public static function getTitle(Model $ownerRecord, string $pageClass): string
     {
-        return 'Vendors';
+        $user = Auth::user();
+
+        if (!$user || !$user->role) {
+            return 'Vendors';
+        }
+
+        return match ($user->role->name) {
+            'Property Manager' => 'Facility Manager',
+            default => 'Vendors',
+        };
+
     }
 
     public function form(Form $form): Form

@@ -3,54 +3,53 @@
 namespace App\Models\User;
 
 use App\Models\AccountCredentials;
-use Filament\Panel;
-use App\Models\Asset;
-use App\Models\Vendor\PPM;
-use App\Models\Forms\Guest;
-use App\Models\Master\Role;
-use App\Models\Building\Flat;
-use App\Models\Forms\SaleNOC;
-use App\Models\ItemInventory;
-use App\Models\Vendor\Vendor;
+use App\Models\Accounting\Invoice;
 use App\Models\Accounting\WDA;
+use App\Models\Asset;
+use App\Models\Building\BuildingPoc;
+use App\Models\Building\Complaint;
+use App\Models\Building\Document;
+use App\Models\Building\FacilityBooking;
+use App\Models\Building\Flat;
+use App\Models\Building\FlatTenant;
 use App\Models\Community\Poll;
+use App\Models\Community\PollResponse;
 use App\Models\Community\Post;
-use App\Models\Forms\MoveInOut;
-use App\Models\ResidentialForm;
+use App\Models\Community\PostLike;
+use App\Models\ExpoPushNotification;
 use App\Models\Forms\AccessCard;
 use App\Models\Forms\FitOutForm;
+use App\Models\Forms\Guest;
+use App\Models\Forms\MoveInOut;
+use App\Models\Forms\SaleNOC;
+use App\Models\ItemInventory;
+use App\Models\Master\Role;
 use App\Models\OwnerAssociation;
-use App\Models\TechnicianAssets;
-use App\Models\TechnicianVendor;
-use App\Models\Building\Building;
-use App\Models\Building\Document;
+use App\Models\ResidentialForm;
 use App\Models\Scopes\Searchable;
+use App\Models\TechnicianVendor;
 use App\Models\Vendor\Attendance;
-use Laravel\Sanctum\HasApiTokens;
-use App\Models\Accounting\Invoice;
-use App\Models\Building\Complaint;
-use App\Models\Community\PostLike;
-use App\Models\Building\FlatTenant;
+use App\Models\Vendor\PPM;
+use App\Models\Vendor\Vendor;
+use App\Models\Vendor\VendorManager;
 use App\Models\Visitor\FlatVisitor;
-use App\Models\Building\BuildingPoc;
-use App\Models\ExpoPushNotification;
-use App\Models\Community\PollResponse;
-use Filament\Models\Contracts\HasName;
-use Laravel\Jetstream\HasProfilePhoto;
-use App\Models\Building\FacilityBooking;
-use BezhanSalleh\FilamentShield\Traits\HasPanelShield;
 use Filament\Facades\Filament;
-use Filament\Models\Contracts\HasAvatar;
-use Illuminate\Notifications\Notifiable;
 use Filament\Models\Contracts\FilamentUser;
+use Filament\Models\Contracts\HasAvatar;
+use Filament\Models\Contracts\HasName;
 use Filament\Models\Contracts\HasTenants;
-use Laravel\Fortify\TwoFactorAuthenticatable;
+use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
+use Laravel\Fortify\TwoFactorAuthenticatable;
+use Laravel\Jetstream\HasProfilePhoto;
+use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable implements FilamentUser, HasAvatar, HasTenants, HasName
@@ -92,6 +91,29 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasTenant
         'phone_verified' => 'boolean',
         'active'         => 'boolean',
     ];
+
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($user) {
+            Log::info('Creating user with data:', $user->toArray());
+        });
+
+        static::created(function ($user) {
+            Log::info('User created:', $user->toArray());
+        });
+    }
+
+    // Check if there's any mutator like this:
+    public function setFirstNameAttribute($value)
+    {
+        Log::info('Setting first_name attribute:', ['value' => $value]);
+        $this->attributes['first_name'] = $value;
+    }
+
+
 
     // public function getFilamentName(): string
     // {

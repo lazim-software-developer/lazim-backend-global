@@ -108,7 +108,7 @@ class UserResource extends Resource
                     //     ->nullable(),
                     Toggle::make('active')
                         // ->rules(['boolean'])
-                        // ->default(true)
+                        ->default(true)
                         ->nullable(),
 
                 ]),
