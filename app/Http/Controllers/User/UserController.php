@@ -27,7 +27,13 @@ class UserController extends Controller
         else{
             $flats = $user->residences;
         }
-        return  UserFlatResource::collection($flats);
+
+        if ($flats->isEmpty()) {
+            // Handle the case where there are no flats
+            return response()->json(['message' => 'No flats available'], 401);
+        } else {
+            return UserFlatResource::collection($flats);
+        }
     }
 
     // List all flats for the logged in user
