@@ -4,7 +4,6 @@ namespace App\Filament\Resources\PropertyManagerResource\RelationManagers;
 
 use App\Imports\BuildingImport;
 use App\Models\Building\Building;
-use App\Models\Master\Role;
 use App\Models\OwnerAssociation;
 use App\Models\User\User;
 use Carbon\Carbon;
@@ -42,8 +41,11 @@ class BuildingRelationManager extends RelationManager
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('name')->label('Building Name')->searchable(),
-                Tables\Columns\TextColumn::make('from')->label('From')->searchable(),
+                Tables\Columns\TextColumn::make('name')->label('Building Name')
+                    ->default('NA')->searchable(),
+                Tables\Columns\TextColumn::make('from')->label('From')
+                    ->default('NA')->searchable(),
+                Tables\Columns\TextColumn::make('to')->searchable(),
             ])
             ->headerActions([
                 Action::make('Attach Building')
@@ -80,23 +82,23 @@ class BuildingRelationManager extends RelationManager
                                             TextInput::make('name')
                                                 ->rules(['max:50', 'string'])
                                                 ->required()
-                                                ->disabled(function () {
-                                                    return auth()->user()->role->name !== 'Admin';
-                                                })
                                                 ->placeholder('Name'),
 
                                             TextInput::make('property_group_id')
                                                 ->rules(['max:50', 'string'])
                                                 ->required()
-                                                ->disabled(function () {
-                                                    return auth()->user()->role->name !== 'Admin';
-                                                })
                                                 ->placeholder('Property Group Id')
                                                 ->unique(
                                                     'buildings',
                                                     'property_group_id',
                                                     fn(?Model $record) => $record,
                                                 ),
+
+                                            Select::make('building_type')
+                                                ->options([
+                                                    'commercial'  => 'Commercial',
+                                                    'residential' => 'Residential',
+                                                ]),
 
                                             TextInput::make('address_line1')
                                                 ->rules(['max:500', 'string'])
@@ -152,6 +154,13 @@ class BuildingRelationManager extends RelationManager
                                                 ->placeholder('Floors')
                                                 ->label('Floor'),
 
+                                            TextInput::make('parking_count')
+                                                ->numeric()
+                                                ->minValue(1)
+                                                ->maxValue(999)
+                                                ->placeholder('Parking Count')
+                                                ->label('Parking Count'),
+
                                             Toggle::make('allow_postupload')
                                                 ->rules(['boolean'])
                                                 ->label('Allow post-upload'),
@@ -173,6 +182,8 @@ class BuildingRelationManager extends RelationManager
                                     'area'                  => $data['area'],
                                     'description'           => $data['description'],
                                     'floors'                => $data['floors'],
+                                    'parking_count'         => $data['parking_count'],
+                                    'building_type'         => $data['building_type'],
                                     'allow_postupload'      => $data['allow_postupload'],
                                     'show_inhouse_services' => $data['show_inhouse_services'],
                                     'lat'                   => $data['lat'] ?? null,
@@ -213,6 +224,8 @@ class BuildingRelationManager extends RelationManager
                                 'area'                  => $data['area'] ?? '',
                                 'description'           => $data['description'] ?? '',
                                 'floors'                => $data['floors'] ?? null,
+                                'parking_count'         => $data['parking_count'] ?? null,
+                                'building_type'         => $data['building_type'] ?? null,
                                 'allow_postupload'      => $data['allow_postupload'] ?? false,
                                 'show_inhouse_services' => $data['show_inhouse_services'] ?? false,
                                 'lat'                   => $data['lat'] ?? null,
@@ -259,9 +272,14 @@ class BuildingRelationManager extends RelationManager
                             ->modifyQueryUsing(fn(Builder $query) => $query->where('id', 0))
                             ->withColumns([
                                 Column::make('name'),
+                                Column::make('building_type'),
                                 Column::make('property_group_id'),
                                 Column::make('address_line1'),
                                 Column::make('area'),
+                                Column::make('floors'),
+                                Column::make('parking_count'),
+                                Column::make('from'),
+                                Column::make('to'),
                             ]),
                     ])
                     ->label('Download sample format file'),

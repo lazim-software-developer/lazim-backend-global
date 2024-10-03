@@ -90,10 +90,12 @@ class FlatResource extends Resource
                         ->placeholder('NA')
                         ->numeric(),
                     TextInput::make('applicable_area')
+                        ->hidden((auth()->user()->role->name !== 'Property Manager'))
                         ->placeholder('NA')
                         ->numeric(),
                     TextInput::make('virtual_account_number')
                         ->placeholder('NA')
+                        ->hidden((auth()->user()->role->name !== 'Property Manager'))
                         ->numeric(),
                     TextInput::make('parking_count')
                         ->placeholder('NA')

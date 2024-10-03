@@ -3,6 +3,7 @@
 namespace App\Imports;
 
 use App\Models\Building\Building;
+use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
@@ -17,13 +18,39 @@ class BuildingImport implements ToCollection, WithHeadingRow
         //
     }
 
+    private function convertExcelDate($excelDate)
+    {
+        if (!$excelDate) {
+            return null;
+        }
+
+        // Check if it's already a valid date string
+        if (strtotime($excelDate) !== false) {
+            return date('Y-m-d', strtotime($excelDate));
+        }
+
+        // Handle Excel number date format
+        if (is_numeric($excelDate)) {
+            try {
+                // Excel dates are number of days since 1900-01-01 (or 1904-01-01)
+                // PHP function assumes 1900 as base year
+                return Carbon::instance(\PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($excelDate))
+                    ->format('Y-m-d');
+            } catch (\Exception $e) {
+                return null;
+            }
+        }
+
+        return null;
+    }
+
     /**
     * @param Collection $collection
     */
     public function collection(Collection $rows)
     {
         // Define the expected headings
-        $expectedHeadings = ['name', 'property_group_id', 'address_line1', 'area'];
+        $expectedHeadings = ['name', 'building_type', 'property_group_id', 'address_line1', 'area', 'floors', 'parking_count', 'from', 'to'];
 
         if ($rows->first() == null) {
             Notification::make()
@@ -63,11 +90,20 @@ class BuildingImport implements ToCollection, WithHeadingRow
             if ($exists) {
                 $notImported[] = $row['name'];
             } else {
+                $fromDate = $this->convertExcelDate($row['from']);
+                $toDate   = $this->convertExcelDate($row['to']);
+
+
                 $building = Building::create([
                     'name' => $row['name'],
+                    'building_type' => $row['building_type'],
                     'property_group_id' => $row['property_group_id'],
                     'address_line1' => $row['address_line1'],
                     'area' => $row['area'],
+                    'floors' => $row['floors'],
+                    'parking_count' => $row['parking_count'],
+                    'from' => $fromDate ?: null,
+                    'to' => $toDate ?: null,
                     'owner_association_id' => $this->oaId,
                     'show_inhouse_services' => 0,
                     'managed_by' => 'Property Manager',
@@ -76,8 +112,8 @@ class BuildingImport implements ToCollection, WithHeadingRow
                 // Sync the relationship with OwnerAssociation with pivot data
                 $building->ownerAssociations()->sync([
                     $this->oaId => [
-                        'from' => now(),
-                        'to'   => null, // or set an appropriate date
+                        'from' => $fromDate ?: null,
+                        'to' => $toDate ?: null,
                         'active' => true,
                     ],
                 ]);

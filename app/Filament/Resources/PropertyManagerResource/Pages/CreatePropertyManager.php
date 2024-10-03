@@ -28,6 +28,8 @@ class CreatePropertyManager extends CreateRecord
         $data['verified_by'] = auth()->user()->id;
         $data['verified']    = 1;
         $data['role']        = 'Property Manager';
+        $data['active']      = true;
+
         return $data;
     }
 

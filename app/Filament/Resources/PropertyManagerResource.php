@@ -212,13 +212,13 @@ class PropertyManagerResource extends Resource
 
     public static function getRelations(): array
     {
-        if (auth()->user()?->role?->name === 'Admin') {
+        // if (auth()->user()?->role?->name === 'Admin') {
             return [
                 BuildingRelationManager::class,
                 FlatsRelationManager::class,
             ];
-        }
-        return [];
+        // }
+        // return [];
     }
 
     public static function getPages(): array

@@ -105,13 +105,6 @@ class AppPanelProvider extends PanelProvider
                 $builder->groups([
                     NavigationGroup::make('Master')
                         ->items([
-
-                            NavigationItem::make('Facility Managers')
-                                ->url('/app/facility-managers')
-                                // ->hidden(!$user->can('view_any_mollak::tenant'))
-                                ->icon('heroicon-o-user')
-                                ->activeIcon('heroicon-o-user')
-                                ->sort(1),
                             NavigationItem::make('Tenants')
                                 ->url('/app/mollak-tenants')
                                 ->hidden(!$user->can('view_any_mollak::tenant'))
@@ -237,6 +230,14 @@ class AppPanelProvider extends PanelProvider
                                 ->icon('heroicon-o-building-office')
                                 ->activeIcon('heroicon-o-building-office')
                                 ->sort(1),
+                            NavigationItem::make('Facility Managers')
+                                ->url('/app/facility-managers')
+                                // ->hidden(!$user->can('view_any_mollak::tenant'))
+                                ->icon('heroicon-o-user')
+                                ->activeIcon('heroicon-o-user')
+                                ->sort(1),
+
+
                         ]),
                 ]);
             }
