@@ -13,6 +13,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 
 class FacilityManagerResource extends Resource
@@ -119,7 +120,14 @@ class FacilityManagerResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('name')->label('Company Name')->searchable(),
                 Tables\Columns\TextColumn::make('user.email')->label('Company Email')->searchable(),
-                Tables\Columns\TextColumn::make('status')->label('Approval Status')->searchable(),
+                Tables\Columns\TextColumn::make('status')
+                    ->badge()
+                    ->default('NA')
+                    ->color(fn(string $state): string => match ($state) {
+                        'NA'                              => 'gray',
+                        'approved'                        => 'success',
+                        'rejected'                        => 'danger',
+                    }),
 
                 // Tables\Columns\TextColumn::make('user.phone')->searchable(),
                 // Tables\Columns\TextColumn::make('tl_number')->label('Trade License Number')->searchable(),
@@ -127,7 +135,11 @@ class FacilityManagerResource extends Resource
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
-                //
+                SelectFilter::make('status')
+                    ->options([
+                        'approved' => 'Approved',
+                        'rejected' => 'Rejected',
+                    ]),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
