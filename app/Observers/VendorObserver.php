@@ -32,7 +32,7 @@ class VendorObserver
             ->actions([
                 Action::make('view')
                     ->button()
-                    ->url(function($vendor){
+                    ->url(function() use ($vendor){
                         $slug = OwnerAssociation::where('id',$vendor->owner_association_id)->first()?->slug;
                         if($slug){
                             return VendorResource::getUrl('edit', [$slug,$vendor->id]);
