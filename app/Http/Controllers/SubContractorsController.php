@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\SubContractorsRequest;
 use App\Http\Resources\SubContractorsResource;
+use App\Jobs\SendSubcontractorCreatedMailJob;
 use App\Models\SubContractor;
 use App\Models\Vendor\Vendor;
 use Illuminate\Http\Request;
@@ -28,6 +29,8 @@ class SubContractorsController extends Controller
             'contract_paper'   => optimizeDocumentAndUpload($request->contract_paper),
             'agreement_letter' => optimizeDocumentAndUpload($request->agreement_letter),
         ]);
+
+        SendSubcontractorCreatedMailJob::dispatch($subContract);
 
         return SubContractorsResource::make($subContract);
     }
