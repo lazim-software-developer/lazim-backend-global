@@ -32,7 +32,7 @@ class FacilityManagerResource extends Resource
                 Section::make('Facility Manager Registration')
                     ->schema([
                         Select::make('owner_association_id')
-                            ->label('Select OA')
+                            ->label('Select Property Manager')
                             ->relationship('ownerAssociation', 'name')
                             ->default(auth()->user()->ownerAssociation[0]->id)
                             ->required(),
