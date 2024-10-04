@@ -37,7 +37,7 @@ class VendorObserver
                         if($slug){
                             return VendorResource::getUrl('edit', [$slug,$vendor->id]);
                         }
-                        return url('/app/vendor/vendors' . $vendor->id.'edit');
+                        return url('/app/vendor/vendors/' . $vendor->id.'/edit');
                     }),
             ])
             ->sendToDatabase($notifyTo);
