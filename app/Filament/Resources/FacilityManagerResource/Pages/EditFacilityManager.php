@@ -24,28 +24,32 @@ class EditFacilityManager extends EditRecord
 
     protected function mutateFormDataBeforeFill(array $data): array
     {
-        $vendor = $this->record;
-        $user = $vendor->user;
-        $manager = $vendor->managers->first();
-        $riskPolicy = $vendor ? $vendor->documents()->where('name', 'risk_policy')->first() : null;
+        $vendor     = $this->record;
+        $user       = $vendor->user;
+        $manager    = $vendor->managers->first();
+        $riskPolicy = $vendor->documents()
+            ->where('name', 'risk_policy')
+            ->first();
 
+        // dd($vendor->documents()->where('name', 'risk_policy'));
 
         return [
             'owner_association_id' => $vendor->owner_association_id,
-            'name' => $vendor->name,
-            'user' => [
+            'name'                 => $vendor->name,
+            'user'                 => [
                 'email' => $user->email ?? '',
                 'phone' => $user->phone ?? '',
             ],
-            'address_line_1' => $vendor->address_line_1 ?? '',
-            'landline_number' => $vendor->landline_number ?? '',
-            'website' => $vendor->website ?? '',
-            'fax' => $vendor->fax ?? '',
-            'tl_number' => $vendor->tl_number ?? '',
-            'tl_expiry' => $vendor->tl_expiry,
-            'risk_policy_expiry' => $riskPolicy->expiry_date ?? null,
-            'managers' => [[
-                'name' => $manager->name ?? '',
+            'address_line_1'       => $vendor->address_line_1 ?? '',
+            'landline_number'      => $vendor->landline_number ?? '',
+            'website'              => $vendor->website ?? '',
+            'fax'                  => $vendor->fax ?? '',
+            'tl_number'            => $vendor->tl_number ?? '',
+            'tl_expiry'            => $vendor->tl_expiry,
+            'risk_policy_expiry'   => $riskPolicy ? $riskPolicy->expiry_date : null,
+            'status'               => $vendor->status ?? null,
+            'managers'             => [[
+                'name'  => $manager->name ?? '',
                 'email' => $manager->email ?? '',
                 'phone' => $manager->phone ?? '',
             ]],
@@ -57,20 +61,20 @@ class EditFacilityManager extends EditRecord
         return DB::transaction(function () use ($record, $data) {
             // Update Vendor
             $record->update([
-                'name' => $data['name'],
+                'name'                 => $data['name'],
                 'owner_association_id' => $data['owner_association_id'],
-                'address_line_1' => $data['address_line_1'],
-                'landline_number' => $data['landline_number'] ?? null,
-                'website' => $data['website'] ?? null,
-                'fax' => $data['fax'] ?? null,
-                'tl_number' => $data['tl_number'],
-                'tl_expiry' => $data['tl_expiry'],
+                'address_line_1'       => $data['address_line_1'],
+                'landline_number'      => $data['landline_number'] ?? null,
+                'website'              => $data['website'] ?? null,
+                'fax'                  => $data['fax'] ?? null,
+                'tl_number'            => $data['tl_number'],
+                'tl_expiry'            => $data['tl_expiry'],
             ]);
 
             // Update related User
             if ($record->user) {
                 $record->user->update([
-                    'first_name' => $data['name'],
+                    'first_name'           => $data['name'],
                     'owner_association_id' => $data['owner_association_id'],
                 ]);
             }
@@ -79,15 +83,15 @@ class EditFacilityManager extends EditRecord
             if (isset($data['risk_policy_expiry'])) {
                 Document::updateOrCreate(
                     [
-                        'documentable_id' => $record->id,
+                        'documentable_id'   => $record->id,
                         'documentable_type' => Vendor::class,
-                        'name' => 'risk_policy',
+                        'name'              => 'risk_policy',
                     ],
                     [
-                        'document_library_id' => DocumentLibrary::where('name', 'Risk policy')->first()->id,
+                        'document_library_id'  => DocumentLibrary::where('name', 'Risk policy')->first()->id,
                         'owner_association_id' => $data['owner_association_id'],
-                        'status' => 'pending',
-                        'expiry_date' => $data['risk_policy_expiry'],
+                        'status'               => 'pending',
+                        'expiry_date'          => $data['risk_policy_expiry'],
                     ]
                 );
             }
@@ -97,7 +101,7 @@ class EditFacilityManager extends EditRecord
                 $record->managers()->updateOrCreate(
                     [],
                     [
-                        'name' => $data['managers'][0]['name'],
+                        'name'  => $data['managers'][0]['name'],
                         'email' => $data['managers'][0]['email'],
                         'phone' => $data['managers'][0]['phone'] ?? null,
                     ]
