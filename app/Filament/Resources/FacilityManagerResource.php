@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\BuildingsRelationManagerResource\RelationManagers\BuildingsRelationManager;
 use App\Filament\Resources\FacilityManagerResource\Pages;
+use App\Jobs\FacilityManagerJob;
 use App\Models\User\User;
 use App\Models\Vendor\Vendor;
 use Filament\Forms\Components\DatePicker;
@@ -16,6 +17,7 @@ use Filament\Tables;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Str;
 
 class FacilityManagerResource extends Resource
 {
@@ -92,10 +94,20 @@ class FacilityManagerResource extends Resource
                             ->required(),
                         Select::make('status')
                             ->visibleOn('edit')
+                            ->afterStateUpdated(function ($state, $livewire) {
+                                if ($state === 'approved') {
+                                    $user = $livewire->record;
+
+                                    $password = Str::random(12);
+
+                                    FacilityManagerJob::dispatch($user, $password);
+                                }
+                            })
                             ->options([
                                 'approved' => 'Approved',
                                 'rejected' => 'Rejected',
                             ]),
+
                     ]),
 
                 Section::make('Manager Details')
@@ -172,11 +184,4 @@ class FacilityManagerResource extends Resource
             'edit'   => Pages\EditFacilityManager::route('/{record}/edit'),
         ];
     }
-
-    // public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
-    // {
-    //     return parent::getEloquentQuery()->whereHas('user.roles', function ($query) {
-    //         $query->where('name', 'Facility Manager');
-    //     });
-    // }
 }
