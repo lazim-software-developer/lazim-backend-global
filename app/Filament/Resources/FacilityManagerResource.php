@@ -29,7 +29,7 @@ class FacilityManagerResource extends Resource
     {
         return $form
             ->schema([
-                Section::make('Vendor Registration')
+                Section::make('Facility Manager Registration')
                     ->schema([
                         Select::make('owner_association_id')
                             ->label('Select OA')
