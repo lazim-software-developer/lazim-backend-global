@@ -125,6 +125,7 @@ class FacilityManagerResource extends Resource
                 // Tables\Columns\TextColumn::make('tl_number')->label('Trade License Number')->searchable(),
                 // Tables\Columns\TextColumn::make('tl_expiry')->label('Trade License Expiry')->date(),
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])
