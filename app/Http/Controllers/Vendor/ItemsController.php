@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Vendor;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ItemCreateRequest;
 use App\Http\Requests\Vendor\ItemManagmentRequest;
 use App\Http\Resources\CustomResponseResource;
 use App\Http\Resources\Vendor\ItemsResource;
@@ -58,4 +59,8 @@ class ItemsController extends Controller
     public function viewItem(Item $item){
         return new ItemsResource($item);
      }
+    public function create(Vendor $vendor,ItemCreateRequest $request)
+    {
+        Item::create($request->only(['name','quantity']));
+    }
 }

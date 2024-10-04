@@ -1,39 +1,72 @@
-<!DOCTYPE html>
-<html lang="en">
+@extends('beautymail::templates.minty')
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Welcome to Lazim</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
-        }
+@section('content')
 
-        .container {
-            width: 100%;
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-    </style>
-</head>
+@include('beautymail::templates.minty.contentStart')
+<tr>
+    <td class="paragraph">
+        Dear {{$subContractor->name}},
+    </td>
+</tr>
+<tr>
+    <td width="100%" height="20"></td>
+</tr>
+<tr>
+    <td class="paragraph">
+        We are pleased to inform you that your account has been successfully created by your vendor. Below are the details of your account:
+    </td>
+</tr>
+<tr>
+    <td width="100%" height="25"></td>
+</tr>
+<tr>
+    <td class="paragraph">
+        <strong>Company: </strong> {{$subContractor->company_name}}
+    </td>
+</tr>
 
-<body>
-    <div class="container">
-        <p>Your Account has been created with the following details:</p>
-        <ul>
-            <li>Name: {{ $subContractor->name }}</li>
-            <li>Email: {{ $subContractor->email }}</li>
-            <li>Phone: {{ $subContractor->phone }}</li>
-            <li>Company: {{ $subContractor->company_name }}</li>
-            <li>Service Provided: {{ $subContractor->service_provided }}</li>
-            <li>Start Date: {{ \Carbon\Carbon::parse($subContractor->start_date)->format('m-d-Y') }}</li>
-            <li>End Date: {{ \Carbon\Carbon::parse($subContractor->end_date)->format('m-d-Y') }}</li>
-        </ul>
-    </div>
-</body>
+<tr>
+    <td class="paragraph">
+        <strong>Service Provided: </strong> {{$subContractor->service_provided}}
+    </td>
+</tr>
+<tr>
+    <td class="paragraph">
+        <strong>Start Date: </strong> {{ \Carbon\Carbon::parse($subContractor->start_date)->format('m-d-Y') }}
+    </td>
+</tr>
+<tr>
+    <td class="paragraph">
+        <strong>End Date: </strong> {{ \Carbon\Carbon::parse($subContractor->end_date)->format('m-d-Y') }}
+    </td>
+</tr>
+<tr>
+    <td width="100%" height="25"></td>
+</tr>
+<tr>
+    <td class="paragraph">
+        If you have any questions or require further assistance, please feel free to reach out.
+    </td>
+</tr>
+<tr>
+    <td width="100%" height="25"></td>
+</tr>
+<tr>
+    <td class="paragraph">
+        Best regards,
+    </td>
+</tr>
+<tr>
+    <td width="100%" height="5"></td>
+</tr>
+<tr>
+    <td class="paragraph">
+        The Lazim Team
+    </td>
+</tr>
+<tr>
+    <td width="100%" height="25"></td>
+</tr>
+@include('beautymail::templates.minty.contentEnd')
 
-</html>
+@stop

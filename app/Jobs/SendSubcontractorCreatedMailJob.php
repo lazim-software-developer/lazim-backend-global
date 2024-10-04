@@ -30,7 +30,7 @@ class SendSubcontractorCreatedMailJob implements ShouldQueue
         $beautymail->send('emails.subContractorCreated', ['subContractor' => $this->subContractor], function ($message) {
             $message
                 ->to($this->subContractor->email, $this->subContractor->name)
-                ->subject('Welcome to Lazim!');
+                ->subject('Successful Account Creation for Subcontractor');
         });
 
     }
