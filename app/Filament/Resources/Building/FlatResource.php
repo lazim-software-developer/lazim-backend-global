@@ -90,12 +90,12 @@ class FlatResource extends Resource
                         ->placeholder('NA')
                         ->numeric(),
                     TextInput::make('applicable_area')
-                        ->hidden((auth()->user()->role->name !== 'Property Manager'))
+                        ->hidden(in_array(auth()->user()->role->name, ['Property Manager', 'Admin']))
                         ->placeholder('NA')
                         ->numeric(),
                     TextInput::make('virtual_account_number')
                         ->placeholder('NA')
-                        ->hidden((auth()->user()->role->name !== 'Property Manager'))
+                        ->hidden(in_array(auth()->user()->role->name, ['Property Manager', 'Admin']))
                         ->numeric(),
                     TextInput::make('parking_count')
                         ->placeholder('NA')
@@ -170,6 +170,7 @@ class FlatResource extends Resource
                 TextColumn::make('virtual_account_number')
                     ->default('NA')
                     ->searchable()
+                    ->visible(!in_array(auth()->user()->role->name, ['Property Manager', 'Admin']))
                     ->limit(50),
                 TextColumn::make('parking_count')
                     ->default('NA')
