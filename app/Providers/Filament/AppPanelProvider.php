@@ -234,7 +234,7 @@ class AppPanelProvider extends PanelProvider
                                 ->sort(1),
                             NavigationItem::make('Facility Managers')
                                 ->url('/app/facility-managers')
-                                // ->hidden(!$user->can('view_any_mollak::tenant'))
+                                ->hidden(auth()->user()->role->name !== 'Property Manager')
                                 ->icon('heroicon-o-user')
                                 ->activeIcon('heroicon-o-user')
                                 ->sort(1),

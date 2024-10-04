@@ -90,6 +90,7 @@ class FlatsRelationManager extends RelationManager
                             ->numeric(),
                         TextInput::make('virtual_account_number')
                             ->placeholder('NA')
+                            ->hidden(in_array(auth()->user()->role->name, ['Property Manager', 'Admin']))
                             ->numeric(),
                         TextInput::make('parking_count')
                             ->placeholder('NA')
@@ -165,6 +166,7 @@ class FlatsRelationManager extends RelationManager
                 TextColumn::make('virtual_account_number')
                     ->default('NA')
                     ->searchable()
+                    ->visible(!in_array(auth()->user()->role->name, ['Property Manager', 'Admin']))
                     ->limit(50),
                 TextColumn::make('parking_count')
                     ->default('NA')

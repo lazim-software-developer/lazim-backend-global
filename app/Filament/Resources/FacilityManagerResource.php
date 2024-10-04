@@ -13,7 +13,9 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class FacilityManagerResource extends Resource
 {
@@ -27,11 +29,12 @@ class FacilityManagerResource extends Resource
     {
         return $form
             ->schema([
-                Section::make('Vendor Registration')
+                Section::make('Facility Manager Registration')
                     ->schema([
                         Select::make('owner_association_id')
-                            ->label('Select OA')
+                            ->label('Select Property Manager')
                             ->relationship('ownerAssociation', 'name')
+                            ->default(auth()->user()->ownerAssociation[0]->id)
                             ->required(),
                         TextInput::make('name')
                             ->label('Company Name')
@@ -42,14 +45,22 @@ class FacilityManagerResource extends Resource
                             ->email()
                             ->rules(['required', 'email', 'min:6', 'max:30',
                                 'regex:/^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/'])
-                            ->unique(User::class, 'email', ignoreRecord: true)
+                            ->unique(
+                                table: User::class,
+                                column: 'email',
+                                ignorable: fn($record) => $record?->user
+                            )
                             ->disabledOn('edit'),
                         TextInput::make('user.phone')
                             ->label('Phone Number')
                             ->required()
                             ->tel()
                             ->rules(['required', 'regex:/^(50|51|52|55|56|58|02|03|04|06|07|09)\d{7}$/'])
-                            ->unique(User::class, 'phone', ignoreRecord: true)
+                            ->unique(
+                                table: User::class,
+                                column: 'phone',
+                                ignorable: fn($record) => $record?->user
+                            )
                             ->disabledOn('edit')
                             ->prefix('971'),
                     ]),
@@ -79,6 +90,12 @@ class FacilityManagerResource extends Resource
                         DatePicker::make('risk_policy_expiry')
                             ->label('Risk Policy Expiry Date')
                             ->required(),
+                        Select::make('status')
+                            ->visibleOn('edit')
+                            ->options([
+                                'approved' => 'Approved',
+                                'rejected' => 'Rejected',
+                            ]),
                     ]),
 
                 Section::make('Manager Details')
@@ -102,15 +119,33 @@ class FacilityManagerResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(function (Builder $query) {
+                $query->where('owner_association_id', auth()->user()->ownerAssociation[0]->id);
+                // dd(Vendor::where('owner_association_id', auth()->user()->id)->pluck('name'));
+            })
             ->columns([
                 Tables\Columns\TextColumn::make('name')->label('Company Name')->searchable(),
-                Tables\Columns\TextColumn::make('user.email')->searchable(),
-                Tables\Columns\TextColumn::make('user.phone')->searchable(),
-                Tables\Columns\TextColumn::make('tl_number')->label('Trade License Number')->searchable(),
-                Tables\Columns\TextColumn::make('tl_expiry')->label('Trade License Expiry')->date(),
+                Tables\Columns\TextColumn::make('user.email')->label('Company Email')->searchable(),
+                Tables\Columns\TextColumn::make('status')
+                    ->badge()
+                    ->default('NA')
+                    ->color(fn(string $state): string => match ($state) {
+                        'NA'                              => 'gray',
+                        'approved'                        => 'success',
+                        'rejected'                        => 'danger',
+                    }),
+
+                // Tables\Columns\TextColumn::make('user.phone')->searchable(),
+                // Tables\Columns\TextColumn::make('tl_number')->label('Trade License Number')->searchable(),
+                // Tables\Columns\TextColumn::make('tl_expiry')->label('Trade License Expiry')->date(),
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
-                //
+                SelectFilter::make('status')
+                    ->options([
+                        'approved' => 'Approved',
+                        'rejected' => 'Rejected',
+                    ]),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
@@ -125,7 +160,7 @@ class FacilityManagerResource extends Resource
     public static function getRelations(): array
     {
         return [
-            BuildingsRelationManager::class
+            BuildingsRelationManager::class,
         ];
     }
 
@@ -138,10 +173,10 @@ class FacilityManagerResource extends Resource
         ];
     }
 
-    public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
-    {
-        return parent::getEloquentQuery()->whereHas('user.roles', function ($query) {
-            $query->where('name', 'Facility Manager');
-        });
-    }
+    // public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
+    // {
+    //     return parent::getEloquentQuery()->whereHas('user.roles', function ($query) {
+    //         $query->where('name', 'Facility Manager');
+    //     });
+    // }
 }

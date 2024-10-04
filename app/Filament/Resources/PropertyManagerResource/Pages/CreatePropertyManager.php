@@ -67,8 +67,6 @@ class CreatePropertyManager extends CreateRecord
         $pmId = $this->record->id;
 
         $user         = User::find($this->record->id);
-        $user->active = true;
-        $user->save();
 
         $roles = [
             // ['name' => 'Owner', 'owner_association_id' => $pmId, 'guard_name' => 'web'],
