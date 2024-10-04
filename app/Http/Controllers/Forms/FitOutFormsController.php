@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\ContractorFormRequest;
 use App\Http\Requests\Forms\CreateFitOutFormsRequest;
 use App\Http\Resources\CustomResponseResource;
+use App\Http\Resources\FitOutFormResource;
 use App\Jobs\FitOutContractorMailJob;
 use App\Models\AccountCredentials;
 use App\Models\Building\Building;
@@ -17,11 +18,13 @@ use App\Models\Master\DocumentLibrary;
 use App\Models\Master\Role;
 use App\Models\OwnerAssociation;
 use App\Models\User\User;
+use App\Models\Vendor\Vendor;
 use App\Traits\UtilsTrait;
 use Filament\Facades\Filament;
 use Filament\Notifications\Actions\Action;
 use Filament\Notifications\Notification;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 class FitOutFormsController extends Controller
@@ -157,5 +160,28 @@ class FitOutFormsController extends Controller
         }
 
         return response()->noContent();
+    }
+     public function fmlist(Vendor $vendor,Request $request)
+    {
+        $ownerAssociationIds = DB::table('owner_association_vendor')
+            ->where('vendor_id',$vendor->id)->pluck('owner_association_id');
+
+        $buildingIds = DB::table('building_owner_association')
+                ->whereIn('owner_association_id',$ownerAssociationIds)->pluck('building_id');
+
+        $fitOut = FitOutForm::whereIn('building_id',$buildingIds);
+
+        return FitOutFormResource::collection($fitOut->paginate(10));
+
+    }
+     public function updateStatus(Vendor $vendor, FitOutForm $fitOutForm, Request $request)
+    {
+        $request->validate([
+            'status' => 'required|in:approved,rejected',
+            'remarks' => 'required_if:status,rejected|max:150',
+        ]);
+        
+        $data = $request->only(['status','remarks']);
+        $fitOutForm->update($data);
     }
 }

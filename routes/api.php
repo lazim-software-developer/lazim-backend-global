@@ -3,6 +3,7 @@
 use App\Http\Controllers\AppController;
 use App\Http\Controllers\Assets\PPMController;
 use App\Http\Controllers\Community\CommunityController;
+use App\Http\Controllers\FlatVisitorController;
 use App\Http\Controllers\MollakController;
 use App\Http\Controllers\Technician\TechnicianController;
 use App\Http\Controllers\TestController;
@@ -479,6 +480,22 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('vendor')->group(function 
 
     //Complaint create
     Route::post('/{vendor}/complaint',[VendorComplaintController::class,'create']);
+
+    //Form Requests
+    Route::get('/{vendor}/guest-registration',[GuestController::class,'fmlist']);
+    Route::patch('/{vendor}/guest-registration/{guest}',[GuestController::class,'updateStatus']);
+    Route::get('/{vendor}/move-in-out',[MoveInOutController::class,'fmlist']);
+    Route::patch('/{vendor}/move-in-out/{moveInOut}',[MoveInOutController::class,'updateStatus']);
+    Route::get('/{vendor}/fit-out',[FitOutFormsController::class,'fmlist']);
+    Route::patch('/{vendor}/fit-out/{fitOutForm}',[FitOutFormsController::class,'updateStatus']);
+    Route::get('/{vendor}/residential-form',[ResidentialFormController::class,'fmlist']);
+    Route::patch('/{vendor}/residential-form/{residentialForm}',[ResidentialFormController::class,'updateStatus']);
+    Route::get('/{vendor}/accesscard-form',[AccessCardController::class,'fmlist']);
+    Route::patch('/{vendor}/accesscard-form/{accessCard}',[AccessCardController::class,'updateStatus']);
+    Route::get('/{vendor}/salenoc-form',[SaleNocController::class,'fmlist']);
+    Route::patch('/{vendor}/salenoc-form/{saleNOC}',[SaleNocController::class,'updateStatus']);
+    Route::get('/{vendor}/flatvisitor-form',[FlatVisitorController::class,'index']);
+    Route::patch('/{vendor}/flatvisitor-form/{flatVisitor}',[FlatVisitorController::class,'updateStatus']);
 });
 
 // Technician Related APIs

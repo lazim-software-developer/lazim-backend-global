@@ -12,8 +12,8 @@ class SubContractorsController extends Controller
 {
     public function index(Vendor $vendor, Request $request)
     {
-        $subContractors = $vendor->subContractors;
-        return SubContractorsResource::collection($subContractors);
+        $subContractors = $vendor->subContractors();
+        return SubContractorsResource::collection($subContractors->paginate(10));
     }
     public function store(Vendor $vendor, SubContractorsRequest $request)
     {
@@ -50,8 +50,9 @@ class SubContractorsController extends Controller
     {
         if (isset($request->active) && $request->active) {
             $subContract->update(['active'=>1]);
+        }else{
+            $subContract->update(['active'=>0]);
         }
-        $subContract->update(['active'=>0]);
 
         return SubContractorsResource::make($subContract);
     }
