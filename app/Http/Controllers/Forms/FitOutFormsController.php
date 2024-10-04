@@ -174,4 +174,14 @@ class FitOutFormsController extends Controller
         return FitOutFormResource::collection($fitOut->paginate(10));
 
     }
+     public function updateStatus(Vendor $vendor, FitOutForm $fitOutForm, Request $request)
+    {
+        $request->validate([
+            'status' => 'required|in:approved,rejected',
+            'remarks' => 'required_if:status,rejected|max:150',
+        ]);
+        
+        $data = $request->only(['status','remarks']);
+        $fitOutForm->update($data);
+    }
 }

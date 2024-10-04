@@ -8,11 +8,13 @@ use App\Http\Resources\ResidentialFormResource;
 use App\Jobs\Forms\ResidentialFormRequestJob;
 use App\Models\AccountCredentials;
 use App\Models\Building\Building;
+use App\Models\ExpoPushNotification;
 use App\Models\OwnerAssociation;
 use App\Models\ResidentialForm;
 use App\Models\Vendor\Vendor;
 use Filament\Facades\Filament;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
 
 class ResidentialFormController extends Controller
 {
@@ -66,5 +68,89 @@ class ResidentialFormController extends Controller
         $residentForms = ResidentialForm::whereIn('building_id', $buildingIds);
 
         return ResidentialFormResource::collection($residentForms->paginate(10));
+    }
+    public function updateStatus(Vendor $vendor, ResidentialForm $residentialForm, Request $request)
+    {
+        $request->validate([
+            'status' => 'required|in:approved,rejected',
+            'remarks' => 'required_if:status,rejected|max:150',
+        ]);
+        $data = $request->only(['status', 'remarks']);
+        $residentialForm->update($data);
+
+        if ($request->status == 'approved') {
+            $expoPushTokens = ExpoPushNotification::where('user_id', $residentialForm->user_id)->pluck('token');
+            if ($expoPushTokens->count() > 0) {
+                foreach ($expoPushTokens as $expoPushToken) {
+                    $message = [
+                        'to'    => $expoPushToken,
+                        'sound' => 'default',
+                        'title' => 'Residential form status',
+                        'body'  => 'Your residential form has been approved.',
+                        'data'  => ['notificationType' => 'MyRequest'],
+                    ];
+                    $this->expoNotification($message);
+                }
+            }
+            DB::table('notifications')->insert([
+                'id'              => (string) \Ramsey\Uuid\Uuid::uuid4(),
+                'type'            => 'Filament\Notifications\DatabaseNotification',
+                'notifiable_type' => 'App\Models\User\User',
+                'notifiable_id'   => $residentialForm->user_id,
+                'data'            => json_encode([
+                    'actions'   => [],
+                    'body'      => 'Your residential form has been approved.',
+                    'duration'  => 'persistent',
+                    'icon'      => 'heroicon-o-document-text',
+                    'iconColor' => 'warning',
+                    'title'     => 'Residential form status',
+                    'view'      => 'notifications::notification',
+                    'viewData'  => [],
+                    'format'    => 'filament',
+                    'url'       => 'MyRequest',
+                ]),
+                'created_at'      => now()->format('Y-m-d H:i:s'),
+                'updated_at'      => now()->format('Y-m-d H:i:s'),
+            ]);
+        }
+
+        if ($request->status == 'rejected') {
+            $expoPushTokens = ExpoPushNotification::where('user_id', $residentialForm->user_id)->pluck('token');
+            if ($expoPushTokens->count() > 0) {
+                foreach ($expoPushTokens as $expoPushToken) {
+                    $message = [
+                        'to'    => $expoPushToken,
+                        'sound' => 'default',
+                        'title' => 'Residential form status',
+                        'body'  => 'Your residential form has been rejected.',
+                        'data'  => ['notificationType' => 'MyRequest'],
+                    ];
+                    $this->expoNotification($message);
+                }
+            }
+            DB::table('notifications')->insert([
+                'id'              => (string) \Ramsey\Uuid\Uuid::uuid4(),
+                'type'            => 'Filament\Notifications\DatabaseNotification',
+                'notifiable_type' => 'App\Models\User\User',
+                'notifiable_id'   => $residentialForm->user_id,
+                'data'            => json_encode([
+                    'actions'   => [],
+                    'body'      => 'Your residential form has been rejected.',
+                    'duration'  => 'persistent',
+                    'icon'      => 'heroicon-o-document-text',
+                    'iconColor' => 'danger',
+                    'title'     => 'Residential form status',
+                    'view'      => 'notifications::notification',
+                    'viewData'  => [],
+                    'format'    => 'filament',
+                    'url'       => 'MyRequest',
+                ]),
+                'created_at'      => now()->format('Y-m-d H:i:s'),
+                'updated_at'      => now()->format('Y-m-d H:i:s'),
+            ]);
+        }
+
+
+        return ResidentialFormResource::make($residentialForm);
     }
 }

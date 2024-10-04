@@ -10,13 +10,17 @@ use App\Http\Resources\CustomResponseResource;
 use App\Jobs\Forms\AccessCardRequestJob;
 use App\Models\AccountCredentials;
 use App\Models\Building\Building;
+use App\Models\ExpoPushNotification;
 use App\Models\Forms\AccessCard;
 use App\Models\Forms\Guest;
+use App\Models\Order;
 use App\Models\OwnerAssociation;
 use App\Models\Vendor\Vendor;
 use Carbon\Carbon;
 use Filament\Facades\Filament;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class AccessCardController extends Controller
 {
@@ -203,5 +207,111 @@ class AccessCardController extends Controller
         $accessCardForms = AccessCard::whereIn('building_id', $buildingIds);
 
         return AccessCardFormResource::collection($accessCardForms->paginate(10));
+    }
+     public function updateStatus(Vendor $vendor, AccessCard $accessCard, Request $request)
+    {
+        $request->validate([
+            'status' => 'required|in:approved,rejected',
+            'remarks' => 'required_if:status,rejected|max:150',
+        ]);
+        $data = $request->only(['status', 'remarks']);
+        $accessCard->update($data);
+
+        if ($request->status == 'approved') {
+            $expoPushTokens = ExpoPushNotification::where('user_id', $accessCard->user_id)->pluck('token');
+            if ($expoPushTokens->count() > 0) {
+                foreach ($expoPushTokens as $expoPushToken) {
+                    $message = [
+                        'to'    => $expoPushToken,
+                        'sound' => 'default',
+                        'title' => 'Access card form status',
+                        'body'  => 'Your access card form has been approved.',
+                        'data'  => ['notificationType' => 'MyRequest'],
+                    ];
+
+                    $this->expoNotification($message);
+                }
+            }
+
+            DB::table('notifications')->insert([
+                'id'              => (string) \Ramsey\Uuid\Uuid::uuid4(),
+                'type'            => 'Filament\Notifications\DatabaseNotification',
+                'notifiable_type' => 'App\Models\User\User',
+                'notifiable_id'   => $accessCard->user_id,
+                'data'            => json_encode([
+                    'actions'   => [],
+                    'body'      => 'Your access card form has been approved. ',
+                    'duration'  => 'persistent',
+                    'icon'      => 'heroicon-o-document-text',
+                    'iconColor' => 'warning',
+                    'title'     => 'Access card form status',
+                    'view'      => 'notifications::notification',
+                    'viewData'  => [],
+                    'format'    => 'filament',
+                    'url'       => 'MyRequest',
+                ]),
+                'created_at'      => now()->format('Y-m-d H:i:s'),
+                'updated_at'      => now()->format('Y-m-d H:i:s'),
+            ]);
+            // Generate payment link and save it in access_cards_table
+
+            try {
+                $payment = createPaymentIntent(env('ACCESS_CARD_AMOUNT'), 'punithprachi113@gmail.com');
+
+                if ($payment) {
+                    $accessCard->update([
+                        'payment_link' => $payment->client_secret,
+                    ]);
+
+                    // Create an entry in orders table with status pending
+                    Order::create([
+                        'orderable_id'      => $accessCard->id,
+                        'orderable_type'    => AccessCard::class,
+                        'payment_status'    => 'pending',
+                        'amount'            => env('ACCESS_CARD_AMOUNT'),
+                        'payment_intent_id' => $payment->id,
+                    ]);
+                }
+            } catch (\Exception $e) {
+                Log::error($e->getMessage());
+            }
+        }
+        if ($request->status == 'rejected') {
+            $expoPushTokens = ExpoPushNotification::where('user_id', $accessCard->user_id)->pluck('token');
+            if ($expoPushTokens->count() > 0) {
+                foreach ($expoPushTokens as $expoPushToken) {
+                    $message = [
+                        'to'    => $expoPushToken,
+                        'sound' => 'default',
+                        'title' => 'Access card form status!',
+                        'body'  => 'Your access card form has been rejected.',
+                        'data'  => ['notificationType' => 'MyRequest'],
+                    ];
+                    $this->expoNotification($message);
+                }
+            }
+            DB::table('notifications')->insert([
+                'id'              => (string) \Ramsey\Uuid\Uuid::uuid4(),
+                'type'            => 'Filament\Notifications\DatabaseNotification',
+                'notifiable_type' => 'App\Models\User\User',
+                'notifiable_id'   => $accessCard->user_id,
+                'data'            => json_encode([
+                    'actions'   => [],
+                    'body'      => 'Your access card form has been rejected.',
+                    'duration'  => 'persistent',
+                    'icon'      => 'heroicon-o-document-text',
+                    'iconColor' => 'danger',
+                    'title'     => 'Access card form status!',
+                    'view'      => 'notifications::notification',
+                    'viewData'  => [],
+                    'format'    => 'filament',
+                    'url'       => 'MyRequest',
+                ]),
+                'created_at'      => now()->format('Y-m-d H:i:s'),
+                'updated_at'      => now()->format('Y-m-d H:i:s'),
+            ]);
+        }
+
+        return AccessCardFormResource::make($accessCard);
     }
 }

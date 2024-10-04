@@ -25,6 +25,8 @@ class SaleNocResource extends JsonResource
             'signing_authority_phone'  => $this->signing_authority_phone,
             'signing_authority_name'   => $this->signing_authority_name,
             'submit_status'            => $this->submit_status,
+            'status'                   => $this->status,
+            'remarks'                  => $this->remarks,
             'building_id'              => $this->building_id,
             'building_name'            => $this->building->name,
             'flat_id'                  => $this->flat_id,

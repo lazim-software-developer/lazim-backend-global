@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Pages\Auth\AppEditProfile;
 use Filament\Pages;
 use Filament\Panel;
 use Filament\Widgets;
@@ -52,6 +53,7 @@ class AppPanelProvider extends PanelProvider
             ->id('app')
             ->path('app')
             ->login()
+            ->profile(AppEditProfile::class)
             ->colors([
                 'danger' => Color::Rose,
                 'gray' => Color::Gray,
@@ -224,7 +226,7 @@ class AppPanelProvider extends PanelProvider
                 $builder->groups([
                     NavigationGroup::make('Property management')
                         ->items([
-                            NavigationItem::make('Property Manager')
+                            NavigationItem::make('Property Managers')
                                 ->url('/app/property-managers')
                                 ->hidden(!$user->can('view_any_property::manager'))
                                 ->icon('heroicon-o-building-office')
@@ -236,6 +238,14 @@ class AppPanelProvider extends PanelProvider
                                 ->icon('heroicon-o-user')
                                 ->activeIcon('heroicon-o-user')
                                 ->sort(1),
+                            // NavigationItem::make('Facility Managers')
+                            //     ->url('/app/vendors')
+                            //     // ->hidden(!$user->can('view_any_mollak::tenant'))
+                            //     ->icon('heroicon-o-user')
+                            //     ->activeIcon('heroicon-o-user')
+                            //     ->sort(1),
+
+
 
 
                         ]),
