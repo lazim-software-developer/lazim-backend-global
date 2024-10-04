@@ -15,6 +15,7 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class FacilityManagerResource extends Resource
 {
@@ -33,6 +34,7 @@ class FacilityManagerResource extends Resource
                         Select::make('owner_association_id')
                             ->label('Select OA')
                             ->relationship('ownerAssociation', 'name')
+                            ->default(auth()->user()->ownerAssociation[0]->id)
                             ->required(),
                         TextInput::make('name')
                             ->label('Company Name')
@@ -117,6 +119,10 @@ class FacilityManagerResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(function (Builder $query) {
+                $query->where('owner_association_id', auth()->user()->ownerAssociation[0]->id);
+                // dd(Vendor::where('owner_association_id', auth()->user()->id)->pluck('name'));
+            })
             ->columns([
                 Tables\Columns\TextColumn::make('name')->label('Company Name')->searchable(),
                 Tables\Columns\TextColumn::make('user.email')->label('Company Email')->searchable(),

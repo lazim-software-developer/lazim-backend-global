@@ -66,6 +66,7 @@ class BuildingRelationManager extends RelationManager
                                     ->pluck('name', 'id');
                             })
 
+                            ->helperText('Create a Building if it does not exist.')
                             ->searchable()
                             ->required()
                             ->reactive()
