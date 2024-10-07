@@ -11,6 +11,7 @@ use App\Models\Item;
 use App\Models\ItemInventory;
 use App\Models\Vendor\Vendor;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ItemsController extends Controller
 {
@@ -61,6 +62,18 @@ class ItemsController extends Controller
      }
     public function create(Vendor $vendor,ItemCreateRequest $request)
     {
-        Item::create($request->only(['name','quantity']));
+        $data = $request->only(['name','quantity','building_id','description']);
+        $data['owner_association_id'] = DB::table('building_owner_association')->where('building_id',$request->building_id)->first()?->owner_association_id;
+        $item = Item::create($data);
+
+        $vendor->items()->attach($item->id);
+
+        return (new CustomResponseResource([
+            'title' => 'Success',
+            'message' => 'Item created successfully!',
+            'status' => 'success',
+            'code' => 201,
+            'data' => $item,
+        ]))->response()->setStatusCode(200);
     }
 }

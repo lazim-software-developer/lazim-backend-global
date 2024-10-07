@@ -6,6 +6,7 @@ use App\Models\Accounting\Invoice;
 use App\Models\Accounting\WDA;
 use App\Models\Asset;
 use App\Models\BuildingVendor;
+use App\Models\ComplianceDocument;
 use App\Models\OaUserRegistration;
 use App\Models\OwnerAssociation;
 use App\Models\TechnicianVendor;
@@ -154,5 +155,9 @@ class Vendor extends Model
     public function subContractors()
     {
         return $this->hasMany(SubContractor::class);
+    }
+    public function ComplianceDocuments()
+    {
+        return $this->hasMany(ComplianceDocument::class);
     }
 }

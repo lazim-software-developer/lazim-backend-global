@@ -3,6 +3,7 @@
 use App\Http\Controllers\AppController;
 use App\Http\Controllers\Assets\PPMController;
 use App\Http\Controllers\Community\CommunityController;
+use App\Http\Controllers\ComplianceDocumentController;
 use App\Http\Controllers\FlatVisitorController;
 use App\Http\Controllers\MollakController;
 use App\Http\Controllers\Technician\TechnicianController;
@@ -470,7 +471,7 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('vendor')->group(function 
     Route::get('/{vendor}/items', [ItemsController::class, 'index']);
     Route::post('/{item}/item_management', [ItemsController::class,'updateItems']);
     Route::get('/{item}/view-item', [ItemsController::class,'viewItem']);
-    Route::get('/{vendor}/items', [ItemsController::class, 'create']);
+    Route::post('/{vendor}/item', [ItemsController::class, 'create']);
 
     //Sub Contractor APIs
     Route::get('/{vendor}/sub-contractors',[SubContractorsController::class,'index']);
@@ -497,6 +498,11 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('vendor')->group(function 
     Route::patch('/{vendor}/salenoc-form/{saleNOC}',[SaleNocController::class,'updateStatus']);
     Route::get('/{vendor}/flatvisitor-form',[FlatVisitorController::class,'index']);
     Route::patch('/{vendor}/flatvisitor-form/{flatVisitor}',[FlatVisitorController::class,'updateStatus']);
+
+    //Compliance document
+    Route::get('/{vendor}/compliance-document',[ComplianceDocumentController::class,'list']);
+    Route::post('/{vendor}/compliance-document',[ComplianceDocumentController::class,'store']);
+    Route::post('/{vendor}/compliance-document/{complianceDocument}',[ComplianceDocumentController::class,'update']);
 });
 
 // Technician Related APIs
