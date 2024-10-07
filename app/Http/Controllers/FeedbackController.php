@@ -20,9 +20,7 @@ class FeedbackController extends Controller
         if ($emoji === 'happy') {
             return redirect('https://search.google.com/local/writereview?placeid=ChIJ5fyZn9tlXz4RVlp__oiNaCY');
         } elseif ($emoji === 'neutral' || $emoji === 'sad') {
-            if($buildingName == "Suntech Tower"){
-                return redirect('https://forms.gle/LcazWpSizJnCYJ2q9');
-            }
+            return redirect('https://forms.gle/LcazWpSizJnCYJ2q9');
         }
 
         return redirect()->back();
