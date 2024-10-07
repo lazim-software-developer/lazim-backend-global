@@ -5,7 +5,7 @@
 @include('beautymail::templates.minty.contentStart')
 <tr>
     <td class="paragraph">
-        Dear {{$contract->name}},
+        Dear {{$complianceDocument->vendor->name}},
     </td>
 </tr>
 <tr>
@@ -13,7 +13,7 @@
 </tr>
 <tr>
     <td class="paragraph">
-        We are pleased to inform you that your contract is about to get expired. Below are the details:
+        We are pleased to inform you that your complianceDocument is about to get expired. Below are the details:
     </td>
 </tr>
 <tr>
@@ -21,23 +21,12 @@
 </tr>
 <tr>
     <td class="paragraph">
-        <strong>Company: </strong> {{$contract->company_name}}
-    </td>
-</tr>
-
-<tr>
-    <td class="paragraph">
-        <strong>Service Provided: </strong> {{$contract->service_provided}}
+        <strong>Name: </strong> {{$complianceDocument->doc_name}}
     </td>
 </tr>
 <tr>
     <td class="paragraph">
-        <strong>Start Date: </strong> {{ \Carbon\Carbon::parse($contract->start_date)->format('m-d-Y') }}
-    </td>
-</tr>
-<tr>
-    <td class="paragraph">
-        <strong>End Date: </strong> {{ \Carbon\Carbon::parse($contract->end_date)->format('m-d-Y') }}
+        <strong>Expiry Date: </strong> {{ \Carbon\Carbon::parse($complianceDocument->expiry_date)->format('m-d-Y') }}
     </td>
 </tr>
 <tr>
