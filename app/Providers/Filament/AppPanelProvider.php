@@ -65,14 +65,14 @@ class AppPanelProvider extends PanelProvider
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
-            ->pages([
-                Pages\Dashboard::class,
-            ])
-            ->discoverWidgets(in: app_path('Filament/App/Widgets'), for: 'App\\Filament\\App\\Widgets')
-            ->widgets([
-                Widgets\AccountWidget::class,
-                // Widgets\FilamentInfoWidget::class,
-            ])
+            // ->pages([
+            //     Pages\Dashboard::class,
+            // ])
+            // ->discoverWidgets(in: app_path('Filament/App/Widgets'), for: 'App\\Filament\\App\\Widgets')
+            // ->widgets([
+            //     Widgets\AccountWidget::class,
+            //     // Widgets\FilamentInfoWidget::class,
+            // ])
             ->favicon(asset('images/favicon.png'))
             ->darkMode(false)
             ->databaseNotifications()
@@ -80,15 +80,15 @@ class AppPanelProvider extends PanelProvider
             ->sidebarCollapsibleOnDesktop()
             ->navigation(function (NavigationBuilder $builder): NavigationBuilder {
                 // if (DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] != 'Admin') {
-                    $builder->groups([
-                        NavigationGroup::make('Dashboard')
-                            ->items([
-                                NavigationItem::make('Dashboard')
-                                    ->icon('heroicon-o-home')
-                                    ->activeIcon('heroicon-s-home')
-                                    ->url('/app'),
-                            ]),
-                    ]);
+                    // $builder->groups([
+                    //     NavigationGroup::make('Dashboard')
+                    //         ->items([
+                    //             NavigationItem::make('Dashboard')
+                    //                 ->icon('heroicon-o-home')
+                    //                 ->activeIcon('heroicon-s-home')
+                    //                 ->url('/app'),
+                    //         ]),
+                    // ]);
                 // }
                     $user = User::find(auth()->user()->id) ;
               if(

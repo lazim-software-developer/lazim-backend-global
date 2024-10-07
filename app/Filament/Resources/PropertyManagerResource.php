@@ -168,6 +168,10 @@ class PropertyManagerResource extends Resource
                             ->rules(['boolean'])
                             ->default(true)
                             ->visibleOn('edit')
+                            ->onIcon('heroicon-o-check-circle')
+                            ->offIcon('heroicon-o-x-mark')
+                            ->onColor('success')
+                            ->offColor('danger')
                             ->afterStateUpdated(function (bool $state, $record) {
                                 if ($state === false) {
                                     SendInactiveStatusJob::dispatch($record);

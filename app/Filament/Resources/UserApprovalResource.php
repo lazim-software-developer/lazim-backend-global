@@ -124,6 +124,17 @@ class UserApprovalResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('status')
                     ->searchable()
+                    ->colors([
+                        'success' => 'approved',
+                        'danger' => 'rejected',
+                        'warning' => fn($state) => $state === null || $state === 'NA',
+                    ])
+                    ->icons([
+                        'heroicon-o-x-circle'     => 'rejected',
+                        'heroicon-o-clock'        => fn ($state) => $state === null || $state === 'NA',
+                        'heroicon-o-check-circle' => 'approved',
+                    ])
+                    ->formatStateUsing(fn ($state) => $state === null || $state === 'NA' ? 'Pending' : ucfirst($state))
                     ->default('NA'),
                 Tables\Columns\TextColumn::make('flat.property_number')->label('Flat Number')->default('NA'),
                 Tables\Columns\TextColumn::make('flat.building.name')->label('Building')->default('NA'),
