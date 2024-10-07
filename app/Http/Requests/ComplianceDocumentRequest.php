@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class ItemCreateRequest extends FormRequest
+class ComplianceDocumentRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,10 +22,10 @@ class ItemCreateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|max:100|alpha',
-            'quantity' => 'required|max:10000|numeric',
-            'building_id' => 'required|exists:buildings,id',
-            'description' => 'required|max:150',
+            'doc_name'    => 'required|max:50',
+            'doc_type'    => 'required|max:100',
+            'expiry_date' => 'required|date',
+            'url'         => 'sometimes|file|mimes:pdf|max:2048',
         ];
     }
 }
