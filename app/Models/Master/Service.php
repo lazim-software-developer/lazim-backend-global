@@ -11,6 +11,7 @@ use App\Models\TechnicianVendor;
 use App\Models\Building\Building;
 use App\Models\Scopes\Searchable;
 use App\Models\OaUserRegistration;
+use App\Models\SubContractor;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -59,7 +60,7 @@ class Service extends Model
         }
         return null;
     }
-    
+
     public function buildings()
     {
         return $this->belongsToMany(Building::class, 'building_service');
@@ -83,7 +84,7 @@ class Service extends Model
     {
         return $this->hasMany(Asset::class);
     }
-    
+
     public function subcategory()
     {
         return $this->belongsTo(SubCategory::class);
@@ -92,5 +93,9 @@ class Service extends Model
     public function budgetitems()
     {
         return $this->hasMany(Budgetitem::class);
+    }
+     public function subcontractors()
+    {
+        return $this->belongsToMany(SubContractor::class);
     }
 }

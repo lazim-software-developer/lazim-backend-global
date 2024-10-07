@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Master\Service;
 use App\Models\Vendor\Vendor;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -24,5 +25,10 @@ class SubContractor extends Model
     public function vendor()
     {
         return $this->belongsTo(Vendor::class);
+    }
+
+    public function services()
+    {
+        return $this->belongsToMany(Service::class);
     }
 }
