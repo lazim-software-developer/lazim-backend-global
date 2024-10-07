@@ -29,6 +29,7 @@ class SubContractorsController extends Controller
             'contract_paper'   => optimizeDocumentAndUpload($request->contract_paper),
             'agreement_letter' => optimizeDocumentAndUpload($request->agreement_letter),
         ]);
+        $subContract->services()->sync($request->services);
 
         SendSubcontractorCreatedMailJob::dispatch($subContract);
 
@@ -46,6 +47,7 @@ class SubContractorsController extends Controller
             'contract_paper'   => optimizeDocumentAndUpload($request->contract_paper),
             'agreement_letter' => optimizeDocumentAndUpload($request->agreement_letter),
         ]);
+        $subContract->services()->sync($request->services);
 
         return SubContractorsResource::make($subContract);
     }

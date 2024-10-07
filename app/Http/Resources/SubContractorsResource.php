@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Http\Resources\Services\ServiceResource;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -32,6 +33,7 @@ class SubContractorsResource extends JsonResource
             'vendor_id'        => $this->vendor_id,
             'expired'          => Carbon::parse($this->end_date)->format('m-d-Y') <= now()->format('m-d-Y'),
             'active'           => $this->active,
+            'services'         => ServiceResource::collection($this->services),
         ];
     }
 }
