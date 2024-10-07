@@ -29,6 +29,10 @@ class FlatsRelationManager extends RelationManager
 {
     protected static string $relationship = 'flats';
 
+    protected static ?string $title = 'Flats';
+
+    protected static ?string $modelLabel = 'Flat';
+
     public function form(Form $form): Form
     {
         return $form
@@ -203,10 +207,10 @@ class FlatsRelationManager extends RelationManager
             ->headerActions([
                 Tables\Actions\CreateAction::make()
                     ->slideOver()
-                    ->label('New Unit'),
+                    ->label('New Flat'),
 
                 Action::make('feature')
-                    ->label('Upload Units') // Set a label for your action
+                    ->label('Upload Flats') // Set a label for your action
                     ->visible(in_array(auth()->user()->role->name, ['Admin', 'Property Manager']))
                     ->form([
                         // Select::make('owner_association_id')
@@ -280,6 +284,7 @@ class FlatsRelationManager extends RelationManager
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
             ])
+            ->emptyStateDescription('Create or Upload a Flat to get started.')
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
