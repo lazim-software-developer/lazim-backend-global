@@ -71,7 +71,7 @@ class FacilityManagerResource extends Resource
                                             ->label('Phone Number')
                                             ->tel()
                                             ->required()
-                                            ->prefix('971')
+                                            ->prefix('+971')
                                             ->unique(
                                                 table: User::class,
                                                 column: 'phone',

@@ -69,10 +69,10 @@ class PropertyManagerResource extends Resource
                             ->required()
                             ->disabledOn('edit')
                             ->tel()
+                            ->placeholder('5XXXXXXXX')
                             ->rules([
                                 'regex:/^\+?(50|51|52|55|56|58|02|03|04|06|07|09)\d{7}$/',
                             ])
-                            ->placeholder('Enter contact number')
                             ->prefix('+971')
                             ->unique('owner_associations', 'phone', fn(?Model $record) => $record),
 
@@ -87,7 +87,7 @@ class PropertyManagerResource extends Resource
                                 'max:30',
                                 'regex:/^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/',
                             ])
-                            ->placeholder('Enter email address')
+                            ->placeholder('company@example.com')
                             ->unique('owner_associations', 'email', fn(?Model $record) => $record),
 
                         TextInput::make('address')

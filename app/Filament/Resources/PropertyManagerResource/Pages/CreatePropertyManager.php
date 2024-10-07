@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use Spatie\Permission\Models\Permission;
 
 class CreatePropertyManager extends CreateRecord
 {
@@ -66,7 +67,7 @@ class CreatePropertyManager extends CreateRecord
     {
         $pmId = $this->record->id;
 
-        $user         = User::find($this->record->id);
+        $user = User::find($this->record->id);
 
         $roles = [
             // ['name' => 'Owner', 'owner_association_id' => $pmId, 'guard_name' => 'web'],
@@ -141,6 +142,15 @@ class CreatePropertyManager extends CreateRecord
         }
 
         PropertyManagerAccountCreationJob::dispatch($user, $password);
+
+        $facilityManagerRole = Role::where('name', 'Facility Manager')
+            ->where('owner_association_id', $pmId)
+            ->first();
+
+        if ($facilityManagerRole) {
+            $allPermissions = Permission::all();
+            $facilityManagerRole->syncPermissions($allPermissions);
+        }
 
     }
 }
