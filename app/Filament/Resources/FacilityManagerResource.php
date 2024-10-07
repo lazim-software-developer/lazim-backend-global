@@ -5,9 +5,12 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\BuildingsRelationManagerResource\RelationManagers\BuildingsRelationManager;
 use App\Filament\Resources\FacilityManagerResource\Pages;
 use App\Jobs\FacilityManagerJob;
+use App\Jobs\RejectedFMJob;
 use App\Models\User\User;
 use App\Models\Vendor\Vendor;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -21,135 +24,201 @@ use Str;
 
 class FacilityManagerResource extends Resource
 {
-    protected static ?string $model = Vendor::class;
-
-    protected static ?string $modelLabel = 'Facility Manager';
-
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $model                = Vendor::class;
+    protected static ?string $modelLabel           = 'Facility Manager';
+    protected static ?string $navigationIcon       = 'heroicon-o-building-office-2';
+    protected static ?string $navigationGroup      = 'Facility Management';
+    protected static ?int $navigationSort          = 1;
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Section::make('Facility Manager Registration')
+                Grid::make(1)
                     ->schema([
-                        Select::make('owner_association_id')
-                            ->label('Select Property Manager')
-                            ->relationship('ownerAssociation', 'name')
-                            ->default(auth()->user()->ownerAssociation[0]->id)
-                            ->required(),
-                        TextInput::make('name')
-                            ->label('Company Name')
-                            ->required(),
-                        TextInput::make('user.email')
-                            ->label('Email')
-                            ->required()
-                            ->email()
-                            ->rules(['required', 'email', 'min:6', 'max:30',
-                                'regex:/^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/'])
-                            ->unique(
-                                table: User::class,
-                                column: 'email',
-                                ignorable: fn($record) => $record?->user
-                            )
-                            ->disabledOn('edit'),
-                        TextInput::make('user.phone')
-                            ->label('Phone Number')
-                            ->required()
-                            ->tel()
-                            ->rules(['required', 'regex:/^(50|51|52|55|56|58|02|03|04|06|07|09)\d{7}$/'])
-                            ->unique(
-                                table: User::class,
-                                column: 'phone',
-                                ignorable: fn($record) => $record?->user
-                            )
-                            ->disabledOn('edit')
-                            ->prefix('971'),
+                        Section::make('Basic Information')
+                            ->description('Enter the primary details for the facility manager.')
+                            ->icon('heroicon-o-identification')
+                            ->collapsible()
+                            ->schema([
+                                Grid::make(2)
+                                    ->schema([
+                                        Select::make('owner_association_id')
+                                            ->label('Property Manager')
+                                            ->relationship('ownerAssociation', 'name')
+                                            ->default(auth()->user()->ownerAssociation[0]->id)
+                                            ->required()
+                                            ->searchable()
+                                            ->preload(),
+                                        TextInput::make('name')
+                                            ->label('Company Name')
+                                            ->required()
+                                            ->placeholder('Enter company name')
+                                            ->maxLength(100),
+                                        TextInput::make('user.email')
+                                            ->label('Email Address')
+                                            ->email()
+                                            ->required()
+                                            ->unique(
+                                                table: User::class,
+                                                column: 'email',
+                                                ignorable: fn($record) => $record?->user
+                                            )
+                                            ->disabledOn('edit')
+                                            ->placeholder('company@example.com'),
+                                        TextInput::make('user.phone')
+                                            ->label('Phone Number')
+                                            ->tel()
+                                            ->required()
+                                            ->prefix('971')
+                                            ->unique(
+                                                table: User::class,
+                                                column: 'phone',
+                                                ignorable: fn($record) => $record?->user
+                                            )
+                                            ->disabledOn('edit')
+                                            ->placeholder('5XXXXXXXX'),
+                                    ]),
+                            ])->columnSpan(2),
+
+                        Section::make('Company Details')
+                            ->description('Provide detailed information about the company.')
+                            ->icon('heroicon-o-building-office')
+                            ->collapsible()
+                            ->schema([
+                                TextInput::make('address_line_1')
+                                    ->label('Company Address')
+                                    ->required()
+                                    ->placeholder('Enter complete address'),
+                                Grid::make(2)
+                                    ->schema([
+                                        TextInput::make('landline_number')
+                                            ->label('Landline Number')
+                                            ->required()
+                                            ->tel(),
+                                        TextInput::make('fax')
+                                            ->label('Fax Number'),
+                                    ]),
+                                TextInput::make('website')
+                                    ->label('Website')
+                                    ->url()
+                                    ->placeholder('https://example.com'),
+                                TextInput::make('tl_number')
+                                    ->label('Trade License Number')
+                                    ->required()
+                                    ->unique(Vendor::class, 'tl_number', ignoreRecord: true),
+                                Grid::make(2)
+                                    ->schema([
+                                        DatePicker::make('tl_expiry')
+                                            ->label('Trade License Expiry')
+                                            ->required(),
+                                        DatePicker::make('risk_policy_expiry')
+                                            ->label('Risk Policy Expiry')
+                                            ->required(),
+                                    ]),
+                            ])->columnSpan(1),
                     ]),
 
-                Section::make('Company Details')
+                Section::make('Manager Information')
+                    ->description('Details of the authorized manager.')
+                    ->icon('heroicon-o-user')
+                    ->collapsible()
+                    ->collapsed()
                     ->schema([
-                        TextInput::make('address_line_1')
-                            ->label('Company Address')
-                            ->required(),
-                        TextInput::make('landline_number')
-                            ->label('Company Landline Number')
-                            ->required()
-                            ->tel(),
-                        TextInput::make('website')
-                            ->label('Company Website')
-                            ->url(),
-                        TextInput::make('fax')
-                            ->label('Company Fax Number'),
-                        TextInput::make('tl_number')
-                            ->label('Company Trade License Number')
-                            ->required()
-                            ->rules(['required', 'max:50', 'string'])
-                            ->unique(Vendor::class, 'tl_number', ignoreRecord: true),
-                        DatePicker::make('tl_expiry')
-                            ->label('Company Trade License Expiry Date')
-                            ->required(),
-                        DatePicker::make('risk_policy_expiry')
-                            ->label('Risk Policy Expiry Date')
-                            ->required(),
-                        Select::make('status')
-                            ->visibleOn('edit')
-                            ->afterStateUpdated(function ($state, $livewire) {
-                                if ($state === 'approved') {
-                                    $user = $livewire->record;
-
-                                    $password = Str::random(12);
-
-                                    FacilityManagerJob::dispatch($user, $password);
-                                }
-                            })
-                            ->options([
-                                'approved' => 'Approved',
-                                'rejected' => 'Rejected',
+                        Grid::make(3)
+                            ->schema([
+                                TextInput::make('managers.0.name')
+                                    ->label('Manager Name')
+                                    ->placeholder('Full name')
+                                    ->live()
+                                    ->required(function ($get) {
+                                        return !empty($get('managers.0.email')) ||
+                                               !empty($get('managers.0.phone'));
+                                    }),
+                                TextInput::make('managers.0.email')
+                                    ->label('Manager Email')
+                                    ->email()
+                                    ->placeholder('manager@company.com')
+                                    ->live()
+                                    ->required(function ($get) {
+                                        return !empty($get('managers.0.name')) ||
+                                               !empty($get('managers.0.phone'));
+                                    }),
+                                TextInput::make('managers.0.phone')
+                                    ->label('Manager Phone')
+                                    ->tel()
+                                    ->placeholder('5XXXXXXXX')
+                                    ->live()
+                                    ->required(function ($get) {
+                                        return !empty($get('managers.0.name')) ||
+                                               !empty($get('managers.0.email'));
+                                    }),
                             ]),
 
                     ]),
 
-                Section::make('Manager Details')
+
+                Section::make('Approval Status')
+                    ->description('Update the approval status of the facility manager.')
+                    ->icon('heroicon-o-check-circle')
+                    ->collapsible()
                     ->schema([
-                        TextInput::make('managers.0.name')
-                            ->label('Authorized Manager Name')
-                            ->rules(['nullable', 'string']),
-                        TextInput::make('managers.0.email')
-                            ->label('Authorized Manager Email')
-                            ->email()
-                            ->rules(['nullable', 'email']),
-                        TextInput::make('managers.0.phone')
-                            ->label('Authorized Manager Phone Number')
-                            ->tel()
-                            ->rules(['nullable']),
-                    ])
-                    ->collapsed()
-                    ->collapsible(),
+                        Select::make('status')
+                            ->label('Current Status')
+                            ->options([
+                                'approved' => 'Approved',
+                                'rejected' => 'Rejected',
+                            ])
+                            ->visibleOn('edit')
+                            ->afterStateUpdated(function ($state, $livewire) {
+                                $user     = $livewire->record->user;
+                                $email    = $user->email;
+                                $password = Str::random(12);
+
+                                if ($state === 'approved') {
+                                    FacilityManagerJob::dispatch($user, $password, $email);
+                                }
+                                if ($state === 'rejected') {
+                                    RejectedFMJob::dispatch($user, $password, $email);
+                                }
+                            }),
+                    ])->visibleOn('edit'),
             ]);
     }
+
     public static function table(Table $table): Table
     {
         return $table
             ->modifyQueryUsing(function (Builder $query) {
                 $query->where('owner_association_id', auth()->user()->ownerAssociation[0]->id);
-                // dd(Vendor::where('owner_association_id', auth()->user()->id)->pluck('name'));
             })
             ->columns([
-                Tables\Columns\TextColumn::make('name')->label('Company Name')->searchable(),
-                Tables\Columns\TextColumn::make('user.email')->label('Company Email')->searchable(),
-                Tables\Columns\TextColumn::make('status')
-                    ->badge()
-                    ->default('NA')
-                    ->color(fn(string $state): string => match ($state) {
-                        'NA'                              => 'gray',
-                        'approved'                        => 'success',
-                        'rejected'                        => 'danger',
-                    }),
-
-                // Tables\Columns\TextColumn::make('user.phone')->searchable(),
-                // Tables\Columns\TextColumn::make('tl_number')->label('Trade License Number')->searchable(),
-                // Tables\Columns\TextColumn::make('tl_expiry')->label('Trade License Expiry')->date(),
+                Tables\Columns\TextColumn::make('name')
+                    ->label('Company Name')
+                    ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('user.email')
+                    ->label('Email')
+                    ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('tl_number')
+                    ->label('Trade License')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('tl_expiry')
+                    ->label('License Expiry')
+                    ->date()
+                    ->sortable(),
+                Tables\Columns\BadgeColumn::make('status')
+                    ->colors([
+                        'danger'  => 'rejected',
+                        'warning' => 'NA',
+                        'success' => 'approved',
+                    ])
+                    ->icons([
+                        'heroicon-o-x-circle'     => 'rejected',
+                        'heroicon-o-clock'        => 'NA',
+                        'heroicon-o-check-circle' => 'approved',
+                    ]),
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
@@ -160,11 +229,14 @@ class FacilityManagerResource extends Resource
                     ]),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\EditAction::make()
+                    ->iconButton(),
+                // Tables\Actions\DeleteAction::make()
+                //     ->iconButton(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    // Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
     }
