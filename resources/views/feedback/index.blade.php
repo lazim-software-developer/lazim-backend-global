@@ -22,7 +22,7 @@
         <form id="emojiForm" action="{{ route('qr.feedback.submit') }}" method="POST" style="display:none;">
             @csrf
             <input type="hidden" name="emoji" id="selectedEmoji">
-            <input type="hidden" name="buildingName" id="selectedEmoji">
+            <input type="hidden" name="buildingName" id="buildingName">
 
         </form>
     </div>
