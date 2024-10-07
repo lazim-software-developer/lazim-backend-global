@@ -2,6 +2,7 @@
 
 use App\Filament\Pages\BudgetListing;
 use App\Filament\Pages\OAM\CreateTender;
+use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\GeneralFundController;
 use App\Http\Controllers\Master\PDFController;
 use App\Http\Controllers\OwnerAssociationInvoice;
@@ -97,3 +98,6 @@ Route::get('/filament/custom/asset-fetch-data', function () {
 })->name('asset-fetch-data');
 
 Route::get('/redirect-os', [TestController::class, 'redirectBasedOnOS'])->name('redirect.os');
+
+Route::post('/qr/feedback', [FeedbackController::class, 'submitFeedback'])->name('qr.feedback.submit');
+Route::get('/qr/feedback', [FeedbackController::class, 'index'])->name('qr.feedback.index');
