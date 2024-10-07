@@ -24,6 +24,8 @@ class AssetResource extends JsonResource
             'division'             => $this->division,
             'discipline'           => $this->discipline,
             'frequency_of_service' => $this->frequency_of_service,
+            'qr_code'              => $this->qr_code ?? null,
+            'asset_code'           => $this->asset_code,
         ];
     }
 }
