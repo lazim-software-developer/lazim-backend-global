@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Building;
 
+use App\Jobs\SendInactiveStatusToResident;
 use Filament\Tables;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
@@ -75,6 +76,21 @@ class FlatTenantResource extends Resource
                         TextInput::make('role')
                             ->disabled()
                             ->placeholder('NA'),
+
+                        Toggle::make('active')
+                            ->label('Active Status')
+                            ->rules(['boolean'])
+                            ->inline(false)
+                            ->onIcon('heroicon-o-check-circle')
+                            ->offIcon('heroicon-o-x-mark')
+                            ->onColor('success')
+                            ->offColor('danger')
+                            ->visibleOn('edit')
+                            ->afterStateUpdated(function (bool $state, $record) {
+                                if ($state === false) {
+                                    SendInactiveStatusToResident::dispatch($record);
+                                }
+                            }),
                         // Toggle::make('primary')
                         //     ->disabled()
                         //     ->rules(['boolean']),

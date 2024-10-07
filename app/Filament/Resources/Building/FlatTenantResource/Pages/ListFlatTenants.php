@@ -2,18 +2,16 @@
 
 namespace App\Filament\Resources\Building\FlatTenantResource\Pages;
 
-use Filament\Actions;
-use App\Models\Master\Role;
+use App\Filament\Resources\Building\FlatTenantResource;
 use App\Models\Building\Building;
-use Illuminate\Contracts\View\View;
+use App\Models\Master\Role;
 use Filament\Resources\Pages\ListRecords;
 use Illuminate\Database\Eloquent\Builder;
-use App\Filament\Resources\Building\FlatTenantResource;
 
 class ListFlatTenants extends ListRecords
 {
     protected static string $resource = FlatTenantResource::class;
-    protected static ?string $title = 'Residents';
+    protected static ?string $title   = 'Residents';
 
     // protected function getHeaderActions(): array
     // {
@@ -23,11 +21,16 @@ class ListFlatTenants extends ListRecords
     // }
     protected function getTableQuery(): Builder
     {
-        $building = Building::all()->where('owner_association_id',auth()->user()?->owner_association_id)->pluck('id')->toArray();
-        if(Role::where('id',auth()->user()->role_id)->first()->name == 'Admin')
-        {
-            return parent::getTableQuery();
+        $user = auth()->user();
+
+        $buildingIds = Building::where('owner_association_id', $user?->owner_association_id)->pluck('id')->toArray();
+
+        $userRoleName = Role::where('id', $user->role_id)->value('name');
+
+        if (in_array($userRoleName, ['Property Manager', 'Admin'])) {
+            return parent::getTableQuery(); // Full query for Property Manager/Admin
         }
-        return parent::getTableQuery()->whereIn('building_id',$building);
+
+        return parent::getTableQuery()->whereIn('building_id', $buildingIds);
     }
 }

@@ -168,7 +168,6 @@ class FacilityManagerResource extends Resource
                             ->label('Current Status')
                             ->options([
                                 'approved' => 'Approved',
-                                'pending'  => 'Pending',
                                 'rejected' => 'Rejected',
                             ])
                             ->visibleOn('edit')
@@ -210,17 +209,20 @@ class FacilityManagerResource extends Resource
                     ->label('License Expiry')
                     ->date()
                     ->sortable(),
-                Tables\Columns\BadgeColumn::make('status')
-                    ->colors([
-                        'danger'  => 'rejected',
-                        'warning' => 'pending',
-                        'success' => 'approved',
-                    ])
+                Tables\Columns\TextColumn::make('status')
+                    ->searchable()
                     ->icons([
                         'heroicon-o-x-circle'     => 'rejected',
-                        'heroicon-o-clock'        => 'pending',
+                        'heroicon-o-clock'        => fn ($state) => $state === null || $state === 'NA',
                         'heroicon-o-check-circle' => 'approved',
-                    ]),
+                    ])
+                    ->colors([
+                        'success' => 'approved',
+                        'danger' => 'rejected',
+                        'warning' => fn($state) => $state === null || $state === 'NA',
+                    ])
+                    ->formatStateUsing(fn ($state) => $state === null || $state === 'NA' ? 'Pending' : ucfirst($state))
+                    ->default('NA'),
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([

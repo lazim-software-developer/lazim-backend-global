@@ -121,9 +121,9 @@ class BuildingImport implements ToCollection, WithHeadingRow
         }
         if (! empty($notImported)) {
             Notification::make()
-                ->title("Buildings imported successfully.")
+                ->title("Could not import Buildings.")
                 ->body('Not imported Buildings' . implode(', ', $notImported))
-                ->success()
+                ->danger()
                 ->send();
 
             return 'success';
