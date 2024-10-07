@@ -47,7 +47,7 @@ class EditFacilityManager extends EditRecord
             'tl_number'            => $vendor->tl_number ?? '',
             'tl_expiry'            => $vendor->tl_expiry,
             'risk_policy_expiry'   => $riskPolicy ? $riskPolicy->expiry_date : null,
-            'status'               => $vendor->status ?? null,
+            'status'               => $vendor->status ?? 'pending',
             'managers'             => [[
                 'name'  => $manager->name ?? '',
                 'email' => $manager->email ?? '',
@@ -71,6 +71,11 @@ class EditFacilityManager extends EditRecord
                 'tl_number'            => $data['tl_number'],
                 'tl_expiry'            => $data['tl_expiry'],
             ]);
+
+            DB::table('owner_association_vendor')
+                ->where('vendor_id', $record->id)
+                ->where('owner_association_id', $data['owner_association_id'])
+                ->update(['status' => $data['status']]);
 
             // Update related User
             if ($record->user) {

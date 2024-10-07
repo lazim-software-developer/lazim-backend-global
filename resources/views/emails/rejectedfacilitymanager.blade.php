@@ -13,7 +13,7 @@
 </tr>
 <tr>
     <td class="paragraph">
-        We're excited to have you on board with Lazim! Your account has been successfully created, and we're thrilled to welcome you to our community.
+        Thank you for your interest in joining Lazim. However, we regret to inform you that your account has been rejected because you have not uploaded the required documents for approval.
     </td>
 </tr>
 <tr>
@@ -21,7 +21,7 @@
 </tr>
 <tr>
     <td class="title">
-        Your Account Details:
+        Next Steps:
     </td>
 </tr>
 
@@ -31,13 +31,7 @@
 
 <tr>
     <td class="paragraph">
-        <strong>Email: </strong> {{$user->email}}
-    </td>
-</tr>
-<tr>
-    <td class="paragraph">
-        <strong>Password: </strong> {{$password}}
-        <!-- (We recommend changing this password upon your first login for security reasons.) -->
+        Please upload the appropriate documents in your account to proceed with the approval process.
     </td>
 </tr>
 <tr>
@@ -45,7 +39,7 @@
 </tr>
 <tr>
     <td class="paragraph">
-        To access your account and use our platform, click on <a href="https://lazim-vendor-git-feat-property-management-zysktech.vercel.app?_vercel_share=RScYOvn8TEEKtTilktiJ9FE3P7FN4gmS">this link</a>
+        To update your documents, click on <a href="https://lazim-vendor-git-feat-property-management-zysktech.vercel.app?_vercel_share=RScYOvn8TEEKtTilktiJ9FE3P7FN4gmS">this link</a>.
     </td>
 </tr>
 <tr>
@@ -53,7 +47,7 @@
 </tr>
 <tr>
     <td class="paragraph">
-        Thank you for choosing Lazim. We're confident that you'll find great value in our platform, and we look forward to serving you.
+        Once the required documents are submitted, we will review your application again. Thank you for your co-operation.
     </td>
 </tr>
 <tr>

@@ -27,6 +27,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
+use PHPUnit\Framework\Attributes\Large;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportAction;
 use pxlrbt\FilamentExcel\Columns\Column;
 use pxlrbt\FilamentExcel\Exports\ExcelExport;
@@ -50,6 +51,7 @@ class BuildingRelationManager extends RelationManager
             ->headerActions([
                 Action::make('Attach Building')
                     ->slideOver()
+                    ->modalWidth('lg')
                     ->form([
                         Select::make('building_id')
                             ->label('Building')
@@ -199,17 +201,19 @@ class BuildingRelationManager extends RelationManager
                                 return $building->id;
                             }),
 
-                        DatePicker::make('from')
-                            ->default(Carbon::now()->format('Y-m-d'))
-                            ->afterStateUpdated(function (Set $set) {
-                                $set('to', null);
-                            }),
+                        Grid::make(2)->schema([
+                            DatePicker::make('from')
+                                ->default(Carbon::now()->format('Y-m-d'))
+                                ->afterStateUpdated(function (Set $set) {
+                                    $set('to', null);
+                                }),
 
-                        DatePicker::make('to')
-                            ->after('from')
-                            ->validationMessages([
-                                'after' => 'The "to" date must be after the "from" date.',
-                            ]),
+                            DatePicker::make('to')
+                                ->after('from')
+                                ->validationMessages([
+                                    'after' => 'The "to" date must be after the "from" date.',
+                                ]),
+                        ]),
                     ])
                     ->action(function (array $data, RelationManager $livewire): void {
                         $buildingId = $data['building_id'];
@@ -288,6 +292,7 @@ class BuildingRelationManager extends RelationManager
             ->actions([
                 Tables\Actions\DetachAction::make(),
             ])
+            ->emptyStateDescription('Attach or Upload a Building to get started.')
             ->bulkActions([
                 Tables\Actions\DetachBulkAction::make(),
             ]);
