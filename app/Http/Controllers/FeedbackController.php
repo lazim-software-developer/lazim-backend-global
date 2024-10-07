@@ -19,8 +19,10 @@ class FeedbackController extends Controller
         // Redirect based on the emoji selected
         if ($emoji === 'happy') {
             return redirect('https://search.google.com/local/writereview?placeid=ChIJ5fyZn9tlXz4RVlp__oiNaCY');
-        } elseif ($emoji === 'neutral' || $emoji === 'sad') {
+        } elseif ($emoji === 'neutral') {
             return redirect('https://forms.gle/LcazWpSizJnCYJ2q9');
+        } elseif($emoji === 'sad'){
+            return redirect('https://forms.gle/cdCJg1TiYcoaPGSc6');
         }
 
         return redirect()->back();
