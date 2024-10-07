@@ -59,8 +59,8 @@ class BuildingResource extends Resource
             ->schema([
                 Grid::make([
                     'sm' => 1,
-                    'md' => 1,
-                    'lg' => 1,
+                    'md' => 2,
+                    'lg' => 2,
                 ])->schema([
                     TextInput::make('name')
                         ->rules(['max:50', 'string'])
@@ -119,6 +119,7 @@ class BuildingResource extends Resource
                     //     ->searchable()
                     //     ->placeholder('NA'),
                     MarkdownEditor::make('description')
+                        ->columnSpanFull()
                         ->toolbarButtons([
                             'bold',
                             'bulletList',
@@ -131,6 +132,7 @@ class BuildingResource extends Resource
                         ->label('About'),
                     FileUpload::make('cover_photo')
                         ->disk('s3')
+                        ->columnSpanFull()
                         ->rules(['file', 'mimes:jpeg,jpg,png', function () {
                             return function (string $attribute, $value, Closure $fail) {
                                 if ($value->getSize() / 1024 > 2048) {

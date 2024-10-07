@@ -87,6 +87,18 @@ class CreateFacilityManager extends CreateRecord
                     }
                 }
 
+                $oa_vendorData = [
+                    'owner_association_id' => $data['owner_association_id'],
+                    'vendor_id'            => $vendor->id,
+                    'from'                 => $user->created_at,
+                    'active'               => true,
+                    'status'               => 'approved',
+                    'type'                 => 'Vendor',
+                ];
+
+                DB::table('owner_association_vendor')->insert($oa_vendorData);
+                Log::info('Owner association vendor record created successfully');
+
                 // 4. Create VendorManager if data provided
                 if (!empty($data['managers'][0]['name'] ?? null) && !empty($data['managers'][0]['email'] ?? null)) {
                     try {

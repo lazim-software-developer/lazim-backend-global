@@ -6,6 +6,7 @@ use App\Filament\Resources\BuildingsRelationManagerResource\RelationManagers\Bui
 use App\Filament\Resources\FacilityManagerResource\Pages;
 use App\Jobs\FacilityManagerJob;
 use App\Jobs\RejectedFMJob;
+use App\Models\OwnerAssociation;
 use App\Models\User\User;
 use App\Models\Vendor\Vendor;
 use Filament\Forms\Components\DatePicker;
@@ -24,11 +25,10 @@ use Str;
 
 class FacilityManagerResource extends Resource
 {
-    protected static ?string $model                = Vendor::class;
-    protected static ?string $modelLabel           = 'Facility Manager';
-    protected static ?string $navigationIcon       = 'heroicon-o-building-office-2';
-    protected static ?string $navigationGroup      = 'Facility Management';
-    protected static ?int $navigationSort          = 1;
+    protected static ?string $model           = Vendor::class;
+    protected static ?string $modelLabel      = 'Facility Manager';
+    protected static ?string $navigationIcon  = 'heroicon-o-building-office-2';
+    protected static ?int $navigationSort     = 1;
 
     public static function form(Form $form): Form
     {
@@ -45,10 +45,11 @@ class FacilityManagerResource extends Resource
                                     ->schema([
                                         Select::make('owner_association_id')
                                             ->label('Property Manager')
-                                            ->relationship('ownerAssociation', 'name')
+                                            ->options(OwnerAssociation::where('id',
+                                                auth()->user()->ownerAssociation[0]->id)->pluck('name', 'id'))
                                             ->default(auth()->user()->ownerAssociation[0]->id)
                                             ->required()
-                                            ->searchable()
+                                            ->native(false)
                                             ->preload(),
                                         TextInput::make('name')
                                             ->label('Company Name')
@@ -106,6 +107,7 @@ class FacilityManagerResource extends Resource
                                 TextInput::make('tl_number')
                                     ->label('Trade License Number')
                                     ->required()
+                                    ->numeric()
                                     ->unique(Vendor::class, 'tl_number', ignoreRecord: true),
                                 Grid::make(2)
                                     ->schema([
@@ -133,7 +135,7 @@ class FacilityManagerResource extends Resource
                                     ->live()
                                     ->required(function ($get) {
                                         return !empty($get('managers.0.email')) ||
-                                               !empty($get('managers.0.phone'));
+                                        !empty($get('managers.0.phone'));
                                     }),
                                 TextInput::make('managers.0.email')
                                     ->label('Manager Email')
@@ -142,7 +144,7 @@ class FacilityManagerResource extends Resource
                                     ->live()
                                     ->required(function ($get) {
                                         return !empty($get('managers.0.name')) ||
-                                               !empty($get('managers.0.phone'));
+                                        !empty($get('managers.0.phone'));
                                     }),
                                 TextInput::make('managers.0.phone')
                                     ->label('Manager Phone')
@@ -151,12 +153,11 @@ class FacilityManagerResource extends Resource
                                     ->live()
                                     ->required(function ($get) {
                                         return !empty($get('managers.0.name')) ||
-                                               !empty($get('managers.0.email'));
+                                        !empty($get('managers.0.email'));
                                     }),
                             ]),
 
                     ]),
-
 
                 Section::make('Approval Status')
                     ->description('Update the approval status of the facility manager.')
@@ -167,6 +168,7 @@ class FacilityManagerResource extends Resource
                             ->label('Current Status')
                             ->options([
                                 'approved' => 'Approved',
+                                'pending'  => 'Pending',
                                 'rejected' => 'Rejected',
                             ])
                             ->visibleOn('edit')
@@ -211,12 +213,12 @@ class FacilityManagerResource extends Resource
                 Tables\Columns\BadgeColumn::make('status')
                     ->colors([
                         'danger'  => 'rejected',
-                        'warning' => 'NA',
+                        'warning' => 'pending',
                         'success' => 'approved',
                     ])
                     ->icons([
                         'heroicon-o-x-circle'     => 'rejected',
-                        'heroicon-o-clock'        => 'NA',
+                        'heroicon-o-clock'        => 'pending',
                         'heroicon-o-check-circle' => 'approved',
                     ]),
             ])
@@ -225,6 +227,7 @@ class FacilityManagerResource extends Resource
                 SelectFilter::make('status')
                     ->options([
                         'approved' => 'Approved',
+                        'pending'  => 'Pending',
                         'rejected' => 'Rejected',
                     ]),
             ])
