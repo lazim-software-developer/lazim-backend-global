@@ -7,6 +7,7 @@ use App\Models\Building\Building;
 use App\Models\CoolingAccount;
 use App\Models\Master\Role;
 use Coolsam\FilamentFlatpickr\Forms\Components\Flatpickr;
+use DB;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Select;
@@ -36,13 +37,49 @@ class CoolingAccountResource extends Resource
             ]);
     }
 
-    public static function table(Table $table): Table
+   public static function table(Table $table): Table
     {
+        CoolingAccount::where('status', '!=', 'paid')
+            ->where('due_date', '<', now())
+            ->update(['status' => 'overdue']);
+
         return $table
+        ->modifyQueryUsing(function(Builder $query){
+            $userRole = auth()->user()->role->name ?? null;
+
+            if($userRole == 'Property Manager'){
+                $buildingIds = DB::table('building_owner_association')
+                    ->where('owner_association_id', auth()->user()->owner_association_id)
+                    ->pluck('building_id')
+                    ->toArray();
+
+                if (!empty($buildingIds)) {
+                    $query->whereIn('building_id', $buildingIds);
+                }
+            }
+        })
             ->columns([
                 TextColumn::make('building.name'),
                 TextColumn::make('flat.property_number')->label('Unit Number'),
                 TextColumn::make('date')->date(),
+                TextColumn::make('due_date')->date()
+                ->visible(function(){
+                    if(auth()->user()->role->name == 'Property Manager'){
+                        return true;
+                    }
+                }),
+                TextColumn::make('status')
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'paid' => 'success',
+                        'overdue' => 'danger',
+                        'pending' => 'warning',
+                    })
+                    ->visible(function(){
+                            if(auth()->user()->role->name == 'Property Manager'){
+                                return true;
+                            }
+                        }),
                 TextColumn::make('opening_balance'),
                 TextColumn::make('consumption'),
                 TextColumn::make('demand_charge'),
@@ -80,10 +117,20 @@ class CoolingAccountResource extends Resource
                                 if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
                                     return Building::all()->pluck('name', 'id');
                                 }
+                                elseif(Role::where('id', auth()->user()->role->id)
+                                ->first()->name == 'Property Manager'){
+                                    $buildingIds = DB::table('building_owner_association')
+                                    ->where('owner_association_id', auth()->user()->owner_association_id)
+                                    ->where('active', true)
+                                    ->pluck('building_id');
+
+                                return Building::whereIn('id', $buildingIds)
+                                    ->pluck('name', 'id');
+                            }
                                 else{
                                     return Building::where('owner_association_id', auth()->user()?->owner_association_id)
                                     ->pluck('name', 'id');
-                                } 
+                                }
                             }),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
@@ -95,7 +142,7 @@ class CoolingAccountResource extends Resource
                     }),
                     Filter::make('Date')
                     ->form([
-                        Grid::make(2) 
+                        Grid::make(2)
                         ->schema([
                             DatePicker::make('from')
                                 ->label('From'),
@@ -120,9 +167,9 @@ class CoolingAccountResource extends Resource
                         } elseif ($data['to']) {
                             $query->whereDate('date', '<=', $data['to']);
                         }
-    
+
                         return $query;
-                    }), 
+                    }),
             ], layout: FiltersLayout::AboveContent)->filtersFormColumns(3)
             ->actions([
                 // Tables\Actions\ViewAction::make(),
