@@ -19,12 +19,16 @@ class CoolingAccountImport implements ToCollection, WithHeadingRow
     // protected $budgetPeriod;
     protected $buildingId;
     protected $month;
+    protected $dueDate;
+    protected $status;
 
-    public function __construct($buildingId, $month)
+    public function __construct($buildingId, $month, $dueDate, $status)
     {
 
         $this->buildingId = $buildingId;
         $this->month = $month;
+        $this->dueDate = $dueDate;
+        $this->status = $status;
     }
     /**
      * @param Collection $collection
@@ -48,13 +52,13 @@ class CoolingAccountImport implements ToCollection, WithHeadingRow
                 ->send();
             return 'failure';
             }
-   
+
            // Extract the headings from the first row
            $extractedHeadings = array_keys($rows->first()->toArray());
-   
+
            // Check if all expected headings are present in the extracted headings
            $missingHeadings = array_diff($expectedHeadings, $extractedHeadings);
-   
+
            if (!empty($missingHeadings)) {
                Notification::make()
                    ->title("Upload valid excel file.")
@@ -94,6 +98,8 @@ class CoolingAccountImport implements ToCollection, WithHeadingRow
                         'other_charges'         => $row['in_unit_other_charges'],
                         'receipts'              => $row['receipts'],
                         'closing_balance'       => $row['closing_balance'],
+                        'status'                => $this->status? : null,
+                        'due_date'              => $this->dueDate? : null
                     ]
                 );
             }

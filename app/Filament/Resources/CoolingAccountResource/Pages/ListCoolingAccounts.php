@@ -2,10 +2,12 @@
 
 namespace App\Filament\Resources\CoolingAccountResource\Pages;
 
+use DB;
 use Filament\Actions;
 use Filament\Actions\Action;
 use App\Models\Building\Building;
 use Filament\Actions\SelectAction;
+use Filament\Forms\Components\DateTimePicker;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\CoolingAccountImport;
@@ -37,15 +39,25 @@ class ListCoolingAccounts extends ListRecords
                     ->form([
                         Select::make('building_id')
                         ->required()
+                        ->preload()
                         ->relationship('building', 'name')
                         ->options(function () {
                             if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
                                 return Building::all()->pluck('name', 'id');
                             }
+                            elseif(Role::where('id', auth()->user()->role->id)->first()->name == 'Property Manager'){
+                                $buildingIds = DB::table('building_owner_association')
+                                    ->where('owner_association_id', auth()->user()->owner_association_id)
+                                    ->where('active', true)
+                                    ->pluck('building_id');
+
+                                return Building::whereIn('id', $buildingIds)
+                                    ->pluck('name', 'id');
+                            }
                             else{
                                 return Building::where('owner_association_id', auth()->user()?->owner_association_id)
                                 ->pluck('name', 'id');
-                            } 
+                            }
                         })
                         ->searchable()
                         ->label('Building Name'),
@@ -79,10 +91,34 @@ class ListCoolingAccounts extends ListRecords
                         ->searchable()
                         ->placeholder('Select Year')
                         ->options(array_combine(range(now()->year, 2018), range(now()->year, 2018))),
+
+                        DateTimePicker::make('due_date')
+                            ->withoutTime()
+                            ->visible(function(){
+                                if(auth()->user()->role->name == 'Property Manager'){
+                                    return true;
+                                }
+                            }),
+                        Select::make('status')
+                            ->options([
+                                'pending' => 'Pending',
+                                'overdue' => 'Overdue',
+                                'paid' => 'Paid',
+                            ])
+                            ->default('pending')
+                            ->visible(function(){
+                                if(auth()->user()->role->name == 'Property Manager'){
+                                    return true;
+                                }
+                            }),
                     ])
                     ->action(function (array $data) {
                     $buildingId= $data['building_id'];
                     $month = $data['month'].$data['year'];
+
+                    $dueDate = $data['due_date'] ?? null;
+                    $status  = $data['status'] ?? null;
+
                     $filePath = $data['excel_file']; // This is likely just a file path or name
                     // Assuming the file is stored in the local disk in a 'budget_imports' directory
                     $fullPath = storage_path('app/public/' . $filePath);
@@ -92,7 +128,7 @@ class ListCoolingAccounts extends ListRecords
                     }
 
                     // Now import using the file path
-                    Excel::import(new CoolingAccountImport( $buildingId, $month ), $fullPath);
+                    Excel::import(new CoolingAccountImport( $buildingId, $month, $dueDate, $status), $fullPath);
 
                 }),
 
