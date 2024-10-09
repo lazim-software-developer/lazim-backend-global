@@ -19,18 +19,19 @@ class ListOwnerAssociationInvoices extends ListRecords
     {
         return [
             // Actions\CreateAction::make(),
-            Action::make('Generate Invoice')->url(function(){
-                if(auth()->user()->role->name == 'Admin'){
+           Action::make('Generate Invoice')->url(function() {
+                if (in_array(auth()->user()->role->name, ['Admin', 'Property Manager'])) {
                     return '/app/generate-invoice';
-                }else{
+                } else {
                     return '/admin/generate-invoice';
                 }
             })
+
         ];
     }
     protected function getTableQuery(): Builder
     {
-        if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
+        if(in_array(auth()->user()->role->name, ['Admin', 'Property Manager'])){
             return parent::getTableQuery();
         }
         return parent::getTableQuery()->where('owner_association_id',Filament::getTenant()->id);
