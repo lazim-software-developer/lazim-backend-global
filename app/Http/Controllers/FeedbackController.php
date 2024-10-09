@@ -44,6 +44,16 @@ class FeedbackController extends Controller
                 return redirect('https://forms.gle/dvoSaLaAERwkrUek8');
             } elseif($buildingName == "Royal Residence"){
                 return redirect('https://forms.gle/ZB8baB24XEjD6GHMA');
+            } elseif($buildingName == "Safeer Tower 2"){
+                return redirect('https://forms.gle/ydZGJceXas6tcPg19');
+            } elseif($buildingName == "Waves Tower"){
+                return redirect('https://forms.gle/AtnB9CDBv5QenyCj7');
+            } elseif($buildingName == "Myka Residence"){
+                return redirect('https://forms.gle/5WYCgi2Xr1LSRRik6');
+            } elseif($buildingName == "The Court"){
+                return redirect('https://forms.gle/xifo6g3BwazvTKa76');
+            } elseif($buildingName == "KARM SQUARE"){
+                return redirect('https://forms.gle/R7Hv79iyxzdwar5h8');
             }
 
         } elseif($emoji === 'sad') {
@@ -71,6 +81,16 @@ class FeedbackController extends Controller
                 return redirect('https://forms.gle/CtPYCkuEyH6Yb2U88');
             } elseif($buildingName == "Royal Residence"){
                 return redirect('https://forms.gle/g7LWjtioF4gFUJjq8');
+            } elseif($buildingName == "Safeer Tower 2"){
+                return redirect('https://forms.gle/UamFUdXzuhXrxd416');
+            } elseif($buildingName == "Waves Tower"){
+                return redirect('https://forms.gle/fQ2a3m45Df1Xivx48');
+            } elseif($buildingName == "Myka Residence"){
+                return redirect('https://forms.gle/SE2otTGrFcJbpn6m6');
+            } elseif($buildingName == "The Court"){
+                return redirect('https://forms.gle/8G9GhoE3J82YJhaU6');
+            } elseif($buildingName == "KARM SQUARE"){
+                return redirect('https://forms.gle/4CQYM1nTcbGg15zh6');
             }
         }
 
