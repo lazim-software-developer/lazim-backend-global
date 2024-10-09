@@ -106,11 +106,14 @@ class OwnerAssociationInvoice extends Page implements HasForms
                 ->preload()
                 ->label('Flat Number')
                 ->live()
+                ->required(auth()->user()->role->name == 'Property Manager')
                 ->hidden(function(callable $get){
-                    if($get('building_id') == null){
+                   $userRole = auth()->user()->role->name;
+
+                    if ($userRole === 'Property Manager' && $get('building_id') === null) {
                         return true;
                     }
-                    return false;
+                    return true;
                 })
                 ->searchable()
                 ->options(function(callable $get){
