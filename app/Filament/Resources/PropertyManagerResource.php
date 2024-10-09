@@ -56,6 +56,7 @@ class PropertyManagerResource extends Resource
                             ->label('Trade License Number')
                             ->required()
                             ->disabledOn('edit')
+                            ->unique('owner_associations', 'trade_license_number', fn(?Model $record) => $record)
                             ->placeholder('Enter trade license number'),
                     ]),
 

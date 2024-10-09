@@ -22,8 +22,19 @@ class FlatImport implements ToCollection, WithHeadingRow
     public function collection(Collection $rows)
     {
         // Define the expected headings
-        $expectedHeadings = ['unit_number', 'property_type', 'mollak_property_id', 'suit_area', 'actual_area', 'balcony_area',
-                'applicable_area', 'parking_count', 'makhani_number', 'dewa_number', 'etisalatdu_number','btuac_number'];
+        $expectedHeadings = ['unit_number',
+                'property_type',
+                // 'mollak_property_id',
+                'suit_area',
+                'actual_area',
+                'balcony_area',
+                // 'applicable_area',
+                'plot_number',
+                'parking_count',
+                'makhani_number',
+                'dewa_number',
+                'etisalatdu_number',
+                'btuac_number'];
 
         if ($rows->first() == null) {
             Notification::make()
@@ -73,11 +84,12 @@ class FlatImport implements ToCollection, WithHeadingRow
                     'building_id'          => $this->buildingId,
                     'property_number'      => $row['unit_number'],
                     'property_type'        => $row['property_type'],
-                    'mollak_property_id'   => $row['mollak_property_id'],
+                    // 'mollak_property_id'   => $row['mollak_property_id'],
                     'suit_area'            => $row['suit_area'],
                     'actual_area'          => $row['actual_area'],
                     'balcony_area'         => $row['balcony_area'],
-                    'applicable_area'      => $row['applicable_area'],
+                    // 'applicable_area'      => $row['applicable_area'],
+                    'plot_number'        => $row['plot_number'],
                     'parking_count'        => $row['parking_count'],
                     'makhani_number'       => $row['makhani_number'],
                     'dewa_number'          => $row['dewa_number'],
