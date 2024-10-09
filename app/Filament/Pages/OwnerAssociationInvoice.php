@@ -113,6 +113,9 @@ class OwnerAssociationInvoice extends Page implements HasForms
                     if ($userRole === 'Property Manager' && $get('building_id') === null) {
                         return true;
                     }
+                    elseif($userRole === 'Property Manager' && $get('building_id') != null){
+                        return false;
+                    }
                     return true;
                 })
                 ->searchable()
