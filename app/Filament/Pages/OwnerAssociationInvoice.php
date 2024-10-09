@@ -4,6 +4,7 @@ namespace App\Filament\Pages;
 
 
 use App\Models\Building\Building;
+use App\Models\Building\Flat;
 use App\Models\OwnerAssociation;
 use App\Models\OwnerAssociationInvoice as ModelsOwnerAssociationInvoice;
 use Carbon\Carbon;
@@ -49,8 +50,18 @@ class OwnerAssociationInvoice extends Page implements HasForms
                 'lg' => 2,
             ])
         ->schema([
-            DatePicker::make('date')->required(),
-            DatePicker::make('due_date')->minDate(Carbon::now()->toDateString()),
+            DatePicker::make('date')->required()
+            ->label(function(){
+                if(auth()->user()->role->name == 'Property Manager'){
+                    return 'Invoice Date ';
+                }
+            }),
+            DatePicker::make('due_date')->minDate(Carbon::now()->toDateString())
+            ->label(function(){
+                if(auth()->user()->role->name == 'Property Manager'){
+                    return 'Invoice Due date';
+                }
+            }),
             Select::make('type')->required()
             ->options([
                 "building" => "Building",
@@ -58,10 +69,25 @@ class OwnerAssociationInvoice extends Page implements HasForms
             ])->reactive(),
             Select::make('building_id')
             ->required()
+            ->live()
+            ->afterStateUpdated(function(Set $set){
+                $set('flat_id', null);
+            })
             ->options(function ($state) {
                 if(auth()->user()->role->name == 'Admin'){
                     return Building::pluck('name', 'id');
-                }else{
+
+                }elseif(auth()->user()->role->name == 'Property Manager'){
+                    $buildingIds = DB::table('building_owner_association')
+                    ->where('owner_association_id', auth()->user()->owner_association_id)
+                    ->where('active', true)
+                    ->pluck('building_id');
+
+                return Building::whereIn('id', $buildingIds)
+                    ->pluck('name', 'id');
+
+                }
+                else{
                     $oaId = auth()->user()?->owner_association_id;
                     return Building::where('owner_association_id', $oaId)
                         ->pluck('name', 'id');
@@ -75,6 +101,22 @@ class OwnerAssociationInvoice extends Page implements HasForms
             ->preload()
             ->live()
             ->label('Building Name'),
+
+            Select::make('flat_id')
+                ->preload()
+                ->label('Flat Number')
+                ->live()
+                ->hidden(function(callable $get){
+                    if($get('building_id') == null){
+                        return true;
+                    }
+                    return false;
+                })
+                ->searchable()
+                ->options(function(callable $get){
+                    return Flat::where('building_id', $get('building_id'))->pluck('property_number');
+                }),
+
             TextInput::make('bill_to')->required()
                 ->rules(['max:15'])
                 ->visible(function (callable $get) {
@@ -90,10 +132,20 @@ class OwnerAssociationInvoice extends Page implements HasForms
                 return false;
             }),
             TextInput::make('mode_of_payment')->rules(['max:15']),
-            TextInput::make('supplier_name')->rules(['max:15']),
+            TextInput::make('supplier_name')->rules(['max:15'])
+            ->hidden(function(){
+                if (auth()->user()->role->name == 'Property Manager') {
+                    return true;
+                }
+            }),
             TextInput::make('job')->rules(['max:15'])->required()->reactive()->disabled(function (callable $get,Set $set) {
                 if ($get('type') == 'building' && $get('job') == ' ' ) {
                     $set('job','Management Fee');
+                }
+            })
+            ->label(function(){
+                if(auth()->user()->role->name == 'Property Manager'){
+                    return 'Service/Job ';
                 }
             }),
             Select::make('month')->required()
@@ -120,7 +172,8 @@ class OwnerAssociationInvoice extends Page implements HasForms
                         $fail('The quantity must not be greater than 2 digits.');
                     }
                 },
-            ])->required(),
+            ])->required(auth()->user()->role->name == 'Property Manager'? false: true)
+            ->hidden(auth()->user()->role->name == 'Property Manager'? true: false),
             TextInput::make('rate')->numeric()->rules([
                 fn (Get $get): Closure => function (string $attribute, $value, Closure $fail) use ($get) {
                     if ($value > 999999) {
