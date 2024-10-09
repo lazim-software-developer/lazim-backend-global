@@ -25,12 +25,13 @@ class VendorComplaintCreateRequest extends FormRequest
             'category'          => 'required_if:complaint_type,tenant_complaint,help_desk',
             'photo'             => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'complaint'         => 'required|min:5|max:150',
-            'complaint_type'    => 'required|in:help_desk,tenant_complaint,suggestions,enquiries,snag',
+            'complaint_type'    => 'required|in:help_desk,tenant_complaint,suggestions,enquiries,snag,preventive_maintenance',
             'complaint_details' => [
                 'string', 'max:1000', 'min:20',
             ],
             'building_id'       => 'required|exists:buildings,id',
             'technician_id'       => 'required|exists:technician_vendors,id',
+            'due_date'          => 'required_if:complaint_type,preventive_maintenance'
             // 'flat_id'           => 'required_if:complaint_type,tenant_complaint,suggestions,enquiries,help_desk',
         ];
     }
