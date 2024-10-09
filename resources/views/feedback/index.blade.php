@@ -13,9 +13,15 @@
 
         <!-- Emojis with interaction -->
         <div class="emojis flex justify-between w-full">
-            <span class="emoji cursor-pointer transform transition-all duration-300 ease-in-out hover:scale-150 hover:shadow-lg" id="happy" onclick="redirectTo('happy')">😊</span>
-            <span class="emoji cursor-pointer transform transition-all duration-300 ease-in-out hover:scale-150 hover:shadow-lg" id="neutral" onclick="redirectTo('neutral')">😐</span>
-            <span class="emoji cursor-pointer transform transition-all duration-300 ease-in-out hover:scale-150 hover:shadow-lg" id="sad" onclick="redirectTo('sad')">😢</span>
+            <span class="emoji cursor-pointer transform transition-all duration-300 ease-in-out hover:scale-150 hover:shadow-lg" id="happy" onclick="redirectTo('happy')">
+                <img src="{{ asset('img/emojis/smiley-positiv.svg') }}" alt="happy emoji" class="emoji-img">
+            </span>
+            <span class="emoji cursor-pointer transform transition-all duration-300 ease-in-out hover:scale-150 hover:shadow-lg" id="neutral" onclick="redirectTo('neutral')">
+                <img src="{{ asset('img/emojis/smiley-neutral.svg') }}" alt="neutral emoji" class="emoji-img">
+            </span>
+            <span class="emoji cursor-pointer transform transition-all duration-300 ease-in-out hover:scale-150 hover:shadow-lg" id="sad" onclick="redirectTo('sad')">
+                <img src="{{ asset('img/emojis/smiley-negativ.svg') }}" alt="negativ emoji" class="emoji-img">
+            </span>
         </div>
 
         <!-- Hidden form to submit the emoji choice -->
@@ -23,7 +29,6 @@
             @csrf
             <input type="hidden" name="emoji" id="selectedEmoji">
             <input type="hidden" name="buildingName" id="buildingName">
-
         </form>
     </div>
     </div>
@@ -55,10 +60,24 @@
         /* Emoji container */
         .emojis {
             padding: 20px;
-            display: flex;
             justify-content: center;
-            gap: 50px;
-            font-size: 3em
+            font-size: 4em;
+        }
+
+        /* Mobile-specific styling for emoji size */
+        .emoji-img {
+            height: 60px;
+            width: 60px;
+            margin: 10px;
+        }
+
+        /* Responsive design for mobile */
+        @media (max-width: 600px) {
+            .emoji-img {
+                height: 60px;
+                width: 60px;
+                margin: 10px;
+            }
         }
 
         /* Center alignment for content */
