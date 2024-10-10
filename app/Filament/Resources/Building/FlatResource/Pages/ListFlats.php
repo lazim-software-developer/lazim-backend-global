@@ -92,7 +92,7 @@ class ListFlats extends ListRecords
                         Column::make('plot_number'),
                         Column::make('makhani_number'),
                         Column::make('dewa_number'),
-                        Column::make('etisalat/du_number'),
+                        Column::make('btu_etisalat_number'),
                         Column::make('btu/ac_number'),
                     ]),
             ])
