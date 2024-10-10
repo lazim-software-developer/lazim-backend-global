@@ -145,7 +145,7 @@ class AssetController extends Controller
 
     //Listing assets for vendor
     public function listAssets(Vendor $vendor){
-        $assets = $vendor->assets;
+        $assets = $vendor->assets()->paginate(10);
         return AssetListResource::collection($assets);
     }
 

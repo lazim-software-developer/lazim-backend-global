@@ -483,6 +483,8 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('vendor')->group(function 
     //Complaint create
     Route::post('/{vendor}/complaint',[VendorComplaintController::class,'create']);
 
+    //Preventive Maintenance
+    Route::get('/{vendor}/preventive_maintenance',[VendorComplaintController::class,'preventiveMaintenance']);
     //Form Requests
     Route::get('/{vendor}/guest-registration',[GuestController::class,'fmlist']);
     Route::patch('/{vendor}/guest-registration/{guest}',[GuestController::class,'updateStatus']);
