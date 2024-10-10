@@ -1,18 +1,18 @@
 <x-guest-layout>
     <div class="pt-4 bg-gray-100 min-h-screen flex flex-col items-center justify-center">
         <!-- Logo as Title -->
-        <div class="mb-12 text-center mt-2">
-            <img src="{{ asset('img/logo/symbiosis_logo.png') }}" alt="Lazim Logo" class="mx-auto" style="height: auto; width: 100px;">
+        <div class="mb-12 text-center pt-4">
+            <img src="{{ asset('img/logo/symbiosis_logo.png') }}" alt="Lazim Logo" style="height: auto; width: 300px;">
         </div>
 
        <!-- Emojis Section -->
-       <div class="w-full sm:max-w-4xl p-6 bg-white shadow-md overflow-hidden sm:rounded-lg text-center">
+       <div  style="margin-top: 60px" class="w-full sm:max-w-4xl p-6 bg-white shadow-md overflow-hidden sm:rounded-lg text-center">
         <!-- Main Heading -->
-        <h2 class="text-3xl font-semibold text-gray-800 mb-8">We value your feedback!</h2>
-        <h2 class="text-3xl font-semibold text-gray-800 mb-8"> How's your experience with our building services?</h2>
+        <h1>We value your feedback!</h1>
+        <h1 style="margin-top: 60px"> How's your experience with our building services?</h1>
 
         <!-- Emojis with interaction -->
-        <div class="emojis flex justify-between w-full">
+        <div class="emojis flex justify-between w-full" style="margin-top: 60px">
             <span class="emoji cursor-pointer transform transition-all duration-300 ease-in-out hover:scale-150 hover:shadow-lg" id="happy" onclick="redirectTo('happy')">
                 <img src="{{ asset('img/emojis/smiley-positiv.svg') }}" alt="happy emoji" class="emoji-img">
             </span>
@@ -46,6 +46,7 @@
         /* Background customization */
         body {
             background-color: #f0f4f8;
+            margin-top: 90px;
         }
 
         /* Emojis hover effect */
@@ -66,16 +67,16 @@
 
         /* Mobile-specific styling for emoji size */
         .emoji-img {
-            height: 60px;
-            width: 60px;
+            height: 80px;
+            width: 80px;
             margin: 10px;
         }
 
         /* Responsive design for mobile */
         @media (max-width: 600px) {
             .emoji-img {
-                height: 60px;
-                width: 60px;
+                height: 80px;
+                width: 80px;
                 margin: 10px;
             }
         }
