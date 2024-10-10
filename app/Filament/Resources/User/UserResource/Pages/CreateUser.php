@@ -4,6 +4,7 @@ namespace App\Filament\Resources\User\UserResource\Pages;
 
 use App\Filament\Resources\User\UserResource;
 use App\Jobs\AccountsManagerJob;
+use App\Jobs\FacilityManagerJob;
 use App\Jobs\MdCreateJob;
 use App\Models\AccountCredentials;
 use App\Models\OwnerAssociationUser;
@@ -46,6 +47,7 @@ class CreateUser extends CreateRecord
             'MD'                => MdCreateJob::class,
             'Complaint Officer' => AccountsManagerJob::class,
             'Legal Officer'     => AccountsManagerJob::class,
+            'Facility Manager'  => FacilityManagerJob::class
             // 'Managing Director' => GeneralAccountCreationJob::class,
             // 'Financial Manager' => GeneralAccountCreationJob::class,
             // 'Operations Engineer' => GeneralAccountCreationJob::class,

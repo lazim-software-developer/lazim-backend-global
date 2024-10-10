@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Building;
 
 use Filament\Forms;
+use Filament\Forms\Set;
 use Filament\Tables;
 use Filament\Forms\Get;
 use Filament\Forms\Form;
@@ -56,10 +57,27 @@ class FlatResource extends Resource
                         })
                         ->visible(auth()->user()->role->name === 'Admin')
                         ->live()
+                        ->afterStateUpdated(function(Set $set){
+                            $set('building_id', null);
+                        })
                         ->preload()
                         ->searchable()
                         ->label('Select Property Manager'),
                     Select::make('building_id')
+                        ->helperText(function(callable $get){
+                            $pmId = $get('owner_association_id');
+                            if($pmId == null && auth()->user()->role->name != 'Property Manager'){
+                                return 'Select a Property manager to load the Buildings.';
+                            }
+                        })
+                        ->noSearchResultsMessage('No Buildings found linked to the selected property manager.')
+                        ->disabled(function(callable $get){
+                            if( $get('owner_association_id') === null &&
+                            auth()->user()->role->name != 'Property Manager'){
+                                return true;
+                            }
+                        })
+                        ->live()
                         ->rules(['exists:buildings,id'])
                         ->relationship('building', 'name')
                         ->options(function(Get $get){

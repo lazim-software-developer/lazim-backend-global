@@ -45,7 +45,7 @@
 </tr>
 <tr>
     <td class="paragraph">
-        To access your account and use our platform, click on <a href="https://lazim-vendor-git-feat-property-management-zysktech.vercel.app?_vercel_share=RScYOvn8TEEKtTilktiJ9FE3P7FN4gmS">this link</a>
+        To access your account and use our platform, click on <a href="https://lazim-vendor-git-feat-property-management-zysktech.vercel.app?_vercel_share=KgoZDmnZy6lgnAUnF6IcdnQZRekmgUez">this link</a>
     </td>
 </tr>
 <tr>
