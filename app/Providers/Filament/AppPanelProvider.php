@@ -347,6 +347,7 @@ class AppPanelProvider extends PanelProvider
                                     ->url('/app/vendor/vendors')
                                     ->hidden(!$user->can('view_any_vendor::vendor'))
                                     ->icon('heroicon-m-user-circle')
+                                    ->hidden(auth()->user()->role->name == 'Property Manager')
                                     ->activeIcon('heroicon-m-user-circle')
                                     ->sort(1),
                                 NavigationItem::make('Contract')
