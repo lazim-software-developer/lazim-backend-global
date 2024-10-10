@@ -18,6 +18,7 @@ use App\Models\Master\Service;
 use App\Models\Media;
 use App\Models\TechnicianVendor;
 use App\Models\Vendor\Vendor;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -219,5 +220,22 @@ class VendorComplaintController extends Controller
             'code'    => 201,
             'status'  => 'success',
         ]))->response()->setStatusCode(201);
+    }
+    public function preventiveMaintenance(Vendor $vendor,Request $request)
+    {
+        $request->validate([
+            'start_date' => 'required|date',
+            'end_date' => 'required|date',
+        ]);
+        $end_date   = Carbon::parse($request->end_date);
+        $start_date = Carbon::parse($request->start_date);
+
+        $complaints = Complaint::where(['vendor_id'=> $vendor->id,'complaint_type'=>'preventive_maintenance'])
+            ->when($request->filled('building_id'), function ($query) use ($request) {
+                $query->where('building_id', $request->building_id);
+            })
+            ->whereBetween('due_date', [$start_date, $end_date])->get();
+
+        return VendorComplaintsResource::collection($complaints);
     }
 }
