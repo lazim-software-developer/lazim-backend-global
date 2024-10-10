@@ -6,10 +6,10 @@
         </div>
 
        <!-- Emojis Section -->
-       <div  style="margin-top: 60px" class="w-full sm:max-w-4xl p-6 bg-white shadow-md overflow-hidden sm:rounded-lg text-center">
+       <div  style="margin-top: 50px" class="w-full sm:max-w-4xl p-6 bg-white shadow-md overflow-hidden sm:rounded-lg text-center">
         <!-- Main Heading -->
         <h1>We value your feedback!</h1>
-        <h1 style="margin-top: 60px"> How's your experience with our building services?</h1>
+        <h2 style="margin-top: 40px"> How's your experience with our building services?</h2>
 
         <!-- Emojis with interaction -->
         <div class="emojis flex justify-between w-full" style="margin-top: 60px">
@@ -46,7 +46,7 @@
         /* Background customization */
         body {
             background-color: #f0f4f8;
-            margin-top: 90px;
+            margin-top: 70px;
         }
 
         /* Emojis hover effect */
@@ -67,16 +67,16 @@
 
         /* Mobile-specific styling for emoji size */
         .emoji-img {
-            height: 80px;
-            width: 80px;
+            height: 70px;
+            width: 70px;
             margin: 10px;
         }
 
         /* Responsive design for mobile */
         @media (max-width: 600px) {
             .emoji-img {
-                height: 80px;
-                width: 80px;
+                height: 70px;
+                width: 70px;
                 margin: 10px;
             }
         }
