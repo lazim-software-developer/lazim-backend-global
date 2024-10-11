@@ -56,7 +56,7 @@ class CreateFacilityManager extends CreateRecord
                     'landline_number'      => $data['landline_number'] ?? null,
                     'website'              => $data['website'] ?? null,
                     'fax'                  => $data['fax'] ?? null,
-                    'status'               => 'approved',
+                    // 'status'               => 'approved',
                     'tl_number'            => $data['tl_number'],
                     'tl_expiry'            => $data['tl_expiry'],
                 ];
@@ -83,7 +83,6 @@ class CreateFacilityManager extends CreateRecord
                         Log::info('Document created successfully');
                     } catch (\Exception $e) {
                         Log::error('Error creating document:', ['error' => $e->getMessage()]);
-                        // Don't throw the error, just log it
                     }
                 }
 
@@ -92,7 +91,7 @@ class CreateFacilityManager extends CreateRecord
                     'vendor_id'            => $vendor->id,
                     'from'                 => $user->created_at,
                     'active'               => true,
-                    'status'               => 'approved',
+                    // 'status'               => 'approved',
                     'type'                 => 'Vendor',
                 ];
 

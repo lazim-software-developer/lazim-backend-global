@@ -2,8 +2,10 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Resources\Building\FlatResource\RelationManagers\UserRelationManager;
 use App\Filament\Resources\BuildingsRelationManagerResource\RelationManagers\BuildingsRelationManager;
 use App\Filament\Resources\FacilityManagerResource\Pages;
+use App\Filament\Resources\FacilityManagerResource\RelationManagers\DocumentsRelationManager;
 use App\Jobs\FacilityManagerJob;
 use App\Jobs\RejectedFMJob;
 use App\Models\OwnerAssociation;
@@ -14,6 +16,7 @@ use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -170,6 +173,7 @@ class FacilityManagerResource extends Resource
                                 'approved' => 'Approved',
                                 'rejected' => 'Rejected',
                             ])
+                            ->live()
                             ->visibleOn('edit')
                             ->afterStateUpdated(function ($state, $livewire) {
                                 $user     = $livewire->record->user;
@@ -183,6 +187,18 @@ class FacilityManagerResource extends Resource
                                     RejectedFMJob::dispatch($user, $password, $email);
                                 }
                             }),
+
+                            Textarea::make('remarks')
+                                ->maxLength(250)
+                                ->rows(5)
+                                ->required()
+                                ->live()
+                                ->visible(function (callable $get) {
+                                    if ($get('status') == 'rejected') {
+                                        return true;
+                                    }
+                                    return false;
+                                })
                     ])->visibleOn('edit'),
             ]);
     }
@@ -249,6 +265,7 @@ class FacilityManagerResource extends Resource
     public static function getRelations(): array
     {
         return [
+            DocumentsRelationManager::class,
             BuildingsRelationManager::class,
         ];
     }

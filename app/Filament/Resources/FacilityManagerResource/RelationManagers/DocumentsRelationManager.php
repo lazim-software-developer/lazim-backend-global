@@ -1,0 +1,68 @@
+<?php
+
+namespace App\Filament\Resources\FacilityManagerResource\RelationManagers;
+
+use App\Models\Building\Document;
+use Filament\Forms;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Form;
+use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Tables;
+use Filament\Tables\Table;
+
+class DocumentsRelationManager extends RelationManager
+{
+    protected static string $relationship = 'documents';
+
+    protected static ?string $title = 'Documents';
+    protected static ?string $modelLabel = 'Document';
+    protected static ?string $pluralModelLabel = 'Documents';
+    protected static bool $shouldRenderTableHeaderActions = true;
+
+    public function form(Form $form): Form
+    {
+        return $form
+            ->schema([
+                Forms\Components\TextInput::make('name')
+                    ->required()
+                    ->maxLength(255),
+                Forms\Components\TextInput::make('url')
+                    ->label('Document URL')
+                    ->required(),
+                Forms\Components\DatePicker::make('expiry_date')
+                    ->label('Expiry Date'),
+                Select::make('status')
+                    ->options([
+                        'approved' => 'Approved',
+                        'rejected' => 'Rejected',
+                    ])
+                    
+                    ->searchable()
+                    ->live(),
+            ]);
+    }
+
+    public function table(Table $table): Table
+    {
+        return $table
+            ->recordTitleAttribute('name')
+            ->columns([
+                Tables\Columns\TextColumn::make('name'),
+                Tables\Columns\TextColumn::make('status'),
+                Tables\Columns\TextColumn::make('expiry_date')
+                    ->date(),
+            ])
+            ->headerActions([
+                Tables\Actions\CreateAction::make(),
+            ])
+            ->actions([
+                Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
+            ])
+            ->bulkActions([
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\DeleteBulkAction::make(),
+                ]),
+            ]);
+    }
+}
