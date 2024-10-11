@@ -45,7 +45,7 @@
 </tr>
 <tr>
     <td class="paragraph">
-        To access your account and use our platform, click on <a href="https://lazim-vendor-git-feat-property-management-zysktech.vercel.app?_vercel_share=KgoZDmnZy6lgnAUnF6IcdnQZRekmgUez">this link</a>
+        To access your account and begin using our platform, click on <a href="https://lazim-vendor-git-feat-property-management-zysktech.vercel.app/login">this link</a>. Once logged in, you will be redirected to the document upload page, where you can submit the necessary documents for review. Our admin team will review and approve or reject them accordingly. Once they are approved, a confirmation email will be sent to you with the login credentials after which you can access your account.
     </td>
 </tr>
 <tr>
