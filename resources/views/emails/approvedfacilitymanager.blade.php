@@ -13,31 +13,24 @@
 </tr>
 <tr>
     <td class="paragraph">
-        Thank you for your interest in joining Lazim. However, we regret to inform you that your account has been rejected.
+        Congratulations! Your account for Lazim has been approved. We're excited to have you on board as a facility manager.
     </td>
 </tr>
-@if($remarks)
-    <td class="paragraph">
-        <strong>Reason for rejection:</strong> {{$remarks}}
-    </td>
-</tr>
-@endif
 <tr>
     <td width="100%" height="25"></td>
 </tr>
 <tr>
     <td class="title">
-        Next Steps:
+        Your Login Credentials:
     </td>
 </tr>
-
 <tr>
     <td width="100%" height="10"></td>
 </tr>
-
 <tr>
     <td class="paragraph">
-        Please address the concerns mentioned above and update your application accordingly.
+        <strong>Email:</strong> {{$user->email}}<br>
+        <strong>Password:</strong> {{$password}}
     </td>
 </tr>
 <tr>
@@ -45,7 +38,7 @@
 </tr>
 <tr>
     <td class="paragraph">
-        To update your application, click on <a href="https://lazim-vendor-git-feat-property-management-zysktech.vercel.app/login">this link</a>.
+        To access your account, please click on <a href="https://lazim-vendor-git-feat-property-management-zysktech.vercel.app/login">this link</a>.
     </td>
 </tr>
 <tr>
@@ -53,16 +46,23 @@
 </tr>
 <tr>
     <td class="paragraph">
-        Once the required updates are made, we will review your application again. Thank you for your co-operation.
+        For security reasons, we recommend changing your password after your first login.
     </td>
 </tr>
 <tr>
     <td width="100%" height="25"></td>
 </tr>
-
 <tr>
     <td class="paragraph">
-        Warm regards,
+        If you have any questions or need assistance, please don't hesitate to contact our support team.
+    </td>
+</tr>
+<tr>
+    <td width="100%" height="25"></td>
+</tr>
+<tr>
+    <td class="paragraph">
+        Welcome aboard!
     </td>
 </tr>
 <tr>
@@ -70,13 +70,11 @@
 </tr>
 <tr>
     <td class="paragraph">
-        Lazim team
+        Best regards,<br>
+        The Lazim Team
     </td>
 </tr>
 
-<tr>
-    <td width="100%" height="25"></td>
-</tr>
 @include('beautymail::templates.minty.contentEnd')
 
 @stop

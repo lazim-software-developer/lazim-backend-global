@@ -2,11 +2,10 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\Building\FlatResource\RelationManagers\UserRelationManager;
 use App\Filament\Resources\BuildingsRelationManagerResource\RelationManagers\BuildingsRelationManager;
 use App\Filament\Resources\FacilityManagerResource\Pages;
 use App\Filament\Resources\FacilityManagerResource\RelationManagers\DocumentsRelationManager;
-use App\Jobs\FacilityManagerJob;
+use App\Jobs\ApprovedFMJob;
 use App\Jobs\RejectedFMJob;
 use App\Models\OwnerAssociation;
 use App\Models\User\User;
@@ -23,15 +22,16 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Hash;
 use Illuminate\Database\Eloquent\Builder;
 use Str;
 
 class FacilityManagerResource extends Resource
 {
-    protected static ?string $model           = Vendor::class;
-    protected static ?string $modelLabel      = 'Facility Manager';
-    protected static ?string $navigationIcon  = 'heroicon-o-building-office-2';
-    protected static ?int $navigationSort     = 1;
+    protected static ?string $model          = Vendor::class;
+    protected static ?string $modelLabel     = 'Facility Manager';
+    protected static ?string $navigationIcon = 'heroicon-o-building-office-2';
+    protected static ?int $navigationSort    = 1;
 
     public static function form(Form $form): Form
     {
@@ -174,32 +174,35 @@ class FacilityManagerResource extends Resource
                                 'rejected' => 'Rejected',
                             ])
                             ->live()
-                            ->visibleOn('edit')
-                            ->afterStateUpdated(function ($state, $livewire) {
-                                $user     = $livewire->record->user;
-                                $email    = $user->email;
-                                $password = Str::random(12);
+                            ->visibleOn('edit'),
 
-                                if ($state === 'approved') {
-                                    FacilityManagerJob::dispatch($user, $password, $email);
-                                }
-                                if ($state === 'rejected') {
-                                    RejectedFMJob::dispatch($user, $password, $email);
-                                }
+                        Textarea::make('remarks')
+                            ->maxLength(250)
+                            ->rows(5)
+                            ->required()
+                            ->visible(function (callable $get) {
+                                return $get('status') === 'rejected';
                             }),
+                    ])
+                    ->visibleOn('edit')
+                    ->afterStateUpdated(function ($state, $livewire) {
+                        $user     = $livewire->record->user;
+                        $email    = $user->email;
+                        $password = Str::random(12);
 
-                            Textarea::make('remarks')
-                                ->maxLength(250)
-                                ->rows(5)
-                                ->required()
-                                ->live()
-                                ->visible(function (callable $get) {
-                                    if ($get('status') == 'rejected') {
-                                        return true;
-                                    }
-                                    return false;
-                                })
-                    ])->visibleOn('edit'),
+                        if ($state['status'] === 'rejected' && !empty($state['remarks'])) {
+                            // Log the remarks before dispatching
+                            \Log::info('Remarks before dispatch:', ['remarks' => $state['remarks']]);
+                            RejectedFMJob::dispatch($user, $password, $email, $state['remarks']);
+                        } elseif ($state['status'] === 'approved') {
+                            // Update user password
+                            $user->password = Hash::make($password);
+                            $user->save();
+
+                            // Dispatch approved email job
+                            ApprovedFMJob::dispatch($user, $password, $email);
+                        }
+                    }),
             ]);
     }
 
@@ -229,15 +232,15 @@ class FacilityManagerResource extends Resource
                     ->searchable()
                     ->icons([
                         'heroicon-o-x-circle'     => 'rejected',
-                        'heroicon-o-clock'        => fn ($state) => $state === null || $state === 'NA',
+                        'heroicon-o-clock'        => fn($state)        => $state === null || $state === 'NA',
                         'heroicon-o-check-circle' => 'approved',
                     ])
                     ->colors([
                         'success' => 'approved',
-                        'danger' => 'rejected',
+                        'danger'  => 'rejected',
                         'warning' => fn($state) => $state === null || $state === 'NA',
                     ])
-                    ->formatStateUsing(fn ($state) => $state === null || $state === 'NA' ? 'Pending' : ucfirst($state))
+                    ->formatStateUsing(fn($state) => $state === null || $state === 'NA' ? 'Pending' : ucfirst($state))
                     ->default('NA'),
             ])
             ->defaultSort('created_at', 'desc')
