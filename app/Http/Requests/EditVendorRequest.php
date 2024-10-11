@@ -24,6 +24,7 @@ class EditVendorRequest extends FormRequest
         return [
             'name' => 'nullable|string',
             'phone' => 'nullable|string|unique:users,phone,'. $this->route('vendor')->owner_id,
+            'email' => 'nullable|regex:/^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/|unique:users,email,'. $this->route('vendor')->owner_id,
         ];
     }
 }
