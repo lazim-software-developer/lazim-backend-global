@@ -48,6 +48,7 @@ class EditFacilityManager extends EditRecord
             'tl_expiry'            => $vendor->tl_expiry,
             'risk_policy_expiry'   => $riskPolicy ? $riskPolicy->expiry_date : null,
             'status'               => $vendor->status ?? 'pending',
+            'remarks'              => $vendor->remarks ?? null,
             'managers'             => [[
                 'name'  => $manager->name ?? '',
                 'email' => $manager->email ?? '',
@@ -68,6 +69,7 @@ class EditFacilityManager extends EditRecord
                 'website'              => $data['website'] ?? null,
                 'fax'                  => $data['fax'] ?? null,
                 'status'               => $data['status'] ?? null,
+                'remarks'              => $data['remarks'] ?? null,
                 'tl_number'            => $data['tl_number'],
                 'tl_expiry'            => $data['tl_expiry'],
             ]);

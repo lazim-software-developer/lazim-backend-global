@@ -85,7 +85,7 @@ class UserResource extends Resource
                             return Role::where('name', 'Admin')->pluck('name', 'id');
                         } else {
                             $oaId = auth()->user()?->owner_association_id;
-                            return Role::whereNotIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'OA', 'Owner', 'Managing Director', 'Vendor', 'Property Manager'])
+                            return Role::whereNotIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'OA', 'Owner', 'Managing Director', 'Vendor', 'Property Manager', 'Facility Manager'])
                                 ->where('owner_association_id', $oaId)
                                 ->pluck('name', 'id');
                         }
@@ -121,7 +121,7 @@ class UserResource extends Resource
         if(Role::where('id',auth()->user()->role_id)->first()->name == 'Admin'){
             $roles = Role::where('name', 'Admin')->pluck('id');
         }else{
-            $roles = Role::whereNotIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'OA', 'Owner', 'Managing Director', 'Vendor'])->pluck('id');
+            $roles = Role::whereNotIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'OA', 'Owner', 'Managing Director', 'Vendor', 'Facility Manager'])->pluck('id');
         }
         return $table
             ->modifyQueryUsing(fn(Builder $query) => $query->where('owner_association_id',auth()->user()?->owner_association_id)->whereIn('role_id',$roles)->where('id', '!=', auth()->user()->id))
