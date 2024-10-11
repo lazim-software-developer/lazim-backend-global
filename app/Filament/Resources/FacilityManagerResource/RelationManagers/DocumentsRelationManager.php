@@ -2,8 +2,8 @@
 
 namespace App\Filament\Resources\FacilityManagerResource\RelationManagers;
 
-use App\Models\Building\Document;
 use Filament\Forms;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -14,9 +14,9 @@ class DocumentsRelationManager extends RelationManager
 {
     protected static string $relationship = 'documents';
 
-    protected static ?string $title = 'Documents';
-    protected static ?string $modelLabel = 'Document';
-    protected static ?string $pluralModelLabel = 'Documents';
+    protected static ?string $title                       = 'Documents';
+    protected static ?string $modelLabel                  = 'Document';
+    protected static ?string $pluralModelLabel            = 'Documents';
     protected static bool $shouldRenderTableHeaderActions = true;
 
     public function form(Form $form): Form
@@ -25,18 +25,29 @@ class DocumentsRelationManager extends RelationManager
             ->schema([
                 Forms\Components\TextInput::make('name')
                     ->required()
+                    ->disabled()
                     ->maxLength(255),
-                Forms\Components\TextInput::make('url')
-                    ->label('Document URL')
-                    ->required(),
+                FileUpload::make('url')
+                    ->disk('s3')
+                    ->directory('dev')
+                    ->disabled()
+                    ->openable(true)
+                    ->downloadable(true)
+                    ->label('Document')
+                    ->columnSpan([
+                        'sm' => 1,
+                        'md' => 1,
+                        'lg' => 2,
+                    ]),
                 Forms\Components\DatePicker::make('expiry_date')
-                    ->label('Expiry Date'),
+                    ->label('Expiry Date')
+                    ->disabled(),
                 Select::make('status')
                     ->options([
                         'approved' => 'Approved',
                         'rejected' => 'Rejected',
                     ])
-                    
+
                     ->searchable()
                     ->live(),
             ]);
