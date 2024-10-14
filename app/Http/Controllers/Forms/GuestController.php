@@ -245,6 +245,13 @@ class GuestController extends Controller
             ->when($request->has('verified'), function ($query) use ($request) {
                 return $query->where('verified', $request->verified);
             })
+            ->when($request->has('search'),function ($query) use ($request) {
+                $query->where(function ($q) use ($request) {
+                    $q->where('name', 'like', '%' . $request->search . '%')
+                      ->orWhere('phone', 'like', '%' . $request->search . '%')
+                      ->orWhere('email', 'like', '%' . $request->search . '%');
+                });
+            })
             ->orderBy(DB::raw("CONCAT(DATE(start_time), ' ', time_of_viewing)"));
 
         return VisitorResource::collection($futureVisits->paginate(10));
