@@ -5,6 +5,7 @@ namespace App\Filament\Resources\OwnerAssociationInvoiceResource\Pages;
 use App\Filament\Resources\OwnerAssociationInvoiceResource;
 use App\Models\Building\Building;
 use App\Models\Master\Role;
+use DB;
 use Filament\Actions;
 use Filament\Actions\Action;
 use Filament\Facades\Filament;
@@ -31,9 +32,17 @@ class ListOwnerAssociationInvoices extends ListRecords
     }
     protected function getTableQuery(): Builder
     {
-        if(in_array(auth()->user()->role->name, ['Admin', 'Property Manager'])){
+        if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
             return parent::getTableQuery();
+        } elseif (Role::where('id', auth()->user()->role_id)->first()->name == 'Property Manager') {
+            $buildingIds = DB::table('building_owner_association')
+                ->where('owner_association_id', auth()->user()->owner_association_id)
+                ->pluck('building_id');
+
+            return parent::getTableQuery()->whereIn('building_id', $buildingIds);
         }
-        return parent::getTableQuery()->where('owner_association_id',Filament::getTenant()->id);
+
+        return parent::getTableQuery()->where('owner_association_id', Filament::getTenant()->id);
     }
+
 }
