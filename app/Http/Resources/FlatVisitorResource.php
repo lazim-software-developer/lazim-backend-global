@@ -33,7 +33,7 @@ class FlatVisitorResource extends JsonResource
             "ticket_number"        => $this->ticket_number,
             "time_of_viewing"      => $this->time_of_viewing,
             "status"               => $this->status,
-            'documents'            => $this->guestDocuments ? DocumentResource::collection($this->guestDocuments) : null,
+            'documents'            => $this->guestDocuments()->exists() ? DocumentResource::collection($this->guestDocuments) : null,
         ];
     }
 }

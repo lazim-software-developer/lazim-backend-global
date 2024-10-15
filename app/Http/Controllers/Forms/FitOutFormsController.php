@@ -180,8 +180,14 @@ class FitOutFormsController extends Controller
             'status' => 'required|in:approved,rejected',
             'remarks' => 'required_if:status,rejected|max:150',
         ]);
-        
+
         $data = $request->only(['status','remarks']);
         $fitOutForm->update($data);
+
+        return FitOutFormResource::make($fitOutForm);
+    }
+    public function show(Vendor $vendor, FitOutForm $fitOutForm, Request $request)
+    {
+        return FitOutFormResource::make($fitOutForm);
     }
 }

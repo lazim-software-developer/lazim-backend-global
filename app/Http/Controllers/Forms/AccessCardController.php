@@ -314,4 +314,9 @@ class AccessCardController extends Controller
 
         return AccessCardFormResource::make($accessCard);
     }
+
+    public function show(Vendor $vendor, AccessCard $accessCard, Request $request)
+    {
+        return AccessCardFormResource::make($accessCard);
+    }
 }

@@ -153,4 +153,10 @@ class ResidentialFormController extends Controller
 
         return ResidentialFormResource::make($residentialForm);
     }
+
+    public function show(Vendor $vendor, ResidentialForm $residentialForm, Request $request)
+    {
+        return ResidentialFormResource::make($residentialForm);
+
+    }
 }

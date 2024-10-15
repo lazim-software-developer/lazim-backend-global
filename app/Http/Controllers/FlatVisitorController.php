@@ -77,4 +77,8 @@ class FlatVisitorController extends Controller
 
         return FlatVisitorResource::make($flatVisitor);
     }
+     public function show(Vendor $vendor, FlatVisitor $flatVisitor, Request $request)
+    {
+        return FlatVisitorResource::make($flatVisitor);
+    }
 }
