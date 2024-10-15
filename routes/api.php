@@ -487,8 +487,10 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('vendor')->group(function 
     Route::get('/{vendor}/preventive_maintenance',[VendorComplaintController::class,'preventiveMaintenance']);
     //Form Requests
     Route::get('/{vendor}/guest-registration',[GuestController::class,'fmlist']);
+    Route::get('/{vendor}/guest-registration/{guest}',[GuestController::class,'show']);
     Route::patch('/{vendor}/guest-registration/{guest}',[GuestController::class,'updateStatus']);
     Route::get('/{vendor}/move-in-out',[MoveInOutController::class,'fmlist']);
+    Route::get('/{vendor}/move-in-out/{moveInOut}',[MoveInOutController::class,'show']);
     Route::patch('/{vendor}/move-in-out/{moveInOut}',[MoveInOutController::class,'updateStatus']);
     Route::get('/{vendor}/fit-out',[FitOutFormsController::class,'fmlist']);
     Route::patch('/{vendor}/fit-out/{fitOutForm}',[FitOutFormsController::class,'updateStatus']);

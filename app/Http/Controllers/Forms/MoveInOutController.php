@@ -302,4 +302,8 @@ class MoveInOutController extends Controller
 
         return MoveInOutResource::make($moveInOut);
     }
+    public function show(Vendor $vendor, MoveInOut $moveInOut, Request $request)
+    {
+        return MoveInOutResource::make($moveInOut);
+    }
 }

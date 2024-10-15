@@ -512,4 +512,9 @@ class GuestController extends Controller
 
         return GuestResource::make($guest);
     }
+
+    public function show(Vendor $vendor, Guest $guest, Request $request)
+    {
+        return GuestResource::make($guest);
+    }
 }
