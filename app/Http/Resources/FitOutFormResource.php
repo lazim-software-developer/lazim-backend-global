@@ -33,6 +33,7 @@ class FitOutFormResource extends JsonResource
             'admin_document'               => $this->admin_document ? env('AWS_URL') . '/' . $this->admin_document : null,
             'ticket_number'                => $this->ticket_number,
             'payment_status'               => $this?->orders?->first()?->payment_status ?? null,
+            'contractor_request'           => $this?->contractorRequest ? FitOutFormContractorResource::make($this->contractorRequest()->first()) : null,
         ];
     }
 }

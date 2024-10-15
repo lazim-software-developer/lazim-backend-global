@@ -264,4 +264,9 @@ class SaleNocController extends Controller
 
         return SaleNocResource::make($saleNOC);
     }
+
+    public function show(Vendor $vendor, SaleNOC $saleNOC, Request $request)
+    {
+        return SaleNocResource::make($saleNOC);
+    }
 }
