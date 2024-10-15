@@ -21,6 +21,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\UserApprovalResource\Pages;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 use App\Filament\Resources\UserApprovalResource\RelationManagers;
+use App\Filament\Resources\UserApprovalResource\RelationManagers\HistoryRelationManager;
 
 class UserApprovalResource extends Resource
 {
@@ -149,7 +150,7 @@ class UserApprovalResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            HistoryRelationManager::class,
         ];
     }
 
