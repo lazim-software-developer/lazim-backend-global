@@ -19,9 +19,10 @@ class ListOwnerAssociationReceipts extends ListRecords
         return [
             // Actions\CreateAction::make(),
             Action::make('Generate Receipt')->url(function () {
-                if (auth()->user()->role->name == 'Admin') {
+                if (in_array(auth()->user()->role->name, ['Admin', 'Property Manager'])) {
                     return '/app/generate-receipt';
-                } else {
+                }
+                else {
                     return '/admin/generate-receipt';
                 }
 
@@ -30,9 +31,10 @@ class ListOwnerAssociationReceipts extends ListRecords
     }
     protected function getTableQuery(): Builder
     {
-        if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
+        if (in_array(auth()->user()->role->name, ['Admin', 'Property Manager'])) {
             return parent::getTableQuery();
         }
+
         return parent::getTableQuery()->where('owner_association_id',Filament::getTenant()->id);
     }
 }

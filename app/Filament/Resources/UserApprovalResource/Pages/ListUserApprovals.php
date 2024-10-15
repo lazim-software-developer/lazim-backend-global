@@ -26,7 +26,7 @@ class ListUserApprovals extends ListRecords
             return parent::getTableQuery()->latest();
         }
         if(Role::where('id', auth()->user()->role_id)->first()->name == 'Property Manager'){
-            return parent::getTableQuery()->latest();
+            return parent::getTableQuery()->where('owner_association_id', auth()->user()->owner_association_id)->latest();
         }
         return parent::getTableQuery()->where('owner_association_id',Filament::getTenant()->id)->latest();
     }
