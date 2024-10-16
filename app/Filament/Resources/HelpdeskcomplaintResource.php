@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Resources\ComplaintscomplaintResource\RelationManagers\CommentsRelationManager;
 use Closure;
 use Filament\Forms\Get;
 use Filament\Forms\Form;
@@ -193,12 +194,12 @@ class HelpdeskcomplaintResource extends Resource
                             ->live(),
                         TextInput::make('remarks')
                             ->rules(['max:150'])
-                            ->visible(function (callable $get) {
-                                if ($get('status') == 'closed') {
-                                    return true;
-                                }
-                                return false;
-                            })
+                            // ->visible(function (callable $get) {
+                            //     if ($get('status') == 'closed') {
+                            //         return true;
+                            //     }
+                            //     return false;
+                            // })
                             ->disabled(function (Complaint $record) {
                                 return $record->status != 'open';
                             })
@@ -290,7 +291,7 @@ class HelpdeskcomplaintResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            CommentsRelationManager::class,
         ];
     }
 

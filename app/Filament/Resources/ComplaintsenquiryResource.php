@@ -6,8 +6,10 @@ use Filament\Forms;
 use Filament\Tables;
 use Filament\Forms\Get;
 use Filament\Forms\Form;
+use App\Models\User\User;
 use Filament\Tables\Table;
 use App\Models\Master\Role;
+use Filament\Facades\Filament;
 use Filament\Resources\Resource;
 use App\Models\Complaintsenquiry;
 use App\Models\Building\Complaint;
@@ -17,19 +19,18 @@ use Filament\Tables\Actions\Action;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Textarea;
 use Filament\Tables\Columns\TextColumn;
+use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 use App\Filament\Resources\ComplaintsenquiryResource\Pages;
 use App\Filament\Resources\ComplaintsenquiryResource\RelationManagers;
-use App\Models\User\User;
-use Filament\Facades\Filament;
-use Filament\Forms\Components\Textarea;
-use Illuminate\Database\Eloquent\Model;
-use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class ComplaintsenquiryResource extends Resource
 {
@@ -101,9 +102,13 @@ class ComplaintsenquiryResource extends Resource
                                     ->downloadable(true)
                                     ->label('File'),
                             ]),
+                        DatePicker::make('created_at')
+                            ->label('Created On')
+                            ->disabled(),
                         Select::make('status')
                             ->options([
                                 'open' => 'Open',
+                                'in-progress' => 'In-Progress',
                                 'closed' => 'Closed',
                             ])
                             ->disabled(function (Complaint $record) {
@@ -114,12 +119,12 @@ class ComplaintsenquiryResource extends Resource
                             ->live(),
                         TextInput::make('remarks')
                             ->rules(['max:150'])
-                            ->visible(function (callable $get) {
-                                if ($get('status') == 'closed') {
-                                    return true;
-                                }
-                                return false;
-                            })
+                            // ->visible(function (callable $get) {
+                            //     if ($get('status') == 'closed') {
+                            //         return true;
+                            //     }
+                            //     return false;
+                            // })
                             ->disabled(function (Complaint $record) {
                                 return $record->status == 'closed';
                             })
@@ -137,6 +142,11 @@ class ComplaintsenquiryResource extends Resource
                     ->default('NA')
                     ->label('Ticket Number'),
                 TextColumn::make('building.name')
+                    ->default('NA')
+                    ->searchable()
+                    ->limit(50),
+                TextColumn::make('flat.property_number')
+                    ->label('Unit')
                     ->default('NA')
                     ->searchable()
                     ->limit(50),

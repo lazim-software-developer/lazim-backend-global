@@ -104,6 +104,7 @@ class ComplaintssuggessionResource extends Resource
                         Select::make('status')
                             ->options([
                                 'open' => 'Open',
+                                'in-progress' => 'In-Progress',
                                 'closed' => 'Closed',
                             ])
                             ->disabled(function (Complaint $record) {
@@ -114,12 +115,12 @@ class ComplaintssuggessionResource extends Resource
                             ->live(),
                         TextInput::make('remarks')
                             ->rules(['max:150'])
-                            ->visible(function (callable $get) {
-                                if ($get('status') == 'closed') {
-                                    return true;
-                                }
-                                return false;
-                            })
+                            // ->visible(function (callable $get) {
+                            //     if ($get('status') == 'closed') {
+                            //         return true;
+                            //     }
+                            //     return false;
+                            // })
                             ->disabled(function (Complaint $record) {
                                 return $record->status == 'closed';
                             })

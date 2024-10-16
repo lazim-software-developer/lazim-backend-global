@@ -10,7 +10,9 @@ use Filament\Forms\Form;
 use App\Models\User\User;
 use Filament\Tables\Table;
 use App\Models\Master\Role;
+use Illuminate\Support\Str;
 use App\Models\Vendor\Vendor;
+use App\Models\Master\Service;
 use Filament\Facades\Filament;
 use App\Models\TechnicianVendor;
 use Filament\Resources\Resource;
@@ -36,8 +38,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 use App\Filament\Resources\ComplaintscomplaintResource\Pages;
 use App\Filament\Resources\ComplaintscomplaintResource\RelationManagers;
-use Illuminate\Support\Str;
-use App\Models\Master\Service;
+use App\Filament\Resources\ComplaintscomplaintResource\RelationManagers\CommentsRelationManager;
 
 class ComplaintscomplaintResource extends Resource
 {
@@ -117,7 +118,7 @@ class ComplaintscomplaintResource extends Resource
                                 return User::find($technicians)->pluck('first_name', 'id');
                             })
                             ->disabled(function (Complaint $record) {
-                                return $record->status != 'open';
+                                return $record->status == 'closed';
                             })
                             ->preload()
                             ->searchable()
@@ -133,13 +134,13 @@ class ComplaintscomplaintResource extends Resource
                                 },
                             ])
                             ->disabled(function (Complaint $record) {
-                                return $record->status != 'open';
+                                return $record->status == 'closed';
                             })
                             ->numeric(),
                         DatePicker::make('due_date')
                             ->minDate(now()->format('Y-m-d'))
                             ->disabled(function (Complaint $record) {
-                                return $record->status != 'open';
+                                return $record->status == 'closed';
                             })
                             ->rules(['date'])
                             ->placeholder('Due Date'),
@@ -183,23 +184,24 @@ class ComplaintscomplaintResource extends Resource
                         Select::make('status')
                             ->options([
                                 'open' => 'Open',
+                                'in-progress' => 'In-Progress',
                                 'closed' => 'Closed',
                             ])
                             ->disabled(function (Complaint $record) {
-                                return $record->status != 'open';
+                                return $record->status == 'closed';
                             })
                             ->searchable()
                             ->live(),
                         TextInput::make('remarks')
                             ->rules(['max:150'])
-                            ->visible(function (callable $get) {
-                                if ($get('status') == 'closed') {
-                                    return true;
-                                }
-                                return false;
-                            })
+                            // ->visible(function (callable $get) {
+                            //     if ($get('status') == 'closed') {
+                            //         return true;
+                            //     }
+                            //     return false;
+                            // })
                             ->disabled(function (Complaint $record) {
-                                return $record->status != 'open';
+                                return $record->status == 'closed';
                             })
                             ->required(),
 
@@ -296,7 +298,7 @@ class ComplaintscomplaintResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            CommentsRelationManager::class,
         ];
     }
 
