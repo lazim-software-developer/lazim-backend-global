@@ -9,18 +9,20 @@
         <!-- Header -->
         <div style="text-align: center;">
             <h2 style="font-size: 18px; " class="text-2xl font-bold text-gray-900">{{$data->type == 'building' ? $data->building?->name.' - '.$data->flat?->property_number : $data->receipt_to}}</h2>
-            <h2 style="font-size: 18px; " class="text-2xl font-bold text-gray-900">{{$data->owner?->name}}</h2>
+            <h2 class="text-sm font-bold text-gray-900">
+                {{ auth()->user()->role->name == 'Property Manager' ? auth()->user()->first_name : $data->owner?->name }}
+            </h2>
             <p style="font-size: 12px; ">{{$data->owner?->address}}</p>
             <p style="font-size: 12px;">E-Mail: {{$data->owner?->email}}</p>
             <h3 style="font-size: 16px; margin-top: 10px;">Receipt Voucher</h3>
         </div>
-        
+
         <!-- Voucher Info -->
         <div style="display: flex; justify-content: space-between; padding-top: 2mm;">
             <p style="font-size: 12px;"><strong>No. :</strong> {{$data->receipt_number}}</p>
             <p style="font-size: 12px;"><strong>Dated :</strong> {{$data->date}}</p>
         </div>
-        
+
         <!-- Through -->
         <p style="font-size: 12px; margin: 0;"><strong>Through :</strong> {{$data->received_in}}</p>
 
@@ -33,7 +35,7 @@
             <tr>
                 <td style="padding: 2mm 0; font-size: 12px; "><strong>Account :</strong> </td>
                 <td style="padding: 2mm 0; font-size: 12px; border-top: 1px solid #000;"> </td>
-                
+
             </tr>
             <tr>
                 <td style="padding: 2mm 0; font-size: 12px;">{{$data->payment_reference}}</td>

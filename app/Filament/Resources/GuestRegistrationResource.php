@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use DB;
 use Filament\Tables;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
@@ -232,7 +233,18 @@ class GuestRegistrationResource extends Resource
                         Select::make('Building')
                             ->searchable()
                             ->options(function () {
-                                if(Role::where('id', auth()->user()->role_id)->first()->name != 'Admin'){
+                                if (auth()->user()->role->name == 'Property Manager') {
+                                    $buildingIds = DB::table('building_owner_association')
+                                        ->where('owner_association_id', auth()->user()->owner_association_id)
+                                        ->where('active', true)
+                                        ->pluck('building_id');
+
+                                    return Building::whereIn('id', $buildingIds)
+                                        ->pluck('name', 'id');
+
+                                }
+
+                                elseif(Role::where('id', auth()->user()->role_id)->first()->name != 'Admin'){
                                     return Building::where('owner_association_id',auth()->user()?->owner_association_id)->pluck('name', 'id');
                                 }
                                 return Building::all()->pluck('name', 'id');

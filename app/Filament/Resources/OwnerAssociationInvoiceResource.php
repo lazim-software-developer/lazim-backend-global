@@ -43,7 +43,7 @@ class OwnerAssociationInvoiceResource extends Resource
                 TextColumn::make('job'),
                 TextColumn::make('month'),
                 TextColumn::make('description'),
-                TextColumn::make('quantity'),
+                TextColumn::make('quantity')->default('NA'),
                 TextColumn::make('rate'),
                 TextColumn::make('tax'),
             ])

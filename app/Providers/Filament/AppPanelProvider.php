@@ -232,12 +232,7 @@ class AppPanelProvider extends PanelProvider
                                 ->icon('heroicon-o-building-office')
                                 ->activeIcon('heroicon-o-building-office')
                                 ->sort(1),
-                            NavigationItem::make('Facility Managers')
-                                ->url('/app/facility-managers')
-                                ->hidden(auth()->user()->role->name !== 'Property Manager')
-                                ->icon('heroicon-o-user')
-                                ->activeIcon('heroicon-o-user')
-                                ->sort(1),
+
                             // NavigationItem::make('Facility Managers')
                             //     ->url('/app/vendors')
                             //     // ->hidden(!$user->can('view_any_mollak::tenant'))
@@ -249,6 +244,26 @@ class AppPanelProvider extends PanelProvider
 
 
                         ]),
+
+                        NavigationGroup::make('Facility manager management')
+                            ->items([
+                                NavigationItem::make('Facility Managers')
+                                ->url('/app/facility-managers')
+                                ->hidden(auth()->user()->role->name !== 'Property Manager')
+                                ->icon('heroicon-o-user')
+                                ->activeIcon('heroicon-o-user')
+                                ->sort(1),
+
+                                NavigationItem::make('Assets')
+                                    ->url('/app/assets')
+                                    ->icon('heroicon-o-rectangle-stack')
+                                    ->hidden(auth()->user()->role->name !== 'Property Manager')
+                                    ->activeIcon('heroicon-o-rectangle-stack')
+                                    ->sort(8),
+
+                            ]),
+
+
                 ]);
             }
 
@@ -388,6 +403,7 @@ class AppPanelProvider extends PanelProvider
                                     ->sort(7),
                                 NavigationItem::make('Assets')
                                     ->url('/app/assets')
+                                    ->visible(auth()->user()->role->name !== 'Property Manager')
                                     ->hidden(!$user->can('view_any_asset'))
                                     ->icon('heroicon-o-rectangle-stack')
                                     ->activeIcon('heroicon-o-rectangle-stack')

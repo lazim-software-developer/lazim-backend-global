@@ -5,6 +5,7 @@ namespace App\Filament\Resources\OwnerAssociationReceiptResource\Pages;
 use App\Filament\Resources\OwnerAssociationReceiptResource;
 use App\Models\Building\Building;
 use App\Models\Master\Role;
+use DB;
 use Filament\Actions\Action;
 use Filament\Facades\Filament;
 use Filament\Resources\Pages\ListRecords;
@@ -19,20 +20,29 @@ class ListOwnerAssociationReceipts extends ListRecords
         return [
             // Actions\CreateAction::make(),
             Action::make('Generate Receipt')->url(function () {
-                if (auth()->user()->role->name == 'Admin') {
+                if (in_array(auth()->user()->role->name, ['Admin', 'Property Manager'])) {
                     return '/app/generate-receipt';
-                } else {
+                }
+                else {
                     return '/admin/generate-receipt';
                 }
 
             }),
         ];
     }
-    protected function getTableQuery(): Builder
+   protected function getTableQuery(): Builder
     {
-        if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
+        if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
             return parent::getTableQuery();
+        } elseif (Role::where('id', auth()->user()->role_id)->first()->name == 'Property Manager') {
+            $buildingIds = DB::table('building_owner_association')
+                ->where('owner_association_id', auth()->user()->owner_association_id)
+                ->pluck('building_id');
+
+            return parent::getTableQuery()->whereIn('building_id', $buildingIds);
         }
-        return parent::getTableQuery()->where('owner_association_id',Filament::getTenant()->id);
+
+        return parent::getTableQuery()->where('owner_association_id', Filament::getTenant()->id);
     }
+
 }
