@@ -12,12 +12,14 @@ use App\Models\ExpoPushNotification;
 use App\Models\OwnerAssociation;
 use App\Models\ResidentialForm;
 use App\Models\Vendor\Vendor;
+use App\Traits\UtilsTrait;
 use Filament\Facades\Filament;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 
 class ResidentialFormController extends Controller
 {
+    use UtilsTrait;
     public function store(ResidentialFormRequest $request)
     {
         $validated = $request->validated();

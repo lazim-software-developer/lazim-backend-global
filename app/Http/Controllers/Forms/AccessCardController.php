@@ -16,6 +16,7 @@ use App\Models\Forms\Guest;
 use App\Models\Order;
 use App\Models\OwnerAssociation;
 use App\Models\Vendor\Vendor;
+use App\Traits\UtilsTrait;
 use Carbon\Carbon;
 use Filament\Facades\Filament;
 use Illuminate\Http\Request;
@@ -24,6 +25,7 @@ use Illuminate\Support\Facades\Log;
 
 class AccessCardController extends Controller
 {
+    use UtilsTrait;
     /**
      * Show the form for creating a new resource.
      */
