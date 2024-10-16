@@ -54,8 +54,17 @@ class FeedbackController extends Controller
                 return redirect('https://forms.gle/xifo6g3BwazvTKa76');
             } elseif($buildingName == "KARM SQUARE"){
                 return redirect('https://forms.gle/R7Hv79iyxzdwar5h8');
+            } elseif($buildingName == "Azure"){
+                return redirect('https://forms.gle/HiTdT8MzZU6BXwzp9');
+            } elseif($buildingName == "Luma22"){
+                return redirect('https://forms.gle/4NxEkNuHKmqNvaEK7');
+            } elseif($buildingName == "Boutique 7"){
+                return redirect('https://forms.gle/yQjc7GMvvtADncd7A');
+            } elseif($buildingName == "Dubai Arch Tower"){
+                return redirect('https://forms.gle/wkSPU6Fz9fMoML1d6');
+            } elseif($buildingName == "Hamilton House"){
+                return redirect('https://forms.gle/hcS4vNVh6ajM7hHd9');
             }
-
         } elseif($emoji === 'sad') {
             if($buildingName == "Suntech Tower"){
                 return redirect('https://forms.gle/j2LYLvwy7U73MHLm9');
@@ -91,8 +100,19 @@ class FeedbackController extends Controller
                 return redirect('https://forms.gle/8G9GhoE3J82YJhaU6');
             } elseif($buildingName == "KARM SQUARE"){
                 return redirect('https://forms.gle/4CQYM1nTcbGg15zh6');
+            } elseif($buildingName == "Azure"){
+                return redirect('https://forms.gle/uR1HNvAEkuy2vbdw8');
+            } elseif($buildingName == "Luma22"){
+                return redirect('https://forms.gle/21NydVxARYjsjexX9');
+            } elseif($buildingName == "Boutique 7"){
+                return redirect('https://forms.gle/SYkeCD3ADYrEDWLF9');
+            } elseif($buildingName == "Dubai Arch Tower"){
+                return redirect('https://forms.gle/5WTjLmwnJDXekR9P6');
+            } elseif($buildingName == "Hamilton House"){
+                return redirect('https://forms.gle/tkaAnGDmXeaYTefp6');
             }
         }
+
 
 
         return redirect()->back();
