@@ -20,6 +20,7 @@ use App\Models\MollakTenant;
 use App\Models\OwnerAssociation;
 use App\Models\User\User;
 use App\Models\UserApproval;
+use App\Models\UserApprovalAudit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -291,6 +292,16 @@ class RegistrationController extends Controller
             'owner_association_id' => $oam?->id,
         ]);
 
+        // Store details to UserApprovalAudit table for status history
+        UserApprovalAudit::create([
+            'user_approval_id' => $userApproval->id,
+            'document' => $imagePath,
+            'document_type' => $request->type == 'Owner' ? 'Title Deed' : 'Ejari',
+            'emirates_document' => $emirates,
+            'passport' => $passport,
+            'owner_association_id' => $oam?->id,
+        ]);
+
         // Store details to Flat tenants table
         FlatTenant::create([
             'flat_id' => $request->flat_id,
@@ -356,6 +367,15 @@ class RegistrationController extends Controller
             'passport_document' => $passport,
             'status' => null,
             'remarks' => null,
+        ]);
+
+        UserApprovalAudit::create([
+            'user_approval_id' => $resident->id,
+            'document' => $imagePath,
+            'document_type' => $resident->document_type,
+            'emirates_document' => $emirates,
+            'passport' => $passport,
+            'owner_association_id' => $resident->owner_association_id,
         ]);
 
         return (new CustomResponseResource([
