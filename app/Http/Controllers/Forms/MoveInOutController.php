@@ -157,7 +157,12 @@ class MoveInOutController extends Controller
         $request->validate([
             'building_id' => 'required',
         ]);
-        $mov = MoveInOut::where('status', 'approved')->where('moving_date', '>=', now()->toDateString())->where('building_id', $request->building_id)->orderBy('moving_date')->get();
+        $mov = MoveInOut::where('status', 'approved')->where('moving_date', '>=', now()->toDateString())->where('building_id', $request->building_id);
+        if ($request->filled('type')) {
+            $mov->where('type', $request->type);
+        }
+        
+        $mov = $mov->orderBy('moving_date')->get();
         return MoveInOutResource::collection($mov);
     }
 
