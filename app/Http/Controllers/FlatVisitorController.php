@@ -7,11 +7,13 @@ use App\Models\Building\BuildingPoc;
 use App\Models\ExpoPushNotification;
 use App\Models\Vendor\Vendor;
 use App\Models\Visitor\FlatVisitor;
+use App\Traits\UtilsTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class FlatVisitorController extends Controller
 {
+    use UtilsTrait;
     public function index(Vendor $vendor)
     {
         $ownerAssociationIds = DB::table('owner_association_vendor')

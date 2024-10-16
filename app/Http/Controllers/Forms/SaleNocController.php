@@ -17,6 +17,7 @@ use App\Models\Forms\SaleNOC;
 use App\Models\Order;
 use App\Models\OwnerAssociation;
 use App\Models\Vendor\Vendor;
+use App\Traits\UtilsTrait;
 use Filament\Facades\Filament;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -24,6 +25,7 @@ use Illuminate\Support\Facades\Log;
 
 class SaleNocController extends Controller
 {
+    use UtilsTrait;
     public function store(SaleNocRequest $request)
     {
         // Upload files using the fucntion optimizeDocumentAndUpload
