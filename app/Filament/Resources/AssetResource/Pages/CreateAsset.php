@@ -81,7 +81,7 @@ class CreateAsset extends CreateRecord
             $content = json_decode($response->getBody()->getContents());
             Log::info(json_encode($content));
             $this->record->qr_code = $content->url;  
-            Log::info($this->record);   // pass this url to database 
+            Log::info($this->record);   // pass this url to database
             $this->record->save();
         } catch (\Exception $e) {
             Log::error($e->getMessage());
