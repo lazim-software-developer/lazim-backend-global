@@ -180,6 +180,16 @@ return [
                 'view_owner::association::receipt',
                 'create_owner::association::receipt',
                 'update_owner::association::receipt',
+
+                'view_asset',
+                'view_any_asset',
+                'create_asset',
+                'update_asset',
+
+                'view_guest::registration',
+                'view_any_guest::registration',
+                'create_guest::registration',
+                'update_guest::registration',
             ],
         ],
     ],
