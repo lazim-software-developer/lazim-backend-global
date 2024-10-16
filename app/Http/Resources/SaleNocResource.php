@@ -40,6 +40,10 @@ class SaleNocResource extends JsonResource
             'ticket_number'            => $this->ticket_number,
             'contacts'                 => NocContactsResource::collection($this->contacts),
             'payment_status'           => $this?->orders?->first()?->payment_status ?? null,
+            'cooling_bill_paid'        => $this->cooling_bill_paid,
+            'service_charge_paid'      => $this->service_charge_paid,
+            'noc_fee_paid'             => $this->noc_fee_paid,
+            'admin_document'           => $this->admin_document,
         ];
     }
 }

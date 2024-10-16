@@ -19,6 +19,7 @@ class FlatTenantRelationManager extends RelationManager
 {
     protected static string $relationship = 'tenants';
 
+    protected static ?string $title = 'Tenant History';
     public function form(Form $form): Form
     {
         return $form
@@ -74,16 +75,16 @@ class FlatTenantRelationManager extends RelationManager
 
     public function table(Table $table): Table
     {
-        return $table
+        return $table->modifyQueryUsing(fn(Builder $query) => $query->where('role', 'Tenant')->where('active', true)->withoutGlobalScopes())
         ->columns([
-            Tables\Columns\TextColumn::make('flat.description')->limit(50),
+            // Tables\Columns\TextColumn::make('flat.description')->limit(50),
             Tables\Columns\TextColumn::make('user.first_name')->limit(50),
-            Tables\Columns\IconColumn::make('primary'),
-            Tables\Columns\TextColumn::make('start_date')->dateTime(),
-            Tables\Columns\TextColumn::make('end_date')->dateTime(),
+            // Tables\Columns\IconColumn::make('primary'),
+            Tables\Columns\TextColumn::make('start_date')->default('NA'),
+            Tables\Columns\TextColumn::make('end_date')->default('NA'),
             Tables\Columns\IconColumn::make('active'),
         ])
-        ->defaultSort('created_at', 'desc')
+        ->defaultSort('active', 'desc')
             ->filters([
                 //
             ])

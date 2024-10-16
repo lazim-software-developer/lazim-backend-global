@@ -40,4 +40,9 @@ class UserApproval extends Model
     {
         return $this->belongsTo(Flat::class);
     }
+
+    public function history()
+    {
+        return $this->hasMany(UserApprovalAudit::class);
+    }
 }
