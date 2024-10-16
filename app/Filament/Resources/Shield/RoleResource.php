@@ -398,12 +398,160 @@ class RoleResource extends Resource implements HasShieldPermissions
 
     public static function getResourcePermissionOptions(array $entity): array
     {
-        return collect(Utils::getResourcePermissionPrefixes($entity['fqcn']))
-            ->flatMap(fn ($permission) => [
+        // List of resources that do not support certain actions
+        $resourcesWithoutCreate = [
+            'BuildingResource',
+            'MollakTenantResource',
+            'UserApprovalResource',
+            'OwnerAssociationResource',
+            'TenantDocumentResource',
+            'Buildings',
+            'FlatResource',
+            'TenantResource',
+            'VendorResource',
+            'WDAResource',
+            'InvoiceResource',
+            'TenderResource',
+            'ProposalResource',
+            'TechnicianAssetsResource',
+            'AssetMaintenanceResource',
+            'GuestRegistrationResource',
+            'MoveInFormsDocumentResource',
+            'MoveOutFormsDocumentResource',
+            'FitOutFormsDocumentResource',
+            'AccessCardFormsDocumentResource',
+            'ResidentialFormResource',
+            'NocFormResource',
+            'VisitorFormResource',
+            'FlatTenantResource',
+            'ComplaintscomplaintResource',
+            'ComplaintsenquiryResource',
+            'ComplaintssuggessionResource',
+            'HelpdeskcomplaintResource',
+            'IncidentResource',
+            'ActivityResource',
+            'OwnerResource',
+            'BudgetResource',
+            'DelinquentOwnerResource',
+            'AgingReportResource',
+            'BankStatementResource',
+            'OwnerAssociationReceiptResource',
+            'OwnerAssociationInvoiceResource',
+            'LedgersResource',
+            'VendorLedgersResource',
+            'CoolingAccountResource',
+            'AppFeedbackResource'
+            
+        ];
+    
+        $resourcesWithoutEdit = [
+            'MollakTenantResource',
+            'VendorServiceResource',
+            'FlatResource',
+            'TenantResource',
+            'TechnicianAssetsResource',
+            'AssetResource',
+            'AssetMaintenanceResource',
+            'ItemResource',
+            'ItemInventoryResource',
+            'ActivityResource',
+            'OwnerResource',
+            'BudgetResource',
+            'DelinquentOwnerResource',
+            'AgingReportResource',
+            'BankStatementResource',
+            'OwnerAssociationReceiptResource',
+            'OwnerAssociationInvoiceResource',
+            'LedgersResource',
+            'CoolingAccountResource',
+            'AppFeedbackResource'
+
+        ];
+    
+        $resourcesWithoutView = [
+            'BuildingResource',
+            'OwnerAssociationResource',
+            'TenantDocumentResource',
+            'FacilityResource',
+            'RoleResource',
+            'ServiceResource',
+            'VendorServiceResource',
+            'UserResource',
+            'FacilityBookingResource',
+            'ServiceBookingResource',
+            'OacomplaintReportsResource',
+            'VehicleResource',
+            'VendorResource',
+            'ContractResource',
+            'WDAResource',
+            'InvoiceResource',
+            'TenderResource',
+            'ProposalResource',
+            'GuestRegistrationResource',
+            'MoveInFormsDocumentResource',
+            'MoveOutFormsDocumentResource',
+            'FitOutFormsDocumentResource',
+            'AccessCardFormsDocumentResource',
+            'ResidentialFormResource',
+            'NocFormResource',
+            'VisitorFormResource',
+            'AnnouncementResource',
+            'PostResource',
+            'FlatTenantResource',
+            'ComplaintscomplaintResource',
+            'ComplaintsenquiryResource',
+            'ComplaintssuggessionResource',
+            'HelpdeskcomplaintResource',
+            'SnagsResource',
+            'IncidentResource',
+            'DelinquentOwnerResource',
+            'AgingReportResource',
+            'BankStatementResource',
+            'OwnerAssociationReceiptResource',
+            'OwnerAssociationInvoiceResource',
+            'LedgersResource',
+            'VendorLedgersResource',
+            'CoolingAccountResource'
+
+        ];
+
+        // dd(FilamentShield::getResources());
+    
+        // Get permission prefixes dynamically from the utility function
+        $permissionPrefixes = collect(Utils::getResourcePermissionPrefixes($entity['fqcn']));
+
+        // Dynamically construct permissions
+        return $permissionPrefixes->flatMap(function ($permission) use ($entity, $resourcesWithoutCreate, $resourcesWithoutEdit, $resourcesWithoutView) {
+    
+            // Skip the 'create' permission if the resource is in the list
+            if ($permission === 'create' && in_array(class_basename($entity['fqcn']), $resourcesWithoutCreate)) {
+                return []; // Don't add 'create' permission for this resource
+            }
+    
+            // Skip the 'edit' or 'update' permission if the resource is in the list
+            if (($permission === 'edit' || $permission === 'update') && in_array(class_basename($entity['fqcn']), $resourcesWithoutEdit)) {
+                return []; // Don't add 'edit/update' permission for this resource
+            }
+    
+            // Skip the 'view' permission if the resource is in the list
+            if ($permission === 'view' && in_array(class_basename($entity['fqcn']), $resourcesWithoutView)) {
+                return []; // Don't add 'view' permission for this resource
+            }
+    
+            // Check if it's the 'view_any' permission and modify the label accordingly
+            if ($permission === 'view_any') {
+                return [
+                    $permission . '_' . $entity['resource'] => 'Show Resource', // Custom label for 'view_any'
+                ];
+            }
+    
+            // Handle all other permissions dynamically
+            return [
                 $permission . '_' . $entity['resource'] => FilamentShield::getLocalizedResourcePermissionLabel($permission),
-            ])
-            ->toArray();
-    }
+            ];
+    
+        })->toArray();
+    }    
 
     public static function setPermissionStateForRecordPermissions(Component $component, string $operation, array $permissions, ?Model $record): void
     {
