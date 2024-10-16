@@ -150,7 +150,7 @@ class FlatResource extends Resource
     {
         return [
             // FlatResource\RelationManagers\FlatDomesticHelpRelationManager::class,
-            // FlatResource\RelationManagers\FlatTenantRelationManager::class,
+            FlatResource\RelationManagers\FlatTenantRelationManager::class,
             // FlatResource\RelationManagers\FlatVisitorRelationManager::class,
             // FlatResource\RelationManagers\UserRelationManager::class,
         ];
