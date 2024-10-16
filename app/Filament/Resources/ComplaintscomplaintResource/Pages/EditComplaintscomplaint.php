@@ -3,10 +3,14 @@
 namespace App\Filament\Resources\ComplaintscomplaintResource\Pages;
 
 use App\Filament\Resources\ComplaintscomplaintResource;
+use App\Jobs\ComplaintStatusMail;
+use App\Models\AccountCredentials;
 use App\Models\ExpoPushNotification;
 use App\Models\Master\Role;
+use App\Models\OwnerAssociation;
 use App\Traits\UtilsTrait;
 use Filament\Actions;
+use Filament\Facades\Filament;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -72,7 +76,21 @@ class EditComplaintscomplaint extends EditRecord
                         'updated_at' => now()->format('Y-m-d H:i:s'),
                     ]);
 
-            if($this->record->technician_id){
+                    $tenant           = Filament::getTenant()?->id ?? auth()->user()?->owner_association_id;
+                    $credentials = AccountCredentials::where('oa_id', $tenant)->where('active', true)->latest()->first();
+                    $mailCredentials = [
+                        'mail_host' => $credentials->host ?? env('MAIL_HOST'),
+                        'mail_port' => $credentials->port ?? env('MAIL_PORT'),
+                        'mail_username' => $credentials->username ?? env('MAIL_USERNAME'),
+                        'mail_password' => $credentials->password ?? env('MAIL_PASSWORD'),
+                        'mail_encryption' => $credentials->encryption ?? env('MAIL_ENCRYPTION'),
+                        'mail_from_address' => $credentials->email ?? env('MAIL_FROM_ADDRESS'),
+                    ];    
+                    $complaintType = 'Complaint';         
+                    
+                    ComplaintStatusMail::dispatch($this->record->user->email,$this->record->user->name,$this->record->remarks,$complaintType,$mailCredentials);
+
+                if($this->record->technician_id){
                 $expoPushTokens = ExpoPushNotification::where('user_id', $this->record->technician_id)->pluck('token');
                 if ($expoPushTokens->count() > 0) {
                     foreach ($expoPushTokens as $expoPushToken) {
@@ -107,6 +125,43 @@ class EditComplaintscomplaint extends EditRecord
                             'updated_at' => now()->format('Y-m-d H:i:s'),
                         ]);
             }
+        }
+
+        if ($this->record->status == 'in-progress') {
+            $expoPushTokens = ExpoPushNotification::where('user_id', $this->record->user_id)->pluck('token');
+            if ($expoPushTokens->count() > 0) {
+                foreach ($expoPushTokens as $expoPushToken) {
+                    $message = [
+                        'to' => $expoPushToken,
+                        'sound' => 'default',
+                        'title' => 'Complaint status',
+                        'body' => 'Your complaint is moved to In-Progress',
+                        'data' => ['notificationType' => 'InAppNotficationScreen'],
+                    ];
+                    $this->expoNotification($message);
+                }
+            }
+
+            DB::table('notifications')->insert([
+                'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
+                'type' => 'Filament\Notifications\DatabaseNotification',
+                'notifiable_type' => 'App\Models\User\User',
+                'notifiable_id' => $this->record->user_id,
+                'data' => json_encode([
+                    'actions' => [],
+                    'body' => 'Your complaint is moved to In-Progress',
+                    'duration' => 'persistent',
+                    'icon' => 'heroicon-o-document-text',
+                    'iconColor' => 'warning',
+                    'title' => 'Complaint status',
+                    'view' => 'notifications::notification',
+                    'viewData' => [],
+                    'format' => 'filament',
+                    'url' => 'InAppNotficationScreen',
+                ]),
+                'created_at' => now()->format('Y-m-d H:i:s'),
+                'updated_at' => now()->format('Y-m-d H:i:s'),
+            ]);
         }
     }
 }

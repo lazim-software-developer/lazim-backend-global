@@ -91,8 +91,8 @@ class StatsOverview extends BaseWidget
         }
 
         // Get the counts
-        $ownerCount = $ownerQuery->count();
-        $tenantCount = $tenantQuery->count();
+        $ownerCount = $ownerQuery->select('tenant_id')->distinct()->count('tenant_id');
+        $tenantCount = $tenantQuery->select('tenant_id')->distinct()->count('tenant_id');
         $wdaCount = $wdaQuery->count();
         $securityCount = $securityQuery->count();
         $vendorsCount = $vendorsQuery->count();
