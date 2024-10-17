@@ -63,6 +63,10 @@ class ComplaintssuggessionResource extends Resource
                             ->disabled()
                             ->searchable()
                             ->placeholder('Building'),
+                        Select::make('flat_id')
+                            ->required()
+                            ->disabled()
+                            ->relationship('flat', 'property_number'),
                         Select::make('user_id')
                             ->relationship('user', 'first_name')
                             ->options(function () {
@@ -138,6 +142,10 @@ class ComplaintssuggessionResource extends Resource
                     ->default('NA')
                     ->label('Ticket Number'),
                 TextColumn::make('building.name')
+                    ->default('NA')
+                    ->searchable()
+                    ->limit(50),
+                TextColumn::make('flat.property_number')
                     ->default('NA')
                     ->searchable()
                     ->limit(50),

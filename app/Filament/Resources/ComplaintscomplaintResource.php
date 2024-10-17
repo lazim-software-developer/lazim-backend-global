@@ -250,6 +250,7 @@ class ComplaintscomplaintResource extends Resource
                     ->default('NA')
                     ->searchable()
                     ->limit(50),
+                TextColumn::make('flat.property_number'),
                 TextColumn::make('type')
                     ->formatStateUsing(fn (string $state) => Str::ucfirst($state))
                     ->default('NA'),
