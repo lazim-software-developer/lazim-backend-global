@@ -61,6 +61,33 @@ class UserApprovalResource extends Resource
                 DateTimePicker::make('created_at')
                     ->label('Date of Creation')
                     ->disabled(),
+                FileUpload::make('document')
+                    ->label(function (Get $get) {
+                        if($get('document_type') == 'Ejari'){
+                            return 'Tenancy Contract / Ejari';
+                        }
+                            return $get('document_type');
+                    })
+                    ->disk('s3')
+                    ->directory('dev')
+                    ->openable(true)
+                    ->downloadable(true)
+                    ->required()
+                    ->disabled(),
+                FileUpload::make('emirates_document')
+                    ->disk('s3')
+                    ->directory('dev')
+                    ->openable(true)
+                    ->downloadable(true)
+                    ->required()
+                    ->disabled(),
+                FileUpload::make('passport')
+                    ->disk('s3')
+                    ->directory('dev')
+                    ->openable(true)
+                    ->downloadable(true)
+                    ->required()
+                    ->disabled(),
                 Select::make('status')
                     ->options([
                         'approved' => 'Approve',
@@ -82,37 +109,6 @@ class UserApprovalResource extends Resource
                         }
                         return false;
                     }),
-
-                FileUpload::make('document')
-                    ->label(function (Get $get) {
-                        if($get('document_type') == 'Ejari'){
-                            return 'Tenancy Contract / Ejari';
-                        }
-                            return $get('document_type');
-                    })
-                    ->disk('s3')
-                    ->directory('dev')
-                    ->openable(true)
-                    ->downloadable(true)
-                    ->required()
-                    ->disabled()
-                    ->columnSpanFull(),
-                FileUpload::make('emirates_document')
-                    ->disk('s3')
-                    ->directory('dev')
-                    ->openable(true)
-                    ->downloadable(true)
-                    ->required()
-                    ->disabled()
-                    ->columnSpanFull(),
-                FileUpload::make('passport')
-                    ->disk('s3')
-                    ->directory('dev')
-                    ->openable(true)
-                    ->downloadable(true)
-                    ->required()
-                    ->disabled()
-                    ->columnSpanFull(),
             ]);
     }
 
