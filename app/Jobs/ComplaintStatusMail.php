@@ -19,14 +19,14 @@ class ComplaintStatusMail implements ShouldQueue
      * Create a new job instance.
      */
     public $email;
-    public $name;
+    public $first_name;
     public $remarks;
     public $complaintType;
 
-    public function __construct($email,$name,$remarks,$complaintType,protected $mailCredentials)
+    public function __construct($email,$first_name,$remarks,$complaintType,protected $mailCredentials)
     {
         $this->email = $email;
-        $this->name = $name;
+        $this->first_name = $first_name;
         $this->remarks = $remarks;
         $this->complaintType = $complaintType;
     }
@@ -44,10 +44,10 @@ class ComplaintStatusMail implements ShouldQueue
         Config::set('mail.mailers.smtp.email', $this->mailCredentials['mail_from_address']);
 
         $beautymail = app()->make(Beautymail::class);
-        $beautymail->send('emails.ComplaintStatus', ['name' => $this->name,'remarks' =>$this->remarks,'complaintType'=>$this->complaintType], function ($message) {
+        $beautymail->send('emails.ComplaintStatus', ['first_name' => $this->first_name,'remarks' =>$this->remarks,'complaintType'=>$this->complaintType], function ($message) {
             $message
                 ->from($this->mailCredentials['mail_from_address'],env('MAIL_FROM_NAME'))
-                ->to($this->email, $this->name)
+                ->to($this->email, $this->first_name)
                 ->subject($this->complaintType.' Status');
         });
 
