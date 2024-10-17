@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use Closure;
+use DB;
 use Filament\Forms;
 use App\Models\Item;
 use Filament\Forms\Components\Hidden;
@@ -49,6 +50,16 @@ class ItemInventoryResource extends Resource
                             if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
                                 return Item::pluck('name', 'id');
                             }
+                            elseif(auth()->user()->role->name == 'Property Manager'){
+                                    $buildingIds = DB::table('building_owner_association')
+                                    ->where('owner_association_id', auth()->user()->owner_association_id)
+                                    ->where('active', true)
+                                    ->pluck('building_id');
+
+                                return Item::whereIn('building_id', $buildingIds)
+                                    ->pluck('name', 'id');
+
+                                }
                             return Item::whereIn('building_id', Building::where('owner_association_id', auth()->user()?->owner_association_id)->pluck('id'))->pluck('name', 'id');
                         })
                         ->required()
