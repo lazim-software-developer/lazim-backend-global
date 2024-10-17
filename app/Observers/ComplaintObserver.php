@@ -141,18 +141,20 @@ class ComplaintObserver
                     $notifyTo->filter(function ($notifyTo) use ($requiredPermissions) {
                         return $notifyTo->can($requiredPermissions);
                     });
-            Notification::make()
-                ->success()
-                ->title("Facility support Ticket Received")
-                ->icon('heroicon-o-document-text')
-                ->iconColor('warning')
-                ->body('A new ticket is raised by ' . auth()->user()->first_name)
-                ->actions([
-                    Action::make('view')
-                        ->button()
-                        ->url(fn () => HelpdeskcomplaintResource::getUrl('edit', [OwnerAssociation::where('id',$complaint->owner_association_id)->first()?->slug,$complaint->id])),
-                ])
-                ->sendToDatabase($notifyTo);
+            if(OwnerAssociation::where('id',$complaint->owner_association_id)->first()?->slug){
+                Notification::make()
+                    ->success()
+                    ->title("Facility support Ticket Received")
+                    ->icon('heroicon-o-document-text')
+                    ->iconColor('warning')
+                    ->body('A new ticket is raised by ' . auth()->user()->first_name)
+                    ->actions([
+                        Action::make('view')
+                            ->button()
+                            ->url(fn () => HelpdeskcomplaintResource::getUrl('edit', [OwnerAssociation::where('id',$complaint->owner_association_id)->first()?->slug,$complaint->id])),
+                    ])
+                    ->sendToDatabase($notifyTo);
+            }
         }
 
         //Notifying to vendor
