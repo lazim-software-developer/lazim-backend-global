@@ -77,18 +77,6 @@ class TenantDocumentResource extends Resource
                                 })
                                 ->disabled() 
                                 ->dehydrated(false),                          
-                            FileUpload::make('url')
-                                ->disk('s3')
-                                ->directory('dev')
-                                ->disabled()
-                                ->openable(true)
-                                ->downloadable(true)
-                                ->label('Document')
-                                ->columnSpan([
-                                    'sm' => 1,
-                                    'md' => 1,
-                                    'lg' => 2,
-                                ]),
                             DatePicker::make('expiry_date')
                                 ->rules(['date'])
                                 ->required()
@@ -117,6 +105,18 @@ class TenantDocumentResource extends Resource
                                     return $record->status != 'submitted';
                                 })
                                 ->required(),
+                            FileUpload::make('url')
+                                ->disk('s3')
+                                ->directory('dev')
+                                ->disabled()
+                                ->openable(true)
+                                ->downloadable(true)
+                                ->label('Document')
+                                ->columnSpan([
+                                    'sm' => 1,
+                                    'md' => 1,
+                                    'lg' => 2,
+                                ]),
                         ]),
 
             ]);

@@ -58,6 +58,31 @@ class UserApprovalResource extends Resource
                 })
                 ->disabled(),
                 TextInput::make('phone')->disabledOn('edit'),
+                DateTimePicker::make('created_at')
+                    ->label('Date of Creation')
+                    ->disabled(),
+                Select::make('status')
+                    ->options([
+                        'approved' => 'Approve',
+                        'rejected' => 'Reject',
+                    ])
+                    ->disabled(function (UserApproval $record) {
+                        return $record->status != null;
+                    })
+                    ->searchable()
+                    ->live()
+                    ->required(),
+                Textarea::make('remarks')
+                    ->maxLength(250)
+                    ->rows(5)
+                    ->required()
+                    ->visible(function (Get $get) {
+                        if ($get('status') == 'rejected') {
+                            return true;
+                        }
+                        return false;
+                    }),
+
                 FileUpload::make('document')
                     ->label(function (Get $get) {
                         if($get('document_type') == 'Ejari'){
@@ -88,30 +113,6 @@ class UserApprovalResource extends Resource
                     ->required()
                     ->disabled()
                     ->columnSpanFull(),
-                DateTimePicker::make('created_at')
-                    ->label('Date of Creation')
-                    ->disabled(),
-                Select::make('status')
-                    ->options([
-                        'approved' => 'Approve',
-                        'rejected' => 'Reject',
-                    ])
-                    ->disabled(function (UserApproval $record) {
-                        return $record->status != null;
-                    })
-                    ->searchable()
-                    ->live()
-                    ->required(),
-                Textarea::make('remarks')
-                    ->maxLength(250)
-                    ->rows(5)
-                    ->required()
-                    ->visible(function (Get $get) {
-                        if ($get('status') == 'rejected') {
-                            return true;
-                        }
-                        return false;
-                    }),
             ]);
     }
 

@@ -247,7 +247,7 @@ class RoleResource extends Resource implements HasShieldPermissions
                 // Tables\Columns\TextColumn::make('updated_at')
                 //     ->label(__('filament-shield::filament-shield.column.updated_at'))
                 //     ->dateTime(),
-                ToggleColumn::make('is_active')
+                ToggleColumn::make('is_active')->label('Active')
                 ->afterStateUpdated(function($state,$record){
                         $users = User::where('role_id',$record->id)->get();
                         foreach($users as $user){

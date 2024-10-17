@@ -64,6 +64,9 @@ class ComplaintsenquiryResource extends Resource
                             ->preload()
                             ->searchable()
                             ->placeholder('Building'),
+                        Select::make('flat_id')
+                            ->relationship('flat','property_number')
+                            ->disabled(),
                         Select::make('user_id')
                             ->relationship('user', 'first_name')
                             ->options(function () {
@@ -90,18 +93,7 @@ class ComplaintsenquiryResource extends Resource
                             ->default('open'),
                         Hidden::make('complaint_type')
                             ->default('enquiries'),
-                        Repeater::make('media')
-                            ->relationship()
-                            ->disabled()
-                            ->schema([
-                                FileUpload::make('url')
-                                    ->disk('s3')
-                                    ->directory('dev')
-                                    ->maxSize(2048)
-                                    ->openable(true)
-                                    ->downloadable(true)
-                                    ->label('File'),
-                            ]),
+                        
                         DatePicker::make('created_at')
                             ->label('Created On')
                             ->disabled(),
@@ -129,6 +121,18 @@ class ComplaintsenquiryResource extends Resource
                                 return $record->status == 'closed';
                             })
                             ->required(),
+                        Repeater::make('media')
+                            ->relationship()
+                            ->disabled()
+                            ->schema([
+                                FileUpload::make('url')
+                                    ->disk('s3')
+                                    ->directory('dev')
+                                    ->maxSize(2048)
+                                    ->openable(true)
+                                    ->downloadable(true)
+                                    ->label('File'),
+                            ]),
                     ])
             ]);
     }
