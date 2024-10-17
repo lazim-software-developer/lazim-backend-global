@@ -5,6 +5,8 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\BuildingsRelationManagerResource\RelationManagers\BuildingsRelationManager;
 use App\Filament\Resources\FacilityManagerResource\Pages;
 use App\Filament\Resources\FacilityManagerResource\RelationManagers\DocumentsRelationManager;
+use App\Filament\Resources\FacilityManagerResource\RelationManagers\EscalationMatrixRelationManager;
+use App\Filament\Resources\FacilityManagerResource\RelationManagers\ServicesRelationManager;
 use App\Jobs\ApprovedFMJob;
 use App\Jobs\RejectedFMJob;
 use App\Models\OwnerAssociation;
@@ -270,6 +272,8 @@ class FacilityManagerResource extends Resource
         return [
             DocumentsRelationManager::class,
             BuildingsRelationManager::class,
+            ServicesRelationManager::class,
+            EscalationMatrixRelationManager::class
         ];
     }
 
