@@ -38,6 +38,7 @@ class MollakTenantResource extends Resource
                 TextInput::make('contract_number')
                     ->disabled(),
                 TextInput::make('emirates_id')
+                    ->label('Emirates ID')
                     ->formatStateUsing(
                         function ($state) {
                             return $state ?: 'NA';
@@ -82,6 +83,7 @@ class MollakTenantResource extends Resource
                     ->searchable()
                     ->default('NA'),
                 TextColumn::make('emirates_id')
+                    ->label('Emirates ID')
                     ->searchable()
                     ->default('NA'),
                 TextColumn::make('license_number')

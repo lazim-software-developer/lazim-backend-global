@@ -85,7 +85,7 @@ class OwnerAssociationResource extends Resource
                             }
                         })
                         ,
-                    TextInput::make('mollak_id')->label('Oa Number')
+                    TextInput::make('mollak_id')->label('OA Number')
                         ->required()
                         ->disabled()
                         ->placeholder('OA Number'),
@@ -179,29 +179,15 @@ class OwnerAssociationResource extends Resource
 
                         })
                         ->placeholder('account number'),
-                    FileUpload::make('profile_photo')
-                        ->disk('s3')
-                        ->directory('dev')
-                        ->previewable(true)
-                        ->image()
-                        ->maxSize(2048)
-                        ->rules('file|mimes:jpeg,jpg,png|max:2048')
-                        ->label('Logo')
-                        ->disabled(function (callable $get) {
-                            if(Role::where('id',auth()->user()->role_id)->first()->name == 'Admin')
-                            {
-                                return DB::table('owner_associations')
-                                ->where('email', $get('email'))
-                                ->where('verified', 1)
-                                ->exists();
-                            }
-
-                        })
-                        ->columnSpan([
-                            'sm' => 1,
-                            'md' => 2,
-                            'lg' => 2,
-                        ]),
+                    Toggle::make('verified')
+                        ->rules(['boolean'])
+                        ->hidden(function ($record) {
+                            return $record->verified;
+                        }),
+                    Toggle::make('active')
+                        ->label('Active')
+                        ->rules(['boolean'])
+                        ->hidden(Role::where('id',auth()->user()->role_id)->first()->name != 'Admin'),
                     FileUpload::make('trn_certificate')
                         ->disk('s3')
                         ->directory('dev')
@@ -269,15 +255,30 @@ class OwnerAssociationResource extends Resource
                             }
 
                         }),
-                    Toggle::make('verified')
-                        ->rules(['boolean'])
-                        ->hidden(function ($record) {
-                            return $record->verified;
-                        }),
-                    Toggle::make('active')
-                        ->label('Active')
-                        ->rules(['boolean'])
-                        ->hidden(Role::where('id',auth()->user()->role_id)->first()->name != 'Admin'),
+                    FileUpload::make('profile_photo')
+                        ->disk('s3')
+                        ->directory('dev')
+                        ->previewable(true)
+                        ->image()
+                        ->maxSize(2048)
+                        ->rules('file|mimes:jpeg,jpg,png|max:2048')
+                        ->label('Logo')
+                        ->disabled(function (callable $get) {
+                            if(Role::where('id',auth()->user()->role_id)->first()->name == 'Admin')
+                            {
+                                return DB::table('owner_associations')
+                                ->where('email', $get('email'))
+                                ->where('verified', 1)
+                                ->exists();
+                            }
+
+                        })
+                        ->columnSpan([
+                            'sm' => 1,
+                            'md' => 2,
+                            'lg' => 2,
+                        ]),
+                    
 
                 ]),
             ]);
@@ -289,6 +290,7 @@ class OwnerAssociationResource extends Resource
             ->poll('60s')
             ->columns([
                 Tables\Columns\TextColumn::make('mollak_id')
+                    ->label('Mollak ID')
                     ->searchable()
                     ->default('NA')
                     ->limit(50),
@@ -309,6 +311,7 @@ class OwnerAssociationResource extends Resource
                     ->default('NA')
                     ->limit(50),
                 Tables\Columns\TextColumn::make('trn_number')
+                    ->label('TRN Number')
                     ->searchable()
                     ->default('NA')
                     ->limit(50),

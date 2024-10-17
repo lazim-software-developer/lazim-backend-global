@@ -54,8 +54,8 @@ class BuildingResource extends Resource
             ->schema([
                 Grid::make([
                     'sm' => 1,
-                    'md' => 1,
-                    'lg' => 1,
+                    'md' => 2,
+                    'lg' => 2   ,
                 ])->schema([
                             TextInput::make('name')
                                 ->rules(['max:50', 'string'])
@@ -67,7 +67,8 @@ class BuildingResource extends Resource
                                 ->rules(['max:50', 'string'])
                                 ->required()
                                 ->disabled()
-                                ->placeholder('Property Group Id')
+                                ->placeholder('Property Group ID')
+                                ->label('Property Group ID')
                                 ->unique(
                                     'buildings',
                                     'property_group_id',
@@ -77,12 +78,14 @@ class BuildingResource extends Resource
                             TextInput::make('address_line1')
                                 ->rules(['max:500', 'string'])
                                 ->required()
-                                ->placeholder('Address Line1'),
+                                ->label('Address Line 1')
+                                ->placeholder('Address Line 1'),
 
                             TextInput::make('address_line2')
                                 ->rules(['max:500', 'string'])
                                 ->nullable()
-                                ->placeholder('Address Line2'),
+                                ->label('Address Line 2')
+                                ->placeholder('Address Line 2'),
                             Hidden::make('owner_association_id')
                                 ->default(auth()->user()?->owner_association_id),
 
@@ -97,30 +100,7 @@ class BuildingResource extends Resource
                             //     ->relationship('cities', 'name')
                             //     ->searchable()
                             //     ->placeholder('NA'),
-                            MarkdownEditor::make('description')
-                            ->toolbarButtons([
-                                'bold',
-                                'bulletList',
-                                'italic',
-                                'link',
-                                'orderedList',
-                                'redo',
-                                'undo',
-                            ])
-                            ->label('About'),
-                            FileUpload::make('cover_photo')
-                                ->disk('s3')
-                                ->rules(['file','mimes:jpeg,jpg,png',function () {
-                                    return function (string $attribute, $value, Closure $fail) {
-                                        if($value->getSize()/ 1024 > 2048){
-                                            $fail('The cover Photo field must not be greater than 2MB.');
-                                        }
-                                    };
-                                },])
-                                ->directory('dev')
-                                ->image()
-                                ->maxSize(2048)
-                                ->label('Cover Photo'),
+                            
                             TextInput::make('floors')
                                 ->numeric()
                                 ->minValue(1)
@@ -140,19 +120,32 @@ class BuildingResource extends Resource
                             Toggle::make('show_inhouse_services')
                                 ->rules(['boolean'])
                                 ->label('Show Personal services'),
-
-
-                            // TextInput::make('lat')
-                            //     ->rules(['numeric'])
-                            //     ->placeholder('Lat'),
-
-                            // TextInput::make('lng')
-                            //     ->rules(['numeric'])
-                            //     ->placeholder('Lng'),
-
-                            // TextInput::make('description')
-                            //     ->rules(['max:255', 'string'])
-                            //     ->placeholder('Description'),
+                            MarkdownEditor::make('description')
+                                ->toolbarButtons([
+                                    'bold',
+                                    'bulletList',
+                                    'italic',
+                                    'link',
+                                    'orderedList',
+                                    'redo',
+                                    'undo',
+                                ])
+                                ->label('About')
+                                ->columnSpanFull(),
+                            FileUpload::make('cover_photo')
+                                ->disk('s3')
+                                ->rules(['file','mimes:jpeg,jpg,png',function () {
+                                    return function (string $attribute, $value, Closure $fail) {
+                                        if($value->getSize()/ 1024 > 2048){
+                                            $fail('The cover Photo field must not be greater than 2MB.');
+                                        }
+                                    };
+                                },])
+                                ->directory('dev')
+                                ->image()
+                                ->maxSize(2048)
+                                ->label('Cover Photo')
+                                ->columnSpanFull(),
 
                         ]),
             ]);
