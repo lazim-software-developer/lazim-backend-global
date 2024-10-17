@@ -35,7 +35,7 @@ class ResidentialFormResource extends JsonResource
             "title_deed_number"    => $this->title_deed_number,
             "user_id"              => $this->user_id,
             "user_name"            => $this->user->first_name,
-            "emergency_contact"    => $this->emergency_contact,
+            "emergency_contact"    => $this->emergency_contact ? json_decode($this->emergency_contact) : null,
             "passport_url"         => $this->passport_url ? env('AWS_URL') . '/' . $this->passport_url : $this->passport_url,
             "emirates_url"         => $this->emirates_url ? env('AWS_URL') . '/' . $this->emirates_url : $this->emirates_url,
             "title_deed_url"       => $this->title_deed_url ? env('AWS_URL') . '/' . $this->title_deed_url : $this->title_deed_url,
