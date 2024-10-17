@@ -23,7 +23,6 @@ class ComplianceDocumentRequest extends FormRequest
     {
         return [
             'doc_name'    => 'required|max:50',
-            'doc_type'    => 'required|max:100',
             'expiry_date' => 'required|date',
             'url'         => 'sometimes|file|mimes:pdf|max:2048',
         ];
