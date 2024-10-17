@@ -141,7 +141,7 @@ class ComplaintscomplaintResource extends Resource
                             })
                             ->numeric(),
                         DatePicker::make('due_date')
-                            ->minDate(now()->format('Y-m-d'))
+                            // ->minDate(now()->format('Y-m-d'))
                             ->disabled(function (Complaint $record) {
                                 return $record->status == 'closed';
                             })
