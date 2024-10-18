@@ -141,7 +141,7 @@ class ComplaintscomplaintResource extends Resource
                             })
                             ->numeric(),
                         DatePicker::make('due_date')
-                            ->minDate(now()->format('Y-m-d'))
+                            // ->minDate(now()->format('Y-m-d'))
                             ->disabled(function (Complaint $record) {
                                 return $record->status == 'closed';
                             })
@@ -250,6 +250,7 @@ class ComplaintscomplaintResource extends Resource
                     ->default('NA')
                     ->searchable()
                     ->limit(50),
+                TextColumn::make('flat.property_number'),
                 TextColumn::make('type')
                     ->formatStateUsing(fn (string $state) => Str::ucfirst($state))
                     ->default('NA'),

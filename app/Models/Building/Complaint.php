@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\Building\Flat;
 use App\Models\OwnerAssociation;
+use App\Models\Remark;
 use App\Models\Vendor\Vendor;
 
 class Complaint extends Model
@@ -119,5 +120,10 @@ class Complaint extends Model
     public function vendor()
     {
         return $this->belongsTo(Vendor::class);
+    }
+
+    public function remarks()
+    {
+        return $this->hasMany(Remark::class);
     }
 }

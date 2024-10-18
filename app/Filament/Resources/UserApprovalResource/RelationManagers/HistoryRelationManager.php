@@ -42,8 +42,8 @@ class HistoryRelationManager extends RelationManager
                         }
                         return false;
                     }),
-                DateTimePicker::make('created_at')
-                    ->label('Date of Creation')
+                DateTimePicker::make('updated_at')
+                    ->label('Status updated on')
                     ->disabled(),
                 FileUpload::make('document')
                     ->label(function (Get $get) {
@@ -57,24 +57,21 @@ class HistoryRelationManager extends RelationManager
                     ->openable(true)
                     ->downloadable(true)
                     ->required()
-                    ->disabled()
-                    ->columnSpanFull(),
+                    ->disabled(),
                 FileUpload::make('emirates_document')
                     ->disk('s3')
                     ->directory('dev')
                     ->openable(true)
                     ->downloadable(true)
                     ->required()
-                    ->disabled()
-                    ->columnSpanFull(),
+                    ->disabled(),
                 FileUpload::make('passport')
                     ->disk('s3')
                     ->directory('dev')
                     ->openable(true)
                     ->downloadable(true)
                     ->required()
-                    ->disabled()
-                    ->columnSpanFull(),
+                    ->disabled(),
             ]);
     }
 
@@ -86,7 +83,8 @@ class HistoryRelationManager extends RelationManager
                 TextColumn::make('status'),
                 TextColumn::make('remarks')->default('NA'),
                 TextColumn::make('user.first_name')->default('NA')->limit(20),
-                TextColumn::make('created_at')->default('NA'),
+                TextColumn::make('updated_at')->date()
+                    ->formatStateUsing(fn(?string $state) => $state ? $state : 'NA')->label('Status updated on'),
             ])
             ->filters([
                 //

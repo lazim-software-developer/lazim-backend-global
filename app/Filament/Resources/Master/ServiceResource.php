@@ -38,8 +38,8 @@ class ServiceResource extends Resource
             ->schema([
                 Grid::make([
                     'sm' => 1,
-                    'md' => 1,
-                    'lg' => 1,
+                    'md' => 2,
+                    'lg' => 2,
                 ])
                     ->schema([
                         TextInput::make('name')
@@ -61,16 +61,17 @@ class ServiceResource extends Resource
                             ->minValue(1)
                             ->maxValue(10000)
                             ->placeholder('NA'),
+                        Toggle::make('active')
+                                ->label('Active')
+                                ->default(1)
+                                ->rules(['boolean']),
                         FileUpload::make('icon')
                             ->acceptedFileTypes(['image/jpeg', 'image/png'])
                             ->disk('s3')
                             ->directory('dev')
                             ->required()
-                            ->maxSize(2048),
-                        Toggle::make('active')
-                            ->label('Active')
-                            ->default(1)
-                            ->rules(['boolean']),
+                            ->maxSize(2048)
+                            ->columnSpanFull(),
 
                     ]),
             ]);
