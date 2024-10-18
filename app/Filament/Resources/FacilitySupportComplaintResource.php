@@ -24,10 +24,10 @@ use Filament\Forms\Form;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
 use Filament\Resources\Resource;
-use Filament\Tables\Actions\ExportBulkAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class FacilitySupportComplaintResource extends Resource
 {
@@ -106,7 +106,7 @@ class FacilitySupportComplaintResource extends Resource
                                 DatePicker::make('due_date')
                                     ->label('Due Date')
                                     ->minDate(now()->format('Y-m-d'))
-                                    ->maxDate(now()->addDays(3)->format('Y-m-d'))
+                                    // ->maxDate(now()->addDays(3)->format('Y-m-d'))
                                     ->rules(['date'])
                                     ->validationMessages([
                                         'maxDate' =>
@@ -252,10 +252,15 @@ class FacilitySupportComplaintResource extends Resource
                                 TextInput::make('remarks')
                                     ->label('Remarks')
                                     ->rules(['max:150'])
+                                    ->required(function (callable $get) {
+                                        if ($get('status'=== 'closed')) {
+                                            return true;
+                                        }return false;
+                                    })
                                     ->visible(function (callable $get) {
                                         return $get('status') == 'closed';
                                     })
-                                    ->placeholder('Add any remarks'),
+                                    ->placeholder('Add remarks'),
                             ]),
 
                         Repeater::make('photo')
@@ -276,7 +281,11 @@ class FacilitySupportComplaintResource extends Resource
 
     public static function table(Table $table): Table
     {
+        $buildingIds = DB::table('building_owner_association')
+            ->where('owner_association_id', auth()->user()->owner_association_id)
+            ->pluck('building_id');
         return $table
+            ->modifyQueryUsing(fn(Builder $query) => $query->whereIn('building_id', $buildingIds)->latest())
             ->columns([
                 TextColumn::make('ticket_number')
                     ->label('Ticket Number')
