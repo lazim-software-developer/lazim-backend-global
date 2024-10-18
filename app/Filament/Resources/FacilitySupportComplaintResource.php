@@ -7,6 +7,7 @@ use App\Models\Building\Building;
 use App\Models\Building\Complaint;
 use App\Models\Building\Flat;
 use App\Models\Master\Role;
+use App\Models\Master\Service;
 use App\Models\User\User;
 use Closure;
 use DB;
@@ -48,7 +49,7 @@ class FacilitySupportComplaintResource extends Resource
                                     ->label('Complaint Type')
                                     ->options([
                                         'personal' => 'Personal',
-                                        'building' => 'Building'
+                                        'building' => 'Building',
                                     ])
                                     ->live()
                                     ->default('NA'),
@@ -60,10 +61,10 @@ class FacilitySupportComplaintResource extends Resource
                                     ->onIcon('heroicon-o-exclamation-triangle')
                                     ->offIcon('heroicon-o-x-circle')
                                     ->onColor('danger')
-                                    ->visible(function(callable $get){
-                                        if($get('type') == 'personal'){
+                                    ->visible(function (callable $get) {
+                                        if ($get('type') == 'personal') {
                                             return true;
-                                        } return false;
+                                        }return false;
                                     })
                                     ->default(false),
 
@@ -82,57 +83,58 @@ class FacilitySupportComplaintResource extends Resource
                                     ->required()
                                     ->preload()
                                     ->searchable()
-                                    ->afterStateUpdated(function(Set $set){
+                                    ->afterStateUpdated(function (Set $set) {
                                         $set('flat_id', null);
                                     })
                                     ->placeholder('Select Building'),
 
                                 Select::make('flat_id')
                                     ->label('Unit Number')
-                                    ->options(function(callable $get){
+                                    ->options(function (callable $get) {
                                         return Flat::where('building_id', $get('building_id'))
-                                        ->pluck('property_number', 'id');
+                                            ->pluck('property_number', 'id');
                                     })
                                     ->searchable()
                                     ->required()
                                     ->preload()
                                     ->placeholder('Select Unit Number'),
-                            ]),
-                        Grid::make(['sm' => 1, 'md' => 1, 'lg' => 2])
-                            ->schema([
+
                                 TextInput::make('ticket_number')
-                                    ->label('Ticket Number'),
-                                    // ->placeholder('Auto-generated if left empty'),
+                                    ->label('Ticket Number')
+                                    ->visibleOn('edit'),
 
                                 DatePicker::make('due_date')
                                     ->label('Due Date')
                                     ->minDate(now()->format('Y-m-d'))
+                                    ->maxDate(now()->addDays(3)->format('Y-m-d'))
                                     ->rules(['date'])
+                                    ->validationMessages([
+                                        'maxDate' =>
+                                        'The due date should be within 3 days of the complaint creation date.',
+                                    ])
                                     ->placeholder('Select Due Date'),
+
+                                Textarea::make('complaint')
+                                    ->label('Complaint Description')
+                                    ->placeholder('Describe the complaint in brief'),
+
+                                TextInput::make('priority')
+                                    ->label('Priority')
+                                    ->default('3')
+                                    ->visibleOn('edit')
+                                    ->rules([
+                                        function () {
+                                            return function (string $attribute, $value, Closure $fail) {
+                                                if ($value < 1 || $value > 3) {
+                                                    $fail('Priority must be between 1 and 3.');
+                                                }
+                                            };
+                                        },
+                                    ])
+                                    ->numeric()
+                                    ->placeholder('Priority: 1 (High) - 3 (Low)'),
                             ]),
 
-                        Textarea::make('complaint')
-                            ->label('Complaint Description')
-                            ->placeholder('Describe the complaint in detail'),
-
-                        TextInput::make('category')
-                            ->label('Category')
-
-                            ->placeholder('Please enter the Category of the complaint.'),
-
-                        TextInput::make('priority')
-                            ->label('Priority')
-                            ->rules([
-                                function () {
-                                    return function (string $attribute, $value, Closure $fail) {
-                                        if ($value < 1 || $value > 3) {
-                                            $fail('Priority must be between 1 and 3.');
-                                        }
-                                    };
-                                },
-                            ])
-                            ->numeric()
-                            ->placeholder('Priority: 1 (High) - 3 (Low)'),
                     ])
                     ->columns(['sm' => 1, 'md' => 2]),
 
@@ -141,30 +143,93 @@ class FacilitySupportComplaintResource extends Resource
                     ->schema([
                         Grid::make(['sm' => 1, 'md' => 1, 'lg' => 2])
                             ->schema([
+
                                 Select::make('service_id')
                                     ->label('Service Type')
                                     ->relationship('service', 'name')
                                     ->preload()
+                                    ->required()
+                                    ->live()
+                                    ->afterStateUpdated(function (Set $set, $state) {
+                                        $serviceName = Service::where('id', $state)->pluck('name');
+                                        $set('category', $serviceName);
+
+                                        $set('vendor_id', null);
+                                        $set('technician_id', null);
+                                    })
                                     ->searchable()
                                     ->placeholder('Select Service'),
+
+                                TextInput::make('category')
+                                    ->label('Category')
+                                    ->live()
+                                    ->readOnly()
+                                    ->placeholder('Select Service type to populate it\'s Category'),
 
                                 Select::make('vendor_id')
                                     ->label('Vendor Name')
                                     ->relationship('vendor', 'name')
                                     ->preload()
-                                    ->required(function (Get $get) {
-                                        return $get('category') != 'Security Services';
+                                // ->required(function (Get $get) {
+                                //     return $get('category') != 'Security Services';
+                                // })
+                                    ->searchable()
+                                    ->placeholder('Select Vendor')
+                                    ->options(function (Get $get) {
+                                        $serviceId = $get('service_id');
+
+                                        if (!$serviceId) {
+                                            return [];
+                                        }
+
+                                        $vendorIds = DB::table('service_technician_vendor')
+                                            ->join('technician_vendors', 'service_technician_vendor.technician_vendor_id'
+                                                , '=', 'technician_vendors.id')
+                                            ->where('service_technician_vendor.service_id', $serviceId)
+                                            ->where('service_technician_vendor.active', true)
+                                            ->where('technician_vendors.active', true)
+                                            ->pluck('technician_vendors.vendor_id')
+                                            ->unique()
+                                            ->toArray();
+
+                                        return User::whereIn('id', $vendorIds)
+                                            ->orderBy('first_name')
+                                            ->pluck('first_name', 'id')
+                                            ->toArray();
                                     })
                                     ->searchable()
-                                    ->placeholder('Select Vendor'),
+                                    ->live(),
+
+                                Select::make('technician_id')
+                                    ->label('Technician')
+                                    ->options(function (Get $get) {
+                                        $serviceId = $get('service_id');
+
+                                        if (!$serviceId) {
+                                            return [];
+                                        }
+
+                                        $technicianIds = DB::table('service_technician_vendor')
+                                            ->join('technician_vendors', 'service_technician_vendor.technician_vendor_id',
+                                                '=', 'technician_vendors.id')
+                                            ->where('service_technician_vendor.service_id', $serviceId)
+                                            ->where('service_technician_vendor.active', true)
+                                            ->where('technician_vendors.active', true)
+                                            ->pluck('technician_vendors.technician_id')
+                                            ->unique()
+                                            ->toArray();
+
+                                        return User::whereIn('id', $technicianIds)
+                                            ->orderBy('first_name')
+                                            ->pluck('first_name', 'id')
+                                            ->toArray();
+                                    })
+                                    ->searchable()
+                                    ->preload()
+                                    ->placeholder('Assign a Technician')
+                                    ->live()
                             ]),
 
-                        Select::make('technician_id')
-                            ->label('Technician')
-                            ->relationship('technician', 'first_name')
-                            ->preload()
-                            ->searchable()
-                            ->placeholder('Assign a Technician'),
                     ]),
 
                 Section::make('Additional Details')
@@ -173,13 +238,14 @@ class FacilitySupportComplaintResource extends Resource
                         Grid::make(['sm' => 1, 'md' => 1, 'lg' => 2])
                             ->schema([
 
-
                                 Select::make('status')
                                     ->label('Status')
                                     ->options([
-                                        'open' => 'Open',
+                                        'open'   => 'Open',
                                         'closed' => 'Closed',
                                     ])
+                                    ->default('open')
+                                    ->visibleOn('edit')
                                     ->searchable()
                                     ->live(),
 
@@ -192,14 +258,14 @@ class FacilitySupportComplaintResource extends Resource
                                     ->placeholder('Add any remarks'),
                             ]),
 
-                        Repeater::make('media')
+                        Repeater::make('photo')
                             ->label('Attachments')
-                            ->relationship()
                             ->schema([
-                                FileUpload::make('url')
+                                FileUpload::make('photo')
                                     ->label('File')
                                     ->disk('s3')
                                     ->directory('dev')
+                                    ->image()
                                     ->maxSize(2048)
                                     ->openable(true)
                                     ->downloadable(true),
@@ -250,6 +316,11 @@ class FacilitySupportComplaintResource extends Resource
 
                 TextColumn::make('status')
                     ->label('Status')
+                    ->badge()
+                    ->color(fn(string $state): string => match ($state) {
+                        'open'                            => 'primary',
+                        'closed'                          => 'gray',
+                    })
                     ->toggleable()
                     ->searchable()
                     ->limit(50),
@@ -279,7 +350,7 @@ class FacilitySupportComplaintResource extends Resource
                     ->preload(),
             ])
             ->bulkActions([
-                ExportBulkAction::make(),
+                // ExportBulkAction::make(),
             ])
             ->actions([]);
     }
