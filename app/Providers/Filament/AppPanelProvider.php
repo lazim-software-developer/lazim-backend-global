@@ -4,6 +4,7 @@ namespace App\Providers\Filament;
 
 use App\Filament\Pages\Auth\AppEditProfile;
 use App\Filament\Resources\FacilitySupportComplaintResource;
+use App\Filament\Resources\SubContractorResource;
 use App\Filament\Resources\TechnicianVendorResource;
 use Filament\Pages;
 use Filament\Panel;
@@ -267,6 +268,14 @@ class AppPanelProvider extends PanelProvider
                                     // ->url('/app/technician-vendor')
                                     ->url(TechnicianVendorResource::getUrl('index'))
                                     ->icon('heroicon-o-wrench-screwdriver')
+                                    ->hidden(auth()->user()->role->name !== 'Property Manager')
+                                    ->activeIcon('heroicon-o-rectangle-stack')
+                                    ->sort(8),
+
+                                NavigationItem::make('Sub Contractors')
+                                    // ->url('/app/technician-vendor')
+                                    ->url(SubContractorResource::getUrl('index'))
+                                    ->icon('heroicon-o-envelope')
                                     ->hidden(auth()->user()->role->name !== 'Property Manager')
                                     ->activeIcon('heroicon-o-rectangle-stack')
                                     ->sort(8),
