@@ -16,8 +16,8 @@ class GuestResource extends JsonResource
     {
         return [
             "id"                   => $this->id,
-            "passport_number"      => $this->passport_number,
-            "guest_name"           => $this->guest_name,
+            "passport_number"      => $this->passport_number ? json_decode($this->passport_number) : null,
+            "guest_name"           => $this->guest_name ? json_decode($this->guest_name) : null,
             "visa_validity_date"   => $this->visa_validity_date,
             "stay_duration"        => $this->stay_duration,
             "dtmc_license_url"     => $this->dtmc_license_url ? env('AWS_URL') . '/' . $this->dtmc_license_url : $this->dtmc_license_url,
