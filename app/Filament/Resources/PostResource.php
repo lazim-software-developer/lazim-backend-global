@@ -131,6 +131,7 @@ class PostResource extends Resource
                         'md' => 1,
                         'lg' => 2,
                     ]),
+                ]),
 
                 Hidden::make('user_id')
                     ->default(auth()->user()->id),
