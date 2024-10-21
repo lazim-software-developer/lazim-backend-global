@@ -14,7 +14,8 @@ class TechnicianVendor extends Model
     use HasFactory;
     protected $connection = 'mysql';
     protected $table = "technician_vendors";
-    protected $fillable =['technician_id', 'vendor_id', 'active', 'position','technician_number'];
+    protected $fillable =['technician_id', 'vendor_id', 'active', 'position','technician_number',
+     'owner_association_id'];
 
     public function vendor()
     {

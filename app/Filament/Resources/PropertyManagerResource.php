@@ -118,6 +118,8 @@ class PropertyManagerResource extends Resource
                             ->disk('s3')
                             ->directory('dev')
                             ->image()
+                            ->openable(true)
+                            ->downloadable(true)
                             ->maxSize(2048)
                             ->rules('file|mimes:jpeg,jpg,png|max:2048')
                             ->label('Company Logo')
@@ -126,6 +128,8 @@ class PropertyManagerResource extends Resource
                         FileUpload::make('trn_certificate')
                             ->disk('s3')
                             ->directory('dev')
+                            ->openable(true)
+                            ->downloadable(true)
                             ->rules('file|mimes:jpeg,jpg,png,pdf|max:2048')
                             ->maxSize(2048)
                             ->label('TRN Certificate'),
@@ -134,6 +138,8 @@ class PropertyManagerResource extends Resource
                             ->disk('s3')
                             ->directory('dev')
                             ->rules('file|mimes:jpeg,jpg,png,pdf|max:2048')
+                            ->openable(true)
+                            ->downloadable(true)
                             ->required()
                             ->disabledOn('edit')
                             ->maxSize(2048)
@@ -142,6 +148,8 @@ class PropertyManagerResource extends Resource
                         FileUpload::make('dubai_chamber_document')
                             ->disk('s3')
                             ->directory('dev')
+                            ->openable(true)
+                            ->downloadable(true)
                             ->rules('file|mimes:jpeg,jpg,png,pdf|max:2048')
                             ->maxSize(2048)
                             ->label('Other Document'),
@@ -194,26 +202,22 @@ class PropertyManagerResource extends Resource
                 Tables\Columns\TextColumn::make('name')
                     ->label('Property Name')
                     ->searchable()
-                    ->sortable()
                     ->default('NA')
                     ->limit(50),
 
                 Tables\Columns\TextColumn::make('phone')
                     ->searchable()
-                    ->sortable()
                     ->default('NA')
                     ->limit(50),
 
                 Tables\Columns\TextColumn::make('email')
                     ->searchable()
-                    ->sortable()
                     ->default('NA')
                     ->limit(50),
 
                 Tables\Columns\TextColumn::make('trn_number')
                     ->label('TRN Number')
                     ->searchable()
-                    ->sortable()
                     ->default('NA')
                     ->limit(50),
 

@@ -8,6 +8,7 @@ use App\Models\Building\Document;
 use App\Models\Master\DocumentLibrary;
 use App\Models\Master\Role;
 use App\Models\User\User;
+use App\Models\Vendor\ServiceVendor;
 use App\Models\Vendor\Vendor;
 use App\Models\Vendor\VendorManager;
 use Filament\Resources\Pages\CreateRecord;
@@ -97,6 +98,21 @@ class CreateFacilityManager extends CreateRecord
 
                 DB::table('owner_association_vendor')->insert($oa_vendorData);
                 Log::info('Owner association vendor record created successfully');
+
+                $serviceData = [
+                    'service_id'           => $data['service_id'],
+                    'vendor_id'            => $vendor->id,
+                    'price'                => null,
+                    'start_date'           => null,
+                    'end_date'             => null,
+                    'active'               => true,
+                    'building_id'          => null,
+                    'contract_id'          => null,
+                    'owner_association_id' => $data['owner_association_id'],
+
+                ];
+
+                ServiceVendor::create($serviceData);
 
                 // 4. Create VendorManager if data provided
                 if (!empty($data['managers'][0]['name'] ?? null) && !empty($data['managers'][0]['email'] ?? null)) {

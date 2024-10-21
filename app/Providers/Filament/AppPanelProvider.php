@@ -3,6 +3,9 @@
 namespace App\Providers\Filament;
 
 use App\Filament\Pages\Auth\AppEditProfile;
+use App\Filament\Resources\FacilitySupportComplaintResource;
+use App\Filament\Resources\SubContractorResource;
+use App\Filament\Resources\TechnicianVendorResource;
 use Filament\Pages;
 use Filament\Panel;
 use Filament\Widgets;
@@ -257,6 +260,22 @@ class AppPanelProvider extends PanelProvider
                                 NavigationItem::make('Assets')
                                     ->url('/app/assets')
                                     ->icon('heroicon-o-rectangle-stack')
+                                    ->hidden(auth()->user()->role->name !== 'Property Manager')
+                                    ->activeIcon('heroicon-o-rectangle-stack')
+                                    ->sort(8),
+
+                                NavigationItem::make('Technicians')
+                                    // ->url('/app/technician-vendor')
+                                    ->url(TechnicianVendorResource::getUrl('index'))
+                                    ->icon('heroicon-o-wrench-screwdriver')
+                                    ->hidden(auth()->user()->role->name !== 'Property Manager')
+                                    ->activeIcon('heroicon-o-rectangle-stack')
+                                    ->sort(8),
+
+                                NavigationItem::make('Sub Contractors')
+                                    // ->url('/app/technician-vendor')
+                                    ->url(SubContractorResource::getUrl('index'))
+                                    ->icon('heroicon-o-envelope')
                                     ->hidden(auth()->user()->role->name !== 'Property Manager')
                                     ->activeIcon('heroicon-o-rectangle-stack')
                                     ->sort(8),
@@ -599,12 +618,12 @@ class AppPanelProvider extends PanelProvider
                                     ->icon('heroicon-o-users')
                                     ->activeIcon('heroicon-o-users')
                                     ->sort(8),
-                                NavigationItem::make('Family Members')
-                                    ->url(FamilyMemberResource::getUrl('index'))
-                                    ->visible($user->can('view_any_family::member'))
-                                    ->icon('heroicon-s-user-group')
-                                    ->activeIcon('heroicon-s-user-group')
-                                    ->sort(9),
+                                // NavigationItem::make('Family Members')
+                                //     ->url(FamilyMemberResource::getUrl('index'))
+                                //     ->visible($user->can('view_any_family::member'))
+                                //     ->icon('heroicon-s-user-group')
+                                //     ->activeIcon('heroicon-s-user-group')
+                                //     ->sort(9),
                             ]),
                     ]);
                 }
@@ -721,6 +740,14 @@ class AppPanelProvider extends PanelProvider
                             ->items([
                                 NavigationItem::make('Complaints')
                                     ->url('/app/helpdeskcomplaints')
+                                    ->visible(auth()->user()->role->name != 'Property Manager')
+                                    ->hidden(!$user->can('view_any_helpdeskcomplaint'))
+                                    ->icon('heroicon-m-clipboard-document-list')
+                                    ->activeIcon('heroicon-m-clipboard-document-list')
+                                    ->sort(1),
+                                NavigationItem::make('Complaints')
+                                    ->url(FacilitySupportComplaintResource::getUrl('index'))
+                                    ->visible(auth()->user()->role->name == 'Property Manager')
                                     ->hidden(!$user->can('view_any_helpdeskcomplaint'))
                                     ->icon('heroicon-m-clipboard-document-list')
                                     ->activeIcon('heroicon-m-clipboard-document-list')

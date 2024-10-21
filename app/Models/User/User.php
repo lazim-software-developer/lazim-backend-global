@@ -217,14 +217,14 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasTenant
     }
     public function canAccessPanel(Panel $panel): bool
     {
-        $allowedRoles = ['Admin','Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor'];
+        $notAllowedRoles = ['Admin','Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor', 'Property Manager'];
 
         // Retrieve the role name using the provided method
         $userRoleName = Role::find($this->role_id)->name;
         if ($panel->getId() === 'app' && in_array($userRoleName, ['Admin','Property Manager']) && $this->active) {
             return true;
         }
-        else if($panel->getId() === 'admin' && !in_array($userRoleName, $allowedRoles) && $this->active) {
+        elseif($panel->getId() === 'admin' && !in_array($userRoleName, $notAllowedRoles) && $this->active) {
             return true;
         }
         else{
