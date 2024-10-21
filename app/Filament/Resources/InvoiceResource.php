@@ -79,7 +79,7 @@ class InvoiceResource extends Resource
                             ->rules(['date'])
                             ->required()
                             ->disabled()
-                            ->label('Start Date'),
+                            ->label('Start date'),
                     ]),
             ]),
 
@@ -127,7 +127,7 @@ class InvoiceResource extends Resource
                             ->readOnly()
                             ->live(),
                         TextInput::make('invoice_amount')
-                            ->label('Invoice Amount')
+                            ->label('Invoice amount')
                             ->disabled()
                             ->prefix('AED'),
                     ]),
@@ -238,7 +238,7 @@ class InvoiceResource extends Resource
                 TextColumn::make('contract.contract_type')
                     ->label('Contract type'),
                 TextColumn::make('invoice_number')
-                    ->label('Invoice Number'),
+                    ->label('Invoice number'),
                 TextColumn::make('wda.job_description')
                     ->label('Job Description(WDA)'),
                 TextColumn::make('date')

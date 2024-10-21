@@ -70,21 +70,6 @@ class IncidentResource extends Resource
                             ->preload()
                             ->required()
                             ->label('User'),
-                        Repeater::make('media')
-                            ->relationship()
-                            ->disabled()
-                            ->helperText(function($state){
-                                return $state == [] ? 'No media' : '';
-                            })
-                            ->schema([
-                                FileUpload::make('url')
-                                    ->disk('s3')
-                                    ->directory('dev')
-                                    ->maxSize(2048)
-                                    ->openable(true)
-                                    ->downloadable(true)
-                                    ->label('File'),
-                            ]),
                         DateTimePicker::make('open_time')->disabled()->label('created at'),
                         Textarea::make('complaint')->label('Incident Details')
                             ->disabled()
@@ -125,6 +110,21 @@ class IncidentResource extends Resource
                                 'sm' => 1,
                                 'md' => 1,
                                 'lg' => 2,
+                            ]),
+                        Repeater::make('media')
+                            ->relationship()
+                            ->disabled()
+                            ->helperText(function($state){
+                                return $state == [] ? 'No media' : '';
+                            })
+                            ->schema([
+                                FileUpload::make('url')
+                                    ->disk('s3')
+                                    ->directory('dev')
+                                    ->maxSize(2048)
+                                    ->openable(true)
+                                    ->downloadable(true)
+                                    ->label('File'),
                             ]),
                     ]),
             ]);

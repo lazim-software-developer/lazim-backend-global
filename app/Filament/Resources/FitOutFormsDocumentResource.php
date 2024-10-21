@@ -163,7 +163,7 @@ class FitOutFormsDocumentResource extends Resource
             ->poll('60s')
             ->columns([
 
-                    TextColumn::make('ticket_number')
+                TextColumn::make('ticket_number')
                     ->searchable()
                     ->default('NA')
                     ->label('Ticket number'),
@@ -186,7 +186,7 @@ class FitOutFormsDocumentResource extends Resource
                     ->limit(50),
                 TextColumn::make('orders')
                     ->formatStateUsing(fn ($state) => json_decode($state)? (json_decode($state)->payment_status == 'requires_payment_method' ? 'Payment Failed' : json_decode($state)->payment_status): 'NA')
-                    ->label('Payment Status')
+                    ->label('Payment status')
                     ->default('NA')
                     ->limit(50),
                 TextColumn::make('remarks')

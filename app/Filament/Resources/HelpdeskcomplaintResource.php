@@ -108,7 +108,7 @@ class HelpdeskcomplaintResource extends Resource
                             })
                             ->live()
                             ->searchable()
-                            ->label('Vendor Name'),
+                            ->label('Vendor name'),
                         Select::make('flat_id')
                             ->rules(['exists:flats,id'])
                             ->required()
@@ -130,7 +130,7 @@ class HelpdeskcomplaintResource extends Resource
                             })
                             ->preload()
                             ->searchable()
-                            ->label('Technician Name'),
+                            ->label('Technician name'),
                         TextInput::make('priority')
                             ->rules([
                                 function () {
@@ -251,7 +251,7 @@ class HelpdeskcomplaintResource extends Resource
                     ->default('NA')
                     ->limit(20)
                     ->searchable()
-                    ->label('Ticket Number'),
+                    ->label('Ticket number'),
                 TextColumn::make('building.name')
                     ->default('NA')
                     ->searchable()

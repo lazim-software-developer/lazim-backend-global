@@ -52,7 +52,7 @@ class ProposalsRelationManager extends RelationManager
                     ->disabled(),
                 Select::make('vendor_id')
                     ->relationship('vendor', 'name')
-                    ->label('Vendor Name')
+                    ->label('Vendor name')
                     ->disabled(),
                 TextInput::make('submitted_on')
                     ->disabled()
