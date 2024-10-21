@@ -9,6 +9,8 @@ use App\Filament\Resources\FacilityManagerResource\RelationManagers\EscalationMa
 use App\Filament\Resources\FacilityManagerResource\RelationManagers\ServicesRelationManager;
 use App\Jobs\ApprovedFMJob;
 use App\Jobs\RejectedFMJob;
+use App\Models\Accounting\SubCategory;
+use App\Models\Master\Service;
 use App\Models\OwnerAssociation;
 use App\Models\User\User;
 use App\Models\Vendor\Vendor;
@@ -20,6 +22,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
+use Filament\Forms\Set;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Filters\SelectFilter;
@@ -124,6 +127,42 @@ class FacilityManagerResource extends Resource
                                             ->required(),
                                     ]),
                             ])->columnSpan(1),
+                    ]),
+
+                Section::make('Services')
+                    ->description('Services provided by the Facility Manager.')
+                    ->icon('heroicon-o-list-bullet')
+                    ->collapsible()
+                    ->schema([
+                        Grid::make(3)
+                            ->schema([
+                                Select::make('subcategory_id')
+                                    ->options(SubCategory::all()->pluck('name', 'id'))
+                                    ->live()
+                                    ->searchable()
+                                    ->required(function ($get) {
+                                        return !empty($get('service_id'));
+                                    })
+                                    ->placeholder('Select Sub-Category')
+                                    ->label('Sub Category')
+                                    ->preload()
+                                    ->afterStateUpdated(fn(Set $set) => $set('service_id', null)),
+                                Select::make('service_id')
+                                    ->label('Service')
+                                    ->live()
+                                    ->preload()
+                                    ->required(function ($get) {
+                                        return !empty($get('subcategory_id'));
+                                    })
+                                    ->searchable()
+                                    ->options(function (callable $get) {
+                                        return Service::where('type', 'vendor_service')
+                                            ->where('subcategory_id', $get('subcategory_id'))->pluck('name', 'id');
+                                    })
+                                    ->placeholder('Select Service'),
+
+                            ]),
+
                     ]),
 
                 Section::make('Manager Information')
@@ -272,8 +311,8 @@ class FacilityManagerResource extends Resource
         return [
             DocumentsRelationManager::class,
             BuildingsRelationManager::class,
-            ServicesRelationManager::class,
-            EscalationMatrixRelationManager::class
+            // ServicesRelationManager::class,
+            EscalationMatrixRelationManager::class,
         ];
     }
 

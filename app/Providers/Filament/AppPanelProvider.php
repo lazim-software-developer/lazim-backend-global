@@ -618,12 +618,12 @@ class AppPanelProvider extends PanelProvider
                                     ->icon('heroicon-o-users')
                                     ->activeIcon('heroicon-o-users')
                                     ->sort(8),
-                                NavigationItem::make('Family Members')
-                                    ->url(FamilyMemberResource::getUrl('index'))
-                                    ->visible($user->can('view_any_family::member'))
-                                    ->icon('heroicon-s-user-group')
-                                    ->activeIcon('heroicon-s-user-group')
-                                    ->sort(9),
+                                // NavigationItem::make('Family Members')
+                                //     ->url(FamilyMemberResource::getUrl('index'))
+                                //     ->visible($user->can('view_any_family::member'))
+                                //     ->icon('heroicon-s-user-group')
+                                //     ->activeIcon('heroicon-s-user-group')
+                                //     ->sort(9),
                             ]),
                     ]);
                 }

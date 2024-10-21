@@ -27,6 +27,7 @@ class EditFacilityManager extends EditRecord
         $vendor     = $this->record;
         $user       = $vendor->user;
         $manager    = $vendor->managers->first();
+        $service    = $vendor->services->first();
         $riskPolicy = $vendor->documents()
             ->where('name', 'risk_policy')
             ->first();
@@ -49,6 +50,8 @@ class EditFacilityManager extends EditRecord
             'risk_policy_expiry'   => $riskPolicy ? $riskPolicy->expiry_date : null,
             'status'               => $vendor->status ?? 'pending',
             'remarks'              => $vendor->remarks ?? null,
+            'subcategory_id'       => $service ? $service->subcategory->id : null,
+            'service_id'           => $service ? $service->id : null,
             'managers'             => [[
                 'name'  => $manager->name ?? '',
                 'email' => $manager->email ?? '',
@@ -102,6 +105,12 @@ class EditFacilityManager extends EditRecord
                         'expiry_date'          => $data['risk_policy_expiry'],
                     ]
                 );
+            }
+
+            if (!empty($data['service_id'])) {
+                $record->services()->detach();
+
+                $record->services()->attach($data['service_id']);
             }
 
             // Update or Create VendorManager
