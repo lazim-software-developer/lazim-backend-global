@@ -540,7 +540,7 @@ class TestController extends Controller
             return redirect('https://apps.apple.com/nz/app/lazim/id6475393837');
         } else {
             // Default redirection if OS is not recognized
-            return redirect('https://lazim.ae');
+            return redirect('https://resident.lazim.ae/');
         }
     }
 }
