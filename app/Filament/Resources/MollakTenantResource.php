@@ -9,6 +9,7 @@ use App\Models\Building\Flat;
 use App\Models\Master\Role;
 use App\Models\MollakTenant;
 use Filament\Forms;
+use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
@@ -32,43 +33,64 @@ class MollakTenantResource extends Resource
     public static function form(Form $form): Form
     {
         return $form
-            ->schema([
-                TextInput::make('name')
-                    ->disabled(),
-                TextInput::make('contract_number')
-                    ->disabled(),
-                TextInput::make('emirates_id')
-                    ->label('Emirates ID')
-                    ->formatStateUsing(
-                        function ($state) {
+        ->schema([
+            Section::make('Personal Details')
+                ->schema([
+                    TextInput::make('name')
+                        ->label('Name')
+                        ->disabled(),
+                    TextInput::make('emirates_id')
+                        ->label('Emirates ID')
+                        ->formatStateUsing(function ($state) {
                             return $state ?: 'NA';
-                        }
-                    )
-                    ->disabled(),
-                TextInput::make('license_number')->formatStateUsing(
-                    function ($state) {
-                        return $state ?: 'NA';
-                    }
-                )
-                    ->default('NA')
-                    ->disabled(),
-                TextInput::make('mobile')
-                    ->disabled(),
-                TextInput::make('email')
-                    ->disabled(),
-                TextInput::make('start_date')
-                    ->disabled(),
-                TextInput::make('end_date')
-                    ->disabled(),
-                TextInput::make('contract_status')
-                    ->disabled(),
-                Select::make('building_id')
-                    ->relationship('building', 'name')
-                    ->disabled(),
-                Select::make('flat_id')
-                    ->relationship('flat', 'property_number')
-                    ->disabled(),
-            ]);
+                        })
+                        ->disabled(),
+                    TextInput::make('mobile')
+                        ->label('Mobile')
+                        ->disabled(),
+                    TextInput::make('email')
+                        ->label('Email')
+                        ->disabled(),
+                ])
+                ->columns(2), // Two columns in this section
+
+            Section::make('Contract Details')
+                ->schema([
+                    TextInput::make('contract_number')
+                        ->label('Contract number')
+                        ->disabled(),
+                    TextInput::make('license_number')
+                        ->label('License number')
+                        ->formatStateUsing(function ($state) {
+                            return $state ?: 'NA';
+                        })
+                        ->default('NA')
+                        ->disabled(),
+                    TextInput::make('start_date')
+                        ->label('Start date')
+                        ->disabled(),
+                    TextInput::make('end_date')
+                        ->label('End date')
+                        ->disabled(),
+                    TextInput::make('contract_status')
+                        ->label('Contract status')
+                        ->disabled(),
+                ])
+                ->columns(2), // Two columns in this section
+
+            Section::make('Property Information')
+                ->schema([
+                    Select::make('building_id')
+                        ->relationship('building', 'name')
+                        ->label('Building')
+                        ->disabled(),
+                    Select::make('flat_id')
+                        ->relationship('flat', 'property_number')
+                        ->label('Flat')
+                        ->disabled(),
+                ])
+                ->columns(2), // Two columns in this section
+        ]);
     }
 
     public static function table(Table $table): Table

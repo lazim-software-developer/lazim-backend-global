@@ -19,6 +19,7 @@ use Filament\Forms\Components\CheckboxList;
 use App\Filament\Resources\MoveInFormsDocumentResource\Pages;
 use App\Models\User\User;
 use Filament\Facades\Filament;
+use Filament\Forms\Components\Section;
 use Illuminate\Database\Eloquent\Model;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
@@ -33,6 +34,10 @@ class MoveInFormsDocumentResource extends Resource
     public static function form(Form $form): Form
     {
         return $form
+    ->schema([
+
+        // Personal Details Section
+        Section::make('Personal Details')
             ->schema([
                 Grid::make([
                     'sm' => 1,
@@ -49,191 +54,184 @@ class MoveInFormsDocumentResource extends Resource
                         ->preload()
                         ->searchable()
                         ->disabled()
-                        ->label('Building Name'),
+                        ->label('Building'),
                     Select::make('flat_id')
                         ->relationship('flat', 'property_number')
                         ->preload()
                         ->disabled()
                         ->searchable()
                         ->label('Unit Number'),
-                    FileUpload::make('handover_acceptance')
-                        ->disk('s3')
-                        ->directory('dev')
-                        ->downloadable(true)
-                        ->openable(true)
-                        ->visible(function (callable $get) {
-                            if ($get('handover_acceptance') != null) {
-                                return true;
-                            }
-                            return false;
-                        })
-                        ->disabled()
-                        ->label('Handover Acceptance'),
-                    FileUpload::make('receipt_charges')
-                        ->disk('s3')
-                        ->directory('dev')
-                        ->visible(function (callable $get) {
-                            if ($get('receipt_charges') != null) {
-                                return true;
-                            }
-                            return false;
-                        })
-                        ->disabled()
-                        ->downloadable(true)
-                        ->openable(true)
-                        ->label('Paid Receipt of Service Charges'),
-                    FileUpload::make('contract')
-                        ->disk('s3')
-                        ->directory('dev')
-                        ->downloadable(true)
-                        ->disabled()
-                        ->visible(function (callable $get) {
-                            if ($get('contract') != null) {
-                                return true;
-                            }
-                            return false;
-                        })
-                        ->openable(true)
-                        ->label('Contract'),
-                    FileUpload::make('title_deed')
-                        ->disk('s3')
-                        ->directory('dev')
-                        ->disabled()
-                        ->downloadable(true)
-                        ->openable(true)
-                        ->label('Title Deed'),
-                    FileUpload::make('passport')
-                        ->disk('s3')
-                        ->directory('dev')
-                        ->disabled()
-                        ->downloadable(true)
-                        ->openable(true)
-                        ->label('Passport / EID / Visa'),
-                    FileUpload::make('dewa')
-                        ->visible(function (callable $get) {
-                            if ($get('dewa') != null) {
-                                return true;
-                            }
-                            return false;
-                        })
-                        ->disk('s3')
-                        ->directory('dev')
-                        ->disabled()
-                        ->downloadable(true)
-                        ->openable(true)
-                        ->label('Dewa Application'),
-                    FileUpload::make('cooling_registration')
-                        ->visible(function (callable $get) {
-                            if ($get('cooling_registration') != null) {
-                                return true;
-                            }
-                            return false;
-                        })
-                        ->disk('s3')
-                        ->directory('dev')
-                        ->disabled()
-                        ->downloadable(true)
-                        ->openable(true)
-                        ->label('Cooling Registration'),
-                    FileUpload::make('gas_registration')
-                        ->visible(function (callable $get) {
-                            if ($get('gas_registration') != null) {
-                                return true;
-                            }
-                            return false;
-                        })
-                        ->disk('s3')
-                        ->directory('dev')
-                        ->disabled()
-                        ->downloadable(true)
-                        ->openable(true)
-                        ->label('Gas Registration'),
-                    FileUpload::make('vehicle_registration')
-                        ->visible(function (callable $get) {
-                            if ($get('vehicle_registration') != null) {
-                                return true;
-                            }
-                            return false;
-                        })
-                        ->disk('s3')
-                        ->directory('dev')
-                        ->downloadable(true)
-                        ->disabled()
-                        ->openable(true)
-                        ->label('Vehicle Registration / Mulkiya'),
-                    FileUpload::make('movers_license')
-                        ->visible(function (callable $get) {
-                            if ($get('movers_license') != null) {
-                                return true;
-                            }
-                            return false;
-                        })
-                        ->disk('s3')
-                        ->directory('dev')
-                        ->disabled()
-                        ->downloadable(true)
-                        ->openable(true)
-                        ->label("Movers ID's and Company License"),
-                    FileUpload::make('movers_liability')
-                        ->visible(function (callable $get) {
-                            if ($get('movers_liability') != null) {
-                                return true;
-                            }
-                            return false;
-                        })
-                        ->disk('s3')
-                        ->directory('dev')
-                        ->disabled()
-                        ->downloadable(true)
-                        ->openable(true)
-                        ->label('Movers Third Party Liability/Security Deposit'),
-                    Select::make('status')
-                        ->options([
-                            'approved' => 'Approve',
-                            'rejected' => 'Reject',
-                        ])
-                        ->disabled(function (MoveInOut $record) {
-                            return $record->status != null;
-                        })
-                        ->required()
-                        ->searchable()
-                        ->live(),
-                    TextInput::make('remarks')
-                        ->rules(['max:150'])
-                        ->visible(function (callable $get) {
-                            if ($get('status') == 'rejected') {
-                                return true;
-                            }
-                            return false;
-                        })
-                        ->disabled(function (MoveInOut $record) {
-                            return $record->status != null;
-                        })
-                        ->required(),
-                    // If the form is rejected, we need to capture which fields are rejected
-                    CheckboxList::make('rejected_fields')
-                        ->label('Please select rejected fields')
-                        ->options([
-                            'handover_acceptance' => 'Handover Acceptance',
-                            'receipt_charges' => 'Receipt charges',
-                            'contract' => 'Contract',
-                            'title_deed' => 'Title deed',
-                            'passport' => 'Passport',
-                            'dewa' => 'Dewa',
-                            'cooling_registration' => 'Cooling registration',
-                            'gas_registration' => 'Gas registration',
-                            'vehicle_registration' => 'Vehicle registration',
-                            'movers_license' => 'Movers license',
-                            'movers_liability' => 'Movers liability',
-                        ])->columns(4)
-                        ->visible(function (callable $get) {
-                            if ($get('status') == 'rejected') {
-                                return true;
-                            }
-                            return false;
-                        }),
                 ]),
-            ]);
+            ]),
+
+        // Document Uploads Section
+        Section::make('Documents')
+            ->columns(2)
+            ->schema([
+                FileUpload::make('handover_acceptance')
+                    ->disk('s3')
+                    ->directory('dev')
+                    ->downloadable(true)
+                    ->openable(true)
+                    ->visible(function (callable $get) {
+                        return $get('handover_acceptance') != null;
+                    })
+                    ->disabled()
+                    ->label('Handover Acceptance'),
+
+                FileUpload::make('receipt_charges')
+                    ->disk('s3')
+                    ->directory('dev')
+                    ->visible(function (callable $get) {
+                        return $get('receipt_charges') != null;
+                    })
+                    ->disabled()
+                    ->downloadable(true)
+                    ->openable(true)
+                    ->label('Paid Receipt of Service Charges'),
+
+                FileUpload::make('contract')
+                    ->disk('s3')
+                    ->directory('dev')
+                    ->downloadable(true)
+                    ->disabled()
+                    ->visible(function (callable $get) {
+                        return $get('contract') != null;
+                    })
+                    ->openable(true)
+                    ->label('Contract'),
+
+                FileUpload::make('title_deed')
+                    ->disk('s3')
+                    ->directory('dev')
+                    ->disabled()
+                    ->downloadable(true)
+                    ->openable(true)
+                    ->label('Title Deed'),
+
+                FileUpload::make('passport')
+                    ->disk('s3')
+                    ->directory('dev')
+                    ->disabled()
+                    ->downloadable(true)
+                    ->openable(true)
+                    ->label('Passport / EID / Visa'),
+
+                FileUpload::make('dewa')
+                    ->disk('s3')
+                    ->directory('dev')
+                    ->visible(function (callable $get) {
+                        return $get('dewa') != null;
+                    })
+                    ->disabled()
+                    ->downloadable(true)
+                    ->openable(true)
+                    ->label('Dewa Application'),
+
+                FileUpload::make('cooling_registration')
+                    ->disk('s3')
+                    ->directory('dev')
+                    ->visible(function (callable $get) {
+                        return $get('cooling_registration') != null;
+                    })
+                    ->disabled()
+                    ->downloadable(true)
+                    ->openable(true)
+                    ->label('Cooling Registration'),
+
+                FileUpload::make('gas_registration')
+                    ->disk('s3')
+                    ->directory('dev')
+                    ->visible(function (callable $get) {
+                        return $get('gas_registration') != null;
+                    })
+                    ->disabled()
+                    ->downloadable(true)
+                    ->openable(true)
+                    ->label('Gas Registration'),
+
+                FileUpload::make('vehicle_registration')
+                    ->disk('s3')
+                    ->directory('dev')
+                    ->visible(function (callable $get) {
+                        return $get('vehicle_registration') != null;
+                    })
+                    ->disabled()
+                    ->downloadable(true)
+                    ->openable(true)
+                    ->label('Vehicle Registration / Mulkiya'),
+
+                FileUpload::make('movers_license')
+                    ->disk('s3')
+                    ->directory('dev')
+                    ->visible(function (callable $get) {
+                        return $get('movers_license') != null;
+                    })
+                    ->disabled()
+                    ->downloadable(true)
+                    ->openable(true)
+                    ->label("Movers ID's and Company License"),
+
+                FileUpload::make('movers_liability')
+                    ->disk('s3')
+                    ->directory('dev')
+                    ->visible(function (callable $get) {
+                        return $get('movers_liability') != null;
+                    })
+                    ->disabled()
+                    ->downloadable(true)
+                    ->openable(true)
+                    ->label('Movers Third Party Liability/Security Deposit'),
+            ]),
+
+        // Approval Section
+        Section::make('Approval Details')
+            ->columns(2)
+            ->schema([
+                Select::make('status')
+                    ->options([
+                        'approved' => 'Approve',
+                        'rejected' => 'Reject',
+                    ])
+                    ->disabled(function (MoveInOut $record) {
+                        return $record->status != null;
+                    })
+                    ->required()
+                    ->searchable()
+                    ->live(),
+
+                TextInput::make('remarks')
+                    ->rules(['max:150'])
+                    ->visible(function (callable $get) {
+                        return $get('status') == 'rejected';
+                    })
+                    ->disabled(function (MoveInOut $record) {
+                        return $record->status != null;
+                    })
+                    ->required(),
+
+                CheckboxList::make('rejected_fields')
+                    ->label('Please select rejected fields')
+                    ->options([
+                        'handover_acceptance' => 'Handover Acceptance',
+                        'receipt_charges' => 'Receipt charges',
+                        'contract' => 'Contract',
+                        'title_deed' => 'Title deed',
+                        'passport' => 'Passport',
+                        'dewa' => 'Dewa',
+                        'cooling_registration' => 'Cooling registration',
+                        'gas_registration' => 'Gas registration',
+                        'vehicle_registration' => 'Vehicle registration',
+                        'movers_license' => 'Movers license',
+                        'movers_liability' => 'Movers liability',
+                    ])
+                    ->columns(4)
+                    ->visible(function (callable $get) {
+                        return $get('status') == 'rejected';
+                    }),
+            ]),
+    ]);
+
     }
 
     public static function table(Table $table): Table
@@ -257,7 +255,7 @@ class MoveInFormsDocumentResource extends Resource
                 TextColumn::make('flat.property_number')
                     ->searchable()
                     ->default('NA')
-                    ->label('Unit Number')
+                    ->label('Unit number')
                     ->limit(50),
                 TextColumn::make('status')
                     ->searchable()
