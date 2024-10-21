@@ -189,11 +189,7 @@ class ComplaintscomplaintResource extends Resource
                         ->downloadable(true)
                         ->label('File'),
                 ])
-                ->columnSpan([
-                    'sm' => 1,
-                    'md' => 1,
-                    'lg' => 2
-                ]),
+                ->columns(2),
         ]),
         Section::make('Status and Remarks')
             ->schema([
@@ -229,7 +225,7 @@ class ComplaintscomplaintResource extends Resource
                     ->default('NA')
                     ->limit(20)
                     ->searchable()
-                    ->label('Ticket Number'),
+                    ->label('Ticket number'),
                 TextColumn::make('building.name')
                     ->default('NA')
                     ->searchable()

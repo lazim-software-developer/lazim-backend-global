@@ -131,17 +131,17 @@ class TenantDocumentResource extends Resource
             ->columns([
                 TextColumn::make('name')
                     ->searchable()
-                    ->label('Document Name')
+                    ->label('Document name')
                     ->default('NA')
                     ->limit(50),
                 TextColumn::make('building.name')
                     ->searchable()
                     ->default('NA')
-                    ->label('Building Name')
+                    ->label('Building')
                     ->limit(50),
                 TextColumn::make('unit')
                     ->default('NA')
-                    ->label('Unit Number')
+                    ->label('Unit number')
                     ->getStateUsing(function(Get $get,$record){
                         $flatID = FlatTenant::where('tenant_id',$record->documentable_id)->value('flat_id');
                         return Flat::where('id',$flatID)->value('property_number');
@@ -153,7 +153,7 @@ class TenantDocumentResource extends Resource
                     ->limit(50),
                 TextColumn::make('documentUsers.first_name')
                     ->searchable()
-                    ->label('Resident Name')
+                    ->label('Resident name')
                     ->default('NA'),
                 ViewColumn::make('Role')->view('tables.columns.role')->alignCenter()
             ])

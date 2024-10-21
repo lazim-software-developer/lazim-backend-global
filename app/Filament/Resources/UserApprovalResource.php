@@ -130,7 +130,7 @@ class UserApprovalResource extends Resource
                     ->default('NA')->formatStateUsing(fn ($state) => ucwords($state)),
                 Tables\Columns\TextColumn::make('flat.property_number')->label('Flat Number')->default('NA'),
                 Tables\Columns\TextColumn::make('flat.building.name')->label('Building')->default('NA'),
-                Tables\Columns\TextColumn::make('created_at')->label('Date of Creation')->default('NA')
+                Tables\Columns\TextColumn::make('created_at')->label('Date of creation')->default('NA')
             ])
             ->filters([
                 //

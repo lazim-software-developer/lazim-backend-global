@@ -85,7 +85,7 @@ class VisitorFormResource extends Resource
                 TextColumn::make('ticket_number')
                 ->searchable()
                 ->default('NA')
-                ->label('Ticket Number'),
+                ->label('Ticket number'),
                 TextColumn::make('building.name')
                 ->label('Building')
                 ->default('NA'),
