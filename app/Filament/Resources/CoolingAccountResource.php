@@ -60,7 +60,7 @@ class CoolingAccountResource extends Resource
         })
             ->columns([
                 TextColumn::make('building.name'),
-                TextColumn::make('flat.property_number')->label('Unit Number'),
+                TextColumn::make('flat.property_number')->label('Unit number'),
                 TextColumn::make('date')->date(),
                 TextColumn::make('due_date')->date()
                 ->visible(function(){

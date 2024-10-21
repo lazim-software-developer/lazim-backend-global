@@ -223,19 +223,43 @@ class VendorComplaintController extends Controller
     }
     public function preventiveMaintenance(Vendor $vendor,Request $request)
     {
-        $request->validate([
-            'start_date' => 'required|date',
-            'end_date' => 'required|date',
-        ]);
-        $end_date   = Carbon::parse($request->end_date);
-        $start_date = Carbon::parse($request->start_date);
+        $end_date   = $request->has('end_date') ? Carbon::parse($request->end_date) : now();
+        $start_date = $request->has('start_date') ? Carbon::parse($request->start_date) : now()->subDays(6);
 
         $complaints = Complaint::where(['vendor_id'=> $vendor->id,'complaint_type'=>'preventive_maintenance'])
             ->when($request->filled('building_id'), function ($query) use ($request) {
                 $query->where('building_id', $request->building_id);
             })
-            ->whereBetween('due_date', [$start_date, $end_date])->get();
+            ->when($request->filled(['end_date','start_date']), function ($query) use ($request,$start_date,$end_date) {
+                $query->whereBetween('due_date', [$start_date, $end_date]);
+            })
+            ->when($request->filled('type'), function ($query) use ($request) {
+                if($request->type === 'completed'){
+                    $query->where('status','closed');
+                }
+                elseif($request->type === 'delayed'){
+                    $query->where('due_date','<',now())->where('status','open');
+                }
+                else{
+                    $query;
+                }
+            })
+            ->get();
 
         return VendorComplaintsResource::collection($complaints);
+    }
+
+    public function dashboardPreventive(Vendor $vendor,Request $request)
+    {
+        $complaints = Complaint::where(['vendor_id'=> $vendor->id,'complaint_type'=>'preventive_maintenance'])
+            ->when($request->filled('building_id'), function ($query) use ($request) {
+                $query->where('building_id', $request->building_id);
+            })->get();
+
+        return [
+            'scheduled' => $complaints->count(),
+            'completed' => $complaints->where('status','closed')->count(),
+            'delayed'   => $complaints->where('due_date','<',now())->where('status','open')->count(),
+        ];
     }
 }

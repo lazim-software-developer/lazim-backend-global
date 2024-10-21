@@ -30,6 +30,7 @@ use App\Filament\Resources\ContractResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 use App\Filament\Resources\ContractResource\RelationManagers;
+use Filament\Forms\Components\Section;
 use Illuminate\Support\Facades\Log;
 
 class ContractResource extends Resource
@@ -44,238 +45,190 @@ class ContractResource extends Resource
     public static function form(Form $form): Form
     {
         return $form
+    ->schema([
+        Section::make('Contract Information')
             ->schema([
                 Grid::make([
                     'sm' => 1,
                     'md' => 1,
                     'lg' => 2,
-                ])
-                    ->schema([
-                        Select::make('contract_type')
-                            ->options([
-                                'AMC' => 'AMC',
-                                'One time' => 'One Time',
-                            ])
-                            ->disabledOn('edit')
-                            ->searchable()
-                            ->required()
-                            ->label('Contract Type'),
-                        Select::make('building_id')
-                            ->relationship('building', 'name')
-                            ->options(function(){
-                                if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
-                                    return Building::all()->pluck('name', 'id');
-                                }
-                                else{
-                                    return Building::where('owner_association_id', auth()->user()?->owner_association_id)
+                ])->schema([
+                    Select::make('contract_type')
+                        ->options([
+                            'AMC' => 'AMC',
+                            'One time' => 'One Time',
+                        ])
+                        ->disabledOn('edit')
+                        ->searchable()
+                        ->required()
+                        ->label('Contract Type'),
+                    Select::make('building_id')
+                        ->relationship('building', 'name')
+                        ->options(function(){
+                            if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
+                                return Building::all()->pluck('name', 'id');
+                            }
+                            else{
+                                return Building::where('owner_association_id', auth()->user()?->owner_association_id)
                                     ->pluck('name', 'id');
-                                } 
-                            })
-                            ->reactive()
-                            ->required()
-                            ->preload()
-                            ->disabledOn('edit')
-                            ->searchable()
-                            ->placeholder('Building')
-                            ->live(),
-                        Select::make('service_id')
-                            ->relationship('service', 'name')
-                            ->options(function(){
-                                return Service::where('type','vendor_service')->pluck('name','id');
-                            })
-                            ->reactive()
-                            ->required()
-                            ->preload()
-                            ->searchable()
-                            ->disabledOn('edit')
-                            ->placeholder('Service')
-                            ->live(),
-                        Select::make('vendor_id')
-                            ->relationship('vendor', 'name')
-                            ->options(function(){
-                                if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
-                                    return Vendor::where('status','approved')->pluck('name','id');
-                                }else{
-                                    return Vendor::whereHas('ownerAssociation', function ($query) {
-                                        $query->where('owner_association_id', Filament::getTenant()->id)
-                                              ->where('status', 'approved');
-                                    })->pluck('name','id');
-                                }
-                            })
-                            ->reactive()
-                            ->required()
-                            ->preload()
-                            ->searchable()
-                            ->disabledOn('edit')
-                            ->placeholder('Vendor')
-                            ->live(),
-                        DatePicker::make('start_date')
-                            ->disabledOn('edit')
-                            ->required()
-                            ->rules(['date'])
-                            // ->minDate(now()->format('Y-m-d'))
-                            // ->minDate(function ($record, $state) {
-                            //     if ($record?->start_date == null || $state != $record?->start_date) {
-                            //         return now()->format('Y-m-d');
-                            //     }
-                            // })
-                            // ->disabledOn('edit')
-                            ->placeholder('Start Date')
-                            ->live(),
-                        DatePicker::make('end_date')
-                            ->afterOrEqual('start_date')
-                            ->required()
-                            ->rules(['date'])
-                            // ->minDate(now()->format('Y-m-d'))
-                            // ->minDate(function ($record, $state) {
-                            //     if ($record?->end_date == null || $state != $record?->end_date) {
-                            //         return now()->format('Y-m-d');
-                            //     }
-                            // })
-                            // ->disabledOn('edit')
-                            ->placeholder('End Date'),
-                        
-                        
-                        // TextInput::make('balance_amount')
-                        //     ->label('Balance Amount')
-                        //     ->numeric(true)
-                        //     ->disabledOn('edit')
-                        //     ->minValue(1)
-                        //     ->maxValue(1000000)
-                        //     ->prefix('AED')
-                        //     ->required()
-                        //     ->reactive()
-                        //     ->disabled(function ( callable $set, callable $get) {
-                        //         $buildingId = $get('building_id');
-                        //         $startDate = $get('start_date');
-                        //         $serviceId = $get('service_id');
-                        //         $vendor_id = $get('vendor_id');
-                        
-                        //         // Ensure all necessary fields are selected
-                        //         if (!$buildingId || !$startDate || !$serviceId || !$vendor_id) {
-                        //             return false;
-                        //         }
-                        
-                        //         $contract = Contract::where([
-                        //             ['building_id', $get('building_id')],
-                        //             ['service_id', $get('service_id')],
-                        //             ['vendor_id', $get('vendor_id')]
-                        //         ])
-                        //         ->orderBy('created_at', 'desc') 
-                        //         ->first();
+                            } 
+                        })
+                        ->reactive()
+                        ->required()
+                        ->preload()
+                        ->disabledOn('edit')
+                        ->searchable()
+                        ->placeholder('Building')
+                        ->live(),
+                    Select::make('service_id')
+                        ->relationship('service', 'name')
+                        ->options(function(){
+                            return Service::where('type','vendor_service')->pluck('name','id');
+                        })
+                        ->reactive()
+                        ->required()
+                        ->preload()
+                        ->searchable()
+                        ->disabledOn('edit')
+                        ->placeholder('Service')
+                        ->live(),
+                    Select::make('vendor_id')
+                        ->relationship('vendor', 'name')
+                        ->options(function(){
+                            if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
+                                return Vendor::where('status','approved')->pluck('name','id');
+                            }else{
+                                return Vendor::whereHas('ownerAssociation', function ($query) {
+                                    $query->where('owner_association_id', Filament::getTenant()->id)
+                                        ->where('status', 'approved');
+                                })->pluck('name','id');
+                            }
+                        })
+                        ->reactive()
+                        ->required()
+                        ->preload()
+                        ->searchable()
+                        ->disabledOn('edit')
+                        ->placeholder('Vendor')
+                        ->live(),
+                    DatePicker::make('start_date')
+                        ->disabledOn('edit')
+                        ->required()
+                        ->rules(['date'])
+                        ->placeholder('Start Date')
+                        ->live(),
+                    DatePicker::make('end_date')
+                        ->afterOrEqual('start_date')
+                        ->required()
+                        ->rules(['date'])
+                        ->placeholder('End Date'),
+                ]),
+            ]),
 
-                                
-                        //         if ($contract) {
-                        //             $difference = abs($contract->budget_amount - $contract->amount);
-                        //             $difference = round($difference, 2);
+        Section::make('Budget Information')
+            ->schema([
+                Grid::make([
+                    'sm' => 1,
+                    'md' => 1,
+                    'lg' => 2,
+                ])->schema([
+                    TextInput::make('budget_amount')
+                        ->numeric(true)
+                        ->live()
+                        ->disabledOn('edit')
+                        ->minValue(1)
+                        ->maxValue(1000000)
+                        ->prefix('AED')
+                        ->required()
+                        ->reactive()
+                        ->readOnly(function (callable $set, callable $get) {
+                            $buildingId = $get('building_id');
+                            $startDate = $get('start_date');
+                            $serviceId = $get('service_id');
+                            $vendor_id = $get('vendor_id');
+                    
+                            if (!$buildingId || !$startDate || !$serviceId || !$vendor_id) {
+                                return false;
+                            }
+                    
+                            $startYear = Carbon::parse($startDate)->year;
+                            
+                            $budgetId = Budget::where('building_id', $buildingId)
+                                ->where('owner_association_id', auth()->user()->owner_association_id)
+                                ->whereYear('budget_from', $startYear)->value('id') ?? null;
+                    
+                            $budget = Budgetitem::where('budget_id', $budgetId)
+                                ->where('service_id', $serviceId)
+                                ->value('total') ?? null;
 
-                        //             $set('balance_amount', $difference);
-                        //             self::$bm = $difference;
-                        //             return true;
-                        //         } 
-                        //         // if($contract == null) {
-                        //         //     $budgetAmount = $get('budget_amount');
-                        //         //     $set('balance_amount', $budgetAmount);
-                        //         //     return true;
-                        //         // }
-                        //         return false;
+                            $contractsQuery = Contract::where([
+                                ['building_id', $get('building_id')],
+                                ['service_id', $get('service_id')],
+                                ['vendor_id', $get('vendor_id')]
+                            ]);
+                            
+                            $contractAmountSum = $contractsQuery->sum('amount');
+                            
+                            if ($contractAmountSum > 0) {
+                                $budgetAmount = $get('budget_amount'); 
+                                $difference = abs($budgetAmount - $contractAmountSum);
+                                $difference = round($difference, 2);
+                            
+                                self::$bm = $difference; 
+                            } else {
+                                self::$bm = $budget;
+                            }
 
-                        //     }),
-                        TextInput::make('budget_amount')
-                            ->numeric(true)
-                            ->live()
-                            ->disabledOn('edit')
-                            ->minValue(1)
-                            ->maxValue(1000000)
-                            ->prefix('AED')
-                            ->required()
-                            ->reactive()  // Make the field react to changes
-                            ->readOnly(function ( callable $set, callable $get) {
-                                $buildingId = $get('building_id');
-                                $startDate = $get('start_date');
-                                $serviceId = $get('service_id');
-                                $vendor_id = $get('vendor_id');
-                        
-                                // Ensure all necessary fields are selected
-                                if (!$buildingId || !$startDate || !$serviceId || !$vendor_id) {
-                                    return false;
-                                }
-                        
-                                $startYear = Carbon::parse($startDate)->year;
+                            $set('remaining_amount', self::$bm);
+                            $set('budget_amount', $budget);
                                 
-                                $budgetId = Budget::where('building_id', $buildingId)
-                                    ->where('owner_association_id', auth()->user()->owner_association_id)
-                                    ->whereYear('budget_from', $startYear)->value('id') ?? null;
-                        
-                                $budget = Budgetitem::where('budget_id', $budgetId)
-                                    ->where('service_id', $serviceId)
-                                    ->value('total') ?? null;
+                            return true;
+                        }),
 
-                                //contract
-                                
-                                $contractsQuery = Contract::where([
-                                    ['building_id', $get('building_id')],
-                                    ['service_id', $get('service_id')],
-                                    ['vendor_id', $get('vendor_id')]
-                                ]);
-                                
-                                $contractAmountSum = $contractsQuery->sum('amount');
-                                
-                                if ($contractAmountSum > 0) {
-                                    $budgetAmount = $get('budget_amount'); 
-                                    $difference = abs($budgetAmount - $contractAmountSum);
-                                    $difference = round($difference, 2);
-                                
-                                    self::$bm = $difference; 
-                                }else{
-                                    self::$bm = $budget;
-                                }
-
-                                $set('remaining_amount', self::$bm);
-                                $set('budget_amount', $budget);
-                                    
-                                return true;
-                            }),
-
-                        TextInput::make('remaining_amount')
-                        ->label('Balance Amount')
+                    TextInput::make('remaining_amount')
+                        ->label('Balance amount')
                         ->prefix('AED')
                         ->readOnly(),
 
-                        TextInput::make('amount')
-                            ->label('Contract Amount')
-                            ->numeric(true)
-                            ->disabledOn('edit')
-                            ->minValue(1)
-                            ->maxValue(function(callable $get){
-                                return $get('remaining_amount');
-                            })
-                            ->prefix('AED')
-                            ->helperText('Contract Amount must be less than Balance Amount')
-                            ->required(),
+                    TextInput::make('amount')
+                        ->label('Contract amount')
+                        ->numeric(true)
+                        ->disabledOn('edit')
+                        ->minValue(1)
+                        ->maxValue(function(callable $get){
+                            return $get('remaining_amount');
+                        })
+                        ->prefix('AED')
+                        ->helperText('Contract Amount must be less than Balance Amount')
+                        ->required(),
+                ]),
+            ]),
 
-                        FileUpload::make('document_url')
-                            ->required()
-                            ->acceptedFileTypes(['application/pdf'])
-                            ->disk('s3')
-                            ->directory('dev')
-                            ->openable(true)
-                            ->downloadable(true)
-                            ->label('Document'),
-                        
-                    ])
-            ]);
+        Section::make('Documents')
+            ->schema([
+                FileUpload::make('document_url')
+                    ->required()
+                    ->acceptedFileTypes(['application/pdf'])
+                    ->disk('s3')
+                    ->directory('dev')
+                    ->openable(true)
+                    ->downloadable(true)
+                    ->label('Document'),
+            ])
+            ->columns(2),
+    ]);
+
     }
 
     public static function table(Table $table): Table
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('contract_type')->label('Contract Type')->searchable(),
-                Tables\Columns\TextColumn::make('start_date')->label('Start Date'),
-                Tables\Columns\TextColumn::make('end_date')->label('End Date'),
+                Tables\Columns\TextColumn::make('contract_type')->label('Contract type')->searchable(),
+                Tables\Columns\TextColumn::make('start_date')->label('Start date'),
+                Tables\Columns\TextColumn::make('end_date')->label('End date'),
                 Tables\Columns\TextColumn::make('amount')->label('Amount'),
-                Tables\Columns\TextColumn::make('budget_amount')->label('Budget Amount'),
+                Tables\Columns\TextColumn::make('budget_amount')->label('Budget amount'),
                 // Tables\Columns\ImageColumn::make('document_url')->square()->disk('s3')->label('Document'),
                 Tables\Columns\TextColumn::make('building.name')->label('Building')->searchable(),
                 Tables\Columns\TextColumn::make('service.name')->label('Service')->searchable(),

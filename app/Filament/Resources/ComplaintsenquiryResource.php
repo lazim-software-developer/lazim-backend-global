@@ -18,6 +18,7 @@ use Filament\Forms\Components\Grid;
 use Filament\Tables\Actions\Action;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Textarea;
 use Filament\Tables\Columns\TextColumn;
@@ -64,6 +65,9 @@ class ComplaintsenquiryResource extends Resource
                             ->preload()
                             ->searchable()
                             ->placeholder('Building'),
+                        Select::make('flat_id')
+                            ->relationship('flat','property_number')
+                            ->disabled(),
                         Select::make('user_id')
                             ->relationship('user', 'first_name')
                             ->options(function () {
@@ -84,12 +88,16 @@ class ComplaintsenquiryResource extends Resource
                             ->label('Enquiry')
                             ->disabled(),
                         Textarea::make('complaint_details')
-                            ->label('Enquiry Details')
+                            ->label('Enquiry details')
                             ->disabled(),
                         Hidden::make('status')
                             ->default('open'),
                         Hidden::make('complaint_type')
                             ->default('enquiries'),
+                        
+                        DatePicker::make('created_at')
+                            ->label('Created on')
+                            ->disabled(),
                         Repeater::make('media')
                             ->relationship()
                             ->disabled()
@@ -101,10 +109,11 @@ class ComplaintsenquiryResource extends Resource
                                     ->openable(true)
                                     ->downloadable(true)
                                     ->label('File'),
-                            ]),
-                        DatePicker::make('created_at')
-                            ->label('Created On')
-                            ->disabled(),
+                            ])
+                            ->columns(2),
+                    Section::make('Status and Remarks')
+                    ->columns(2)
+                    ->schema([
                         Select::make('status')
                             ->options([
                                 'open' => 'Open',
@@ -130,6 +139,7 @@ class ComplaintsenquiryResource extends Resource
                             })
                             ->required(),
                     ])
+                    ])
             ]);
     }
 
@@ -140,7 +150,7 @@ class ComplaintsenquiryResource extends Resource
                 TextColumn::make('ticket_number')
                     ->searchable()
                     ->default('NA')
-                    ->label('Ticket Number'),
+                    ->label('Ticket number'),
                 TextColumn::make('building.name')
                     ->default('NA')
                     ->searchable()
@@ -166,7 +176,7 @@ class ComplaintsenquiryResource extends Resource
                     ->default('NA')
                     ->limit(20)
                     ->searchable()
-                    ->label('Enquiry Details'),
+                    ->label('Enquiry details'),
                 TextColumn::make('status')
                     ->toggleable()
                     ->searchable()

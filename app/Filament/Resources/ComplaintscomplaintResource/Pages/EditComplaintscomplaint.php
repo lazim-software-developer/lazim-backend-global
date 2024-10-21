@@ -8,6 +8,7 @@ use App\Models\AccountCredentials;
 use App\Models\ExpoPushNotification;
 use App\Models\Master\Role;
 use App\Models\OwnerAssociation;
+use App\Models\Remark;
 use App\Traits\UtilsTrait;
 use Filament\Actions;
 use Filament\Facades\Filament;
@@ -35,6 +36,23 @@ class EditComplaintscomplaint extends EditRecord
     {
         $data['type'] = Str::ucfirst($data['type']);
         return $data;
+    }
+
+    public function beforeSave()
+    {
+        $data = $this->form->getState();
+        
+        if ((array_key_exists('remarks', $data) && $data['remarks'] != $this->record->remarks) || (array_key_exists('status', $data) && $data['status'] != $this->record->status)){
+
+            Remark::create([
+                'remarks' => $data['remarks'],
+                'type' => 'Complaint',
+                'status' => $data['status'],
+                'user_id' => auth()->user()->id,
+                'complaint_id' => $this->record->id,
+            ]);
+        }
+
     }
 
     public function afterSave()
@@ -86,9 +104,10 @@ class EditComplaintscomplaint extends EditRecord
                         'mail_encryption' => $credentials->encryption ?? env('MAIL_ENCRYPTION'),
                         'mail_from_address' => $credentials->email ?? env('MAIL_FROM_ADDRESS'),
                     ];    
-                    $complaintType = 'Complaint';         
+                    $complaintType = 'Complaint';  
+                    $remarks = Remark::where('complaint_id',$this->record->id)->get();
                     
-                    ComplaintStatusMail::dispatch($this->record->user->email,$this->record->user->name,$this->record->remarks,$complaintType,$mailCredentials);
+                    ComplaintStatusMail::dispatch($this->record->user->email,$this->record->user->first_name,$remarks,$complaintType,$mailCredentials);
 
                 if($this->record->technician_id){
                 $expoPushTokens = ExpoPushNotification::where('user_id', $this->record->technician_id)->pluck('token');
