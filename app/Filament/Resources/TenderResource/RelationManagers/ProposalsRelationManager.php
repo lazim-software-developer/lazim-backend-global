@@ -59,16 +59,6 @@ class ProposalsRelationManager extends RelationManager
                     ->default(now()),
                 ViewField::make('Budget amount')
                     ->view('forms.components.budgetamount'),
-                FileUpload::make('document')
-                    ->disk('s3')
-                    ->directory('dev')
-                    ->disabled()
-                    ->label('Document')
-                    ->columnSpan([
-                        'sm' => 1,
-                        'md' => 1,
-                        'lg' => 2,
-                    ]),
                 Select::make('status')
                     ->options([
                         'approved' => 'Approve',
@@ -92,6 +82,11 @@ class ProposalsRelationManager extends RelationManager
                         return $record->status != null;
                     })
                     ->required(),
+                FileUpload::make('document')
+                    ->disk('s3')
+                    ->directory('dev')
+                    ->disabled()
+                    ->label('Document'),
 
             ])
         ]);
