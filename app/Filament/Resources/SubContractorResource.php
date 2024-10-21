@@ -95,8 +95,7 @@ class SubContractorResource extends Resource
                 //     ->searchable(),
                 // Tables\Columns\TextColumn::make('additional_doc')
                 //     ->searchable(),
-                Tables\Columns\TextColumn::make('vendor.name')
-                    ->sortable(),
+                Tables\Columns\TextColumn::make('vendor.name'),
                 Tables\Columns\IconColumn::make('active')
                     ->boolean(),
             ])

@@ -256,19 +256,16 @@ class FacilityManagerResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('name')
                     ->label('Company Name')
-                    ->searchable()
-                    ->sortable(),
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('user.email')
                     ->label('Email')
-                    ->searchable()
-                    ->sortable(),
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('tl_number')
                     ->label('Trade License')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('tl_expiry')
                     ->label('License Expiry')
-                    ->date()
-                    ->sortable(),
+                    ->date(),
                 Tables\Columns\TextColumn::make('status')
                     ->searchable()
                     ->icons([
