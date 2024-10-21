@@ -27,6 +27,8 @@ class SubContractorResource extends Resource
                 Forms\Components\TextInput::make('name')
                     ->required()
                     ->maxLength(191),
+                Forms\Components\TextInput::make('company_name')
+                    ->maxLength(191),
                 Forms\Components\TextInput::make('email')
                     ->email()
                     ->required()
@@ -35,8 +37,8 @@ class SubContractorResource extends Resource
                     ->tel()
                     ->required()
                     ->maxLength(191),
-                Forms\Components\TextInput::make('company_name')
-                    ->maxLength(191),
+                Select::make('vendor_id')
+                    ->relationship('vendor', 'name'),
                 Forms\Components\TextInput::make('trn_no')
                     ->required()
                     ->maxLength(191),
@@ -71,11 +73,10 @@ class SubContractorResource extends Resource
                     ->disabled()
                     ->downloadable(true)
                     ->openable(true),
-                Select::make('vendor_id')
-                    ->relationship('vendor', 'name'),
+
+                Forms\Components\DateTimePicker::make('last_reminded_at'),
                 Forms\Components\Toggle::make('active')
                     ->required(),
-                Forms\Components\DateTimePicker::make('last_reminded_at'),
             ]);
     }
 
