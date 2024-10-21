@@ -5,6 +5,8 @@ namespace App\Filament\Resources\UserApprovalResource\RelationManagers;
 use Filament\Forms;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -32,6 +34,10 @@ class HistoryRelationManager extends RelationManager
                 Forms\Components\TextInput::make('status')
                     ->required()
                     ->maxLength(255),
+                DateTimePicker::make('updated_at')
+                    ->label('Status updated on')
+                    ->disabled(),
+                Grid::make(2)->schema([
                 Textarea::make('remarks')
                     ->maxLength(250)
                     ->rows(5)
@@ -42,36 +48,39 @@ class HistoryRelationManager extends RelationManager
                         }
                         return false;
                     }),
-                DateTimePicker::make('updated_at')
-                    ->label('Status updated on')
-                    ->disabled(),
-                FileUpload::make('document')
-                    ->label(function (Get $get) {
-                        if ($get('document_type') == 'Ejari') {
-                            return 'Tenancy Contract / Ejari';
-                        }
-                        return $get('document_type');
-                    })
-                    ->disk('s3')
-                    ->directory('dev')
-                    ->openable(true)
-                    ->downloadable(true)
-                    ->required()
-                    ->disabled(),
-                FileUpload::make('emirates_document')
-                    ->disk('s3')
-                    ->directory('dev')
-                    ->openable(true)
-                    ->downloadable(true)
-                    ->required()
-                    ->disabled(),
-                FileUpload::make('passport')
-                    ->disk('s3')
-                    ->directory('dev')
-                    ->openable(true)
-                    ->downloadable(true)
-                    ->required()
-                    ->disabled(),
+                ]),
+
+                Section::make('Documents')
+                    ->schema([
+                        FileUpload::make('document')
+                            ->label(function (Get $get) {
+                                if ($get('document_type') == 'Ejari') {
+                                    return 'Tenancy Contract / Ejari';
+                                }
+                                return $get('document_type');
+                            })
+                            ->disk('s3')
+                            ->directory('dev')
+                            ->openable(true)
+                            ->downloadable(true)
+                            ->required()
+                            ->disabled(),
+                        FileUpload::make('emirates_document')
+                            ->disk('s3')
+                            ->directory('dev')
+                            ->openable(true)
+                            ->downloadable(true)
+                            ->required()
+                            ->disabled(),
+                        FileUpload::make('passport')
+                            ->disk('s3')
+                            ->directory('dev')
+                            ->openable(true)
+                            ->downloadable(true)
+                            ->required()
+                            ->disabled(),
+                    ])
+                    ->columns(3),
             ]);
     }
 
@@ -80,7 +89,7 @@ class HistoryRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('status')
             ->columns([
-                TextColumn::make('status'),
+                TextColumn::make('status')->formatStateUsing(fn($state) => ucwords($state)),
                 TextColumn::make('remarks')->default('NA'),
                 TextColumn::make('user.first_name')->default('NA')->limit(20),
                 TextColumn::make('updated_at')->date()

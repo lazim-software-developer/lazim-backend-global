@@ -52,23 +52,13 @@ class ProposalsRelationManager extends RelationManager
                     ->disabled(),
                 Select::make('vendor_id')
                     ->relationship('vendor', 'name')
-                    ->label('Vendor Name')
+                    ->label('Vendor name')
                     ->disabled(),
                 TextInput::make('submitted_on')
                     ->disabled()
                     ->default(now()),
                 ViewField::make('Budget amount')
                     ->view('forms.components.budgetamount'),
-                FileUpload::make('document')
-                    ->disk('s3')
-                    ->directory('dev')
-                    ->disabled()
-                    ->label('Document')
-                    ->columnSpan([
-                        'sm' => 1,
-                        'md' => 1,
-                        'lg' => 2,
-                    ]),
                 Select::make('status')
                     ->options([
                         'approved' => 'Approve',
@@ -92,6 +82,11 @@ class ProposalsRelationManager extends RelationManager
                         return $record->status != null;
                     })
                     ->required(),
+                FileUpload::make('document')
+                    ->disk('s3')
+                    ->directory('dev')
+                    ->disabled()
+                    ->label('Document'),
 
             ])
         ]);

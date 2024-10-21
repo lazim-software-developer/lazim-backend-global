@@ -47,7 +47,7 @@ class TenantDocumentResource extends Resource
                     'lg' => 2,
                 ])->schema([
                             TextInput::make('documentable_id')
-                                ->label('Resident Name')
+                                ->label('Resident name')
                                 ->formatStateUsing(function($state){
                                     $user = User::find($state);
                                     return $user ? $user->first_name . ' ' . $user->last_name : null;
@@ -66,9 +66,9 @@ class TenantDocumentResource extends Resource
                                 ->disabled()
                                 ->default('NA')
                                 ->searchable()
-                                ->label('Building Name'),
+                                ->label('Building'),
                             TextInput::make('unit')
-                                ->label('Unit Number')
+                                ->label('Unit number')
                                 ->default('NA')
                                 ->afterStateHydrated(function ($set, $record) {
                                     $flatID = FlatTenant::where('tenant_id', $record->documentable_id)->value('flat_id');
@@ -82,7 +82,7 @@ class TenantDocumentResource extends Resource
                                 ->required()
                                 ->disabled()
                                 ->readonly()
-                                ->placeholder('Expiry Date'),
+                                ->placeholder('Expiry date'),
                             Select::make('status')
                                 ->options([
                                     'approved' => 'Approve',
@@ -112,11 +112,12 @@ class TenantDocumentResource extends Resource
                                 ->openable(true)
                                 ->downloadable(true)
                                 ->label('Document')
-                                ->columnSpan([
-                                    'sm' => 1,
-                                    'md' => 1,
-                                    'lg' => 2,
-                                ]),
+                                // ->columnSpan([
+                                //     'sm' => 1,
+                                //     'md' => 1,
+                                //     'lg' => 2,
+                                // ])
+                                ,
                         ]),
 
             ]);
@@ -130,17 +131,17 @@ class TenantDocumentResource extends Resource
             ->columns([
                 TextColumn::make('name')
                     ->searchable()
-                    ->label('Document Name')
+                    ->label('Document name')
                     ->default('NA')
                     ->limit(50),
                 TextColumn::make('building.name')
                     ->searchable()
                     ->default('NA')
-                    ->label('Building Name')
+                    ->label('Building')
                     ->limit(50),
                 TextColumn::make('unit')
                     ->default('NA')
-                    ->label('Unit Number')
+                    ->label('Unit number')
                     ->getStateUsing(function(Get $get,$record){
                         $flatID = FlatTenant::where('tenant_id',$record->documentable_id)->value('flat_id');
                         return Flat::where('id',$flatID)->value('property_number');
@@ -152,7 +153,7 @@ class TenantDocumentResource extends Resource
                     ->limit(50),
                 TextColumn::make('documentUsers.first_name')
                     ->searchable()
-                    ->label('Resident Name')
+                    ->label('Resident name')
                     ->default('NA'),
                 ViewColumn::make('Role')->view('tables.columns.role')->alignCenter()
             ])

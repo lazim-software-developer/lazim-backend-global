@@ -22,6 +22,8 @@ use App\Filament\Resources\UserApprovalResource\Pages;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 use App\Filament\Resources\UserApprovalResource\RelationManagers;
 use App\Filament\Resources\UserApprovalResource\RelationManagers\HistoryRelationManager;
+use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Section;
 
 class UserApprovalResource extends Resource
 {
@@ -33,40 +35,38 @@ class UserApprovalResource extends Resource
     public static function form(Form $form): Form
     {
         return $form
+    ->schema([
+        Section::make('User Information')
             ->schema([
-                // Select::make('user_id')
-                //     ->relationship('user', 'first_name')
-                //     ->required()
-                //     ->disabled(),
-                // Select::make('user_id')->label('email')
-                // ->relationship('user', 'email')
-                //     ->required()
-                //     ->disabled(),
-                // Select::make('user_id')->label('phone')
-                // ->relationship('user', 'phone')
-                //     ->required()
-                //     ->disabled(),
                 TextInput::make('user')->disabledOn('edit'),
                 TextInput::make('email')->disabledOn('edit'),
-                Select::make('flat_id')->label('Flat Number')
-                    ->relationship('flat','property_number')
-                    ->disabled()
-                    ->live(),
-                TextInput::make('building')
-                ->formatStateUsing(function($record){
-                    return Flat::where('id',$record->flat_id)->first()?->building->name;
-                })
-                ->disabled(),
                 TextInput::make('phone')->disabledOn('edit'),
                 DateTimePicker::make('created_at')
                     ->label('Date of Creation')
                     ->disabled(),
+            ])
+            ->columns(2),
+        Section::make('Flat & Building Details')
+            ->schema([
+                Select::make('flat_id')->label('Flat')
+                    ->relationship('flat', 'property_number')
+                    ->disabled()
+                    ->live(),
+                TextInput::make('building')
+                    ->formatStateUsing(function($record){
+                        return Flat::where('id', $record->flat_id)->first()?->building->name;
+                    })
+                    ->disabled(),
+            ])
+            ->columns(2),
+        Section::make('Documents')
+            ->schema([
                 FileUpload::make('document')
                     ->label(function (Get $get) {
                         if($get('document_type') == 'Ejari'){
                             return 'Tenancy Contract / Ejari';
                         }
-                            return $get('document_type');
+                        return $get('document_type');
                     })
                     ->disk('s3')
                     ->directory('dev')
@@ -88,6 +88,11 @@ class UserApprovalResource extends Resource
                     ->downloadable(true)
                     ->required()
                     ->disabled(),
+            ])
+            ->columns(3),
+        Section::make('Approval Details')
+            ->schema([
+                Grid::make(2)->schema([
                 Select::make('status')
                     ->options([
                         'approved' => 'Approve',
@@ -98,7 +103,8 @@ class UserApprovalResource extends Resource
                     })
                     ->searchable()
                     ->live()
-                    ->required(),
+                    ->required()->columnSpan(1),
+                ]),
                 Textarea::make('remarks')
                     ->maxLength(250)
                     ->rows(5)
@@ -108,8 +114,10 @@ class UserApprovalResource extends Resource
                             return true;
                         }
                         return false;
-                    }),
-            ]);
+                    })->columnSpan(1),
+            ])->columns(2),
+    ]);
+
     }
 
     public static function table(Table $table): Table
@@ -136,7 +144,7 @@ class UserApprovalResource extends Resource
                     ->default('NA'),
                 Tables\Columns\TextColumn::make('flat.property_number')->label('Flat Number')->default('NA'),
                 Tables\Columns\TextColumn::make('flat.building.name')->label('Building')->default('NA'),
-                Tables\Columns\TextColumn::make('created_at')->label('Date of Creation')->default('NA')
+                Tables\Columns\TextColumn::make('created_at')->label('Date of creation')->default('NA')
             ])
             ->filters([
                 //

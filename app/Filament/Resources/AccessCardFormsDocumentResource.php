@@ -42,13 +42,13 @@ class AccessCardFormsDocumentResource extends Resource
                 ])->schema([
                     TextInput::make('card_type')
                         ->disabled()
-                        ->label('Card Type'),
+                        ->label('Card type'),
                     TextInput::make('email')
                         ->label('Email')
                         ->disabled()
                         ->placeholder('Email'),
                     TextInput::make('mobile')
-                        ->label('Mobile Number')
+                        ->label('Mobile number')
                         ->disabled()
                         ->placeholder('Mobile Number'),
                     Select::make('building_id')
@@ -56,13 +56,13 @@ class AccessCardFormsDocumentResource extends Resource
                         ->preload()
                         ->disabled()
                         ->searchable()
-                        ->label('Building Name'),
+                        ->label('Building name'),
                     Select::make('flat_id')
                         ->relationship('flat', 'property_number')
                         ->preload()
                         ->disabled()
                         ->searchable()
-                        ->label('Unit Number'),
+                        ->label('Unit number'),
                     Select::make('user_id')
                         ->rules(['exists:users,id'])
                         ->relationship('user', 'first_name')
@@ -105,7 +105,7 @@ class AccessCardFormsDocumentResource extends Resource
                             }
                             return false;
                         })
-                        ->label('Vehicle Registration'),
+                        ->label('Vehicle registration'),
                     FileUpload::make('title_deed')
                         ->visible(function (callable $get) {
                             if ($get('title_deed') != null) {
@@ -151,7 +151,7 @@ class AccessCardFormsDocumentResource extends Resource
                             }
                             return 'NA';
                         })
-                        ->label('Payment Status')
+                        ->label('Payment status')
                         ->readOnly(),
                     TextInput::make('remarks')
                         ->rules(['max:150'])
@@ -199,7 +199,7 @@ class AccessCardFormsDocumentResource extends Resource
                 TextColumn::make('ticket_number')
                 ->searchable()
                 ->default('NA')
-                ->label('Ticket Number'),
+                ->label('Ticket number'),
                 TextColumn::make('card_type')
                     ->searchable()
                     ->default('NA')
@@ -215,7 +215,7 @@ class AccessCardFormsDocumentResource extends Resource
                 TextColumn::make('flat.property_number')
                     ->searchable()
                     ->default('NA')
-                    ->label('Unit Number')
+                    ->label('Unit number')
                     ->limit(50),
                 // ImageColumn::make('tenancy')
                 //     ->label('Tenancy')
@@ -233,7 +233,7 @@ class AccessCardFormsDocumentResource extends Resource
                     ->limit(50),
                 TextColumn::make('orders')
                     ->formatStateUsing(fn ($state) => json_decode($state)? (json_decode($state)->payment_status == 'requires_payment_method' ? 'Payment Failed' : json_decode($state)->payment_status): 'NA')
-                    ->label('Payment Status')
+                    ->label('Payment status')
                     ->default('NA')
                     ->limit(50),
                 TextColumn::make('remarks')

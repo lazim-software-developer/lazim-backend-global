@@ -8,22 +8,21 @@ use Filament\Forms\Form;
 use Filament\Tables\Table;
 use App\Models\Master\Role;
 use App\Models\Forms\SaleNOC;
+use Filament\Facades\Filament;
 use Filament\Resources\Resource;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
+use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Repeater;
 use Filament\Tables\Columns\TextColumn;
+use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\NocFormResource\Pages;
-use App\Models\Order;
-use Closure;
-use Filament\Facades\Filament;
-use Illuminate\Database\Eloquent\Model;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class NocFormResource extends Resource
@@ -106,7 +105,10 @@ class NocFormResource extends Resource
                                     }
                                     return false;
                                 }),
-                            FileUpload::make('emirates_document_url')
+                            Section::make('Documents')
+                            ->columns(3)
+                            ->schema([
+                                FileUpload::make('emirates_document_url')
                                 ->visible(function (callable $get) {
                                     if ($get('emirates_document_url') != null) {
                                         return true;
@@ -154,12 +156,17 @@ class NocFormResource extends Resource
                                 ->label('Passport Document File')
                                 ->downloadable(true)
                                 ->openable(true),
+                            ])
                         ])
+                        ->columns(2)
                         ->columnSpan([
                             'sm' => 1,
-                            'md' => 1,
+                            'md' => 2,
                             'lg' => 2,
                         ]),
+                    Section::make('Documents')
+                    ->columns(2)
+                    ->schema([
                     FileUpload::make('cooling_receipt')
                         ->visible(function (callable $get) {
                             if ($get('cooling_receipt') != null) {
@@ -232,6 +239,7 @@ class NocFormResource extends Resource
                             'md' => '1',
                             'lg' => '2',
                         ]),
+                    ]),
                     Toggle::make('cooling_bill_paid')
                         ->disabled()
                         ->columnSpan([
@@ -322,7 +330,7 @@ class NocFormResource extends Resource
                 TextColumn::make('ticket_number')
                     ->searchable()
                     ->default('NA')
-                    ->label('Ticket Number'),
+                    ->label('Ticket number'),
                 TextColumn::make('user.first_name')
                     ->searchable()
                     ->default('NA'),
@@ -331,14 +339,14 @@ class NocFormResource extends Resource
                     ->default('NA'),
                 TextColumn::make('flat.property_number')
                     ->searchable()
-                    ->label('Unit Number')
+                    ->label('Unit number')
                     ->default('NA'),
                 TextColumn::make('status')
                     ->searchable()
                     ->default('NA'),
                 TextColumn::make('orders')
                     ->formatStateUsing(fn ($state) => json_decode($state)? (json_decode($state)->payment_status == 'requires_payment_method' ? 'Payment Failed' : json_decode($state)->payment_status): 'NA')
-                    ->label('Payment Status')
+                    ->label('Payment status')
                     ->default('NA')
                     ->limit(50),
                 TextColumn::make('remarks')

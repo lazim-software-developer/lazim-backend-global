@@ -95,7 +95,7 @@ class BudgetResource extends Resource
                     ->searchable()
                     ->limit(50),
                 TextColumn::make('budget_period')
-                    ->label('Budget Period')
+                    ->label('Budget period')
                     ->default('NA'),
                 TextColumn::make('budget_from')
                     ->date(),

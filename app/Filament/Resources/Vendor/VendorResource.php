@@ -57,7 +57,7 @@ class VendorResource extends Resource
                             Hidden::make('owner_association_id')
                                 ->default(auth()->user()?->owner_association_id),
                             Select::make('owner_id')
-                                ->label('Vendor Name')
+                                ->label('Vendor name')
                                 ->rules(['exists:users,id'])
                                 ->required()
                                 ->disabled()
@@ -67,7 +67,7 @@ class VendorResource extends Resource
                                 ->getSearchResultsUsing(fn(string $search): array => User::where('role_id', 2, "%{$search}%")->limit(50)->pluck('first_name', 'id')->toArray())
                                 ->getOptionLabelUsing(fn($value): ?string => User::find($value)?->first_name)
                                 ->placeholder('Vendor Name'),
-                            TextInput::make('tl_number')->label('Trade License Number')
+                            TextInput::make('tl_number')->label('Trade license number')
                                 ->rules(['max:50', 'string'])
                                 ->disabled()
                                 ->required()
@@ -79,7 +79,7 @@ class VendorResource extends Resource
                                 ->placeholder('Trade License Number'),
 
                             DatePicker::make('tl_expiry')
-                                ->label('Trade License Expiry')
+                                ->label('Trade license expiry')
                                 ->rules(['date'])
                                 ->disabled()
                                 ->required()
@@ -87,15 +87,15 @@ class VendorResource extends Resource
                             TextInput::make('address_line_1')
                                 ->placeholder('NA')
                                 ->disabled()
-                                ->label('Address Line 1'),
+                                ->label('Address line 1'),
                             TextInput::make('address_line_2')
                                 ->placeholder('NA')
                                 ->disabled()
-                                ->label('Address Line 2'),
+                                ->label('Address line 2'),
                             TextInput::make('landline_number')
                                 ->placeholder('NA')
                                 ->disabled()
-                                ->label('Landline Number'),
+                                ->label('Landline number'),
                             TextInput::make('website')
                                 ->placeholder('NA')
                                 ->disabled()

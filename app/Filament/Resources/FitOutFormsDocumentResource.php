@@ -51,13 +51,13 @@ class FitOutFormsDocumentResource extends Resource
                 ])->schema([
                             TextInput::make('contractor_name')
                                 ->disabled()
-                                ->label('Contractor Name'),
+                                ->label('Contractor name'),
                             TextInput::make('email')
-                                ->label('Contractor Email')
+                                ->label('Contractor email')
                                 ->disabled()
                                 ->placeholder('Email'),
                             TextInput::make('phone')
-                                ->label('Contractor Phone Number')
+                                ->label('Contractor phone number')
                                 ->disabled()
                                 ->placeholder('Phone Number'),
                             Select::make('building_id')
@@ -65,13 +65,13 @@ class FitOutFormsDocumentResource extends Resource
                                 ->preload()
                                 ->disabled()
                                 ->searchable()
-                                ->label('Building Name'),
+                                ->label('Building'),
                             Select::make('flat_id')
                                 ->relationship('flat', 'property_number')
                                 ->preload()
                                 ->disabled()
                                 ->searchable()
-                                ->label('Unit Number'),
+                                ->label('Unit number'),
                             Select::make('user_id')
                                 ->rules(['exists:users,id'])
                                 ->relationship('user', 'first_name')
@@ -104,7 +104,7 @@ class FitOutFormsDocumentResource extends Resource
                                     }
                                     return 'NA';
                                 })
-                                ->label('Payment Status')
+                                ->label('Payment status')
                                 ->readOnly(),
                             TextInput::make('remarks')
                                 ->rules(['max:150'])
@@ -165,10 +165,10 @@ class FitOutFormsDocumentResource extends Resource
             ->poll('60s')
             ->columns([
 
-                    TextColumn::make('ticket_number')
+                TextColumn::make('ticket_number')
                     ->searchable()
                     ->default('NA')
-                    ->label('Ticket Number'),
+                    ->label('Ticket number'),
                 TextColumn::make('building.name')
                     ->searchable()
                     ->default('NA')
@@ -180,7 +180,7 @@ class FitOutFormsDocumentResource extends Resource
                 TextColumn::make('flat.property_number')
                     ->searchable()
                     ->default('NA')
-                    ->label('Unit Number')
+                    ->label('Unit number')
                     ->limit(50),
                 TextColumn::make('status')
                     ->searchable()
@@ -188,7 +188,7 @@ class FitOutFormsDocumentResource extends Resource
                     ->limit(50),
                 TextColumn::make('orders')
                     ->formatStateUsing(fn ($state) => json_decode($state)? (json_decode($state)->payment_status == 'requires_payment_method' ? 'Payment Failed' : json_decode($state)->payment_status): 'NA')
-                    ->label('Payment Status')
+                    ->label('Payment status')
                     ->default('NA')
                     ->limit(50),
                 TextColumn::make('remarks')
