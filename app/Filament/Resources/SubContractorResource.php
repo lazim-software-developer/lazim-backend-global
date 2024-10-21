@@ -72,8 +72,7 @@ class SubContractorResource extends Resource
                     ->downloadable(true)
                     ->openable(true),
                 Select::make('vendor_id')
-                    ->relationship('vendor', 'name')
-                    ->numeric(),
+                    ->relationship('vendor', 'name'),
                 Forms\Components\Toggle::make('active')
                     ->required(),
                 Forms\Components\DateTimePicker::make('last_reminded_at'),
