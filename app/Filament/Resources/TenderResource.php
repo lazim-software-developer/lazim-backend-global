@@ -43,13 +43,13 @@ class TenderResource extends Resource
                     ->preload()
                     ->searchable()
                     ->disabled()
-                    ->label('Building Name'),
+                    ->label('Building'),
                 Select::make('budget_id')
                     ->relationship('budget', 'budget_period')
                     ->preload()
                     ->searchable()
                     ->disabled()
-                    ->label('Budget Period'),
+                    ->label('Budget period'),
                 Select::make('service_id')
                     ->relationship('service','name')
                     ->preload()
@@ -59,7 +59,7 @@ class TenderResource extends Resource
                 TextInput::make('tender_type')
                     ->placeholder('NA')
                     ->disabled()
-                    ->label('Contract Type'),
+                    ->label('Contract type'),
                 DatePicker::make('date')
                     ->rules(['date'])
                     ->required()
@@ -81,11 +81,11 @@ class TenderResource extends Resource
                 TextColumn::make('building.name')
                     ->searchable()
                     ->default('NA')
-                    ->label('Building Name'),
+                    ->label('Building'),
                 TextColumn::make('budget.budget_period')
                     ->searchable()
                     ->default('NA')
-                    ->label('Budget Period'),
+                    ->label('Budget period'),
                 TextColumn::make('service.name')
                     ->searchable()
                     ->default('NA')
@@ -93,7 +93,7 @@ class TenderResource extends Resource
                 TextColumn::make('tender_type')
                     ->searchable()
                     ->default('NA')
-                    ->label('Contract Type'),
+                    ->label('Contract type'),
                 TextColumn::make('date')
                     ->date(),
                 TextColumn::make('end_date')
