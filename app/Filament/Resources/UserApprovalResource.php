@@ -127,8 +127,8 @@ class UserApprovalResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('status')
                     ->searchable()
-                    ->default('NA'),
-                Tables\Columns\TextColumn::make('flat.property_number')->label('Flat number')->default('NA'),
+                    ->default('NA')->formatStateUsing(fn ($state) => ucwords($state)),
+                Tables\Columns\TextColumn::make('flat.property_number')->label('Flat Number')->default('NA'),
                 Tables\Columns\TextColumn::make('flat.building.name')->label('Building')->default('NA'),
                 Tables\Columns\TextColumn::make('created_at')->label('Date of creation')->default('NA')
             ])

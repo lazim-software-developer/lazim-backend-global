@@ -40,7 +40,7 @@ class CreateOacomplaintReports extends CreateRecord
         }
         elseif($this->record?->type == 'Vendor'){
             $user_id = $this->record?->vendor_id;
-            $code = '';
+            $code = 'task';
         }
         elseif($this->record?->type == 'Gatekeeper'){
             $user_id = $this->record?->user_id; 
