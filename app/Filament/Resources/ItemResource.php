@@ -130,8 +130,14 @@ class ItemResource extends Resource
                         ->options(function () {
                             $oaId = auth()->user()?->owner_association_id;
                             return Vendor::whereHas('ownerAssociation', function ($query) {
-                                $query->where('owner_association_id', Filament::getTenant()->id)
+                                if(auth()->user()->role->name == 'Property Manager'){
+                                    $query->where('owner_association_id', auth()->user()->owner_association_id)
                                       ->where('status', 'approved');
+                                }
+                                else{
+                                    $query->where('owner_association_id', Filament::getTenant()->id)
+                                          ->where('status', 'approved');
+                                }
                             })->pluck('name', 'id');
                         })
                         ])

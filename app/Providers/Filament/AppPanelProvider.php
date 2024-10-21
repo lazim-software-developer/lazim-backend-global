@@ -745,7 +745,7 @@ class AppPanelProvider extends PanelProvider
                                     ->icon('heroicon-m-clipboard-document-list')
                                     ->activeIcon('heroicon-m-clipboard-document-list')
                                     ->sort(1),
-                                NavigationItem::make('Complaints')
+                                NavigationItem::make('Issues')
                                     ->url(FacilitySupportComplaintResource::getUrl('index'))
                                     ->visible(auth()->user()->role->name == 'Property Manager')
                                     ->hidden(!$user->can('view_any_helpdeskcomplaint'))
