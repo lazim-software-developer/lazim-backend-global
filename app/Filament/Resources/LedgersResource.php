@@ -51,12 +51,12 @@ class LedgersResource extends Resource
                 TextColumn::make('flat.property_number')
                     ->searchable()
                     ->default('NA')
-                    ->label('Unit Number')
+                    ->label('Unit number')
                     ->limit(50),
                 TextColumn::make('invoice_number')
                     ->searchable()
                     ->default("NA")
-                    ->label('Invoice Number'),
+                    ->label('Invoice number'),
                 TextColumn::make('invoice_quarter')
                     ->searchable()
                     ->label('Description'),
@@ -73,12 +73,12 @@ class LedgersResource extends Resource
                     ->searchable()
                     ->default("NA")
                     ->alignEnd()
-                    ->label('Due Balance'),
+                    ->label('Due balance'),
                 TextColumn::make('previous_balance')
                     ->searchable()
                     ->default("NA")
                     ->alignEnd()
-                    ->label('Previous Balance'),
+                    ->label('Previous balance'),
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([

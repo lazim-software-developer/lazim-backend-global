@@ -61,7 +61,7 @@ class AssetResource extends Resource
                             ->preload()
                             ->searchable()
                             ->live()
-                            ->label('Building Name'),
+                            ->label('Building'),
                         TextInput::make('name')
                             // ->rules([
                             //     'max:50',
@@ -74,7 +74,7 @@ class AssetResource extends Resource
                             // ])
                             ->maxLength(20)
                             ->required()
-                            ->label('Asset Name'),
+                            ->label('Asset name'),
                         TextInput::make('floor')
                             ->required()
                             ->rules(['max:50']),
@@ -104,6 +104,13 @@ class AssetResource extends Resource
                             ->preload()
                             ->searchable()
                             ->label('Service'),
+                        TextInput::make('asset_code')
+                                ->visible(function (callable $get) {
+                                    if ($get('asset_code') != null) {
+                                        return true;
+                                    }
+                                    return false;
+                                }),
                     ]),
                 QrCode::make('qr_code')
                     ->label('QR Code')
@@ -111,14 +118,7 @@ class AssetResource extends Resource
                         'sm' => 1,
                         'md' => 2,
                         'lg' => 2,
-                    ]),
-                TextInput::make('asset_code')
-                ->visible(function (callable $get) {
-                    if ($get('asset_code') != null) {
-                        return true;
-                    }
-                    return false;
-                })
+                    ]),  
 
             ]);
     }
@@ -127,11 +127,11 @@ class AssetResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('name')->searchable()->label('Asset Name'),
+                TextColumn::make('name')->searchable()->label('Asset name'),
                 TextColumn::make('description')->searchable()->default('NA')->label('Description'),
                 TextColumn::make('location')->label('Location'),
                 TextColumn::make('service.name')->searchable()->label('Service'),
-                TextColumn::make('building.name')->searchable()->label('Building Name'),
+                TextColumn::make('building.name')->searchable()->label('Building'),
                 TextColumn::make('asset_code'),
                 TextColumn::make('vendors.name')->default('NA')
                     ->searchable()->label('Vendor'),

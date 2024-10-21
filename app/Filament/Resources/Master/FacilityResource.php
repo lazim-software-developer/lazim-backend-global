@@ -62,8 +62,7 @@ class FacilityResource extends Resource
                             ->disk('s3')
                             ->directory('dev')
                             ->required()
-                            ->maxSize(2048)
-                            ->columnSpanFull(),
+                            ->maxSize(2048),
 
                     ])
                     ->Columns(2),

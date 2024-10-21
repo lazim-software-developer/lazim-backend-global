@@ -59,6 +59,7 @@ class AssetMaintenanceResource extends Resource
             // ->modifyQueryUsing(fn(Builder $query) => $query->whereIn('building_id', $buildings)->orderBy('maintenance_date','desc')->withoutGlobalScopes())
             ->columns([
                 TextColumn::make('building.name'),
+                TextColumn::make('technicianAsset.asset.name'),
                 TextColumn::make('maintenance_date'),
                 TextColumn::make('user.first_name')->label('Maintained by'),
                 TextColumn::make('status'),

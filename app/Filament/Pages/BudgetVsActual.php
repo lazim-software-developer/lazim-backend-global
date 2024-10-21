@@ -40,8 +40,8 @@ class BudgetVsActual extends Page implements HasTable
                 TextColumn::make('budget.building.name'),
                 TextColumn::make('service.code')->label('Mollak code'),
                 TextColumn::make('service.name')->label('Service name'),
-                ViewColumn::make('vendor')->label('Supplier Name')->view('tables.columns.service-supplier'),
-                TextColumn::make('budget_excl_vat')->label('Budget Annual'),
+                ViewColumn::make('vendor')->label('Supplier name')->view('tables.columns.service-supplier'),
+                TextColumn::make('budget_excl_vat')->label('Budget annual'),
                 ViewColumn::make('actual')->label('Actual Annual')->view('tables.columns.service-actual'),
                 ViewColumn::make('surplus')->label('(Deficit)/Surplus')->view('tables.columns.service-surplus'),
             ])

@@ -22,6 +22,7 @@ use Filament\Forms\Components\FileUpload;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 use App\Filament\Resources\OwnerAssociationResource\Pages;
 use App\Filament\Resources\OwnerAssociationResource\RelationManagers\AccountcredentialsRelationManager;
+use Filament\Forms\Components\Section;
 
 class OwnerAssociationResource extends Resource
 {
@@ -35,6 +36,8 @@ class OwnerAssociationResource extends Resource
     public static function form(Form $form): Form
     {
         return $form
+    ->schema([
+        Section::make('General Information')
             ->schema([
                 Grid::make([
                     'sm' => 1,
@@ -64,27 +67,14 @@ class OwnerAssociationResource extends Resource
                         ->validationMessages([
                             'regex'=>'Slug format is Invalid. It can only accept Lowercase letters, Numbers and hyphen'
                         ])
-                        ->unique('owner_associations','slug', ignoreRecord:true)
-                        // ->helperText(function(){
-                        //     if(Role::where('id',auth()->user()->role_id)->first()->name == 'Admin'){
-                        //         return new HtmlString(' <strong>Note:</strong> Updating the slug will require you to re-authenticate using the new slug URL to ensure secure access to your resources.');
-                        //     }else{
-                        //         return '' ;
-                        //     }
-                        // })
-                        // ->afterStateUpdated(function($state){
-                        //     if(!(Role::where('id',auth()->user()->role_id)->first()->name == 'Admin')){
-                        //         request()->session()->invalidate();
-                        //     }
-                        // })
-                        ->disabled(function(){
-                            if(Role::where('id',auth()->user()->role_id)->first()->name == 'Admin'){
+                        ->unique('owner_associations', 'slug', ignoreRecord: true)
+                        ->disabled(function() {
+                            if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
                                 return false;
-                            }else{
+                            } else {
                                 return true;
                             }
-                        })
-                        ,
+                        }),
                     TextInput::make('mollak_id')->label('OA Number')
                         ->required()
                         ->disabled()
@@ -94,25 +84,26 @@ class OwnerAssociationResource extends Resource
                         ->disabled()
                         ->placeholder('TRN Number'),
                     TextInput::make('phone')
-                        ->rules(['regex:/^\+?(971)(50|51|52|55|56|58|02|03|04|06|07|09)\d{7}$/',function (Model $record) {
-                            return function (string $attribute, $value, Closure $fail) use($record) {
-                                if (DB::table('owner_associations')->whereNot('id',$record->id)->where('phone', $value)->count() > 0) {
-                                    $fail('The phone is already taken by a OA.');
-                                }
-                                if(DB::table('owner_associations')->where('id',$record->id)->where('verified',1)->count() > 0){
-                                    $role_id = Role::where('owner_association_id',$record->id)->where('name','OA')->first();
-                                    $getuserecord = User::where('owner_association_id',$record->id)->where('role_id',$role_id?->id)->first()?->id;
-                                    if (DB::table('users')->whereNot('id',$getuserecord)->where('phone', $value)->exists()) {
-                                        $fail('The phone is already taken by a user.');
+                        ->rules([
+                            'regex:/^\+?(971)(50|51|52|55|56|58|02|03|04|06|07|09)\d{7}$/',
+                            function (Model $record) {
+                                return function (string $attribute, $value, Closure $fail) use ($record) {
+                                    if (DB::table('owner_associations')->whereNot('id', $record->id)->where('phone', $value)->count() > 0) {
+                                        $fail('The phone is already taken by an OA.');
                                     }
-                                }
-                                else{
-                                    if (DB::table('users')->where('phone', $value)->exists()) {
-                                        $fail('The phone is already taken by a user.');
+                                    if (DB::table('owner_associations')->where('id', $record->id)->where('verified', 1)->count() > 0) {
+                                        $role_id = Role::where('owner_association_id', $record->id)->where('name', 'OA')->first();
+                                        $getuserecord = User::where('owner_association_id', $record->id)->where('role_id', $role_id?->id)->first()?->id;
+                                        if (DB::table('users')->whereNot('id', $getuserecord)->where('phone', $value)->exists()) {
+                                            $fail('The phone is already taken by a user.');
+                                        }
+                                    } else {
+                                        if (DB::table('users')->where('phone', $value)->exists()) {
+                                            $fail('The phone is already taken by a user.');
+                                        }
                                     }
-                                }
-                            };
-                        },
+                                };
+                            },
                         ])
                         ->required()
                         ->live()
@@ -126,36 +117,36 @@ class OwnerAssociationResource extends Resource
                     TextInput::make('address')
                         ->required()
                         ->disabled(function (callable $get) {
-                            if(Role::where('id',auth()->user()->role_id)->first()->name == 'Admin')
-                            {
+                            if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
                                 return DB::table('owner_associations')
-                                ->where('email', $get('email'))
-                                ->where('verified', 1)
-                                ->exists();
+                                    ->where('email', $get('email'))
+                                    ->where('verified', 1)
+                                    ->exists();
                             }
-
                         })
                         ->placeholder('Address'),
                     TextInput::make('email')
-                        ->rules(['min:6', 'max:30', 'regex:/^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/', function (Model $record) {
-                            return function (string $attribute, $value, Closure $fail) use($record) {
-                                if (DB::table('owner_associations')->whereNot('id',$record->id)->where('email', $value)->count() > 0) {
-                                    $fail('The email is already taken by a OA.');
-                                }
-                                if(DB::table('owner_associations')->where('id',$record->id)->where('verified',1)->count() > 0){
-                                    $role_id = Role::where('owner_association_id',$record->id)->where('name','OA')->first();
-                                    $getuserecord = User::where('owner_association_id',$record->id)->where('role_id',$role_id?->id)->first()?->id;
-                                    if (DB::table('users')->whereNot('id',$getuserecord)->where('email', $value)->exists()) {
-                                        $fail('The email is already taken by a USER.');
+                        ->rules([
+                            'min:6', 'max:30', 'regex:/^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/',
+                            function (Model $record) {
+                                return function (string $attribute, $value, Closure $fail) use ($record) {
+                                    if (DB::table('owner_associations')->whereNot('id', $record->id)->where('email', $value)->count() > 0) {
+                                        $fail('The email is already taken by an OA.');
                                     }
-                                }
-                                else{
-                                    if (DB::table('users')->where('email', $value)->exists()) {
-                                        $fail('The email is already taken by a USER.');
+                                    if (DB::table('owner_associations')->where('id', $record->id)->where('verified', 1)->count() > 0) {
+                                        $role_id = Role::where('owner_association_id', $record->id)->where('name', 'OA')->first();
+                                        $getuserecord = User::where('owner_association_id', $record->id)->where('role_id', $role_id?->id)->first()?->id;
+                                        if (DB::table('users')->whereNot('id', $getuserecord)->where('email', $value)->exists()) {
+                                            $fail('The email is already taken by a USER.');
+                                        }
+                                    } else {
+                                        if (DB::table('users')->where('email', $value)->exists()) {
+                                            $fail('The email is already taken by a USER.');
+                                        }
                                     }
-                                }
-                            };
-                        },])
+                                };
+                            },
+                        ])
                         ->required()
                         ->live()
                         ->disabled(function (callable $get) {
@@ -169,16 +160,14 @@ class OwnerAssociationResource extends Resource
                         ->label('Bank Account Number')
                         ->numeric()
                         ->disabled(function (callable $get) {
-                            if(Role::where('id',auth()->user()->role_id)->first()->name == 'Admin')
-                            {
+                            if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
                                 return DB::table('owner_associations')
-                                ->where('email', $get('email'))
-                                ->where('verified', 1)
-                                ->exists();
+                                    ->where('email', $get('email'))
+                                    ->where('verified', 1)
+                                    ->exists();
                             }
-
                         })
-                        ->placeholder('account number'),
+                        ->placeholder('Account Number'),
                     Toggle::make('verified')
                         ->rules(['boolean'])
                         ->hidden(function ($record) {
@@ -187,101 +176,88 @@ class OwnerAssociationResource extends Resource
                     Toggle::make('active')
                         ->label('Active')
                         ->rules(['boolean'])
-                        ->hidden(Role::where('id',auth()->user()->role_id)->first()->name != 'Admin'),
-                    FileUpload::make('trn_certificate')
-                        ->disk('s3')
-                        ->directory('dev')
-                        ->rules('file|mimes:jpeg,jpg,png,pdf|max:2048')
-                        // ->validationMessages([
-                        //     'max' => 'The TRN Certificate must not be  has already been registered.',
-                        // ])
-                        ->maxSize(2048)
-                        ->label('TRN Certificate')
-                        ->disabled(function (callable $get) {
-                            if(Role::where('id',auth()->user()->role_id)->first()->name == 'Admin')
-                            {
-                                return DB::table('owner_associations')
-                                ->where('email', $get('email'))
-                                ->where('verified', 1)
-                                ->exists();
-                            }
-
-                        }),
-                    FileUpload::make('trade_license')
-                        ->disk('s3')
-                        ->directory('dev')
-                        ->rules('file|mimes:jpeg,jpg,png,pdf|max:2048')
-                        ->maxSize(2048)
-                        ->label('Trade License')
-                        ->disabled(function (callable $get) {
-                            if(Role::where('id',auth()->user()->role_id)->first()->name == 'Admin')
-                            {
-                                return DB::table('owner_associations')
-                                ->where('email', $get('email'))
-                                ->where('verified', 1)
-                                ->exists();
-                            }
-
-                        }),
-                    FileUpload::make('dubai_chamber_document')
-                        ->disk('s3')
-                        ->directory('dev')
-                        ->rules('file|mimes:jpeg,jpg,png,pdf|max:2048')
-                        ->maxSize(2048)
-                        ->label('Dubai Chamber Document')
-                        ->disabled(function (callable $get) {
-                            if(Role::where('id',auth()->user()->role_id)->first()->name == 'Admin')
-                            {
-                                return DB::table('owner_associations')
-                                ->where('email', $get('email'))
-                                ->where('verified', 1)
-                                ->exists();
-                            }
-
-                        }),
-                    FileUpload::make('memorandum_of_association')
-                        ->disk('s3')
-                        ->directory('dev')
-                        ->rules('file|mimes:jpeg,jpg,png,pdf|max:2048')
-                        ->maxSize(2048)
-                        ->label('Memorandum of Association')
-                        ->disabled(function (callable $get) {
-                            if(Role::where('id',auth()->user()->role_id)->first()->name == 'Admin')
-                            {
-                                return DB::table('owner_associations')
-                                ->where('email', $get('email'))
-                                ->where('verified', 1)
-                                ->exists();
-                            }
-
-                        }),
-                    FileUpload::make('profile_photo')
-                        ->disk('s3')
-                        ->directory('dev')
-                        ->previewable(true)
-                        ->image()
-                        ->maxSize(2048)
-                        ->rules('file|mimes:jpeg,jpg,png|max:2048')
-                        ->label('Logo')
-                        ->disabled(function (callable $get) {
-                            if(Role::where('id',auth()->user()->role_id)->first()->name == 'Admin')
-                            {
-                                return DB::table('owner_associations')
-                                ->where('email', $get('email'))
-                                ->where('verified', 1)
-                                ->exists();
-                            }
-
-                        })
-                        ->columnSpan([
-                            'sm' => 1,
-                            'md' => 2,
-                            'lg' => 2,
-                        ]),
-                    
-
+                        ->hidden(Role::where('id', auth()->user()->role_id)->first()->name != 'Admin'),
                 ]),
-            ]);
+            ]),
+        
+        Section::make('Documents')
+            ->columns(3)
+            ->schema([
+                FileUpload::make('trn_certificate')
+                    ->disk('s3')
+                    ->directory('dev')
+                    ->rules('file|mimes:jpeg,jpg,png,pdf|max:2048')
+                    ->maxSize(2048)
+                    ->label('TRN Certificate')
+                    ->disabled(function (callable $get) {
+                        if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+                            return DB::table('owner_associations')
+                                ->where('email', $get('email'))
+                                ->where('verified', 1)
+                                ->exists();
+                        }
+                    }),
+                FileUpload::make('trade_license')
+                    ->disk('s3')
+                    ->directory('dev')
+                    ->rules('file|mimes:jpeg,jpg,png,pdf|max:2048')
+                    ->maxSize(2048)
+                    ->label('Trade License')
+                    ->disabled(function (callable $get) {
+                        if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+                            return DB::table('owner_associations')
+                                ->where('email', $get('email'))
+                                ->where('verified', 1)
+                                ->exists();
+                        }
+                    }),
+                FileUpload::make('dubai_chamber_document')
+                    ->disk('s3')
+                    ->directory('dev')
+                    ->rules('file|mimes:jpeg,jpg,png,pdf|max:2048')
+                    ->maxSize(2048)
+                    ->label('Dubai Chamber Document')
+                    ->disabled(function (callable $get) {
+                        if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+                            return DB::table('owner_associations')
+                                ->where('email', $get('email'))
+                                ->where('verified', 1)
+                                ->exists();
+                        }
+                    }),
+                FileUpload::make('memorandum_of_association')
+                    ->disk('s3')
+                    ->directory('dev')
+                    ->rules('file|mimes:jpeg,jpg,png,pdf|max:2048')
+                    ->maxSize(2048)
+                    ->label('Memorandum of Association')
+                    ->disabled(function (callable $get) {
+                        if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+                            return DB::table('owner_associations')
+                                ->where('email', $get('email'))
+                                ->where('verified', 1)
+                                ->exists();
+                        }
+                    }),
+                FileUpload::make('profile_photo')
+                    ->disk('s3')
+                    ->directory('dev')
+                    ->previewable(true)
+                    ->image()
+                    ->maxSize(2048)
+                    ->rules('file|mimes:jpeg,jpg,png|max:2048')
+                    ->label('Logo')
+                    ->disabled(function (callable $get) {
+                        if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+                            return DB::table('owner_associations')
+                                ->where('email', $get('email'))
+                                ->where('verified', 1)
+                                ->exists();
+                        }
+                    }),
+            ]),
+    ]);
+
     }
 
     public static function table(Table $table): Table

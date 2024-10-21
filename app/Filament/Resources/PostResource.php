@@ -39,6 +39,7 @@ use App\Filament\Resources\PostResource\RelationManagers\CommentsRelationManager
 use App\Models\OwnerAssociation;
 use App\Models\User\User;
 use Filament\Facades\Filament;
+use Filament\Forms\Components\Section;
 use Illuminate\Database\Eloquent\Model;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
@@ -54,7 +55,7 @@ class PostResource extends Resource
         return $form->schema([
             Grid::make([
                 'sm' => 1,
-                'md' => 1,
+                'md' => 2,
                 'lg' => 2,
             ])->schema([
                 RichEditor::make('content')
@@ -74,56 +75,62 @@ class PostResource extends Resource
                         'lg' => 2,
                     ]),
 
-                Select::make('status')
-                    ->searchable()
-                    ->options([
-                        'published' => 'Published',
-                        'draft' => 'Draft',
-                    ])
-                    ->reactive()
-                    ->live()
-                    ->afterStateUpdated(function (Set $set, Get $get) {
-                        $set('scheduled_at', null);
-                    })
-                    ->default('published')
-                    ->required(),
+                Section::make()
+                ->columns(2)
+                ->schema([
+                        Select::make('status')
+                        ->searchable()
+                        ->options([
+                            'published' => 'Published',
+                            'draft' => 'Draft',
+                        ])
+                        ->reactive()
+                        ->live()
+                        ->afterStateUpdated(function (Set $set, Get $get) {
+                            $set('scheduled_at', null);
+                        })
+                        ->default('published')
+                        ->required(),
 
-                DateTimePicker::make('scheduled_at')
-                    ->rules(['date'])
-                    ->displayFormat('d-M-Y h:i A')
-                    ->minDate(function ($record, $state) {
-                        if ($record?->scheduled_at == null || $state != $record?->scheduled_at) {
-                            return now();
-                        }
-                    })
-                    ->required(function (callable $get) {
-                        if ($get('status') == 'published') {
-                            return true;
-                        }
-                        return false;
-                    })
-                    ->default(now())
-                    ->placeholder('Scheduled At'),
+                    DateTimePicker::make('scheduled_at')
+                        ->rules(['date'])
+                        ->displayFormat('d-M-Y h:i A')
+                        ->minDate(function ($record, $state) {
+                            if ($record?->scheduled_at == null || $state != $record?->scheduled_at) {
+                                return now();
+                            }
+                        })
+                        ->required(function (callable $get) {
+                            if ($get('status') == 'published') {
+                                return true;
+                            }
+                            return false;
+                        })
+                        ->default(now())
+                        ->placeholder('Scheduled At'),
 
-                Select::make('building')
-                    ->relationship('building', 'name')
-                    ->options(function () {
-                        if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
-                            return Building::all()->pluck('name', 'id');
-                        }
-                        return Building::where('owner_association_id', auth()->user()?->owner_association_id)->pluck('name', 'id');
-                    })
-                    ->multiple()
-                    ->searchable()
-                    ->preload()
-                    ->required()
-                    ->label('Building')
-                    ->columnSpan([
-                        'sm' => 1,
-                        'md' => 1,
-                        'lg' => 2,
-                    ]),
+                    Select::make('building')
+                        ->relationship('building', 'name')
+                        ->options(function () {
+                            if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+                                return Building::all()->pluck('name', 'id');
+                            }
+                            return Building::where('owner_association_id', auth()->user()?->owner_association_id)->pluck('name', 'id');
+                        })
+                        ->multiple()
+                        ->searchable()
+                        ->preload()
+                        ->required()
+                        ->label('Building')
+                        ->columns(2)
+                        ->columnSpan([
+                            'sm' => 1,
+                            'md' => 1,
+                            'lg' => 2,
+                        ]),
 
+                ]),
+                
                 Hidden::make('user_id')
                     ->default(auth()->user()->id),
 
@@ -151,6 +158,7 @@ class PostResource extends Resource
                             ->label('File')
 
                     ])
+                    ->columns(2)
                     ->columnSpan([
                         'sm' => 1,
                         'md' => 1,

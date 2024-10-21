@@ -47,7 +47,7 @@ class TenantDocumentResource extends Resource
                     'lg' => 2,
                 ])->schema([
                             TextInput::make('documentable_id')
-                                ->label('Resident Name')
+                                ->label('Resident name')
                                 ->formatStateUsing(function($state){
                                     $user = User::find($state);
                                     return $user ? $user->first_name . ' ' . $user->last_name : null;
@@ -66,9 +66,9 @@ class TenantDocumentResource extends Resource
                                 ->disabled()
                                 ->default('NA')
                                 ->searchable()
-                                ->label('Building Name'),
+                                ->label('Building'),
                             TextInput::make('unit')
-                                ->label('Unit Number')
+                                ->label('Unit number')
                                 ->default('NA')
                                 ->afterStateHydrated(function ($set, $record) {
                                     $flatID = FlatTenant::where('tenant_id', $record->documentable_id)->value('flat_id');
@@ -82,7 +82,7 @@ class TenantDocumentResource extends Resource
                                 ->required()
                                 ->disabled()
                                 ->readonly()
-                                ->placeholder('Expiry Date'),
+                                ->placeholder('Expiry date'),
                             Select::make('status')
                                 ->options([
                                     'approved' => 'Approve',
@@ -112,11 +112,12 @@ class TenantDocumentResource extends Resource
                                 ->openable(true)
                                 ->downloadable(true)
                                 ->label('Document')
-                                ->columnSpan([
-                                    'sm' => 1,
-                                    'md' => 1,
-                                    'lg' => 2,
-                                ]),
+                                // ->columnSpan([
+                                //     'sm' => 1,
+                                //     'md' => 1,
+                                //     'lg' => 2,
+                                // ])
+                                ,
                         ]),
 
             ]);
