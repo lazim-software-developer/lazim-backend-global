@@ -41,7 +41,7 @@ class CoolingAccountResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('building.name'),
-                TextColumn::make('flat.property_number')->label('Unit Number'),
+                TextColumn::make('flat.property_number')->label('Unit number'),
                 TextColumn::make('date')->date(),
                 TextColumn::make('opening_balance'),
                 TextColumn::make('consumption'),

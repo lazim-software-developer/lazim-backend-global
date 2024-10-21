@@ -39,17 +39,6 @@ class VisitorFormResource extends Resource
                 TextInput::make('time_of_viewing')->label('Time')->disabled(),
                 TextInput::make('number_of_visitors')->disabled(),
                 Select::make('building_id')->relationship('building','name')->label('Building')->disabled()->default('NA'),
-                Select::make('status')
-                                ->options([
-                                    'approved' => 'Approve',
-                                    'rejected' => 'Reject',
-                                ])
-                                ->disabled(function(FlatVisitor $record){
-                                    return $record->status != null;
-                                })
-                                ->required()
-                                ->searchable()
-                                ->live(),
                                 Repeater::make('guestDocuments')->label('Documents')
                                     ->relationship('guestDocuments')->disabled()
                                     ->schema([
@@ -69,11 +58,23 @@ class VisitorFormResource extends Resource
                                             ->label('File')
 
                                     ])
+                                    ->columns(2)
                                     ->columnSpan([
                                         'sm' => 1,
                                         'md' => 1,
                                         'lg' => 2,
                                     ]),
+                                Select::make('status')
+                                    ->options([
+                                        'approved' => 'Approve',
+                                        'rejected' => 'Reject',
+                                    ])
+                                    ->disabled(function(FlatVisitor $record){
+                                        return $record->status != null;
+                                    })
+                                    ->required()
+                                    ->searchable()
+                                    ->live(),
             ]);
     }
 

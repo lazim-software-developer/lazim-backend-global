@@ -55,6 +55,7 @@ class SnagsResource extends Resource
                     'md' => 1,
                     'lg' => 2
                 ])
+                    ->columns(2)
                     ->schema([
                         Select::make('building_id')
                             ->label('Building')
@@ -120,21 +121,7 @@ class SnagsResource extends Resource
                             ->live()
                             ->searchable()
                             ->label('Vendor Name'),
-                        // Select::make('flat_id')
-                        //     ->label('Flat')
-                        //     ->rules(['exists:flats,id'])
-                        //     ->disabledOn('edit')
-                        //     // ->relationship('flat', 'property_number')
-                        //     ->options(function(Get $get){
-                        //         if (is_null($get('building_id'))) {
-                        //             return [];
-                        //         }else{
-                        //             return Flat::where('building_id',$get('building_id'))->pluck('property_number','id');
-                        //         }
-                        //     })
-                        //     ->searchable()
-                        //     ->preload()
-                        //     ->placeholder('Unit Number'),
+                        
                         Select::make('technician_id')
                             ->relationship('technician', 'first_name')
                             ->options(function ( Get $get) {
@@ -174,6 +161,13 @@ class SnagsResource extends Resource
                             })
                             ->rules(['date'])
                             ->placeholder('Due Date'),
+                        Select::make('category')->required()
+                            ->disabledOn('edit')
+                            ->options(function(){
+                                return DB::table('services')->pluck('name','name')->toArray();
+                            })
+                            ->searchable()
+                            ->native(false),
                         Repeater::make('media')
                             ->relationship()
                             // ->disabledOn('edit')
@@ -190,24 +184,13 @@ class SnagsResource extends Resource
                             ->deletable(false)
                             ->addable(false)
                             ->defaultItems(1)
-                            ->columnSpan([
-                                'sm' => 1,
-                                'md' => 1,
-                                'lg' => 2
-                            ]),
+                            ->columns(2),
                         // Select::make('service_id')
                         //     ->relationship('service', 'name')
                         //     ->preload()
                         //     ->disabled()
                         //     ->searchable()
                         //     ->label('Service'),
-                        Select::make('category')->required()
-                            ->disabledOn('edit')
-                            ->options(function(){
-                                return DB::table('services')->pluck('name','name')->toArray();
-                            })
-                            ->searchable()
-                            ->native(false),
                         DateTimePicker::make('open_time')
                         ->visibleOn('edit')
                         // ->disabled(function (callable $get) {

@@ -41,6 +41,7 @@ class WDAResource extends Resource
                 ])
                     ->schema([
                         TextInput::make('wda_number')
+                            ->label('WDA number')
                             ->disabled(),
                         DatePicker::make('date')
                             ->rules(['date'])
@@ -63,13 +64,13 @@ class WDAResource extends Resource
                             ->preload()
                             ->disabled()
                             ->searchable()
-                            ->label('Building Name'),
+                            ->label('Building name'),
                         Select::make('contract_id')
                             ->relationship('contract', 'contract_type')
                             ->preload()
                             ->disabled()
                             ->searchable()
-                            ->label('Contract Type'),
+                            ->label('Contract type'),
                         Select::make('service_id')
                             ->relationship('service', 'name')
                             ->preload()
@@ -82,7 +83,7 @@ class WDAResource extends Resource
                             ->disabled()
                             ->disabled()
                             ->searchable()
-                            ->label('vendor Name'),
+                            ->label('Vendor name'),
                         Select::make('status')
                             ->options([
                                 'approved' => 'Approve',

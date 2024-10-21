@@ -18,6 +18,7 @@ use Filament\Forms\Components\Grid;
 use Filament\Tables\Actions\Action;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Textarea;
 use Filament\Tables\Columns\TextColumn;
@@ -87,7 +88,7 @@ class ComplaintsenquiryResource extends Resource
                             ->label('Enquiry')
                             ->disabled(),
                         Textarea::make('complaint_details')
-                            ->label('Enquiry Details')
+                            ->label('Enquiry details')
                             ->disabled(),
                         Hidden::make('status')
                             ->default('open'),
@@ -95,8 +96,23 @@ class ComplaintsenquiryResource extends Resource
                             ->default('enquiries'),
                         
                         DatePicker::make('created_at')
-                            ->label('Created On')
+                            ->label('Created on')
                             ->disabled(),
+                        Repeater::make('media')
+                            ->relationship()
+                            ->disabled()
+                            ->schema([
+                                FileUpload::make('url')
+                                    ->disk('s3')
+                                    ->directory('dev')
+                                    ->maxSize(2048)
+                                    ->openable(true)
+                                    ->downloadable(true)
+                                    ->label('File'),
+                            ]),
+                    Section::make('Status and Remarks')
+                    ->columns(2)
+                    ->schema([
                         Select::make('status')
                             ->options([
                                 'open' => 'Open',
@@ -121,18 +137,7 @@ class ComplaintsenquiryResource extends Resource
                                 return $record->status == 'closed';
                             })
                             ->required(),
-                        Repeater::make('media')
-                            ->relationship()
-                            ->disabled()
-                            ->schema([
-                                FileUpload::make('url')
-                                    ->disk('s3')
-                                    ->directory('dev')
-                                    ->maxSize(2048)
-                                    ->openable(true)
-                                    ->downloadable(true)
-                                    ->label('File'),
-                            ]),
+                    ])
                     ])
             ]);
     }

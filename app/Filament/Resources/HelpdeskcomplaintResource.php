@@ -2,14 +2,15 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\ComplaintscomplaintResource\RelationManagers\CommentsRelationManager;
 use Closure;
 use Filament\Forms\Get;
 use Filament\Forms\Form;
 use App\Models\User\User;
 use Filament\Tables\Table;
 use App\Models\Master\Role;
+use Illuminate\Support\Str;
 use App\Models\Vendor\Vendor;
+use Filament\Facades\Filament;
 use App\Models\TechnicianVendor;
 use Filament\Resources\Resource;
 use App\Models\Building\Complaint;
@@ -19,20 +20,20 @@ use Filament\Tables\Actions\Action;
 use App\Models\Vendor\ServiceVendor;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Toggle;
+use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Textarea;
 use Filament\Tables\Columns\TextColumn;
+use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
-use App\Filament\Resources\HelpdeskcomplaintResource\Pages;
-use Filament\Facades\Filament;
-use Filament\Forms\Components\Toggle;
-use Illuminate\Database\Eloquent\Model;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
-use Illuminate\Support\Str;
+use App\Filament\Resources\HelpdeskcomplaintResource\Pages;
+use App\Filament\Resources\ComplaintscomplaintResource\RelationManagers\CommentsRelationManager;
 
 class HelpdeskcomplaintResource extends Resource
 {
@@ -52,6 +53,7 @@ class HelpdeskcomplaintResource extends Resource
                     'md' => 1,
                     'lg' => 2
                 ])
+                    ->columns(2)
                     ->schema([
                         Select::make('building_id')
                             ->rules(['exists:buildings,id'])
@@ -185,6 +187,28 @@ class HelpdeskcomplaintResource extends Resource
                         TextInput::make('type')->label('Type')
                             ->disabled()
                             ->default('NA'),
+                        Toggle::make('Urgent')
+                            ->disabled()
+                            ->formatStateUsing(function($record){
+                                // dd($record->priority);
+                                if($record->priority==1){
+                                    return true;
+                                }else{
+                                    return false;
+                                }
+                            })
+                            ->default(false)
+                            ->hidden(function($record){
+                                if($record->type == 'personal'){
+                                    return false;
+                                }else{
+                                    return true;
+                                }
+                            })
+                            ->disabled(),
+                    Section::make('Status and Remarks')
+                    ->columns(2)
+                    ->schema([
                         Select::make('status')
                             ->options([
                                 'open' => 'Open',
@@ -207,26 +231,7 @@ class HelpdeskcomplaintResource extends Resource
                                 return $record->status != 'open';
                             })
                             ->required(),
-
-                        Toggle::make('Urgent')
-                            ->disabled()
-                            ->formatStateUsing(function($record){
-                                // dd($record->priority);
-                                if($record->priority==1){
-                                    return true;
-                                }else{
-                                    return false;
-                                }
-                            })
-                            ->default(false)
-                            ->hidden(function($record){
-                                if($record->type == 'personal'){
-                                    return false;
-                                }else{
-                                    return true;
-                                }
-                            })
-                            ->disabled(),
+                    ])
                         
                         
 

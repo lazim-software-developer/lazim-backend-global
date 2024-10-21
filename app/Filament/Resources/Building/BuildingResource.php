@@ -79,12 +79,12 @@ class BuildingResource extends Resource
                                 ->rules(['max:500', 'string'])
                                 ->required()
                                 ->label('Address Line 1')
-                                ->placeholder('Address Line 1'),
+                                ->placeholder('Address line 1'),
 
                             TextInput::make('address_line2')
                                 ->rules(['max:500', 'string'])
                                 ->nullable()
-                                ->label('Address Line 2')
+                                ->label('Address line 2')
                                 ->placeholder('Address Line 2'),
                             Hidden::make('owner_association_id')
                                 ->default(auth()->user()?->owner_association_id),
@@ -119,7 +119,7 @@ class BuildingResource extends Resource
                                 ->label('Allow post-upload'),
                             Toggle::make('show_inhouse_services')
                                 ->rules(['boolean'])
-                                ->label('Show Personal services'),
+                                ->label('Show personal services'),
                             MarkdownEditor::make('description')
                                 ->toolbarButtons([
                                     'bold',
@@ -144,8 +144,7 @@ class BuildingResource extends Resource
                                 ->directory('dev')
                                 ->image()
                                 ->maxSize(2048)
-                                ->label('Cover Photo')
-                                ->columnSpanFull(),
+                                ->label('Cover Photo'),
 
                         ]),
             ]);
@@ -162,6 +161,7 @@ class BuildingResource extends Resource
                     ->default('NA')
                     ->limit(50),
                 Tables\Columns\TextColumn::make('property_group_id')
+                    ->lable('Property group ID')
                     ->toggleable()
                     ->searchable()
                     ->default('NA')
