@@ -6,6 +6,7 @@ use App\Filament\Resources\ComplaintsenquiryResource;
 use App\Jobs\ComplaintStatusMail;
 use App\Models\AccountCredentials;
 use App\Models\ExpoPushNotification;
+use App\Models\Remark;
 use App\Traits\UtilsTrait;
 use Filament\Actions;
 use Filament\Facades\Filament;
@@ -22,6 +23,23 @@ class EditComplaintsenquiry extends EditRecord
         return [
             // Actions\DeleteAction::make(),
         ];
+    }
+
+    public function beforeSave()
+    {
+        $data = $this->form->getState();
+        
+        if ((array_key_exists('remarks', $data) && $data['remarks'] != $this->record->remarks) || (array_key_exists('status', $data) && $data['status'] != $this->record->status)){
+
+            Remark::create([
+                'remarks' => $data['remarks'],
+                'type' => 'Enquiry',
+                'status' => $data['status'],
+                'user_id' => auth()->user()->id,
+                'complaint_id' => $this->record->id,
+            ]);
+        }
+
     }
 
     public function afterSave()
@@ -72,8 +90,9 @@ class EditComplaintsenquiry extends EditRecord
                         'mail_from_address' => $credentials->email ?? env('MAIL_FROM_ADDRESS'),
                     ];           
                     $complaintType = "Enquiry";
+                    $remarks = Remark::where('complaint_id',$this->record->id)->get();
                     
-                    ComplaintStatusMail::dispatch($this->record->user->email,$this->record->user->name,$this->record->remarks,$complaintType,$mailCredentials);
+                    ComplaintStatusMail::dispatch($this->record->user->email,$this->record->user->first_name,$remarks,$complaintType,$mailCredentials);
 
         }
 

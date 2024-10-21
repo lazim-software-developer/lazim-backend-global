@@ -6,8 +6,10 @@ use Filament\Forms;
 use Filament\Tables;
 use Filament\Forms\Get;
 use Filament\Forms\Form;
+use App\Models\User\User;
 use Filament\Tables\Table;
 use App\Models\Master\Role;
+use Filament\Facades\Filament;
 use Filament\Resources\Resource;
 use App\Models\Building\Complaint;
 use Illuminate\Support\Facades\DB;
@@ -16,20 +18,19 @@ use Filament\Tables\Actions\Action;
 use App\Models\Complaintssuggession;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Textarea;
 use Filament\Tables\Columns\TextColumn;
+use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\FileUpload;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 use App\Filament\Resources\ComplaintssuggessionResource\Pages;
 use App\Filament\Resources\ComplaintssuggessionResource\RelationManagers;
-use App\Models\User\User;
-use Filament\Facades\Filament;
-use Filament\Forms\Components\Textarea;
-use Illuminate\Database\Eloquent\Model;
-use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class ComplaintssuggessionResource extends Resource
 {
@@ -63,6 +64,10 @@ class ComplaintssuggessionResource extends Resource
                             ->disabled()
                             ->searchable()
                             ->placeholder('Building'),
+                        Select::make('flat_id')
+                            ->required()
+                            ->disabled()
+                            ->relationship('flat', 'property_number'),
                         Select::make('user_id')
                             ->relationship('user', 'first_name')
                             ->options(function () {
@@ -89,18 +94,9 @@ class ComplaintssuggessionResource extends Resource
                             ->default('open'),
                         Hidden::make('complaint_type')
                             ->default('suggestions'),
-                        Repeater::make('media')
-                            ->relationship()
-                            ->disabled()
-                            ->schema([
-                                FileUpload::make('url')
-                                    ->disk('s3')
-                                    ->directory('dev')
-                                    ->maxSize(2048)
-                                    ->openable(true)
-                                    ->downloadable(true)
-                                    ->label('File'),
-                            ]),
+                    Section::make('Status and Remarks')
+                    ->columns(2)
+                    ->schema([
                         Select::make('status')
                             ->options([
                                 'open' => 'Open',
@@ -125,6 +121,19 @@ class ComplaintssuggessionResource extends Resource
                                 return $record->status == 'closed';
                             })
                             ->required(),
+                        ]),
+                    Repeater::make('media')
+                            ->relationship()
+                            ->disabled()
+                            ->schema([
+                                FileUpload::make('url')
+                                    ->disk('s3')
+                                    ->directory('dev')
+                                    ->maxSize(2048)
+                                    ->openable(true)
+                                    ->downloadable(true)
+                                    ->label('File'),
+                            ]),
                     ])
             ]);
     }
@@ -136,8 +145,12 @@ class ComplaintssuggessionResource extends Resource
                 TextColumn::make('ticket_number')
                     ->searchable()
                     ->default('NA')
-                    ->label('Ticket Number'),
+                    ->label('Ticket number'),
                 TextColumn::make('building.name')
+                    ->default('NA')
+                    ->searchable()
+                    ->limit(50),
+                TextColumn::make('flat.property_number')
                     ->default('NA')
                     ->searchable()
                     ->limit(50),
@@ -155,7 +168,7 @@ class ComplaintssuggessionResource extends Resource
                     ->default('NA')
                     ->limit(20)
                     ->searchable()
-                    ->label('Suggestion Details'),
+                    ->label('Suggestion details'),
                 TextColumn::make('status')
                     ->toggleable()
                     ->searchable()

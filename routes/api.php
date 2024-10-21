@@ -485,6 +485,7 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('vendor')->group(function 
 
     //Preventive Maintenance
     Route::get('/{vendor}/preventive_maintenance',[VendorComplaintController::class,'preventiveMaintenance']);
+    Route::get('/{vendor}/dashboard-preventive-stats',[VendorComplaintController::class,'dashboardPreventive']);
     //Form Requests for facility manager
     Route::get('/{vendor}/guest-registration',[GuestController::class,'fmlist']);
     Route::get('/{vendor}/guest-registration/{guest}',[GuestController::class,'show']);

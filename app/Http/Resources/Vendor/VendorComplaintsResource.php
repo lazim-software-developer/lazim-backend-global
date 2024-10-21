@@ -24,6 +24,7 @@ class VendorComplaintsResource extends JsonResource
             'priority' => $this->priority,
             'due_date' => $this->due_date,
             'status' => $this->status,
+            'remarks' => $this->remarks,
             'service_id' => $this->service?->id,
             'service_name' => $this->service?->name,
             'building_id' => $this->building->id,

@@ -10,6 +10,7 @@ use Filament\Actions\Action;
 use Filament\Facades\Filament;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Select;
 use Filament\Pages\Page;
 use Illuminate\Support\Facades\DB;
@@ -51,27 +52,30 @@ class GeneralFundStatement extends Page
                     ->slideOver()
                     ->color("primary")
                     ->form([
-                        Select::make('building_id')
-                        ->required()
-                        ->options(function () {
-                            if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
-                                return Building::all()->pluck('name', 'id');
-                            }
-                            else{
-                                return Building::where('owner_association_id', auth()->user()?->owner_association_id)
-                                ->pluck('name', 'id');
-                            } 
-                        })
-                        ->searchable()
-                        ->label('Building Name'),
-                        FileUpload::make('excel_file')
-                        ->label('General Fund Excel Data')
-                        ->acceptedFileTypes([
-                            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // for .xlsx
-                            'application/vnd.ms-excel', // for .xls
+                        Grid::make(2)
+                        ->schema([
+                            Select::make('building_id')
+                            ->required()
+                            ->options(function () {
+                                if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
+                                    return Building::all()->pluck('name', 'id');
+                                }
+                                else{
+                                    return Building::where('owner_association_id', auth()->user()?->owner_association_id)
+                                    ->pluck('name', 'id');
+                                } 
+                            })
+                            ->searchable()
+                            ->label('Building Name'),
+                            DatePicker::make('statement_date')->required(),
+                            FileUpload::make('excel_file')
+                            ->label('General Fund Excel Data')
+                            ->acceptedFileTypes([
+                                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // for .xlsx
+                                'application/vnd.ms-excel', // for .xls
+                            ])
+                            ->required(),
                         ])
-                        ->required(),
-                        DatePicker::make('statement_date')->required(),
                     ])
                     ->action(function (array $data) {
                     $buildingId= $data['building_id'];
