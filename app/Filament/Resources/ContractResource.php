@@ -214,7 +214,8 @@ class ContractResource extends Resource
                     ->openable(true)
                     ->downloadable(true)
                     ->label('Document'),
-            ]),
+            ])
+            ->columns(2),
     ]);
 
     }
