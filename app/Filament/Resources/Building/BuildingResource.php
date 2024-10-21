@@ -161,7 +161,7 @@ class BuildingResource extends Resource
                     ->default('NA')
                     ->limit(50),
                 Tables\Columns\TextColumn::make('property_group_id')
-                    ->lable('Property group ID')
+                    ->label('Property group ID')
                     ->toggleable()
                     ->searchable()
                     ->default('NA')

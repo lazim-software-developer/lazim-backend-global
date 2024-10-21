@@ -120,7 +120,7 @@ class SnagsResource extends Resource
                             // })
                             ->live()
                             ->searchable()
-                            ->label('Vendor Name'),
+                            ->label('Vendor name'),
                         
                         Select::make('technician_id')
                             ->relationship('technician', 'first_name')
@@ -134,7 +134,7 @@ class SnagsResource extends Resource
                             })
                             ->preload()
                             ->searchable()
-                            ->label('Technician Name'),
+                            ->label('Technician name'),
                         TextInput::make('priority')
                             ->rules([function () {
                                 return function (string $attribute, $value, Closure $fail) {

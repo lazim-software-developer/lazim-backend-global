@@ -126,7 +126,7 @@ class WDAResource extends Resource
                 TextColumn::make('building.name')
                     ->label('Building'),
                 TextColumn::make('contract.contract_type')
-                    ->label('Contract Type'),
+                    ->label('Contract type'),
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([

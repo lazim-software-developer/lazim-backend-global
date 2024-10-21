@@ -109,7 +109,8 @@ class ComplaintsenquiryResource extends Resource
                                     ->openable(true)
                                     ->downloadable(true)
                                     ->label('File'),
-                            ]),
+                            ])
+                            ->columns(2),
                     Section::make('Status and Remarks')
                     ->columns(2)
                     ->schema([
@@ -149,7 +150,7 @@ class ComplaintsenquiryResource extends Resource
                 TextColumn::make('ticket_number')
                     ->searchable()
                     ->default('NA')
-                    ->label('Ticket Number'),
+                    ->label('Ticket number'),
                 TextColumn::make('building.name')
                     ->default('NA')
                     ->searchable()
@@ -175,7 +176,7 @@ class ComplaintsenquiryResource extends Resource
                     ->default('NA')
                     ->limit(20)
                     ->searchable()
-                    ->label('Enquiry Details'),
+                    ->label('Enquiry details'),
                 TextColumn::make('status')
                     ->toggleable()
                     ->searchable()
