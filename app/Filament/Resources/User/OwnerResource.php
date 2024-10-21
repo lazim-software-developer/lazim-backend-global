@@ -60,7 +60,7 @@ class OwnerResource extends Resource
                     TextInput::make('emirates_id')
                         ->numeric()
                         ->required()
-                        ->placeholder('Emirates Id'),
+                        ->label('Emirates ID'),
                     Repeater::make('flatOwners')
                         ->relationship()
                         ->schema([
@@ -72,11 +72,11 @@ class OwnerResource extends Resource
                             // ViewField::make('Building')
                             //     ->view('forms.components.building-name-owner')
                         ])
-                        ->columnSpan([
-                            'sm' => 1,
-                            'md' => 1,
-                            'lg' => 2,
-                        ]),
+                        // ->columnSpan([
+                        //     'sm' => 1,
+                        //     'md' => 1,
+                        //     'lg' => 2,
+                        // ]),
                 ]),
 
         ]);
