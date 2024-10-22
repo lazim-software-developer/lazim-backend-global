@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Filament\Resources\Building\FlatTenantResource;
+use App\Filament\Resources\MoveOutFormsDocumentResource;
 use App\Jobs\MoveoutNotificationJob;
 use App\Models\AccountCredentials;
 use App\Models\Building\FlatTenant;
@@ -52,7 +53,7 @@ class MoveoutNotification extends Command
                     ->actions([
                         Action::make('view')
                             ->button()
-                            ->url(fn () => FlatTenantResource::getUrl('edit', [OwnerAssociation::where('id',$moveout->owner_association_id)->first()?->slug,$flatTenat?->id])),
+                            ->url(fn () => MoveOutFormsDocumentResource::getUrl('edit', [OwnerAssociation::where('id',$moveout->owner_association_id)->first()?->slug,$moveout?->id])),
                     ])
                     ->sendToDatabase($user);
             $credentials = AccountCredentials::where('oa_id', $moveout->owner_association_id)->where('active', true)->latest()->first();
