@@ -244,7 +244,7 @@ class VendorComplaintController extends Controller
                     $query;
                 }
             })
-            ->get();
+            ->paginate(10);
 
         return VendorComplaintsResource::collection($complaints);
     }
