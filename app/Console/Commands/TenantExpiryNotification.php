@@ -46,7 +46,7 @@ class TenantExpiryNotification extends Command
                     ->title("Contract Expirations Reminder")
                     ->icon('heroicon-o-document-text')
                     ->iconColor('warning')
-                    ->body('Resident contract is expiring on '. now()->addDay())
+                    ->body('Resident contract is expiring on '. now()->addDay()->toDateString())
                     ->actions([
                         Action::make('view')
                             ->button()
