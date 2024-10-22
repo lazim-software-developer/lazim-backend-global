@@ -27,8 +27,10 @@ class Complaintresource extends JsonResource
         return [
             'id' => $this->id,
             'complaint' => $this->complaint,
+            'building_id' => $this->building->id,
             'building' => $this->building->name,
             'flat' => $this->flat?->property_number,
+            'service_id' => $this->service?->id,
             'service' => $this->service?->name,
             'category' => $this->category,
             'remarks' => $this->remarks,
@@ -44,7 +46,9 @@ class Complaintresource extends JsonResource
             'assignee_name' => $this->technician?->first_name,
             'priority' => $this->priority,
             'priority_name' => $priority,
-            'due_date' => $this->due_date
+            'due_date' => $this->due_date,
+            'complaint_location' => $this->complaint_location,
+            'status' => $this->status,
         ];
     }
 }
