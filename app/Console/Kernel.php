@@ -26,6 +26,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('app:resident-move-out')->everyMinute();
         $schedule->command('fetch:invoices')->daily();
         $schedule->command('dispatch:receipt-fetch')->daily();
+        $schedule->command('app:moveout-notification')->daily();
+        $schedule->command('app:tenant-expiry-notification')->daily();
 
     }
 
