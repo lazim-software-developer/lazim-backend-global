@@ -364,11 +364,11 @@ class BuildingResource extends Resource
             ->filters([
                 //
             ])
-            ->emptyStateDescription(function(){
-                if(auth()->user()->role->name == 'Property Manager'){
-                    return 'Create a Building from Property Management to get started';
-                }
-            })
+            // ->emptyStateDescription(function(){
+            //     if(auth()->user()->role->name == 'Property Manager'){
+            //         return 'Create a Building from Property Management to get started';
+            //     }
+            // })
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Action::make('feature')

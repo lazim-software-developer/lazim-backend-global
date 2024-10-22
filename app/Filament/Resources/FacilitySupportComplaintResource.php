@@ -37,7 +37,7 @@ class FacilitySupportComplaintResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
-    protected static ?string $modelLabel = 'Facility Support Complaint';
+    protected static ?string $modelLabel = 'Facility Support Issue';
 
     public static function form(Form $form): Form
     {
@@ -372,6 +372,7 @@ class FacilitySupportComplaintResource extends Resource
                     ->searchable()
                     ->preload(),
             ])
+            ->emptyStateHeading('No Issues')
             ->bulkActions([
                 // ExportBulkAction::make(),
             ])
