@@ -29,6 +29,7 @@ class VendorComplaintsResource extends JsonResource
             'service_name' => $this->service?->name,
             'building_id' => $this->building->id,
             'building_name' => $this->building->name,
+            'complaint_location' => $this->complaint_location,
         ];
     }
 }
