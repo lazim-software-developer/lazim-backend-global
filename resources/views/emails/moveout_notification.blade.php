@@ -28,15 +28,24 @@
 		<tr>
 			<td width="100%" height="10"></td>
 		</tr>
-
-        <tr>
-            <td class="paragraph">
-                <strong>Email: </strong> {{$moveout->email}}
+		<tr>
+			<td class="paragraph">
+				<strong>Building: </strong> {{$moveout->building->name}}
 			</td>
 		</tr>
         <tr>
             <td class="paragraph">
-                <strong>Name: </strong> {{$moveout->name}}
+                <strong>Unit: </strong> {{$moveout->flat->property_number}}
+			</td>
+		</tr>
+		<tr>
+			<td class="paragraph">
+				<strong>Name: </strong> {{$moveout->name}}
+			</td>
+		</tr>
+        <tr>
+            <td class="paragraph">
+                <strong>Email: </strong> {{$moveout->email}}
 			</td>
 		</tr>
         <tr>
@@ -46,17 +55,7 @@
 		</tr>
         <tr>
             <td class="paragraph">
-                <strong>Moving Time: </strong> {{$moveout->moving_date}} .' '.{{$moveout->moving_time}}
-			</td>
-		</tr>
-        <tr>
-            <td class="paragraph">
-                <strong>Unit: </strong> {{$moveout->flat->property_number}}
-			</td>
-		</tr>
-        <tr>
-            <td class="paragraph">
-                <strong>Building: </strong> {{$moveout->building->name}}
+                <strong>Moving Time: </strong> {{$moveout->moving_date}} {{$moveout->moving_time}}
 			</td>
 		</tr>
 		<tr>
