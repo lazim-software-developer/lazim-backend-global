@@ -9,6 +9,8 @@ use App\Models\Building\Flat;
 use App\Models\Master\Role;
 use App\Models\Master\Service;
 use App\Models\User\User;
+use App\Models\Vendor\ServiceVendor;
+use App\Models\Vendor\Vendor;
 use Closure;
 use DB;
 use Filament\Forms\Components\DatePicker;
@@ -35,7 +37,7 @@ class FacilitySupportComplaintResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
-    protected static ?string $modelLabel = 'Facility Support Complaint';
+    protected static ?string $modelLabel = 'Facility Support Issue';
 
     public static function form(Form $form): Form
     {
@@ -106,7 +108,7 @@ class FacilitySupportComplaintResource extends Resource
                                 DatePicker::make('due_date')
                                     ->label('Due Date')
                                     ->minDate(now()->format('Y-m-d'))
-                                    // ->maxDate(now()->addDays(3)->format('Y-m-d'))
+                                // ->maxDate(now()->addDays(3)->format('Y-m-d'))
                                     ->rules(['date'])
                                     ->validationMessages([
                                         'maxDate' =>
@@ -168,7 +170,8 @@ class FacilitySupportComplaintResource extends Resource
 
                                 Select::make('vendor_id')
                                     ->label('Vendor Name')
-                                    ->relationship('vendor', 'name')
+
+                                // ->relationship('vendor', 'name')
                                     ->preload()
                                 // ->required(function (Get $get) {
                                 //     return $get('category') != 'Security Services';
@@ -181,21 +184,30 @@ class FacilitySupportComplaintResource extends Resource
                                         if (!$serviceId) {
                                             return [];
                                         }
+                                        $vendorIds = ServiceVendor::where('service_id', $get('service_id'))
+                                            ->pluck('vendor_id')->toArray();
+                                        // dd($vendorIds);
 
-                                        $vendorIds = DB::table('service_technician_vendor')
-                                            ->join('technician_vendors', 'service_technician_vendor.technician_vendor_id'
-                                                , '=', 'technician_vendors.id')
-                                            ->where('service_technician_vendor.service_id', $serviceId)
-                                            ->where('service_technician_vendor.active', true)
-                                            ->where('technician_vendors.active', true)
-                                            ->pluck('technician_vendors.vendor_id')
-                                            ->unique()
+                                        // $vendorIds = DB::table('service_technician_vendor')
+                                        //     ->join('technician_vendors', 'service_technician_vendor.technician_vendor_id'
+                                        //         , '=', 'technician_vendors.id')
+                                        //     ->where('service_technician_vendor.service_id', $serviceId)
+                                        //     ->where('service_technician_vendor.active', true)
+                                        //     ->where('technician_vendors.active', true)
+                                        //     ->pluck('technician_vendors.vendor_id')
+                                        //     ->unique()
+                                        //     ->toArray();
+
+                                        // return User::whereIn('id', $vendorIds)
+                                        //     ->orderBy('first_name')
+                                        //     ->pluck('first_name', 'id')
+                                        //     ->toArray();
+
+                                        return Vendor::where('id', $vendorIds)
+                                            ->orderBy('name')
+                                            ->pluck('name', 'id')
                                             ->toArray();
 
-                                        return User::whereIn('id', $vendorIds)
-                                            ->orderBy('first_name')
-                                            ->pluck('first_name', 'id')
-                                            ->toArray();
                                     })
                                     ->searchable()
                                     ->live(),
@@ -204,15 +216,17 @@ class FacilitySupportComplaintResource extends Resource
                                     ->label('Technician')
                                     ->options(function (Get $get) {
                                         $serviceId = $get('service_id');
+                                        $vendorId  = $get('vendor_id');
 
                                         if (!$serviceId) {
                                             return [];
                                         }
 
                                         $technicianIds = DB::table('service_technician_vendor')
-                                            ->join('technician_vendors', 'service_technician_vendor.technician_vendor_id',
-                                                '=', 'technician_vendors.id')
+                                            ->join('technician_vendors','service_technician_vendor.technician_vendor_id'
+                                                , '=', 'technician_vendors.id')
                                             ->where('service_technician_vendor.service_id', $serviceId)
+                                            ->where('technician_vendors.vendor_id', $vendorId)
                                             ->where('service_technician_vendor.active', true)
                                             ->where('technician_vendors.active', true)
                                             ->pluck('technician_vendors.technician_id')
@@ -253,7 +267,7 @@ class FacilitySupportComplaintResource extends Resource
                                     ->label('Remarks')
                                     ->rules(['max:150'])
                                     ->required(function (callable $get) {
-                                        if ($get('status'=== 'closed')) {
+                                        if ($get('status' === 'closed')) {
                                             return true;
                                         }return false;
                                     })
@@ -358,6 +372,7 @@ class FacilitySupportComplaintResource extends Resource
                     ->searchable()
                     ->preload(),
             ])
+            ->emptyStateHeading('No Issues')
             ->bulkActions([
                 // ExportBulkAction::make(),
             ])

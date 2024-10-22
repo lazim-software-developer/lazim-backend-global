@@ -8,6 +8,7 @@ use App\Models\Master\Role;
 use App\Models\TechnicianVendor;
 use App\Models\User\User;
 use App\Models\Vendor\Vendor;
+use DB;
 use Exception;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Select;
@@ -17,9 +18,9 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Hash;
 use Log;
 use Str;
-use Illuminate\Support\Facades\Hash;
 
 class TechnicianVendorResource extends Resource
 {
@@ -97,13 +98,35 @@ class TechnicianVendorResource extends Resource
                                 throw new Exception('Owner association ID not found');
                             }
 
-                            $role = Role::where('name', 'Technician')
-                                ->where('owner_association_id', $oaId)
-                                ->first();
+                            // Use a different approach for role creation
+                            $role = DB::transaction(function () use ($oaId) {
+                                // First check if role exists
+                                $existingRole = Role::where('name', 'Technician')
+                                    ->where('owner_association_id', $oaId)
+                                    ->first();
 
-                            if (!$role) {
-                                throw new Exception('Technician role not found');
-                            }
+                                if ($existingRole) {
+                                    return $existingRole;
+                                }
+
+                                // Create a temporary unique name for the role
+                                $tempName = 'Technician_' . $oaId . '_' . Str::random(8);
+
+                                // Create the role with temporary name
+                                $newRole = Role::create([
+                                    'name'                 => $tempName,
+                                    'owner_association_id' => $oaId,
+                                    'guard_name'           => 'web',
+                                    'is_active'            => true,
+                                ]);
+
+                                // Update the name after creation
+                                DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+                                $newRole->update(['name' => 'Technician']);
+                                DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+
+                                return $newRole->fresh();
+                            });
 
                             // Generate a random password for the user
                             $plainPassword = Str::random(12);
@@ -122,18 +145,22 @@ class TechnicianVendorResource extends Resource
                             ];
 
                             $user = User::create($userData);
-                            // Dispatch the welcome email job
                             TechnicianAccountCreationJob::dispatch($user, $plainPassword);
 
-                            Log::info('Technician created successfully:', ['user_id' => $user->id]);
+                            Log::info('Technician created successfully:', [
+                                'user_id'              => $user->id,
+                                'role_id'              => $role->id,
+                                'owner_association_id' => $oaId,
+                            ]);
 
                             return $user->id;
 
-
                         } catch (Exception $e) {
                             Log::error('Error creating technician:', [
-                                'error' => $e->getMessage(),
-                                'data'  => $data,
+                                'error'                => $e->getMessage(),
+                                'trace'                => $e->getTraceAsString(),
+                                'data'                 => $data,
+                                'owner_association_id' => $oaId ?? null,
                             ]);
 
                             throw $e;
@@ -155,7 +182,8 @@ class TechnicianVendorResource extends Resource
                     }),
 
                 TextInput::make('technician_number')
-                    ->placeholder('Enter Technician number'),
+                    ->placeholder('Enter Technician number')
+                    ->unique('technician_vendors', 'technician_number'),
 
                 Select::make('vendor_id')
                     ->label('Facility Manager')

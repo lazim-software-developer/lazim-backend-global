@@ -129,7 +129,7 @@ class AssetResource extends Resource
                         'sm' => 1,
                         'md' => 2,
                         'lg' => 2,
-                    ]),  
+                    ]),
 
             ]);
     }
@@ -197,10 +197,17 @@ class AssetResource extends Resource
                         ->required()
                         ->relationship('vendors', 'name')
                         ->options(function () {
-                            $oaId = auth()->user()?->owner_association_id;
                             return Vendor::whereHas('ownerAssociation', function ($query) {
-                                $query->where('owner_association_id', Filament::getTenant()->id)
-                                      ->where('status', 'approved');
+                                $oaId = auth()->user()?->owner_association_id;
+                                if(auth()->user()->role->name == 'Property Manager'){
+                                    $query->where('owner_association_id', $oaId)
+                                        ->where('status', 'approved');
+                                }
+                                else {
+                                    $query->where('owner_association_id', Filament::getTenant()->id)
+                                        ->where('status', 'approved');
+                                }
+
                             })
                                 ->pluck('name', 'id');
                         })

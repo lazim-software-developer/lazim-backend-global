@@ -41,6 +41,7 @@ class SubContractorResource extends Resource
                     ->relationship('vendor', 'name'),
                 Forms\Components\TextInput::make('trn_no')
                     ->required()
+                    ->label('TRN number')
                     ->maxLength(191),
                 Forms\Components\DatePicker::make('start_date')
                     ->required(),
@@ -69,6 +70,7 @@ class SubContractorResource extends Resource
                     ->openable(true),
                 FileUpload::make('additional_doc')
                     ->disk('s3')
+                    ->label('Additional Documents')
                     ->directory('dev')
                     ->disabled()
                     ->downloadable(true)
@@ -76,6 +78,7 @@ class SubContractorResource extends Resource
 
                 Forms\Components\DateTimePicker::make('last_reminded_at'),
                 Forms\Components\Toggle::make('active')
+                    ->inline(false)
                     ->required(),
             ]);
     }

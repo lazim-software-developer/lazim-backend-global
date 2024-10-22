@@ -224,7 +224,7 @@ class InvoiceResource extends Resource
                     ]),
             ]),
 
-        
+
     ]);
 
     }
@@ -298,6 +298,7 @@ class InvoiceResource extends Resource
                     // Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ])
+            ->emptyStateHeading('No Invoices')
             ->emptyStateActions([
                 // Tables\Actions\CreateAction::make(),
             ]);

@@ -323,12 +323,7 @@ class OwnerAssociationInvoice extends Page implements HasForms
             return;
         } catch (\Exception $e) {
             Log::error('Unexpected error in save method: ', ['exception' => $e->getMessage()]);
-            Notification::make()
-                ->title("Failed to create invoice")
-                ->body("An unexpected error occurred. Please try again or contact support.")
-                ->danger()
-                ->send();
-            throw $e;
+            
         }
     }
 
