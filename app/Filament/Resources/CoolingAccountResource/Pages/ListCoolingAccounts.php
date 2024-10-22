@@ -8,6 +8,7 @@ use Filament\Actions\Action;
 use App\Models\Building\Building;
 use Filament\Actions\SelectAction;
 use Filament\Forms\Components\DateTimePicker;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\CoolingAccountImport;
@@ -115,6 +116,7 @@ class ListCoolingAccounts extends ListRecords
                     ])
                     ->action(function (array $data) {
                     $buildingId= $data['building_id'];
+                    // dd($buildingId);
                     $month = $data['month'].$data['year'];
 
                     $dueDate = $data['due_date'] ?? null;
@@ -148,5 +150,29 @@ class ListCoolingAccounts extends ListRecords
                     ->modifyQueryUsing(fn ($query) => $query->where('id', 0)),
                 ])->label('Download sample file')
         ];
+    }
+
+    protected function getTableQuery(): Builder
+    {
+        $query = parent::getTableQuery();
+
+        // Get user role
+        $userRole = auth()->user()?->role?->name;
+
+        if ($userRole === 'Admin') {
+            // Admin can see all records
+            return $query;
+        } elseif ($userRole === 'Property Manager') {
+            // Get building IDs associated with the PM's owner association
+            $buildingIds = DB::table('building_owner_association')
+                ->where('owner_association_id', auth()->user()->owner_association_id)
+                ->where('active', true)  // Make sure to only get active associations
+                ->pluck('building_id');
+
+            return $query->whereIn('building_id', $buildingIds);
+        } else {
+            // For other roles, only show records from their owner association
+            return $query->where('owner_association_id', auth()->user()?->owner_association_id);
+        }
     }
 }

@@ -85,9 +85,9 @@ class CoolingAccountImport implements ToCollection, WithHeadingRow
                 CoolingAccount::firstOrCreate(
                     [
                         'building_id'           => $this->buildingId,
-                        'flat_id'               => $row['unit_no'],
+                        'flat_id'               => $flatId,
                         'date'                  => $date,
-                        'owner_association_id'  => $tenant?->id,
+                        'owner_association_id'  => $tenant?->id ?? auth()->user()->owner_association_id,
                     ],
                     [
                         'opening_balance'       => $row['opening_balance_receivable_advance'],
