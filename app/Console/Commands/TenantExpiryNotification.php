@@ -43,7 +43,7 @@ class TenantExpiryNotification extends Command
             })->where('owner_association_id',$tenant->owner_association_id)->first();
             Notification::make()
                     ->success()
-                    ->title("Contract Expirations Reminder")
+                    ->title("Contract Expiration Reminder")
                     ->icon('heroicon-o-document-text')
                     ->iconColor('warning')
                     ->body('Resident contract is expiring on '. now()->addDay()->toDateString())
