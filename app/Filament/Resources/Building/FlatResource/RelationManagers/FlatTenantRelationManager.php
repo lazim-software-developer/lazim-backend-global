@@ -20,6 +20,9 @@ class FlatTenantRelationManager extends RelationManager
     protected static string $relationship = 'tenants';
 
     protected static ?string $title = 'Resident History';
+
+    protected static ?string $pluralModelLabel = 'Resident History';
+
     public function form(Form $form): Form
     {
         return $form
@@ -99,11 +102,11 @@ class FlatTenantRelationManager extends RelationManager
                 //
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make(),
+                // Tables\Actions\CreateAction::make(),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                // Tables\Actions\EditAction::make(),
+                // Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -111,7 +114,7 @@ class FlatTenantRelationManager extends RelationManager
                 ]),
             ])
             ->emptyStateActions([
-                Tables\Actions\CreateAction::make(),
+                // Tables\Actions\CreateAction::make(),
             ]);
     }
 }
