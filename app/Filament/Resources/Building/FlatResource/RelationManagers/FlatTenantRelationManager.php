@@ -89,7 +89,7 @@ class FlatTenantRelationManager extends RelationManager
                     ->formatStateUsing(fn(?string $state) => $state ? $state : 'NA'),
                 Tables\Columns\TextColumn::make('role')->label('Type'),
                 Tables\Columns\TextColumn::make('active')->label('Contract status')
-                    ->formatStateUsing(fn(string $state) => $state ? 'On going' : 'Ended')
+                    ->formatStateUsing(fn(string $state) => $state ? 'Ongoing' : 'Ended')
                     ->badge()
                     ->color(fn(string $state): string => match ($state) {
                         '1' => 'success',

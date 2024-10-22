@@ -45,7 +45,7 @@ class MoveoutNotification extends Command
             $flatTenat = FlatTenant::where('tenant_id', $moveout->user_id)->where('flat_id', $moveout->flat_id)->first();
             Notification::make()
                     ->success()
-                    ->title("Move out reminder")
+                    ->title("Move out Reminder")
                     ->icon('heroicon-o-document-text')
                     ->iconColor('warning')
                     ->body('Resident moving out on ' . $moveout->moving_date )
