@@ -346,6 +346,7 @@ class BuildingPocsRelationManager extends RelationManager
                     Action::make('delete')
                     ->button()
                     ->requiresConfirmation()
+                    ->modalDescription('Are you sure you want to delete this record?')
                     ->action(function($record){
                         $record->delete();
 
