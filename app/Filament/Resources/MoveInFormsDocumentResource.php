@@ -3,25 +3,29 @@
 namespace App\Filament\Resources;
 
 use Filament\Forms\Form;
+use App\Models\User\User;
 use Filament\Tables\Table;
 use App\Models\Master\Role;
+use Filament\Facades\Filament;
 use App\Models\Forms\MoveInOut;
 use Filament\Resources\Resource;
+use App\Models\Building\Building;
 use Filament\Forms\Components\Grid;
+use Filament\Tables\Filters\Filter;
 use Illuminate\Support\Facades\Log;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Section;
 use Filament\Tables\Columns\TextColumn;
+use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\FileUpload;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\CheckboxList;
-use App\Filament\Resources\MoveInFormsDocumentResource\Pages;
-use App\Models\User\User;
-use Filament\Facades\Filament;
-use Filament\Forms\Components\Section;
-use Illuminate\Database\Eloquent\Model;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
+use App\Filament\Resources\MoveInFormsDocumentResource\Pages;
+use App\Models\Building\Flat;
+use Illuminate\Support\Facades\DB;
 
 class MoveInFormsDocumentResource extends Resource
 {
@@ -60,7 +64,7 @@ class MoveInFormsDocumentResource extends Resource
                         ->preload()
                         ->disabled()
                         ->searchable()
-                        ->label('Unit Number'),
+                        ->label('Flat'),
                 ]),
             ]),
 
@@ -243,7 +247,7 @@ class MoveInFormsDocumentResource extends Resource
                 TextColumn::make('ticket_number')
                 ->searchable()
                 ->default('NA')
-                ->label('Ticket Number'),
+                ->label('Ticket number'),
                 TextColumn::make('name')
                     ->searchable()
                     ->default('NA')
@@ -255,11 +259,11 @@ class MoveInFormsDocumentResource extends Resource
                 TextColumn::make('flat.property_number')
                     ->searchable()
                     ->default('NA')
-                    ->label('Unit number')
+                    ->label('Flat')
                     ->limit(50),
                 TextColumn::make('status')
                     ->searchable()
-                    ->default('NA')
+                    ->default('Pending')
                     ->limit(50),
                 TextColumn::make('remarks')
                     ->searchable()
@@ -268,17 +272,76 @@ class MoveInFormsDocumentResource extends Resource
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
-                SelectFilter::make('building_id')
-                    ->relationship('building', 'name', function (Builder $query) {
-                        if (Role::where('id', auth()->user()->role_id)->first()->name != 'Admin') {
-                            $query->where('owner_association_id', Filament::getTenant()?->id);
+                Filter::make('building')
+                ->form([
+                    Select::make('Building')
+                        ->searchable()
+                        ->options(function () {
+                            if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+                                return Building::all()->pluck('name', 'id');
+                            } else {
+                                $buildingId = DB::table('building_owner_association')->where('owner_association_id',auth()->user()?->owner_association_id)->where('active',true)->pluck('building_id');
+                                return Building::whereIn('id',$buildingId)->pluck('name', 'id');
+                            }
+                        })
+                        ->reactive()
+                        ->afterStateUpdated(function (callable $set) {
+                            $set('flat', null);
+                        }),
+                    
+                    Select::make('flat')
+                        ->searchable()
+                        ->options(function (callable $get) {
+                            $buildingId = $get('Building'); // Get selected building ID
+                            if (empty($buildingId)) {
+                                return []; 
+                            }
+            
+                            return Flat::where('building_id', $buildingId)->pluck('property_number', 'id');
+                        }),
+                ])
+                ->columns(2) 
+                ->query(function (Builder $query, array $data): Builder {
+                    if (!empty($data['Building'])) {
+                        $flatIds = Flat::where('building_id', $data['Building'])->pluck('id');
+                        $query->whereIn('flat_id', $flatIds);
+                    }
+                    if (!empty($data['flat'])) {
+                        $query->where('flat_id', $data['flat']);
+                    }
+            
+                    return $query;
+                }),
+
+                Filter::make('status')
+                    ->form([
+                        Select::make('status')
+                            ->options([
+                                'approved' => 'Approved',
+                                'rejected' => 'Rejected',
+                                'NA' => 'Pending'
+                            ])
+                            ->label('Status')
+                            ->placeholder('Select Status')
+                            ->required(),
+                    ])
+                    ->columns(2)
+                    ->query(function (Builder $query, array $data): Builder {
+                        $selectedStatus = $data['status'] ?? null;
+                        
+                        if ($selectedStatus === 'NA') {
+                            $query->whereNull('status')
+                                    ->orWhereNotIn('status', ['approved', 'rejected']);
+                        }elseif ($selectedStatus !== null) {
+                            $query->where('status', $selectedStatus);
                         }
 
+                        return $query;
                     })
-                    ->searchable()
-                    ->preload()
-                    ->label('Building'),
+
+            
             ])
+            ->filtersFormColumns(3) 
             ->bulkActions([
                 ExportBulkAction::make(),
               ])

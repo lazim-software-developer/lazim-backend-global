@@ -6,8 +6,10 @@ use Filament\Forms;
 use Filament\Tables;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
+use App\Models\Master\Role;
 use Filament\Resources\Resource;
 use App\Models\Accounting\Budget;
+use App\Models\Building\Building;
 use Filament\Forms\Components\Grid;
 use Filament\Tables\Actions\Action;
 use Filament\Forms\Components\Select;
@@ -16,12 +18,13 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
+use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\BudgetResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\BudgetResource\RelationManagers;
 use App\Filament\Resources\BudgetResource\RelationManagers\BudgetitemsRelationManager;
-use App\Models\Master\Role;
+use Illuminate\Support\Facades\DB;
 
 class BudgetResource extends Resource
 {
@@ -104,7 +107,18 @@ class BudgetResource extends Resource
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
-                //
+                SelectFilter::make('building_id')
+                ->label('Building')
+                ->options(function () {
+                    if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+                        return Building::all()->pluck('name', 'id');
+                    } else {
+                        $buildingId = DB::table('building_owner_association')->where('owner_association_id',auth()->user()?->owner_association_id)->where('active',true)->pluck('building_id');
+                        return Building::whereIn('id',$buildingId)->pluck('name', 'id');
+                    }
+                })
+                ->native(false)
+                ->searchable(),
             ])
             ->actions([
                 //Tables\Actions\EditAction::make(),

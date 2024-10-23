@@ -2,25 +2,31 @@
 
 namespace App\Filament\Resources;
 
+use Carbon\Carbon;
 use Filament\Forms;
 use Filament\Tables;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
+use App\Models\Master\Role;
 use Filament\Resources\Resource;
 use App\Models\Accounting\Tender;
+use App\Models\Building\Building;
+use Illuminate\Support\Facades\DB;
+use Filament\Tables\Filters\Filter;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Forms\Components\TextInput;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
+use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\TenderResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 use App\Filament\Resources\TenderResource\RelationManagers;
 use App\Filament\Resources\TenderResource\RelationManagers\ProposalsRelationManager;
-use Filament\Forms\Components\TextInput;
-use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class TenderResource extends Resource
 {
@@ -102,7 +108,58 @@ class TenderResource extends Resource
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
-                //
+                SelectFilter::make('building_id')
+                ->label('Building')
+                ->options(function () {
+                    if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+                        return Building::all()->pluck('name', 'id');
+                    } else {
+                        $buildingId = DB::table('building_owner_association')->where('owner_association_id',auth()->user()?->owner_association_id)->where('active',true)->pluck('building_id');
+                        return Building::whereIn('id',$buildingId)->pluck('name', 'id');
+                    }
+                })
+                ->native(false)
+                ->searchable(),
+
+                SelectFilter::make('service_id')
+                ->label('Service')
+                ->relationship('service','name')
+                ->searchable()
+                ->preload()
+                ->native(false),
+
+                Filter::make('budget period')
+                ->form([
+                    Select::make('year')
+                    ->label('Budget period')
+                    ->options(function () {
+                        $currentYear = Carbon::now()->year; // Get the current year
+                        $years = [];
+                    
+                        // Generate past 10 years including the current year
+                        for ($i = 0; $i < 10; $i++) {
+                            $years[$currentYear - $i] = $currentYear - $i;
+                        }
+                    
+                        return $years; 
+                    })
+                    ->placeholder('Select Year')
+                    ->required(),
+                ])
+                ->query(function (Builder $query, array $data): Builder {
+                    // Check if a year is selected
+                    if (!empty($data['year'])) {
+                        $selectedYear = $data['year'];
+            
+                        // Filter tenders based on the associated budget's period
+                        $query->whereHas('budget', function ($query) use ($selectedYear) {
+                            $query->whereYear('budget_from', '<=', $selectedYear)  // Budget starts before or in the selected year
+                                  ->whereYear('budget_to', '>=', $selectedYear);    // Budget ends after or in the selected year
+                        });
+                    }
+                    
+                    return $query;
+                })
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

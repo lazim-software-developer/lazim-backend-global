@@ -198,6 +198,11 @@ class PollResource extends Resource
                     ->searchable()
                     ->preload()
                     ->label('Building'),
+                SelectFilter::make('status')
+                    ->options([
+                        'published' => 'Published',
+                        'draft' => 'Draft',
+                    ])
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),

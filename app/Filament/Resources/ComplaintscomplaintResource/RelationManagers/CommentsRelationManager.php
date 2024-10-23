@@ -61,7 +61,7 @@ class CommentsRelationManager extends RelationManager
                     ->label('Comment')
                     ->required()
                     ->minLength(3)
-                    ->maxLength(100)
+                    ->maxLength(250)
                     ->columnSpanFull(),
             
             ]);

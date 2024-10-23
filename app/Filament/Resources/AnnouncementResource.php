@@ -180,6 +180,11 @@ class AnnouncementResource extends Resource
                     ->searchable()
                     ->preload()
                     ->label('Building'),
+                SelectFilter::make('status')
+                    ->options([
+                        'published' => 'Published',
+                        'draft' => 'Draft',
+                    ])
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
