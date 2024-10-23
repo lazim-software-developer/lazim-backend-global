@@ -41,7 +41,7 @@ class CreateFacilityManager extends CreateRecord
                     'phone_verified'       => true,
                     'active'               => true,
                     'role_id'              => Role::where('name', 'Facility Manager')->value('id'),
-                    'owner_association_id' => $data['owner_association_id'],
+                    'owner_association_id' => auth()->user()->owner_association_id,
                 ];
                 Log::info('Creating user with data:', $userData);
 
@@ -52,7 +52,7 @@ class CreateFacilityManager extends CreateRecord
                 $vendorData = [
                     'name'                 => $data['name'],
                     'owner_id'             => $user->id,
-                    'owner_association_id' => $data['owner_association_id'],
+                    'owner_association_id' => auth()->user()->owner_association_id,
                     'address_line_1'       => $data['address_line_1'],
                     'landline_number'      => $data['landline_number'] ?? null,
                     'website'              => $data['website'] ?? null,
@@ -72,7 +72,7 @@ class CreateFacilityManager extends CreateRecord
                         $documentData = [
                             'name'                 => 'risk_policy',
                             'document_library_id'  => DocumentLibrary::where('name', 'Risk policy')->first()->id,
-                            'owner_association_id' => $data['owner_association_id'],
+                            'owner_association_id' => auth()->user()->owner_association_id,
                             'status'               => 'pending',
                             'documentable_id'      => $vendor->id,
                             'documentable_type'    => Vendor::class,
@@ -88,7 +88,7 @@ class CreateFacilityManager extends CreateRecord
                 }
 
                 $oa_vendorData = [
-                    'owner_association_id' => $data['owner_association_id'],
+                    'owner_association_id' => auth()->user()->owner_association_id,
                     'vendor_id'            => $vendor->id,
                     'from'                 => $user->created_at,
                     'active'               => true,
@@ -108,7 +108,7 @@ class CreateFacilityManager extends CreateRecord
                     'active'               => true,
                     'building_id'          => null,
                     'contract_id'          => null,
-                    'owner_association_id' => $data['owner_association_id'],
+                    'owner_association_id' => auth()->user()->owner_association_id,
 
                 ];
 
