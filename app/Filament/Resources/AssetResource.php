@@ -21,11 +21,15 @@ use Filament\Forms\Components\TextInput;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\AssetResource\Pages;
+use App\Models\OwnerAssociation;
 use App\Models\Vendor\Vendor;
 use Filament\Facades\Filament;
 use Filament\Notifications\Notification;
 use Filament\Tables\Actions\BulkAction;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\TernaryFilter;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
@@ -152,6 +156,34 @@ class AssetResource extends Resource
                     ->searchable()
                     ->preload()
                     ->label('Service'),
+                Filter::make('Vendor')
+                    ->form([
+                        Select::make('vendor')
+                        ->options(function () {
+                            if (Role::where('id', auth()->user()->role_id)->first()->name != 'Admin') {
+                                return OwnerAssociation::find(Filament::getTenant()?->id)->vendors->where('pivot.status', 'approved')->pluck('name', 'id');
+                            } else {
+                                return Vendor::pluck('name', 'id');
+                            }
+                        })
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        if (!empty($data['vendor'])) {
+                            $assets = DB::connection('mysql')->table('asset_vendor')->where('vendor_id', $data['vendor'])->pluck('asset_id');
+                            return $query->whereIn('id', $assets);
+                        }
+                        return $query;
+                    }),
+                TernaryFilter::make('id')
+                    ->label('Assigned')
+                    ->placeholder('All assets')
+                    ->trueLabel('Assigned assets')
+                    ->falseLabel('Unassigned assets')
+                    ->queries(
+                        true: fn (Builder $query) => $query->whereHas('vendors'),
+                        false: fn (Builder $query) => $query->whereDoesntHave('vendors'),
+                        blank: fn (Builder $query) => $query, // In this example, we do not want to filter the query when it is blank.
+                    )
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),

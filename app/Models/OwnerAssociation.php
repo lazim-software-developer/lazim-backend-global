@@ -11,6 +11,7 @@ use App\Models\Community\Post;
 use App\Models\Forms\SaleNOC;
 use App\Models\User\User;
 use App\Models\Vendor\Contract;
+use App\Models\Vendor\Vendor;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Sluggable\HasSlug;
@@ -101,5 +102,10 @@ class OwnerAssociation extends Model
     public function complaints()
     {
         return $this->hasMany(Complaint::class);
+    }
+
+    public function vendors()
+    {
+        return $this->belongsToMany(Vendor::class,'owner_association_vendor')->withPivot(['status']);
     }
 }
