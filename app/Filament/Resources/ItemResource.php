@@ -25,7 +25,10 @@ use App\Models\Vendor\Vendor;
 use Filament\Facades\Filament;
 use Filament\Notifications\Notification;
 use Filament\Tables\Actions\BulkAction;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
@@ -102,7 +105,41 @@ class ItemResource extends Resource
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
-                //
+                SelectFilter::make('building_id')
+                    ->options(function () {
+                        if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+                            return Building::all()->pluck('name', 'id');
+                        } else {
+                            return Building::where('owner_association_id', auth()->user()?->owner_association_id)
+                                ->pluck('name', 'id');
+                        }
+                    })
+                    ->searchable()
+                    ->preload()
+                    ->label('Building'),
+                Filter::make('vendor')
+                    ->form([
+                        Select::make('vendor')
+                        ->options(function(){
+                            if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+                                return Vendor::pluck('name','id');
+                            } else {
+                                $vendorId = DB::table('owner_association_vendor')->where('owner_association_id',auth()->user()->owner_association_id)->pluck('vendor_id');
+                                return Vendor::whereIn('id',$vendorId)->pluck('name','id');
+                               
+                            }
+                        })
+                        ->searchable()
+                    ])
+                    ->query(function(Builder $query, array $data): Builder {
+                        // Filter by the selected vendor from the mapping table (item_vendor)
+                        return $query->when(isset($data['vendor']) && $data['vendor'], function ($query) use ($data) {
+                            // 'vendors' is the relationship on your Item model
+                            $query->whereHas('vendors', function ($query) use ($data) {
+                                $query->where('vendor_id', $data['vendor']);
+                            });
+                        });
+                    })
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),

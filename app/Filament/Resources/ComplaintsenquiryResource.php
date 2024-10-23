@@ -32,6 +32,9 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 use App\Filament\Resources\ComplaintsenquiryResource\Pages;
 use App\Filament\Resources\ComplaintsenquiryResource\RelationManagers;
+use App\Models\Building\Building;
+use App\Models\Building\Flat;
+use Filament\Tables\Filters\Filter;
 
 class ComplaintsenquiryResource extends Resource
 {
@@ -110,7 +113,10 @@ class ComplaintsenquiryResource extends Resource
                                     ->downloadable(true)
                                     ->label('File'),
                             ])
-                            ->columns(2),
+                            ->columns(2)
+                            ->visible(function ($record) {
+                                return $record && $record->media()->exists();
+                            }),
                     Section::make('Status and Remarks')
                     ->columns(2)
                     ->schema([
@@ -126,8 +132,8 @@ class ComplaintsenquiryResource extends Resource
                             ->required()
                             ->searchable()
                             ->live(),
-                        TextInput::make('remarks')
-                            ->rules(['max:150'])
+                        TextArea::make('remarks')
+                            ->rules(['max:250'])
                             // ->visible(function (callable $get) {
                             //     if ($get('status') == 'closed') {
                             //         return true;
@@ -156,7 +162,7 @@ class ComplaintsenquiryResource extends Resource
                     ->searchable()
                     ->limit(50),
                 TextColumn::make('flat.property_number')
-                    ->label('Unit')
+                    ->label('Flat')
                     ->default('NA')
                     ->searchable()
                     ->limit(50),
@@ -180,21 +186,61 @@ class ComplaintsenquiryResource extends Resource
                 TextColumn::make('status')
                     ->toggleable()
                     ->searchable()
-                    ->limit(50),
+                    ->limit(50)
+                    ->formatStateUsing(fn($state) => ucfirst($state)),
 
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
-                SelectFilter::make('building_id')
-                    ->relationship('building', 'name', function (Builder $query) {
-                        if (Role::where('id', auth()->user()->role_id)->first()->name != 'Admin') {
-                            $query->where('owner_association_id', Filament::getTenant()?->id);
-                        }
-                    })
-                    ->searchable()
-                    ->label('Building')
-                    ->preload()
+                Filter::make('building')
+                ->form([
+                    Select::make('Building')
+                        ->searchable()
+                        ->options(function () {
+                            if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+                                return Building::all()->pluck('name', 'id');
+                            } else {
+                                $buildingId = DB::table('building_owner_association')->where('owner_association_id',auth()->user()?->owner_association_id)->where('active',true)->pluck('building_id');
+                                return Building::whereIn('id',$buildingId)->pluck('name', 'id');
+                            }
+                        })
+                        ->reactive()
+                        ->afterStateUpdated(function (callable $set) {
+                            $set('flat', null);
+                        }),
+                    
+                    Select::make('flat')
+                        ->searchable()
+                        ->options(function (callable $get) {
+                            $buildingId = $get('Building'); // Get selected building ID
+                            if (empty($buildingId)) {
+                                return []; 
+                            }
+            
+                            return Flat::where('building_id', $buildingId)->pluck('property_number', 'id');
+                        }),
+                ])
+                ->columns(2) 
+                ->query(function (Builder $query, array $data): Builder {
+                    if (!empty($data['Building'])) {
+                        $query->where('building_id', $data['Building']);
+                    }
+                    if (!empty($data['flat'])) {
+                        $query->where('flat_id', $data['flat']);
+                    }
+            
+                    return $query;
+                }),
+
+                SelectFilter::make('status')
+                    ->options([
+                        'open' => 'Open',
+                        'in-progress' => 'In-progress',
+                        'closed' => 'Closed'
+                    ])
+                    ->columns(2)
             ])
+            ->filtersFormColumns(3) 
             ->bulkActions([
                 ExportBulkAction::make(),
                 Tables\Actions\BulkActionGroup::make([

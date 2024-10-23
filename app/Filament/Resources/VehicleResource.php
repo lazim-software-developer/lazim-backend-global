@@ -66,7 +66,7 @@ class VehicleResource extends Resource
                 Select::make('flat_id')
                     ->searchable()
                     ->required()
-                    ->label('Unit')
+                    ->label('Flat')
                     ->options(function (callable $get) {
                         return Flat::where('building_id', $get('building'))->pluck('property_number', 'id');
                     })
@@ -129,28 +129,47 @@ class VehicleResource extends Resource
             ])
             ->filters([
                 Filter::make('building')
-                    ->form([
-                        Select::make('Building')
-                            ->native(false)
-                            ->options(function () {
-                                if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
-                                    return Building::all()->pluck('name', 'id');
-                                } else {
-                                    return Building::where('owner_association_id', auth()->user()?->owner_association_id)
-                                        ->pluck('name', 'id');
-                                }
-                            })
-                            ->searchable(),
-                    ])
-                    ->query(function (Builder $query, array $data): Builder {
-                        if ($data['Building']) {
-                            $flatIds = Flat::where('building_id', $data['Building'])->pluck('id');
-                            return $query->whereIn('flat_id', $flatIds);
-                        }
-
-                        return $query;
-                    }),
+                ->form([
+                    Select::make('Building')
+                        ->native(false)
+                        ->options(function () {
+                            if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+                                return Building::all()->pluck('name', 'id');
+                            } else {
+                                return Building::where('owner_association_id', auth()->user()?->owner_association_id)
+                                    ->pluck('name', 'id');
+                            }
+                        })
+                        ->searchable()
+                        ->reactive()  // Reactivity added here
+                        ->afterStateUpdated(function (callable $set, $state) {
+                            $set('flat', null); // Reset flat when building changes
+                        }),
+                    Select::make('flat')
+                        ->native(false)
+                        ->options(function (callable $get) {
+                            $buildingId = $get('Building'); // Get selected building ID
+                            if (!$buildingId) {
+                                return [];
+                            }
+                            return Flat::where('building_id', $buildingId)->pluck('property_number', 'id');
+                        })
+                        ->searchable()
+                ])
+                ->columns(2)
+                ->query(function (Builder $query, array $data): Builder {
+                    if (!empty($data['Building'])) {
+                        $flatIds = Flat::where('building_id', $data['Building'])->pluck('id');
+                        $query->whereIn('flat_id', $flatIds);
+                    }
+                    if (!empty($data['flat'])) {
+                        $query->where('flat_id', $data['flat']);
+                    }
+            
+                    return $query;
+                })
             ])
+            ->filtersFormColumns(3)
             ->actions([
                 // Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),

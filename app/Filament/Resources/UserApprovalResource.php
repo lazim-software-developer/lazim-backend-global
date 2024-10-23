@@ -23,7 +23,11 @@ use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 use App\Filament\Resources\UserApprovalResource\RelationManagers;
 use App\Filament\Resources\UserApprovalResource\RelationManagers\HistoryRelationManager;
 use Filament\Forms\Components\Grid;
+use App\Models\Building\Building;
+use App\Models\Master\Role;
 use Filament\Forms\Components\Section;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
 
 class UserApprovalResource extends Resource
 {
@@ -131,13 +135,52 @@ class UserApprovalResource extends Resource
                 Tables\Columns\TextColumn::make('status')
                     ->searchable()
                     ->default('NA')->formatStateUsing(fn ($state) => ucwords($state)),
-                Tables\Columns\TextColumn::make('flat.property_number')->label('Flat Number')->default('NA'),
                 Tables\Columns\TextColumn::make('flat.building.name')->label('Building')->default('NA'),
+                Tables\Columns\TextColumn::make('flat.property_number')->label('Flat')->default('NA'),
                 Tables\Columns\TextColumn::make('created_at')->label('Date of creation')->default('NA')
             ])
             ->filters([
-                //
+                Filter::make('filter')
+                    ->form([
+                        Select::make('building_id')
+                            ->options(function () {
+                                if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+                                    return Building::all()->pluck('name', 'id');
+                                } else {
+                                    return Building::where('owner_association_id', auth()->user()?->owner_association_id)
+                                        ->pluck('name', 'id');
+                                }
+                            })
+                            ->searchable()
+                            ->preload()
+                            ->label('Building')
+                            ->reactive(),
+                        Select::make('flat_id')
+                            ->label('Flat')
+                            ->options(function (callable $get) {
+                                if (empty($get('building_id'))) {
+                                    return [];
+                                } else {
+                                    return Flat::where('building_id', $get('building_id'))
+                                        ->pluck('property_number', 'id');
+                                }
+                            })
+                            ->searchable(),
+                    ])
+                    ->columns(2)
+                    ->query(function (Builder $query, array $data) {
+                        if (isset($data['building_id']) && $data['building_id']) {
+                            $query->whereHas('flat', function ($q) use ($data) {
+                                $q->where('building_id', $data['building_id']);
+                            });
+                        }
+            
+                        if (isset($data['flat_id']) && $data['flat_id']) {
+                            $query->where('flat_id', $data['flat_id']);
+                        }
+                    }),
             ])
+            ->filtersFormColumns(3)            
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\ViewAction::make(),
