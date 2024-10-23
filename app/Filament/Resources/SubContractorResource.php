@@ -76,7 +76,6 @@ class SubContractorResource extends Resource
                     ->downloadable(true)
                     ->openable(true),
 
-                Forms\Components\DateTimePicker::make('last_reminded_at'),
                 Forms\Components\Toggle::make('active')
                     ->inline(false)
                     ->required(),
