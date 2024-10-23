@@ -52,6 +52,7 @@ class FacilityManagerResource extends Resource
                                     ->schema([
                                         TextInput::make('owner_association_id')
                                             ->label('Property Manager')
+                                            ->hiddenOn('edit')
                                             ->default(function () {
                                                 $pmId = auth()->user()->owner_association_id;
                                                 return OwnerAssociation::where('id', $pmId)->pluck('name', 'id')->first();
