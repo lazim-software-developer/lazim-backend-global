@@ -22,6 +22,7 @@ use App\Filament\Resources\UserApprovalResource\Pages;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 use App\Filament\Resources\UserApprovalResource\RelationManagers;
 use App\Filament\Resources\UserApprovalResource\RelationManagers\HistoryRelationManager;
+use Filament\Forms\Components\Grid;
 use App\Models\Building\Building;
 use App\Models\Master\Role;
 use Filament\Forms\Components\Section;
@@ -92,9 +93,10 @@ class UserApprovalResource extends Resource
                     ->required()
                     ->disabled(),
             ])
-            ->columns(2),
+            ->columns(3),
         Section::make('Approval Details')
             ->schema([
+                Grid::make(2)->schema([
                 Select::make('status')
                     ->options([
                         'approved' => 'Approve',
@@ -105,7 +107,8 @@ class UserApprovalResource extends Resource
                     })
                     ->searchable()
                     ->live()
-                    ->required(),
+                    ->required()->columnSpan(1),
+                ]),
                 Textarea::make('remarks')
                     ->maxLength(250)
                     ->rows(5)
@@ -115,8 +118,8 @@ class UserApprovalResource extends Resource
                             return true;
                         }
                         return false;
-                    }),
-            ]),
+                    })->columnSpan(1),
+            ])->columns(2),
     ]);
 
     }
