@@ -57,6 +57,7 @@ class FacilityManagerResource extends Resource
                                                 auth()->user()->ownerAssociation[0]->id)->pluck('name', 'id'))
                                             ->default(auth()->user()->ownerAssociation[0]->id)
                                             ->required()
+                                            ->disabled()
                                             ->native(false)
                                             ->preload(),
                                         TextInput::make('name')

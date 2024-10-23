@@ -14,6 +14,7 @@ use App\Filament\Resources\Building\BuildingResource\RelationManagers\MeetingsRe
 use App\Filament\Resources\Building\BuildingResource\RelationManagers\OfferPromotionsRelationManager;
 use App\Filament\Resources\Building\BuildingResource\RelationManagers\OwnercommitteesRelationManager;
 use App\Filament\Resources\Building\BuildingResource\RelationManagers\RuleregulationsRelationManager;
+use App\Filament\Resources\BuildingResource\RelationManagers\VendorsRelationManager;
 use App\Imports\OAM\BudgetImport;
 use App\Models\Building\Building;
 use Closure;
@@ -485,7 +486,8 @@ class BuildingResource extends Resource
             BuildingResource\RelationManagers\FacilitiesRelationManager::class,
             BuildingResource\RelationManagers\FlatsRelationManager::class,
             // BuildingResource\RelationManagers\VendorRelationManager::class,
-            BuildingvendorRelationManager::class,
+            // BuildingvendorRelationManager::class,
+            VendorsRelationManager::class,
             BuildingResource\RelationManagers\AssetsRelationManager::class,
             ContractsRelationManager::class,
             VendorRelationManager::class,

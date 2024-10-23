@@ -79,6 +79,7 @@ class UserResource extends Resource
                     //     ->placeholder('Lazim Id'),
                     Select::make('roles')
                     ->relationship('roles', 'name')
+                    ->disabledOn('edit')
                     // ->multiple()
                     ->options(function () {
                         if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
