@@ -172,6 +172,12 @@ Route::middleware([])->group(function () {
     // Resend otp
     Route::post('/resend-otp', [RegistrationController::class, 'resendOtp']);
 
+    // email otp
+    Route::post('/send-otp',[RegistrationController::class, 'emailOtp']);
+
+    //verify otp
+    Route::post('/verify-otp',[RegistrationController::class, 'verifyOtp']);
+
     // List all tags
     Route::get('/tags', [TagController::class, 'index']);
 });
