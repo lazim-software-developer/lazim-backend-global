@@ -6,7 +6,6 @@ use App\Filament\Resources\BuildingsRelationManagerResource\RelationManagers\Bui
 use App\Filament\Resources\FacilityManagerResource\Pages;
 use App\Filament\Resources\FacilityManagerResource\RelationManagers\DocumentsRelationManager;
 use App\Filament\Resources\FacilityManagerResource\RelationManagers\EscalationMatrixRelationManager;
-use App\Filament\Resources\FacilityManagerResource\RelationManagers\ServicesRelationManager;
 use App\Jobs\ApprovedFMJob;
 use App\Jobs\RejectedFMJob;
 use App\Models\Accounting\SubCategory;
@@ -51,15 +50,13 @@ class FacilityManagerResource extends Resource
                             ->schema([
                                 Grid::make(2)
                                     ->schema([
-                                        Select::make('owner_association_id')
+                                        TextInput::make('owner_association_id')
                                             ->label('Property Manager')
-                                            ->options(OwnerAssociation::where('id',
-                                                auth()->user()->ownerAssociation[0]->id)->pluck('name', 'id'))
-                                            ->default(auth()->user()->ownerAssociation[0]->id)
-                                            ->required()
-                                            ->disabled()
-                                            ->native(false)
-                                            ->preload(),
+                                            ->default(function () {
+                                                $pmId = auth()->user()->owner_association_id;
+                                                return OwnerAssociation::where('id', $pmId)->pluck('name', 'id')->first();
+                                            })
+                                            ->disabled(),
                                         TextInput::make('name')
                                             ->label('Company Name')
                                             ->required()
@@ -141,9 +138,7 @@ class FacilityManagerResource extends Resource
                                     ->options(SubCategory::all()->pluck('name', 'id'))
                                     ->live()
                                     ->searchable()
-                                    ->required(function ($get) {
-                                        return !empty($get('service_id'));
-                                    })
+                                    ->required()
                                     ->placeholder('Select Sub-Category')
                                     ->label('Sub Category')
                                     ->preload()
@@ -152,9 +147,7 @@ class FacilityManagerResource extends Resource
                                     ->label('Service')
                                     ->live()
                                     ->preload()
-                                    ->required(function ($get) {
-                                        return !empty($get('subcategory_id'));
-                                    })
+                                    ->required()
                                     ->searchable()
                                     ->options(function (callable $get) {
                                         return Service::where('type', 'vendor_service')

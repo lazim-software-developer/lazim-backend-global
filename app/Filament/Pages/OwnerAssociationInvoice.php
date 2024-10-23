@@ -179,14 +179,17 @@ class OwnerAssociationInvoice extends Page implements HasForms
                 }
                 return false;
             }),
-            TextInput::make('mode_of_payment')->rules(['max:15']),
-            TextInput::make('supplier_name')->rules(['max:15'])
+            TextInput::make('mode_of_payment')->maxLength(15),
+            TextInput::make('supplier_name')
+            ->maxLength(15)
             ->hidden(function(){
                 if (auth()->user()->role->name == 'Property Manager') {
                     return true;
                 }
             }),
-            TextInput::make('job')->rules(['max:15'])->required()->reactive()->disabled(function (callable $get,Set $set) {
+            TextInput::make('job')
+            ->maxLength(15)
+            ->rules(['max:15'])->required()->reactive()->disabled(function (callable $get,Set $set) {
                 if ($get('type') == 'building' && $get('job') == ' ' ) {
                     $set('job','Management Fee');
                 }
@@ -212,7 +215,8 @@ class OwnerAssociationInvoice extends Page implements HasForms
                     'december' =>'December'
                 ]),
             Textarea::make('description')
-            ->rules(['max:100'])
+            // ->rules(['max:100'])
+            ->maxLength(100)
             ->required(),
             TextInput::make('quantity')->numeric()->rules([
                 fn (Get $get): Closure => function (string $attribute, $value, Closure $fail) use ($get) {
@@ -222,7 +226,9 @@ class OwnerAssociationInvoice extends Page implements HasForms
                 },
             ])->required(auth()->user()->role->name == 'Property Manager'? false: true)
             ->hidden(auth()->user()->role->name == 'Property Manager'? true: false),
-            TextInput::make('rate')->numeric()->rules([
+            TextInput::make('rate')->numeric()
+            ->maxValue(999999)
+            ->rules([
                 fn (Get $get): Closure => function (string $attribute, $value, Closure $fail) use ($get) {
                     if ($value > 999999) {
                         $fail('The quantity must not be greater than 6 digits.');
@@ -235,7 +241,8 @@ class OwnerAssociationInvoice extends Page implements HasForms
                 }
                 return false;
             })->required(),
-            TextInput::make('trn')->label('TRN'),
+            TextInput::make('trn')->label('TRN')
+                ->maxLength(100),
         ])
     ])->statePath('data');
     }
@@ -323,7 +330,7 @@ class OwnerAssociationInvoice extends Page implements HasForms
             return;
         } catch (\Exception $e) {
             Log::error('Unexpected error in save method: ', ['exception' => $e->getMessage()]);
-            
+
         }
     }
 

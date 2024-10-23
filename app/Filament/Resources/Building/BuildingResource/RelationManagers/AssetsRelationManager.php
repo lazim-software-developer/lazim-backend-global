@@ -69,10 +69,13 @@ class AssetsRelationManager extends RelationManager
                             ])
                             ->required()
                             ->label('Asset Name'),
+                        TextInput::make('floor')
+                            ->required()
+                            ->rules(['max:50']),
                         TextInput::make('location')
                             ->required()
                             ->rules(['max:50', 'regex:/^(?=.*[a-zA-Z])[a-zA-Z0-9\s!@#$%^&*_+\-=,.]*$/'])
-                            ->label('Location'),
+                            ->label('Spot'),
                         TextInput::make('division')
                             ->required()
                             ->rules(['max:50']),
