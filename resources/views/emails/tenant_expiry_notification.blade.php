@@ -13,7 +13,7 @@
 		</tr>
 		<tr>
 			<td class="paragraph">
-            A resident Contract is expiring.
+            Resident contract is expiring.
 			</td>
 		</tr>
 		<tr>
@@ -28,7 +28,21 @@
 		<tr>
 			<td width="100%" height="10"></td>
 		</tr>
-
+		<tr>
+            <td class="paragraph">
+                <strong>Building: </strong> {{$tenant->building->name}}
+			</td>
+		</tr>
+		<tr>
+            <td class="paragraph">
+                <strong>Unit: </strong> {{$tenant->flat->property_number}}
+			</td>
+		</tr>
+		<tr>
+            <td class="paragraph">
+                <strong>Name: </strong> {{$tenant->user->first_name}}
+			</td>
+		</tr>
         <tr>
             <td class="paragraph">
                 <strong>Email: </strong> {{$tenant->user->email}}
@@ -36,22 +50,7 @@
 		</tr>
         <tr>
             <td class="paragraph">
-                <strong>Name: </strong> {{$tenant->user->first_name}}
-			</td>
-		</tr>
-        <tr>
-            <td class="paragraph">
-                <strong>End Date: </strong> {{$tenant->end_date}}
-			</td>
-		</tr>
-        <tr>
-            <td class="paragraph">
-                <strong>Unit: </strong> {{$tenant->flat->property_number}}
-			</td>
-		</tr>
-        <tr>
-            <td class="paragraph">
-                <strong>Building: </strong> {{$tenant->building->name}}
+                <strong>End Date: </strong> {{$tenant->end_date->toDateString()}}
 			</td>
 		</tr>
 		<tr>

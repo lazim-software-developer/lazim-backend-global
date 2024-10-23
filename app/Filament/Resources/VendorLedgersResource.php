@@ -118,8 +118,8 @@ class VendorLedgersResource extends Resource
             ->filters([
                 Filter::make('date')
                     ->form([
-                        // Flatpickr::make('Date')
-                        //     ->range(true),
+                        Flatpickr::make('Date')
+                            ->range(true),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         if (isset($data['Date'])) {
