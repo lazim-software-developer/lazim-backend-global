@@ -122,6 +122,21 @@ class TechnicianAssetsResource extends Resource
                     ->searchable()
                     ->preload()
                     ->label('Vendor'),
+
+                SelectFilter::make('technician_id')
+                    ->options(function(){
+                        if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+                            $userId = TechnicianAssets::pluck('technician_id');
+                            return User::whereIn('id',$userId)->pluck('first_name','id');
+                        } else {
+                            $userId = TechnicianAssets::where('owner_association_id',auth()->user()->owner_association_id)->pluck('technician_id');
+                            return User::whereIn('id',$userId)->pluck('first_name','id');
+                        }
+                    })
+                    ->searchable()
+                    ->preload()
+                    ->native(false)
+                    ->label('Technician')
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),

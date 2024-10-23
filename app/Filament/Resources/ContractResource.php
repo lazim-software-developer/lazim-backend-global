@@ -31,6 +31,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 use App\Filament\Resources\ContractResource\RelationManagers;
 use Filament\Forms\Components\Section;
+use Filament\Tables\Filters\Filter;
 use Illuminate\Support\Facades\Log;
 
 class ContractResource extends Resource
@@ -246,6 +247,56 @@ class ContractResource extends Resource
                     ->searchable()
                     ->preload()
                     ->label('Building'),
+                SelectFilter::make('contract_type')
+                    ->options([
+                        'AMC' => 'AMC',
+                        'One time' => 'One time'
+                    ]),
+                SelectFilter::make('vendor_id')
+                    ->label('Vendor')
+                    ->options(function(){
+                        if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+                            $vendorId =  DB::table('owner_association_vendor')->pluck('vendor_id');
+                            return Vendor::whereIn('id',$vendorId)->pluck('name','id');
+                        } else {
+                            $vendorId =  DB::table('owner_association_vendor')->where('owner_association_id',auth()->user()->owner_association_id)->pluck('vendor_id');
+                            return Vendor::whereIn('id',$vendorId)->pluck('name','id');
+                        }
+                    })
+                    ->searchable()
+                    ->preload()
+                    ->native(false),
+                
+                Filter::make('year')
+                    ->form([
+                        Select::make('year')
+                            ->options(function () {
+                                $currentYear = Carbon::now()->year; // Get the current year
+                                $years = [];
+                            
+                                // Generate past 10 years including the current year
+                                for ($i = 0; $i < 10; $i++) {
+                                    $years[$currentYear - $i] = $currentYear - $i;
+                                }
+                            
+                                return $years; 
+                            })
+                            ->label('Year')
+                            ->placeholder('Select Year')
+                            ->required(),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        if (isset($data['year']) && $data['year']) {
+                            $query->where(function ($query) use ($data) {
+                                $year = $data['year'];
+                                $query->whereYear('start_date', '=', $year)  // Filter records where the start date year matches
+                                      ->orWhereYear('end_date', '=', $year);  // Filter records where the end date year matches
+                            });
+                        }
+                
+                        return $query;
+                    }),
+                
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
