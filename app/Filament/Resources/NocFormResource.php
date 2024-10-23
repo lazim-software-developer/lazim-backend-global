@@ -10,7 +10,9 @@ use App\Models\Master\Role;
 use App\Models\Forms\SaleNOC;
 use Filament\Facades\Filament;
 use Filament\Resources\Resource;
+use App\Models\Building\Building;
 use Filament\Forms\Components\Grid;
+use Filament\Tables\Filters\Filter;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\Section;
@@ -23,6 +25,8 @@ use Filament\Forms\Components\FileUpload;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\NocFormResource\Pages;
+use App\Models\Building\Flat;
+use Illuminate\Support\Facades\DB;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class NocFormResource extends Resource
@@ -65,7 +69,7 @@ class NocFormResource extends Resource
                         ->preload()
                         ->disabled()
                         ->searchable()
-                        ->label('Unit Number'),
+                        ->label('Flat'),
                     DatePicker::make('service_charge_paid_till')
                         ->disabled()
                         ->date(),
@@ -339,8 +343,8 @@ class NocFormResource extends Resource
                     ->default('NA'),
                 TextColumn::make('flat.property_number')
                     ->searchable()
-                    ->label('Unit number')
-                    ->default('NA'),
+                    ->label('Flat')
+                    ->default('Pending'),
                 TextColumn::make('status')
                     ->searchable()
                     ->default('NA'),
@@ -355,22 +359,76 @@ class NocFormResource extends Resource
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
-                SelectFilter::make('building_id')
-                    ->relationship('building', 'name', function (Builder $query) {
-                        if (Role::where('id', auth()->user()->role_id)->first()->name != 'Admin') {
-                            $query->where('owner_association_id', Filament::getTenant()?->id);
+                Filter::make('building')
+                ->form([
+                    Select::make('Building')
+                        ->searchable()
+                        ->options(function () {
+                            if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+                                return Building::all()->pluck('name', 'id');
+                            } else {
+                                $buildingId = DB::table('building_owner_association')->where('owner_association_id',auth()->user()?->owner_association_id)->where('active',true)->pluck('building_id');
+                                return Building::whereIn('id',$buildingId)->pluck('name', 'id');
+                            }
+                        })
+                        ->reactive()
+                        ->afterStateUpdated(function (callable $set) {
+                            $set('flat', null);
+                        }),
+                    
+                    Select::make('flat')
+                        ->searchable()
+                        ->options(function (callable $get) {
+                            $buildingId = $get('Building'); // Get selected building ID
+                            if (empty($buildingId)) {
+                                return []; 
+                            }
+            
+                            return Flat::where('building_id', $buildingId)->pluck('property_number', 'id');
+                        }),
+                ])
+                ->columns(2) 
+                ->query(function (Builder $query, array $data): Builder {
+                    if (!empty($data['Building'])) {
+                        $flatIds = Flat::where('building_id', $data['Building'])->pluck('id');
+                        $query->whereIn('flat_id', $flatIds);
+                    }
+                    if (!empty($data['flat'])) {
+                        $query->where('flat_id', $data['flat']);
+                    }
+            
+                    return $query;
+                }),
+
+                Filter::make('status')
+                    ->form([
+                        Select::make('status')
+                            ->options([
+                                'approved' => 'Approved',
+                                'rejected' => 'Rejected',
+                                'NA' => 'Pending'
+                            ])
+                            ->label('Status')
+                            ->placeholder('Select Status')
+                            ->required(),
+                    ])
+                    ->columns(2)
+                    ->query(function (Builder $query, array $data): Builder {
+                        $selectedStatus = $data['status'] ?? null;
+                        
+                        if ($selectedStatus === 'NA') {
+                            $query->whereNull('status')
+                                    ->orWhereNotIn('status', ['approved', 'rejected']);
+                        }elseif ($selectedStatus !== null) {
+                            $query->where('status', $selectedStatus);
                         }
 
+                        return $query;
                     })
-                    ->searchable()
-                    ->preload()
-                    ->label('Building'),
-                // SelectFilter::make('flat_id')
-                //     ->relationship('flat', 'property_number')
-                //     ->searchable()
-                //     ->preload()
-                //     ->label('Unit Number'),
+
+            
             ])
+            ->filtersFormColumns(3) 
             ->bulkActions([
                 ExportBulkAction::make(),
                ])

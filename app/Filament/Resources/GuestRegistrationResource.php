@@ -28,6 +28,8 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Query\JoinClause;
 use Filament\Forms\Components\CheckboxList;
 use App\Filament\Resources\GuestRegistrationResource\Pages;
+use App\Models\Building\Flat;
+use Illuminate\Support\Facades\DB;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 
@@ -216,41 +218,96 @@ class GuestRegistrationResource extends Resource
                     ->alignCenter()
                     ->default('NA')
                     ->label('Stay duration(days)'),
-                ViewColumn::make('Flat')->view('tables.columns.flat'),
                 ViewColumn::make('Building')->view('tables.columns.building'),
+                ViewColumn::make('Flat')->view('tables.columns.flat'),
                 TextColumn::make('remarks')
                     ->searchable()
                     ->default('NA'),
                 TextColumn::make('status')
                     ->searchable()
-                    ->default('NA'),
+                    ->default('Pending'),
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
                 Filter::make('building')
-                    ->form([
-                        Select::make('Building')
-                            ->searchable()
-                            ->options(function () {
-                                if(Role::where('id', auth()->user()->role_id)->first()->name != 'Admin'){
-                                    return Building::where('owner_association_id',auth()->user()?->owner_association_id)->pluck('name', 'id');
-                                }
+                ->form([
+                    Select::make('Building')
+                        ->searchable()
+                        ->options(function () {
+                            if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
                                 return Building::all()->pluck('name', 'id');
-                            }),
-                    ])
-                    ->query(function (Builder $query, array $data): Builder {
-                        return $query->when(
-                            isset($data['Building']),
-                            function ($query) use ($data) {
-                                $query->whereHas('flatVisitor', function ($query) use ($data) {
-                                    $query->whereHas('building', function ($query) use ($data) {
-                                        $query->where('id', $data['Building']);
-                                    });
-                                });
+                            } else {
+                                $buildingId = DB::table('building_owner_association')->where('owner_association_id',auth()->user()?->owner_association_id)->where('active',true)->pluck('building_id');
+                                return Building::whereIn('id',$buildingId)->pluck('name', 'id');
                             }
-                        );
+                        })
+                        ->reactive()
+                        ->afterStateUpdated(function (callable $set) {
+                            $set('flat', null);
+                        }),
+                    
+                    Select::make('flat')
+                        ->searchable()
+                        ->options(function (callable $get) {
+                            $buildingId = $get('Building'); // Get selected building ID
+                            if (empty($buildingId)) {
+                                return []; 
+                            }
+            
+                            return Flat::where('building_id', $buildingId)->pluck('property_number', 'id');
+                        }),
+                ])
+                ->columns(2)  // Ensure layout is in two columns
+                ->query(function (Builder $query, array $data): Builder {
+                    return $query->when(
+                        isset($data['Building']),
+                        function ($query) use ($data) {
+                            $query->whereHas('flatVisitor', function ($query) use ($data) {
+                                $query->whereHas('building', function ($query) use ($data) {
+                                    $query->where('id', $data['Building']);
+                                });
+                            });
+                        }
+                    )
+                    ->when(
+                        isset($data['flat']),
+                        function ($query) use ($data) {
+                            $query->whereHas('flatVisitor', function ($query) use ($data) {
+                                $query->where('flat_id', $data['flat']); 
+                            });
+                        }
+                    );
+                }),
+
+                Filter::make('status')
+                    ->form([
+                        Select::make('status')
+                            ->options([
+                                'approved' => 'Approved',
+                                'rejected' => 'Rejected',
+                                'NA' => 'Pending'
+                            ])
+                            ->label('Status')
+                            ->placeholder('Select Status')
+                            ->required(),
+                    ])
+                    ->columns(2)
+                    ->query(function (Builder $query, array $data): Builder {
+                        $selectedStatus = $data['status'] ?? null;
+                        
+                        if ($selectedStatus === 'NA') {
+                            $query->whereNull('status')
+                                    ->orWhereNotIn('status', ['approved', 'rejected']);
+                        }elseif ($selectedStatus !== null) {
+                            $query->where('status', $selectedStatus);
+                        }
+
+                        return $query;
                     })
+
+            
             ])
+            ->filtersFormColumns(3) 
             ->actions([
                 //Tables\Actions\EditAction::make(),
             ])

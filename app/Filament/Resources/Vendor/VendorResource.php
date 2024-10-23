@@ -25,16 +25,17 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
 use App\Jobs\VendorAccountCreationJob;
 use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Textarea;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ViewColumn;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
+use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\Vendor\VendorResource\Pages;
 use App\Filament\Resources\Vendor\VendorResource\RelationManagers\BuildingvendorRelationManager;
-use Filament\Forms\Components\Textarea;
 
 class VendorResource extends Resource
 {
@@ -160,7 +161,7 @@ class VendorResource extends Resource
                     ->label('TL Number'),
                 Tables\Columns\TextColumn::make('status')
                     ->searchable()
-                    ->default('NA')
+                    ->default('pending')
                     ->label('Status')
                     ->hidden(function(){
                         return Role::where('id', auth()->user()?->role_id)->first()?->name == 'Admin';
@@ -191,33 +192,41 @@ class VendorResource extends Resource
 
             ])
             ->filters([
-                // Filter::make('vendorByBuilding')
-                // ->form([
-                //     Select::make('Building')
-                //     ->searchable()
-                //     ->options(function () {
-                //         if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
-                //             return Building::all()->pluck('name', 'id');
-                //         }
-                //         else{
-                //             return Building::where('owner_association_id', auth()->user()?->owner_association_id)
-                //             ->pluck('name', 'id');
-                //         } 
-                        
-                //     }),
-                // ])
-                // ->query(function (Builder $query, array $data): Builder {
-                //     return $query->when(
-                //         isset($data['Building']),
-                //         function ($query) use ($data) {
-                //             $query->whereHas('buildings', function ($query) use ($data) {
-                //                 $query->where('buildings.id', $data['Building']);
-                //             });
-                //         }
-                //     );
-                // })
-
+                Filter::make('status')
+                ->form([
+                    Select::make('status')
+                        ->options([
+                            'approved' => 'Approved',
+                            'rejected' => 'Rejected',
+                            'NA' => 'Pending'
+                        ])
+                        ->label('Status')
+                        ->placeholder('Select Status'),
+                ])
+                ->query(function (Builder $query, array $data): Builder {
+                    if (isset($data['status'])) {
+                        // Handling 'Pending' (NA) case
+                        if ($data['status'] === 'NA') {
+                            $query->whereHas('ownerAssociation', function ($query) {
+                                $query->where(function ($query) {
+                                    $query->whereNull('owner_association_vendor.status') // Fetch records where status is null
+                                          ->orWhereNotIn('owner_association_vendor.status', ['approved', 'rejected']); // Fetch records where status is neither approved nor rejected
+                                })
+                                ->where('owner_association_vendor.owner_association_id', Filament::getTenant()?->id);
+                            });
+                        } else {
+                            // Otherwise, fetch records based on the selected status (approved/rejected)
+                            $query->whereHas('ownerAssociation', function ($query) use ($data) {
+                                $query->where('owner_association_vendor.status', $data['status'])
+                                      ->where('owner_association_vendor.owner_association_id', Filament::getTenant()?->id);
+                            });
+                        }
+                    }
+                    return $query;
+                }),
+            
             ])
+            
             ->actions([
                 Tables\Actions\EditAction::make(),
             ])

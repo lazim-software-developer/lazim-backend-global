@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\LedgersResource\Pages;
 use App\Models\Accounting\OAMInvoice;
 use App\Models\Building\Building;
+use App\Models\Building\Flat;
 use App\Models\Master\Role;
 use Coolsam\FilamentFlatpickr\Forms\Components\Flatpickr;
 use Filament\Forms\Components\Select;
@@ -16,8 +17,10 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
@@ -100,27 +103,53 @@ class LedgersResource extends Resource
                         }
                         return $query;
                     }),
-                Filter::make('Building')
+                    
+                    Filter::make('building')
                     ->form([
-                        Select::make('building')
-                            ->searchable()
+                        Select::make('building_id')
+                            ->label('Building')
+                            ->native(false)
                             ->options(function () {
-                                if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
+                                if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
                                     return Building::all()->pluck('name', 'id');
+                                } else {
+                                    $buildingId = DB::table('building_owner_association')
+                                        ->where('owner_association_id', auth()->user()?->owner_association_id)
+                                        ->where('active', true)
+                                        ->pluck('building_id');
+                                    return Building::whereIn('id', $buildingId)->pluck('name', 'id');
                                 }
-                                else{
-                                    return Building::where('owner_association_id', auth()->user()?->owner_association_id)
-                                    ->pluck('name', 'id');
-                                } 
+                            })
+                            ->searchable()
+                            ->reactive()  // Make it reactive to trigger updates in flat selection
+                            ->afterStateUpdated(function (callable $set, $state) {
+                                $set('flat_id', null); // Reset the flat selection when the building changes
                             }),
+                        
+                        Select::make('flat_id')
+                            ->label('Flat')
+                            ->native(false)
+                            ->options(function (callable $get) {
+                                $selectedBuildingId = $get('building_id'); // Get selected building ID
+                                if (empty($selectedBuildingId)) {
+                                    return [];  // If no building is selected, return an empty array
+                                }
+                                return Flat::where('building_id', $selectedBuildingId)->pluck('property_number', 'id');
+                            })
+                            ->searchable(),
                     ])
+                    ->columns(2)
                     ->query(function (Builder $query, array $data): Builder {
-                        return $query
-                            ->when(
-                                $data['building'],
-                                fn(Builder $query, $building_id): Builder => $query->where('building_id', $building_id),
-                            );
-                    }),
+                        if (!empty($data['building_id'])) {
+                            $query->where('building_id', $data['building_id']);
+                        }
+                        if (!empty($data['flat_id'])) {
+                            $query->where('flat_id', $data['flat_id']);
+                        }
+                        return $query;
+                    })
+                
+
             ], layout: FiltersLayout::AboveContent)->filtersFormColumns(3)
             ->actions([
                 // Tables\Actions\ViewAction::make(),

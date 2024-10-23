@@ -9,12 +9,15 @@ use Filament\Forms\Form;
 use App\Models\User\User;
 use Filament\Tables\Table;
 use App\Models\Master\Role;
+use App\Models\Building\Flat;
 use Filament\Facades\Filament;
 use Filament\Resources\Resource;
+use App\Models\Building\Building;
 use App\Models\Building\Complaint;
 use Illuminate\Support\Facades\DB;
 use Filament\Forms\Components\Grid;
 use Filament\Tables\Actions\Action;
+use Filament\Tables\Filters\Filter;
 use App\Models\Complaintssuggession;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
@@ -87,13 +90,28 @@ class ComplaintssuggessionResource extends Resource
                         Textarea::make('complaint')
                             ->label('Suggestion')
                             ->disabled(),
-                        Textarea::make('complaint_details')
-                            ->label('Suggestion Details')
-                            ->disabled(),
                         Hidden::make('status')
                             ->default('open'),
                         Hidden::make('complaint_type')
                             ->default('suggestions'),
+                        Repeater::make('media')
+                            ->relationship()
+                            ->disabled()
+                            ->schema([
+                                FileUpload::make('url')
+                                    ->disk('s3')
+                                    ->directory('dev')
+                                    ->maxSize(2048)
+                                    ->openable(true)
+                                    ->downloadable(true)
+                                    ->label('File'),
+                            ])
+                            ->visible(function ($record) {
+                                return $record && $record->media()->exists();
+                            }),
+                        Textarea::make('complaint_details')
+                            ->label('Suggestion Details')
+                            ->disabled(),
                     Section::make('Status and Remarks')
                     ->columns(2)
                     ->schema([
@@ -109,8 +127,8 @@ class ComplaintssuggessionResource extends Resource
                             ->required()
                             ->searchable()
                             ->live(),
-                        TextInput::make('remarks')
-                            ->rules(['max:150'])
+                        TextArea::make('remarks')
+                            ->rules(['max:250'])
                             // ->visible(function (callable $get) {
                             //     if ($get('status') == 'closed') {
                             //         return true;
@@ -122,18 +140,7 @@ class ComplaintssuggessionResource extends Resource
                             })
                             ->required(),
                         ]),
-                    Repeater::make('media')
-                            ->relationship()
-                            ->disabled()
-                            ->schema([
-                                FileUpload::make('url')
-                                    ->disk('s3')
-                                    ->directory('dev')
-                                    ->maxSize(2048)
-                                    ->openable(true)
-                                    ->downloadable(true)
-                                    ->label('File'),
-                            ]),
+                    
                     ])
             ]);
     }
@@ -172,21 +179,61 @@ class ComplaintssuggessionResource extends Resource
                 TextColumn::make('status')
                     ->toggleable()
                     ->searchable()
-                    ->limit(50),
+                    ->limit(50)
+                    ->formatStateUsing(fn($state) => ucfirst($state)),
 
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
-                SelectFilter::make('building_id')
-                    ->relationship('building', 'name', function (Builder $query) {
-                        if (Role::where('id', auth()->user()->role_id)->first()->name != 'Admin') {
-                            $query->where('owner_association_id', Filament::getTenant()?->id);
-                        }
-                    })
-                    ->searchable()
-                    ->label('Building')
-                    ->preload()
+                Filter::make('building')
+                ->form([
+                    Select::make('Building')
+                        ->searchable()
+                        ->options(function () {
+                            if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+                                return Building::all()->pluck('name', 'id');
+                            } else {
+                                $buildingId = DB::table('building_owner_association')->where('owner_association_id',auth()->user()?->owner_association_id)->where('active',true)->pluck('building_id');
+                                return Building::whereIn('id',$buildingId)->pluck('name', 'id');
+                            }
+                        })
+                        ->reactive()
+                        ->afterStateUpdated(function (callable $set) {
+                            $set('flat', null);
+                        }),
+                    
+                    Select::make('flat')
+                        ->searchable()
+                        ->options(function (callable $get) {
+                            $buildingId = $get('Building'); // Get selected building ID
+                            if (empty($buildingId)) {
+                                return []; 
+                            }
+            
+                            return Flat::where('building_id', $buildingId)->pluck('property_number', 'id');
+                        }),
+                ])
+                ->columns(2) 
+                ->query(function (Builder $query, array $data): Builder {
+                    if (!empty($data['Building'])) {
+                        $query->where('building_id', $data['Building']);
+                    }
+                    if (!empty($data['flat'])) {
+                        $query->where('flat_id', $data['flat']);
+                    }
+            
+                    return $query;
+                }),
+
+                SelectFilter::make('status')
+                    ->options([
+                        'open' => 'Open',
+                        'in-progress' => 'In-progress',
+                        'closed' => 'Closed'
+                    ])
+                    ->columns(2)
             ])
+            ->filtersFormColumns(3) 
             ->bulkActions([
                 ExportBulkAction::make(),
                 Tables\Actions\BulkActionGroup::make([
