@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Auth\EmailVerificationRequest;
 use App\Http\Requests\Auth\RegisterRequest;
 use App\Http\Requests\Auth\RegisterWithEmiratesOrPassportRequest;
 use App\Http\Requests\Auth\ResendOtpRequest;
@@ -10,6 +11,7 @@ use App\Http\Resources\CustomResponseResource;
 use App\Http\Resources\RegisterOwnersList;
 use App\Jobs\Auth\ResendOtpEmail;
 use App\Jobs\Building\AssignFlatsToTenant;
+use App\Jobs\EmailOtp;
 use App\Jobs\SendVerificationOtp;
 use App\Models\ApartmentOwner;
 use App\Models\Building\Building;
@@ -416,6 +418,51 @@ class RegistrationController extends Controller
         ];
     }
 
+    public function emailOtp(ResendOtpRequest $request)
+    {
+        // Validate the type and contact_value
+        $type = $request->type;
+        $contactValue = $request->contact_value;
+
+        $otp = rand(1000, 9999);
+
+        DB::table('otp_verifications')->updateOrInsert(
+            ['type' => $type, 'contact_value' => $contactValue],
+            ['otp' => $otp]
+        );
+
+        EmailOtp::dispatch($otp, $type,$contactValue);
+
+        return (new CustomResponseResource([
+            'title' => 'Success',
+            'message' => 'OTP sent successfully!',
+            'code' => 200,
+        ]))->response()->setStatusCode(200);
+    }
+
+    public function verifyOtp(EmailVerificationRequest $request)
+    {
+        $otpEntry = DB::table('otp_verifications')
+                        ->where('type', $request->type)
+                        ->where('contact_value', $request->contact_value)
+                        ->first();
+
+        if (!$otpEntry || $otpEntry->otp !== $request->otp) {
+            return (new CustomResponseResource([
+                'title' => 'Error',
+                'message' => 'Invalid OTP. Please try again.',
+                'code' => 400, 
+            ]))->response()->setStatusCode(400);
+        }
+
+        // Delete the OTP entry after successful verification
+        DB::table('otp_verifications')->where('id', $otpEntry->id)->delete();
+
+        return response()->json([
+            'message' => 'Successfully verified.',
+            'status' => 'success'
+        ], 200);
+    }
     public function resendOtp(ResendOtpRequest $request)
     {
         // Validate the type and contact_value
