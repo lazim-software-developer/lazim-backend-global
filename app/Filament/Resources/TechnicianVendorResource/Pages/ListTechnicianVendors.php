@@ -23,11 +23,13 @@ class ListTechnicianVendors extends ListRecords
     protected function getTableQuery(): Builder
     {
         $user      = auth()->user();
-        $vendorIds = Vendor::where('owner_association_id', $user->owner_association_id)->value('id');
+        $vendorIds = Vendor::where('owner_association_id', $user->owner_association_id)->pluck('id');
 
         if ($user->role->name == 'Property Manager') {
-            return parent::getTableQuery()->where('vendor_id', $vendorIds);
+            // Ensure to use the 'whereIn' method since $vendorIds is now a collection
+            return parent::getTableQuery()->whereIn('vendor_id', $vendorIds);
         }
         return parent::getTableQuery();
     }
+
 }

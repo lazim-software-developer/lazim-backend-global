@@ -37,7 +37,7 @@ class FacilitySupportComplaintResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
-    protected static ?string $modelLabel = 'Facility Support Issue';
+    protected static ?string $modelLabel = 'Issue';
 
     public static function form(Form $form): Form
     {
