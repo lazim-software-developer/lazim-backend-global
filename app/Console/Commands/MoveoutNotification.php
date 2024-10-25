@@ -3,13 +3,14 @@
 namespace App\Console\Commands;
 
 use App\Filament\Resources\Building\FlatTenantResource;
+use App\Filament\Resources\MoveOutFormsDocumentResource;
 use App\Jobs\MoveoutNotificationJob;
 use App\Models\AccountCredentials;
 use App\Models\Building\FlatTenant;
 use App\Models\Forms\MoveInOut;
 use App\Models\OwnerAssociation;
 use App\Models\User\User;
-use Filament\Actions\Action;
+use Filament\Notifications\Actions\Action;
 use Filament\Notifications\Notification;
 use Illuminate\Console\Command;
 
@@ -45,14 +46,20 @@ class MoveoutNotification extends Command
             $flatTenat = FlatTenant::where('tenant_id', $moveout->user_id)->where('flat_id', $moveout->flat_id)->first();
             Notification::make()
                     ->success()
-                    ->title("Moveout")
+                    ->title("Move out Reminder")
                     ->icon('heroicon-o-document-text')
                     ->iconColor('warning')
-                    ->body('There is a resident moving out on ' . $moveout->moving_date )
+                    ->body('Resident moving out on ' . $moveout->moving_date )
                     ->actions([
                         Action::make('view')
                             ->button()
-                            ->url(fn () => FlatTenantResource::getUrl('edit', [OwnerAssociation::where('id',$moveout->owner_association_id)->first()?->slug,$flatTenat?->id])),
+                            ->url(function() use ($moveout){
+                                $slug = OwnerAssociation::where('id',$moveout->owner_association_id)->first()?->slug;
+                                if($slug){
+                                    return MoveOutFormsDocumentResource::getUrl('edit', [$slug,$moveout?->id]);
+                                }
+                                return url('/app/move-out-forms-documents/' . $moveout?->id.'/edit');
+                            }),
                     ])
                     ->sendToDatabase($user);
             $credentials = AccountCredentials::where('oa_id', $moveout->owner_association_id)->where('active', true)->latest()->first();
@@ -65,6 +72,6 @@ class MoveoutNotification extends Command
                 'mail_from_address' => $credentials->email??env('MAIL_FROM_ADDRESS'),
             ];
             MoveoutNotificationJob::dispatch($user, $moveout, $mailCredentials);
-        }   
+        }
     }
 }

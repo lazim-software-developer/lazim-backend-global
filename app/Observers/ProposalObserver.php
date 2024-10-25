@@ -39,7 +39,13 @@ class ProposalObserver
             ->actions([
                 Action::make('view')
                     ->button()
-                    ->url(fn () => ProposalResource::getUrl('edit', [OwnerAssociation::where('id',$oam_id->owner_association_id)->first()?->slug,$proposal->id])),
+                    ->url(function() use ($oam_id,$proposal){
+                        $slug = OwnerAssociation::where('id',$oam_id->owner_association_id)->first()?->slug;
+                        if($slug){
+                            return ProposalResource::getUrl('edit', [$slug,$proposal?->id]);
+                        }
+                        return url('/app/proposals/' . $proposal?->id.'/edit');
+                    }),
             ])
             ->sendToDatabase($notifyTo);
     }

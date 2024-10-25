@@ -20,7 +20,7 @@ class GuestObserver
     public function created(Guest $guest): void
     {
         $requiredPermissions = ['view_any_guest::registration'];
-        $roles = Role::where('owner_association_id',$guest->owner_association_id)->whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor','Staff'])->pluck('id');
+        $roles = Role::where('owner_association_id',$guest->owner_association_id)->whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor','Staff','Facility Manager'])->pluck('id');
         $notifyTo = User::where('owner_association_id', $guest->owner_association_id)->whereNotIn('role_id', $roles)->whereNot('id', auth()->user()?->id)->get()
         ->filter(function ($notifyTo) use ($requiredPermissions) {
             return $notifyTo->can($requiredPermissions);
@@ -34,7 +34,13 @@ class GuestObserver
         ->actions([
             Action::make('view')
                 ->button()
-                ->url(fn () => GuestRegistrationResource::getUrl('edit', [OwnerAssociation::where('id',$guest->owner_association_id)->first()?->slug,$guest->id])),
+                ->url(function() use ($guest){
+                    $slug = OwnerAssociation::where('id',$guest->owner_association_id)->first()?->slug;
+                    if($slug){
+                        return GuestRegistrationResource::getUrl('edit', [$slug,$guest?->id]);
+                    }
+                    return url('/app/guest-registrations/' . $guest?->id.'/edit');
+                }),
         ])
         ->sendToDatabase($notifyTo);
     }

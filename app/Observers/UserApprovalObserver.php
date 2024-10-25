@@ -32,8 +32,13 @@ class UserApprovalObserver
         ->actions([
             Action::make('View')
             ->button()
-            ->url(fn () => UserApprovalResource::getUrl('edit', [OwnerAssociation::where('id',$userApproval->owner_association_id)->first()?->slug,$userApproval->id]))
-
+            ->url(function() use ($userApproval){
+                $slug = OwnerAssociation::where('id',$userApproval->owner_association_id)->first()?->slug;
+                if($slug){
+                    return UserApprovalResource::getUrl('edit', [$slug,$userApproval?->id]);
+                }
+                return url('/app/user-approvals/' . $userApproval?->id.'/edit');
+            }),
         ])
         ->sendToDatabase($notifyTo);
     }

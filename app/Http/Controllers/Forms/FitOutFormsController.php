@@ -124,7 +124,7 @@ class FitOutFormsController extends Controller
             Document::create($request->all());
         }
         $requiredPermissions = ['view_any_fit::out::forms::document'];
-        $roles               = Role::where('owner_association_id', $fitout->owner_association_id)->whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor', 'Staff'])->pluck('id');
+        $roles               = Role::where('owner_association_id', $fitout->owner_association_id)->whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor', 'Staff', 'Facility Manager'])->pluck('id');
         $user                = User::where('owner_association_id', $fitout->owner_association_id)->whereNotIn('role_id', $roles)->whereNot('id', auth()->user()?->id)->get()
             ->filter(function ($notifyTo) use ($requiredPermissions) {
                 return $notifyTo->can($requiredPermissions);
@@ -138,7 +138,13 @@ class FitOutFormsController extends Controller
             ->actions([
                 Action::make('view')
                     ->button()
-                    ->url(fn () => FitOutFormsDocumentResource::getUrl('edit', [OwnerAssociation::where('id', $fitout->owner_association_id)->first()?->slug, $fitout->id])),
+                    ->url(function() use ($fitout){
+                        $slug = OwnerAssociation::where('id',$fitout->owner_association_id)->first()?->slug;
+                        if($slug){
+                            return FitOutFormsDocumentResource::getUrl('edit', [$slug,$fitout?->id]);
+                        }
+                        return url('/app/fit-out-forms-documents/' . $fitout?->id.'/edit');
+                    }),
             ])
             ->sendToDatabase($user);
 
