@@ -25,7 +25,7 @@ class DocumentsController extends Controller
     {
         $currentDate = date('Y-m-d');
 
-        $building = Building::where('id', $request->building_id)->first();
+        $building = DB::table('building_owner_association')->where(['building_id' => $request->building_id,'active'=> true])->first();
 
         $document = Document::create([
             'document_library_id' => $request->document_library_id,
@@ -36,7 +36,7 @@ class DocumentsController extends Controller
             'documentable_type' => User::class,
             'name' => $request->name,
             'flat_id' => $request->flat_id ?? null,
-            'owner_association_id' => $building->owner_association_id
+            'owner_association_id' => $building?->owner_association_id
         ]);
 
         // Handle multiple images
