@@ -4,6 +4,7 @@ namespace App\Filament\Resources\User\UserResource\Pages;
 
 use App\Filament\Resources\User\UserResource;
 use App\Jobs\AccountsManagerJob;
+use App\Jobs\CreateUserJob;
 use App\Jobs\FacilityManagerJob;
 use App\Jobs\MdCreateJob;
 use App\Models\AccountCredentials;
@@ -126,7 +127,18 @@ class CreateUser extends CreateRecord
                 'mail_from_address' => $credentials->email ?? env('MAIL_FROM_ADDRESS'),
             ];
 
-            MdCreateJob::dispatch($user, $password, $mailCredentials);
+             $authUserRole = auth()->user()->role->name;
+
+            if ($authUserRole === 'Property Manager') {
+                // If Property Manager is creating users, use CreateUserJob
+                CreateUserJob::dispatch($user, $password, $mailCredentials);
+            // } elseif (array_key_exists($user->role?->name, $roleJobMap)) {
+            //     // For specific roles, use their mapped jobs
+            //     $jobClass = $roleJobMap[$user->role?->name];
+            //     $jobClass::dispatch($user, $password, $mailCredentials);
+            } else {
+                MdCreateJob::dispatch($user, $password, $mailCredentials);
+            }
         }
     }
 }

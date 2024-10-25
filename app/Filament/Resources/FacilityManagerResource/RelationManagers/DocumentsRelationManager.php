@@ -25,8 +25,10 @@ class DocumentsRelationManager extends RelationManager
             ->schema([
                 Forms\Components\TextInput::make('name')
                     ->required()
-                    ->disabled()
-                    ->maxLength(255),
+                    ->formatStateUsing(function ($state) {
+                        return ucwords(str_replace('_', ' ', $state));
+                    })
+                    ->disabled(),
                 FileUpload::make('url')
                     ->disk('s3')
                     ->directory('dev')
@@ -41,8 +43,10 @@ class DocumentsRelationManager extends RelationManager
                     ]),
                 Forms\Components\DatePicker::make('expiry_date')
                     ->label('Expiry Date')
+                    ->hiddenOn('view')
                     ->disabled(),
                 Select::make('status')
+                    ->hiddenOn('view')
                     ->options([
                         'approved' => 'Approved',
                         'rejected' => 'Rejected',
@@ -56,23 +60,23 @@ class DocumentsRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
-            ->recordTitleAttribute('name')
             ->columns([
-                Tables\Columns\TextColumn::make('name'),
-                Tables\Columns\TextColumn::make('status'),
-                Tables\Columns\TextColumn::make('expiry_date')
-                    ->date(),
+                Tables\Columns\TextColumn::make('documentLibrary.name'),
+                // Tables\Columns\TextColumn::make('status'),
+                // Tables\Columns\TextColumn::make('expiry_date')
+                // ->date(),
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make(),
+                // Tables\Actions\CreateAction::make(),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                // Tables\Actions\EditAction::make(),
+                Tables\Actions\ViewAction::make(),
+                // Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    // Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
     }

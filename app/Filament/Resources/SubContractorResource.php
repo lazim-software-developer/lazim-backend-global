@@ -6,6 +6,8 @@ use App\Filament\Resources\SubContractorResource\Pages;
 use App\Models\SubContractor;
 use App\Models\Vendor\Vendor;
 use Filament\Forms;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -25,6 +27,8 @@ class SubContractorResource extends Resource
                 Forms\Components\TextInput::make('name')
                     ->required()
                     ->maxLength(191),
+                Forms\Components\TextInput::make('company_name')
+                    ->maxLength(191),
                 Forms\Components\TextInput::make('email')
                     ->email()
                     ->required()
@@ -33,32 +37,48 @@ class SubContractorResource extends Resource
                     ->tel()
                     ->required()
                     ->maxLength(191),
-                Forms\Components\TextInput::make('company_name')
-                    ->maxLength(191),
+                Select::make('vendor_id')
+                    ->relationship('vendor', 'name'),
                 Forms\Components\TextInput::make('trn_no')
                     ->required()
+                    ->label('TRN number')
                     ->maxLength(191),
                 Forms\Components\DatePicker::make('start_date')
                     ->required(),
                 Forms\Components\DatePicker::make('end_date')
                     ->required(),
-                Forms\Components\TextInput::make('trade_licence')
+                FileUpload::make('trade_licence')
                     ->required()
-                    ->maxLength(191),
-                Forms\Components\TextInput::make('contract_paper')
+                    ->disk('s3')
+                    ->directory('dev')
+                    ->disabled()
+                    ->downloadable(true)
+                    ->openable(true),
+                FileUpload::make('contract_paper')
                     ->required()
-                    ->maxLength(191),
-                Forms\Components\TextInput::make('agreement_letter')
+                    ->disk('s3')
+                    ->directory('dev')
+                    ->disabled()
+                    ->downloadable(true)
+                    ->openable(true),
+                FileUpload::make('agreement_letter')
                     ->required()
-                    ->maxLength(191),
-                Forms\Components\TextInput::make('additional_doc')
-                    ->maxLength(191),
-                Forms\Components\TextInput::make('vendor_id')
-                    ->required()
-                    ->numeric(),
+                    ->disk('s3')
+                    ->directory('dev')
+                    ->disabled()
+                    ->downloadable(true)
+                    ->openable(true),
+                FileUpload::make('additional_doc')
+                    ->disk('s3')
+                    ->label('Additional Documents')
+                    ->directory('dev')
+                    ->disabled()
+                    ->downloadable(true)
+                    ->openable(true),
+
                 Forms\Components\Toggle::make('active')
+                    ->inline(false)
                     ->required(),
-                Forms\Components\DateTimePicker::make('last_reminded_at'),
             ]);
     }
 
@@ -80,6 +100,7 @@ class SubContractorResource extends Resource
                 Tables\Columns\TextColumn::make('company_name')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('trn_no')
+                    ->label('TRN number')
                     ->searchable(),
                 // Tables\Columns\TextColumn::make('start_date')
                 //     ->date()
@@ -103,7 +124,7 @@ class SubContractorResource extends Resource
                 //
             ])
             ->actions([
-                // Tables\Actions\EditAction::make(),
+                Tables\Actions\ViewAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -123,8 +144,9 @@ class SubContractorResource extends Resource
     {
         return [
             'index'  => Pages\ListSubContractors::route('/'),
+            'view'   => Pages\ViewUser::route('/{record}'),
             'create' => Pages\CreateSubContractor::route('/create'),
-            'edit'   => Pages\EditSubContractor::route('/{record}/edit'),
+            // 'edit'   => Pages\EditSubContractor::route('/{record}/edit'),
         ];
     }
 }

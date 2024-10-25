@@ -2,14 +2,18 @@
 
 namespace App\Filament\Resources\Building\BuildingResource\RelationManagers;
 
+use App\Models\Vendor\Vendor;
 use Closure;
 use Carbon\Carbon;
+use Filament\Facades\Filament;
 use Filament\Forms;
+use Filament\Notifications\Notification;
 use Filament\Tables;
 use App\Models\Asset;
 use Filament\Forms\Get;
 use Filament\Forms\Form;
 use App\Models\User\User;
+use Filament\Tables\Actions\BulkAction;
 use Filament\Tables\Table;
 use App\Models\Master\Service;
 use App\Models\Vendor\Contract;
@@ -17,6 +21,8 @@ use App\Forms\Components\QrCode;
 use App\Models\TechnicianAssets;
 use App\Models\TechnicianVendor;
 use App\Models\Building\Building;
+use GuzzleHttp\Client;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 use Filament\Forms\Components\Grid;
 use Illuminate\Support\Facades\Log;
@@ -63,10 +69,21 @@ class AssetsRelationManager extends RelationManager
                             ])
                             ->required()
                             ->label('Asset Name'),
+                        TextInput::make('floor')
+                            ->required()
+                            ->rules(['max:50']),
                         TextInput::make('location')
                             ->required()
                             ->rules(['max:50', 'regex:/^(?=.*[a-zA-Z])[a-zA-Z0-9\s!@#$%^&*_+\-=,.]*$/'])
-                            ->label('Location'),
+                            ->label('Spot'),
+                        TextInput::make('division')
+                            ->required()
+                            ->rules(['max:50']),
+                        TextInput::make('discipline')
+                            ->required()
+                            ->rules(['max:50']),
+                        TextInput::make('frequency_of_service')
+                                ->required()->integer()->suffix('days')->minValue(1),
                         Textarea::make('description')
                             ->label('Description')
                             ->rules(['max:100', 'regex:/^(?=.*[a-zA-Z])[a-zA-Z0-9\s!@#$%^&*_+\-=,.]*$/']),
@@ -79,6 +96,13 @@ class AssetsRelationManager extends RelationManager
                             ->preload()
                             ->searchable()
                             ->label('Service'),
+                        TextInput::make('asset_code')
+                            ->visible(function (callable $get) {
+                                if ($get('asset_code') != null) {
+                                    return true;
+                                }
+                                return false;
+                            }),
                     ]),
                 QrCode::make('qr_code')
                     ->label('QR Code')
@@ -94,10 +118,14 @@ class AssetsRelationManager extends RelationManager
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('name')->label('Asset Name'),
+                TextColumn::make('name')->searchable()->label('Asset name'),
+                TextColumn::make('description')->searchable()->default('NA')->label('Description'),
                 TextColumn::make('location')->label('Location'),
-                TextColumn::make('description')->label('Description'),
-                TextColumn::make('service.name')->label('Service Name'),
+                TextColumn::make('service.name')->searchable()->label('Service'),
+                TextColumn::make('building.name')->searchable()->label('Building'),
+                TextColumn::make('asset_code'),
+                TextColumn::make('vendors.name')->default('NA')
+                    ->searchable()->label('Vendor'),
             ])
             ->filters([
                 //
@@ -136,8 +164,33 @@ class AssetsRelationManager extends RelationManager
                         // Generate a QR code using the QrCode library
                         $qrCode = \SimpleSoftwareIO\QrCode\Facades\QrCode::size(200)->generate(json_encode($qrCodeContent));
 
-                        // Update the newly created asset record with the generated QR code
-                        Asset::where('id', $record->id)->update(['qr_code' => $qrCode,'asset_code' => $assetCode, 'owner_association_id' => $oa_id]);
+                        $client = new Client();
+
+                        try {
+                            $response = $client->request('GET', env('AWS_LAMBDA_URL'), [
+                                'headers' => [
+                                    'x-api-key'    => env('AWS_LAMBDA_API_KEY'),
+                                    'Content-Type' => 'application/json',
+                                ],
+                                'json'    => [
+                                    'file_name' => $record->name.'-'.$assetCode,
+                                    'svg'       => $qrCode->toHtml(),
+                                ],
+                                'verify' => false,
+                            ]);
+
+                            $content = json_decode($response->getBody()->getContents());
+
+                            // Update with S3 URL
+                            Asset::where('id', $record->id)->update([
+                                'qr_code' => $content->url,
+                                'asset_code' => $assetCode,
+                                'owner_association_id' => $oa_id
+                            ]);
+
+                        } catch (\Exception $e) {
+                            Log::error($e->getMessage());
+                        }
 
                         $buildingId = $record->building_id;
                         $serviceId = $record->service_id;
@@ -187,6 +240,37 @@ class AssetsRelationManager extends RelationManager
                 ExportBulkAction::make(),
                 Tables\Actions\BulkActionGroup::make([
                     // Tables\Actions\DeleteBulkAction::make(),
+                    BulkAction::make('attach')
+                    ->form([
+                        Select::make('vendor_id')
+                        ->required()
+                        ->relationship('vendors', 'name')
+                        ->options(function () {
+                            return Vendor::whereHas('ownerAssociation', function ($query) {
+                                $oaId = auth()->user()?->owner_association_id;
+                                if(auth()->user()->role->name == 'Property Manager'){
+                                    $query->where('owner_association_id', $oaId)
+                                        ->where('status', 'approved');
+                                }
+                                else {
+                                    $query->where('owner_association_id', Filament::getTenant()->id)
+                                        ->where('status', 'approved');
+                                }
+
+                            })
+                                ->pluck('name', 'id');
+                        })
+                        ])
+                        ->action(function (Collection $records,array $data){
+                            $vendorId= $data['vendor_id'];
+                            foreach($records as $record){
+                                $record->vendors()->sync([$vendorId]);
+                            }
+                            Notification::make()
+                                ->title("Vendor attached successfully")
+                                ->success()
+                                ->send();
+                        })->label('Attach Vendor')
                 ]),
             ])
             ->emptyStateActions([

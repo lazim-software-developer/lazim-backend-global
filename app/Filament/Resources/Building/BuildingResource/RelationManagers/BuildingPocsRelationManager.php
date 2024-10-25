@@ -212,7 +212,7 @@ class BuildingPocsRelationManager extends RelationManager
                             $user->save();
                             $tenant = Filament::getTenant()?->id ?? auth()->user()?->owner_association_id;
                             $credentials = AccountCredentials::where('oa_id', $tenant)->where('active', true)->latest()->first();
-                            
+
                             $mailCredentials = [
                                 'mail_mailer'=> $credentials->mailer??env('MAIL_MAILER'),
                                 'mail_host' => $credentials->host??env('MAIL_HOST'),
@@ -345,6 +345,8 @@ class BuildingPocsRelationManager extends RelationManager
 
                     Action::make('delete')
                     ->button()
+                    ->requiresConfirmation()
+                    ->modalDescription('Are you sure you want to delete this record?')
                     ->action(function($record){
                         $record->delete();
 

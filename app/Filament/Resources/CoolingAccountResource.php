@@ -44,20 +44,20 @@ class CoolingAccountResource extends Resource
             ->update(['status' => 'overdue']);
 
         return $table
-        ->modifyQueryUsing(function(Builder $query){
-            $userRole = auth()->user()->role->name ?? null;
+        // ->modifyQueryUsing(function(Builder $query){
+        //     $userRole = auth()->user()->role->name ?? null;
 
-            if($userRole == 'Property Manager'){
-                $buildingIds = DB::table('building_owner_association')
-                    ->where('owner_association_id', auth()->user()->owner_association_id)
-                    ->pluck('building_id')
-                    ->toArray();
+        //     if($userRole == 'Property Manager'){
+        //         $buildingIds = DB::table('building_owner_association')
+        //             ->where('owner_association_id', auth()->user()->owner_association_id)
+        //             ->pluck('building_id')
+        //             ->toArray();
 
-                if (!empty($buildingIds)) {
-                    $query->whereIn('building_id', $buildingIds);
-                }
-            }
-        })
+        //         if (!empty($buildingIds)) {
+        //             $query->whereIn('building_id', $buildingIds);
+        //         }
+        //     }
+        // })
             ->columns([
                 TextColumn::make('building.name'),
                 TextColumn::make('flat.property_number')->label('Unit number'),

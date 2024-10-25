@@ -219,9 +219,11 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasTenant
     {
         $notAllowedRoles = ['Admin','Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor', 'Property Manager'];
 
+        $notAllowedPMRoles = ['Resident', 'Facility Manager', 'Technician', 'Gatekeeper'];
+
         // Retrieve the role name using the provided method
         $userRoleName = Role::find($this->role_id)->name;
-        if ($panel->getId() === 'app' && in_array($userRoleName, ['Admin','Property Manager']) && $this->active) {
+        if ($panel->getId() === 'app' && !in_array($userRoleName, $notAllowedPMRoles) && $this->active) {
             return true;
         }
         elseif($panel->getId() === 'admin' && !in_array($userRoleName, $notAllowedRoles) && $this->active) {

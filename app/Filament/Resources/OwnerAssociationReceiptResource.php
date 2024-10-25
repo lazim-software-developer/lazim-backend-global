@@ -65,6 +65,7 @@ class OwnerAssociationReceiptResource extends Resource
                     return route('receipt',['data' => $record]);
                 })
             ])
+            ->emptyStateHeading('No Receipts')
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     // Tables\Actions\DeleteBulkAction::make(),

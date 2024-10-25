@@ -46,11 +46,7 @@
 		<tr>
             <td class="paragraph">
                 To access your account and use our platform, click on
-                @if($user->role->name === 'facility_manager')
-               <a href="https://qa-admin.lazim.ae/">this link</a>
-                @else
                <a href="https://lazim-vendor-git-feat-property-management-zysktech.vercel.app?_vercel_share=KgoZDmnZy6lgnAUnF6IcdnQZRekmgUez">this link</a>
-                @endif
 			</td>
 		</tr>
         <tr>
