@@ -134,16 +134,16 @@ class FlatDocumentResource extends Resource
                 TextColumn::make('name')
                     ->searchable()
                     ->label('Document Name')
-                    ->default('--')
+                    ->default('NA')
                     ->limit(50),
                 TextColumn::make('flat.property_number')
                     ->searchable()
-                    ->default('--')
+                    ->default('NA')
                     ->label('Unit Number')
                     ->limit(50),
                 TextColumn::make('status')
                     ->searchable()
-                    ->default('--')
+                    ->default('NA')
                     ->limit(50),
             ])
             ->defaultSort('created_at', 'desc')

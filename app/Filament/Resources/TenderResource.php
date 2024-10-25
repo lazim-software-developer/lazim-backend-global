@@ -74,19 +74,19 @@ class TenderResource extends Resource
             ->columns([
                 TextColumn::make('building.name')
                     ->searchable()
-                    ->default('--')
+                    ->default('NA')
                     ->label('Building'),
                 TextColumn::make('budget.budget_period')
                     ->searchable()
-                    ->default('--')
+                    ->default('NA')
                     ->label('Budget period'),
                 TextColumn::make('service.name')
                     ->searchable()
-                    ->default('--')
+                    ->default('NA')
                     ->label('Service'),
                 TextColumn::make('tender_type')
                     ->searchable()
-                    ->default('--')
+                    ->default('NA')
                     ->label('Contract type'),
                 TextColumn::make('date')
                     ->date(),

@@ -46,11 +46,11 @@ class LedgersResource extends Resource
                     ->date(),
                 TextColumn::make('building.name')
                     ->searchable()
-                    ->default('--')
+                    ->default('NA')
                     ->limit(50),
                 TextColumn::make('flat.property_number')
                     ->searchable()
-                    ->default('--')
+                    ->default('NA')
                     ->label('Unit number')
                     ->limit(50),
                 TextColumn::make('invoice_number')

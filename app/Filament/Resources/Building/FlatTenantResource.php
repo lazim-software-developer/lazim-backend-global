@@ -104,12 +104,12 @@ class FlatTenantResource extends Resource
             ->poll('60s')
             ->columns([
                 TextColumn::make('flat.property_number')
-                    ->default('--')
+                    ->default('NA')
                     ->searchable()
                     ->label('Unit Number')
                     ->limit(50),
                 TextColumn::make('user.first_name')
-                    ->default('--')
+                    ->default('NA')
                     ->searchable()
                     ->limit(50),
 
@@ -117,10 +117,10 @@ class FlatTenantResource extends Resource
                     ->label('Created Date')
                     ->date(),
                 TextColumn::make('building.name')
-                    ->default('--')
+                    ->default('NA')
                     ->searchable()
                     ->limit(50),
-                TextColumn::make('role')->default('--'),
+                TextColumn::make('role')->default('NA'),
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([

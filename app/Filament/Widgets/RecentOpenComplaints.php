@@ -39,7 +39,7 @@ class RecentOpenComplaints extends BaseWidget
     {
         return [
             Tables\Columns\TextColumn::make('complaint')
-                ->default('--')
+                ->default('NA')
                 ->limit(20)
                 ->label('Complaint'),
             Tables\Columns\TextColumn::make('created_at')

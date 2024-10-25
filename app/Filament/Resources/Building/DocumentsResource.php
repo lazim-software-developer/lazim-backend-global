@@ -106,7 +106,7 @@ class DocumentsResource extends Resource
             ->columns([
                 TextColumn::make('documentLibrary.name')
                     ->searchable()
-                    ->default('--')
+                    ->default('NA')
                     ->toggleable()
                     ->limit(50),
                 TextColumn::make('url')->label('Document')
@@ -123,11 +123,11 @@ class DocumentsResource extends Resource
                 TextColumn::make('user.first_name')
                     ->toggleable()
                     ->searchable()
-                    ->default('--')
+                    ->default('NA')
                     ->limit(50),
                 ViewColumn::make('name')->view('tables.columns.document')
                     ->searchable()
-                    ->default('--')
+                    ->default('NA')
                     ->toggleable(),
                 TextColumn::make('documentable_type')
                     ->toggleable()

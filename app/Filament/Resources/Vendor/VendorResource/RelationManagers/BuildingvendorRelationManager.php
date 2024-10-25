@@ -43,8 +43,8 @@ class BuildingvendorRelationManager extends RelationManager
     {
         return $table
             ->columns([
-                TextColumn::make('contract.amount')->label('Contract amount')->default('--'),
-                TextColumn::make('contract.contract_type')->label('Contract type')->default('--'),
+                TextColumn::make('contract.amount')->label('Contract amount')->default('NA'),
+                TextColumn::make('contract.contract_type')->label('Contract type')->default('NA'),
                 TextColumn::make('building.name'),
                 IconColumn::make('active')
                     ->boolean()

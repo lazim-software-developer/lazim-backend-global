@@ -147,17 +147,17 @@ class AnnouncementResource extends Resource
             ->columns([
                 TextColumn::make('status')
                     ->searchable()
-                    ->default('--')
+                    ->default('NA')
                     ->limit(50),
                 TextColumn::make('scheduled_at')
-                    ->default('--'),
+                    ->default('NA'),
                 TextColumn::make('building.name')
                     ->searchable()
-                    ->default('--')
+                    ->default('NA')
                     ->limit(50),
                 TextColumn::make('user.first_name')
                     ->searchable()
-                    ->default('--')
+                    ->default('NA')
                     ->limit(50),
             ])
             ->defaultSort('created_at', 'desc')

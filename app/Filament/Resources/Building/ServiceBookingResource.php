@@ -103,11 +103,11 @@ class ServiceBookingResource extends Resource
                             ->disabledOn('edit')
                             ->placeholder('Start Time'),
                         TimePicker::make('end_time')
-                            ->default('--')
+                            ->default('NA')
                             ->disabledOn('edit')
                             ->placeholder('End Time'),
                         // TextInput::make('remarks')
-                        //     ->default('--')
+                        //     ->default('NA')
                         //     ->disabledOn('edit')
                         //     ->required(),
                         // TextInput::make('reference_number')
@@ -132,28 +132,28 @@ class ServiceBookingResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('building.name')
                     ->searchable()
-                    ->default('--')
+                    ->default('NA')
                     ->limit(50),
                 Tables\Columns\TextColumn::make('bookable.name')
                     ->searchable()
-                    ->default('--')
+                    ->default('NA')
                     ->limit(50)
                     ->label('Service'),
                 Tables\Columns\TextColumn::make('user.first_name')
-                    ->default('--')
+                    ->default('NA')
                     ->searchable()
                     ->limit(50),
                 Tables\Columns\TextColumn::make('date')
                     ->date()
                     ->searchable()
-                    ->default('--')
+                    ->default('NA')
                     ->date(),
                 Tables\Columns\TextColumn::make('start_time')
                     ->searchable()
-                    ->default('--')
+                    ->default('NA')
                     ->time(),
                 // Tables\Columns\TextColumn::make('reference_number')
-                //     ->default('--')
+                //     ->default('NA')
                 //     ->searchable(),
                 Tables\Columns\IconColumn::make('approved')
                     ->boolean(),

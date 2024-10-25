@@ -88,7 +88,7 @@ class VendorLedgersResource extends Resource
                     ->date(),
                 TextColumn::make('building.name')
                     ->searchable()
-                    ->default('--')
+                    ->default('NA')
                     ->limit(50),
                 ViewColumn::make('Code')->view('tables.columns.vendorledgerscode'),
                 TextColumn::make('vendor.name')

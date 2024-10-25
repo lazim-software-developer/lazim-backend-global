@@ -96,7 +96,7 @@ class ProposalsRelationManager extends RelationManager
                 ViewColumn::make('Budget amount')->view('tables.columns.budgetamount')->alignCenter(),
                 TextColumn::make('submittedBy.name')->searchable()->label('Vendor Name'),
                 TextColumn::make('submitted_on')->label('Submitted On'),
-                TextColumn::make('status')->default('--')->label('Status'),
+                TextColumn::make('status')->default('NA')->label('Status'),
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([

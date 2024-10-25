@@ -24,13 +24,13 @@ class ShowServices extends Page implements HasTable
         return $table
             ->query(Service::query()->where('type', 'inhouse'))
             ->columns([
-                TextColumn::make('name')->default('--'),
-                TextColumn::make('price')->default('--'),
+                TextColumn::make('name')->default('NA'),
+                TextColumn::make('price')->default('NA'),
                 IconColumn::make('active')
                     ->boolean()
                     ->trueIcon('heroicon-o-check-badge')
                     ->falseIcon('heroicon-o-x-mark'),
-                TextColumn::make('payment_link')->default('--'),
+                TextColumn::make('payment_link')->default('NA'),
 
             ])
             ->defaultSort('created_at', 'desc');

@@ -205,22 +205,22 @@ class GuestRegistrationResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('ticket_number')
-                    ->default('--')
+                    ->default('NA')
                     ->label('Ticket Number'),
                 ViewColumn::make('Name')->view('tables.columns.name'),
                 TextColumn::make('stay_duration')
                     ->searchable()
                     ->alignCenter()
-                    ->default('--')
+                    ->default('NA')
                     ->label('Stay duration(days)'),
                 ViewColumn::make('Flat')->view('tables.columns.flat'),
                 ViewColumn::make('Building')->view('tables.columns.building'),
                 TextColumn::make('remarks')
                     ->searchable()
-                    ->default('--'),
+                    ->default('NA'),
                 TextColumn::make('status')
                     ->searchable()
-                    ->default('--'),
+                    ->default('NA'),
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([

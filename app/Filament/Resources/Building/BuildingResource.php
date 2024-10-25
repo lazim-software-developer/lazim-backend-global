@@ -4,7 +4,6 @@ namespace App\Filament\Resources\Building;
 
 use App\Filament\Resources\BuildingResource\RelationManagers\ContractsRelationManager;
 use App\Filament\Resources\BuildingResource\RelationManagers\VendorRelationManager;
-use App\Filament\Resources\BuildingResource\RelationManagers\VendorsRelationManager;
 use App\Filament\Resources\Building\BuildingResource\Pages;
 use App\Filament\Resources\Building\BuildingResource\RelationManagers\AppartmentsafetyRelationManager;
 use App\Filament\Resources\Building\BuildingResource\RelationManagers\BuildingserviceRelationManager;
@@ -313,51 +312,51 @@ class BuildingResource extends Resource
                 Tables\Columns\TextColumn::make('name')
                     ->toggleable()
                     ->searchable()
-                    ->default('--')
+                    ->default('NA')
                     ->limit(50),
                 Tables\Columns\TextColumn::make('property_group_id')
                     ->toggleable()
                     ->searchable()
-                    ->default('--')
+                    ->default('NA')
                     ->limit(50),
                 Tables\Columns\TextColumn::make('address_line1')
                     ->toggleable()
                     ->searchable()
-                    ->default('--')
+                    ->default('NA')
                     ->limit(50),
                 // Tables\Columns\TextColumn::make('address_line2')
                 //     ->toggleable()
                 //     ->searchable()
-                //     ->default('--')
+                //     ->default('NA')
                 //     ->limit(50),
                 // Tables\Columns\TextColumn::make('area')
                 //     ->toggleable()
                 //     ->searchable()
-                //     ->default('--')
+                //     ->default('NA')
                 //     ->limit(50),
                 // Tables\Columns\TextColumn::make('cities.name')
                 //     ->toggleable()
                 //     ->searchable()
-                //     ->default('--')
+                //     ->default('NA')
                 //     ->limit(50),
                 // Tables\Columns\TextColumn::make('lat')
                 //     ->toggleable()
                 //     ->searchable()
-                //     ->default('--')
+                //     ->default('NA')
                 //     ->limit(50),
                 // Tables\Columns\TextColumn::make('lng')
                 //     ->toggleable()
                 //     ->searchable()
-                //     ->default('--')
+                //     ->default('NA')
                 //     ->limit(50),
                 // Tables\Columns\TextColumn::make('description')
                 //     ->toggleable()
                 //     ->searchable()
-                //     ->default('--')
+                //     ->default('NA')
                 //     ->limit(50),
                 // Tables\Columns\TextColumn::make('floors')
                 //     ->toggleable()
-                //     ->default('--')
+                //     ->default('NA')
                 //     ->searchable(),
             ])
             ->defaultSort('created_at', 'desc')

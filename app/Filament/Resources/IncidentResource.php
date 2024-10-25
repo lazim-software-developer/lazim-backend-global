@@ -127,21 +127,21 @@ class IncidentResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('building.name')
-                    ->default('--')
+                    ->default('NA')
                     ->searchable()
                     ->limit(50),
                 TextColumn::make('user.first_name')
-                    ->default('--')
+                    ->default('NA')
                     ->searchable()
                     ->limit(50),
                 TextColumn::make('complaint')
                     ->label('Incident Deatils')
                     ->toggleable()
-                    ->default('--')
+                    ->default('NA')
                     ->limit(20)
                     ->searchable(),
                 TextColumn::make('status')
-                    ->default('--')
+                    ->default('NA')
                     ->searchable()
                     ->limit(50),
             ])

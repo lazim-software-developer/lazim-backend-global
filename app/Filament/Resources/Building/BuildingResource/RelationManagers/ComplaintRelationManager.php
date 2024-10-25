@@ -156,7 +156,7 @@ class ComplaintRelationManager extends RelationManager
                             ->label('Service'),
                         TextInput::make('category')->disabled(),
                         TextInput::make('open_time')->disabled(),
-                        TextInput::make('close_time')->disabled()->default('--'),
+                        TextInput::make('close_time')->disabled()->default('NA'),
                         Textarea::make('complaint')
                             ->disabled()
                             ->placeholder('Complaint'),
@@ -197,26 +197,26 @@ class ComplaintRelationManager extends RelationManager
             ->modifyQueryUsing(fn(Builder $query) => $query->whereIn('complaint_type', ['snag']))
             ->columns([
                 TextColumn::make('building.name')
-                    ->default('--')
+                    ->default('NA')
                     ->searchable()
                     ->limit(50),
                 TextColumn::make('user.first_name')
-                    ->default('--')
+                    ->default('NA')
                     ->searchable()
                     ->limit(50),
                 TextColumn::make('complaint')
                     ->toggleable()
-                    ->default('--')
+                    ->default('NA')
                     ->limit(20)
                     ->searchable()
                     ->label('Complaint'),
                 // TextColumn::make('complaint_details')
                 //     ->toggleable()
-                //     ->default('--')
+                //     ->default('NA')
                 //     ->searchable()
                 //     ->label('Complaint Details'),
                 TextColumn::make('status')
-                    ->default('--')
+                    ->default('NA')
                     ->searchable()
                     ->limit(50),
             ])

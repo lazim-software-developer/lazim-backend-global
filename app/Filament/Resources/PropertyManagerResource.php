@@ -202,27 +202,27 @@ class PropertyManagerResource extends Resource
                 Tables\Columns\TextColumn::make('name')
                     ->label('Property Name')
                     ->searchable()
-                    ->default('--')
+                    ->default('NA')
                     ->limit(50),
 
                 Tables\Columns\TextColumn::make('phone')
                     ->searchable()
-                    ->default('--')
+                    ->default('NA')
                     ->limit(50),
 
                 Tables\Columns\TextColumn::make('email')
                     ->searchable()
-                    ->default('--')
+                    ->default('NA')
                     ->limit(50),
 
                 Tables\Columns\TextColumn::make('trn_number')
                     ->label('TRN Number')
                     ->searchable()
-                    ->default('--')
+                    ->default('NA')
                     ->limit(50),
 
                 Tables\Columns\TextColumn::make('address')
-                    ->default('--')
+                    ->default('NA')
                     ->limit(50)
                     ->searchable(),
             ])

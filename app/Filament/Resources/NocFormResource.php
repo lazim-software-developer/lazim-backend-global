@@ -327,29 +327,29 @@ class NocFormResource extends Resource
             ->columns([
                 TextColumn::make('ticket_number')
                     ->searchable()
-                    ->default('--')
+                    ->default('NA')
                     ->label('Ticket number'),
                 TextColumn::make('user.first_name')
                     ->searchable()
-                    ->default('--'),
+                    ->default('NA'),
                 TextColumn::make('building.name')
                     ->searchable()
-                    ->default('--'),
+                    ->default('NA'),
                 TextColumn::make('flat.property_number')
                     ->searchable()
                     ->label('Unit number')
-                    ->default('--'),
+                    ->default('NA'),
                 TextColumn::make('status')
                     ->searchable()
-                    ->default('--'),
+                    ->default('NA'),
                 TextColumn::make('orders')
                     ->formatStateUsing(fn($state) => json_decode($state) ? (json_decode($state)->payment_status == 'requires_payment_method' ? 'Payment Failed' : json_decode($state)->payment_status) : 'NA')
                     ->label('Payment status')
-                    ->default('--')
+                    ->default('NA')
                     ->limit(50),
                 TextColumn::make('remarks')
                     ->searchable()
-                    ->default('--'),
+                    ->default('NA'),
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([

@@ -112,24 +112,24 @@ class ServiceBookingsRelationManager extends RelationManager
             ->columns([
                 TextColumn::make('bookable.name')
                     ->searchable()
-                    ->default('--')
+                    ->default('NA')
                     ->label('Services'),
                 TextColumn::make('user.first_name')
                     ->searchable()
-                    ->default('--')
+                    ->default('NA')
                     ->label('User'),
                 TextColumn::make('date')
                     ->date()
                     ->searchable()
-                    ->default('--')
+                    ->default('NA')
                     ->label('Date'),
                 TextColumn::make('start_time')
                     ->searchable()
-                    ->default('--')
+                    ->default('NA')
                     ->label('Start Time'),
                 // TextColumn::make('end_time')
                 //     ->searchable()
-                //     ->default('--')
+                //     ->default('NA')
                 //     ->label('End Time'),
             ])
             ->filters([
