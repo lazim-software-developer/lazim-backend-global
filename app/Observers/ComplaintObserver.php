@@ -28,7 +28,7 @@ class ComplaintObserver
      */
     public function created(Complaint $complaint): void
     {
-        $roles = Role::where('owner_association_id',$complaint->owner_association_id)->whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor','Staff'])->pluck('id');
+        $roles = Role::where('owner_association_id',$complaint->owner_association_id)->whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor','Staff', 'Facility Manager'])->pluck('id');
         $notifyTo = User::where('owner_association_id', $complaint->owner_association_id)->whereNotIn('role_id', $roles)->whereNot('id', auth()->user()?->id)->get();
         if ($complaint->complaint_type == 'tenant_complaint') {
             $requiredPermissions = ['view_any_complaintscomplaint'];
@@ -44,7 +44,13 @@ class ComplaintObserver
                 ->actions([
                     Action::make('view')
                         ->button()
-                        ->url(fn () => ComplaintscomplaintResource::getUrl('edit', [OwnerAssociation::where('id',$complaint->owner_association_id)->first()?->slug,$complaint->id])),
+                        ->url(function() use ($complaint){
+                            $slug = OwnerAssociation::where('id',$complaint->owner_association_id)->first()?->slug;
+                            if($slug){
+                                return ComplaintscomplaintResource::getUrl('edit', [$slug,$complaint?->id]);
+                            }
+                            return url('/app/complaintscomplaints/' . $complaint?->id.'/edit');
+                        }),
                 ])
                 ->sendToDatabase($notifyTo);
         } elseif ($complaint->complaint_type == 'enquiries') {
@@ -61,7 +67,13 @@ class ComplaintObserver
                 ->actions([
                     Action::make('view')
                         ->button()
-                        ->url(fn () => ComplaintsenquiryResource::getUrl('edit', [OwnerAssociation::where('id',$complaint->owner_association_id)->first()?->slug,$complaint->id])),
+                        ->url(function() use ($complaint){
+                            $slug = OwnerAssociation::where('id',$complaint->owner_association_id)->first()?->slug;
+                            if($slug){
+                                return ComplaintsenquiryResource::getUrl('edit', [$slug,$complaint?->id]);
+                            }
+                            return url('/app/complaintsenquiries/' . $complaint?->id.'/edit');
+                        }),
                 ])
                 ->sendToDatabase($notifyTo);
         } elseif ($complaint->complaint_type == 'suggestions') {
@@ -78,7 +90,13 @@ class ComplaintObserver
                 ->actions([
                     Action::make('view')
                         ->button()
-                        ->url(fn () => ComplaintssuggessionResource::getUrl('edit', [OwnerAssociation::where('id',$complaint->owner_association_id)->first()?->slug,$complaint->id])),
+                        ->url(function() use ($complaint){
+                            $slug = OwnerAssociation::where('id',$complaint->owner_association_id)->first()?->slug;
+                            if($slug){
+                                return ComplaintssuggessionResource::getUrl('edit', [$slug,$complaint?->id]);
+                            }
+                            return url('/app/complaintssuggessions/' . $complaint?->id.'/edit');
+                        }),
                 ])
                 ->sendToDatabase($notifyTo);
         } elseif($complaint->complaint_type == 'snag'){
@@ -97,7 +115,13 @@ class ComplaintObserver
             ->actions([
                 Action::make('View')
                 ->button()
-                ->url(fn () => SnagsResource::getUrl('edit', [OwnerAssociation::where('id',$complaint->owner_association_id)->first()?->slug,$complaint->id]))
+                ->url(function() use ($complaint){
+                        $slug = OwnerAssociation::where('id',$complaint->owner_association_id)->first()?->slug;
+                        if($slug){
+                            return SnagsResource::getUrl('edit', [$slug,$complaint?->id]);
+                        }
+                        return url('/app/snags/' . $complaint?->id.'/edit');
+                }),
             ])
             ->sendToDatabase($notifyTo);
             if($complaint->technician_id){
@@ -216,7 +240,7 @@ class ComplaintObserver
         $oldValues = $complaint->getOriginal();
         $newValues = $complaint->getAttributes();
         $building = Building::where('id', $complaint->building_id)->first();
-        $roles = Role::where('owner_association_id',$building->owner_association_id)->whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor','Staff'])->pluck('id');
+        $roles = Role::where('owner_association_id',$building->owner_association_id)->whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor','Staff', 'Facility Manager'])->pluck('id');
         $notifyTo = User::where('owner_association_id', $building->owner_association_id)->whereNotIn('role_id', $roles)->whereNot('id', auth()->user()?->id)->get();
         //DB notification for ADMIN status update from resident/technician
         if ($complaint->status == 'closed') {
@@ -234,7 +258,13 @@ class ComplaintObserver
                     ->actions([
                         Action::make('view')
                             ->button()
-                            ->url(fn () => HelpdeskcomplaintResource::getUrl('edit', [OwnerAssociation::where('id',$complaint->owner_association_id)->first()?->slug,$complaint->id])),
+                            ->url(function() use ($complaint){
+                                $slug = OwnerAssociation::where('id',$complaint->owner_association_id)->first()?->slug;
+                                if($slug){
+                                    return HelpdeskcomplaintResource::getUrl('edit', [$slug,$complaint?->id]);
+                                }
+                                return url('/app/helpdeskcomplaints/' . $complaint?->id.'/edit');
+                            }),
                     ])
                     ->sendToDatabase($notifyTo);
             } elseif ($complaint->complaint_type == 'oa_complaint_report'){
@@ -251,7 +281,13 @@ class ComplaintObserver
                     ->actions([
                         Action::make('view')
                             ->button()
-                            ->url(fn() => OacomplaintReportsResource::getUrl('edit', [OwnerAssociation::where('id', $complaint->owner_association_id)->first()?->slug, $complaint->id])),
+                            ->url(function() use ($complaint){
+                                $slug = OwnerAssociation::where('id',$complaint->owner_association_id)->first()?->slug;
+                                if($slug){
+                                    return OacomplaintReportsResource::getUrl('edit', [$slug,$complaint?->id]);
+                                }
+                                return url('/app/oacomplaint-reports/' . $complaint?->id.'/edit');
+                            }),
                     ])
                     ->sendToDatabase($notifyTo);
             }

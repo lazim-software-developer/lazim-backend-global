@@ -39,7 +39,13 @@ class WDAObserver
                 ->actions([
                     Action::make('view')
                         ->button()
-                        ->url(fn () => WDAResource::getUrl('edit', [OwnerAssociation::where('id',$oam_id->owner_association_id)->first()?->slug,$WDA->id])),
+                        ->url(function() use ($oam_id,$WDA){
+                            $slug = OwnerAssociation::where('id',$oam_id->owner_association_id)->first()?->slug;
+                            if($slug){
+                                return WDAResource::getUrl('edit', [$slug,$WDA?->id]);
+                            }
+                            return url('/app/w-d-a-s/' . $WDA?->id.'/edit');
+                        }),
                 ])
                 ->sendToDatabase($notifyTo);
         }

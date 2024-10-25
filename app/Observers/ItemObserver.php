@@ -32,7 +32,7 @@ class ItemObserver
         // $slug = DB::table('owner_associations')->where('id',$item->owner_association_id)->value('slug');
 
         $requiredPermissions = ['view_any_item'];
-        $roles = Role::where('owner_association_id',$item->owner_association_id)->whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor','Staff'])->pluck('id');
+        $roles = Role::where('owner_association_id',$item->owner_association_id)->whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor','Staff','Facility Manager'])->pluck('id');
         $notifyTo = User::where('owner_association_id', $item->owner_association_id)->whereNotIn('role_id', $roles)->whereNot('id', auth()->user()?->id)->get()
         ->filter(function ($notifyTo) use ($requiredPermissions) {
             return $notifyTo->can($requiredPermissions);
@@ -46,7 +46,13 @@ class ItemObserver
         ->actions([
             Action::make('View')
             ->button()
-            ->url( fn () => ItemResource::getUrl('view',[OwnerAssociation::where('id',$item->owner_association_id)->first()?->slug,$item->id])),
+            ->url(function() use ($item){
+                $slug = OwnerAssociation::where('id',$item->owner_association_id)->first()?->slug;
+                if($slug){
+                    return ItemResource::getUrl('edit', [$slug,$item?->id]);
+                }
+                return url('/app/items/' . $item?->id.'/edit');
+            }),
             ])
         ->sendToDatabase($notifyTo);
     }

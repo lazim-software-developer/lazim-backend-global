@@ -40,7 +40,13 @@ class MoveInOutObserver
             ->actions([
                 Action::make('view')
                     ->button()
-                    ->url(fn () => MoveInFormsDocumentResource::getUrl('edit', [OwnerAssociation::where('id',$moveInOut->owner_association_id)->first()?->slug,$moveInOut->id])),
+                    ->url(function() use ($moveInOut){
+                        $slug = OwnerAssociation::where('id',$moveInOut->owner_association_id)->first()?->slug;
+                        if($slug){
+                            return MoveInFormsDocumentResource::getUrl('edit', [$slug,$moveInOut?->id]);
+                        }
+                        return url('/app/move-in-forms-documents/' . $moveInOut?->id.'/edit');
+                    }),
             ])
             ->sendToDatabase($notifyTo);
         }
@@ -58,7 +64,13 @@ class MoveInOutObserver
             ->actions([
                 Action::make('view')
                     ->button()
-                    ->url(fn () => MoveOutFormsDocumentResource::getUrl('edit', [OwnerAssociation::where('id',$moveInOut->owner_association_id)->first()?->slug,$moveInOut->id])),
+                    ->url(function() use ($moveInOut){
+                        $slug = OwnerAssociation::where('id',$moveInOut->owner_association_id)->first()?->slug;
+                        if($slug){
+                            return MoveOutFormsDocumentResource::getUrl('edit', [$slug,$moveInOut?->id]);
+                        }
+                        return url('/app/move-out-forms-documents/' . $moveInOut?->id.'/edit');
+                    }),
             ])
             ->sendToDatabase($notifyTo);
             if($moveInOut->moving_date < now()->subDay()->toDateString()){
@@ -76,7 +88,13 @@ class MoveInOutObserver
                     ->actions([
                         Action::make('view')
                             ->button()
-                            ->url(fn () => FlatTenantResource::getUrl('edit', [OwnerAssociation::where('id',$moveout->owner_association_id)->first()?->slug,$flatTenat?->id])),
+                            ->url(function() use ($moveout,$flatTenat){
+                                $slug = OwnerAssociation::where('id',$moveout->owner_association_id)->first()?->slug;
+                                if($slug){
+                                    return FlatTenantResource::getUrl('edit', [$slug,$flatTenat?->id]);
+                                }
+                                return url('/app/building/flat-tenants/' . $flatTenat?->id.'/edit');
+                            }),
                     ])
                     ->sendToDatabase($user);
             $credentials = AccountCredentials::where('oa_id', $moveout->owner_association_id)->where('active', true)->latest()->first();

@@ -1042,16 +1042,16 @@
         },
         {
             "name": "coolsam/flatpickr",
-            "version": "v3.1.0",
+            "version": "v3.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/savannabits/filament-flatpickr.git",
-                "reference": "67f88f078fe39df24ecf2883a781f69fdb6fc4b3"
+                "reference": "4130212d286762cfe9d0e12ca0da2d6054711e8a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/savannabits/filament-flatpickr/zipball/67f88f078fe39df24ecf2883a781f69fdb6fc4b3",
-                "reference": "67f88f078fe39df24ecf2883a781f69fdb6fc4b3",
+                "url": "https://api.github.com/repos/savannabits/filament-flatpickr/zipball/4130212d286762cfe9d0e12ca0da2d6054711e8a",
+                "reference": "4130212d286762cfe9d0e12ca0da2d6054711e8a",
                 "shasum": ""
             },
             "require": {
@@ -1110,9 +1110,9 @@
             ],
             "support": {
                 "issues": "https://github.com/savannabits/filament-flatpickr/issues",
-                "source": "https://github.com/savannabits/filament-flatpickr/tree/v3.1.0"
+                "source": "https://github.com/savannabits/filament-flatpickr/tree/v3.1.1"
             },
-            "time": "2024-03-21T12:14:34+00:00"
+            "time": "2024-09-19T12:32:24+00:00"
         },
         {
             "name": "danharrin/date-format-converter",

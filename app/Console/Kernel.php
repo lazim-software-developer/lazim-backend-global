@@ -28,8 +28,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('app:compliance-document-notification')->daily();
         $schedule->command('fetch:invoices')->daily();
         $schedule->command('dispatch:receipt-fetch')->daily();
-        $schedule->command('buildings:detach-expired')->daily();
-        $schedule->command('buildings:handle-pm-detachments')->daily();
+        $schedule->command('app:moveout-notification')->daily();
+        $schedule->command('app:tenant-expiry-notification')->daily();
 
     }
 
