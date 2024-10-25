@@ -97,7 +97,7 @@ class ProposalResource extends Resource
                 ViewColumn::make('Budget amount')->view('tables.columns.budgetamount')->alignCenter(),
                 TextColumn::make('submittedBy.name')->searchable()->label('Vendor name'),
                 TextColumn::make('submitted_on')->label('Submitted on'),
-                TextColumn::make('status')->default('--')->searchable()->label('Status'),
+                TextColumn::make('status')->default('NA')->searchable()->label('Status'),
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([

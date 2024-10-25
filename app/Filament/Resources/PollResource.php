@@ -177,12 +177,12 @@ class PollResource extends Resource
                 TextColumn::make('options')->limit(30),
                 TextColumn::make('status')->searchable(),
                 TextColumn::make('scheduled_at')
-                    ->default('--'),
+                    ->default('NA'),
                 TextColumn::make('ends_on')
-                    ->default('--'),
+                    ->default('NA'),
                 TextColumn::make('building.name')
                     ->searchable()
-                    ->default('--')
+                    ->default('NA')
                     ->limit(50),
             ])
             ->defaultSort('created_at', 'desc')

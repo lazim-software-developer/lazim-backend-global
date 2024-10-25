@@ -24,7 +24,7 @@ class UsersRelationManager extends RelationManager
                         ->rules(['max:50', 'string'])
                         ->placeholder('First Name')
                         ->required()
-                        ->default('--')
+                        ->default('NA')
                         ->columnSpan([
                             'default' => 12,
                             'md'      => 12,
@@ -35,7 +35,7 @@ class UsersRelationManager extends RelationManager
                         ->rules(['max:50', 'string'])
                         ->placeholder('Last Name')
                         ->required()
-                        ->default('--')
+                        ->default('NA')
                         ->columnSpan([
                             'default' => 12,
                             'md'      => 12,
@@ -47,7 +47,7 @@ class UsersRelationManager extends RelationManager
                         ->unique('users', 'email', fn(?Model $record) => $record)
                         ->email()
                         ->required()
-                        ->default('--')
+                        ->default('NA')
                         ->placeholder('Email')
                         ->columnSpan([
                             'default' => 12,
@@ -60,7 +60,7 @@ class UsersRelationManager extends RelationManager
                         ->unique('users', 'phone', fn(?Model $record) => $record)
                         ->placeholder('Phone')
                         ->required()
-                        ->default('--')
+                        ->default('NA')
                         ->columnSpan([
                             'default' => 12,
                             'md'      => 12,
@@ -85,16 +85,16 @@ class UsersRelationManager extends RelationManager
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('first_name')
-                    ->default('--')
+                    ->default('NA')
                     ->limit(50),
                 Tables\Columns\TextColumn::make('last_name')
-                    ->default('--')
+                    ->default('NA')
                     ->limit(50),
                 Tables\Columns\TextColumn::make('email')
-                    ->default('--')
+                    ->default('NA')
                     ->limit(50),
                 Tables\Columns\TextColumn::make('phone')
-                    ->default('--')
+                    ->default('NA')
                     ->limit(50),
                 Tables\Columns\IconColumn::make('active')
                     ->boolean()

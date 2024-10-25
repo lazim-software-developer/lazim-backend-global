@@ -131,18 +131,18 @@ class FlatsRelationManager extends RelationManager
             ->recordTitleAttribute('property_number')
             ->columns([
                 TextColumn::make('property_number')
-                    ->default('--')
+                    ->default('NA')
                     ->searchable()
                     ->label('Unit Number'),
                 TextColumn::make('building.name')
-                    ->default('--')
+                    ->default('NA')
                     ->searchable()
                     ->limit(50),
                 TextColumn::make('suit_area')
                     ->formatStateUsing(fn($record) => is_numeric($record->suit_area)
                         ? number_format((float) $record->suit_area, 2)
                         : 'NA')
-                    ->default('--')
+                    ->default('NA')
                     ->searchable()
                     ->limit(50),
 
@@ -150,39 +150,39 @@ class FlatsRelationManager extends RelationManager
                     ->formatStateUsing(fn($record) => is_numeric($record->suit_area)
                         ? number_format((float) $record->suit_area, 2)
                         : 'NA')
-                    ->default('--')
+                    ->default('NA')
                     ->searchable()
                     ->limit(50),
                 TextColumn::make('balcony_area')
                     ->formatStateUsing(fn($record) => is_numeric($record->suit_area)
                         ? number_format((float) $record->suit_area, 2)
                         : 'NA')
-                    ->default('--')
+                    ->default('NA')
                     ->searchable()
                     ->limit(50),
                 TextColumn::make('applicable_area')
                     ->formatStateUsing(fn($record) => is_numeric($record->suit_area)
                         ? number_format((float) $record->suit_area, 2)
                         : 'NA')
-                    ->default('--')
+                    ->default('NA')
                     ->searchable()
                     ->limit(50),
                 TextColumn::make('virtual_account_number')
-                    ->default('--')
+                    ->default('NA')
                     ->searchable()
                     ->visible(!in_array(auth()->user()->role->name, ['Property Manager', 'Admin']))
                     ->limit(50),
                 TextColumn::make('parking_count')
-                    ->default('--')
+                    ->default('NA')
                     ->searchable()
                     ->limit(50),
                 TextColumn::make('plot_number')
-                    ->default('--')
+                    ->default('NA')
                     ->searchable()
                     ->limit(50),
                 TextColumn::make('tenants.role')
                     ->label('Occupied By')
-                    ->default('--'),
+                    ->default('NA'),
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([

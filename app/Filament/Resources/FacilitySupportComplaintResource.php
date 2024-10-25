@@ -54,7 +54,7 @@ class FacilitySupportComplaintResource extends Resource
                                         'building' => 'Building',
                                     ])
                                     ->live()
-                                    ->default('--'),
+                                    ->default('NA'),
 
                                 Toggle::make('Urgent')
                                     ->label('Mark as Urgent')
@@ -304,20 +304,20 @@ class FacilitySupportComplaintResource extends Resource
                 TextColumn::make('ticket_number')
                     ->label('Ticket Number')
                     ->toggleable()
-                    ->default('--')
+                    ->default('NA')
                     ->limit(20)
                     ->searchable(),
 
                 TextColumn::make('building.name')
                     ->label('Building')
-                    ->default('--')
+                    ->default('NA')
                     ->searchable()
                     ->limit(50),
 
                 TextColumn::make('type')
                     ->label('Type')
                     ->formatStateUsing(fn(string $state) => ucfirst($state))
-                    ->default('--'),
+                    ->default('NA'),
 
                 TextColumn::make('user.first_name')
                     ->label('User')

@@ -46,13 +46,13 @@ class DelinquentOwnerResource extends Resource
             ->columns([
                 TextColumn::make('flat.property_number')->label('Unit')->searchable(),
                 TextColumn::make('owner.name')->limit(25),
-                TextColumn::make('last_payment_date')->default('--'),
-                TextColumn::make('last_payment_amount')->default('--'),
+                TextColumn::make('last_payment_date')->default('NA'),
+                TextColumn::make('last_payment_amount')->default('NA'),
                 TextColumn::make('outstanding_balance'),
-                TextColumn::make('quarter_1_balance')->default('--'),
-                TextColumn::make('quarter_2_balance')->default('--'),
-                TextColumn::make('quarter_3_balance')->default('--'),
-                TextColumn::make('quarter_4_balance')->default('--'),
+                TextColumn::make('quarter_1_balance')->default('NA'),
+                TextColumn::make('quarter_2_balance')->default('NA'),
+                TextColumn::make('quarter_3_balance')->default('NA'),
+                TextColumn::make('quarter_4_balance')->default('NA'),
                 // TextColumn::make('invoice_pdf_link')->label('invoice_file')->formatStateUsing(fn ($state) => '<a href="' . $state . '" target="_blank">LINK</a>')
                 // ->html(),
                 TextColumn::make('invoice_pdf_link')

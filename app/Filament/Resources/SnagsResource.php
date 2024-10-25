@@ -202,7 +202,7 @@ class SnagsResource extends Resource
                                 }
                                 return false;
                             })
-                            ->default('--'),
+                            ->default('NA'),
 
                         Textarea::make('complaint')
                             ->disabledOn('edit')
@@ -253,23 +253,23 @@ class SnagsResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('building.name')
-                    ->default('--')
+                    ->default('NA')
                     ->searchable()
                     ->limit(50),
                 TextColumn::make('user.first_name')
                     ->toggleable()
-                    ->default('--')
+                    ->default('NA')
                     ->searchable()
                     ->limit(50),
                 TextColumn::make('complaint')
                     ->toggleable()
-                    ->default('--')
+                    ->default('NA')
                     ->limit(20)
                     ->searchable()
                     ->label('Complaint'),
                 // TextColumn::make('complaint_details')
                 //     ->toggleable()
-                //     ->default('--')
+                //     ->default('NA')
                 //     ->limit(20)
                 //     ->searchable()
                 //     ->label('Complaint Details'),

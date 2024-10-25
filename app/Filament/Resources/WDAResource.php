@@ -112,13 +112,13 @@ class WDAResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('date')
-                    ->default('--')
+                    ->default('NA')
                     ->label('Date'),
                 TextColumn::make('service.name')
-                    ->default('--')
+                    ->default('NA')
                     ->label('Service'),
                 TextColumn::make('status')
-                    ->default('--')
+                    ->default('NA')
                     ->label('Status'),
                 TextColumn::make('building.name')
                     ->label('Building'),

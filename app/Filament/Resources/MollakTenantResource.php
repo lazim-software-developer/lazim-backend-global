@@ -61,7 +61,7 @@ class MollakTenantResource extends Resource
                             ->formatStateUsing(function ($state) {
                                 return $state ?: 'NA';
                             })
-                            ->default('--')
+                            ->default('NA')
                             ->disabled(),
                         TextInput::make('start_date')
                             ->label('Start date')
@@ -97,38 +97,38 @@ class MollakTenantResource extends Resource
                 TextColumn::make('name')
                     ->searchable()
                     ->limit(25)
-                    ->default('--'),
+                    ->default('NA'),
                 TextColumn::make('contract_number')
                     ->searchable()
-                    ->default('--'),
+                    ->default('NA'),
                 TextColumn::make('emirates_id')
                     ->label('Emirates ID')
                     ->searchable()
-                    ->default('--'),
+                    ->default('NA'),
                 TextColumn::make('license_number')
                     ->searchable()
-                    ->default('--'),
+                    ->default('NA'),
                 TextColumn::make('mobile')
                     ->searchable()
-                    ->default('--'),
+                    ->default('NA'),
                 TextColumn::make('email')
                     ->searchable()
-                    ->default('--'),
+                    ->default('NA'),
                 // TextColumn::make('start_date')
                 //     ->searchable()
-                //     ->default('--'),
+                //     ->default('NA'),
                 // TextColumn::make('end_date')
                 //     ->searchable()
-                //     ->default('--'),
+                //     ->default('NA'),
                 // TextColumn::make('contract_status')
                 //     ->searchable()
-                //     ->default('--'),
+                //     ->default('NA'),
                 // TextColumn::make('building.name')
                 //     ->searchable()
-                //     ->default('--'),
+                //     ->default('NA'),
                 // TextColumn::make('flat.property_number')
                 //     ->searchable()
-                //     ->default('--')
+                //     ->default('NA')
                 //     ->label('Unit Number'),
             ])
             ->defaultSort('created_at', 'desc')

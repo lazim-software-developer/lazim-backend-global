@@ -114,7 +114,7 @@ class FacilityBookingResource extends Resource
                             ->required()
                             ->placeholder('End Time'),
                         // TextInput::make('remarks')
-                        //     ->default('--')
+                        //     ->default('NA')
                         //     ->disabledOn('edit')
                         //     ->required(),
                         // TextInput::make('reference_number')
@@ -139,28 +139,28 @@ class FacilityBookingResource extends Resource
             ->poll('60s')
             ->columns([
                 Tables\Columns\TextColumn::make('building.name')
-                    ->default('--')
+                    ->default('NA')
                     ->searchable()
                     ->limit(50),
                 Tables\Columns\TextColumn::make('bookable.name')
-                    ->default('--')
+                    ->default('NA')
                     ->searchable()
                     ->limit(50)
                     ->label('Amenity'),
                 Tables\Columns\TextColumn::make('user.first_name')
                     ->searchable()
-                    ->default('--')
+                    ->default('NA')
                     ->limit(50),
                 Tables\Columns\TextColumn::make('date')
                     ->date()
-                    ->default('--')
+                    ->default('NA')
                     ->searchable()
                     ->date(),
                 Tables\Columns\TextColumn::make('start_time')
-                    ->default('--')
+                    ->default('NA')
                     ->time(),
                 Tables\Columns\TextColumn::make('end_time')
-                    ->default('--')
+                    ->default('NA')
                     ->time(),
                 // Tables\Columns\TextColumn::make('reference_number')
                 //     ->default('0')

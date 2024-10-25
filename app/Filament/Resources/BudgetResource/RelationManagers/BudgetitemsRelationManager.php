@@ -32,8 +32,8 @@ class BudgetitemsRelationManager extends RelationManager
     {
         return $table
             ->columns([
-                TextColumn::make('service.code')->label('Service Code')->default('--'),
-                TextColumn::make('service.name')->label('Service Name')->default('--'),
+                TextColumn::make('service.code')->label('Service Code')->default('NA'),
+                TextColumn::make('service.name')->label('Service Name')->default('NA'),
                 Tables\Columns\TextColumn::make('budget_excl_vat'),
                 Tables\Columns\TextColumn::make('vat_rate'),
                 Tables\Columns\TextColumn::make('vat_amount'),

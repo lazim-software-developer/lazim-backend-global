@@ -138,14 +138,14 @@ class ComplaintssuggessionResource extends Resource
             ->columns([
                 TextColumn::make('ticket_number')
                     ->searchable()
-                    ->default('--')
+                    ->default('NA')
                     ->label('Ticket number'),
                 TextColumn::make('building.name')
-                    ->default('--')
+                    ->default('NA')
                     ->searchable()
                     ->limit(50),
                 TextColumn::make('flat.property_number')
-                    ->default('--')
+                    ->default('NA')
                     ->searchable()
                     ->limit(50),
                 TextColumn::make('user.first_name')
@@ -159,7 +159,7 @@ class ComplaintssuggessionResource extends Resource
                     ->label('Suggestion'),
                 TextColumn::make('complaint_details')
                     ->toggleable()
-                    ->default('--')
+                    ->default('NA')
                     ->limit(20)
                     ->searchable()
                     ->label('Suggestion details'),

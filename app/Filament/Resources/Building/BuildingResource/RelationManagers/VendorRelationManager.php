@@ -67,7 +67,7 @@ class VendorRelationManager extends RelationManager
                     Toggle::make('active')
                         ->rules(['boolean']),
                     TextInput::make('remarks')
-                        ->default('--'),
+                        ->default('NA'),
                 ]),
             ]);
     }

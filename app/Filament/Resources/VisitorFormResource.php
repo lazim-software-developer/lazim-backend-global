@@ -34,7 +34,7 @@ class VisitorFormResource extends Resource
                 DatePicker::make('start_time')->label('Date')->disabled(),
                 TextInput::make('time_of_viewing')->label('Time')->disabled(),
                 TextInput::make('number_of_visitors')->disabled(),
-                Select::make('building_id')->relationship('building', 'name')->label('Building')->disabled()->default('--'),
+                Select::make('building_id')->relationship('building', 'name')->label('Building')->disabled()->default('NA'),
                 Repeater::make('guestDocuments')->label('Documents')
                     ->relationship('guestDocuments')->disabled()
                     ->schema([
@@ -80,11 +80,11 @@ class VisitorFormResource extends Resource
             ->columns([
                 TextColumn::make('ticket_number')
                     ->searchable()
-                    ->default('--')
+                    ->default('NA')
                     ->label('Ticket number'),
                 TextColumn::make('building.name')
                     ->label('Building')
-                    ->default('--'),
+                    ->default('NA'),
                 TextColumn::make('flat.property_number')
                     ->label('Unit'),
                 TextColumn::make('name'),
@@ -92,13 +92,13 @@ class VisitorFormResource extends Resource
                 TextColumn::make('start_time')->date('Y-m-d')
                     ->label('Date')
                 // ->date()
-                    ->default('--'),
+                    ->default('NA'),
                 TextColumn::make('time_of_viewing')
                     ->label('Time')
                 // ->time()
-                    ->default('--'),
-                TextColumn::make('number_of_visitors')->default('--'),
-                TextColumn::make('status')->default('--'),
+                    ->default('NA'),
+                TextColumn::make('number_of_visitors')->default('NA'),
+                TextColumn::make('status')->default('NA'),
 
             ])
             ->defaultSort('created_at', 'desc')
