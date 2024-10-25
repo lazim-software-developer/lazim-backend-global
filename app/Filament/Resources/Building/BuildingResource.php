@@ -417,7 +417,8 @@ class BuildingResource extends Resource
                         //     ->danger()
                         //     ->send();
                         // }
-                    }),
+                    })
+                    ->hidden(auth()->user()->role?->name === 'Property Manager'),
             ])
             ->bulkActions([
                 ExportBulkAction::make(),
