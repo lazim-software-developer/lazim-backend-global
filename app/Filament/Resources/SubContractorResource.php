@@ -44,9 +44,11 @@ class SubContractorResource extends Resource
                     ->label('TRN number')
                     ->maxLength(191),
                 Forms\Components\DatePicker::make('start_date')
-                    ->required(),
+                    ->required()
+                    ->label('Contract Start Date'),
                 Forms\Components\DatePicker::make('end_date')
-                    ->required(),
+                    ->required()
+                    ->label('Contract End Date'),
                 FileUpload::make('trade_licence')
                     ->required()
                     ->disk('s3')

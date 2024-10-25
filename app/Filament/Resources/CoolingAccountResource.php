@@ -68,6 +68,14 @@ class CoolingAccountResource extends Resource
                         return true;
                     }
                 }),
+                TextColumn::make('opening_balance'),
+                TextColumn::make('consumption'),
+                TextColumn::make('demand_charge'),
+                TextColumn::make('security_deposit'),
+                TextColumn::make('billing_charges'),
+                TextColumn::make('other_charges'),
+                TextColumn::make('receipts'),
+                TextColumn::make('closing_balance'),
                 TextColumn::make('status')
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
@@ -80,14 +88,6 @@ class CoolingAccountResource extends Resource
                                 return true;
                             }
                         }),
-                TextColumn::make('opening_balance'),
-                TextColumn::make('consumption'),
-                TextColumn::make('demand_charge'),
-                TextColumn::make('security_deposit'),
-                TextColumn::make('billing_charges'),
-                TextColumn::make('other_charges'),
-                TextColumn::make('receipts'),
-                TextColumn::make('closing_balance'),
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([

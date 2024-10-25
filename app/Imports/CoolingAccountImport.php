@@ -20,15 +20,13 @@ class CoolingAccountImport implements ToCollection, WithHeadingRow
     protected $buildingId;
     protected $month;
     protected $dueDate;
-    protected $status;
 
-    public function __construct($buildingId, $month, $dueDate, $status)
+    public function __construct($buildingId, $month, $dueDate)
     {
 
         $this->buildingId = $buildingId;
         $this->month = $month;
         $this->dueDate = $dueDate;
-        $this->status = $status;
     }
     /**
      * @param Collection $collection
@@ -41,7 +39,7 @@ class CoolingAccountImport implements ToCollection, WithHeadingRow
             'unit_no','opening_balance_receivable_advance',
             'in_unit_consumption', 'in_unit_demand_charge',
             'in_unit_security_deposit', 'in_unit_billing_charges',
-            'in_unit_other_charges', 'receipts', 'closing_balance'
+            'in_unit_other_charges', 'receipts', 'closing_balance', 'status'
            ];
 
            if($rows->first()== null){
@@ -71,7 +69,8 @@ class CoolingAccountImport implements ToCollection, WithHeadingRow
 
             foreach ($rows as $row) {
                 $flatId = Flat::where(['building_id' => $this->buildingId, 'property_number' => $row['unit_no']])->first()?->id;
-                if(! $flatId) {
+                $status = $row['closing_balance'] ?? 'pending';
+                if(! $flatId || ! in_array($status,['pending','overdue','paid'])) {
                     continue;
                 }
                 if (CoolingAccount::where(['building_id' => $this->buildingId, 'flat_id' => $flatId])->exists()) {
@@ -81,7 +80,6 @@ class CoolingAccountImport implements ToCollection, WithHeadingRow
                         ->send();
                     return 'error';
                 }
-
                 CoolingAccount::firstOrCreate(
                     [
                         'building_id'           => $this->buildingId,
@@ -98,7 +96,7 @@ class CoolingAccountImport implements ToCollection, WithHeadingRow
                         'other_charges'         => $row['in_unit_other_charges'],
                         'receipts'              => $row['receipts'],
                         'closing_balance'       => $row['closing_balance'],
-                        'status'                => $this->status? : null,
+                        'status'                => $status,
                         'due_date'              => $this->dueDate? : null
                     ]
                 );
