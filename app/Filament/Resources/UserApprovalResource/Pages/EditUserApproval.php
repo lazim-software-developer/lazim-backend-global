@@ -82,11 +82,27 @@ class EditUserApproval extends EditRecord
                 ->send();
         }
         if($this->record->status == null){
-            UserApprovalAudit::where('user_approval_id', $this->record->id)->where('status', null)->first()?->update([
-                'status' => $this->data['status'],
-                'remarks' => $this->data['remarks'],
-                'updated_by' => auth()->user()->id,
-            ]);
+            $userHistory = UserApprovalAudit::where('user_approval_id', $this->record->id)->where('status', null)->first();
+            if(!$userHistory){
+                UserApprovalAudit::create([
+                    'user_approval_id' => $this->record->id,
+                    'document' => $this->record->document,
+                    'document_type' => $this->record->document_type,
+                    'emirates_document' => $this->record->emirates_document,
+                    'passport' => $this->record->passport,
+                    'status' => $this->data['status'],
+                    'remarks' => $this->data['remarks'],
+                    'updated_by' => auth()->user()->id,
+                    'owner_association_id' => $this->record->owner_association_id,
+                ]);
+            }
+            else{
+                $userHistory->update([
+                    'status' => $this->data['status'],
+                    'remarks' => $this->data['remarks'],
+                    'updated_by' => auth()->user()->id,
+                ]);
+            }
         }
     }
     protected function getRedirectUrl(): string
