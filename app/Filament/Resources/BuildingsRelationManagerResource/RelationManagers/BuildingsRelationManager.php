@@ -95,7 +95,11 @@ class BuildingsRelationManager extends RelationManager
                     }),
             ])
             ->actions([
-                Tables\Actions\DetachAction::make(),
+                Tables\Actions\DetachAction::make()
+                    ->label('Remove Building')
+                    ->modalHeading('Remove Building')
+                    ->modalDescription('Performing this action will result in loosing authority of this building!')
+                    ->modalSubmitActionLabel('Yes, remove it'),
             ])
 
             ->bulkActions([
