@@ -236,6 +236,7 @@ class BuildingRelationManager extends RelationManager
                                 'show_inhouse_services' => $data['show_inhouse_services'] ?? false,
                                 'lat'                   => $data['lat'] ?? null,
                                 'lng'                   => $data['lng'] ?? null,
+                                'owner_association_id' => $livewire->ownerRecord->id
                             ]
                         );
 

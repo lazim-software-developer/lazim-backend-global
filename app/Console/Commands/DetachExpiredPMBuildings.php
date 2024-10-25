@@ -61,82 +61,89 @@ class DetachExpiredPMBuildings extends Command
     }
 
     private function handleExpiredBuildings()
-    {
-        $today = Carbon::now()->format('Y-m-d');
+{
+    $today = Carbon::now()->format('Y-m-d');
 
-        $expiredRelations = DB::table('building_owner_association')
-            ->join('owner_associations', 'building_owner_association.owner_association_id', '=', 'owner_associations.id')
-            ->where('building_owner_association.to', '<', $today)
-            ->where('building_owner_association.active', true)
-            ->where('owner_associations.role', 'Property Manager')
-            ->select('building_owner_association.*', 'owner_associations.email')
-            ->get();
+    $expiredRelations = DB::table('building_owner_association')
+        ->join('owner_associations', 'building_owner_association.owner_association_id', '=', 'owner_associations.id')
+        ->where('building_owner_association.to', '<', $today)
+        ->where('building_owner_association.active', true)
+        ->where('owner_associations.role', 'Property Manager')
+        ->select('building_owner_association.*', 'owner_associations.email')
+        ->get();
 
-        $this->info("Found {$expiredRelations->count()} expired building relationships");
-        Log::info("Processing expired buildings", ['count' => $expiredRelations->count()]);
+    $this->info("Found {$expiredRelations->count()} expired building relationships");
+    Log::info("Processing expired buildings", ['count' => $expiredRelations->count()]);
 
-        foreach ($expiredRelations as $relation) {
-            try {
-                $building        = Building::find($relation->building_id);
-                $propertyManager = OwnerAssociation::find($relation->owner_association_id);
+    foreach ($expiredRelations as $relation) {
+        try {
+            $building = Building::find($relation->building_id);
+            $propertyManager = OwnerAssociation::find($relation->owner_association_id);
 
-                if (!$building || !$propertyManager) {
-                    $this->logError("Building or Property Manager not found for relation ID: {$relation->id}");
-                    continue;
-                }
-
-                if (!$this->dryRun) {
-                    DB::beginTransaction();
-
-                    try {
-                        // Send notification to property manager
-                        Mail::to($propertyManager->email)
-                            ->send(new PMBuildingDetachmentNotification(
-                                $building->name,
-                                'detached',
-                                null
-                            ));
-
-                        // Send notifications to all users associated with this property manager
-                        foreach ($propertyManager->users as $user) {
-                            if ($user->email !== $propertyManager->email) {
-                                Mail::to($user->email)
-                                    ->send(new PMBuildingDetachmentNotification(
-                                        $building->name,
-                                        'detached',
-                                        null
-                                    ));
-                            }
-                        }
-
-                        // Update the relationship as inactive
-                        DB::table('building_owner_association')
-                            ->where('building_id', $relation->building_id)
-                            ->where('owner_association_id', $relation->owner_association_id)
-                            ->where('to', $relation->to)
-                            ->update(['active' => false]);
-
-                        DB::commit();
-
-                        $this->processedCount['detached']++;
-                        $this->info("Processed Building: {$building->name} for Property Manager: {$propertyManager->email}");
-
-                        Log::info('Building detached', [
-                            'building' => $building->name,
-                            'pm_email' => $propertyManager->email,
-                            'dry_run'  => $this->dryRun,
-                        ]);
-
-                    } catch (Exception $e) {
-                        DB::rollBack();
-                        throw $e;
-                    }
-                }
-            } catch (Exception $e) {
-                $this->logError("Error processing building {$relation->building_id}: " . $e->getMessage());
+            if (!$building) {
+                $this->logError("Building not found for ID: {$relation->building_id}");
+                continue;
             }
+
+            if (!$propertyManager) {
+                $this->logError("Property Manager not found for ID: {$relation->owner_association_id}");
+                continue;
+            }
+
+            if (!$this->dryRun) {
+                DB::beginTransaction();
+
+                try {
+                    // Send notification to property manager
+                    Mail::to($propertyManager->email)
+                        ->send(new PMBuildingDetachmentNotification(
+                            $building->name,
+                            'detached',
+                            null
+                        ));
+                        sleep(1);
+
+                    // Send notifications to all users associated with this property manager
+                    foreach ($propertyManager->users as $user) {
+                        if ($user->email !== $propertyManager->email) {
+                            Mail::to($user->email)
+                                ->send(new PMBuildingDetachmentNotification(
+                                    $building->name,
+                                    'detached',
+                                    null
+                                ));
+                        }
+                    }
+
+                    // Update the relationship as inactive
+                    DB::table('building_owner_association')
+                        ->where('building_id', $relation->building_id)
+                        ->where('owner_association_id', $relation->owner_association_id)
+                        ->where('to', $relation->to)
+                        ->delete();
+
+                    DB::commit();
+
+                    $this->processedCount['detached']++;
+                    $this->info("Processed Building: {$building->name} for Property Manager: {$propertyManager->email}");
+
+                    Log::info('Building detached', [
+                        'building' => $building->name,
+                        'pm_email' => $propertyManager->email,
+                        'dry_run'  => $this->dryRun,
+                    ]);
+
+                } catch (Exception $e) {
+                    DB::rollBack();
+                    throw $e;
+                }
+            }
+        } catch (Exception $e) {
+            $this->logError("Error processing building {$relation->building_id}: " . $e->getMessage());
         }
     }
+}
+
 
     private function sendDueNotifications()
     {

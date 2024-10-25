@@ -50,7 +50,6 @@
             <p>Please note:</p>
             <ul>
                 <li>If the contract expires without renewal, you will lose access to manage this property</li>
-                <li>All associated users will also lose their access</li>
                 <li>Any pending tasks or approvals should be completed before expiration</li>
             </ul>
             <p>If you wish to continue managing this property, please contact the building owner or administrator to renew your contract before it expires.</p>
