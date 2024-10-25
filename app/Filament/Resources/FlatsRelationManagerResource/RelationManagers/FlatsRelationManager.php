@@ -278,7 +278,7 @@ class FlatsRelationManager extends RelationManager
                         ]),
                 ])
                     ->visible(in_array(auth()->user()->role->name, ['Admin', 'Property Manager']))
-                    ->label('Download sample format file'),
+                    ->label('Download sample file'),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
