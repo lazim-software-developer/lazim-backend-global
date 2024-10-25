@@ -50,7 +50,13 @@ class TenantExpiryNotification extends Command
                     ->actions([
                         Action::make('view')
                             ->button()
-                            ->url(fn () => FlatTenantResource::getUrl('edit', [OwnerAssociation::where('id',$tenant->owner_association_id)->first()?->slug,$tenant?->id])),
+                            ->url(function() use ($tenant){
+                                $slug = OwnerAssociation::where('id',$tenant?->owner_association_id)->first()?->slug;
+                                if($slug){
+                                    return FlatTenantResource::getUrl('edit', [$slug,$tenant?->id]);
+                                }
+                                return url('/app/building/flat-tenants/' . $tenant?->id.'/edit');
+                            }),
                     ])
                     ->sendToDatabase($user);
             $credentials = AccountCredentials::where('oa_id', $tenant->owner_association_id)->where('active', true)->latest()->first();

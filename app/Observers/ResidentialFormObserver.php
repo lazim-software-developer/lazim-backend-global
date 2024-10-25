@@ -33,7 +33,13 @@ class ResidentialFormObserver
         ->actions([
             Action::make('view')
                 ->button()
-                ->url(fn () => ResidentialFormResource::getUrl('edit', [OwnerAssociation::where('id',$residentialForm->owner_association_id)->first()?->slug,$residentialForm->id])),
+                ->url(function() use ($residentialForm){
+                    $slug = OwnerAssociation::where('id',$residentialForm->owner_association_id)->first()?->slug;
+                    if($slug){
+                        return ResidentialFormResource::getUrl('edit', [$slug,$residentialForm?->id]);
+                    }
+                    return url('/app/residential-forms/' . $residentialForm?->id.'/edit');
+                }),
         ])
         ->sendToDatabase($notifyTo);
     }

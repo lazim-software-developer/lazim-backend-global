@@ -19,7 +19,7 @@ class AccessCardObserver
     public function created(AccessCard $accessCard): void
     {
         $requiredPermissions = ['view_any_access::card::forms::document'];
-        $roles = Role::where('owner_association_id',$accessCard->owner_association_id)->whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor','Staff'])->pluck('id');
+        $roles = Role::where('owner_association_id',$accessCard->owner_association_id)->whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor','Staff','Facility Manager'])->pluck('id');
         $notifyTo = User::where('owner_association_id', $accessCard->owner_association_id)->whereNotIn('role_id', $roles)->whereNot('id', auth()->user()?->id)->get()
         ->filter(function ($notifyTo) use ($requiredPermissions) {
             return $notifyTo->can($requiredPermissions);
@@ -33,7 +33,13 @@ class AccessCardObserver
                 ->actions([
                     Action::make('view')
                         ->button()
-                        ->url(fn () => AccessCardFormsDocumentResource::getUrl('edit', [OwnerAssociation::where('id',$accessCard->owner_association_id)->first()?->slug,$accessCard->id])),
+                        ->url(function() use ($accessCard){
+                            $slug = OwnerAssociation::where('id',$accessCard->owner_association_id)->first()?->slug;
+                            if($slug){
+                                return AccessCardFormsDocumentResource::getUrl('edit', [$slug,$accessCard?->id]);
+                            }
+                            return url('/app/access-card-forms-documents/' . $accessCard?->id.'/edit');
+                        }),
                 ])
                 ->sendToDatabase($notifyTo);
     }

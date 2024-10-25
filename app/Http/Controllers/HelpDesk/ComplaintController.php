@@ -149,7 +149,7 @@ class ComplaintController extends Controller
             }
         }
         $notifyTo = User::where('owner_association_id', $building->owner_association_id)->whereHas('role', function ($query) use ($building) {
-            $query->where('name', 'OA')
+            $query->whereIn('name', ['OA','Property Manager'])
                   ->where('owner_association_id', $building->owner_association_id);
         })
         ->get();
@@ -162,7 +162,13 @@ class ComplaintController extends Controller
             ->actions([
                 Action::make('view')
                     ->button()
-                    ->url(fn () => IncidentResource::getUrl('edit', [OwnerAssociation::where('id',$building->owner_association_id)->first()?->slug,$complaint->id])),
+                    ->url(function() use ($building,$complaint){
+                        $slug = OwnerAssociation::where('id',$building->owner_association_id)->first()?->slug;
+                        if($slug){
+                            return IncidentResource::getUrl('edit', [$slug,$complaint?->id]);
+                        }
+                        return url('/app/incidents/' . $complaint?->id.'/edit');
+                    }),
             ])
             ->sendToDatabase($notifyTo);
 

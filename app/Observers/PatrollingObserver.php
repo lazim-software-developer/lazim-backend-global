@@ -32,7 +32,13 @@ class PatrollingObserver
         ->actions([
             Action::make('View')
             ->button()
-            ->url(fn () => PatrollingResource::getUrl('index',[OwnerAssociation::where('id',$patrolling->owner_association_id)->first()?->slug])),
+            ->url(function() use ($patrolling){
+                $slug = OwnerAssociation::where('id',$patrolling->owner_association_id)->first()?->slug;
+                if($slug){
+                    return PatrollingResource::getUrl('index', [$slug]);
+                }
+                return url('/app/patrollings');
+            }),
 
         ])
         ->sendToDatabase($notifyTo);

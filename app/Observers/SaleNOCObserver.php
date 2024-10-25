@@ -34,7 +34,13 @@ class SaleNOCObserver
         ->actions([
             Action::make('view')
                 ->button()
-                ->url(fn () => NocFormResource::getUrl('edit', [OwnerAssociation::where('id',$saleNOC->owner_association_id)->first()?->slug,$saleNOC->id])),
+                ->url(function() use ($saleNOC){
+                    $slug = OwnerAssociation::where('id',$saleNOC->owner_association_id)->first()?->slug;
+                    if($slug){
+                        return NocFormResource::getUrl('edit', [$slug,$saleNOC?->id]);
+                    }
+                    return url('/app/noc-forms/' . $saleNOC?->id.'/edit');
+                }),
         ])
         ->sendToDatabase($notifyTo);
     }

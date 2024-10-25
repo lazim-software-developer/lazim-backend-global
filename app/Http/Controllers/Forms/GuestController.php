@@ -122,7 +122,7 @@ class GuestController extends Controller
 
         $requiredPermissions = ['view_any_visitor::form'];
         $visitor             = FlatVisitor::create($request->all());
-        $roles               = Role::where('owner_association_id', $ownerAssociationId)->whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor', 'Staff'])->pluck('id');
+        $roles               = Role::where('owner_association_id', $ownerAssociationId)->whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor', 'Staff', 'Facility Manager'])->pluck('id');
         $user                = User::where('owner_association_id', $ownerAssociationId)->whereNotIn('role_id', $roles)->whereNot('id', auth()->user()?->id)->get() //->where('role_id', Role::where('name','OA')->value('id'))->get();
             ->filter(function ($notifyTo) use ($requiredPermissions) {
                 return $notifyTo->can($requiredPermissions);
@@ -134,7 +134,13 @@ class GuestController extends Controller
             ->actions([
                 Action::make('View')
                     ->button()
-                    ->url(fn () => VisitorFormResource::getUrl('edit', [OwnerAssociation::where('id', $ownerAssociationId)->first()?->slug, $visitor->id])),
+                    ->url(function() use ($ownerAssociationId,$visitor){
+                        $slug = OwnerAssociation::where('id',$ownerAssociationId)->first()?->slug;
+                        if($slug){
+                            return VisitorFormResource::getUrl('edit', [$slug,$visitor?->id]);
+                        }
+                        return url('/app/visitor-forms/' . $visitor?->id.'/edit');
+                    }),
             ])
             ->icon('heroicon-o-document-text')
             ->iconColor('warning')

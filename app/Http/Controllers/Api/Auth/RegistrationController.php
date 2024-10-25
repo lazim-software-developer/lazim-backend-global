@@ -132,18 +132,20 @@ class RegistrationController extends Controller
             'owner_id' => $request->owner_id ?: null,
         ]);
         $connection = DB::connection('lazim_accounts');
-        $created_by = $connection->table('users')->where(['type' => 'building', 'building_id' => $request->building_id])->first()->id;
-        $customerId = $connection->table('customers')->where('created_by', $created_by)->orderByDesc('customer_id')->first()?->customer_id + 1;
-        $connection->table('customers')->insert([
-            'customer_id' => $customerId,
-            'name' => $firstName,
-            'email'                => $request->email,
-            'contact' => $request->mobile,
-            'type' => $type,
-            'lang' => 'en',
-            'created_by' => $created_by,
-            'is_enable_login' => 0,
-        ]);
+        $created_by = $connection->table('users')->where(['type' => 'building', 'building_id' => $request->building_id])->first()?->id;
+        if($created_by){
+            $customerId = $connection->table('customers')->where('created_by', $created_by)->orderByDesc('customer_id')->first()?->customer_id + 1;
+            $connection->table('customers')->insert([
+                'customer_id' => $customerId,
+                'name' => $firstName,
+                'email'                => $request->email,
+                'contact' => $request->mobile,
+                'type' => $type,
+                'lang' => 'en',
+                'created_by' => $created_by,
+                'is_enable_login' => 0,
+            ]);
+        }
 
         // Store details to Flat tenants table
         FlatTenant::create([
@@ -172,7 +174,9 @@ class RegistrationController extends Controller
         SendVerificationOtp::dispatch($user)->delay(now()->addSeconds(5));
 
         // Find all the flats that this user is owner of and attach them to flat_tenant table using the job
-        AssignFlatsToTenant::dispatch($request->email, $request->mobile, $request->owner_id, $customerId, $type)->delay(now()->addSeconds(5));
+        if($customerId){
+            AssignFlatsToTenant::dispatch($request->email, $request->mobile, $request->owner_id, $customerId, $type)->delay(now()->addSeconds(5));
+        }
 
         return (new CustomResponseResource([
             'title' => 'Registration successful!',
@@ -262,18 +266,20 @@ class RegistrationController extends Controller
         ]);
 
         $connection = DB::connection('lazim_accounts');
-        $created_by = $connection->table('users')->where(['type' => 'building', 'building_id' => $request->building_id])->first()->id;
-        $customerId = $connection->table('customers')->where('created_by', $created_by)->orderByDesc('customer_id')->first()?->customer_id + 1;
-        $connection->table('customers')->insert([
-            'customer_id' => $customerId,
-            'name' => $request->name,
-            'email'  => $request->email,
-            'contact' => $request->mobile,
-            'type' => $type,
-            'lang' => 'en',
-            'created_by' => $created_by,
-            'is_enable_login' => 0,
-        ]);
+        $created_by = $connection->table('users')->where(['type' => 'building', 'building_id' => $request->building_id])->first()?->id;
+        if($created_by){
+            $customerId = $connection->table('customers')->where('created_by', $created_by)->orderByDesc('customer_id')->first()?->customer_id + 1;
+            $connection->table('customers')->insert([
+                'customer_id' => $customerId,
+                'name' => $request->name,
+                'email'  => $request->email,
+                'contact' => $request->mobile,
+                'type' => $type,
+                'lang' => 'en',
+                'created_by' => $created_by,
+                'is_enable_login' => 0,
+            ]);
+        }
 
         $imagePath = optimizeDocumentAndUpload($request->document, 'dev');
         $emirates = optimizeDocumentAndUpload($request->emirates_document, 'dev');
@@ -318,12 +324,14 @@ class RegistrationController extends Controller
         $customer = $connection->table('customers')->where(['email'=> $request->email,
             'contact' => $request->mobile])->first();
         $property = Flat::find($request->flat_id)?->property_number;
-        $connection->table('customer_flat')->insert([
-            'customer_id' => $customer?->id,
-            'flat_id' => $request->flat_id,
-            'building_id' => $request->building_id,
-            'property_number' => $property
-        ]);
+        if($customer && $property){
+            $connection->table('customer_flat')->insert([
+                'customer_id' => $customer?->id,
+                'flat_id' => $request->flat_id,
+                'building_id' => $request->building_id,
+                'property_number' => $property
+            ]);
+        }
 
         // Send email after 5 seconds
         SendVerificationOtp::dispatch($user)->delay(now()->addSeconds(5));
@@ -356,7 +364,7 @@ class RegistrationController extends Controller
             'emirates_document' => 'required|file|max:2048|mimes:pdf,jpg,jpeg,png,doc,docx',
             'passport_document' => 'required|file|max:2048|mimes:pdf,jpg,jpeg,png,doc,docx',
         ]);
-        
+
         $imagePath = optimizeDocumentAndUpload($request->document, 'dev');
         $emirates = optimizeDocumentAndUpload($request->emirates_document, 'dev');
         $passport = optimizeDocumentAndUpload($request->passport_document, 'dev');

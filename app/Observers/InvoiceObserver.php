@@ -25,7 +25,7 @@ class InvoiceObserver
             $requiredPermissions = ['view_any_invoice'];
             $building = Building::where('id', $vendor->building_id)->first();
             $oam_id = DB::table('building_owner_association')->where('building_id', $vendor?->building_id)->where('active', true)->first();
-            $roles = Role::where('owner_association_id',$oam_id->owner_association_id)->whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor','Staff'])->pluck('id');
+            $roles = Role::where('owner_association_id',$oam_id->owner_association_id)->whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor','Staff', 'Facility Manager'])->pluck('id');
             $notifyTo = User::where('owner_association_id', $oam_id->owner_association_id)->whereNotIn('role_id', $roles)->whereNot('id', auth()->user()?->id)->get()
             ->filter(function ($notifyTo) use ($requiredPermissions) {
                 return $notifyTo->can($requiredPermissions);
@@ -39,7 +39,13 @@ class InvoiceObserver
                 ->actions([
                     Action::make('view')
                         ->button()
-                        ->url(fn () => InvoiceResource::getUrl('edit', [OwnerAssociation::where('id',$oam_id->owner_association_id)->first()?->slug,$invoice->id])),
+                        ->url(function() use ($oam_id,$invoice){
+                            $slug = OwnerAssociation::where('id',$oam_id->owner_association_id)->first()?->slug;
+                            if($slug){
+                                return InvoiceResource::getUrl('edit', [$slug,$invoice?->id]);
+                            }
+                            return url('/app/invoices/' . $invoice?->id.'/edit');
+                        }),
                 ])
                 ->sendToDatabase($notifyTo);
         }

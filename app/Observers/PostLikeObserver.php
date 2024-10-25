@@ -35,7 +35,13 @@ class PostLikeObserver
             ->actions([
                 Action::make('view')
                     ->button()
-                    ->url(fn () => PostResource::getUrl('edit',[OwnerAssociation::where('id',$oam_id->owner_association_id)->first()?->slug,$post->id])),
+                    ->url(function() use ($oam_id,$post){
+                        $slug = OwnerAssociation::where('id',$oam_id->owner_association_id)->first()?->slug;
+                        if($slug){
+                            return PostResource::getUrl('edit', [$slug,$post?->id]);
+                        }
+                        return url('/app/posts/' . $post?->id.'/edit');
+                    }),
             ])
             ->sendToDatabase($notifyTo);
     }
