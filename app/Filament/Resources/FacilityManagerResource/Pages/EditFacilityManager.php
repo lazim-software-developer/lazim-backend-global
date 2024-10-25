@@ -66,7 +66,7 @@ class EditFacilityManager extends EditRecord
             // Update Vendor
             $record->update([
                 'name'                 => $data['name'],
-                'owner_association_id' => $data['owner_association_id'],
+                'owner_association_id' => auth()->user()->owner_association_id,
                 'address_line_1'       => $data['address_line_1'],
                 'landline_number'      => $data['landline_number'] ?? null,
                 'website'              => $data['website'] ?? null,
@@ -79,14 +79,14 @@ class EditFacilityManager extends EditRecord
 
             DB::table('owner_association_vendor')
                 ->where('vendor_id', $record->id)
-                ->where('owner_association_id', $data['owner_association_id'])
+                ->where('owner_association_id', auth()->user()->owner_association_id)
                 ->update(['status' => $data['status']]);
 
             // Update related User
             if ($record->user) {
                 $record->user->update([
                     'first_name'           => $data['name'],
-                    'owner_association_id' => $data['owner_association_id'],
+                    'owner_association_id' => auth()->user()->owner_association_id,
                 ]);
             }
 
@@ -100,7 +100,7 @@ class EditFacilityManager extends EditRecord
                     ],
                     [
                         'document_library_id'  => DocumentLibrary::where('name', 'Risk policy')->first()->id,
-                        'owner_association_id' => $data['owner_association_id'],
+                        'owner_association_id' => auth()->user()->owner_association_id,
                         'status'               => 'pending',
                         'expiry_date'          => $data['risk_policy_expiry'],
                     ]
