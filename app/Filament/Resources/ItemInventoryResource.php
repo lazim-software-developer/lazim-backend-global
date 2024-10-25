@@ -126,6 +126,7 @@ class ItemInventoryResource extends Resource
                     ->preload()
             ])
             ->actions([
+                Tables\Actions\EditAction::make(),
                 Tables\Actions\ViewAction::make(),
             ])
             ->bulkActions([
@@ -152,7 +153,7 @@ class ItemInventoryResource extends Resource
             'index' => Pages\ListItemInventories::route('/'),
             'create' => Pages\CreateItemInventory::route('/create'),
             'view' => Pages\ViewItemInventory::route('/{record}'),
-            // 'edit' => Pages\EditItemInventory::route('/{record}/edit'),
+            'edit' => Pages\EditItemInventory::route('/{record}/edit'),
         ];
     }
 }

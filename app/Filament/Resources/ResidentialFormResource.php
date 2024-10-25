@@ -115,7 +115,7 @@ class ResidentialFormResource extends Resource
 
         // Document Uploads Section
         Section::make('Documents')
-            ->columns(2)
+            ->columns(3)
             ->schema([
                 FileUpload::make('title_deed_url')
                     ->disk('s3')
