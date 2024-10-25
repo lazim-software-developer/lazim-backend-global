@@ -2,16 +2,17 @@
 
 namespace App\Http\Controllers\Documents;
 
-use App\Http\Controllers\Controller;
-use App\Http\Requests\Document\DocumentRequest;
-use App\Http\Resources\CustomResponseResource;
-use App\Http\Resources\Documents\DocumentLibraryResource;
-use App\Http\Resources\Documents\DocumentResource;
-use App\Models\Building\Building;
-use App\Models\Building\Document;
-use App\Models\Master\DocumentLibrary;
 use App\Models\Media;
 use App\Models\User\User;
+use App\Models\Building\Building;
+use App\Models\Building\Document;
+use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
+use App\Models\Master\DocumentLibrary;
+use App\Http\Resources\CustomResponseResource;
+use App\Http\Requests\Document\DocumentRequest;
+use App\Http\Resources\Documents\DocumentResource;
+use App\Http\Resources\Documents\DocumentLibraryResource;
 
 class DocumentsController extends Controller
 {
@@ -25,7 +26,7 @@ class DocumentsController extends Controller
     {
         $currentDate = date('Y-m-d');
 
-        $building = Building::where('id', $request->building_id)->first();
+        $building = DB::table('building_owner_association')->where(['building_id' => $request->building_id,'active'=> true])->first();
 
         $document = Document::create([
             'document_library_id' => $request->document_library_id,
@@ -36,7 +37,7 @@ class DocumentsController extends Controller
             'documentable_type' => User::class,
             'name' => $request->name,
             'flat_id' => $request->flat_id ?? null,
-            'owner_association_id' => $building->owner_association_id
+            'owner_association_id' => $building?->owner_association_id
         ]);
 
         // Handle multiple images
