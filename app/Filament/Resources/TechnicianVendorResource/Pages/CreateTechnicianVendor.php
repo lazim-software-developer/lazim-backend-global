@@ -55,9 +55,10 @@ class CreateTechnicianVendor extends CreateRecord
 
             $serviceTechnicianVendorData = [
                 'technician_vendor_id' => $technician->id,
-                'service_id' => $data['service_id'],
+                'service_id' => $data['service_id'][0],
                 'owner_association_id' => $oaId,
             ];
+            // dd($serviceTechnicianVendorData);
 
             DB::table('service_technician_vendor')->insert($serviceTechnicianVendorData);
 
