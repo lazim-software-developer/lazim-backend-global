@@ -101,18 +101,6 @@ class ListCoolingAccounts extends ListRecords
                                     return true;
                                 }
                             }),
-                        Select::make('status')
-                            ->options([
-                                'pending' => 'Pending',
-                                'overdue' => 'Overdue',
-                                'paid' => 'Paid',
-                            ])
-                            ->default('pending')
-                            ->visible(function(){
-                                if(auth()->user()->role->name == 'Property Manager'){
-                                    return true;
-                                }
-                            }),
                     ])
                     ->action(function (array $data) {
                     $buildingId= $data['building_id'];
@@ -131,7 +119,7 @@ class ListCoolingAccounts extends ListRecords
                     }
 
                     // Now import using the file path
-                    Excel::import(new CoolingAccountImport( $buildingId, $month, $dueDate, $status), $fullPath);
+                    Excel::import(new CoolingAccountImport( $buildingId, $month, $dueDate), $fullPath);
 
                 }),
 
@@ -146,6 +134,7 @@ class ListCoolingAccounts extends ListRecords
                         Column::make('other_charges')->heading('In-unit other charges'),
                         Column::make('receipts')->heading('Receipts'),
                         Column::make('closing_balance')->heading('Closing balance'),
+                        Column::make('status')->heading('Status'),
                     ])
                     ->modifyQueryUsing(fn ($query) => $query->where('id', 0)),
                 ])->label('Download sample file')
