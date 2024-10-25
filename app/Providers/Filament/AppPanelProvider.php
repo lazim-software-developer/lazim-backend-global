@@ -141,7 +141,7 @@ class AppPanelProvider extends PanelProvider
 
 
                                     ]),
-                                NavigationGroup::make('User Management')
+                                NavigationGroup::make('User management')
                                     ->items([
                                         NavigationItem::make('Users')
                                             ->hidden(!$user->can('view_any_user::user'))
@@ -285,7 +285,7 @@ class AppPanelProvider extends PanelProvider
                         }
                         if ($user->can('view_any_vendor::vendor')) {
                             $builder->groups([
-                                NavigationGroup::make('Facility manager management')
+                                NavigationGroup::make('Facility management')
                                     ->items([
                                         NavigationItem::make('Facility Managers')
                                             ->url('/app/facility-managers')
@@ -883,7 +883,7 @@ class AppPanelProvider extends PanelProvider
 
                                 ]),
 
-                            NavigationGroup::make('Facility manager management')
+                            NavigationGroup::make('Facility management')
                                 ->items([
                                     NavigationItem::make('Facility Managers')
                                         ->url('/app/facility-managers')
