@@ -47,7 +47,7 @@ class MoveInOutController extends Controller
      */
     public function store(CreateFormRequest $request)
     {
-        $ownerAssociationId = Building::find($request->building_id)->owner_association_id;
+        $ownerAssociationId = DB::table('building_owner_association')->where(['building_id' => $request->building_id,'active'=>true])->first()?->owner_association_id;
 
         $tenant           = Filament::getTenant()?->id ?? $ownerAssociationId;
         // $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()->email ?? env('MAIL_FROM_ADDRESS');
@@ -161,7 +161,7 @@ class MoveInOutController extends Controller
         if ($request->filled('type')) {
             $mov->where('type', $request->type);
         }
-        
+
         $mov = $mov->orderBy('moving_date')->get();
         return MoveInOutResource::collection($mov);
     }

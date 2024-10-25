@@ -42,7 +42,7 @@ class GuestController extends Controller
      */
     public function store(CreateGuestRequest $request)
     {
-        $ownerAssociationId = Building::find($request->building_id)->owner_association_id;
+        $ownerAssociationId = DB::table('building_owner_association')->where(['building_id' => $request->building_id,'active'=>true])->first()?->owner_association_id;
 
         $request->merge([
             'start_time'           => $request->start_date,
@@ -55,7 +55,7 @@ class GuestController extends Controller
             'ticket_number'        => generate_ticket_number("FV"),
         ]);
         $guest            = FlatVisitor::create($request->all());
-        $tenant           = Filament::getTenant()?->id ?? auth()->user()?->owner_association_id ?? $ownerAssociationId;
+        $tenant           = Filament::getTenant()?->id ?? $ownerAssociationId;
         // $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
         $credentials = AccountCredentials::where('oa_id', $tenant)->where('active', true)->latest()->first();
         $mailCredentials = [
