@@ -86,7 +86,8 @@ class HistoryRelationManager extends RelationManager
 
     public function table(Table $table): Table
     {
-        return $table
+        return $table->modifyQueryUsing(fn (Builder $query) => $query->where('status', '!=', null))
+            ->defaultSort('updated_at', 'desc')
             ->recordTitleAttribute('status')
             ->columns([
                 TextColumn::make('status')->formatStateUsing(fn($state) => ucwords($state))->default('Pending'),
