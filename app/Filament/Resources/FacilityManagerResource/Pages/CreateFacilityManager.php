@@ -56,7 +56,7 @@ class CreateFacilityManager extends CreateRecord
                     'address_line_1'       => $data['address_line_1'],
                     'landline_number'      => $data['landline_number'] ?? null,
                     'website'              => $data['website'] ?? null,
-                    'fax'                  => $data['fax'] ?? null,
+                    'fax'                  =>  null,
                     // 'status'               => 'approved',
                     'tl_number'            => $data['tl_number'],
                     'tl_expiry'            => $data['tl_expiry'],
