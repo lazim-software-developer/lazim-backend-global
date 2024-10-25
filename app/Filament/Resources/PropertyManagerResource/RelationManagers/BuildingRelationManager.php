@@ -27,7 +27,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
-use PHPUnit\Framework\Attributes\Large;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportAction;
 use pxlrbt\FilamentExcel\Columns\Column;
 use pxlrbt\FilamentExcel\Exports\ExcelExport;
@@ -203,6 +202,7 @@ class BuildingRelationManager extends RelationManager
 
                         Grid::make(2)->schema([
                             DatePicker::make('from')
+                                ->required()
                                 ->default(Carbon::now()->format('Y-m-d'))
                                 ->afterStateUpdated(function (Set $set) {
                                     $set('to', null);
@@ -210,6 +210,7 @@ class BuildingRelationManager extends RelationManager
 
                             DatePicker::make('to')
                                 ->after('from')
+                                ->required()
                                 ->validationMessages([
                                     'after' => 'The "to" date must be after the "from" date.',
                                 ]),

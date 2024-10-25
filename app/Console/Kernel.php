@@ -2,7 +2,6 @@
 
 namespace App\Console;
 
-use App\Jobs\SendContractRenewalReminder;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -29,6 +28,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('app:compliance-document-notification')->daily();
         $schedule->command('fetch:invoices')->daily();
         $schedule->command('dispatch:receipt-fetch')->daily();
+        $schedule->command('buildings:detach-expired')->daily();
+        $schedule->command('buildings:handle-pm-detachments')->daily();
 
     }
 

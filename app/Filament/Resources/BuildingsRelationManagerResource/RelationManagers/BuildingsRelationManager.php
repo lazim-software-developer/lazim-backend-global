@@ -7,6 +7,7 @@ use App\Models\OwnerAssociation;
 use Carbon\Carbon;
 use DB;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Form;
 use Filament\Forms\Set;
@@ -31,6 +32,7 @@ class BuildingsRelationManager extends RelationManager
             ])
             ->headerActions([
                 Action::make('Attach Building')
+                    ->modalWidth('lg')
                     ->slideOver()
                     ->form([
                         Select::make('building_id')
@@ -55,20 +57,27 @@ class BuildingsRelationManager extends RelationManager
                             ->optionsLimit(500)
                             ->live(),
 
-                        DatePicker::make('start_date')
-                            ->default(Carbon::now()->format('Y-m-d'))
-                            ->afterStateUpdated(function (Set $set) {
-                                $set('end_date', null);
-                            }),
+                        Grid::make(2)
+                            ->schema([
+                                DatePicker::make('start_date')
+                                    ->default(Carbon::now()->format('Y-m-d'))
+                                    ->label('From')
+                                    ->required()
+                                    ->afterStateUpdated(function (Set $set) {
+                                        $set('end_date', null);
+                                    }),
 
-                        DatePicker::make('end_date')
-                            ->after('start_date')
-                            ->validationMessages([
-                                'after' => 'The "end date" date must be after the "start date" date.',
+                                DatePicker::make('end_date')
+                                    ->label('To')
+                                    ->required()
+                                    ->after('start_date')
+                                    ->validationMessages([
+                                        'after' => 'The "to" date must be after the "from" date.',
+                                    ]),
                             ]),
                     ])
                     ->action(function (array $data, RelationManager $livewire): void {
-                         $ownerAssociation = OwnerAssociation::where('email', auth()->user()->email)->first();
+                        $ownerAssociation = OwnerAssociation::where('email', auth()->user()->email)->first();
 
                         if (!$ownerAssociation) {
                             throw new \Exception('Owner association not found for the current user.');
@@ -88,7 +97,7 @@ class BuildingsRelationManager extends RelationManager
             ->actions([
                 Tables\Actions\DetachAction::make(),
             ])
-            
+
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
