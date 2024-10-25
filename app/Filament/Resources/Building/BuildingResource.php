@@ -478,18 +478,18 @@ class BuildingResource extends Resource
             AppartmentsafetyRelationManager::class,
             EmergencyNumbersRelationManager::class,
             BuildingserviceRelationManager::class,
-            BuildingResource\RelationManagers\ComplaintRelationManager::class,
-            IncidentsRelationManager::class,
+            // BuildingResource\RelationManagers\ComplaintRelationManager::class,
+            // IncidentsRelationManager::class,
             BuildingResource\RelationManagers\ServiceRelationManager::class,
             // BuildingResource\RelationManagers\DocumentsRelationManager::class,
             BuildingResource\RelationManagers\FacilitiesRelationManager::class,
-            BuildingResource\RelationManagers\FlatsRelationManager::class,
+            // BuildingResource\RelationManagers\FlatsRelationManager::class,
             // BuildingResource\RelationManagers\VendorRelationManager::class,
             // BuildingvendorRelationManager::class,
-            VendorsRelationManager::class,
+            // VendorsRelationManager::class,
             BuildingResource\RelationManagers\AssetsRelationManager::class,
             ContractsRelationManager::class,
-            VendorRelationManager::class,
+            // VendorRelationManager::class,
         ];
 
         return $propertyManagerRelations;
