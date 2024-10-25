@@ -3,13 +3,8 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\IncidentResource\Pages;
-use App\Filament\Resources\IncidentResource\RelationManagers;
 use App\Models\Building\Complaint;
-use App\Models\Incident;
 use App\Models\User\User;
-use Closure;
-use Filament\Forms;
-use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
@@ -17,15 +12,12 @@ use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\DB;
 
 class IncidentResource extends Resource
@@ -86,7 +78,7 @@ class IncidentResource extends Resource
                             ->live(),
                         Repeater::make('comments')
                             ->relationship('comments')
-                            ->helperText(function($state){
+                            ->helperText(function ($state) {
                                 return $state == [] ? 'No Comments' : '';
                             })
                             ->schema([
@@ -96,15 +88,15 @@ class IncidentResource extends Resource
                                     'lg' => 2,
                                 ])->schema([
                                     Textarea::make('body')->label('comment')->required()->maxLength(50)
-                                    ->readOnly(function($state){
-                                        if($state != null){
-                                            return true;
-                                        }
-                                        return false;
-                                    }),
+                                        ->readOnly(function ($state) {
+                                            if ($state != null) {
+                                                return true;
+                                            }
+                                            return false;
+                                        }),
                                     Hidden::make('user_id')->default(auth()->user()?->id),
-                                    DateTimePicker::make('created_at')->label('time')->format('MM/dd/yyyy hh:mm:ss tt')->default(now())->disabled()              
-                                ])
+                                    DateTimePicker::make('created_at')->label('time')->format('MM/dd/yyyy hh:mm:ss tt')->default(now())->disabled(),
+                                ]),
                             ])->deletable(false)
                             ->columnSpan([
                                 'sm' => 1,
@@ -114,7 +106,7 @@ class IncidentResource extends Resource
                         Repeater::make('media')
                             ->relationship()
                             ->disabled()
-                            ->helperText(function($state){
+                            ->helperText(function ($state) {
                                 return $state == [] ? 'No media' : '';
                             })
                             ->schema([
@@ -135,21 +127,21 @@ class IncidentResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('building.name')
-                    ->default('NA')
+                    ->default('--')
                     ->searchable()
                     ->limit(50),
                 TextColumn::make('user.first_name')
-                    ->default('NA')
+                    ->default('--')
                     ->searchable()
                     ->limit(50),
                 TextColumn::make('complaint')
                     ->label('Incident Deatils')
                     ->toggleable()
-                    ->default('NA')
+                    ->default('--')
                     ->limit(20)
                     ->searchable(),
                 TextColumn::make('status')
-                    ->default('NA')
+                    ->default('--')
                     ->searchable()
                     ->limit(50),
             ])
@@ -177,10 +169,10 @@ class IncidentResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListIncidents::route('/'),
+            'index'  => Pages\ListIncidents::route('/'),
             'create' => Pages\CreateIncident::route('/create'),
-            'view' => Pages\ViewIncident::route('/{record}'),
-            'edit' => Pages\EditIncident::route('/{record}/edit'),
+            'view'   => Pages\ViewIncident::route('/{record}'),
+            'edit'   => Pages\EditIncident::route('/{record}/edit'),
         ];
     }
 

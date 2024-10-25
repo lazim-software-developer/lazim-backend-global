@@ -2,20 +2,15 @@
 
 namespace App\Filament\Resources\Building\BuildingResource\RelationManagers;
 
-use Filament\Forms;
 use Filament\Forms\Components\Select;
-use Filament\Tables;
 use Filament\Forms\Form;
-use Filament\Tables\Table;
+use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Tables;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
-use Filament\Forms\Components\TextInput;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Filament\Resources\RelationManagers\RelationManager;
 use Illuminate\Support\Facades\Auth;
-use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class BuildingvendorRelationManager extends RelationManager
 {
@@ -55,22 +50,22 @@ class BuildingvendorRelationManager extends RelationManager
         return $form
             ->schema([
                 Select::make('vender_name')
-                    ->relationship('vendor','name')
+                    ->relationship('vendor', 'name')
                     ->label('Vendor name'),
                 Select::make('vender_tl_number')
-                    ->relationship('vendor','tl_number')
+                    ->relationship('vendor', 'tl_number')
                     ->label('Vendor tl_number'),
                 Select::make('vender_tl_expiry')
-                    ->relationship('vendor','tl_expiry')
+                    ->relationship('vendor', 'tl_expiry')
                     ->label('Vendor tl_expiry'),
                 Select::make('vender_address_line_1')
-                    ->relationship('vendor','address_line_1')
+                    ->relationship('vendor', 'address_line_1')
                     ->label('Vendor address_line_1'),
                 Select::make('vender_landline_number')
-                    ->relationship('vendor','landline_number')
+                    ->relationship('vendor', 'landline_number')
                     ->label('Vendor landline_number'),
                 Select::make('vender_website')
-                    ->relationship('vendor','website')
+                    ->relationship('vendor', 'website')
                     ->label('Vendor website'),
 
             ]);
@@ -80,8 +75,8 @@ class BuildingvendorRelationManager extends RelationManager
     {
         return $table
             ->columns([
-                TextColumn::make('contract.amount')->label('Contract amount')->default('NA'),
-                TextColumn::make('contract.contract_type')->label('Contract type')->default('NA'),
+                TextColumn::make('contract.amount')->label('Contract amount')->default('--'),
+                TextColumn::make('contract.contract_type')->label('Contract type')->default('--'),
                 TextColumn::make('vendor.name'),
                 IconColumn::make('active')
                     ->boolean()

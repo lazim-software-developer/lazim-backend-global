@@ -5,21 +5,21 @@ namespace App\Filament\Widgets;
 use App\Models\Building\Complaint;
 use App\Models\User\User;
 use Filament\Facades\Filament;
-use Filament\Widgets\TableWidget as BaseWidget;
 use Filament\Tables;
+use Filament\Widgets\TableWidget as BaseWidget;
 use Illuminate\Database\Eloquent\Builder;
 
 class RecentOpenComplaints extends BaseWidget
 {
-    protected static ?int $sort = 9;
-    protected static ?string $heading = 'Recent Open Complaints';
+    protected static ?int $sort         = 9;
+    protected static ?string $heading   = 'Recent Open Complaints';
     protected static ?string $maxHeight = '200px';
     // protected int | string | array $columnSpan = 4;
 
     public static function canView(): bool
     {
         $user = User::find(auth()->user()->id);
-        return ($user->can('view_any_complaintscomplaint')||$user->can('view_any_helpdeskcomplaint'));
+        return ($user->can('view_any_complaintscomplaint') || $user->can('view_any_helpdeskcomplaint'));
     }
 
     protected function getTableQuery(): Builder
@@ -39,7 +39,7 @@ class RecentOpenComplaints extends BaseWidget
     {
         return [
             Tables\Columns\TextColumn::make('complaint')
-                ->default('NA')
+                ->default('--')
                 ->limit(20)
                 ->label('Complaint'),
             Tables\Columns\TextColumn::make('created_at')

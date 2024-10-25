@@ -2,52 +2,43 @@
 
 namespace App\Filament\Resources;
 
-use DateTime;
-use Filament\Forms;
-use Filament\Tables;
-use Filament\Forms\Get;
-use Filament\Forms\Set;
-use Filament\Forms\Form;
-use Filament\Tables\Table;
-use App\Models\Master\Role;
-use App\Models\Community\Post;
-use Filament\Resources\Resource;
-use App\Models\Building\Building;
-use Illuminate\Support\Facades\DB;
-use Filament\Forms\Components\Grid;
-use Filament\Tables\Filters\Filter;
-use function Laravel\Prompts\select;
-use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Toggle;
-use Filament\Forms\Components\Repeater;
-use Filament\Forms\Components\Textarea;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\RichEditor;
-use Filament\Tables\Filters\SelectFilter;
-use Illuminate\Database\Eloquent\Builder;
-use Filament\Tables\Filters\TernaryFilter;
-use Filament\Forms\Components\MorphToSelect;
-use Filament\Forms\Components\DateTimePicker;
-use Filament\Forms\Components\MarkdownEditor;
 use App\Filament\Resources\PostResource\Pages;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use App\Filament\Resources\PostResource\RelationManagers;
 use App\Filament\Resources\PostResource\RelationManagers\CommentsRelationManager;
+use App\Models\Building\Building;
+use App\Models\Community\Post;
+use App\Models\Master\Role;
 use App\Models\OwnerAssociation;
 use App\Models\User\User;
 use Filament\Facades\Filament;
+use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
+use Filament\Forms\Form;
+use Filament\Forms\Get;
+use Filament\Forms\Set;
+use Filament\Resources\Resource;
+use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Table;
+use function Laravel\Prompts\select;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class PostResource extends Resource
 {
-    protected static ?string $model = Post::class;
-    protected static ?string $modelLabel = 'Posts';
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $model           = Post::class;
+    protected static ?string $modelLabel      = 'Posts';
+    protected static ?string $navigationIcon  = 'heroicon-o-rectangle-stack';
     protected static ?string $navigationGroup = 'Community';
 
     public static function form(Form $form): Form
@@ -76,62 +67,62 @@ class PostResource extends Resource
                     ]),
 
                 Section::make()
-                ->columns(2)
-                ->schema([
+                    ->columns(2)
+                    ->schema([
                         Select::make('status')
-                        ->searchable()
-                        ->options([
-                            'published' => 'Published',
-                            'draft' => 'Draft',
-                        ])
-                        ->reactive()
-                        ->live()
-                        ->afterStateUpdated(function (Set $set, Get $get) {
-                            $set('scheduled_at', null);
-                        })
-                        ->default('published')
-                        ->required(),
+                            ->searchable()
+                            ->options([
+                                'published' => 'Published',
+                                'draft'     => 'Draft',
+                            ])
+                            ->reactive()
+                            ->live()
+                            ->afterStateUpdated(function (Set $set, Get $get) {
+                                $set('scheduled_at', null);
+                            })
+                            ->default('published')
+                            ->required(),
 
-                    DateTimePicker::make('scheduled_at')
-                        ->rules(['date'])
-                        ->displayFormat('d-M-Y h:i A')
-                        ->minDate(function ($record, $state) {
-                            if ($record?->scheduled_at == null || $state != $record?->scheduled_at) {
-                                return now();
-                            }
-                        })
-                        ->required(function (callable $get) {
-                            if ($get('status') == 'published') {
-                                return true;
-                            }
-                            return false;
-                        })
-                        ->default(now())
-                        ->placeholder('Scheduled At'),
+                        DateTimePicker::make('scheduled_at')
+                            ->rules(['date'])
+                            ->displayFormat('d-M-Y h:i A')
+                            ->minDate(function ($record, $state) {
+                                if ($record?->scheduled_at == null || $state != $record?->scheduled_at) {
+                                    return now();
+                                }
+                            })
+                            ->required(function (callable $get) {
+                                if ($get('status') == 'published') {
+                                    return true;
+                                }
+                                return false;
+                            })
+                            ->default(now())
+                            ->placeholder('Scheduled At'),
 
-                Select::make('building')
-                    ->relationship('building', 'name')
-                    ->options(function () {
-                        if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
-                            return Building::all()->pluck('name', 'id');
-                        }
-                        if (Role::where('id', auth()->user()->role_id)->first()->name == 'Property Manager') {
-                            $buildings = DB::table('building_owner_association')->where('owner_association_id', auth()->user()?->owner_association_id)->pluck('building_id');
-                            return Building::whereIn('id', $buildings)->pluck('name', 'id');
-                        }
-                        return Building::where('owner_association_id', auth()->user()?->owner_association_id)->pluck('name', 'id');
-                    })
-                    ->multiple()
-                    ->searchable()
-                    ->preload()
-                    ->required()
-                    ->label('Building')
-                    ->columnSpan([
-                        'sm' => 1,
-                        'md' => 1,
-                        'lg' => 2,
+                        Select::make('building')
+                            ->relationship('building', 'name')
+                            ->options(function () {
+                                if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+                                    return Building::all()->pluck('name', 'id');
+                                }
+                                if (Role::where('id', auth()->user()->role_id)->first()->name == 'Property Manager') {
+                                    $buildings = DB::table('building_owner_association')->where('owner_association_id', auth()->user()?->owner_association_id)->pluck('building_id');
+                                    return Building::whereIn('id', $buildings)->pluck('name', 'id');
+                                }
+                                return Building::where('owner_association_id', auth()->user()?->owner_association_id)->pluck('name', 'id');
+                            })
+                            ->multiple()
+                            ->searchable()
+                            ->preload()
+                            ->required()
+                            ->label('Building')
+                            ->columnSpan([
+                                'sm' => 1,
+                                'md' => 1,
+                                'lg' => 2,
+                            ]),
                     ]),
-                ]),
 
                 Hidden::make('user_id')
                     ->default(auth()->user()->id),
@@ -157,7 +148,7 @@ class PostResource extends Resource
                             ->image()
                             ->maxSize(2048)
                             ->required()
-                            ->label('File')
+                            ->label('File'),
 
                     ])
                     ->columns(2)
@@ -181,8 +172,8 @@ class PostResource extends Resource
                     ->label('Active'),
                 TextInput::make('likes_count')
                     ->disabled()
-                    ->hiddenOn('create')
-            ])
+                    ->hiddenOn('create'),
+            ]),
         ]);
     }
 
@@ -192,18 +183,18 @@ class PostResource extends Resource
             ->columns([
                 TextColumn::make('status')
                     ->searchable()
-                    ->default('NA')
+                    ->default('--')
                     ->limit(50),
                 TextColumn::make('scheduled_at')
-                    // ->dateTime()
-                    ->default('NA'),
+                // ->dateTime()
+                    ->default('--'),
                 TextColumn::make('building.name')
                     ->searchable()
-                    ->default('NA')
+                    ->default('--')
                     ->limit(50),
                 TextColumn::make('user.first_name')
                     ->searchable()
-                    ->default('NA')
+                    ->default('--')
                     ->limit(50),
             ])
             ->defaultSort('created_at', 'desc')
@@ -211,9 +202,9 @@ class PostResource extends Resource
                 SelectFilter::make('user_id')
                     ->relationship('user', 'first_name', function (Builder $query) {
                         if (Role::where('id', auth()->user()->role_id)->first()->name != 'Admin') {
-                            $query->where('owner_association_id', auth()->user()?->owner_association_id)->whereIn('role_id', Role::whereIn('name',['OA','Owner','Tenant'])->pluck('id'));
+                            $query->where('owner_association_id', auth()->user()?->owner_association_id)->whereIn('role_id', Role::whereIn('name', ['OA', 'Owner', 'Tenant'])->pluck('id'));
                         }
-                        $query->whereIn('role_id', Role::whereIn('name',['OA','Owner','Tenant'])->pluck('id'));
+                        $query->whereIn('role_id', Role::whereIn('name', ['OA', 'Owner', 'Tenant'])->pluck('id'));
                     })
                     ->searchable()
                     ->preload()
@@ -221,11 +212,11 @@ class PostResource extends Resource
                 SelectFilter::make('building_id')
                     ->relationship('building', 'name', function (Builder $query) {
                         if (Role::where('id', auth()->user()->role_id)->first()->name != 'Admin') {
-                                $oa = OwnerAssociation::find(Filament::getTenant()?->id ?: auth()->user()?->owner_association_id);
-                                $buildings = $oa?->building?->pluck('id');
-                                // dd($buildings);
+                            $oa        = OwnerAssociation::find(Filament::getTenant()?->id ?: auth()->user()?->owner_association_id);
+                            $buildings = $oa?->building?->pluck('id');
+                            // dd($buildings);
 
-                        $query->whereIn('buildings.id', $buildings?:[]);
+                            $query->whereIn('buildings.id', $buildings ?: []);
                         }
                     })
                     ->searchable()
@@ -256,9 +247,9 @@ class PostResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListPosts::route('/'),
+            'index'  => Pages\ListPosts::route('/'),
             'create' => Pages\CreatePost::route('/create'),
-            'edit' => Pages\EditPost::route('/{record}/edit'),
+            'edit'   => Pages\EditPost::route('/{record}/edit'),
         ];
     }
 

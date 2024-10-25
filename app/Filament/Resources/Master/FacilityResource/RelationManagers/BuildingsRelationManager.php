@@ -2,7 +2,6 @@
 
 namespace App\Filament\Resources\Master\FacilityResource\RelationManagers;
 
-use Filament\Forms;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
@@ -11,9 +10,7 @@ use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class BuildingsRelationManager extends RelationManager
 {
@@ -36,7 +33,7 @@ class BuildingsRelationManager extends RelationManager
                         ->unique(
                             'buildings',
                             'property_group_id',
-                            fn (?Model $record) => $record
+                            fn(?Model $record) => $record
                         ),
 
                     TextInput::make('address_line1')
@@ -80,7 +77,7 @@ class BuildingsRelationManager extends RelationManager
                         ->rules(['numeric'])
                         ->required()
                         ->numeric()
-                        ->placeholder('Floors')
+                        ->placeholder('Floors'),
 
                 ]),
             ]);
@@ -93,51 +90,51 @@ class BuildingsRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('name')
                     ->toggleable()
                     ->searchable()
-                    ->default('NA')
+                    ->default('--')
                     ->limit(50),
                 Tables\Columns\TextColumn::make('property_group_id')
                     ->toggleable()
                     ->searchable()
-                    ->default('NA')
+                    ->default('--')
                     ->limit(50),
                 Tables\Columns\TextColumn::make('address_line1')
                     ->toggleable()
                     ->searchable()
-                    ->default('NA')
+                    ->default('--')
                     ->limit(50),
                 Tables\Columns\TextColumn::make('address_line2')
                     ->toggleable()
                     ->searchable()
-                    ->default('NA')
+                    ->default('--')
                     ->limit(50),
                 Tables\Columns\TextColumn::make('area')
                     ->toggleable()
                     ->searchable()
-                    ->default('NA')
+                    ->default('--')
                     ->limit(50),
                 Tables\Columns\TextColumn::make('cities.name')
                     ->toggleable()
                     ->searchable()
-                    ->default('NA')
+                    ->default('--')
                     ->limit(50),
                 Tables\Columns\TextColumn::make('lat')
                     ->toggleable()
                     ->searchable()
-                    ->default('NA')
+                    ->default('--')
                     ->limit(50),
                 Tables\Columns\TextColumn::make('lng')
                     ->toggleable()
                     ->searchable()
-                    ->default('NA')
+                    ->default('--')
                     ->limit(50),
                 Tables\Columns\TextColumn::make('description')
                     ->toggleable()
                     ->searchable()
-                    ->default('NA')
+                    ->default('--')
                     ->limit(50),
                 Tables\Columns\TextColumn::make('floors')
                     ->toggleable()
-                    ->default('NA')
+                    ->default('--')
                     ->searchable(),
             ])
             ->defaultSort('created_at', 'desc')

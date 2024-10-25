@@ -2,35 +2,34 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Resources\AccessCardFormsDocumentResource\Pages;
 use App\Models\Building\Building;
-use DB;
-use Filament\Forms\Form;
-use Filament\Tables\Table;
-use App\Models\Master\Role;
 use App\Models\Forms\AccessCard;
-use Filament\Resources\Resource;
+use App\Models\Master\Role;
+use App\Models\Order;
+use DB;
+use Filament\Forms\Components\CheckboxList;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
-use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\FileUpload;
-use Filament\Tables\Filters\SelectFilter;
-use Illuminate\Database\Eloquent\Builder;
-use Filament\Forms\Components\CheckboxList;
-use App\Filament\Resources\AccessCardFormsDocumentResource\Pages;
-use App\Models\Order;
-use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
+use Filament\Forms\Form;
+use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class AccessCardFormsDocumentResource extends Resource
 {
     protected static ?string $model = AccessCard::class;
 
-    protected static ?string $modelLabel = 'Access card';
+    protected static ?string $modelLabel      = 'Access card';
     protected static ?string $navigationGroup = 'Forms Document';
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon  = 'heroicon-o-rectangle-stack';
     public static function form(Form $form): Form
     {
         return $form
@@ -72,7 +71,7 @@ class AccessCardFormsDocumentResource extends Resource
                         ->label('User'),
                     Textarea::make('parking_details')
                         ->visible(function (callable $get) {
-                            if ($get('parking_details') != "Invalid parking details format" ) {
+                            if ($get('parking_details') != "Invalid parking details format") {
                                 return true;
                             }
                             return false;
@@ -144,9 +143,9 @@ class AccessCardFormsDocumentResource extends Resource
                         ->searchable()
                         ->live(),
                     TextInput::make('reason')
-                        ->formatStateUsing(function (?Model $record){
-                            $orderpayment_status = Order::where(['orderable_id'=>$record->id,'orderable_type'=>AccessCard::class])->first()?->payment_status;
-                            if($orderpayment_status){
+                        ->formatStateUsing(function (?Model $record) {
+                            $orderpayment_status = Order::where(['orderable_id' => $record->id, 'orderable_type' => AccessCard::class])->first()?->payment_status;
+                            if ($orderpayment_status) {
                                 return $orderpayment_status == 'requires_payment_method' ? 'Payment Failed' : $orderpayment_status;
                             }
                             return 'NA';
@@ -169,17 +168,17 @@ class AccessCardFormsDocumentResource extends Resource
                     CheckboxList::make('rejected_fields')
                         ->label('Please select rejected fields')
                         ->options([
-                            'card_type' => 'Card type',
-                            'email' => 'Email',
-                            'mobile' => 'Mobile number',
-                            'make_model' => 'Make and model',
-                            'vehicle_color' => 'Vehicle color',
-                            'emirates_of_registration' => 'Emirates of registration',
-                            'parking_bay_number' => 'Parking bay number',
+                            'card_type'                   => 'Card type',
+                            'email'                       => 'Email',
+                            'mobile'                      => 'Mobile number',
+                            'make_model'                  => 'Make and model',
+                            'vehicle_color'               => 'Vehicle color',
+                            'emirates_of_registration'    => 'Emirates of registration',
+                            'parking_bay_number'          => 'Parking bay number',
                             'vehicle_registration_number' => 'Vehicle registration number',
-                            'tenancy' => 'Tenancy / Ejari',
-                            'vehicle_registration' => 'Vehicle registration / Mulkiya',
-                            'passport' => 'Passport / EID',
+                            'tenancy'                     => 'Tenancy / Ejari',
+                            'vehicle_registration'        => 'Vehicle registration / Mulkiya',
+                            'passport'                    => 'Passport / EID',
                         ])->columns(4)
                         ->visible(function (callable $get) {
                             if ($get('status') == 'rejected') {
@@ -197,24 +196,24 @@ class AccessCardFormsDocumentResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('ticket_number')
-                ->searchable()
-                ->default('NA')
-                ->label('Ticket number'),
+                    ->searchable()
+                    ->default('--')
+                    ->label('Ticket number'),
                 TextColumn::make('card_type')
                     ->searchable()
-                    ->default('NA')
+                    ->default('--')
                     ->limit(50),
                 TextColumn::make('user.first_name')
                     ->searchable()
-                    ->default('NA')
+                    ->default('--')
                     ->limit(50),
                 TextColumn::make('building.name')
                     ->searchable()
-                    ->default('NA')
+                    ->default('--')
                     ->limit(50),
                 TextColumn::make('flat.property_number')
                     ->searchable()
-                    ->default('NA')
+                    ->default('--')
                     ->label('Unit number')
                     ->limit(50),
                 // ImageColumn::make('tenancy')
@@ -229,40 +228,39 @@ class AccessCardFormsDocumentResource extends Resource
                 //     ->disk('s3'),
                 TextColumn::make('status')
                     ->searchable()
-                    ->default('NA')
+                    ->default('--')
                     ->limit(50),
                 TextColumn::make('orders')
-                    ->formatStateUsing(fn ($state) => json_decode($state)? (json_decode($state)->payment_status == 'requires_payment_method' ? 'Payment Failed' : json_decode($state)->payment_status): 'NA')
+                    ->formatStateUsing(fn($state) => json_decode($state) ? (json_decode($state)->payment_status == 'requires_payment_method' ? 'Payment Failed' : json_decode($state)->payment_status) : 'NA')
                     ->label('Payment status')
-                    ->default('NA')
+                    ->default('--')
                     ->limit(50),
                 TextColumn::make('remarks')
                     ->searchable()
-                    ->default('NA')
+                    ->default('--')
                     ->limit(50),
 
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
                 SelectFilter::make('building_id')
-                    // ->relationship('building', 'name', function (Builder $query) {
-                    //     if (Role::where('id', auth()->user()->role_id)->first()->name != 'Admin') {
-                    //         $query->where('owner_association_id', auth()->user()?->owner_association_id);
-                    //     }
+                // ->relationship('building', 'name', function (Builder $query) {
+                //     if (Role::where('id', auth()->user()->role_id)->first()->name != 'Admin') {
+                //         $query->where('owner_association_id', auth()->user()?->owner_association_id);
+                //     }
 
-                    // })
+                // })
                     ->options(function () {
                         if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
                             return Building::pluck('name', 'id');
-                        }
-                        elseif(auth()->user()->role->name == 'Property Manager'){
+                        } elseif (auth()->user()->role->name == 'Property Manager') {
                             $buildingIds = DB::table('building_owner_association')
-                            ->where('owner_association_id', auth()->user()->owner_association_id)
-                            ->where('active', true)
-                            ->pluck('building_id');
+                                ->where('owner_association_id', auth()->user()->owner_association_id)
+                                ->where('active', true)
+                                ->pluck('building_id');
 
-                        return Building::whereIn('id', $buildingIds)
-                            ->pluck('name', 'id');
+                            return Building::whereIn('id', $buildingIds)
+                                ->pluck('name', 'id');
 
                         }
                         $oaId = auth()->user()?->owner_association_id;
@@ -278,7 +276,7 @@ class AccessCardFormsDocumentResource extends Resource
                 ExportBulkAction::make(),
                 Tables\Actions\BulkActionGroup::make([
                     //Tables\Actions\DeleteBulkAction::make(),
-                ]),])
+                ])])
             ->actions([
 
             ]);
@@ -297,7 +295,7 @@ class AccessCardFormsDocumentResource extends Resource
         return [
             'index' => Pages\ListAccessCardFormsDocuments::route('/'),
             // 'view' => Pages\ViewAccessCardFormsDocument::route('/{record}'),
-            'edit' => Pages\EditAccessCardFormsDocument::route('/{record}/edit'),
+            'edit'  => Pages\EditAccessCardFormsDocument::route('/{record}/edit'),
         ];
     }
 }

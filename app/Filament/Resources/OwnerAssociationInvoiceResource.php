@@ -3,17 +3,13 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\OwnerAssociationInvoiceResource\Pages;
-use App\Filament\Resources\OwnerAssociationInvoiceResource\RelationManagers;
 use App\Models\OwnerAssociationInvoice;
-use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class OwnerAssociationInvoiceResource extends Resource
@@ -43,7 +39,7 @@ class OwnerAssociationInvoiceResource extends Resource
                 TextColumn::make('job'),
                 TextColumn::make('month'),
                 TextColumn::make('description'),
-                TextColumn::make('quantity')->default('NA'),
+                TextColumn::make('quantity')->default('--'),
                 TextColumn::make('rate'),
                 TextColumn::make('tax'),
             ])
@@ -53,9 +49,9 @@ class OwnerAssociationInvoiceResource extends Resource
             ->actions([
                 // Tables\Actions\ViewAction::make(),
                 // Tables\Actions\EditAction::make(),
-                Action::make('download')->url(function( OwnerAssociationInvoice $record){
-                    return route('invoice',['data' => $record]);
-                })
+                Action::make('download')->url(function (OwnerAssociationInvoice $record) {
+                    return route('invoice', ['data' => $record]);
+                }),
             ])
             ->bulkActions([
                 ExportBulkAction::make(),

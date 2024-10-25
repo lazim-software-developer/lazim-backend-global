@@ -2,38 +2,28 @@
 
 namespace App\Filament\Resources;
 
-use Filament\Forms;
-use Filament\Tables;
-use Filament\Forms\Get;
-use Filament\Forms\Set;
-use Filament\Forms\Form;
-use Filament\Tables\Table;
-use App\Models\VendorLedgers;
-use Filament\Resources\Resource;
-use App\Models\Building\Building;
-use App\Models\Accounting\Invoice;
-use Illuminate\Support\Facades\DB;
-use Filament\Tables\Actions\Action;
-use Filament\Tables\Filters\Filter;
-use Filament\Forms\Components\Select;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Columns\ViewColumn;
-use Filament\Forms\Components\TextInput;
-use Filament\Tables\Columns\ImageColumn;
-use Filament\Tables\Enums\FiltersLayout;
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\FileUpload;
-use Illuminate\Database\Eloquent\Builder;
-use Filament\Tables\Columns\TextInputColumn;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\VendorLedgersResource\Pages;
-use App\Filament\Resources\VendorLedgersResource\RelationManagers;
+use App\Models\Accounting\Invoice;
+use App\Models\Building\Building;
 use App\Models\Master\Role;
 use App\Models\User\User;
 use Coolsam\FilamentFlatpickr\Forms\Components\Flatpickr;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Form;
+use Filament\Forms\Get;
+use Filament\Resources\Resource;
+use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ViewColumn;
+use Filament\Tables\Enums\FiltersLayout;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
-use Malzariey\FilamentDaterangepickerFilter\Fields\DateRangePicker;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class VendorLedgersResource extends Resource
@@ -42,8 +32,8 @@ class VendorLedgersResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
-    protected static ?string $modelLabel = 'Service provider ledgers';
-    protected static ?string $title = 'Service provider ledgers';
+    protected static ?string $modelLabel      = 'Service provider ledgers';
+    protected static ?string $title           = 'Service provider ledgers';
     protected static ?string $navigationGroup = 'Ledgers';
 
     public static function form(Form $form): Form
@@ -66,7 +56,7 @@ class VendorLedgersResource extends Resource
                 Select::make('status')
                     ->options([
                         'approved' => 'Approved',
-                        'pending' => 'Pending',
+                        'pending'  => 'Pending',
                     ])
                     ->disabled()
                     ->searchable()
@@ -86,8 +76,6 @@ class VendorLedgersResource extends Resource
                     ->openable(true)
                     ->downloadable(true),
 
-
-
             ]);
     }
 
@@ -100,7 +88,7 @@ class VendorLedgersResource extends Resource
                     ->date(),
                 TextColumn::make('building.name')
                     ->searchable()
-                    ->default('NA')
+                    ->default('--')
                     ->limit(50),
                 ViewColumn::make('Code')->view('tables.columns.vendorledgerscode'),
                 TextColumn::make('vendor.name')
@@ -126,7 +114,7 @@ class VendorLedgersResource extends Resource
                             $segments = Str::of($data['Date'])->split('/[\s,]+/');
 
                             if (count($segments) === 3) {
-                                $from = $segments[0];
+                                $from  = $segments[0];
                                 $until = $segments[2];
 
                                 return $query->whereBetween('date', [$from, $until]);
@@ -139,20 +127,19 @@ class VendorLedgersResource extends Resource
                         Select::make('building')
                             ->searchable()
                             ->options(function () {
-                                if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
+                                if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
                                     return Building::all()->pluck('name', 'id');
-                                }
-                                else{
+                                } else {
                                     return Building::where('owner_association_id', auth()->user()?->owner_association_id)
-                                    ->pluck('name', 'id');
-                                } 
-                            })
+                                        ->pluck('name', 'id');
+                                }
+                            }),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         return $query
                             ->when(
                                 $data['building'],
-                                fn (Builder $query, $building_id): Builder => $query->where('building_id', $building_id),
+                                fn(Builder $query, $building_id): Builder => $query->where('building_id', $building_id),
                             );
                     }),
             ], layout: FiltersLayout::AboveContent)->filtersFormColumns(3)
@@ -202,7 +189,7 @@ class VendorLedgersResource extends Resource
             'index' => Pages\ListVendorLedgers::route('/'),
             // 'create' => Pages\CreateVendorLedgers::route('/create'),
             //'view' => Pages\ViewVendorLedgers::route('/{record}'),
-            'edit' => Pages\EditVendorLedgers::route('/{record}/edit'),
+            'edit'  => Pages\EditVendorLedgers::route('/{record}/edit'),
         ];
     }
 

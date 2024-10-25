@@ -2,31 +2,24 @@
 
 namespace App\Filament\Resources\Building\BuildingResource\RelationManagers;
 
-use Filament\Forms;
-use Filament\Tables;
-use Filament\Forms\Form;
-use Filament\Tables\Table;
 use App\Models\Master\Service;
-use App\Models\BuildingService;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
-use Filament\Tables\Actions\Action;
 use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Forms\Form;
+use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Tables;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\FileUpload;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Filament\Resources\RelationManagers\RelationManager;
-use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class BuildingserviceRelationManager extends RelationManager
 {
     protected static string $relationship = 'buildingservice';
-    protected static ?string $modelLabel = 'Personal Service';
+    protected static ?string $modelLabel  = 'Personal Service';
 
     public static function getTitle(Model $ownerRecord, string $pageClass): string
     {
@@ -82,13 +75,13 @@ class BuildingserviceRelationManager extends RelationManager
         return $table
             ->query(Service::query()->where('type', 'inhouse'))
             ->columns([
-                TextColumn::make('name')->default('NA'),
-                TextColumn::make('price')->default('NA'),
+                TextColumn::make('name')->default('--'),
+                TextColumn::make('price')->default('--'),
                 IconColumn::make('active')
                     ->boolean()
                     ->trueIcon('heroicon-o-check-badge')
                     ->falseIcon('heroicon-o-x-mark'),
-                // TextColumn::make('payment_link')->default('NA'),
+                // TextColumn::make('payment_link')->default('--'),
 
             ])
             ->defaultSort('created_at', 'desc')

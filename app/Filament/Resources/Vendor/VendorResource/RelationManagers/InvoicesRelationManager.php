@@ -198,16 +198,16 @@ class InvoicesRelationManager extends RelationManager
                 TextColumn::make('wda.job_description')
                     ->label('Job Description(WDA)'),
                 TextColumn::make('date')
-                    ->default('NA')
+                    ->default('--')
                     ->label('Start Date'),
                 TextColumn::make('status')
-                    ->default('NA')
+                    ->default('--')
                     ->label('Status'),
                 TextColumn::make('user.first_name')
-                    ->default('NA')
+                    ->default('--')
                     ->label('Status updated by'),
                 TextColumn::make('invoice_amount')
-                    ->default('NA')
+                    ->default('--')
                     ->label('Invoice Amount'),
 
             ])
@@ -352,7 +352,6 @@ class InvoicesRelationManager extends RelationManager
                                     'remarks'    => 'approved by md',
                                     'active'     => true,
                                 ]);
-
 
                                 $product_services = $connection->table('product_services')
                                     ->where(['name' => $record->contract->service->name, 'building_id' => $record->contract->building_id])

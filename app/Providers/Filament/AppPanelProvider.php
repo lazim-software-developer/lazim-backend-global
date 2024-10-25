@@ -174,40 +174,6 @@ class AppPanelProvider extends PanelProvider
 
                                     ]),
 
-                                NavigationGroup::make('Facility manager management')
-                                    ->items([
-                                        NavigationItem::make('Facility Managers')
-                                            ->url('/app/facility-managers')
-                                            ->hidden(auth()->user()->role->name !== 'Property Manager')
-                                            ->icon('heroicon-o-user')
-                                            ->activeIcon('heroicon-o-user')
-                                            ->sort(1),
-
-                                        NavigationItem::make('Assets')
-                                            ->url('/app/assets')
-                                            ->icon('heroicon-o-rectangle-stack')
-                                            ->hidden(auth()->user()->role->name !== 'Property Manager')
-                                            ->activeIcon('heroicon-o-rectangle-stack')
-                                            ->sort(8),
-
-                                        NavigationItem::make('Technicians')
-                                        // ->url('/app/technician-vendor')
-                                            ->url(TechnicianVendorResource::getUrl('index'))
-                                            ->icon('heroicon-o-wrench-screwdriver')
-                                            ->hidden(auth()->user()->role->name !== 'Property Manager')
-                                            ->activeIcon('heroicon-o-rectangle-stack')
-                                            ->sort(8),
-
-                                        NavigationItem::make('Sub Contractors')
-                                        // ->url('/app/technician-vendor')
-                                            ->url(SubContractorResource::getUrl('index'))
-                                            ->icon('heroicon-o-envelope')
-                                            ->hidden(auth()->user()->role->name !== 'Property Manager')
-                                            ->activeIcon('heroicon-o-rectangle-stack')
-                                            ->sort(8),
-
-                                    ]),
-
                             ]);
                         }
 
@@ -259,6 +225,8 @@ class AppPanelProvider extends PanelProvider
                                             ->activeIcon('heroicon-c-clipboard-document')
                                             ->sort(6),
                                     ]),
+
+
                             ]);
                         }
                         // || Role::where('id', auth()->user()->role_id)->first()->name != 'Admin'
@@ -289,32 +257,71 @@ class AppPanelProvider extends PanelProvider
                         }
 
                         if ($user->can('view_any_building::flat::tenant')) {
-    $builder->groups([
-        NavigationGroup::make('Resident management')
-            ->items([
-                NavigationItem::make('Residents')
-                    ->url('/app/building/flat-tenants')
-                    ->icon('heroicon-o-user-circle')
-                    ->hidden(!$user->can('view_any_building::flat::tenant'))
-                    ->activeIcon('heroicon-o-user-circle')
-                    ->sort(1),
+                            $builder->groups([
+                                NavigationGroup::make('Resident management')
+                                    ->items([
+                                        NavigationItem::make('Residents')
+                                            ->url('/app/building/flat-tenants')
+                                            ->icon('heroicon-o-user-circle')
+                                            ->hidden(!$user->can('view_any_building::flat::tenant'))
+                                            ->activeIcon('heroicon-o-user-circle')
+                                            ->sort(1),
 
-                NavigationItem::make('Resident Approval')
-                    ->url(UserApprovalResource::getUrl('index'))
-                    ->hidden(!$user->can('view_any_user::approval'))
-                    ->icon('heroicon-o-users')
-                    ->activeIcon('heroicon-o-users')
-                    ->sort(2),
+                                        NavigationItem::make('Resident Approval')
+                                            ->url(UserApprovalResource::getUrl('index'))
+                                            ->hidden(!$user->can('view_any_user::approval'))
+                                            ->icon('heroicon-o-users')
+                                            ->activeIcon('heroicon-o-users')
+                                            ->sort(2),
 
-                NavigationItem::make('Resident documents')
-                    ->url('/app/tenant-documents')
-                    ->hidden(!$user->can('view_any_tenant::document'))
-                    ->icon('heroicon-o-user-circle')
-                    ->activeIcon('heroicon-o-user-circle')
-                    ->sort(9),
-            ]),
-    ]);
-}
+                                        NavigationItem::make('Resident documents')
+                                            ->url('/app/tenant-documents')
+                                            ->hidden(!$user->can('view_any_tenant::document'))
+                                            ->icon('heroicon-o-user-circle')
+                                            ->activeIcon('heroicon-o-user-circle')
+                                            ->sort(9),
+                                    ]),
+                            ]);
+                        }
+                        if ($user->can('view_any_vendor::vendor')) {
+                            $builder->groups([
+                                NavigationGroup::make('Facility manager management')
+                                    ->items([
+                                        NavigationItem::make('Facility Managers')
+                                            ->url('/app/facility-managers')
+                                            ->hidden(auth()->user()->role->name !== 'Property Manager')
+                                            ->icon('heroicon-o-user')
+                                            ->activeIcon('heroicon-o-user')
+                                            ->sort(1),
+
+                                        NavigationItem::make('Assets')
+                                            ->url('/app/assets')
+                                            ->icon('heroicon-o-rectangle-stack')
+                                            ->hidden(auth()->user()->role->name !== 'Property Manager')
+                                            ->activeIcon('heroicon-o-rectangle-stack')
+                                            ->sort(8),
+
+                                        NavigationItem::make('Technicians')
+                                        // ->url('/app/technician-vendor')
+                                            ->url(TechnicianVendorResource::getUrl('index'))
+                                            ->icon('heroicon-o-wrench-screwdriver')
+                                            ->hidden(auth()->user()->role->name !== 'Property Manager')
+                                            ->activeIcon('heroicon-o-rectangle-stack')
+                                            ->sort(8),
+
+                                        NavigationItem::make('Sub Contractors')
+                                        // ->url('/app/technician-vendor')
+                                            ->url(SubContractorResource::getUrl('index'))
+                                            ->icon('heroicon-o-envelope')
+                                            ->hidden(auth()->user()->role->name !== 'Property Manager')
+                                            ->activeIcon('heroicon-o-rectangle-stack')
+                                            ->sort(8),
+
+                                    ]),
+                            ]);
+                        }
+
+
 
 
                         if ($user->can('view_any_vendor::vendor') ||

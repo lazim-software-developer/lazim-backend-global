@@ -2,22 +2,19 @@
 
 namespace App\Filament\Resources\Building\BuildingResource\RelationManagers;
 
-use Filament\Tables;
-use Filament\Forms\Form;
-use Filament\Tables\Table;
-use App\Models\Building\Flat;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\Select;
-use Filament\Tables\Columns\TextColumn;
-use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 
 class FlatsRelationManager extends RelationManager
 {
     protected static string $relationship = 'flats';
-    protected static ?string $modelLabel = 'Units';
+    protected static ?string $modelLabel  = 'Units';
 
     public static function getTitle(Model $ownerRecord, string $pageClass): string
     {
@@ -34,19 +31,19 @@ class FlatsRelationManager extends RelationManager
                         ->label('Unit Number')
                         ->columnSpan([
                             'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
+                            'md'      => 12,
+                            'lg'      => 12,
                         ]),
                     TextInput::make('description')
                         ->placeholder('Description')
-                        ->default('NA')
+                        ->default('--')
                         ->columnSpan([
                             'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
+                            'md'      => 12,
+                            'lg'      => 12,
                         ]),
                     Hidden::make('building_id')
-                        ->default(function(RelationManager $livewire){
+                        ->default(function (RelationManager $livewire) {
                             return $livewire->ownerRecord->id;
                         }),
                 ]),
@@ -58,38 +55,38 @@ class FlatsRelationManager extends RelationManager
         return $table
             ->columns([
                 TextColumn::make('property_number')
-                    ->default('NA')
+                    ->default('--')
                     ->searchable()
                     ->label('Unit Number'),
                 TextColumn::make('building.name')
                     ->limit(50),
                 TextColumn::make('suit_area')
-                    ->default('NA')
+                    ->default('--')
                     ->searchable()
                     ->limit(50),
                 TextColumn::make('actual_area')
-                    ->default('NA')
+                    ->default('--')
                     ->searchable()
                     ->limit(50),
                 TextColumn::make('balcony_area')
-                    ->default('NA')
+                    ->default('--')
                     ->searchable()
                     ->limit(50),
                 TextColumn::make('applicable_area')
-                    ->default('NA')
+                    ->default('--')
                     ->searchable()
                     ->limit(50),
                 TextColumn::make('virtual_account_number')
-                    ->default('NA')
+                    ->default('--')
                     ->searchable()
                     ->hidden(in_array(auth()->user()->role->name, ['Property Manager', 'Admin']))
                     ->limit(50),
                 TextColumn::make('parking_count')
-                    ->default('NA')
+                    ->default('--')
                     ->searchable()
                     ->limit(50),
                 TextColumn::make('plot_number')
-                    ->default('NA')
+                    ->default('--')
                     ->searchable()
                     ->limit(50),
             ])
@@ -111,7 +108,7 @@ class FlatsRelationManager extends RelationManager
                 //         ]),
                 //     TextInput::make('description')
                 //         ->placeholder('Description')
-                //         ->default('NA')
+                //         ->default('--')
                 //         ->columnSpan([
                 //             'default' => 12,
                 //             'md' => 12,
@@ -121,7 +118,7 @@ class FlatsRelationManager extends RelationManager
                 //             ->rules(['exists:buildings,id'])
                 //             ->relationship('building', 'name')
                 //             ->reactive()
-                //             ->default('NA')
+                //             ->default('--')
                 //             ->preload()
                 //             ->searchable()
                 //             ->placeholder('Building')

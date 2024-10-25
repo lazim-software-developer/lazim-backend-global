@@ -71,12 +71,12 @@ class OwnerResource extends Resource
                                 ->label('Unit Number'),
                             // ViewField::make('Building')
                             //     ->view('forms.components.building-name-owner')
-                        ])
-                        // ->columnSpan([
-                        //     'sm' => 1,
-                        //     'md' => 1,
-                        //     'lg' => 2,
-                        // ]),
+                        ]),
+                    // ->columnSpan([
+                    //     'sm' => 1,
+                    //     'md' => 1,
+                    //     'lg' => 2,
+                    // ]),
                 ]),
 
         ]);
@@ -88,17 +88,17 @@ class OwnerResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('name')
                     ->searchable()
-                    ->default('NA')
+                    ->default('--')
                     ->label('Name')
                     ->limit(50),
                 Tables\Columns\TextColumn::make('mobile')
                     ->searchable()
-                    ->default('NA')
+                    ->default('--')
                     ->label('Mobile')
                     ->limit(50),
                 Tables\Columns\TextColumn::make('email')
                     ->searchable()
-                    ->default('NA')
+                    ->default('--')
                     ->label('Email')
                     ->limit(50),
                 ViewColumn::make('Unit')->view('tables.columns.apartment-ownerflat')->alignCenter(),

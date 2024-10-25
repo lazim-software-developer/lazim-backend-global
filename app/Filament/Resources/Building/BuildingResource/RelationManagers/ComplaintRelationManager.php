@@ -2,37 +2,34 @@
 
 namespace App\Filament\Resources\Building\BuildingResource\RelationManagers;
 
-use Closure;
-use Filament\Forms;
-use Filament\Tables;
-use Filament\Forms\Get;
-use Filament\Forms\Form;
-use App\Models\User\User;
-use Filament\Tables\Table;
-use App\Models\Vendor\Vendor;
-use App\Models\TechnicianVendor;
 use App\Models\Building\Complaint;
+use App\Models\TechnicianVendor;
+use App\Models\User\User;
 use App\Models\Vendor\ServiceVendor;
+use App\Models\Vendor\Vendor;
+use Closure;
 use Filament\Facades\Filament;
-use Illuminate\Support\Facades\DB;
-use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Repeater;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Form;
+use Filament\Forms\Get;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
+use Illuminate\Support\Facades\DB;
 
 class ComplaintRelationManager extends RelationManager
 {
     protected static string $relationship = 'complaint';
-    protected static ?string $modelLabel = 'Snag';
+    protected static ?string $modelLabel  = 'Snag';
 
     public static function getTitle(Model $ownerRecord, string $pageClass): string
     {
@@ -46,7 +43,7 @@ class ComplaintRelationManager extends RelationManager
                 Grid::make([
                     'sm' => 1,
                     'md' => 1,
-                    'lg' => 2
+                    'lg' => 2,
                 ])
                     ->schema([
                         Select::make('building_id')
@@ -78,10 +75,10 @@ class ComplaintRelationManager extends RelationManager
                             ->preload()
                             ->required()
                             ->options(function (Complaint $record, Get $get) {
-                                $serviceVendor = ServiceVendor::where('service_id',$get('service_id'))->pluck('vendor_id');
+                                $serviceVendor = ServiceVendor::where('service_id', $get('service_id'))->pluck('vendor_id');
                                 return Vendor::whereHas('ownerAssociation', function ($query) {
                                     $query->where('owner_association_id', Filament::getTenant()->id);
-                                })->whereIn('id',$serviceVendor)->pluck('name', 'id');
+                                })->whereIn('id', $serviceVendor)->pluck('name', 'id');
                             })
                             ->disabled(function (Complaint $record) {
                                 if ($record->vendor_id == null) {
@@ -104,7 +101,7 @@ class ComplaintRelationManager extends RelationManager
                             ->relationship('technician', 'first_name')
                             ->options(function (Complaint $record, Get $get) {
                                 $technician_vendor = DB::table('service_technician_vendor')->where('service_id', $record->service_id)->pluck('technician_vendor_id');
-                                $technicians = TechnicianVendor::find($technician_vendor)->where('vendor_id', $get('vendor_id'))->pluck('technician_id');
+                                $technicians       = TechnicianVendor::find($technician_vendor)->where('vendor_id', $get('vendor_id'))->pluck('technician_id');
                                 return User::find($technicians)->pluck('first_name', 'id');
                             })
                             ->disabled(function (Complaint $record) {
@@ -148,7 +145,7 @@ class ComplaintRelationManager extends RelationManager
                             ->columnSpan([
                                 'sm' => 1,
                                 'md' => 1,
-                                'lg' => 2
+                                'lg' => 2,
                             ]),
                         Select::make('service_id')
                             ->relationship('service', 'name')
@@ -159,7 +156,7 @@ class ComplaintRelationManager extends RelationManager
                             ->label('Service'),
                         TextInput::make('category')->disabled(),
                         TextInput::make('open_time')->disabled(),
-                        TextInput::make('close_time')->disabled()->default('NA'),
+                        TextInput::make('close_time')->disabled()->default('--'),
                         Textarea::make('complaint')
                             ->disabled()
                             ->placeholder('Complaint'),
@@ -168,7 +165,7 @@ class ComplaintRelationManager extends RelationManager
                         //     ->placeholder('Complaint Details'),
                         Select::make('status')
                             ->options([
-                                'open' => 'Open',
+                                'open'   => 'Open',
                                 'closed' => 'Closed',
                             ])
                             ->disabled(function (Complaint $record) {
@@ -189,7 +186,7 @@ class ComplaintRelationManager extends RelationManager
                             })
                             ->required(),
 
-                    ])
+                    ]),
             ]);
 
     }
@@ -200,26 +197,26 @@ class ComplaintRelationManager extends RelationManager
             ->modifyQueryUsing(fn(Builder $query) => $query->whereIn('complaint_type', ['snag']))
             ->columns([
                 TextColumn::make('building.name')
-                    ->default('NA')
+                    ->default('--')
                     ->searchable()
                     ->limit(50),
                 TextColumn::make('user.first_name')
-                    ->default('NA')
+                    ->default('--')
                     ->searchable()
                     ->limit(50),
-                 TextColumn::make('complaint')
+                TextColumn::make('complaint')
                     ->toggleable()
-                    ->default('NA')
+                    ->default('--')
                     ->limit(20)
                     ->searchable()
                     ->label('Complaint'),
                 // TextColumn::make('complaint_details')
                 //     ->toggleable()
-                //     ->default('NA')
+                //     ->default('--')
                 //     ->searchable()
                 //     ->label('Complaint Details'),
                 TextColumn::make('status')
-                    ->default('NA')
+                    ->default('--')
                     ->searchable()
                     ->limit(50),
             ])

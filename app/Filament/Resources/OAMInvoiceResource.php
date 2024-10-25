@@ -8,7 +8,6 @@ use App\Models\AccountCredentials;
 use App\Models\Accounting\OAMInvoice;
 use App\Models\ApartmentOwner;
 use App\Models\FlatOwners;
-use App\Models\OwnerAssociation;
 use Filament\Facades\Filament;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
@@ -67,11 +66,11 @@ class OAMInvoiceResource extends Resource
             ->columns([
                 TextColumn::make('building.name')
                     ->searchable()
-                    ->default('NA')
+                    ->default('--')
                     ->limit(50),
                 TextColumn::make('flat.property_number')
                     ->searchable()
-                    ->default('NA')
+                    ->default('--')
                     ->label('Unit Number')
                     ->limit(50),
                 TextColumn::make('invoice_number')
@@ -116,20 +115,20 @@ class OAMInvoiceResource extends Resource
                                 // Access the flat_id of each selected record
                                 $flatId = $record->flat_id;
 
-                                $ownerID          = FlatOwners::where('flat_id', $flatId)->where('active', true)->first()->owner_id;
-                                $owner            = ApartmentOwner::find($ownerID);
-                                $content          = $data['content'];
-                                $tenant           = Filament::getTenant()?->id ?? auth()->user()?->owner_association_id;
+                                $ownerID = FlatOwners::where('flat_id', $flatId)->where('active', true)->first()->owner_id;
+                                $owner   = ApartmentOwner::find($ownerID);
+                                $content = $data['content'];
+                                $tenant  = Filament::getTenant()?->id ?? auth()->user()?->owner_association_id;
                                 // $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
 
-                                $credentials = AccountCredentials::where('oa_id', $tenant)->where('active', true)->latest()->first();
+                                $credentials     = AccountCredentials::where('oa_id', $tenant)->where('active', true)->latest()->first();
                                 $mailCredentials = [
-                                    'mail_host' => $credentials->host??env('MAIL_HOST'),
-                                    'mail_port' => $credentials->port??env('MAIL_PORT'),
-                                    'mail_username'=> $credentials->username??env('MAIL_USERNAME'),
-                                    'mail_password' => $credentials->password??env('MAIL_PASSWORD'),
-                                    'mail_encryption' => $credentials->encryption??env('MAIL_ENCRYPTION'),
-                                    'mail_from_address' => $credentials->email??env('MAIL_FROM_ADDRESS'),
+                                    'mail_host'         => $credentials->host ?? env('MAIL_HOST'),
+                                    'mail_port'         => $credentials->port ?? env('MAIL_PORT'),
+                                    'mail_username'     => $credentials->username ?? env('MAIL_USERNAME'),
+                                    'mail_password'     => $credentials->password ?? env('MAIL_PASSWORD'),
+                                    'mail_encryption'   => $credentials->encryption ?? env('MAIL_ENCRYPTION'),
+                                    'mail_from_address' => $credentials->email ?? env('MAIL_FROM_ADDRESS'),
                                 ];
 
                                 InvoiceDueMailJob::dispatch($owner, $content, $mailCredentials);
