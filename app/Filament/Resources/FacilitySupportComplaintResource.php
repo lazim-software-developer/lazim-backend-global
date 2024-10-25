@@ -196,7 +196,7 @@ class FacilitySupportComplaintResource extends Resource
                                             return [];
                                         }
                                         $vendorIds = ServiceVendor::where('service_id', $get('service_id'))
-                                            ->pluck('vendor_id')->toArray();
+                                            ->pluck('vendor_id');
                                         // dd($vendorIds);
 
                                         // $vendorIds = DB::table('service_technician_vendor')
@@ -214,8 +214,7 @@ class FacilitySupportComplaintResource extends Resource
                                         //     ->pluck('first_name', 'id')
                                         //     ->toArray();
 
-                                        return Vendor::where('id', $vendorIds)
-                                            ->orderBy('name')
+                                        return Vendor::whereIn('id', $vendorIds)
                                             ->pluck('name', 'id')
                                             ->toArray();
 
