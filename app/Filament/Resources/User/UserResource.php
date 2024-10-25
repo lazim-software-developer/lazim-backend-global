@@ -86,7 +86,7 @@ class UserResource extends Resource
                             } else {
                                 $oaId = auth()->user()?->owner_association_id;
                                 return Role::whereNotIn('name',
-                                    ['Admin', 'Security', 'Tenant', 'OA', 'Owner', 'Managing Director',
+                                    ['Admin', 'Security', 'Tenant', 'OA', 'Owner', 'Managing    Director', 'Technician',
                                         'Vendor', 'Property Manager', 'Facility Manager'])
                                     ->where('owner_association_id', $oaId)
                                     ->pluck('name', 'id');

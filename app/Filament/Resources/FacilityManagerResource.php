@@ -105,8 +105,8 @@ class FacilityManagerResource extends Resource
                                             ->label('Landline Number')
                                             ->required()
                                             ->tel(),
-                                        TextInput::make('fax')
-                                            ->label('Fax Number'),
+                                        // TextInput::make('fax')
+                                        //     ->label('Fax Number'),
                                     ]),
                                 TextInput::make('website')
                                     ->label('Website')
