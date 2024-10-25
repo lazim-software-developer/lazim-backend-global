@@ -30,6 +30,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('dispatch:receipt-fetch')->daily();
         $schedule->command('app:moveout-notification')->daily();
         $schedule->command('app:tenant-expiry-notification')->daily();
+        $schedule->command('buildings:detach-expired')->daily();
+        $schedule->command('buildings:handle-pm-detachments')->daily();
 
     }
 
