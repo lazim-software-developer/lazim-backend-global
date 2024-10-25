@@ -50,7 +50,7 @@ class ItemResource extends Resource
                     Select::make('building_id')
                         ->relationship('building', 'name')
                         ->preload()
-                        ->disabledOn('edit')
+                        // ->disabledOn('edit')
                         ->required()
                         ->live()
                         ->options(function () {
@@ -62,7 +62,7 @@ class ItemResource extends Resource
                         ->searchable(),
                     TextInput::make('name')
                         ->required()
-                        ->disabledOn('edit')
+                        // ->disabledOn('edit')
                         ->rules([
                             'max:50',
                             'regex:/^[a-zA-Z\s]*$/',
@@ -75,13 +75,14 @@ class ItemResource extends Resource
                     TextInput::make('quantity')
                         ->required()
                         ->integer()
-                        ->disabledOn('edit')
+                        // ->disabledOn('edit')
                         ->minValue(0)
                         ->maxValue(100000),
                     Textarea::make('description')
                         ->rules(['max:100', 'regex:/^(?=.*[a-zA-Z])[a-zA-Z0-9\s!@#$%^&*_+\-=,.]*$/'])
                         ->required()
-                        ->disabledOn('edit'),
+                        // ->disabledOn('edit')
+                        ,
                 ])
             ]);
     }
@@ -142,6 +143,7 @@ class ItemResource extends Resource
                     })
             ])
             ->actions([
+                Tables\Actions\EditAction::make(),
                 Tables\Actions\ViewAction::make(),
             ])
             ->bulkActions([
@@ -193,7 +195,7 @@ class ItemResource extends Resource
             'index' => Pages\ListItems::route('/'),
             'create' => Pages\CreateItem::route('/create'),
             'view' => Pages\ViewItem::route('/{record}'),
-            // 'edit' => Pages\EditItem::route('/{record}/edit'),
+            'edit' => Pages\EditItem::route('/{record}/edit'),
         ];
     }
 }
