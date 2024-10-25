@@ -89,8 +89,8 @@ class HistoryRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('status')
             ->columns([
-                TextColumn::make('status')->formatStateUsing(fn($state) => ucwords($state)),
-                TextColumn::make('remarks')->default('NA'),
+                TextColumn::make('status')->formatStateUsing(fn($state) => ucwords($state))->default('Pending'),
+                TextColumn::make('remarks')->default('NA')->limit(30),
                 TextColumn::make('user.first_name')->default('NA')->limit(20),
                 TextColumn::make('updated_at')->date()
                     ->formatStateUsing(fn(?string $state) => $state ? $state : 'NA')->label('Status updated on'),
