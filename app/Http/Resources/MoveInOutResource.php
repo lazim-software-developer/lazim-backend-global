@@ -26,6 +26,7 @@ class MoveInOutResource extends JsonResource
             'building_name'        => $this->building?->name,
             'status'               => $this->status,
             'remarks'              => $this->remarks,
+            'ticket_number'        => $this->ticket_number,
             'handover_acceptance'  => $this->handover_acceptance ? env('AWS_URL') . '/' . $this->handover_acceptance : null,
             'receipt_charges'      => $this->receipt_charges ? env('AWS_URL') . '/' . $this->receipt_charges : null,
             'contract'             => $this->contract ? env('AWS_URL') . '/' . $this->contract : null,
