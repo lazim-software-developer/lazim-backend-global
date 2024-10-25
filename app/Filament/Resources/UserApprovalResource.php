@@ -52,15 +52,15 @@ class UserApprovalResource extends Resource
             ->columns(2),
         Section::make('Flat & Building Details')
             ->schema([
+                TextInput::make('building')
+                ->formatStateUsing(function($record){
+                    return Flat::where('id', $record->flat_id)->first()?->building->name;
+                })
+                ->disabled(),
                 Select::make('flat_id')->label('Flat')
                     ->relationship('flat', 'property_number')
                     ->disabled()
                     ->live(),
-                TextInput::make('building')
-                    ->formatStateUsing(function($record){
-                        return Flat::where('id', $record->flat_id)->first()?->building->name;
-                    })
-                    ->disabled(),
             ])
             ->columns(2),
         Section::make('Documents')
