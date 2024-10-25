@@ -147,9 +147,17 @@ class CreatePropertyManager extends CreateRecord
             ->where('owner_association_id', $pmId)
             ->first();
 
+        $technicianRole = Role::where('name', 'Technician')
+            ->where('owner_association_id', $pmId)
+            ->first();
+
         if ($facilityManagerRole) {
             $allPermissions = Permission::all();
             $facilityManagerRole->syncPermissions($allPermissions);
+        }
+        if ($technicianRole) {
+            $allPermissions = Permission::all();
+            $technicianRole->syncPermissions($allPermissions);
         }
 
     }
