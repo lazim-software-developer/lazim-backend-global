@@ -154,6 +154,7 @@ class AssetResource extends Resource
                     ->label('Service'),
             ])
             ->actions([
+                Tables\Actions\EditAction::make(),
                 Tables\Actions\ViewAction::make(),
             ])
             ->bulkActions([
@@ -206,7 +207,7 @@ class AssetResource extends Resource
             'index' => Pages\ListAssets::route('/'),
             'create' => Pages\CreateAsset::route('/create'),
             'view' => Pages\ViewAsset::route('/{record}'),
-            // 'edit' => Pages\EditAsset::route('/{record}/edit'),
+            'edit' => Pages\EditAsset::route('/{record}/edit'),
 
         ];
     }
