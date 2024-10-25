@@ -24,47 +24,47 @@ class UsersRelationManager extends RelationManager
                         ->rules(['max:50', 'string'])
                         ->placeholder('First Name')
                         ->required()
-                        ->default('NA')
+                        ->default('--')
                         ->columnSpan([
                             'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
+                            'md'      => 12,
+                            'lg'      => 12,
                         ]),
 
                     TextInput::make('last_name')
                         ->rules(['max:50', 'string'])
                         ->placeholder('Last Name')
                         ->required()
-                        ->default('NA')
+                        ->default('--')
                         ->columnSpan([
                             'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
+                            'md'      => 12,
+                            'lg'      => 12,
                         ]),
 
                     TextInput::make('email')
                         ->rules(['email'])
-                        ->unique('users', 'email', fn (?Model $record) => $record)
+                        ->unique('users', 'email', fn(?Model $record) => $record)
                         ->email()
                         ->required()
-                        ->default('NA')
+                        ->default('--')
                         ->placeholder('Email')
                         ->columnSpan([
                             'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
+                            'md'      => 12,
+                            'lg'      => 12,
                         ]),
 
                     TextInput::make('phone')
                         ->rules(['max:10', 'string'])
-                        ->unique('users', 'phone', fn (?Model $record) => $record)
+                        ->unique('users', 'phone', fn(?Model $record) => $record)
                         ->placeholder('Phone')
                         ->required()
-                        ->default('NA')
+                        ->default('--')
                         ->columnSpan([
                             'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
+                            'md'      => 12,
+                            'lg'      => 12,
                         ]),
 
                     Toggle::make('active')
@@ -73,8 +73,8 @@ class UsersRelationManager extends RelationManager
                         ->default(0)
                         ->columnSpan([
                             'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
+                            'md'      => 12,
+                            'lg'      => 12,
                         ]),
                 ]),
             ]);
@@ -85,16 +85,16 @@ class UsersRelationManager extends RelationManager
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('first_name')
-                    ->default('NA')
+                    ->default('--')
                     ->limit(50),
                 Tables\Columns\TextColumn::make('last_name')
-                    ->default('NA')
+                    ->default('--')
                     ->limit(50),
                 Tables\Columns\TextColumn::make('email')
-                    ->default('NA')
+                    ->default('--')
                     ->limit(50),
                 Tables\Columns\TextColumn::make('phone')
-                    ->default('NA')
+                    ->default('--')
                     ->limit(50),
                 Tables\Columns\IconColumn::make('active')
                     ->boolean()

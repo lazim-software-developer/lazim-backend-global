@@ -2,42 +2,36 @@
 
 namespace App\Filament\Resources;
 
-use Filament\Forms;
-use Filament\Tables;
-use Filament\Forms\Get;
-use Filament\Forms\Form;
-use App\Models\User\User;
-use Filament\Tables\Table;
-use App\Models\Master\Role;
-use Filament\Facades\Filament;
-use Filament\Resources\Resource;
-use App\Models\Building\Complaint;
-use Illuminate\Support\Facades\DB;
-use Filament\Forms\Components\Grid;
-use Filament\Tables\Actions\Action;
-use App\Models\Complaintssuggession;
-use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Section;
-use Filament\Forms\Components\Repeater;
-use Filament\Forms\Components\Textarea;
-use Filament\Tables\Columns\TextColumn;
-use Illuminate\Database\Eloquent\Model;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\FileUpload;
-use Filament\Tables\Filters\SelectFilter;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 use App\Filament\Resources\ComplaintssuggessionResource\Pages;
-use App\Filament\Resources\ComplaintssuggessionResource\RelationManagers;
+use App\Models\Building\Complaint;
+use App\Models\Master\Role;
+use App\Models\User\User;
+use Filament\Facades\Filament;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Form;
+use Filament\Resources\Resource;
+use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class ComplaintssuggessionResource extends Resource
 {
     protected static ?string $model = Complaint::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-    protected static ?string $modelLabel = 'Suggestions';
+    protected static ?string $modelLabel     = 'Suggestions';
 
     protected static ?string $navigationGroup = 'Happiness center';
     public static function form(Form $form): Form
@@ -47,7 +41,7 @@ class ComplaintssuggessionResource extends Resource
                 Grid::make([
                     'sm' => 1,
                     'md' => 1,
-                    'lg' => 2
+                    'lg' => 2,
                 ])
                     ->schema([
                         Hidden::make('complaintable_type')
@@ -94,35 +88,35 @@ class ComplaintssuggessionResource extends Resource
                             ->default('open'),
                         Hidden::make('complaint_type')
                             ->default('suggestions'),
-                    Section::make('Status and Remarks')
-                    ->columns(2)
-                    ->schema([
-                        Select::make('status')
-                            ->options([
-                                'open' => 'Open',
-                                'in-progress' => 'In-Progress',
-                                'closed' => 'Closed',
-                            ])
-                            ->disabled(function (Complaint $record) {
-                                return $record->status == 'closed';
-                            })
-                            ->required()
-                            ->searchable()
-                            ->live(),
-                        TextInput::make('remarks')
-                            ->rules(['max:150'])
-                            // ->visible(function (callable $get) {
-                            //     if ($get('status') == 'closed') {
-                            //         return true;
-                            //     }
-                            //     return false;
-                            // })
-                            ->disabled(function (Complaint $record) {
-                                return $record->status == 'closed';
-                            })
-                            ->required(),
-                        ]),
-                    Repeater::make('media')
+                        Section::make('Status and Remarks')
+                            ->columns(2)
+                            ->schema([
+                                Select::make('status')
+                                    ->options([
+                                        'open'        => 'Open',
+                                        'in-progress' => 'In-Progress',
+                                        'closed'      => 'Closed',
+                                    ])
+                                    ->disabled(function (Complaint $record) {
+                                        return $record->status == 'closed';
+                                    })
+                                    ->required()
+                                    ->searchable()
+                                    ->live(),
+                                TextInput::make('remarks')
+                                    ->rules(['max:150'])
+                                // ->visible(function (callable $get) {
+                                //     if ($get('status') == 'closed') {
+                                //         return true;
+                                //     }
+                                //     return false;
+                                // })
+                                    ->disabled(function (Complaint $record) {
+                                        return $record->status == 'closed';
+                                    })
+                                    ->required(),
+                            ]),
+                        Repeater::make('media')
                             ->relationship()
                             ->disabled()
                             ->schema([
@@ -134,7 +128,7 @@ class ComplaintssuggessionResource extends Resource
                                     ->downloadable(true)
                                     ->label('File'),
                             ]),
-                    ])
+                    ]),
             ]);
     }
 
@@ -144,14 +138,14 @@ class ComplaintssuggessionResource extends Resource
             ->columns([
                 TextColumn::make('ticket_number')
                     ->searchable()
-                    ->default('NA')
+                    ->default('--')
                     ->label('Ticket number'),
                 TextColumn::make('building.name')
-                    ->default('NA')
+                    ->default('--')
                     ->searchable()
                     ->limit(50),
                 TextColumn::make('flat.property_number')
-                    ->default('NA')
+                    ->default('--')
                     ->searchable()
                     ->limit(50),
                 TextColumn::make('user.first_name')
@@ -165,7 +159,7 @@ class ComplaintssuggessionResource extends Resource
                     ->label('Suggestion'),
                 TextColumn::make('complaint_details')
                     ->toggleable()
-                    ->default('NA')
+                    ->default('--')
                     ->limit(20)
                     ->searchable()
                     ->label('Suggestion details'),
@@ -185,13 +179,13 @@ class ComplaintssuggessionResource extends Resource
                     })
                     ->searchable()
                     ->label('Building')
-                    ->preload()
+                    ->preload(),
             ])
             ->bulkActions([
                 ExportBulkAction::make(),
                 Tables\Actions\BulkActionGroup::make([
                     // Tables\Actions\DeleteBulkAction::make(),
-                ]),]);
+                ])]);
     }
 
     public static function getRelations(): array
@@ -206,7 +200,7 @@ class ComplaintssuggessionResource extends Resource
         return [
             'index' => Pages\ListComplaintssuggessions::route('/'),
             // 'view' => Pages\ViewComplaintssuggession::route('/{record}'),
-            'edit' => Pages\EditComplaintssuggession::route('/{record}/edit'),
+            'edit'  => Pages\EditComplaintssuggession::route('/{record}/edit'),
         ];
     }
 

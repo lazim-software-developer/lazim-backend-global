@@ -97,30 +97,30 @@ class TenantResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('name')
                     ->searchable()
-                    ->default('NA')
+                    ->default('--')
                     ->label('Name')
                     ->limit(50),
                 Tables\Columns\TextColumn::make('mobile')
                     ->searchable()
-                    ->default('NA')
+                    ->default('--')
                     ->label('Mobile')
                     ->limit(50),
                 Tables\Columns\TextColumn::make('email')
                     ->searchable()
-                    ->default('NA')
+                    ->default('--')
                     ->label('Email')
                     ->limit(50),
                 TextColumn::make('building.name')
                     ->searchable()
-                    ->default('NA')
+                    ->default('--')
                     ->label('Buildings'),
                 TextColumn::make('flat.property_number')
                     ->searchable()
-                    ->default('NA')
+                    ->default('--')
                     ->label('Unit Number'),
                 Tables\Columns\TextColumn::make('contract_status')
                     ->searchable()
-                    ->default('NA')
+                    ->default('--')
                     ->label('Contract status')
                     ->limit(50),
             ])

@@ -54,7 +54,7 @@ class FacilitySupportComplaintResource extends Resource
                                         'building' => 'Building',
                                     ])
                                     ->live()
-                                    ->default('NA'),
+                                    ->default('--'),
 
                                 Toggle::make('Urgent')
                                     ->label('Mark as Urgent')
@@ -223,7 +223,7 @@ class FacilitySupportComplaintResource extends Resource
                                         }
 
                                         $technicianIds = DB::table('service_technician_vendor')
-                                            ->join('technician_vendors','service_technician_vendor.technician_vendor_id'
+                                            ->join('technician_vendors', 'service_technician_vendor.technician_vendor_id'
                                                 , '=', 'technician_vendors.id')
                                             ->where('service_technician_vendor.service_id', $serviceId)
                                             ->where('technician_vendors.vendor_id', $vendorId)
@@ -304,20 +304,20 @@ class FacilitySupportComplaintResource extends Resource
                 TextColumn::make('ticket_number')
                     ->label('Ticket Number')
                     ->toggleable()
-                    ->default('NA')
+                    ->default('--')
                     ->limit(20)
                     ->searchable(),
 
                 TextColumn::make('building.name')
                     ->label('Building')
-                    ->default('NA')
+                    ->default('--')
                     ->searchable()
                     ->limit(50),
 
                 TextColumn::make('type')
                     ->label('Type')
                     ->formatStateUsing(fn(string $state) => ucfirst($state))
-                    ->default('NA'),
+                    ->default('--'),
 
                 TextColumn::make('user.first_name')
                     ->label('User')

@@ -3,24 +3,23 @@
 namespace App\Filament\Resources;
 
 use App\Models\Activity;
-use Filament\Forms\Form;
 use App\Models\User\User;
-use Filament\Tables\Table;
-use Illuminate\Support\Str;
 use Filament\Facades\Filament;
-use Filament\Resources\Resource;
-use Filament\Tables\Filters\Filter;
-use Filament\Forms\Components\Group;
-use Filament\Forms\Components\Section;
-use Filament\Forms\Components\KeyValue;
-use Filament\Forms\Components\Textarea;
-use Filament\Tables\Columns\TextColumn;
-use Illuminate\Database\Eloquent\Model;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\DatePicker;
-use Filament\Tables\Filters\SelectFilter;
-use Illuminate\Database\Eloquent\Builder;
+use Filament\Forms\Components\Group;
 use Filament\Forms\Components\Placeholder;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Form;
+use Filament\Resources\Resource;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 use Spatie\Activitylog\ActivitylogServiceProvider;
 use Z3d0X\FilamentLogger\Resources\ActivityResource\Pages;
 
@@ -48,8 +47,8 @@ class ActivityResource extends Resource
                                 /** @phpstan-ignore-next-line */
                                 return $component->state($record->causer?->name);
                             })
-                            ->formatStateUsing(function($state){
-                                return User::where('id',$state)->value('first_name');
+                            ->formatStateUsing(function ($state) {
+                                return User::where('id', $state)->value('first_name');
                             })
                             ->label(__('filament-logger::filament-logger.resource.label.user')),
 
@@ -130,12 +129,12 @@ class ActivityResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-        ->modifyQueryUsing(function (Builder $query) {
-            $userId = User::where('owner_association_id',auth()->user()->owner_association_id)->pluck('id');
-            $query->whereIn('causer_id',$userId);
-            
-            return $query->latest();
-        })
+            ->modifyQueryUsing(function (Builder $query) {
+                $userId = User::where('owner_association_id', auth()->user()->owner_association_id)->pluck('id');
+                $query->whereIn('causer_id', $userId);
+
+                return $query->latest();
+            })
             ->columns([
                 // TextColumn::make('log_name')
                 //     ->badge()
@@ -149,8 +148,8 @@ class ActivityResource extends Resource
 
                 TextColumn::make('description')
                     ->label(__('filament-logger::filament-logger.resource.label.description'))
-                    // ->toggleable()
-                    // ->toggledHiddenByDefault()
+                // ->toggleable()
+                // ->toggledHiddenByDefault()
                     ->wrap(),
 
                 // TextColumn::make('subject_type')
@@ -164,7 +163,7 @@ class ActivityResource extends Resource
                 //     }),
 
                 TextColumn::make('subject_type')
-                    ->default('NA')
+                    ->default('--')
                     ->label('Feature')
                     ->formatStateUsing(function ($state, Model $record) {
                         /** @var Activity&ActivityModel $record */
@@ -177,8 +176,8 @@ class ActivityResource extends Resource
                     }),
 
                 TextColumn::make('causer_id')
-                    ->formatStateUsing(function($record){
-                        return User::where('id',$record->causer_id)->value('first_name');
+                    ->formatStateUsing(function ($record) {
+                        return User::where('id', $record->causer_id)->value('first_name');
                     })
                     ->label(__('filament-logger::filament-logger.resource.label.user')),
 
@@ -239,18 +238,18 @@ class ActivityResource extends Resource
                 //         return $query->where('properties->attributes', 'like', "%{$data['new']}%");
                 //     }),
                 SelectFilter::make('causer_id')
-                ->label('User')
-                ->options(function(){
-                    $users  = Activity::select('causer_id')->distinct()->pluck('causer_id');
-                    return User::whereIn('id',$users)->where('owner_association_id',auth()->user()->owner_association_id)->pluck('first_name','id');
-                })
-                ->query(function (Builder $query, array $data) {
-                    
-                    if (!empty($data['value'])) { // Ensure that the value is present
-                        return $query->where('causer_id', $data['value']); // Filter by the user selected
-                    }
-                    return $query;
-                }),
+                    ->label('User')
+                    ->options(function () {
+                        $users = Activity::select('causer_id')->distinct()->pluck('causer_id');
+                        return User::whereIn('id', $users)->where('owner_association_id', auth()->user()->owner_association_id)->pluck('first_name', 'id');
+                    })
+                    ->query(function (Builder $query, array $data) {
+
+                        if (!empty($data['value'])) { // Ensure that the value is present
+                            return $query->where('causer_id', $data['value']); // Filter by the user selected
+                        }
+                        return $query;
+                    }),
 
                 Filter::make('created_at')
                     ->form([
@@ -260,7 +259,7 @@ class ActivityResource extends Resource
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         return $query
-                            // ->whereNot('subject_type', 'App\Models\Building\Building')
+                        // ->whereNot('subject_type', 'App\Models\Building\Building')
                             ->when(
                                 $data['logged_at'],
                                 fn(Builder $query, $date): Builder => $query->whereDate('created_at', $date),

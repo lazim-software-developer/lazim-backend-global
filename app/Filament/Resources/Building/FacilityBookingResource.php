@@ -2,36 +2,35 @@
 
 namespace App\Filament\Resources\Building;
 
-use Filament\Tables;
-use Filament\Forms\Form;
-use App\Models\User\User;
-use Filament\Tables\Table;
-use App\Models\Master\Role;
-use Filament\Resources\Resource;
+use App\Filament\Resources\Building\FacilityBookingResource\Pages;
 use App\Models\Building\Building;
-use Illuminate\Support\Facades\DB;
+use App\Models\Building\FacilityBooking;
+use App\Models\Master\Role;
+use App\Models\User\User;
+use Filament\Facades\Filament;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Grid;
-use Filament\Tables\Actions\Action;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Toggle;
-use Filament\Tables\Actions\EditAction;
-use App\Models\Building\FacilityBooking;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\TimePicker;
+use Filament\Forms\Components\Toggle;
+use Filament\Forms\Form;
+use Filament\Resources\Resource;
+use Filament\Tables;
+use Filament\Tables\Actions\Action;
+use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use App\Filament\Resources\Building\FacilityBookingResource\Pages;
-use Filament\Facades\Filament;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class FacilityBookingResource extends Resource
 {
     protected static ?string $model = FacilityBooking::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon  = 'heroicon-o-rectangle-stack';
     protected static ?string $navigationLabel = 'Amenity Bookings';
     protected static ?string $navigationGroup = 'Property Management';
     protected static ?string $modelLabel      = 'Amenity Booking';
@@ -51,13 +50,12 @@ class FacilityBookingResource extends Resource
                             ->rules(['exists:buildings,id'])
                             ->relationship('building', 'name')
                             ->options(function () {
-                                if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
+                                if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
                                     return Building::all()->pluck('name', 'id');
-                                }
-                                else{
+                                } else {
                                     return Building::where('owner_association_id', auth()->user()?->owner_association_id)
-                                    ->pluck('name', 'id');
-                                }    
+                                        ->pluck('name', 'id');
+                                }
                             })
                             ->reactive()
                             ->disabledOn('edit')
@@ -86,13 +84,12 @@ class FacilityBookingResource extends Resource
                             ->required()
                             ->relationship('user', 'first_name')
                             ->options(function () {
-                                $roleId = Role::whereIn('name',['tenant','owner'])->pluck('id')->toArray();
+                                $roleId = Role::whereIn('name', ['tenant', 'owner'])->pluck('id')->toArray();
 
-                                if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
-                                    return User::whereIn('role_id', $roleId)->pluck('first_name', 'id'); 
-                                }
-                                else{
-                                    return User::whereIn('role_id', $roleId)->where('owner_association_id',auth()->user()?->owner_association_id)->pluck('first_name', 'id');
+                                if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+                                    return User::whereIn('role_id', $roleId)->pluck('first_name', 'id');
+                                } else {
+                                    return User::whereIn('role_id', $roleId)->where('owner_association_id', auth()->user()?->owner_association_id)->pluck('first_name', 'id');
                                 }
                             })
                             ->preload()
@@ -117,7 +114,7 @@ class FacilityBookingResource extends Resource
                             ->required()
                             ->placeholder('End Time'),
                         // TextInput::make('remarks')
-                        //     ->default('NA')
+                        //     ->default('--')
                         //     ->disabledOn('edit')
                         //     ->required(),
                         // TextInput::make('reference_number')
@@ -142,28 +139,28 @@ class FacilityBookingResource extends Resource
             ->poll('60s')
             ->columns([
                 Tables\Columns\TextColumn::make('building.name')
-                    ->default('NA')
+                    ->default('--')
                     ->searchable()
                     ->limit(50),
                 Tables\Columns\TextColumn::make('bookable.name')
-                    ->default('NA')
+                    ->default('--')
                     ->searchable()
                     ->limit(50)
                     ->label('Amenity'),
                 Tables\Columns\TextColumn::make('user.first_name')
                     ->searchable()
-                    ->default('NA')
+                    ->default('--')
                     ->limit(50),
                 Tables\Columns\TextColumn::make('date')
                     ->date()
-                    ->default('NA')
+                    ->default('--')
                     ->searchable()
                     ->date(),
                 Tables\Columns\TextColumn::make('start_time')
-                    ->default('NA')
+                    ->default('--')
                     ->time(),
                 Tables\Columns\TextColumn::make('end_time')
-                    ->default('NA')
+                    ->default('--')
                     ->time(),
                 // Tables\Columns\TextColumn::make('reference_number')
                 //     ->default('0')
@@ -174,14 +171,13 @@ class FacilityBookingResource extends Resource
             ->defaultSort('created_at', 'desc')
             ->filters([
                 SelectFilter::make('building_id')
-                    ->relationship('building', 'name',function (Builder $query){
-                        if(Role::where('id',auth()->user()->role_id)->first()->name != 'Admin')
-                        {
-                            $query->where('owner_association_id',Filament::getTenant()?->id);
+                    ->relationship('building', 'name', function (Builder $query) {
+                        if (Role::where('id', auth()->user()->role_id)->first()->name != 'Admin') {
+                            $query->where('owner_association_id', Filament::getTenant()?->id);
                         }
                     })
                     ->searchable()
-                    ->preload()
+                    ->preload(),
             ])
             ->actions([
                 EditAction::make(),
@@ -194,14 +190,14 @@ class FacilityBookingResource extends Resource
                             ->required()
                             ->live(),
                     ])
-                    ->fillForm(fn(FacilityBooking $record): array => [
+                    ->fillForm(fn(FacilityBooking $record): array=> [
                         'approved' => $record->approved,
                     ])
                     ->action(function (FacilityBooking $record, array $data): void {
                         $record->approved = $data['approved'];
                         $record->save();
                     })
-                    ->slideOver()
+                    ->slideOver(),
             ])
             ->bulkActions([
                 ExportBulkAction::make(),
@@ -224,10 +220,10 @@ class FacilityBookingResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListFacilityBookings::route('/'),
+            'index'  => Pages\ListFacilityBookings::route('/'),
             'create' => Pages\CreateFacilityBooking::route('/create'),
             // 'view' => Pages\ViewFacilityBooking::route('/{record}'),
-            'edit' => Pages\EditFacilityBooking::route('/{record}/edit'),
+            'edit'   => Pages\EditFacilityBooking::route('/{record}/edit'),
         ];
     }
 

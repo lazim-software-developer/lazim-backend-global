@@ -15,8 +15,6 @@ use Filament\Forms\Components\MorphToSelect\Type;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
-use Filament\Tables;
-use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
@@ -59,8 +57,8 @@ class MediaResource extends Resource
                             ->disabled()
                             ->label('Mediaable')
                             ->required(),
-                    ])
-                ])
+                    ]),
+                ]),
             ]);
     }
 
@@ -70,12 +68,12 @@ class MediaResource extends Resource
             ->columns([
                 TextColumn::make('name')
                     ->toggleable()
-                    ->default('NA')
+                    ->default('--')
                     ->searchable(),
                 TextColumn::make('model_name')
                     ->label('Media Type')
                     ->toggleable()
-                    ->default('NA')
+                    ->default('--')
                     ->searchable(),
 
             ])
@@ -83,17 +81,17 @@ class MediaResource extends Resource
             ->filters([
                 //
             ]);
-            // ->actions([
-            //     Tables\Actions\EditAction::make(),
-            // ])
-            // ->bulkActions([
-            //     Tables\Actions\BulkActionGroup::make([
-            //         Tables\Actions\DeleteBulkAction::make(),
-            //     ]),
-            // ])
-            // ->emptyStateActions([
-            //     Tables\Actions\CreateAction::make(),
-            // ]);
+        // ->actions([
+        //     Tables\Actions\EditAction::make(),
+        // ])
+        // ->bulkActions([
+        //     Tables\Actions\BulkActionGroup::make([
+        //         Tables\Actions\DeleteBulkAction::make(),
+        //     ]),
+        // ])
+        // ->emptyStateActions([
+        //     Tables\Actions\CreateAction::make(),
+        // ]);
     }
 
     public static function getRelations(): array
@@ -106,9 +104,9 @@ class MediaResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListMedia::route('/'),
+            'index'  => Pages\ListMedia::route('/'),
             'create' => Pages\CreateMedia::route('/create'),
-            'edit' => Pages\EditMedia::route('/{record}/edit'),
+            'edit'   => Pages\EditMedia::route('/{record}/edit'),
         ];
     }
 

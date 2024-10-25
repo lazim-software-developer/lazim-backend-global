@@ -2,43 +2,37 @@
 
 namespace App\Filament\Resources;
 
-use Filament\Forms;
-use Filament\Tables;
-use Filament\Forms\Get;
-use Filament\Forms\Form;
-use App\Models\User\User;
-use Filament\Tables\Table;
-use App\Models\Master\Role;
-use Filament\Facades\Filament;
-use Filament\Resources\Resource;
-use App\Models\Complaintsenquiry;
+use App\Filament\Resources\ComplaintsenquiryResource\Pages;
 use App\Models\Building\Complaint;
-use Illuminate\Support\Facades\DB;
-use Filament\Forms\Components\Grid;
-use Filament\Tables\Actions\Action;
-use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Section;
-use Filament\Forms\Components\Repeater;
-use Filament\Forms\Components\Textarea;
-use Filament\Tables\Columns\TextColumn;
-use Illuminate\Database\Eloquent\Model;
-use Filament\Forms\Components\TextInput;
+use App\Models\Master\Role;
+use App\Models\User\User;
+use Filament\Facades\Filament;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Form;
+use Filament\Resources\Resource;
+use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
-use App\Filament\Resources\ComplaintsenquiryResource\Pages;
-use App\Filament\Resources\ComplaintsenquiryResource\RelationManagers;
 
 class ComplaintsenquiryResource extends Resource
 {
     protected static ?string $model = Complaint::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-    protected static ?string $modelLabel = 'Enquiries';
+    protected static ?string $modelLabel     = 'Enquiries';
 
     protected static ?string $navigationGroup = 'Happiness center';
     public static function form(Form $form): Form
@@ -48,7 +42,7 @@ class ComplaintsenquiryResource extends Resource
                 Grid::make([
                     'sm' => 1,
                     'md' => 1,
-                    'lg' => 2
+                    'lg' => 2,
                 ])
                     ->schema([
                         Hidden::make('complaintable_type')
@@ -66,7 +60,7 @@ class ComplaintsenquiryResource extends Resource
                             ->searchable()
                             ->placeholder('Building'),
                         Select::make('flat_id')
-                            ->relationship('flat','property_number')
+                            ->relationship('flat', 'property_number')
                             ->disabled(),
                         Select::make('user_id')
                             ->relationship('user', 'first_name')
@@ -94,7 +88,7 @@ class ComplaintsenquiryResource extends Resource
                             ->default('open'),
                         Hidden::make('complaint_type')
                             ->default('enquiries'),
-                        
+
                         DatePicker::make('created_at')
                             ->label('Created on')
                             ->disabled(),
@@ -111,35 +105,35 @@ class ComplaintsenquiryResource extends Resource
                                     ->label('File'),
                             ])
                             ->columns(2),
-                    Section::make('Status and Remarks')
-                    ->columns(2)
-                    ->schema([
-                        Select::make('status')
-                            ->options([
-                                'open' => 'Open',
-                                'in-progress' => 'In-Progress',
-                                'closed' => 'Closed',
-                            ])
-                            ->disabled(function (Complaint $record) {
-                                return $record->status == 'closed';
-                            })
-                            ->required()
-                            ->searchable()
-                            ->live(),
-                        TextInput::make('remarks')
-                            ->rules(['max:150'])
-                            // ->visible(function (callable $get) {
-                            //     if ($get('status') == 'closed') {
-                            //         return true;
-                            //     }
-                            //     return false;
-                            // })
-                            ->disabled(function (Complaint $record) {
-                                return $record->status == 'closed';
-                            })
-                            ->required(),
-                    ])
-                    ])
+                        Section::make('Status and Remarks')
+                            ->columns(2)
+                            ->schema([
+                                Select::make('status')
+                                    ->options([
+                                        'open'        => 'Open',
+                                        'in-progress' => 'In-Progress',
+                                        'closed'      => 'Closed',
+                                    ])
+                                    ->disabled(function (Complaint $record) {
+                                        return $record->status == 'closed';
+                                    })
+                                    ->required()
+                                    ->searchable()
+                                    ->live(),
+                                TextInput::make('remarks')
+                                    ->rules(['max:150'])
+                                // ->visible(function (callable $get) {
+                                //     if ($get('status') == 'closed') {
+                                //         return true;
+                                //     }
+                                //     return false;
+                                // })
+                                    ->disabled(function (Complaint $record) {
+                                        return $record->status == 'closed';
+                                    })
+                                    ->required(),
+                            ]),
+                    ]),
             ]);
     }
 
@@ -149,31 +143,31 @@ class ComplaintsenquiryResource extends Resource
             ->columns([
                 TextColumn::make('ticket_number')
                     ->searchable()
-                    ->default('NA')
+                    ->default('--')
                     ->label('Ticket number'),
                 TextColumn::make('building.name')
-                    ->default('NA')
+                    ->default('--')
                     ->searchable()
                     ->limit(50),
                 TextColumn::make('flat.property_number')
                     ->label('Unit')
-                    ->default('NA')
+                    ->default('--')
                     ->searchable()
                     ->limit(50),
                 TextColumn::make('user.first_name')
                     ->toggleable()
-                    ->default('NA')
+                    ->default('--')
                     ->searchable()
                     ->limit(50),
                 TextColumn::make('complaint')
                     ->toggleable()
-                    ->default('NA')
+                    ->default('--')
                     ->limit(20)
                     ->searchable()
                     ->label('Enquiry'),
                 TextColumn::make('complaint_details')
                     ->toggleable()
-                    ->default('NA')
+                    ->default('--')
                     ->limit(20)
                     ->searchable()
                     ->label('Enquiry details'),
@@ -193,15 +187,14 @@ class ComplaintsenquiryResource extends Resource
                     })
                     ->searchable()
                     ->label('Building')
-                    ->preload()
+                    ->preload(),
             ])
             ->bulkActions([
                 ExportBulkAction::make(),
                 Tables\Actions\BulkActionGroup::make([
                     // Tables\Actions\DeleteBulkAction::make(),
-                ]),])
-            ;
-
+                ])])
+        ;
 
     }
 
@@ -217,7 +210,7 @@ class ComplaintsenquiryResource extends Resource
         return [
             'index' => Pages\ListComplaintsenquiries::route('/'),
             // 'view' => Pages\ViewComplaintsenquiry::route('/{record}'),
-            'edit' => Pages\EditComplaintsenquiry::route('/{record}/edit'),
+            'edit'  => Pages\EditComplaintsenquiry::route('/{record}/edit'),
         ];
     }
 

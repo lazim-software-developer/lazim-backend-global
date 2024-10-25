@@ -9,7 +9,6 @@ use App\Models\ApartmentOwner;
 use App\Models\Building\Building;
 use App\Models\DelinquentOwner;
 use App\Models\Master\Role;
-use App\Models\OwnerAssociation;
 use Filament\Facades\Filament;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -47,13 +46,13 @@ class DelinquentOwnerResource extends Resource
             ->columns([
                 TextColumn::make('flat.property_number')->label('Unit')->searchable(),
                 TextColumn::make('owner.name')->limit(25),
-                TextColumn::make('last_payment_date')->default('NA'),
-                TextColumn::make('last_payment_amount')->default('NA'),
+                TextColumn::make('last_payment_date')->default('--'),
+                TextColumn::make('last_payment_amount')->default('--'),
                 TextColumn::make('outstanding_balance'),
-                TextColumn::make('quarter_1_balance')->default('NA'),
-                TextColumn::make('quarter_2_balance')->default('NA'),
-                TextColumn::make('quarter_3_balance')->default('NA'),
-                TextColumn::make('quarter_4_balance')->default('NA'),
+                TextColumn::make('quarter_1_balance')->default('--'),
+                TextColumn::make('quarter_2_balance')->default('--'),
+                TextColumn::make('quarter_3_balance')->default('--'),
+                TextColumn::make('quarter_4_balance')->default('--'),
                 // TextColumn::make('invoice_pdf_link')->label('invoice_file')->formatStateUsing(fn ($state) => '<a href="' . $state . '" target="_blank">LINK</a>')
                 // ->html(),
                 TextColumn::make('invoice_pdf_link')
@@ -81,7 +80,7 @@ class DelinquentOwnerResource extends Resource
                             return $query
                                 ->when(
                                     $data['year'],
-                                    fn (Builder $query, $year) => $query->where('year', $year)
+                                    fn(Builder $query, $year) => $query->where('year', $year)
                                 );
                         }
 
@@ -104,7 +103,7 @@ class DelinquentOwnerResource extends Resource
                         return $query
                             ->when(
                                 $data['building'],
-                                fn (Builder $query, $building_id): Builder => $query->where('building_id', $building_id),
+                                fn(Builder $query, $building_id): Builder => $query->where('building_id', $building_id),
                             );
                     }),
             ], layout: FiltersLayout::AboveContent)->filtersFormColumns(3)
@@ -123,20 +122,20 @@ class DelinquentOwnerResource extends Resource
                                 ->label('Content of email')
                                 ->helperText('Enter content with values less than 500 characters.'),
                         ])
-                        ->fillForm(fn (DelinquentOwner $record): array => [
+                        ->fillForm(fn(DelinquentOwner $record): array=> [
                             'content' => 'Your payment is Due, please make the payment ASAP.',
                         ])
                         ->action(function (Collection $records, array $data): void {
-                            $tenant           = Filament::getTenant()?->id ?? auth()->user()?->owner_association_id;
+                            $tenant = Filament::getTenant()?->id ?? auth()->user()?->owner_association_id;
                             // $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
 
-                            $credentials = AccountCredentials::where('oa_id', $tenant)->where('active', true)->latest()->first();
+                            $credentials     = AccountCredentials::where('oa_id', $tenant)->where('active', true)->latest()->first();
                             $mailCredentials = [
-                                'mail_host' => $credentials->host ?? env('MAIL_HOST'),
-                                'mail_port' => $credentials->port ?? env('MAIL_PORT'),
-                                'mail_username' => $credentials->username ?? env('MAIL_USERNAME'),
-                                'mail_password' => $credentials->password ?? env('MAIL_PASSWORD'),
-                                'mail_encryption' => $credentials->encryption ?? env('MAIL_ENCRYPTION'),
+                                'mail_host'         => $credentials->host ?? env('MAIL_HOST'),
+                                'mail_port'         => $credentials->port ?? env('MAIL_PORT'),
+                                'mail_username'     => $credentials->username ?? env('MAIL_USERNAME'),
+                                'mail_password'     => $credentials->password ?? env('MAIL_PASSWORD'),
+                                'mail_encryption'   => $credentials->encryption ?? env('MAIL_ENCRYPTION'),
                                 'mail_from_address' => $credentials->email ?? env('MAIL_FROM_ADDRESS'),
                             ];
 

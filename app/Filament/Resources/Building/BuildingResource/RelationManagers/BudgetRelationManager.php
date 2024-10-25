@@ -8,9 +8,6 @@ use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class BudgetRelationManager extends RelationManager
 {
@@ -33,26 +30,26 @@ class BudgetRelationManager extends RelationManager
             ->columns([
                 TextColumn::make('budget_excl_vat')
                     ->label('Budget Excl Vat')
-                    ->default('NA'),
+                    ->default('--'),
                 TextColumn::make('vat_rate')
                     ->label('Vat Rate')
-                    ->default('NA'),
+                    ->default('--'),
                 TextColumn::make('vat_amount')
                     ->label('Vat Amount')
-                    ->default('NA'),
+                    ->default('--'),
                 TextColumn::make('total')
                     ->label('Total')
-                    ->default('NA'),
+                    ->default('--'),
                 TextColumn::make('rate')
                     ->label('Rate')
-                    ->default('NA'),
+                    ->default('--'),
                 TextColumn::make('building.name')
-                    ->default('NA')
+                    ->default('--')
                     ->searchable()
                     ->limit(50),
                 TextColumn::make('budget_period')
                     ->label('Budget Period')
-                    ->default('NA'),
+                    ->default('--'),
                 TextColumn::make('budget_from')
                     ->date(),
                 TextColumn::make('budget_to')

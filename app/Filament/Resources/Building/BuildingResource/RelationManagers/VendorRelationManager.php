@@ -11,10 +11,9 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
+use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Filament\Tables\Actions\AttachAction;
-use Filament\Resources\RelationManagers\RelationManager;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 
@@ -40,8 +39,8 @@ class VendorRelationManager extends RelationManager
                         ->relationship('user', 'first_name')
                         ->searchable()
                         ->preload()
-                        ->getSearchResultsUsing(fn (string $search): array => User::where('role_id', 1, "%{$search}%")->limit(50)->pluck('first_name', 'id')->toArray())
-                        ->getOptionLabelUsing(fn ($value): ?string => User::find($value)?->first_name)
+                        ->getSearchResultsUsing(fn(string $search): array=> User::where('role_id', 1, "%{$search}%")->limit(50)->pluck('first_name', 'id')->toArray())
+                        ->getOptionLabelUsing(fn($value): ?string => User::find($value)?->first_name)
                         ->placeholder('Manager Name'),
                     TextInput::make('tl_number')->label('Trade License Number')
                         ->rules(['max:50', 'string'])
@@ -49,7 +48,7 @@ class VendorRelationManager extends RelationManager
                         ->unique(
                             'vendors',
                             'tl_number',
-                            fn (?Model $record) => $record
+                            fn(?Model $record) => $record
                         )
                         ->placeholder('Trade License Number'),
                     DatePicker::make('tl_expiry')
@@ -60,15 +59,15 @@ class VendorRelationManager extends RelationManager
                         ->required()
                         ->searchable()
                         ->options([
-                            'all' => 'All',
-                            'pending' => 'Pending',
+                            'all'      => 'All',
+                            'pending'  => 'Pending',
                             'resolved' => 'Resolved',
                         ])
                         ->placeholder('status'),
                     Toggle::make('active')
                         ->rules(['boolean']),
                     TextInput::make('remarks')
-                        ->default('NA'),
+                        ->default('--'),
                 ]),
             ]);
     }
@@ -94,8 +93,8 @@ class VendorRelationManager extends RelationManager
                         $buildingId = $livewire->ownerRecord->id;
 
                         // Get all the Vendors
-                        $allVendors = Vendor::all()->pluck('id')->toArray();
-                        $existingVendors =  DB::table('building_vendor')
+                        $allVendors      = Vendor::all()->pluck('id')->toArray();
+                        $existingVendors = DB::table('building_vendor')
                             ->where('building_id', $buildingId)
                             ->whereIn('vendor_id', $allVendors)->pluck('vendor_id')->toArray();
                         $notSelectedVendors = Vendor::whereHas('ownerAssociation', function ($query) {
@@ -107,7 +106,7 @@ class VendorRelationManager extends RelationManager
                             ->searchable()
                             ->required()
                             ->preload();
-                    })
+                    }),
             ]);
     }
 }

@@ -2,41 +2,33 @@
 
 namespace App\Filament\Resources\Building;
 
-use Filament\Forms;
-use Filament\Tables;
-use Filament\Forms\Form;
-use App\Models\User\User;
-use Filament\Tables\Table;
-use App\Models\Master\Role;
-use Filament\Resources\Resource;
+use App\Filament\Resources\Building\ServiceBookingResource\Pages;
 use App\Models\Building\Building;
-use Illuminate\Support\Facades\DB;
+use App\Models\Building\FacilityBooking;
+use App\Models\Master\Role;
+use App\Models\User\User;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Grid;
-use Filament\Tables\Actions\Action;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Toggle;
-use App\Models\Building\ServiceBooking;
-use Filament\Tables\Actions\EditAction;
-use App\Models\Building\FacilityBooking;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\TimePicker;
+use Filament\Forms\Components\Toggle;
+use Filament\Forms\Form;
+use Filament\Resources\Resource;
+use Filament\Tables;
+use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Filters\SelectFilter;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use App\Filament\Resources\Building\ServiceBookingResource\Pages;
-use App\Filament\Resources\Building\ServiceBookingResource\RelationManagers;
-use Filament\Facades\Filament;
+use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class ServiceBookingResource extends Resource
 {
     protected static ?string $model = FacilityBooking::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-    protected static ?string $modelLabel = 'Personal Service Booking';
+    protected static ?string $navigationIcon  = 'heroicon-o-rectangle-stack';
+    protected static ?string $modelLabel      = 'Personal Service Booking';
     protected static ?string $navigationGroup = 'Property Management';
     public static function form(Form $form): Form
     {
@@ -53,13 +45,12 @@ class ServiceBookingResource extends Resource
                             ->rules(['exists:buildings,id'])
                             ->relationship('building', 'name')
                             ->options(function () {
-                                if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
+                                if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
                                     return Building::all()->pluck('name', 'id');
-                                }
-                                else{
+                                } else {
                                     return Building::where('owner_association_id', auth()->user()?->owner_association_id)
-                                    ->pluck('name', 'id');
-                                }    
+                                        ->pluck('name', 'id');
+                                }
                             })
                             ->reactive()
                             ->required()
@@ -90,15 +81,14 @@ class ServiceBookingResource extends Resource
                             ->required()
                             ->relationship('user', 'first_name')
                             ->options(function () {
-                                $roleId = Role::whereIn('name',['tenant','owner'])->pluck('id')->toArray();
+                                $roleId = Role::whereIn('name', ['tenant', 'owner'])->pluck('id')->toArray();
 
-                                if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
-                                    return User::whereIn('role_id', $roleId)->pluck('first_name', 'id'); 
+                                if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+                                    return User::whereIn('role_id', $roleId)->pluck('first_name', 'id');
+                                } else {
+                                    return User::whereIn('role_id', $roleId)->where('owner_association_id', auth()->user()?->owner_association_id)->pluck('first_name', 'id');
                                 }
-                                else{
-                                    return User::whereIn('role_id', $roleId)->where('owner_association_id',auth()->user()?->owner_association_id)->pluck('first_name', 'id');
-                                }
-                                })
+                            })
                             ->searchable()
                             ->disabledOn('edit')
                             ->preload()
@@ -113,11 +103,11 @@ class ServiceBookingResource extends Resource
                             ->disabledOn('edit')
                             ->placeholder('Start Time'),
                         TimePicker::make('end_time')
-                            ->default('NA')
+                            ->default('--')
                             ->disabledOn('edit')
                             ->placeholder('End Time'),
                         // TextInput::make('remarks')
-                        //     ->default('NA')
+                        //     ->default('--')
                         //     ->disabledOn('edit')
                         //     ->required(),
                         // TextInput::make('reference_number')
@@ -136,35 +126,34 @@ class ServiceBookingResource extends Resource
             ]);
     }
 
-
     public static function table(Table $table): Table
     {
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('building.name')
                     ->searchable()
-                    ->default('NA')
+                    ->default('--')
                     ->limit(50),
                 Tables\Columns\TextColumn::make('bookable.name')
                     ->searchable()
-                    ->default('NA')
+                    ->default('--')
                     ->limit(50)
                     ->label('Service'),
                 Tables\Columns\TextColumn::make('user.first_name')
-                    ->default('NA')
+                    ->default('--')
                     ->searchable()
                     ->limit(50),
                 Tables\Columns\TextColumn::make('date')
                     ->date()
                     ->searchable()
-                    ->default('NA')
+                    ->default('--')
                     ->date(),
                 Tables\Columns\TextColumn::make('start_time')
                     ->searchable()
-                    ->default('NA')
+                    ->default('--')
                     ->time(),
                 // Tables\Columns\TextColumn::make('reference_number')
-                //     ->default('NA')
+                //     ->default('--')
                 //     ->searchable(),
                 Tables\Columns\IconColumn::make('approved')
                     ->boolean(),
@@ -172,17 +161,16 @@ class ServiceBookingResource extends Resource
             ->defaultSort('created_at', 'desc')
             ->filters([
                 SelectFilter::make('building_id')
-                ->options(function () {
-                    if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
-                        return Building::all()->pluck('name', 'id');
-                    }
-                    else{
-                        return Building::where('owner_association_id', auth()->user()?->owner_association_id)
-                        ->pluck('name', 'id');
-                    }    
-                })
+                    ->options(function () {
+                        if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+                            return Building::all()->pluck('name', 'id');
+                        } else {
+                            return Building::where('owner_association_id', auth()->user()?->owner_association_id)
+                                ->pluck('name', 'id');
+                        }
+                    })
                     ->searchable()
-                    ->preload()
+                    ->preload(),
             ])
             ->actions([
                 EditAction::make(),
@@ -208,10 +196,10 @@ class ServiceBookingResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListServiceBookings::route('/'),
+            'index'  => Pages\ListServiceBookings::route('/'),
             'create' => Pages\CreateServiceBooking::route('/create'),
             // 'view' => Pages\ViewServiceBooking::route('/{record}'),
-            'edit' => Pages\EditServiceBooking::route('/{record}/edit'),
+            'edit'   => Pages\EditServiceBooking::route('/{record}/edit'),
         ];
     }
 

@@ -2,14 +2,14 @@
 
 namespace App\Filament\Resources\Building\BuildingResource\Pages;
 
-use Filament\Tables\Table;
+use App\Filament\Resources\Building\BuildingResource;
 use App\Models\Master\Service;
 use Filament\Resources\Pages\Page;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Concerns\InteractsWithTable;
-use App\Filament\Resources\Building\BuildingResource;
+use Filament\Tables\Contracts\HasTable;
+use Filament\Tables\Table;
 
 class ShowServices extends Page implements HasTable
 {
@@ -17,21 +17,21 @@ class ShowServices extends Page implements HasTable
     protected static string $resource = BuildingResource::class;
 
     protected static ?string $title = 'Inhouse service';
-    protected static string $view = 'filament.resources.building.building-resource.pages.show-services';
+    protected static string $view   = 'filament.resources.building.building-resource.pages.show-services';
 
     public function table(Table $table): Table
-    {   
+    {
         return $table
-            ->query(Service::query()->where('type','inhouse'))
+            ->query(Service::query()->where('type', 'inhouse'))
             ->columns([
-                TextColumn::make('name')->default('NA'),
-                TextColumn::make('price')->default('NA'),
+                TextColumn::make('name')->default('--'),
+                TextColumn::make('price')->default('--'),
                 IconColumn::make('active')
                     ->boolean()
                     ->trueIcon('heroicon-o-check-badge')
                     ->falseIcon('heroicon-o-x-mark'),
-                TextColumn::make('payment_link')->default('NA'),
-               
+                TextColumn::make('payment_link')->default('--'),
+
             ])
             ->defaultSort('created_at', 'desc');
     }

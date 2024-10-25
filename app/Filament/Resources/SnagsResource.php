@@ -2,49 +2,42 @@
 
 namespace App\Filament\Resources;
 
-use Closure;
-use Filament\Forms;
-use Filament\Tables;
-use App\Models\Snags;
-use Filament\Forms\Get;
-use Filament\Forms\Form;
-use App\Models\User\User;
-use Filament\Tables\Table;
-use App\Models\Master\Role;
-use App\Models\Building\Flat;
-use App\Models\Vendor\Vendor;
-use App\Models\TechnicianVendor;
-use Filament\Resources\Resource;
+use App\Filament\Resources\SnagsResource\Pages;
 use App\Models\Building\Building;
 use App\Models\Building\Complaint;
-use Illuminate\Support\Facades\DB;
-use Filament\Forms\Components\Grid;
+use App\Models\Master\Role;
+use App\Models\TechnicianVendor;
+use App\Models\User\User;
 use App\Models\Vendor\ServiceVendor;
-use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Repeater;
-use Filament\Forms\Components\Textarea;
-use Filament\Tables\Columns\TextColumn;
-use Illuminate\Database\Eloquent\Model;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\FileUpload;
-use Illuminate\Database\Eloquent\Builder;
-use Filament\Forms\Components\DateTimePicker;
-use App\Filament\Resources\SnagsResource\Pages;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
-use App\Filament\Resources\SnagsResource\RelationManagers;
+use App\Models\Vendor\Vendor;
+use Closure;
 use Filament\Facades\Filament;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Form;
+use Filament\Forms\Get;
+use Filament\Resources\Resource;
+use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class SnagsResource extends Resource
 {
     protected static ?string $model = Complaint::class;
 
-    protected static ?string $navigationIcon = 'heroicon-s-swatch';
-    protected static ?string $modelLabel = 'Snags';
+    protected static ?string $navigationIcon  = 'heroicon-s-swatch';
+    protected static ?string $modelLabel      = 'Snags';
     protected static ?string $navigationGroup = 'Security';
-
 
     public static function form(Form $form): Form
     {
@@ -53,7 +46,7 @@ class SnagsResource extends Resource
                 Grid::make([
                     'sm' => 1,
                     'md' => 1,
-                    'lg' => 2
+                    'lg' => 2,
                 ])
                     ->columns(2)
                     ->schema([
@@ -82,14 +75,14 @@ class SnagsResource extends Resource
                             ->label('Service'),
                         Select::make('user_id')
                             ->label('Gatekeeper')
-                            // ->relationship('user', 'first_name')
+                        // ->relationship('user', 'first_name')
                             ->options(function (Get $get) {
 
                                 if (is_null($get('building_id'))) {
                                     return [];
-                                }else{
-                                    $userId =  DB::table('building_pocs')->where('building_id',$get('building_id'))->where('active',true)->value('user_id');
-                                    return User::where('id',$userId)->pluck('first_name','id');
+                                } else {
+                                    $userId = DB::table('building_pocs')->where('building_id', $get('building_id'))->where('active', true)->value('user_id');
+                                    return User::where('id', $userId)->pluck('first_name', 'id');
                                 }
                             })
                             ->disabledOn('edit')
@@ -100,33 +93,33 @@ class SnagsResource extends Resource
                         Select::make('vendor_id')
                             ->relationship('vendor', 'name')
                             ->preload()
-                            // ->required()
+                        // ->required()
                             ->disabledOn('edit')
-                            ->options(function ( Get $get) {
-                                $serviceVendor = ServiceVendor::where('service_id',$get('service_id'))->pluck('vendor_id');
+                            ->options(function (Get $get) {
+                                $serviceVendor = ServiceVendor::where('service_id', $get('service_id'))->pluck('vendor_id');
                                 if (Role::where('id', auth()->user()->role_id)->first()->name != 'Admin') {
                                     return Vendor::whereHas('ownerAssociation', function ($query) {
                                         $query->where('owner_association_id', Filament::getTenant()->id);
-                                    })->whereIn('id',$serviceVendor)->pluck('name', 'id');
+                                    })->whereIn('id', $serviceVendor)->pluck('name', 'id');
                                 }
-                                return Vendor::whereIn('id',$serviceVendor)->pluck('name', 'id');
+                                return Vendor::whereIn('id', $serviceVendor)->pluck('name', 'id');
                             })
-                            // ->disabled(function (Complaint $record) {
-                            //     if ($record->vendor_id == null) {
-                            //         return false;
-                            //     }
-                            //     return true;
+                        // ->disabled(function (Complaint $record) {
+                        //     if ($record->vendor_id == null) {
+                        //         return false;
+                        //     }
+                        //     return true;
 
-                            // })
+                        // })
                             ->live()
                             ->searchable()
                             ->label('Vendor name'),
-                        
+
                         Select::make('technician_id')
                             ->relationship('technician', 'first_name')
-                            ->options(function ( Get $get) {
+                            ->options(function (Get $get) {
                                 $technician_vendor = DB::table('service_technician_vendor')->where('service_id', $get('service_id'))->pluck('technician_vendor_id');
-                                $technicians = TechnicianVendor::find($technician_vendor)->where('vendor_id', $get('vendor_id'))->pluck('technician_id');
+                                $technicians       = TechnicianVendor::find($technician_vendor)->where('vendor_id', $get('vendor_id'))->pluck('technician_id');
                                 return User::find($technicians)->pluck('first_name', 'id');
                             })
                             ->disabled(function ($get) {
@@ -163,14 +156,14 @@ class SnagsResource extends Resource
                             ->placeholder('Due Date'),
                         Select::make('category')->required()
                             ->disabledOn('edit')
-                            ->options(function(){
-                                return DB::table('services')->pluck('name','name')->toArray();
+                            ->options(function () {
+                                return DB::table('services')->pluck('name', 'name')->toArray();
                             })
                             ->searchable()
                             ->native(false),
                         Repeater::make('media')
                             ->relationship()
-                            // ->disabledOn('edit')
+                        // ->disabledOn('edit')
                             ->schema([
                                 FileUpload::make('url')
                                     ->disk('s3')
@@ -178,8 +171,8 @@ class SnagsResource extends Resource
                                     ->maxSize(2048)
                                     ->openable(true)
                                     ->downloadable(true)
-                                    ->label('File')
-                                    // ->required(),
+                                    ->label('File'),
+                                // ->required(),
                             ])
                             ->deletable(false)
                             ->addable(false)
@@ -192,24 +185,24 @@ class SnagsResource extends Resource
                         //     ->searchable()
                         //     ->label('Service'),
                         DateTimePicker::make('open_time')
-                        ->visibleOn('edit')
+                            ->visibleOn('edit')
                         // ->disabled(function (callable $get) {
                         //     if ($get('status') == 'closed') {
                         //         return true;
                         //     }
                         //     return false;
                         // })
-                        ->disabled(),
+                            ->disabled(),
 
                         DateTimePicker::make('close_time')
-                        ->visibleOn('edit')
-                        ->disabled(function (callable $get) {
-                            if ($get('status') == 'closed') {
-                                return true;
-                            }
-                            return false;
-                        })
-                        ->default('NA'),
+                            ->visibleOn('edit')
+                            ->disabled(function (callable $get) {
+                                if ($get('status') == 'closed') {
+                                    return true;
+                                }
+                                return false;
+                            })
+                            ->default('--'),
 
                         Textarea::make('complaint')
                             ->disabledOn('edit')
@@ -220,13 +213,13 @@ class SnagsResource extends Resource
                         Select::make('status')
                             ->required()
                             ->options([
-                                'open' => 'Open',
+                                'open'   => 'Open',
                                 'closed' => 'Closed',
                             ])
-                            ->disabled(function($state){
-                                if($state=='closed'){
+                            ->disabled(function ($state) {
+                                if ($state == 'closed') {
                                     return true;
-                                }else{
+                                } else {
                                     return false;
                                 }
                             })
@@ -241,15 +234,15 @@ class SnagsResource extends Resource
                                 return false;
                             })
                             ->required(),
-                        
+
                         Hidden::make('complaintable_type')
-                        ->default('App\Models\User\User'),
+                            ->default('App\Models\User\User'),
 
                         Hidden::make('complaintable_id')
-                        ->default(auth()->user()->id),
+                            ->default(auth()->user()->id),
 
                         Hidden::make('complaint_type')
-                        ->default('snag')
+                            ->default('snag')
 
                     ])
             ]);
@@ -260,23 +253,23 @@ class SnagsResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('building.name')
-                    ->default('NA')
+                    ->default('--')
                     ->searchable()
                     ->limit(50),
                 TextColumn::make('user.first_name')
                     ->toggleable()
-                    ->default('NA')
+                    ->default('--')
                     ->searchable()
                     ->limit(50),
                 TextColumn::make('complaint')
                     ->toggleable()
-                    ->default('NA')
+                    ->default('--')
                     ->limit(20)
                     ->searchable()
                     ->label('Complaint'),
                 // TextColumn::make('complaint_details')
                 //     ->toggleable()
-                //     ->default('NA')
+                //     ->default('--')
                 //     ->limit(20)
                 //     ->searchable()
                 //     ->label('Complaint Details'),
@@ -314,9 +307,9 @@ class SnagsResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListSnags::route('/'),
+            'index'  => Pages\ListSnags::route('/'),
             'create' => Pages\CreateSnags::route('/create'),
-            'edit' => Pages\EditSnags::route('/{record}/edit'),
+            'edit'   => Pages\EditSnags::route('/{record}/edit'),
         ];
     }
 

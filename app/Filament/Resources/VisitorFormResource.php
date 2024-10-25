@@ -3,9 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\VisitorFormResource\Pages;
-use App\Filament\Resources\VisitorFormResource\RelationManagers;
 use App\Models\Visitor\FlatVisitor;
-use Filament\Forms;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Repeater;
@@ -16,65 +14,63 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class VisitorFormResource extends Resource
 {
-    protected static ?string $model = FlatVisitor::class;
-    protected static ?string $title = 'Visitor';
+    protected static ?string $model          = FlatVisitor::class;
+    protected static ?string $title          = 'Visitor';
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-    protected static ?string $modelLabel = 'Visitors';
+    protected static ?string $modelLabel     = 'Visitors';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
                 Select::make('flat_id')->label('Unit')
-                ->relationship('flat', 'property_number')->disabled(),
+                    ->relationship('flat', 'property_number')->disabled(),
                 TextInput::make('name')->disabled(),
                 TextInput::make('email')->disabled(),
                 DatePicker::make('start_time')->label('Date')->disabled(),
                 TextInput::make('time_of_viewing')->label('Time')->disabled(),
                 TextInput::make('number_of_visitors')->disabled(),
-                Select::make('building_id')->relationship('building','name')->label('Building')->disabled()->default('NA'),
-                                Repeater::make('guestDocuments')->label('Documents')
-                                    ->relationship('guestDocuments')->disabled()
-                                    ->schema([
-                                        TextInput::make('name')
-                                            ->rules(['max:30', 'regex:/^[a-zA-Z\s]*$/'])
-                                            ->required()
-                                            ->placeholder('Name'),
-                                        FileUpload::make('url')
-                                            ->disk('s3')
-                                            ->rules('file|mimes:jpeg,jpg,png|max:2048')
-                                            ->directory('dev')
-                                            ->openable(true)
-                                            ->downloadable(true)
-                                            ->image()
-                                            ->maxSize(2048)
-                                            ->required()
-                                            ->label('File')
+                Select::make('building_id')->relationship('building', 'name')->label('Building')->disabled()->default('--'),
+                Repeater::make('guestDocuments')->label('Documents')
+                    ->relationship('guestDocuments')->disabled()
+                    ->schema([
+                        TextInput::make('name')
+                            ->rules(['max:30', 'regex:/^[a-zA-Z\s]*$/'])
+                            ->required()
+                            ->placeholder('Name'),
+                        FileUpload::make('url')
+                            ->disk('s3')
+                            ->rules('file|mimes:jpeg,jpg,png|max:2048')
+                            ->directory('dev')
+                            ->openable(true)
+                            ->downloadable(true)
+                            ->image()
+                            ->maxSize(2048)
+                            ->required()
+                            ->label('File'),
 
-                                    ])
-                                    ->columns(2)
-                                    ->columnSpan([
-                                        'sm' => 1,
-                                        'md' => 1,
-                                        'lg' => 2,
-                                    ]),
-                                Select::make('status')
-                                    ->options([
-                                        'approved' => 'Approve',
-                                        'rejected' => 'Reject',
-                                    ])
-                                    ->disabled(function(FlatVisitor $record){
-                                        return $record->status != null;
-                                    })
-                                    ->required()
-                                    ->searchable()
-                                    ->live(),
+                    ])
+                    ->columns(2)
+                    ->columnSpan([
+                        'sm' => 1,
+                        'md' => 1,
+                        'lg' => 2,
+                    ]),
+                Select::make('status')
+                    ->options([
+                        'approved' => 'Approve',
+                        'rejected' => 'Reject',
+                    ])
+                    ->disabled(function (FlatVisitor $record) {
+                        return $record->status != null;
+                    })
+                    ->required()
+                    ->searchable()
+                    ->live(),
             ]);
     }
 
@@ -83,26 +79,26 @@ class VisitorFormResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('ticket_number')
-                ->searchable()
-                ->default('NA')
-                ->label('Ticket number'),
+                    ->searchable()
+                    ->default('--')
+                    ->label('Ticket number'),
                 TextColumn::make('building.name')
-                ->label('Building')
-                ->default('NA'),
+                    ->label('Building')
+                    ->default('--'),
                 TextColumn::make('flat.property_number')
-                ->label('Unit'),
+                    ->label('Unit'),
                 TextColumn::make('name'),
                 TextColumn::make('email'),
                 TextColumn::make('start_time')->date('Y-m-d')
                     ->label('Date')
-                    // ->date()
-                    ->default('NA'),
+                // ->date()
+                    ->default('--'),
                 TextColumn::make('time_of_viewing')
                     ->label('Time')
-                    // ->time()
-                    ->default('NA'),
-                TextColumn::make('number_of_visitors')->default('NA'),
-                TextColumn::make('status')->default('NA'),
+                // ->time()
+                    ->default('--'),
+                TextColumn::make('number_of_visitors')->default('--'),
+                TextColumn::make('status')->default('--'),
 
             ])
             ->defaultSort('created_at', 'desc')
@@ -135,7 +131,7 @@ class VisitorFormResource extends Resource
         return [
             'index' => Pages\ListVisitorForms::route('/'),
             // 'create' => Pages\CreateVisitorForm::route('/create'),
-            'edit' => Pages\EditVisitorForm::route('/{record}/edit'),
+            'edit'  => Pages\EditVisitorForm::route('/{record}/edit'),
         ];
     }
 }

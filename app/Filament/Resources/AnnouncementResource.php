@@ -2,39 +2,38 @@
 
 namespace App\Filament\Resources;
 
-use Closure;
-use Filament\Tables;
-use Filament\Forms\Get;
-use Filament\Forms\Set;
-use Filament\Forms\Form;
-use Filament\Tables\Table;
-use App\Models\Master\Role;
-use App\Models\Community\Post;
-use Filament\Resources\Resource;
-use App\Models\Building\Building;
-use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Toggle;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\SelectFilter;
-use Illuminate\Database\Eloquent\Builder;
-use Filament\Forms\Components\DateTimePicker;
-use Filament\Forms\Components\MarkdownEditor;
 use App\Filament\Resources\AnnouncementResource\Pages;
+use App\Models\Building\Building;
+use App\Models\Community\Post;
+use App\Models\Master\Role;
 use App\Models\OwnerAssociation;
 use App\Models\User\User;
+use Closure;
 use Filament\Facades\Filament;
+use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\RichEditor;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Toggle;
+use Filament\Forms\Form;
+use Filament\Forms\Get;
+use Filament\Forms\Set;
+use Filament\Resources\Resource;
+use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class AnnouncementResource extends Resource
 {
-    protected static ?string $model = Post::class;
-    protected static ?string $modelLabel = 'Notice boards';
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $model           = Post::class;
+    protected static ?string $modelLabel      = 'Notice boards';
+    protected static ?string $navigationIcon  = 'heroicon-o-rectangle-stack';
     protected static ?string $navigationGroup = 'Community';
 
     public static function form(Form $form): Form
@@ -80,7 +79,7 @@ class AnnouncementResource extends Resource
                     ->searchable()
                     ->options([
                         'published' => 'Published',
-                        'draft' => 'Draft',
+                        'draft'     => 'Draft',
                     ])
                     ->reactive()
                     ->live()
@@ -116,7 +115,7 @@ class AnnouncementResource extends Resource
                         }
                         if (Role::where('id', auth()->user()->role_id)->first()->name == 'Property Manager') {
                             $buildings = DB::table('building_owner_association')->where('owner_association_id', auth()->user()?->owner_association_id)->pluck('building_id');
-                            return Building::whereIn('id',$buildings)->pluck('name', 'id');
+                            return Building::whereIn('id', $buildings)->pluck('name', 'id');
                         }
                         return Building::where('owner_association_id', auth()->user()?->owner_association_id)->pluck('name', 'id');
                     })
@@ -148,17 +147,17 @@ class AnnouncementResource extends Resource
             ->columns([
                 TextColumn::make('status')
                     ->searchable()
-                    ->default('NA')
+                    ->default('--')
                     ->limit(50),
                 TextColumn::make('scheduled_at')
-                    ->default('NA'),
+                    ->default('--'),
                 TextColumn::make('building.name')
                     ->searchable()
-                    ->default('NA')
+                    ->default('--')
                     ->limit(50),
                 TextColumn::make('user.first_name')
                     ->searchable()
-                    ->default('NA')
+                    ->default('--')
                     ->limit(50),
             ])
             ->defaultSort('created_at', 'desc')
@@ -176,11 +175,11 @@ class AnnouncementResource extends Resource
                 SelectFilter::make('building_id')
                     ->relationship('building', 'name', function (Builder $query) {
                         if (Role::where('id', auth()->user()->role_id)->first()->name != 'Admin') {
-                            $oa = OwnerAssociation::find(Filament::getTenant()?->id ?: auth()->user()?->owner_association_id);
+                            $oa        = OwnerAssociation::find(Filament::getTenant()?->id ?: auth()->user()?->owner_association_id);
                             $buildings = $oa?->building?->pluck('id');
 
-                        $query->whereIn('buildings.id', $buildings?:[]);
-                    }
+                            $query->whereIn('buildings.id', $buildings ?: []);
+                        }
                     })
                     ->searchable()
                     ->preload()
@@ -193,7 +192,7 @@ class AnnouncementResource extends Resource
                 ExportBulkAction::make(),
                 Tables\Actions\BulkActionGroup::make([
                     // Tables\Actions\DeleteBulkAction::make(),
-                ]),])
+                ])])
 
             ->emptyStateActions([
                 Tables\Actions\CreateAction::make(),
@@ -210,9 +209,9 @@ class AnnouncementResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListAnnouncements::route('/'),
+            'index'  => Pages\ListAnnouncements::route('/'),
             'create' => Pages\CreateAnnouncement::route('/create'),
-            'edit' => Pages\EditAnnouncement::route('/{record}/edit'),
+            'edit'   => Pages\EditAnnouncement::route('/{record}/edit'),
         ];
     }
 

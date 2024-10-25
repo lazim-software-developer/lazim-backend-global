@@ -3,14 +3,12 @@
 namespace App\Filament\Resources\BudgetResource\RelationManagers;
 
 use Filament\Forms;
-use Filament\Tables;
 use Filament\Forms\Form;
-use Filament\Tables\Table;
-use Filament\Tables\Columns\TextColumn;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 
 class BudgetitemsRelationManager extends RelationManager
 {
@@ -34,8 +32,8 @@ class BudgetitemsRelationManager extends RelationManager
     {
         return $table
             ->columns([
-                TextColumn::make('service.code')->label('Service Code')->default('NA'),
-                TextColumn::make('service.name')->label('Service Name')->default('NA'),
+                TextColumn::make('service.code')->label('Service Code')->default('--'),
+                TextColumn::make('service.name')->label('Service Name')->default('--'),
                 Tables\Columns\TextColumn::make('budget_excl_vat'),
                 Tables\Columns\TextColumn::make('vat_rate'),
                 Tables\Columns\TextColumn::make('vat_amount'),

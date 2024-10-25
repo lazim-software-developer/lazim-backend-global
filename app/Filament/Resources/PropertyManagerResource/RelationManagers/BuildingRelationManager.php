@@ -42,9 +42,9 @@ class BuildingRelationManager extends RelationManager
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')->label('Building Name')
-                    ->default('NA')->searchable(),
+                    ->default('--')->searchable(),
                 Tables\Columns\TextColumn::make('from')->label('From')
-                    ->default('NA')->searchable(),
+                    ->default('--')->searchable(),
                 Tables\Columns\TextColumn::make('to')->searchable(),
             ])
             ->headerActions([
@@ -236,7 +236,7 @@ class BuildingRelationManager extends RelationManager
                                 'show_inhouse_services' => $data['show_inhouse_services'] ?? false,
                                 'lat'                   => $data['lat'] ?? null,
                                 'lng'                   => $data['lng'] ?? null,
-                                'owner_association_id' => $livewire->ownerRecord->id
+                                'owner_association_id'  => $livewire->ownerRecord->id,
                             ]
                         );
 

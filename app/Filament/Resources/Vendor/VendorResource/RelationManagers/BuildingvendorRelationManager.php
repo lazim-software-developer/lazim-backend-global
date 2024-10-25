@@ -2,22 +2,19 @@
 
 namespace App\Filament\Resources\Vendor\VendorResource\RelationManagers;
 
-use Filament\Forms;
-use Filament\Tables;
-use Filament\Forms\Form;
-use Filament\Tables\Table;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Form;
+use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Tables;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Filament\Resources\RelationManagers\RelationManager;
 
 class BuildingvendorRelationManager extends RelationManager
 {
     protected static string $relationship = 'buildingvendor';
-    protected static ?string $modelLabel = 'Buildings';
+    protected static ?string $modelLabel  = 'Buildings';
     public static function getTitle(Model $ownerRecord, string $pageClass): string
     {
         return 'Buildings';
@@ -46,8 +43,8 @@ class BuildingvendorRelationManager extends RelationManager
     {
         return $table
             ->columns([
-                TextColumn::make('contract.amount')->label('Contract amount')->default('NA'),
-                TextColumn::make('contract.contract_type')->label('Contract type')->default('NA'),
+                TextColumn::make('contract.amount')->label('Contract amount')->default('--'),
+                TextColumn::make('contract.contract_type')->label('Contract type')->default('--'),
                 TextColumn::make('building.name'),
                 IconColumn::make('active')
                     ->boolean()

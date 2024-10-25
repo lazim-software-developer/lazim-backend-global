@@ -15,7 +15,6 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
-use Filament\Tables\Actions\Action;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -26,7 +25,7 @@ class FlatDocumentResource extends Resource
 {
     protected static ?string $model = Document::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon  = 'heroicon-o-rectangle-stack';
     protected static ?string $navigationGroup = 'Document Management';
     protected static ?string $navigationLabel = 'Flat';
 
@@ -40,89 +39,89 @@ class FlatDocumentResource extends Resource
                     'lg' => 2,
                 ])->schema([
 
-                            Select::make('document_library_id')
-                                ->rules(['exists:document_libraries,id'])
-                                ->required()
-                                ->preload()
-                                ->relationship('documentLibrary', 'name')
-                                ->searchable()
-                                ->placeholder('Document Library')
-                                ->getSearchResultsUsing(
-                                    fn(string $search) => DB::table('document_libraries')
-                                        ->join('building_documentlibraries', function (JoinClause $join) {
-                                            $join->on('document_libraries.id', '=', 'building_documentlibraries.documentlibrary_id')
-                                                ->where([
-                                                    ['building_id', '=', Filament::getTenant()?->id],
+                    Select::make('document_library_id')
+                        ->rules(['exists:document_libraries,id'])
+                        ->required()
+                        ->preload()
+                        ->relationship('documentLibrary', 'name')
+                        ->searchable()
+                        ->placeholder('Document Library')
+                        ->getSearchResultsUsing(
+                            fn(string $search) => DB::table('document_libraries')
+                                ->join('building_documentlibraries', function (JoinClause $join) {
+                                    $join->on('document_libraries.id', '=', 'building_documentlibraries.documentlibrary_id')
+                                        ->where([
+                                            ['building_id', '=', Filament::getTenant()?->id],
 
-                                                ]);
-                                        })
-                                        ->pluck('document_libraries.name', 'document_libraries.id')
-                                ),
-                            FileUpload::make('url')
-                                ->disk('s3')
-                                ->directory('dev')
-                                ->label('Document')
-                                ->required(),
-                            Select::make('flat_id')
-                                ->relationship('flat', 'property_number')
-                                ->searchable()
-                                ->preload()
-                                ->label('Unit Number'),
-                            Select::make('status')
-                                ->options([
-                                    'submitted' => 'Submitted',
-                                    'approved' => 'Approved',
-                                    'rejected' => 'Rejected',
-                                ])
-                                ->searchable()
-                                ->required()
-                                ->placeholder('Status'),
-                            TextInput::make('comments'),
-                            TextInput::make('name'),
-                            //->required(),
-                            DatePicker::make('expiry_date')
-                                ->rules(['date'])
-                                ->required()
-                                ->placeholder('Expiry Date'),
-
-                            Hidden::make('owner_association_id')
-                                ->default(auth()->user()?->owner_association_id),
-
-                            Hidden::make('documentable_type')
-                                ->default('App\Models\Building\Flat'),
-
-                            Select::make('documentable_id')
-                                ->options(
-                                    DB::table('flats')->pluck('property_number', 'id')->toArray()
-                                )
-                                ->searchable()
-                                ->preload()
-                                ->required()
-                                ->label('Flat Number')
-                                ->placeholder('Documentable Id'),
-                            Select::make('status')
-                                ->options([
-                                    'approved' => 'Approved',
-                                    'rejected' => 'Rejected',
-                                ])
-                                ->disabled(function (Document $record) {
-                                    return $record->status != null;
+                                        ]);
                                 })
-                                ->searchable()
-                                ->live(),
-                            TextInput::make('remarks')
-                                ->rules(['max:150'])
-                                ->visible(function (callable $get) {
-                                    if ($get('status') == 'rejected') {
-                                        return true;
-                                    }
-                                    return false;
-                                })
-                                ->disabled(function (Document $record) {
-                                    return $record->status != null;
-                                })
-                                ->required(),
-                        ]),
+                                ->pluck('document_libraries.name', 'document_libraries.id')
+                        ),
+                    FileUpload::make('url')
+                        ->disk('s3')
+                        ->directory('dev')
+                        ->label('Document')
+                        ->required(),
+                    Select::make('flat_id')
+                        ->relationship('flat', 'property_number')
+                        ->searchable()
+                        ->preload()
+                        ->label('Unit Number'),
+                    Select::make('status')
+                        ->options([
+                            'submitted' => 'Submitted',
+                            'approved'  => 'Approved',
+                            'rejected'  => 'Rejected',
+                        ])
+                        ->searchable()
+                        ->required()
+                        ->placeholder('Status'),
+                    TextInput::make('comments'),
+                    TextInput::make('name'),
+                    //->required(),
+                    DatePicker::make('expiry_date')
+                        ->rules(['date'])
+                        ->required()
+                        ->placeholder('Expiry Date'),
+
+                    Hidden::make('owner_association_id')
+                        ->default(auth()->user()?->owner_association_id),
+
+                    Hidden::make('documentable_type')
+                        ->default('App\Models\Building\Flat'),
+
+                    Select::make('documentable_id')
+                        ->options(
+                            DB::table('flats')->pluck('property_number', 'id')->toArray()
+                        )
+                        ->searchable()
+                        ->preload()
+                        ->required()
+                        ->label('Flat Number')
+                        ->placeholder('Documentable Id'),
+                    Select::make('status')
+                        ->options([
+                            'approved' => 'Approved',
+                            'rejected' => 'Rejected',
+                        ])
+                        ->disabled(function (Document $record) {
+                            return $record->status != null;
+                        })
+                        ->searchable()
+                        ->live(),
+                    TextInput::make('remarks')
+                        ->rules(['max:150'])
+                        ->visible(function (callable $get) {
+                            if ($get('status') == 'rejected') {
+                                return true;
+                            }
+                            return false;
+                        })
+                        ->disabled(function (Document $record) {
+                            return $record->status != null;
+                        })
+                        ->required(),
+                ]),
 
             ]);
     }
@@ -135,16 +134,16 @@ class FlatDocumentResource extends Resource
                 TextColumn::make('name')
                     ->searchable()
                     ->label('Document Name')
-                    ->default('NA')
+                    ->default('--')
                     ->limit(50),
                 TextColumn::make('flat.property_number')
                     ->searchable()
-                    ->default('NA')
+                    ->default('--')
                     ->label('Unit Number')
                     ->limit(50),
                 TextColumn::make('status')
                     ->searchable()
-                    ->default('NA')
+                    ->default('--')
                     ->limit(50),
             ])
             ->defaultSort('created_at', 'desc')
@@ -152,7 +151,7 @@ class FlatDocumentResource extends Resource
                 //
             ])
             ->actions([
-                
+
             ]);
     }
 
@@ -166,9 +165,9 @@ class FlatDocumentResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => ListFlatDocuments::route('/'),
+            'index'  => ListFlatDocuments::route('/'),
             'create' => CreateFlatDocument::route('/create'),
-            'edit' => EditFlatDocument::route('/{record}/edit'),
+            'edit'   => EditFlatDocument::route('/{record}/edit'),
         ];
     }
 }

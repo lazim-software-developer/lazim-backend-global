@@ -2,40 +2,37 @@
 
 namespace App\Filament\Resources\Building\BuildingResource\RelationManagers;
 
-use App\Models\Vendor\Vendor;
-use Closure;
-use Carbon\Carbon;
-use Filament\Facades\Filament;
-use Filament\Forms;
-use Filament\Notifications\Notification;
-use Filament\Tables;
-use App\Models\Asset;
-use Filament\Forms\Get;
-use Filament\Forms\Form;
-use App\Models\User\User;
-use Filament\Tables\Actions\BulkAction;
-use Filament\Tables\Table;
-use App\Models\Master\Service;
-use App\Models\Vendor\Contract;
 use App\Forms\Components\QrCode;
+use App\Models\Asset;
+use App\Models\Assets\Assetmaintenance;
+use App\Models\Building\Building;
+use App\Models\Master\Service;
+use App\Models\OwnerAssociation;
 use App\Models\TechnicianAssets;
 use App\Models\TechnicianVendor;
-use App\Models\Building\Building;
+use App\Models\User\User;
+use App\Models\Vendor\Contract;
+use App\Models\Vendor\Vendor;
+use Carbon\Carbon;
+use Closure;
+use Filament\Facades\Filament;
+use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Form;
+use Filament\Forms\Get;
+use Filament\Notifications\Notification;
+use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Tables;
+use Filament\Tables\Actions\BulkAction;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Table;
 use GuzzleHttp\Client;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
-use Filament\Forms\Components\Grid;
 use Illuminate\Support\Facades\Log;
-use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\Select;
-use App\Models\Assets\Assetmaintenance;
-use App\Models\OwnerAssociation;
-use Filament\Forms\Components\Textarea;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Forms\Components\TextInput;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Filament\Resources\RelationManagers\RelationManager;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 use Vinkla\Hashids\Facades\Hashids;
 
@@ -61,7 +58,7 @@ class AssetsRelationManager extends RelationManager
                             ->rules([
                                 'max:50',
                                 'regex:/^[a-zA-Z\s]*$/',
-                                fn (Get $get): Closure => function (string $attribute, $value, Closure $fail) use ($get) {
+                                fn(Get $get): Closure => function (string $attribute, $value, Closure $fail) use ($get) {
                                     if (Asset::where('building_id', $get('building_id'))->where('name', $value)->exists()) {
                                         $fail('The Name is already taken for this Building.');
                                     }
@@ -83,7 +80,7 @@ class AssetsRelationManager extends RelationManager
                             ->required()
                             ->rules(['max:50']),
                         TextInput::make('frequency_of_service')
-                                ->required()->integer()->suffix('days')->minValue(1),
+                            ->required()->integer()->suffix('days')->minValue(1),
                         Textarea::make('description')
                             ->label('Description')
                             ->rules(['max:100', 'regex:/^(?=.*[a-zA-Z])[a-zA-Z0-9\s!@#$%^&*_+\-=,.]*$/']),
@@ -119,12 +116,12 @@ class AssetsRelationManager extends RelationManager
         return $table
             ->columns([
                 TextColumn::make('name')->searchable()->label('Asset name'),
-                TextColumn::make('description')->searchable()->default('NA')->label('Description'),
+                TextColumn::make('description')->searchable()->default('--')->label('Description'),
                 TextColumn::make('location')->label('Location'),
                 TextColumn::make('service.name')->searchable()->label('Service'),
                 TextColumn::make('building.name')->searchable()->label('Building'),
                 TextColumn::make('asset_code'),
-                TextColumn::make('vendors.name')->default('NA')
+                TextColumn::make('vendors.name')->default('--')
                     ->searchable()->label('Vendor'),
             ])
             ->filters([
@@ -138,26 +135,26 @@ class AssetsRelationManager extends RelationManager
                         // Fetch technician_asset details
                         $technician_asset_id = TechnicianAssets::where('asset_id', $asset)->first();
                         // Fetch Building name
-                        $building_name = Building::where('id', $asset->building_id)->first();
-                        $oa_id = DB::table('building_owner_association')->where('building_id', $asset->building_id)->where('active', true)->first()?->owner_association_id;
+                        $building_name        = Building::where('id', $asset->building_id)->first();
+                        $oa_id                = DB::table('building_owner_association')->where('building_id', $asset->building_id)->where('active', true)->first()?->owner_association_id;
                         $ownerAssociationName = OwnerAssociation::findOrFail($oa_id)?->name;
 
                         // Fetch maintenance details from the database
                         $maintenance = Assetmaintenance::where('technician_asset_id', $technician_asset_id)->first();
-                        $assetCode = strtoupper(substr($ownerAssociationName, 0, 2)).'-'. Hashids::encode($record->id);
+                        $assetCode   = strtoupper(substr($ownerAssociationName, 0, 2)) . '-' . Hashids::encode($record->id);
 
                         // Build an object with the required properties
                         $qrCodeContent = [
-                            'id' => $record->id,
-                            'asset_code' => $assetCode,
+                            'id'                  => $record->id,
+                            'asset_code'          => $assetCode,
                             'technician_asset_id' => $technician_asset_id,
-                            'asset_id' => $record->id,
-                            'asset_name' => $asset->name,
-                            'maintenance_status' => 'not-started',
-                            'building_name' => $building_name->name,
-                            'building_id' => $asset->building_id,
-                            'location' => $asset->location,
-                            'description' => $asset->description,
+                            'asset_id'            => $record->id,
+                            'asset_name'          => $asset->name,
+                            'maintenance_status'  => 'not-started',
+                            'building_name'       => $building_name->name,
+                            'building_id'         => $asset->building_id,
+                            'location'            => $asset->location,
+                            'description'         => $asset->description,
                             // 'last_service_on' => $maintenance->maintenance_date,
                         ];
 
@@ -173,19 +170,19 @@ class AssetsRelationManager extends RelationManager
                                     'Content-Type' => 'application/json',
                                 ],
                                 'json'    => [
-                                    'file_name' => $record->name.'-'.$assetCode,
+                                    'file_name' => $record->name . '-' . $assetCode,
                                     'svg'       => $qrCode->toHtml(),
                                 ],
-                                'verify' => false,
+                                'verify'  => false,
                             ]);
 
                             $content = json_decode($response->getBody()->getContents());
 
                             // Update with S3 URL
                             Asset::where('id', $record->id)->update([
-                                'qr_code' => $content->url,
-                                'asset_code' => $assetCode,
-                                'owner_association_id' => $oa_id
+                                'qr_code'              => $content->url,
+                                'asset_code'           => $assetCode,
+                                'owner_association_id' => $oa_id,
                             ]);
 
                         } catch (\Exception $e) {
@@ -193,9 +190,9 @@ class AssetsRelationManager extends RelationManager
                         }
 
                         $buildingId = $record->building_id;
-                        $serviceId = $record->service_id;
-                        $assetId = $record->id;
-                        $contract = Contract::where('building_id', $buildingId)->where('service_id', $serviceId)->where('end_date', '>=', Carbon::now()->toDateString())->first();
+                        $serviceId  = $record->service_id;
+                        $assetId    = $record->id;
+                        $contract   = Contract::where('building_id', $buildingId)->where('service_id', $serviceId)->where('end_date', '>=', Carbon::now()->toDateString())->first();
                         if ($contract) {
                             $vendorId = $contract->vendor_id;
 
@@ -219,11 +216,11 @@ class AssetsRelationManager extends RelationManager
 
                                 if ($selectedTechnician) {
                                     $assigned = TechnicianAssets::create([
-                                        'asset_id' => $asset->id,
+                                        'asset_id'      => $asset->id,
                                         'technician_id' => $selectedTechnician->id,
-                                        'vendor_id' => $contract->vendor_id,
-                                        'building_id' => $asset->building_id,
-                                        'active' => 1,
+                                        'vendor_id'     => $contract->vendor_id,
+                                        'building_id'   => $asset->building_id,
+                                        'active'        => 1,
                                     ]);
                                 } else {
                                     Log::info("No technicians to add", []);
@@ -241,36 +238,35 @@ class AssetsRelationManager extends RelationManager
                 Tables\Actions\BulkActionGroup::make([
                     // Tables\Actions\DeleteBulkAction::make(),
                     BulkAction::make('attach')
-                    ->form([
-                        Select::make('vendor_id')
-                        ->required()
-                        ->relationship('vendors', 'name')
-                        ->options(function () {
-                            return Vendor::whereHas('ownerAssociation', function ($query) {
-                                $oaId = auth()->user()?->owner_association_id;
-                                if(auth()->user()->role->name == 'Property Manager'){
-                                    $query->where('owner_association_id', $oaId)
-                                        ->where('status', 'approved');
-                                }
-                                else {
-                                    $query->where('owner_association_id', Filament::getTenant()->id)
-                                        ->where('status', 'approved');
-                                }
+                        ->form([
+                            Select::make('vendor_id')
+                                ->required()
+                                ->relationship('vendors', 'name')
+                                ->options(function () {
+                                    return Vendor::whereHas('ownerAssociation', function ($query) {
+                                        $oaId = auth()->user()?->owner_association_id;
+                                        if (auth()->user()->role->name == 'Property Manager') {
+                                            $query->where('owner_association_id', $oaId)
+                                                ->where('status', 'approved');
+                                        } else {
+                                            $query->where('owner_association_id', Filament::getTenant()->id)
+                                                ->where('status', 'approved');
+                                        }
 
-                            })
-                                ->pluck('name', 'id');
-                        })
+                                    })
+                                        ->pluck('name', 'id');
+                                }),
                         ])
-                        ->action(function (Collection $records,array $data){
-                            $vendorId= $data['vendor_id'];
-                            foreach($records as $record){
+                        ->action(function (Collection $records, array $data) {
+                            $vendorId = $data['vendor_id'];
+                            foreach ($records as $record) {
                                 $record->vendors()->sync([$vendorId]);
                             }
                             Notification::make()
                                 ->title("Vendor attached successfully")
                                 ->success()
                                 ->send();
-                        })->label('Attach Vendor')
+                        })->label('Attach Vendor'),
                 ]),
             ])
             ->emptyStateActions([

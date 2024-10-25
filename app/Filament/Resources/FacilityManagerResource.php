@@ -274,7 +274,7 @@ class FacilityManagerResource extends Resource
                         'warning' => fn($state) => $state === null || $state === 'NA',
                     ])
                     ->formatStateUsing(fn($state) => $state === null || $state === 'NA' ? 'Pending' : ucfirst($state))
-                    ->default('NA'),
+                    ->default('--'),
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
