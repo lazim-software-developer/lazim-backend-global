@@ -198,16 +198,16 @@ class InvoicesRelationManager extends RelationManager
                 TextColumn::make('wda.job_description')
                     ->label('Job Description(WDA)'),
                 TextColumn::make('date')
-                    ->default('--')
+                    ->default('NA')
                     ->label('Start Date'),
                 TextColumn::make('status')
-                    ->default('--')
+                    ->default('NA')
                     ->label('Status'),
                 TextColumn::make('user.first_name')
-                    ->default('--')
+                    ->default('NA')
                     ->label('Status updated by'),
                 TextColumn::make('invoice_amount')
-                    ->default('--')
+                    ->default('NA')
                     ->label('Invoice Amount'),
 
             ])

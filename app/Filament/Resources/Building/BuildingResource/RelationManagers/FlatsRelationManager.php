@@ -36,7 +36,7 @@ class FlatsRelationManager extends RelationManager
                         ]),
                     TextInput::make('description')
                         ->placeholder('Description')
-                        ->default('--')
+                        ->default('NA')
                         ->columnSpan([
                             'default' => 12,
                             'md'      => 12,
@@ -55,38 +55,38 @@ class FlatsRelationManager extends RelationManager
         return $table
             ->columns([
                 TextColumn::make('property_number')
-                    ->default('--')
+                    ->default('NA')
                     ->searchable()
                     ->label('Unit Number'),
                 TextColumn::make('building.name')
                     ->limit(50),
                 TextColumn::make('suit_area')
-                    ->default('--')
+                    ->default('NA')
                     ->searchable()
                     ->limit(50),
                 TextColumn::make('actual_area')
-                    ->default('--')
+                    ->default('NA')
                     ->searchable()
                     ->limit(50),
                 TextColumn::make('balcony_area')
-                    ->default('--')
+                    ->default('NA')
                     ->searchable()
                     ->limit(50),
                 TextColumn::make('applicable_area')
-                    ->default('--')
+                    ->default('NA')
                     ->searchable()
                     ->limit(50),
                 TextColumn::make('virtual_account_number')
-                    ->default('--')
+                    ->default('NA')
                     ->searchable()
                     ->hidden(in_array(auth()->user()->role->name, ['Property Manager', 'Admin']))
                     ->limit(50),
                 TextColumn::make('parking_count')
-                    ->default('--')
+                    ->default('NA')
                     ->searchable()
                     ->limit(50),
                 TextColumn::make('plot_number')
-                    ->default('--')
+                    ->default('NA')
                     ->searchable()
                     ->limit(50),
             ])
@@ -108,7 +108,7 @@ class FlatsRelationManager extends RelationManager
                 //         ]),
                 //     TextInput::make('description')
                 //         ->placeholder('Description')
-                //         ->default('--')
+                //         ->default('NA')
                 //         ->columnSpan([
                 //             'default' => 12,
                 //             'md' => 12,
@@ -118,7 +118,7 @@ class FlatsRelationManager extends RelationManager
                 //             ->rules(['exists:buildings,id'])
                 //             ->relationship('building', 'name')
                 //             ->reactive()
-                //             ->default('--')
+                //             ->default('NA')
                 //             ->preload()
                 //             ->searchable()
                 //             ->placeholder('Building')

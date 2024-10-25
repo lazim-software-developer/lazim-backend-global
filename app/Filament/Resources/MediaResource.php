@@ -68,12 +68,12 @@ class MediaResource extends Resource
             ->columns([
                 TextColumn::make('name')
                     ->toggleable()
-                    ->default('--')
+                    ->default('NA')
                     ->searchable(),
                 TextColumn::make('model_name')
                     ->label('Media Type')
                     ->toggleable()
-                    ->default('--')
+                    ->default('NA')
                     ->searchable(),
 
             ])

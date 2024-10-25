@@ -35,7 +35,7 @@ class FamilyMembersRelationManager extends RelationManager
                     }),
                 Tables\Columns\TextColumn::make('gender'),
                 Tables\Columns\TextColumn::make('relation'),
-                Tables\Columns\TextColumn::make('phone')->default('--'),
+                Tables\Columns\TextColumn::make('phone')->default('NA'),
                 Tables\Columns\TextColumn::make('passport_number'),
                 Tables\Columns\TextColumn::make('passport_expiry_date'),
                 Tables\Columns\TextColumn::make('emirates_id'),

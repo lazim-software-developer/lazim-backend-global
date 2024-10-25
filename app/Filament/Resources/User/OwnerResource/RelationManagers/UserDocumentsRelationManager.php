@@ -76,16 +76,16 @@ class UserDocumentsRelationManager extends RelationManager
                 TextColumn::make('name')
                     ->searchable()
                     ->label('Document Name')
-                    ->default('--')
+                    ->default('NA')
                     ->limit(50),
                 TextColumn::make('status')
                     ->searchable()
-                    ->default('--')
+                    ->default('NA')
                     ->limit(50),
                 TextColumn::make('documentUsers.first_name')
                     ->searchable()
                     ->label('Owner Name')
-                    ->default('--'),
+                    ->default('NA'),
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([

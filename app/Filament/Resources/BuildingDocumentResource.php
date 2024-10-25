@@ -107,7 +107,7 @@ class BuildingDocumentResource extends Resource
             ->columns([
                 TextColumn::make('documentLibrary.name')
                     ->searchable()
-                    ->default('--')
+                    ->default('NA')
                     ->toggleable()
                     ->limit(50),
                 TextColumn::make('status')
@@ -119,7 +119,7 @@ class BuildingDocumentResource extends Resource
                     ->date(),
                 ViewColumn::make('Building Name')->view('tables.columns.document')
                     ->searchable()
-                    ->default('--')
+                    ->default('NA')
                     ->toggleable(),
             ])
             ->defaultSort('created_at', 'desc')

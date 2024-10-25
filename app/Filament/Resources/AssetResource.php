@@ -135,12 +135,12 @@ class AssetResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('name')->searchable()->label('Asset name'),
-                TextColumn::make('description')->searchable()->default('--')->label('Description'),
+                TextColumn::make('description')->searchable()->default('NA')->label('Description'),
                 TextColumn::make('location')->label('Location'),
                 TextColumn::make('service.name')->searchable()->label('Service'),
                 TextColumn::make('building.name')->searchable()->label('Building'),
                 TextColumn::make('asset_code'),
-                TextColumn::make('vendors.name')->default('--')
+                TextColumn::make('vendors.name')->default('NA')
                     ->searchable()->label('Vendor'),
             ])
             ->defaultSort('created_at', 'desc')

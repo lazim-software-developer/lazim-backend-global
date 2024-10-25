@@ -42,9 +42,9 @@ class BuildingRelationManager extends RelationManager
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')->label('Building Name')
-                    ->default('--')->searchable(),
+                    ->default('NA')->searchable(),
                 Tables\Columns\TextColumn::make('from')->label('From')
-                    ->default('--')->searchable(),
+                    ->default('NA')->searchable(),
                 Tables\Columns\TextColumn::make('to')->searchable(),
             ])
             ->headerActions([

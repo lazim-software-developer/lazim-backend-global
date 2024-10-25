@@ -197,23 +197,23 @@ class AccessCardFormsDocumentResource extends Resource
             ->columns([
                 TextColumn::make('ticket_number')
                     ->searchable()
-                    ->default('--')
+                    ->default('NA')
                     ->label('Ticket number'),
                 TextColumn::make('card_type')
                     ->searchable()
-                    ->default('--')
+                    ->default('NA')
                     ->limit(50),
                 TextColumn::make('user.first_name')
                     ->searchable()
-                    ->default('--')
+                    ->default('NA')
                     ->limit(50),
                 TextColumn::make('building.name')
                     ->searchable()
-                    ->default('--')
+                    ->default('NA')
                     ->limit(50),
                 TextColumn::make('flat.property_number')
                     ->searchable()
-                    ->default('--')
+                    ->default('NA')
                     ->label('Unit number')
                     ->limit(50),
                 // ImageColumn::make('tenancy')
@@ -228,16 +228,16 @@ class AccessCardFormsDocumentResource extends Resource
                 //     ->disk('s3'),
                 TextColumn::make('status')
                     ->searchable()
-                    ->default('--')
+                    ->default('NA')
                     ->limit(50),
                 TextColumn::make('orders')
                     ->formatStateUsing(fn($state) => json_decode($state) ? (json_decode($state)->payment_status == 'requires_payment_method' ? 'Payment Failed' : json_decode($state)->payment_status) : 'NA')
                     ->label('Payment status')
-                    ->default('--')
+                    ->default('NA')
                     ->limit(50),
                 TextColumn::make('remarks')
                     ->searchable()
-                    ->default('--')
+                    ->default('NA')
                     ->limit(50),
 
             ])

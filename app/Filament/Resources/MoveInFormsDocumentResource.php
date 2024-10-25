@@ -242,28 +242,28 @@ class MoveInFormsDocumentResource extends Resource
             ->columns([
                 TextColumn::make('ticket_number')
                     ->searchable()
-                    ->default('--')
+                    ->default('NA')
                     ->label('Ticket Number'),
                 TextColumn::make('name')
                     ->searchable()
-                    ->default('--')
+                    ->default('NA')
                     ->limit(50),
                 TextColumn::make('building.name')
                     ->searchable()
-                    ->default('--')
+                    ->default('NA')
                     ->limit(50),
                 TextColumn::make('flat.property_number')
                     ->searchable()
-                    ->default('--')
+                    ->default('NA')
                     ->label('Unit number')
                     ->limit(50),
                 TextColumn::make('status')
                     ->searchable()
-                    ->default('--')
+                    ->default('NA')
                     ->limit(50),
                 TextColumn::make('remarks')
                     ->searchable()
-                    ->default('--')
+                    ->default('NA')
                     ->limit(50),
             ])
             ->defaultSort('created_at', 'desc')

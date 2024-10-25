@@ -213,27 +213,27 @@ class ResidentialFormResource extends Resource
             ->columns([
                 TextColumn::make('ticket_number')
                     ->searchable()
-                    ->default('--')
+                    ->default('NA')
                     ->label('Ticket number'),
                 TextColumn::make('building.name')
                     ->searchable()
                     ->label('Building')
-                    ->default('--'),
+                    ->default('NA'),
                 TextColumn::make('user.first_name')
                     ->searchable()
                     ->label('Resident name')
-                    ->default('--'),
+                    ->default('NA'),
                 TextColumn::make('flat.property_number')
                     ->searchable()
                     ->label('Unit number')
-                    ->default('--'),
+                    ->default('NA'),
                 TextColumn::make('status')
                     ->searchable()
-                    ->default('--')
+                    ->default('NA')
                     ->limit(50),
                 TextColumn::make('remarks')
                     ->searchable()
-                    ->default('--')
+                    ->default('NA')
                     ->limit(50),
             ])
             ->filters([

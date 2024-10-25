@@ -141,7 +141,7 @@ class UserResource extends Resource
                     ->toggleable()
                     ->searchable()
                     ->limit(50)
-                    ->default('--'),
+                    ->default('NA'),
                 Tables\Columns\ToggleColumn::make('active')
                     ->toggleable(),
                 // Tables\Columns\TextColumn::make('lazim_id')

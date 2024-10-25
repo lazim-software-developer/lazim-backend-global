@@ -66,11 +66,11 @@ class OAMInvoiceResource extends Resource
             ->columns([
                 TextColumn::make('building.name')
                     ->searchable()
-                    ->default('--')
+                    ->default('NA')
                     ->limit(50),
                 TextColumn::make('flat.property_number')
                     ->searchable()
-                    ->default('--')
+                    ->default('NA')
                     ->label('Unit Number')
                     ->limit(50),
                 TextColumn::make('invoice_number')

@@ -59,12 +59,12 @@ class TenantDocumentResource extends Resource
                         ->relationship('building', 'name')
                         ->preload()
                         ->disabled()
-                        ->default('--')
+                        ->default('NA')
                         ->searchable()
                         ->label('Building'),
                     TextInput::make('unit')
                         ->label('Unit number')
-                        ->default('--')
+                        ->default('NA')
                         ->afterStateHydrated(function ($set, $record) {
                             $flatID     = FlatTenant::where('tenant_id', $record->documentable_id)->value('flat_id');
                             $unitNumber = Flat::where('id', $flatID)->value('property_number') ?? 'NA';
@@ -127,15 +127,15 @@ class TenantDocumentResource extends Resource
                 TextColumn::make('name')
                     ->searchable()
                     ->label('Document name')
-                    ->default('--')
+                    ->default('NA')
                     ->limit(50),
                 TextColumn::make('building.name')
                     ->searchable()
-                    ->default('--')
+                    ->default('NA')
                     ->label('Building')
                     ->limit(50),
                 TextColumn::make('unit')
-                    ->default('--')
+                    ->default('NA')
                     ->label('Unit number')
                     ->getStateUsing(function (Get $get, $record) {
                         $flatID = FlatTenant::where('tenant_id', $record->documentable_id)->value('flat_id');
@@ -144,12 +144,12 @@ class TenantDocumentResource extends Resource
                     ->limit(50),
                 TextColumn::make('status')
                     ->searchable()
-                    ->default('--')
+                    ->default('NA')
                     ->limit(50),
                 TextColumn::make('documentUsers.first_name')
                     ->searchable()
                     ->label('Resident name')
-                    ->default('--'),
+                    ->default('NA'),
                 ViewColumn::make('Role')->view('tables.columns.role')->alignCenter(),
             ])
             ->defaultSort('created_at', 'desc')

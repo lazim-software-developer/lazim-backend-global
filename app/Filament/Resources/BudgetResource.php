@@ -87,12 +87,12 @@ class BudgetResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('building.name')
-                    ->default('--')
+                    ->default('NA')
                     ->searchable()
                     ->limit(50),
                 TextColumn::make('budget_period')
                     ->label('Budget period')
-                    ->default('--'),
+                    ->default('NA'),
                 TextColumn::make('budget_from')
                     ->date(),
                 TextColumn::make('budget_to')

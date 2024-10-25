@@ -139,15 +139,15 @@ class VendorResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('user.first_name')
                     ->searchable()
-                    ->default('--')
+                    ->default('NA')
                     ->label('Vendor Name'),
                 Tables\Columns\TextColumn::make('tl_number')
                     ->searchable()
-                    ->default('--')
+                    ->default('NA')
                     ->label('TL Number'),
                 Tables\Columns\TextColumn::make('status')
                     ->searchable()
-                    ->default('--')
+                    ->default('NA')
                     ->label('Status')
                     ->hidden(function () {
                         return Role::where('id', auth()->user()?->role_id)->first()?->name == 'Admin';
@@ -161,7 +161,7 @@ class VendorResource extends Resource
                 TextColumn::make('remarks')
                     ->searchable()
                     ->limit(30)
-                    ->default('--')
+                    ->default('NA')
                     ->label('Remarks')
                     ->hidden(function () {
                         return Role::where('id', auth()->user()?->role_id)->first()?->name == 'Admin';

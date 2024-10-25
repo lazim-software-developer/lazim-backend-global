@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\BuildingsRelationManagerResource\RelationManagers\BuildingsRelationManager;
 use App\Filament\Resources\FacilityManagerResource\Pages;
+use App\Filament\Resources\FacilityManagerResource\RelationManagers\ComplianceDocumentsRelationManager;
 use App\Filament\Resources\FacilityManagerResource\RelationManagers\DocumentsRelationManager;
 use App\Filament\Resources\FacilityManagerResource\RelationManagers\EscalationMatrixRelationManager;
 use App\Jobs\ApprovedFMJob;
@@ -52,7 +53,7 @@ class FacilityManagerResource extends Resource
                                     ->schema([
                                         TextInput::make('owner_association_id')
                                             ->label('Property Manager')
-                                            ->hiddenOn('edit')
+                                            ->hidden()
                                             ->default(function () {
                                                 $pmId = auth()->user()->owner_association_id;
                                                 return OwnerAssociation::where('id', $pmId)->pluck('name', 'id')->first();
@@ -274,7 +275,7 @@ class FacilityManagerResource extends Resource
                         'warning' => fn($state) => $state === null || $state === 'NA',
                     ])
                     ->formatStateUsing(fn($state) => $state === null || $state === 'NA' ? 'Pending' : ucfirst($state))
-                    ->default('--'),
+                    ->default('NA'),
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
@@ -303,6 +304,7 @@ class FacilityManagerResource extends Resource
         return [
             DocumentsRelationManager::class,
             BuildingsRelationManager::class,
+            ComplianceDocumentsRelationManager::class,
             // ServicesRelationManager::class,
             EscalationMatrixRelationManager::class,
         ];

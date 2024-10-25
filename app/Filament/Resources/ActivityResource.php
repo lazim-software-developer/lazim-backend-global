@@ -163,7 +163,7 @@ class ActivityResource extends Resource
                 //     }),
 
                 TextColumn::make('subject_type')
-                    ->default('--')
+                    ->default('NA')
                     ->label('Feature')
                     ->formatStateUsing(function ($state, Model $record) {
                         /** @var Activity&ActivityModel $record */

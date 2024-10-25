@@ -176,7 +176,7 @@ class HelpdeskcomplaintResource extends Resource
                             ->label('Service'),
                         TextInput::make('category')->disabled(),
                         TextInput::make('open_time')->disabled(),
-                        TextInput::make('close_time')->disabled()->default('--'),
+                        TextInput::make('close_time')->disabled()->default('NA'),
                         Textarea::make('complaint')
                             ->disabled()
                             ->placeholder('Complaint'),
@@ -185,7 +185,7 @@ class HelpdeskcomplaintResource extends Resource
                         //     ->placeholder('Complaint Details'),
                         TextInput::make('type')->label('Type')
                             ->disabled()
-                            ->default('--'),
+                            ->default('NA'),
                         Toggle::make('Urgent')
                             ->disabled()
                             ->formatStateUsing(function ($record) {
@@ -245,17 +245,17 @@ class HelpdeskcomplaintResource extends Resource
                 //     ->toggleable(),
                 TextColumn::make('ticket_number')
                     ->toggleable()
-                    ->default('--')
+                    ->default('NA')
                     ->limit(20)
                     ->searchable()
                     ->label('Ticket number'),
                 TextColumn::make('building.name')
-                    ->default('--')
+                    ->default('NA')
                     ->searchable()
                     ->limit(50),
                 TextColumn::make('type')
                     ->formatStateUsing(fn(string $state) => Str::ucfirst($state))
-                    ->default('--'),
+                    ->default('NA'),
                 TextColumn::make('user.first_name')
                     ->toggleable()
                     ->searchable()

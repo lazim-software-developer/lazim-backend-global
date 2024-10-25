@@ -143,31 +143,31 @@ class ComplaintsenquiryResource extends Resource
             ->columns([
                 TextColumn::make('ticket_number')
                     ->searchable()
-                    ->default('--')
+                    ->default('NA')
                     ->label('Ticket number'),
                 TextColumn::make('building.name')
-                    ->default('--')
+                    ->default('NA')
                     ->searchable()
                     ->limit(50),
                 TextColumn::make('flat.property_number')
                     ->label('Unit')
-                    ->default('--')
+                    ->default('NA')
                     ->searchable()
                     ->limit(50),
                 TextColumn::make('user.first_name')
                     ->toggleable()
-                    ->default('--')
+                    ->default('NA')
                     ->searchable()
                     ->limit(50),
                 TextColumn::make('complaint')
                     ->toggleable()
-                    ->default('--')
+                    ->default('NA')
                     ->limit(20)
                     ->searchable()
                     ->label('Enquiry'),
                 TextColumn::make('complaint_details')
                     ->toggleable()
-                    ->default('--')
+                    ->default('NA')
                     ->limit(20)
                     ->searchable()
                     ->label('Enquiry details'),
