@@ -2,16 +2,17 @@
 
 namespace App\Http\Controllers\Documents;
 
-use App\Http\Controllers\Controller;
-use App\Http\Requests\Document\DocumentRequest;
-use App\Http\Resources\CustomResponseResource;
-use App\Http\Resources\Documents\DocumentLibraryResource;
-use App\Http\Resources\Documents\DocumentResource;
-use App\Models\Building\Building;
-use App\Models\Building\Document;
-use App\Models\Master\DocumentLibrary;
 use App\Models\Media;
 use App\Models\User\User;
+use App\Models\Building\Building;
+use App\Models\Building\Document;
+use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
+use App\Models\Master\DocumentLibrary;
+use App\Http\Resources\CustomResponseResource;
+use App\Http\Requests\Document\DocumentRequest;
+use App\Http\Resources\Documents\DocumentResource;
+use App\Http\Resources\Documents\DocumentLibraryResource;
 
 class DocumentsController extends Controller
 {
