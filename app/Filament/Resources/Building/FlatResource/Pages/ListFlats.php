@@ -97,7 +97,7 @@ class ListFlats extends ListRecords
                     ]),
             ])
             ->visible(in_array(auth()->user()->role->name, ['Admin','Property Manager']))
-            ->label('Download sample format file'),
+            ->label('Download sample file'),
         ];
     }
     protected function getTableQuery(): Builder

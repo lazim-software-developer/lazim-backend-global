@@ -289,10 +289,14 @@ class BuildingRelationManager extends RelationManager
                                 Column::make('to'),
                             ]),
                     ])
-                    ->label('Download sample format file'),
+                    ->label('Download sample file'),
             ])
             ->actions([
-                Tables\Actions\DetachAction::make(),
+                Tables\Actions\DetachAction::make()
+                    ->label('Remove')
+                    ->modalHeading('Remove Building')
+                    ->modalDescription('Performing this action will result in loosing authority of this building!')
+                    ->modalSubmitActionLabel('Yes, remove it'),
             ])
             ->emptyStateDescription('Attach or Upload a Building to get started.')
             ->bulkActions([
