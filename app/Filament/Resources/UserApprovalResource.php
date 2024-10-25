@@ -122,6 +122,9 @@ class UserApprovalResource extends Resource
                 Tables\Columns\TextColumn::make('user.first_name')
                     ->numeric()
                     ->searchable(),
+                Tables\Columns\TextColumn::make('flat.property_number')->label('Flat Number')->default('--'),
+                Tables\Columns\TextColumn::make('flat.building.name')->label('Building')->default('--'),
+                Tables\Columns\TextColumn::make('created_at')->label('Date of creation')->default('--'),
                 Tables\Columns\TextColumn::make('status')
                     ->searchable()
                     ->colors([
@@ -135,10 +138,7 @@ class UserApprovalResource extends Resource
                         'heroicon-o-check-circle' => 'approved',
                     ])
                     ->formatStateUsing(fn($state) => $state === null || $state === 'NA' ? 'Pending' : ucfirst($state))
-                    ->default('NA'),
-                Tables\Columns\TextColumn::make('flat.property_number')->label('Flat Number')->default('NA'),
-                Tables\Columns\TextColumn::make('flat.building.name')->label('Building')->default('NA'),
-                Tables\Columns\TextColumn::make('created_at')->label('Date of creation')->default('NA'),
+                    ->default('--'),
             ])
             ->filters([
                 //
