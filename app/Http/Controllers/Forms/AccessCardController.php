@@ -31,7 +31,7 @@ class AccessCardController extends Controller
      */
     public function create(CreateAccessCardFormsRequest $request)
     {
-        $ownerAssociationId = Building::find($request->building_id)->owner_association_id;
+        $ownerAssociationId = DB::table('building_owner_association')->where(['building_id' => $request->building_id,'active'=>true])->first()?->owner_association_id;
 
         // Handle multiple images
         $document_paths = [
@@ -56,7 +56,7 @@ class AccessCardController extends Controller
         $data['ticket_number']        = generate_ticket_number("AC");
 
         $accessCard       = AccessCard::create($data);
-        $tenant           = Filament::getTenant()?->id ?? auth()->user()?->owner_association_id;
+        $tenant           = Filament::getTenant()?->id ?? $ownerAssociationId;
         // $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
         $credentials = AccountCredentials::where('oa_id', $tenant)->where('active', true)->latest()->first();
         $mailCredentials = [

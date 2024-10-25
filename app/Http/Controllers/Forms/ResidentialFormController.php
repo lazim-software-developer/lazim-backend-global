@@ -24,7 +24,7 @@ class ResidentialFormController extends Controller
     {
         $validated = $request->validated();
 
-        $ownerAssociationId = Building::find($request->building_id)->owner_association_id;
+        $ownerAssociationId = DB::table('building_owner_association')->where(['building_id' => $request->building_id,'active'=>true])->first()?->owner_association_id;
 
         $validated['passport_url'] = optimizeDocumentAndUpload($request->file('file_passport_url'));
         $validated['emirates_url'] = optimizeDocumentAndUpload($request->file('file_emirates_url'));
@@ -41,7 +41,7 @@ class ResidentialFormController extends Controller
         $validated['ticket_number']        = generate_ticket_number("FV");
 
         $residentialForm  = ResidentialForm::create($validated);
-        $tenant           = Filament::getTenant()?->id ?? auth()->user()?->owner_association_id ?? $ownerAssociationId;
+        $tenant           = Filament::getTenant()?->id ?? $ownerAssociationId;
         // $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
         $credentials = AccountCredentials::where('oa_id', $tenant)->where('active', true)->latest()->first();
         $mailCredentials = [
