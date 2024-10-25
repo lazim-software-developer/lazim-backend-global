@@ -3,12 +3,11 @@
 namespace App\Filament\Resources\FacilityManagerResource\RelationManagers;
 
 use Filament\Forms;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class ComplianceDocumentsRelationManager extends RelationManager
 {
@@ -21,6 +20,14 @@ class ComplianceDocumentsRelationManager extends RelationManager
                 Forms\Components\TextInput::make('doc_name')
                     ->required()
                     ->maxLength(255),
+                FileUpload::make('url')
+                    ->disk('s3')
+                    ->directory('dev')
+                    ->disabled()
+                    ->openable(true)
+                    ->downloadable(true)
+                    ->label('Document'),
+
             ]);
     }
 
@@ -31,7 +38,7 @@ class ComplianceDocumentsRelationManager extends RelationManager
             ->columns([
                 Tables\Columns\TextColumn::make('doc_name')->label('Document Name'),
                 Tables\Columns\TextColumn::make('expiry_date')->label('Expiry Date'),
-                Tables\Columns\TextColumn::make('url')->label('URL'),
+                // Tables\Columns\TextColumn::make('url')->label('URL'),
             ])
             ->filters([
                 //

@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\FacilitySupportComplaintResource\Pages;
+use App\Models\Accounting\SubCategory;
 use App\Models\Building\Building;
 use App\Models\Building\Complaint;
 use App\Models\Building\Flat;
@@ -146,12 +147,28 @@ class FacilitySupportComplaintResource extends Resource
                         Grid::make(['sm' => 1, 'md' => 1, 'lg' => 2])
                             ->schema([
 
+                                Select::make('subcategory_id')
+                                    ->options(SubCategory::all()->pluck('name', 'id'))
+                                    ->live()
+                                    ->searchable()
+                                    ->required()
+                                    ->placeholder('Select Sub-Category')
+                                    ->label('Sub Category')
+                                    ->preload()
+                                    ->afterStateUpdated(function (Set $set) {
+                                        $set('vendor_id', null);
+                                        $set('technician_id', null);
+                                    }),
+
                                 Select::make('service_id')
-                                    ->label('Service Type')
-                                    ->relationship('service', 'name')
+                                    ->label('Service')
+                                    ->live()
                                     ->preload()
                                     ->required()
-                                    ->live()
+                                    ->options(function (callable $get) {
+                                        return Service::where('type', 'vendor_service')
+                                            ->where('subcategory_id', $get('subcategory_id'))->pluck('name', 'id');
+                                    })
                                     ->afterStateUpdated(function (Set $set, $state) {
                                         $serviceName = Service::where('id', $state)->pluck('name');
                                         $set('category', $serviceName);
@@ -161,12 +178,6 @@ class FacilitySupportComplaintResource extends Resource
                                     })
                                     ->searchable()
                                     ->placeholder('Select Service'),
-
-                                TextInput::make('category')
-                                    ->label('Category')
-                                    ->live()
-                                    ->readOnly()
-                                    ->placeholder('Select Service type to populate it\'s Category'),
 
                                 Select::make('vendor_id')
                                     ->label('Vendor Name')
