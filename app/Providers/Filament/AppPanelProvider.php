@@ -492,7 +492,7 @@ class AppPanelProvider extends PanelProvider
                         }
                         if ($user->can('view_any_ledgers') || $user->can('view_any_vendor::ledgers') || $user->can('view_any_cooling::account')) {
                             $builder->groups([
-                                NavigationGroup::make('Reports')
+                                NavigationGroup::make('Bills Management')
                                     ->items([
                                         NavigationItem::make('Service charge ledgers')
                                             ->url('/app/ledgers')
