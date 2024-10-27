@@ -3,6 +3,7 @@
 namespace App\Providers\Filament;
 
 use App\Filament\Pages\Auth\AppEditProfile;
+use App\Filament\Resources\ComplaintResource;
 use App\Filament\Resources\FacilitySupportComplaintResource;
 use App\Filament\Resources\SubContractorResource;
 use App\Filament\Resources\TechnicianVendorResource;
@@ -551,8 +552,8 @@ class AppPanelProvider extends PanelProvider
                                         NavigationItem::make('Fitout')
                                             ->url('/app/fit-out-forms-documents')
                                             ->hidden(!$user->can('view_any_fit::out::forms::document'))
-                                            ->icon('heroicon-s-face-smile')
-                                            ->activeIcon('heroicon-s-face-smile')
+                                            ->icon('heroicon-s-bolt')
+                                            ->activeIcon('heroicon-s-bolt')
                                             ->sort(4),
                                         NavigationItem::make('Access card')
                                             ->url('/app/access-card-forms-documents')
@@ -696,6 +697,13 @@ class AppPanelProvider extends PanelProvider
                                             ->hidden(!$user->can('view_any_helpdeskcomplaint'))
                                             ->icon('heroicon-m-clipboard-document-list')
                                             ->activeIcon('heroicon-m-clipboard-document-list')
+                                            ->sort(1),
+                                        NavigationItem::make('Maintenance Schedule')
+                                            ->url(ComplaintResource::getUrl('index'))
+                                            ->visible(auth()->user()->role->name == 'Property Manager')
+                                            ->hidden(!$user->can('view_any_helpdeskcomplaint'))
+                                            ->icon('heroicon-m-calendar-days')
+                                            ->activeIcon('heroicon-m-calendar-days')
                                             ->sort(1),
                                     ]),
                             ]);
@@ -1224,8 +1232,8 @@ class AppPanelProvider extends PanelProvider
                                     NavigationItem::make('Fitout')
                                         ->url('/app/fit-out-forms-documents')
                                         ->hidden(!$user->can('view_any_fit::out::forms::document'))
-                                        ->icon('heroicon-s-face-smile')
-                                        ->activeIcon('heroicon-s-face-smile')
+                                        ->icon('heroicon-s-bolt')
+                                        ->activeIcon('heroicon-s-bolt')
                                         ->sort(4),
                                     NavigationItem::make('Access card')
                                         ->url('/app/access-card-forms-documents')
@@ -1458,4 +1466,5 @@ class AppPanelProvider extends PanelProvider
             ])
             ;
     }
+
 }

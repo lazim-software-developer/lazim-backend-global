@@ -1,17 +1,17 @@
 <?php
 
-namespace App\Filament\Resources\FacilitySupportComplaintResource\Pages;
+namespace App\Filament\Resources\ComplaintResource\Pages;
 
-use App\Filament\Resources\FacilitySupportComplaintResource;
+use App\Filament\Resources\ComplaintResource;
 use App\Models\Building\Complaint;
 use App\Models\Master\Service;
 use Carbon\Carbon;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 
-class EditFacilitySupportComplaint extends EditRecord
+class EditComplaint extends EditRecord
 {
-    protected static string $resource = FacilitySupportComplaintResource::class;
+    protected static string $resource = ComplaintResource::class;
 
     protected function getHeaderActions(): array
     {
@@ -32,7 +32,6 @@ class EditFacilitySupportComplaint extends EditRecord
 
         return $data;
     }
-
     public function afterSave()
     {
         if ($this->record->status == 'closed') {
