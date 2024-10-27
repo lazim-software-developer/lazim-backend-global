@@ -2,7 +2,7 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\FacilitySupportComplaintResource\Pages;
+use App\Filament\Resources\ComplaintResource\Pages;
 use App\Models\Accounting\SubCategory;
 use App\Models\Building\Building;
 use App\Models\Building\Complaint;
@@ -13,7 +13,6 @@ use App\Models\User\User;
 use App\Models\Vendor\ServiceVendor;
 use App\Models\Vendor\Vendor;
 use Closure;
-use DB;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
@@ -31,14 +30,12 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
 
-class FacilitySupportComplaintResource extends Resource
+class ComplaintResource extends Resource
 {
-    protected static ?string $model = Complaint::class;
-
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-
-    protected static ?string $modelLabel = 'Issue';
+    protected static ?string $model      = Complaint::class;
+    protected static ?string $modelLabel = 'Maintenance Schedule';
 
     public static function form(Form $form): Form
     {
@@ -54,8 +51,8 @@ class FacilitySupportComplaintResource extends Resource
                                         'personal' => 'Personal',
                                         'building' => 'Building',
                                     ])
-                                    ->live()
                                     ->disabledOn('edit')
+                                    ->live()
                                     ->default('NA'),
 
                                 Toggle::make('Urgent')
@@ -115,11 +112,11 @@ class FacilitySupportComplaintResource extends Resource
                                     ->minDate(now()->format('Y-m-d'))
                                 // ->maxDate(now()->addDays(3)->format('Y-m-d'))
                                     ->rules(['date'])
+                                    ->disabledOn('edit')
                                     ->validationMessages([
                                         'maxDate' =>
                                         'The due date should be within 3 days of the complaint creation date.',
                                     ])
-                                    ->disabledOn('edit')
                                     ->placeholder('Select Due Date'),
 
                                 Textarea::make('complaint')
@@ -318,8 +315,8 @@ class FacilitySupportComplaintResource extends Resource
             ->pluck('building_id');
         return $table
             ->modifyQueryUsing(fn(Builder $query) => $query
-            ->where('complaintable_type', get_class(auth()->user()))
-            ->whereIn('building_id', $buildingIds)->latest())
+                    ->where('complaintable_type', 'App\Models\Vendor\Vendor')
+                    ->whereIn('building_id', $buildingIds)->latest())
             ->columns([
                 TextColumn::make('ticket_number')
                     ->label('Ticket Number')
@@ -410,9 +407,9 @@ class FacilitySupportComplaintResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => Pages\ListFacilitySupportComplaints::route('/'),
-            'create' => Pages\CreateFacilitySupportComplaint::route('/create'),
-            'edit'   => Pages\EditFacilitySupportComplaint::route('/{record}/edit'),
+            'index'  => Pages\ListComplaints::route('/'),
+            'create' => Pages\CreateComplaint::route('/create'),
+            'edit'   => Pages\EditComplaint::route('/{record}/edit'),
         ];
     }
 }
