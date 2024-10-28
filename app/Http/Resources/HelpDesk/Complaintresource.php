@@ -33,7 +33,7 @@ class Complaintresource extends JsonResource
             'category' => $this->category,
             'remarks' => $this->remarks,
             'opened_on' => $this->open_time_diff,
-            'resolved' => $this->status == 'open' ? false : true,
+            'resolved' => $this->status != 'closed' ? false : true,
             'media' => MediaResource::collection($this->media),
             'complaint_type' => $this->complaint_type,
             'complaint_details' => $this->complaint_details,
