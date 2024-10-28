@@ -513,6 +513,7 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('vendor')->group(function 
     Route::get('/{vendor}/compliance-document',[ComplianceDocumentController::class,'list']);
     Route::post('/{vendor}/compliance-document',[ComplianceDocumentController::class,'store']);
     Route::post('/{vendor}/compliance-document/{complianceDocument}',[ComplianceDocumentController::class,'update']);
+    Route::get('/{vendor}/compliance-document-dashboard',[ComplianceDocumentController::class,'dashboardList']);
 });
 
 // Technician Related APIs
