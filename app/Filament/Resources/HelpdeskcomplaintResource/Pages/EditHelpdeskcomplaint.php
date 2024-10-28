@@ -123,7 +123,7 @@ class EditHelpdeskcomplaint extends EditRecord
                         'sound' => 'default',
                         'title' => 'Facility support issue status',
                         'body' => 'A issue has been moved to In-progress',
-                        'data' => ['notificationType' => $this->record->complaint_type == 'help_desk'? 'HelpDeskTabResolved':'InAppNotficationScreen'],
+                        'data' => ['notificationType' => $this->record->complaint_type == 'help_desk'? 'HelpDeskTabPending':'InAppNotficationScreen'],
                     ];
                     $this->expoNotification($message);
                 }
@@ -143,7 +143,7 @@ class EditHelpdeskcomplaint extends EditRecord
                             'view' => 'notifications::notification',
                             'viewData' => [],
                             'format' => 'filament',
-                            'url' => 'HelpDeskTabResolved',
+                            'url' => 'HelpDeskTabPending',
                         ]),
                         'created_at' => now()->format('Y-m-d H:i:s'),
                         'updated_at' => now()->format('Y-m-d H:i:s'),
