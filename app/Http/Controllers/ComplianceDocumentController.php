@@ -43,4 +43,10 @@ class ComplianceDocumentController extends Controller
         return ComplianceDocumentResource::make($complianceDocument);
 
     }
+    public function dashboardList(Vendor $vendor)
+    {
+        $complianceDocument = $vendor->ComplianceDocuments->whereBetween('expiry_date', [now(), now()->addDays(30)]);
+
+        return ComplianceDocumentResource::collection($complianceDocument);
+    }
 }
