@@ -52,7 +52,7 @@ class EditComplaintsenquiry extends EditRecord
                         'to' => $expoPushToken,
                         'sound' => 'default',
                         'title' => 'Enquiry Acknowledgement',
-                        'body' => 'You enquiry has been acknowledged by '.auth()->user()->first_name. '. Team will contact you soon.',
+                        'body' => 'Your enquiry has been acknowledged by '.auth()->user()->first_name. '. Team will contact you soon.',
                         'data' => ['notificationType' => 'InAppNotficationScreen'],
                     ];
                     $this->expoNotification($message);
@@ -63,7 +63,7 @@ class EditComplaintsenquiry extends EditRecord
                         'notifiable_id' => $this->record->user_id,
                         'data' => json_encode([
                             'actions' => [],
-                            'body' => 'You enquiry has been acknowledged by '.auth()->user()->first_name. '. Team will contact you soon.',
+                            'body' => 'Your enquiry has been acknowledged by '.auth()->user()->first_name. '. Team will contact you soon.',
                             'duration' => 'persistent',
                             'icon' => 'heroicon-o-document-text',
                             'iconColor' => 'warning',
@@ -104,7 +104,7 @@ class EditComplaintsenquiry extends EditRecord
                         'to' => $expoPushToken,
                         'sound' => 'default',
                         'title' => 'Enquiry Status',
-                        'body' => 'You enquiry is moved to In-Progress',
+                        'body' => 'Your enquiry is moved to In-Progress',
                         'data' => ['notificationType' => 'InAppNotficationScreen'],
                     ];
                     $this->expoNotification($message);
@@ -115,7 +115,7 @@ class EditComplaintsenquiry extends EditRecord
                         'notifiable_id' => $this->record->user_id,
                         'data' => json_encode([
                             'actions' => [],
-                            'body' => 'You enquiry is moved to In-Progress',
+                            'body' => 'Your enquiry is moved to In-Progress',
                             'duration' => 'persistent',
                             'icon' => 'heroicon-o-document-text',
                             'iconColor' => 'warning',
