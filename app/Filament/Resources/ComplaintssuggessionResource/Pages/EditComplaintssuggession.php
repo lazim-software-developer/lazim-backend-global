@@ -52,7 +52,7 @@ class EditComplaintssuggession extends EditRecord
                         'to' => $expoPushToken,
                         'sound' => 'default',
                         'title' => 'Suggestion Acknowledgement',
-                        'body' => 'You suggestion has been acknowledged by '.auth()->user()->first_name.'. Thank you for your suggestion.',
+                        'body' => 'Your suggestion has been acknowledged by '.auth()->user()->first_name.'. Thank you for your suggestion.',
                         'data' => ['notificationType' => 'InAppNotficationScreen'],
                     ];
                     $this->expoNotification($message);
@@ -63,7 +63,7 @@ class EditComplaintssuggession extends EditRecord
                         'notifiable_id' => $this->record->user_id,
                         'data' => json_encode([
                             'actions' => [],
-                            'body' => 'You suggestion has been acknowledged by '.auth()->user()->first_name.'. Thank you for your suggestion.',
+                            'body' => 'Your suggestion has been acknowledged by '.auth()->user()->first_name.'. Thank you for your suggestion.',
                             'duration' => 'persistent',
                             'icon' => 'heroicon-o-document-text',
                             'iconColor' => 'warning',
@@ -106,7 +106,7 @@ class EditComplaintssuggession extends EditRecord
                         'to' => $expoPushToken,
                         'sound' => 'default',
                         'title' => 'Suggestion Status',
-                        'body' => 'You suggestion is moved to In-Progress',
+                        'body' => 'Your suggestion is moved to In-Progress',
                         'data' => ['notificationType' => 'InAppNotficationScreen'],
                     ];
                     $this->expoNotification($message);
@@ -117,7 +117,7 @@ class EditComplaintssuggession extends EditRecord
                         'notifiable_id' => $this->record->user_id,
                         'data' => json_encode([
                             'actions' => [],
-                            'body' => 'You suggestion is moved to In-Progress',
+                            'body' => 'Your suggestion is moved to In-Progress',
                             'duration' => 'persistent',
                             'icon' => 'heroicon-o-document-text',
                             'iconColor' => 'warning',
