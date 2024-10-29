@@ -43,7 +43,7 @@ class SaleNocResource extends JsonResource
             'cooling_bill_paid'        => $this->cooling_bill_paid,
             'service_charge_paid'      => $this->service_charge_paid,
             'noc_fee_paid'             => $this->noc_fee_paid,
-            'admin_document'           => $this->admin_document,
+            'admin_document'           => $this->admin_document ? env('AWS_URL') . '/' . $this->admin_document : null,
         ];
     }
 }

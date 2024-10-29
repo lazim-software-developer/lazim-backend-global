@@ -262,4 +262,41 @@ class VendorComplaintController extends Controller
             'delayed'   => $complaints->where('due_date','<',now())->where('status','open')->count(),
         ];
     }
+    public function dashboardReactive(Vendor $vendor,Request $request)
+    {
+        $complaints = Complaint::where(['vendor_id'=> $vendor->id])
+            ->whereIn('complaint_type', ['tenant_complaint','help_desk','snag'])
+            ->when($request->filled('building_id'), function ($query) use ($request) {
+                $query->where('building_id', $request->building_id);
+            })->get();
+
+        return [
+            'ongoing'   => $complaints->where('status','in-progress')->count(),
+            'pending'   => $complaints->where('status','open')->count(),
+            'completed' => $complaints->where('status','closed')->count(),
+        ];
+    }
+    public function reactiveMaintenance(Vendor $vendor,Request $request)
+    {
+
+        $complaints = Complaint::where(['vendor_id'=> $vendor->id])
+            ->whereIn('complaint_type', ['tenant_complaint','help_desk','snag'])
+            ->when($request->filled('building_id'), function ($query) use ($request) {
+                $query->where('building_id', $request->building_id);
+            })
+            ->when($request->filled('type'), function ($query) use ($request) {
+                if($request->type === 'completed'){
+                    $query->where('status','closed');
+                }
+                elseif($request->type === 'pending'){
+                    $query->where('status','open');
+                }
+                else{
+                    $query->where('status','in-progress');
+                }
+            })
+            ->paginate(10);
+
+        return VendorComplaintsResource::collection($complaints);
+    }
 }

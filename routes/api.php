@@ -482,6 +482,8 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('vendor')->group(function 
 
     //Complaint create
     Route::post('/{vendor}/complaint',[VendorComplaintController::class,'create']);
+    Route::get('/{vendor}/dashboard-reactive-stats',[VendorComplaintController::class,'dashboardReactive']);
+    Route::get('/{vendor}/reactive_maintenance',[VendorComplaintController::class,'reactiveMaintenance']);
 
     //Preventive Maintenance
     Route::get('/{vendor}/preventive_maintenance',[VendorComplaintController::class,'preventiveMaintenance']);
@@ -495,7 +497,7 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('vendor')->group(function 
     Route::patch('/{vendor}/move-in-out/{moveInOut}',[MoveInOutController::class,'updateStatus']);
     Route::get('/{vendor}/fit-out',[FitOutFormsController::class,'fmlist']);
     Route::get('/{vendor}/fit-out/{fitOutForm}',[FitOutFormsController::class,'show']);
-    Route::patch('/{vendor}/fit-out/{fitOutForm}',[FitOutFormsController::class,'updateStatus']);
+    Route::post('/{vendor}/fit-out/{fitOutForm}',[FitOutFormsController::class,'updateStatus']);
     Route::get('/{vendor}/residential-form',[ResidentialFormController::class,'fmlist']);
     Route::get('/{vendor}/residential-form/{residentialForm}',[ResidentialFormController::class,'show']);
     Route::patch('/{vendor}/residential-form/{residentialForm}',[ResidentialFormController::class,'updateStatus']);
@@ -504,7 +506,7 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('vendor')->group(function 
     Route::patch('/{vendor}/accesscard-form/{accessCard}',[AccessCardController::class,'updateStatus']);
     Route::get('/{vendor}/salenoc-form',[SaleNocController::class,'fmlist']);
     Route::get('/{vendor}/salenoc-form/{saleNOC}',[SaleNocController::class,'show']);
-    Route::patch('/{vendor}/salenoc-form/{saleNOC}',[SaleNocController::class,'updateStatus']);
+    Route::post('/{vendor}/salenoc-form/{saleNOC}',[SaleNocController::class,'updateStatus']);
     Route::get('/{vendor}/flatvisitor-form',[FlatVisitorController::class,'index']);
     Route::get('/{vendor}/flatvisitor-form/{flatVisitor}',[FlatVisitorController::class,'show']);
     Route::patch('/{vendor}/flatvisitor-form/{flatVisitor}',[FlatVisitorController::class,'updateStatus']);
