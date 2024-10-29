@@ -189,6 +189,9 @@ class SaleNocController extends Controller
             'remarks' => 'required_if:status,rejected|max:150',
         ]);
         $data = $request->only(['status', 'remarks']);
+        if($request->has('admin_document')){
+            $data['admin_document'] = optimizeAndUpload($request->admin_document, 'dev');
+        }
         $saleNOC->update($data);
 
         if ($request->status == 'approved') {
