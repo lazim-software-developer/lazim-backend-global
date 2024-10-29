@@ -189,7 +189,7 @@ class FitOutFormsController extends Controller
 
         $data = $request->only(['status','remarks']);
         if ($request->has('admin_document')) {
-            $data['admin_document'] = optimizeAndUpload($request->admin_document, 'dev');
+            $data['admin_document'] = optimizeDocumentAndUpload($request->admin_document);
         }
 
         $fitOutForm->update($data);
