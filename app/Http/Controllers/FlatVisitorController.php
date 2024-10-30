@@ -22,7 +22,7 @@ class FlatVisitorController extends Controller
         $buildingIds = DB::table('building_owner_association')
             ->whereIn('owner_association_id', $ownerAssociationIds)->pluck('building_id');
 
-        $flatVisitors = FlatVisitor::whereIn('building_id', $buildingIds)->where('type','visitor');
+        $flatVisitors = FlatVisitor::whereIn('building_id', $buildingIds)->where('type','visitor')->orderByDesc('created_at');
 
         return FlatVisitorResource::collection($flatVisitors->paginate(10));
     }

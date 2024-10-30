@@ -67,7 +67,7 @@ class ResidentialFormController extends Controller
         $buildingIds = DB::table('building_owner_association')
             ->whereIn('owner_association_id', $ownerAssociationIds)->pluck('building_id');
 
-        $residentForms = ResidentialForm::whereIn('building_id', $buildingIds);
+        $residentForms = ResidentialForm::whereIn('building_id', $buildingIds)->orderByDesc('created_at');
 
         return ResidentialFormResource::collection($residentForms->paginate(10));
     }
