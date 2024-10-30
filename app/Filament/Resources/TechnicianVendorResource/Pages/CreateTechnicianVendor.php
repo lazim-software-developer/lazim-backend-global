@@ -43,6 +43,7 @@ class CreateTechnicianVendor extends CreateRecord
             ];
 
             $user = User::create($userData);
+            Log::info('Record ==>',[$user]);
 
             $technicianData = [
                 'technician_id'     => $user->id,
@@ -85,6 +86,7 @@ class CreateTechnicianVendor extends CreateRecord
     protected function afterCreate(): void
     {
         $technician                       = $this->record;
+        Log::info('Record ==>',[$technician]);
         $technician->active               = true;
         $technician->owner_association_id = auth()->user()->owner_association_id;
 
