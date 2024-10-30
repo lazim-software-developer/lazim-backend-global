@@ -43,7 +43,6 @@ class CreateTechnicianVendor extends CreateRecord
             ];
 
             $user = User::create($userData);
-            Log::info('Record ==>',[$user]);
 
             $technicianData = [
                 'technician_id'     => $user->id,
@@ -86,13 +85,12 @@ class CreateTechnicianVendor extends CreateRecord
     protected function afterCreate(): void
     {
         $technician                       = $this->record;
-        Log::info('Record ==>',[$technician]);
         $technician->active               = true;
         $technician->owner_association_id = auth()->user()->owner_association_id;
 
         $vendorId = $this->record->vendor_id;
-        $name     = Vendor::where('id', $vendorId)->first()->name;
-        $userId   = User::where('id', $technician->id)->first()->id;
+        $name     = Vendor::where('id', $vendorId)->pluck('name')->first();
+        $userId   = User::where('id', $technician->id)->pluck('id')->first();
 
         $technician->technician_number = strtoupper(substr($name, 0, 2)) .
         Hashids::connection('alternative')->encode($userId);

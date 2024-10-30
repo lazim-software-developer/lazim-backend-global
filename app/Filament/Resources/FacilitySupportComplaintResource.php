@@ -318,7 +318,7 @@ class FacilitySupportComplaintResource extends Resource
             ->pluck('building_id');
         return $table
             ->modifyQueryUsing(fn(Builder $query) => $query
-            ->where('complaintable_type', get_class(auth()->user()))
+            ->whereIn('complaintable_type', [get_class(auth()->user()),'App\Models\Vendor\Vendor'])
             ->whereIn('building_id', $buildingIds)->latest())
             ->columns([
                 TextColumn::make('ticket_number')
