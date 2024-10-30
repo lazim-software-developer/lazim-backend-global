@@ -69,7 +69,7 @@ class CoolingAccountImport implements ToCollection, WithHeadingRow
 
             foreach ($rows as $row) {
                 $flatId = Flat::where(['building_id' => $this->buildingId, 'property_number' => $row['unit_no']])->first()?->id;
-                $status = $row['closing_balance'] ?? 'pending';
+                $status = $row['status'] ?? 'pending';
                 if(! $flatId || ! in_array($status,['pending','overdue','paid'])) {
                     continue;
                 }
