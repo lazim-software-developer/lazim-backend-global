@@ -178,7 +178,7 @@ class MoveInOutController extends Controller
         $buildingIds = DB::table('building_owner_association')
                 ->whereIn('owner_association_id',$ownerAssociationIds)->pluck('building_id');
 
-        $moveInOut = MoveInOut::whereIn('building_id',$buildingIds)->where('type',$request->type);
+        $moveInOut = MoveInOut::whereIn('building_id',$buildingIds)->where('type',$request->type)->orderByDesc('created_at');
 
         return MoveInOutResource::collection($moveInOut->paginate(10));
 

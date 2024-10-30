@@ -449,7 +449,7 @@ class ComplaintController extends Controller
     {
         $complaint->update([
             'status'     => 'closed',
-            'close_time' => now(),
+            'close_time' => $request->has('close_time') ? $request->close_time : now(),
             'closed_by'  => auth()->user()->id,
             'remarks'    => $request->remarks,
         ]);

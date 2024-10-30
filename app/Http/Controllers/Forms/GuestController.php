@@ -431,7 +431,7 @@ class GuestController extends Controller
 
         $flatVisitorIds = FlatVisitor::whereIn('building_id', $buildingIds)->where('type', 'guest')->pluck('id');
 
-        $guests = Guest::whereIn('flat_visitor_id',$flatVisitorIds);
+        $guests = Guest::whereIn('flat_visitor_id',$flatVisitorIds)->orderByDesc('created_at');
 
         return GuestResource::collection($guests->paginate(10));
 

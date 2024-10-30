@@ -178,7 +178,7 @@ class SaleNocController extends Controller
         $buildingIds = DB::table('building_owner_association')
             ->whereIn('owner_association_id', $ownerAssociationIds)->pluck('building_id');
 
-        $saleNocForms = SaleNOC::whereIn('building_id', $buildingIds);
+        $saleNocForms = SaleNOC::whereIn('building_id', $buildingIds)->orderByDesc('created_at');
 
         return SaleNocResource::collection($saleNocForms->paginate(10));
     }

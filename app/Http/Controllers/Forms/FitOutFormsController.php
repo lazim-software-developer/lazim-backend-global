@@ -175,7 +175,7 @@ class FitOutFormsController extends Controller
         $buildingIds = DB::table('building_owner_association')
                 ->whereIn('owner_association_id',$ownerAssociationIds)->pluck('building_id');
 
-        $fitOut = FitOutForm::whereIn('building_id',$buildingIds);
+        $fitOut = FitOutForm::whereIn('building_id',$buildingIds)->orderByDesc('created_at');
 
         return FitOutFormResource::collection($fitOut->paginate(10));
 

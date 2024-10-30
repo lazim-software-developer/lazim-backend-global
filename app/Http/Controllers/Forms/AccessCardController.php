@@ -206,7 +206,7 @@ class AccessCardController extends Controller
         $buildingIds = DB::table('building_owner_association')
             ->whereIn('owner_association_id', $ownerAssociationIds)->pluck('building_id');
 
-        $accessCardForms = AccessCard::whereIn('building_id', $buildingIds);
+        $accessCardForms = AccessCard::whereIn('building_id', $buildingIds)->orderByDesc('created_at');
 
         return AccessCardFormResource::collection($accessCardForms->paginate(10));
     }
