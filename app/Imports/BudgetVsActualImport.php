@@ -77,14 +77,14 @@ class BudgetVsActualImport implements ToCollection, WithHeadingRow
                     'actual'       => $row['actual'],
                     'budget'       => $row['budget'],
                     'variance'     => $row['variance'],
-                    'service_code' => $row['service_code'],
+                    'service_code' => trim($row['service_code']),
                 ];
             } else if ($row['section'] === 'expense_accounts') {
                 $this->data['expense_accounts'][] = [
                     'actual'       => $row['actual'],
                     'budget'       => $row['budget'],
                     'variance'     => $row['variance'],
-                    'service_code' => $row['service_code'],
+                    'service_code' => trim($row['service_code']),
                 ];
             }
         }
