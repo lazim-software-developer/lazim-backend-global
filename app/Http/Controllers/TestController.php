@@ -22,7 +22,6 @@ use App\Models\OaServiceRequest;
 use App\Models\ServiceParameter;
 use Aws\Exception\AwsException;
 use Aws\S3\S3Client;
-use Exception;
 use Filament\Notifications\Notification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
@@ -182,7 +181,7 @@ class TestController extends Controller
             ->body($errorMessages ?: "There seems to be some issue with the files you are uploading. Please check and try again!")
             ->send();
 
-        throw new Exception();
+        throw new \Exception();
     }
 
     private function mapKeyToProperty($key)
