@@ -83,7 +83,7 @@ class AccountsPayablesImport implements ToCollection, WithHeadingRow
                 && isset($row['closing_balance'])) {
 
                 $this->data[] = [
-                    'service_code'    => $row['service_code'] ?: null,
+                    'service_code'    => trim($row['service_code']) ?: null,
                     'account_name'    => $row['account_name'] ?: null,
                     'bill'            => $row['bill'],
                     'payment'         => $row['payment'],
