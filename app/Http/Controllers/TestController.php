@@ -189,6 +189,8 @@ class TestController extends Controller
             ->danger()
             ->body($errorMessages ?: "There seems to be some issue with the files you are uploading. Please check and try again!")
             ->send();
+
+        throw new \Exception();
     }
 
     private function mapKeyToProperty($key)
