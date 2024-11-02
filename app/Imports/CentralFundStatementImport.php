@@ -72,12 +72,12 @@ class CentralFundStatementImport implements ToCollection, WithHeadingRow
         foreach ($filteredRows as $row) {
             if ($row['section'] === 'income') {
                 $this->data['income'][] = [
-                    'service_code' => (string) $row['service_code'],
+                    'service_code' => (string) trim($row['service_code']),
                     'balance'      => (float) $row['balance'],
                 ];
             } elseif ($row['section'] === 'expense') {
                 $this->data['expense'][] = [
-                    'service_code' => (string) $row['service_code'],
+                    'service_code' => (string) trim($row['service_code']),
                     'balance'      => (float) $row['balance'],
                 ];
             }
