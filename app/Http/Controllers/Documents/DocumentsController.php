@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\Documents;
 
+use App\Http\Requests\MakaniNumberRequest;
 use App\Models\Media;
 use App\Models\User\User;
+use Illuminate\Http\Request;
 use App\Models\Building\Building;
 use App\Models\Building\Document;
 use Illuminate\Support\Facades\DB;
@@ -61,6 +63,32 @@ class DocumentsController extends Controller
                 'data' => new DocumentResource($document),
             ]);
         }
+    }
+
+    public function makaniNumber(MakaniNumberRequest $request)
+    {
+        $currentDate = date('Y-m-d');
+
+        $building = DB::table('building_owner_association')->where(['building_id' => $request->building_id, 'active' => true])->first();
+
+        Document::create([
+            'document_library_id'  => $request->document_library_id,
+            'building_id'          => $request->building_id,
+            'documentable_id'      => auth()->user()->id,
+            'status'               => 'submitted',
+            'expiry_date'          => date('Y-m-d', strtotime('+1 year', strtotime($currentDate))), //to do need to make changes for expiry date
+            'documentable_type' => User::class,
+            'name'                 => $request->name,
+            'flat_id'              => $request->flat_id ?? null,
+            'owner_association_id' => $building?->owner_association_id,
+            'url'                  => $request->number,
+        ]);
+
+        return new CustomResponseResource([
+            'title'   => 'Document Submitted',
+            'message' => 'Document has been successfully submitted.',
+            'code'    => 201,
+        ]);
     }
 
     // Fetch other documents for the user

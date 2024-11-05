@@ -259,6 +259,9 @@ Route::middleware(['auth:sanctum', 'email.verified', 'active'])->group(function 
 
     // mark a complaint as resolved
     Route::post('complaints/{complaint}/resolve', [ComplaintController::class, 'resolve']);
+
+    // List preventive maintenance
+    Route::get('building/{building}/preventive_maintenance',[ComplaintController::class, 'maintenanceSchedule']);
 });
 
 /**
@@ -328,6 +331,7 @@ Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active']
 Route::middleware(['auth:sanctum', 'email.verified', 'active'])->group(function () {
     Route::get('/documents', [DocumentsController::class, 'index']);
     Route::post('/document-upload', [DocumentsController::class, 'create']);
+    Route::post('/makaninumber-upload', [DocumentsController::class, 'makaniNumber']);
     Route::get('/fetch-other-documents', [DocumentsController::class, 'fetchOtherDocuments']);
 
     // List all Owners for a given flat
@@ -395,6 +399,8 @@ Route::middleware([])->prefix('vendor')->group(function () {
     Route::post('/{vendor}/documents-upload', [DocumentsUploadController::class, 'documentsUpload']);
     Route::get('/{vendor}/list-documents', [DocumentsUploadController::class, 'listDocuments']);
     Route::get('/owner-associations', [VendorRegistrationController::class, 'listOa']);
+    // login option vendor
+    Route::get('/login-as',[VendorRegistrationController::class,'loginAsOptions']);
 });
 
 // Vendor APIs after logging in
