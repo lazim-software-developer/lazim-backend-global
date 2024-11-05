@@ -97,63 +97,6 @@ class AppPanelProvider extends PanelProvider
                     $user = User::find(auth()->user()->id) ;
                     if(auth()->user()->role->name == 'Property Manager'){
                         if (
-                            $user->can('view_any_mollak::tenant') ||
-                            $user->can('view_any_user::approval') ||
-                            $user->can('view_any_owner::association') ||
-                            $user->can('view_any_tenant::document') ||
-                            $user->can('view_any_master::facility') ||
-                            $user->can('view_any_master::service') ||
-                            $user->can('view_any_master::vendor::service') ||
-                            $user->can('view_any_user::user') ||
-                            $user->can('view_any_building::documents') ||
-                            $user->can('page_Documents') ||
-                            auth()->user()->role_id == 10
-                        ) {
-                            $builder->groups([
-                                NavigationGroup::make('Master')
-                                    ->items([
-                                        NavigationItem::make('Facilities')
-                                            ->label('Amenities')
-                                            ->hidden(!$user->can('view_any_master::facility'))
-                                            ->url('/app/master/facilities')
-                                            ->icon('heroicon-o-cube-transparent')
-                                            ->activeIcon('heroicon-o-cube-transparent')
-                                            ->sort(10),
-
-                                        NavigationItem::make('In-house services')
-                                            ->label('Personal services')
-                                            ->hidden(!$user->can('view_any_master::service'))
-                                            ->url('/app/master/services')
-                                            ->icon('heroicon-m-wrench')
-                                            ->activeIcon('heroicon-m-wrench')
-                                            ->sort(12),
-
-                                        NavigationItem::make('Roles')
-                                            ->hidden(function () {
-                                                $userRoleId   = auth()->user()->role_id;
-                                                $adminRoleIds = Role::whereIn('name', ['OA', 'MD', 'Property Manager'])->pluck('id')->toArray();
-
-                                                return !in_array($userRoleId, $adminRoleIds);
-                                            })
-                                            ->url('/app/shield/roles')
-                                            ->icon('heroicon-s-user-group')
-                                            ->activeIcon('heroicon-s-user-group')
-                                            ->sort(11),
-
-
-                                    ]),
-                                NavigationGroup::make('User management')
-                                    ->items([
-                                        NavigationItem::make('Users')
-                                            ->hidden(!$user->can('view_any_user::user'))
-                                            ->url(UserResource::getUrl('index'))
-                                            ->icon('heroicon-s-user-group')
-                                            ->activeIcon('heroicon-s-user-group')
-                                            ->sort(14),
-                                    ]),
-                            ]);
-                        }
-                        if (
                             $user->can('view_any_property::manager')
                         ) {
                             $builder->groups([
@@ -227,9 +170,101 @@ class AppPanelProvider extends PanelProvider
                                             ->sort(6),
                                     ]),
 
-
                             ]);
                         }
+
+                        if ($user->can('view_any_building::flat::tenant')) {
+                        $builder->groups([
+                            NavigationGroup::make('Resident management')
+                                ->items([
+                                    NavigationItem::make('Residents')
+                                        ->url('/app/building/flat-tenants')
+                                        ->icon('heroicon-o-user-circle')
+                                        ->hidden(!$user->can('view_any_building::flat::tenant'))
+                                        ->activeIcon('heroicon-o-user-circle')
+                                        ->sort(1),
+
+                                    NavigationItem::make('Resident Approval')
+                                        ->url(UserApprovalResource::getUrl('index'))
+                                        ->hidden(!$user->can('view_any_user::approval'))
+                                        ->icon('heroicon-o-users')
+                                        ->activeIcon('heroicon-o-users')
+                                        ->sort(2),
+
+                                    NavigationItem::make('Resident documents')
+                                        ->url('/app/tenant-documents')
+                                        ->hidden(!$user->can('view_any_tenant::document'))
+                                        ->icon('heroicon-o-user-circle')
+                                        ->activeIcon('heroicon-o-user-circle')
+                                        ->sort(9),
+                                ]),
+
+                        ]);
+                    }
+
+
+
+                        if (
+                            $user->can('view_any_mollak::tenant') ||
+                            $user->can('view_any_user::approval') ||
+                            $user->can('view_any_owner::association') ||
+                            $user->can('view_any_tenant::document') ||
+                            $user->can('view_any_master::facility') ||
+                            $user->can('view_any_master::service') ||
+                            $user->can('view_any_master::vendor::service') ||
+                            $user->can('view_any_user::user') ||
+                            $user->can('view_any_building::documents') ||
+                            $user->can('page_Documents') ||
+                            auth()->user()->role_id == 10
+                        ) {
+                            $builder->groups([
+
+                                NavigationGroup::make('Master')
+                                    ->items([
+                                        NavigationItem::make('Facilities')
+                                            ->label('Amenities')
+                                            ->hidden(!$user->can('view_any_master::facility'))
+                                            ->url('/app/master/facilities')
+                                            ->icon('heroicon-o-cube-transparent')
+                                            ->activeIcon('heroicon-o-cube-transparent')
+                                            ->sort(10),
+
+                                        NavigationItem::make('In-house services')
+                                            ->label('Personal services')
+                                            ->hidden(!$user->can('view_any_master::service'))
+                                            ->url('/app/master/services')
+                                            ->icon('heroicon-m-wrench')
+                                            ->activeIcon('heroicon-m-wrench')
+                                            ->sort(12),
+
+                                        NavigationItem::make('Roles')
+                                            ->hidden(function () {
+                                                $userRoleId   = auth()->user()->role_id;
+                                                $adminRoleIds = Role::whereIn('name', ['OA', 'MD', 'Property Manager'])->pluck('id')->toArray();
+
+                                                return !in_array($userRoleId, $adminRoleIds);
+                                            })
+                                            ->url('/app/shield/roles')
+                                            ->icon('heroicon-s-user-group')
+                                            ->activeIcon('heroicon-s-user-group')
+                                            ->sort(11),
+
+
+                                    ]),
+                                NavigationGroup::make('User management')
+                                    ->items([
+                                        NavigationItem::make('Users')
+                                            ->hidden(!$user->can('view_any_user::user'))
+                                            ->url(UserResource::getUrl('index'))
+                                            ->icon('heroicon-s-user-group')
+                                            ->activeIcon('heroicon-s-user-group')
+                                            ->sort(14),
+                                    ]),
+                            ]);
+                        }
+
+
+
                         // || Role::where('id', auth()->user()->role_id)->first()->name != 'Admin'
                         if ($user->can('view_any_user::owner') || $user->can('view_any_user::tenant') || $user->can('view_any_vehicle')) {
                             $builder->groups([
@@ -257,33 +292,7 @@ class AppPanelProvider extends PanelProvider
                             ]);
                         }
 
-                        if ($user->can('view_any_building::flat::tenant')) {
-                            $builder->groups([
-                                NavigationGroup::make('Resident management')
-                                    ->items([
-                                        NavigationItem::make('Residents')
-                                            ->url('/app/building/flat-tenants')
-                                            ->icon('heroicon-o-user-circle')
-                                            ->hidden(!$user->can('view_any_building::flat::tenant'))
-                                            ->activeIcon('heroicon-o-user-circle')
-                                            ->sort(1),
 
-                                        NavigationItem::make('Resident Approval')
-                                            ->url(UserApprovalResource::getUrl('index'))
-                                            ->hidden(!$user->can('view_any_user::approval'))
-                                            ->icon('heroicon-o-users')
-                                            ->activeIcon('heroicon-o-users')
-                                            ->sort(2),
-
-                                        NavigationItem::make('Resident documents')
-                                            ->url('/app/tenant-documents')
-                                            ->hidden(!$user->can('view_any_tenant::document'))
-                                            ->icon('heroicon-o-user-circle')
-                                            ->activeIcon('heroicon-o-user-circle')
-                                            ->sort(9),
-                                    ]),
-                            ]);
-                        }
                         if ($user->can('view_any_vendor::vendor')) {
                             $builder->groups([
                                 NavigationGroup::make('Facility management')
@@ -531,12 +540,6 @@ class AppPanelProvider extends PanelProvider
                                 //DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] == 'Admin' ? true : false view_any_building::building
                                 NavigationGroup::make('Request Forms')
                                     ->items([
-                                        NavigationItem::make('Holiday Homes Guest Registration')
-                                            ->url('/app/guest-registrations')
-                                            ->hidden(!$user->can('view_any_guest::registration'))
-                                            ->icon('heroicon-m-identification')
-                                            ->activeIcon('heroicon-m-identification')
-                                            ->sort(1),
                                         NavigationItem::make('Move in')
                                             ->url('/app/move-in-forms-documents')
                                             ->hidden(!$user->can('view_any_move::in::forms::document'))
@@ -579,6 +582,12 @@ class AppPanelProvider extends PanelProvider
                                             ->icon('heroicon-o-users')
                                             ->activeIcon('heroicon-o-users')
                                             ->sort(8),
+                                        NavigationItem::make('Holiday Homes Guest Registration')
+                                            ->url('/app/guest-registrations')
+                                            ->hidden(!$user->can('view_any_guest::registration'))
+                                            ->icon('heroicon-m-identification')
+                                            ->activeIcon('heroicon-m-identification')
+                                            ->sort(1),
                                         // NavigationItem::make('Family Members')
                                         //     ->url(FamilyMemberResource::getUrl('index'))
                                         //     ->visible($user->can('view_any_family::member'))

@@ -106,7 +106,7 @@ class AssetsImport implements ToCollection, WithHeadingRow
                 // Append item to asset
                 $this->data[$row['asset_name']]['items'][] = [
                     'name'                    => $row['item_name'],
-                    'asset_code'              => $row['asset_code'] ?? null,
+                    'asset_code'              => (string) $row['asset_code'] ?? null,
                     'location'                => $row['location'] ?? null, // Assuming there might be empty locations
                     'warranties_count' => $row['warranties_count'],
                     'active_warranties_count' => $row['active_warranties_count'],

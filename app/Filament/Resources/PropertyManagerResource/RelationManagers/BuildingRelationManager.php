@@ -160,8 +160,8 @@ class BuildingRelationManager extends RelationManager
                                                 ->numeric()
                                                 ->minValue(1)
                                                 ->maxValue(999)
-                                                ->placeholder('Parking Count')
-                                                ->label('Parking Count'),
+                                                ->placeholder('Total Parking Count')
+                                                ->label('Total Parking Count'),
 
                                             Toggle::make('allow_postupload')
                                                 ->rules(['boolean'])
