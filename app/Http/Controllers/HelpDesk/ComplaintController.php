@@ -9,6 +9,7 @@ use App\Http\Requests\Helpdesk\ComplaintUpdateRequest;
 use App\Http\Requests\IncidentRequest;
 use App\Http\Resources\CustomResponseResource;
 use App\Http\Resources\HelpDesk\Complaintresource;
+use App\Http\Resources\Vendor\VendorComplaintsResource;
 use App\Jobs\Complaint\ComplaintCreationJob;
 use App\Models\AccountCredentials;
 use App\Models\Building\Building;
@@ -563,5 +564,30 @@ class ComplaintController extends Controller
             'status'  => 'success',
             'data'    => $complaint,
         ]))->response()->setStatusCode(200);
+    }
+
+    public function maintenanceSchedule(Building $building, Request $request)
+    {
+        $end_date   = $request->has('end_date') ? Carbon::parse($request->end_date) : now()->endOfMonth();
+        $start_date = $request->has('start_date') ? Carbon::parse($request->start_date) : now()->startOfMonth();
+
+        $complaints = Complaint::where(['building_id'=> $building->id,'complaint_type'=>'preventive_maintenance'])
+            ->when($request->filled(['end_date','start_date']), function ($query) use ($start_date,$end_date) {
+                $query->whereBetween('due_date', [$start_date, $end_date]);
+            })
+            ->when($request->filled('type'), function ($query) use ($request) {
+                if($request->type === 'completed'){
+                    $query->where('status','closed');
+                }
+                elseif($request->type === 'delayed'){
+                    $query->where('due_date','<',now())->where('status','open');
+                }
+                else{
+                    $query;
+                }
+            })
+            ->paginate(10);
+
+        return VendorComplaintsResource::collection($complaints);
     }
 }
