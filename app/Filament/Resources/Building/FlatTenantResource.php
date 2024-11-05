@@ -135,8 +135,14 @@ class FlatTenantResource extends Resource
                     ->preload(),
             ])
             ->actions([
-                Tables\Actions\EditAction::make()->label('Approve Document'),
-                Tables\Actions\ViewAction::make()->label('View Document'),
+                Tables\Actions\EditAction::make()->label('Approve Document')
+                    ->visible(function($record){
+                        return !$record['active'];
+                    }),
+                Tables\Actions\ViewAction::make()->label('View Document')
+                    ->visible(function($record){
+                        return $record['active'];
+                    }),
             ])
             ->bulkActions([
                 ExportBulkAction::make(),
