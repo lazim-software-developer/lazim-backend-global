@@ -105,8 +105,22 @@ class PropertyManagerResource extends Resource
                         TextInput::make('bank_account_number')
                             ->label('Bank Account Number')
                             ->numeric()
+                            ->reactive()
+                            ->disabled(function (callable $get) {
+                                return $get('active') === true;
+                            })
                             ->placeholder('Enter account number'),
-                    ]),
+                        TextInput::make('bank_account_holder_name')
+                            ->label('Bank Account holder name')
+                            ->reactive()
+                            ->visible(function (callable $get) {
+                                return $get('bank_account_number');
+                            })
+                            ->required(function (callable $get) {
+                                return $get('bank_account_number');
+                            })
+                            ->placeholder('Enter bank account holder name'),
+                    ])->columns(2),
 
                 Section::make('Documents')
                     ->description('Upload required company documents.')
@@ -176,6 +190,7 @@ class PropertyManagerResource extends Resource
                             ->label('Active Status')
                             ->rules(['boolean'])
                             ->default(true)
+                            ->live()
                             ->visibleOn('edit')
                             ->onIcon('heroicon-o-check-circle')
                             ->offIcon('heroicon-o-x-mark')
