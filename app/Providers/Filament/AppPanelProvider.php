@@ -540,12 +540,6 @@ class AppPanelProvider extends PanelProvider
                                 //DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] == 'Admin' ? true : false view_any_building::building
                                 NavigationGroup::make('Request Forms')
                                     ->items([
-                                        NavigationItem::make('Holiday Homes Guest Registration')
-                                            ->url('/app/guest-registrations')
-                                            ->hidden(!$user->can('view_any_guest::registration'))
-                                            ->icon('heroicon-m-identification')
-                                            ->activeIcon('heroicon-m-identification')
-                                            ->sort(1),
                                         NavigationItem::make('Move in')
                                             ->url('/app/move-in-forms-documents')
                                             ->hidden(!$user->can('view_any_move::in::forms::document'))
@@ -588,6 +582,12 @@ class AppPanelProvider extends PanelProvider
                                             ->icon('heroicon-o-users')
                                             ->activeIcon('heroicon-o-users')
                                             ->sort(8),
+                                        NavigationItem::make('Holiday Homes Guest Registration')
+                                            ->url('/app/guest-registrations')
+                                            ->hidden(!$user->can('view_any_guest::registration'))
+                                            ->icon('heroicon-m-identification')
+                                            ->activeIcon('heroicon-m-identification')
+                                            ->sort(1),
                                         // NavigationItem::make('Family Members')
                                         //     ->url(FamilyMemberResource::getUrl('index'))
                                         //     ->visible($user->can('view_any_family::member'))
