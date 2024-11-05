@@ -161,8 +161,8 @@ class BuildingResource extends Resource
                         ->minValue(1)
                         ->maxValue(999)
                         ->hidden(fn() => !in_array(auth()->user()->role->name, ['Admin', 'Property Manager']))
-                        ->placeholder('Parking Count')
-                        ->label('Parking Count'),
+                        ->placeholder('Total Parking Count')
+                        ->label('Total Parking Count'),
 
                     Toggle::make('allow_postupload')
                         ->rules(['boolean'])
