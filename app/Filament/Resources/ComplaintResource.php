@@ -14,6 +14,7 @@ use App\Models\Vendor\ServiceVendor;
 use App\Models\Vendor\Vendor;
 use Closure;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Repeater;
@@ -290,6 +291,19 @@ class ComplaintResource extends Resource
                                         return $get('status') == 'closed';
                                     })
                                     ->placeholder('Add remarks'),
+
+                                 DateTimePicker::make('close_time')
+                                    ->displayFormat('d-M-Y h:i A')
+                                    // ->default(now()->format('d-M-Y h:i A'))
+                                    ->reactive()
+                                    ->required(function (callable $get) {
+                                        if ($get('status' === 'closed')) {
+                                            return true;
+                                        }return false;
+                                    })
+                                    ->visible(function (callable $get) {
+                                        return $get('status') == 'closed';
+                                    })
                             ]),
 
                         Repeater::make('photo')

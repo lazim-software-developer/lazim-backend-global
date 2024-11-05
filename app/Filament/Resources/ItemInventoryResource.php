@@ -2,10 +2,12 @@
 
 namespace App\Filament\Resources;
 
+use Carbon\Carbon;
 use Closure;
 use DB;
 use Filament\Forms;
 use App\Models\Item;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Hidden;
 use Filament\Tables;
 use Filament\Forms\Get;
@@ -64,11 +66,11 @@ class ItemInventoryResource extends Resource
                         })
                         ->required()
                         ->searchable(),
-                    DateTimePicker::make('date')
+                    DatePicker::make('date')
                         ->rules(['date'])
                         ->required()
                         // ->minDate(now())
-                        ->displayFormat('d-M-Y h:i A'),
+                        ->displayFormat('d-M-Y'),
                     Select::make('type')
                         ->options([
                             'incoming' => 'Incoming',
@@ -112,7 +114,10 @@ class ItemInventoryResource extends Resource
             ->columns([
                 TextColumn::make('item.name')
                     ->searchable(),
-                TextColumn::make('date'),
+                TextColumn::make('date')
+                ->formatStateUsing(function($state){
+                    return Carbon::parse($state)->toFormattedDateString();
+                }),
                 TextColumn::make('type')->searchable()->formatStateUsing(fn ($state) => ucfirst($state)),
                 TextColumn::make('quantity')
                     ->searchable(),
