@@ -18,7 +18,7 @@ class DocumentLibraryResource extends JsonResource
     public function toArray(Request $request): array
     {
         // Determine if the document is "Title deed"
-        if ($this->name === 'Title deed') {
+        if (in_array($this->name, ['Title deed','Makani number','Unit plan'])) {
             // Fetch the "Title deed" document based on flat_id
             $flatId   = $request->get('flat_id'); // Assuming flat_id is passed in the request
             $document = $this->documents()
@@ -47,7 +47,7 @@ class DocumentLibraryResource extends JsonResource
             'name' => $this->name,
             'status' => $document?->status,
             'remarks' => $document?->remarks,
-            'url' => $document !== null ? Storage::disk('s3')->url($document?->url) : null
+            'url' => $document !== null ? ($this->name != 'Makani number' ? Storage::disk('s3')->url($document?->url) : $document?->url) : null
         ];
     }
 }

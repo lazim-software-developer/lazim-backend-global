@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers\Vendor;
 
+use Illuminate\Http\Request;
+use App\Models\Vendor\Vendor;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Building\BuildingResource;
-use App\Models\Vendor\Vendor;
-use Illuminate\Http\Request;
 
 class VendorBuildingController extends Controller
 {
@@ -15,6 +16,11 @@ class VendorBuildingController extends Controller
 
         if ($request->has('filter') && $request->input('filter') == true) {
             $buildings = $vendor->buildings->unique();
+        }
+        if ($request->has('type')) {
+            $buildings = $vendor->buildings->unique()->filter(function($buildings) use($request){
+                return $buildings->ownerAssociations->contains('role',$request->type);
+            });
         }
 
         return BuildingResource::collection($buildings);
