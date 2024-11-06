@@ -102,9 +102,9 @@ class BillResource extends Resource
                     ->helperText('Enter the month for which this bill is generated'),
                 DatePicker::make('due_date')
                     ->required(),
-                DatePicker::make('uploaded_on')
-                    ->default(now())
-                    ->required(),
+                // DatePicker::make('uploaded_on')
+                //     ->default(now())
+                //     ->required(),
                 Select::make('status')
                     ->helperText('Select the current status of the bill')
                     ->options([
@@ -112,17 +112,19 @@ class BillResource extends Resource
                         'Paid'    => 'Paid',
                         'Overdue' => 'Overdue',
                     ])
+                    ->live()
                     ->required(),
                 Select::make('uploaded_by')
                     ->relationship('uploadedBy', 'first_name')
                     ->disabled()
                     ->preload()
-                    ->default(auth()->id())
+                    ->visibleOn('edit')
                     ->searchable(),
                 Select::make('status_updated_by')
-                    ->default(auth()->id())
                     ->relationship('statusUpdatedBy', 'first_name')
                     ->disabled()
+                    ->live()
+                    ->visibleOn('edit')
                     ->preload()
                     ->searchable(),
             ]);

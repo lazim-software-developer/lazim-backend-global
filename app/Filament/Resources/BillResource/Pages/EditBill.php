@@ -37,6 +37,15 @@ class EditBill extends EditRecord
         ];
     }
 
+    protected function mutateFormDataBeforeSave(array $data): array
+    {
+        if($data['status']!= $this->record['status']){
+            $data['status_updated_by'] = auth()->id();
+        }
+
+        return $data;
+    }
+
     protected function getRedirectUrl(): string | null
     {
         return $this->getResource()::getUrl('index');
