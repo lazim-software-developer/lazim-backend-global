@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AppController;
 use App\Http\Controllers\Assets\PPMController;
+use App\Http\Controllers\BillController;
 use App\Http\Controllers\Community\CommunityController;
 use App\Http\Controllers\ComplianceDocumentController;
 use App\Http\Controllers\FlatVisitorController;
@@ -369,6 +370,10 @@ Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active']
 //Contractor Request
 Route::post('/fit-out/contractor/{fitout}',[FitOutFormsController::class, 'contractorRequest']);
 
+//Bills related Api's
+Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active'])->prefix('bills')->group(function () {
+    Route::get('/flat/{flat}',[BillController::class,'index']);
+});
 // API  to fetch Security for a building
 Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active'])->prefix('building')->group(function () {
     Route::get('/{building}/security', [SecurityController::class, 'fetchSecurity']);
