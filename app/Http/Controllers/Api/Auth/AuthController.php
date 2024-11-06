@@ -383,13 +383,14 @@ class AuthController extends Controller
 
         $vendor = Vendor::where('owner_id', $user->id)->first()?->id;
         $oaIds  = DB::table('owner_association_vendor')->where('vendor_id', $vendor)->pluck('owner_association_id');
-        $registered_with = OwnerAssociation::whereIn('id', $oaIds)->pluck('role', 'role')->unique();
+        $registeredWith = OwnerAssociation::whereIn('id', $oaIds)->pluck('role', 'role')->unique();
+
+        $user->setAttribute('registered_with',$registeredWith);
 
         return response()->json([
             'token' => $token,
             'refresh_token' => $refreshToken,
-            'user' => $user,
-            'registered_with' => $registered_with
+            'user' => $user
         ], 200);
     }
 }
