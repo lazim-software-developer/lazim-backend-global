@@ -29,6 +29,10 @@ class DocumentsRelationManager extends RelationManager
                         return ucwords(str_replace('_', ' ', $state));
                     })
                     ->disabled(),
+                Forms\Components\DatePicker::make('expiry_date')
+                        ->label('Expiry Date')
+                        // ->hiddenOn('view')
+                        ->disabled(),
                 FileUpload::make('url')
                     ->disk('s3')
                     ->directory('dev')
@@ -41,10 +45,6 @@ class DocumentsRelationManager extends RelationManager
                         'md' => 1,
                         'lg' => 2,
                     ]),
-                Forms\Components\DatePicker::make('expiry_date')
-                    ->label('Expiry Date')
-                    ->hiddenOn('view')
-                    ->disabled(),
                 Select::make('status')
                     ->hiddenOn('view')
                     ->options([

@@ -81,8 +81,8 @@ class TenantDocumentResource extends Resource
                         ->placeholder('Expiry date'),
                     Select::make('status')
                         ->options([
-                            'approved' => 'Approve',
-                            'rejected' => 'Reject',
+                            'approved' => 'Approved',
+                            'rejected' => 'Rejected',
                         ])
                         ->disabled(function (Document $record) {
                             return $record->status != 'submitted';
@@ -182,8 +182,23 @@ class TenantDocumentResource extends Resource
                     ->label('Building'),
             ])
             ->actions([
-                EditAction::make(),
                 ViewAction::make()
+                    ->iconButton()
+                    ->tooltip('View Documents')
+                    ->visible(function($record){
+                        if($record['status']== 'approved'){
+                            return true;
+                        }
+                    }),
+                EditAction::make()
+                    ->iconButton()
+                    ->tooltip('Approve Documents')
+                    ->visible(function($record){
+                        if($record['status']!== 'approved'){
+                            return true;
+                        }
+                    }),
+
             ]);
     }
 
