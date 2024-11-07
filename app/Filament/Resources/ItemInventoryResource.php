@@ -73,7 +73,7 @@ class ItemInventoryResource extends Resource
                         ->displayFormat('d-M-Y'),
                     Select::make('type')
                         ->options([
-                            'incoming' => 'Incoming',
+                            'incoming' => 'Restocking',
                             'used' => 'Used',
                         ])
                         ->required()
@@ -118,7 +118,13 @@ class ItemInventoryResource extends Resource
                 ->formatStateUsing(function($state){
                     return Carbon::parse($state)->toFormattedDateString();
                 }),
-                TextColumn::make('type')->searchable()->formatStateUsing(fn ($state) => ucfirst($state)),
+                TextColumn::make('type')->searchable()
+                ->formatStateUsing(function ($state) {
+                    if($state == 'incoming'){
+                        return 'Restocking';
+                    }
+                    return ucfirst($state);
+                }),
                 TextColumn::make('quantity')
                     ->searchable(),
                 TextColumn::make('user.first_name')

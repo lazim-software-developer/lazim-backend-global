@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Building;
 
 use App\Filament\Resources\Building\FlatTenantResource\Pages;
 use App\Filament\Resources\FlatTenantResource\RelationManagers\FamilyMembersRelationManager;
+use App\Filament\Resources\FlatTenantResource\RelationManagers\RentalDetailsRelationManager;
 use App\Jobs\SendInactiveStatusToResident;
 use App\Models\Building\FlatTenant;
 use App\Models\Master\Role;
@@ -154,6 +155,7 @@ class FlatTenantResource extends Resource
             // FlatTenantResource\RelationManagers\DocumentsRelationManager::class,
             // FlatTenantResource\RelationManagers\ComplaintsRelationManager::class,
             FamilyMembersRelationManager::class,
+            RentalDetailsRelationManager::class
         ];
     }
 
