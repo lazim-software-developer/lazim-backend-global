@@ -24,6 +24,7 @@ class RentalDetail extends Model
         'created_by',
         'status_updated_by',
         'property_manager_id',
+        'flat_tenant_id',
     ];
 
     public function flat()
@@ -49,5 +50,9 @@ class RentalDetail extends Model
     public function flatTenant()
     {
         return $this->belongsTo(FlatTenant::class);
+    }
+    public function rentalCheques()
+    {
+        return $this->hasMany(RentalCheque::class);
     }
 }
