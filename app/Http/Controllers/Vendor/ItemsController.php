@@ -16,7 +16,14 @@ use Illuminate\Support\Facades\DB;
 class ItemsController extends Controller
 {
     public function index(Request $request,Vendor $vendor){
-       $items=$vendor->items();
+       $items = $vendor->items()
+                ->when($request->filled('type'), function ($query) use ($vendor, $request) {
+                    $buildings = $vendor->buildings->where('pivot.active', true)->where('pivot.end_date', '>', now()->toDateString())->unique()
+                        ->filter(function($buildings) use($request){
+                            return $buildings->ownerAssociations->contains('role',$request->type);
+                        });
+                    $query->whereIn('building_id', $buildings->pluck('id'));
+                });
        return ItemsResource::collection($items->paginate($request->query('count', 10)));
     }
 

@@ -40,6 +40,14 @@ class VendorComplaintController extends Controller
             ->when($request->filled('building_id'), function ($query) use ($request) {
                 $query->where('building_id', $request->building_id);
             })
+            ->when($request->filled('type'), function ($query) use ($vendor, $request) {
+                $buildings = $vendor->buildings->where('pivot.active', true)->where('pivot.end_date', '>', now()->toDateString())->unique()
+                                ->filter(function($buildings) use($request){
+                                        return $buildings->ownerAssociations->contains('role',$request->type);
+                                });
+
+                $query->whereIn('building_id', $buildings->pluck('id'));
+            })
             ->when($request->filled('complaint_type'), function ($query) use ($request) {
                 $query->where('complaint_type', $request->complaint_type);
             }, function ($query) {

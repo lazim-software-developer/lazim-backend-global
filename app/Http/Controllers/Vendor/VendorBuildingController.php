@@ -18,7 +18,7 @@ class VendorBuildingController extends Controller
             $buildings = $vendor->buildings->unique();
         }
         if ($request->has('type')) {
-            $buildings = $vendor->buildings->unique()->filter(function($buildings) use($request){
+            $buildings = $buildings->filter(function($buildings) use($request){
                 return $buildings->ownerAssociations->contains('role',$request->type);
             });
         }
