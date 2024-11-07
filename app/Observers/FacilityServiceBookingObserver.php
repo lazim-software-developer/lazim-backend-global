@@ -53,7 +53,7 @@ class FacilityServiceBookingObserver
             ])
             ->sendToDatabase($notifyTo);
         }
-        else{
+        if($facilityBooking->bookable_type == 'App\Models\Master\Service'){
             $requiredPermissions = ['view_any_building::service::booking'];
             $notifyTo->filter(function ($notifyTo) use ($requiredPermissions) {
                 return $notifyTo->can($requiredPermissions);
