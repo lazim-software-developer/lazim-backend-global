@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Building\Flat;
+use App\Models\Building\FlatTenant;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -43,5 +44,10 @@ class RentalDetail extends Model
     public function propertyManager()
     {
         return $this->belongsTo(User::class, 'property_manager_id');
+    }
+
+    public function flatTenant()
+    {
+        return $this->belongsTo(FlatTenant::class);
     }
 }
