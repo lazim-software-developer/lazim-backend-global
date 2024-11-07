@@ -144,9 +144,16 @@ class AssetController extends Controller
     }
 
     //Listing assets for vendor
-    public function listAssets(Vendor $vendor){
-        $assets = $vendor->assets()->paginate(10);
-        return AssetListResource::collection($assets);
+    public function listAssets(Vendor $vendor,Request $request){
+        $assets = $vendor->assets()
+            ->when($request->filled('type'), function ($query) use ($vendor, $request) {
+                $buildings = $vendor->buildings->where('pivot.active', true)->where('pivot.end_date', '>', now()->toDateString())->unique()
+                                ->filter(function($buildings) use($request){
+                                        return $buildings->ownerAssociations->contains('role',$request->type);
+                                });
+                $query->whereIn('building_id', $buildings->pluck('id'));
+            });
+        return AssetListResource::collection($assets->paginate(10));
     }
 
     public function attachAsset(AssetAttachRequest $request,Asset $asset){
