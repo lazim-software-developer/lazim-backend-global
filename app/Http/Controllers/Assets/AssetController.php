@@ -2,30 +2,30 @@
 
 namespace App\Http\Controllers\Assets;
 
-use App\Http\Controllers\Controller;
-use App\Http\Requests\AssetCreateRequest;
-use App\Http\Requests\Assets\AssetAttachRequest;
-use App\Http\Requests\Assets\StoreAssetMaintenanceRequest;
-use App\Http\Requests\Assets\UpdateAssetMaintenanceBeforeRequest;
-use App\Http\Requests\AssetUpdateRequest;
-use App\Http\Resources\Asset\AssetResource;
-use App\Http\Resources\Assets\AssetMaintenanceResource;
-use App\Http\Resources\Assets\AssetTechniciansResource;
-use App\Http\Resources\CustomResponseResource;
-use App\Http\Resources\Vendor\AssetListResource;
+use Carbon\Carbon;
 use App\Models\Asset;
-use App\Models\Assets\Assetmaintenance;
-use App\Models\Building\Building;
+use GuzzleHttp\Client;
+use Illuminate\Http\Request;
+use App\Models\Vendor\Vendor;
 use App\Models\OwnerAssociation;
 use App\Models\TechnicianAssets;
-use App\Models\Vendor\Vendor;
-use Carbon\Carbon;
-use GuzzleHttp\Client;
-use Illuminate\Http\Client\Request;
+use App\Models\Building\Building;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Vinkla\Hashids\Facades\Hashids;
+use App\Http\Controllers\Controller;
+use App\Models\Assets\Assetmaintenance;
+use App\Http\Requests\AssetCreateRequest;
+use App\Http\Requests\AssetUpdateRequest;
+use App\Http\Resources\Asset\AssetResource;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use App\Http\Resources\CustomResponseResource;
+use App\Http\Requests\Assets\AssetAttachRequest;
+use App\Http\Resources\Vendor\AssetListResource;
+use App\Http\Resources\Assets\AssetMaintenanceResource;
+use App\Http\Resources\Assets\AssetTechniciansResource;
+use App\Http\Requests\Assets\StoreAssetMaintenanceRequest;
+use App\Http\Requests\Assets\UpdateAssetMaintenanceBeforeRequest;
 
 class AssetController extends Controller
 {
