@@ -522,6 +522,11 @@ class AppPanelProvider extends PanelProvider
                                             ->icon('heroicon-o-cube-transparent')
                                             ->activeIcon('heroicon-o-cube-transparent')
                                             ->sort(3),
+                                        NavigationItem::make('Bills')
+                                            ->url('/app/bills')
+                                            ->icon('heroicon-o-receipt-percent')
+                                            ->activeIcon('heroicon-o-receipt-percent')
+                                            ->sort(3),
                                     ]),
                             ]);
                         }
