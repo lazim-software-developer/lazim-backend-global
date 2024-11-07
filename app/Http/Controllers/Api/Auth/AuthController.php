@@ -382,7 +382,7 @@ class AuthController extends Controller
         $user->profile_photo = $user->profile_photo ? Storage::disk('s3')->url($user->profile_photo) : null;
 
         $vendor = Vendor::where('owner_id', $user->id)->first()?->id;
-        $oaIds  = DB::table('owner_association_vendor')->where('vendor_id', $vendor)->pluck('owner_association_id');
+        $oaIds  = DB::table('owner_association_vendor')->where(['vendor_id' => $vendor,'active' => true,'status'=>'approved'])->pluck('owner_association_id');
         $registeredWith = OwnerAssociation::whereIn('id', $oaIds)->pluck('role', 'role')->unique();
 
         $user->setAttribute('registered_with',$registeredWith);
