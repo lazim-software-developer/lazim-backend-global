@@ -184,16 +184,14 @@ class TenantDocumentResource extends Resource
             ])
             ->actions([
                 ViewAction::make()
-                    ->iconButton()
-                    ->tooltip('View Documents')
+                    ->label('View')
                     ->visible(function($record){
                         if($record['status']== 'approved'){
                             return true;
                         }
                     }),
                 EditAction::make()
-                    ->iconButton()
-                    ->tooltip('Approve Documents')
+                    ->label('Approve')
                     ->visible(function($record){
                         if($record['status']!== 'approved'){
                             return true;
