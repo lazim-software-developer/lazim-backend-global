@@ -64,7 +64,9 @@ class DocumentsRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('documentLibrary.name'),
                 // Tables\Columns\TextColumn::make('status'),
                 Tables\Columns\TextColumn::make('expiry_date')
-                ->default('NA'),
+                    ->formatStateUsing(function ($state) {
+                        return $state ? $state->format('Y-m-d') : 'NA';
+                    }),
             ])
             ->headerActions([
                 // Tables\Actions\CreateAction::make(),

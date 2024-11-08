@@ -113,12 +113,6 @@ class PropertyManagerResource extends Resource
                         TextInput::make('bank_account_holder_name')
                             ->label('Bank Account holder name')
                             ->reactive()
-                            ->visible(function (callable $get) {
-                                return $get('bank_account_number');
-                            })
-                            ->required(function (callable $get) {
-                                return $get('bank_account_number');
-                            })
                             ->placeholder('Enter bank account holder name'),
                     ])->columns(2),
 
