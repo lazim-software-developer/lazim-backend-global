@@ -13,7 +13,6 @@ class RentalDetail extends Model
 
     protected $fillable = [
         'flat_id',
-        'flat_tenant_id',
         'number_of_cheques',
         'contract_start_date',
         'contract_end_date',
@@ -25,6 +24,7 @@ class RentalDetail extends Model
         'created_by',
         'status_updated_by',
         'property_manager_id',
+        'flat_tenant_id',
     ];
 
     public function flat()
@@ -51,8 +51,7 @@ class RentalDetail extends Model
     {
         return $this->belongsTo(FlatTenant::class);
     }
-
-    public function cheques()
+    public function rentalCheques()
     {
         return $this->hasMany(RentalCheque::class);
     }

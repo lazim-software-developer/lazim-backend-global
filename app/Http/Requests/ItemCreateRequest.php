@@ -22,7 +22,7 @@ class ItemCreateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|max:100|alpha',
+            'name' => 'required|max:100',
             'quantity' => 'required|max:10000|numeric',
             'building_id' => 'required|exists:buildings,id',
             'description' => 'required|max:150',

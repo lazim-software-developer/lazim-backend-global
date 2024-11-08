@@ -3,6 +3,7 @@
 namespace App\Http\Resources\User;
 
 use App\Models\OwnerAssociation;
+use App\Models\RentalDetail;
 use Illuminate\Http\Request;
 use App\Models\Building\Flat;
 use Illuminate\Support\Facades\DB;
@@ -24,6 +25,11 @@ class UserFlatResource extends JsonResource
         $ownerAssociation = OwnerAssociation::whereIn('id',$oaIds)->pluck('role')->unique();
         $oA = $ownerAssociation->contains('OA');
         $propertyManager = $ownerAssociation->contains('Property Manager');
+        $showcheques = FlatTenant::where(['flat_id' => $this->id,'role' => 'Tenant'])->exists();
+        $rentalDetails = RentalDetail::where('flat_id', $this->id);
+        $chequeoverdue = $rentalDetails->each(function($query){
+            $query->rentalCheques()->where('status','Overdue');
+        });
         return [
             'flat_name' => $this->property_number,
             'flat_id' => $this->id,
@@ -33,6 +39,8 @@ class UserFlatResource extends JsonResource
             'oa' => $oA,
             'propertymanager' => $propertyManager,
             'role' => $flat?->role,
+            'showcheques' => $showcheques,
+            'chequeoverdue' => $chequeoverdue,
             'oa_logo' => $flatId->ownerAssociation?->profile_photo ? env('AWS_URL').'/'.$flatId->ownerAssociation?->profile_photo : null,
             'building_logo' => $this->building->cover_photo ? env('AWS_URL').'/'.$this->building->cover_photo : null,
         ];
