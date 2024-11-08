@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\RentalDetailsController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AppController;
@@ -376,7 +377,12 @@ Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active']
     Route::get('/flat/{flat}',[BillController::class,'index']);
 });
 
-//Permit To work
+//RentalDetails Cheques Api's
+Route::middleware(['auth:sanctum', 'email.verified', 'active'])->group(function () {
+    Route::get('/rental-details/cheques', [RentalDetailsController::class, 'index']);
+});
+
+//Permit To work Api's
 Route::middleware(['auth:sanctum', 'email.verified', 'active'])->group(function () {
     Route::get('/work-list', [PermitWorkController::class, 'workList']);
     Route::post('/work-list', [PermitWorkController::class, 'create']);
