@@ -26,7 +26,7 @@ class OwnerAssociation extends Model
     protected $fillable = [
         'name', 'phone', 'email', 'trn_number',
         'address', 'mollak_id', 'verified', 'verified_by', 'active', 'profile_photo','bank_account_number','trn_certificate',
-        'trade_license','dubai_chamber_document','memorandum_of_association','slug', 'role', 'emirates_id', 'trade_license_number'
+        'trade_license','dubai_chamber_document','memorandum_of_association','slug', 'role', 'emirates_id', 'trade_license_number', 'bank_account_holder_name'
     ];
 
     /**
