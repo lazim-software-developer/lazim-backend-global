@@ -58,7 +58,7 @@ class AppPanelProvider extends PanelProvider
             ->path('app')
             ->login()
             ->brandName(function(){
-                if(auth()->user()->role->name == 'Property Manager'){
+                if(auth()->user()?->role->name == 'Property Manager'){
                     return 'Property Management';
                 } else {
                     return 'Lazim';
