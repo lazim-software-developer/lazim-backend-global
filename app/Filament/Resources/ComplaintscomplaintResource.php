@@ -198,8 +198,8 @@ class ComplaintscomplaintResource extends Resource
                             })
                             ->searchable()
                             ->live(),
-                        TextInput::make('remarks')
-                            ->rules(['max:150'])
+                        Textarea::make('remarks')
+                            ->rules(['max:250'])
                             ->disabled(function (Complaint $record) {
                                 return $record->status == 'closed';
                             })

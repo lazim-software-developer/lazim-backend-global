@@ -5,6 +5,7 @@ namespace App\Filament\Resources\User\TenantResource\RelationManagers;
 use App\Models\Building\Document;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -102,8 +103,8 @@ class UserDocumentsRelationManager extends RelationManager
                             ])
                             ->searchable()
                             ->live(),
-                        TextInput::make('remarks')
-                            ->rules(['max:150'])
+                        Textarea::make('remarks')
+                            ->rules(['max:250'])
                             ->visible(function (callable $get) {
                                 if ($get('status') == 'rejected') {
                                     return true;
