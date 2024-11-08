@@ -13,6 +13,7 @@ class RentalDetail extends Model
 
     protected $fillable = [
         'flat_id',
+        'flat_tenant_id',
         'number_of_cheques',
         'contract_start_date',
         'contract_end_date',
@@ -49,5 +50,10 @@ class RentalDetail extends Model
     public function flatTenant()
     {
         return $this->belongsTo(FlatTenant::class);
+    }
+
+    public function cheques()
+    {
+        return $this->hasMany(RentalCheque::class);
     }
 }
