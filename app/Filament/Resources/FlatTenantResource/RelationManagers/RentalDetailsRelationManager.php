@@ -2,13 +2,22 @@
 
 namespace App\Filament\Resources\FlatTenantResource\RelationManagers;
 
-use Filament\Forms;
+use App\Models\Building\FlatTenant;
+use App\Models\RentalCheque;
+use App\Models\RentalDetail;
+use Carbon\Carbon;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
+use Filament\Tables\Actions\Action;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class RentalDetailsRelationManager extends RelationManager
 {
@@ -18,33 +27,292 @@ class RentalDetailsRelationManager extends RelationManager
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('flat_id')
-                    ->required()
-                    ->maxLength(255),
+                Section::make('Rental Details')
+                    ->description('Enter the Rental Details.')
+                    ->icon('heroicon-o-document-text')
+                    ->collapsible()
+                    ->schema([
+                        Grid::make(2)
+                            ->schema([
+                                Select::make('flat_id')
+                                    ->disabled()
+                                    ->relationship('flat', 'property_number')
+                                    ->label('Flat number')
+                                    ->default($this->ownerRecord->flat_id)
+                                    ->placeholder('Select a flat number'),
+                                Select::make('number_of_cheques')
+                                    ->native(false)
+                                    ->required()
+                                    ->disabledOn('edit')
+                                    ->placeholder('Select the number of cheques')
+                                    ->options([
+                                        '1' => '1',
+                                        '2' => '2',
+                                        '3' => '3',
+                                        '4' => '4',
+                                        '6' => '6',
+                                    ])
+                                    ->reactive()
+                                    ->afterStateUpdated(fn($set, $state) => $set('cheques_count', $state)),
+                                DatePicker::make('contract_start_date')
+                                    ->rules(['date'])
+                                    ->default(function () {
+                                        $startDate = FlatTenant::where('id', $this->ownerRecord->id)
+                                            ->first()?->start_date;
+
+                                        return $startDate ? Carbon::parse($startDate) : null;
+                                    })
+                                    ->disabled()
+                                    ->placeholder('Select contract start date'),
+                                DatePicker::make('contract_end_date')
+                                    ->rules(['date'])
+                                    ->default(function () {
+                                        $endDate = FlatTenant::where('id', $this->ownerRecord->id)->first()?->end_date;
+                                        return $endDate ? Carbon::parse($endDate) : null;
+                                    })
+                                    ->disabled()
+                                    ->placeholder('Select contract end date'),
+                                TextInput::make('admin_fee')
+                                    ->nullable()
+                                    ->disabledOn('edit')
+                                    ->minValue(0)
+                                    ->placeholder('Enter the Admin fee')
+                                    ->numeric()
+                                    ->maxLength(10),
+                                TextInput::make('other_charges')
+                                    ->placeholder('Enter the Other charges')
+                                    ->nullable()
+                                    ->disabledOn('edit')
+                                    ->minValue(0)
+                                    ->numeric()
+                                    ->maxLength(10),
+                                TextInput::make('advance_amount')
+                                    ->nullable()
+                                    ->numeric()
+                                    ->disabledOn('edit')
+                                    ->minValue(0)
+                                    ->required()
+                                    ->maxLength(10)
+                                    ->placeholder('Enter advance amount'),
+                                Select::make('advance_amount_payment_mode')
+                                    ->native(false)
+                                    ->required()
+                                    ->disabledOn('edit')
+                                    ->options([
+                                        'Online' => 'Online',
+                                        'Cheque' => 'Cheque',
+                                        'Cash'   => 'Cash',
+                                    ])
+                                    ->placeholder('Select payment mode'),
+                                Select::make('status')
+                                    ->default('Active')
+                                    ->required()
+                                    ->native(false)
+                                    ->options([
+                                        'Active'            => 'Active',
+                                        'Expired'           => 'Expired',
+                                        'Contract ended'    => 'Contract ended',
+                                        'Contract extended' => 'Contract extended',
+                                    ])
+                                    ->placeholder('Select status'),
+                            ]),
+                    ]),
+                Section::make('Cheque Details')
+                    ->description('Enter the Cheque Details.')
+                    ->icon('heroicon-o-document-currency-dollar')
+                    ->collapsible()
+                    ->schema([
+                        Repeater::make('cheques')
+                            ->required()
+                            ->minItems(fn(callable $get) => $get('cheques_count') ?? 0)
+                            ->maxItems(fn(callable $get) => $get('cheques_count') ?? 0)
+                            ->validationMessages([
+                                'minItems' => 'Please enter all the cheques details by clicking on \'Add to cheques\'',
+                            ])
+                            ->schema([
+                                Grid::make(2)
+                                    ->schema([
+                                        TextInput::make('cheque_number')
+                                            ->numeric()
+                                            ->minLength(0)
+                                            ->required()
+                                            ->maxLength(6)
+                                            ->placeholder('Enter cheque number'),
+                                        TextInput::make('amount')
+                                            ->maxLength(20)
+                                            ->minLength(0)
+                                            ->required()
+                                            ->placeholder('Enter amount'),
+                                        DatePicker::make('due_date')
+                                            ->rules(['date'])
+                                            ->required()
+                                            ->placeholder('Select due date'),
+                                        Select::make('status')
+                                            ->default('Upcoming')
+                                            ->required()
+                                            ->native(false)
+                                            ->options([
+                                                'Overdue'  => 'Overdue',
+                                                'Paid'     => 'Paid',
+                                                'Upcoming' => 'Upcoming',
+                                            ])
+                                            ->placeholder('Select cheque status'),
+                                        Select::make('mode_payment')
+                                            ->label('Payment Mode')
+                                            ->default('Cheque')
+                                            ->required()
+                                            ->native(false)
+                                            ->options([
+                                                'Online' => 'Online',
+                                                'Cheque' => 'Cheque',
+                                                'Cash'   => 'Cash',
+                                            ])
+                                            ->placeholder('Select payment mode'),
+                                        Select::make('cheque_status')
+                                            ->native(false)
+                                            ->options([
+                                                'Cancelled' => 'Cancelled',
+                                                'Bounced'   => 'Bounced',
+                                                'Paid'      => 'Paid',
+                                            ])
+                                            ->placeholder('Select cheque status'),
+                                        TextInput::make('payment_link')
+                                            ->url()
+                                            ->nullable()
+                                            ->maxLength(200)
+                                            ->placeholder('Enter payment link'),
+                                        Repeater::make('comments')
+                                            ->simple(
+                                                TextInput::make('comments')
+                                                    ->nullable(),
+                                            ),
+                                    ]),
+                            ]),
+                    ]),
             ]);
     }
 
     public function table(Table $table): Table
     {
         return $table
-            ->recordTitleAttribute('flat_id')
             ->columns([
-                Tables\Columns\TextColumn::make('flat_id'),
+                TextColumn::make('flat.property_number'),
+                TextColumn::make('number_of_cheques'),
+                TextColumn::make('contract_start_date'),
+                TextColumn::make('contract_end_date'),
+                TextColumn::make('advance_amount'),
+                TextColumn::make('status'),
             ])
-            ->filters([
-                //
-            ])
+            ->filters([])
             ->headerActions([
-                Tables\Actions\CreateAction::make(),
+                $this->getCustomAction(),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                Tables\Actions\EditAction::make()
+                    ->iconButton()
+                    // ->mutateRecordDataUsing(function ($record) {
+                    //     // dd($record['cheques']);
+                    //     $rentalData = $record->toArray();
+                    //     // dd($rentalData);
+                    //     $chequesData = $record['cheques']->map(function ($cheque) {
+                    //         return [
+                    //             'cheque_number' => $cheque->cheque_number,
+                    //             'amount'        => $cheque->amount,
+                    //             'due_date'      => $cheque->due_date,
+                    //             'status'        => $cheque->status,
+                    //             'mode_payment'  => $cheque->mode_payment,
+                    //             'cheque_status' => $cheque->cheque_status,
+                    //             'payment_link'  => $cheque->payment_link,
+                    //             'comments'      => $cheque->comments,
+                    //         ];
+                    //     })->toArray();
+
+                    //     // $form->fill(array_merge($rentalData, ['cheques' => $chequesData]));
+
+                    // })
+                // ->form(fn(Form $form, $record) => $this->form($form))
+                // ->using(fn($form, $record) => $this->populateFormForEdit($form, $record)),
             ]);
+
     }
+
+    private function getCustomAction(): Action
+    {
+        return Action::make('customCreate')
+            ->label('Add Rental Details')
+        ->visible(function () {
+            $endDate = RentalDetail::where('flat_tenant_id', $this->ownerRecord->id)->first()
+                ->pluck('contract_end_date')->first();
+            if ($endDate < Carbon::now()->format('d-m-Y')) {
+                return true;
+            }
+        })
+            ->action(function (array $data) {
+                $this->handleCustomActionSave($data);
+            })
+            ->form(function (Form $form) {
+                return $this->form($form);
+            });
+    }
+
+    private function handleCustomActionSave(array $data)
+    {
+        $startDate    = $this->oldFormState['mountedTableActionsData'][0]['contract_start_date'];
+        $endDate      = $this->oldFormState['mountedTableActionsData'][0]['contract_end_date'];
+        $rentalDetail = RentalDetail::create([
+            'flat_id'                     => $data['flat_id'],
+            'flat_tenant_id'              => $this->ownerRecord->id,
+            'number_of_cheques'           => $data['number_of_cheques'],
+            'admin_fee'                   => $data['admin_fee'] ?? null,
+            'other_charges'               => $data['other_charges'] ?? null,
+            'advance_amount'              => $data['advance_amount'],
+            'advance_amount_payment_mode' => $data['advance_amount_payment_mode'],
+            'status'                      => $data['status'],
+            'contract_start_date'         => $startDate,
+            'contract_end_date'           => $endDate,
+            'created_by'                  => auth()->user()->id,
+            'status_updated_by'           => auth()->user()->id,
+            'property_manager_id'         => auth()->user()->owner_association_id,
+
+        ]);
+
+        foreach ($data['cheques'] as $chequeData) {
+            RentalCheque::create([
+                'rental_detail_id'  => $rentalDetail->id,
+                'cheque_number'     => $chequeData['cheque_number'],
+                'amount'            => $chequeData['amount'],
+                'due_date'          => $chequeData['due_date'],
+                'status'            => $chequeData['status'],
+                'status_updated_by' => auth()->user()->id,
+                'mode_payment'      => $chequeData['mode_payment'],
+                'cheque_status'     => $chequeData['cheque_status'],
+                'payment_link'      => $chequeData['payment_link'] ?? null,
+                'comments'          => $chequeData['comments'] ?? null,
+
+            ]);
+        }
+    }
+
+    private function populateFormForEdit(Form $form, $record)
+    {
+        // Get rental and cheque details for the record being edited
+        $rentalData = $record->toArray();
+        dd($rentalData);
+        $chequesData = $record->cheques->map(function ($cheque) {
+            return [
+                'cheque_number' => $cheque->cheque_number,
+                'amount'        => $cheque->amount,
+                'due_date'      => $cheque->due_date,
+                'status'        => $cheque->status,
+                'mode_payment'  => $cheque->mode_payment,
+                'cheque_status' => $cheque->cheque_status,
+                'payment_link'  => $cheque->payment_link,
+                'comments'      => $cheque->comments,
+            ];
+        })->toArray();
+
+        // Fill form with rental data and set cheques data explicitly
+        $form->fill(array_merge($rentalData, ['cheques' => $chequesData]));
+    }
+
 }
