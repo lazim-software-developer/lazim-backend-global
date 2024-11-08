@@ -209,27 +209,27 @@ class RentalDetailsRelationManager extends RelationManager
             ])
             ->actions([
                 Tables\Actions\EditAction::make()
-                    ->iconButton()
-                    // ->mutateRecordDataUsing(function ($record) {
-                    //     // dd($record['cheques']);
-                    //     $rentalData = $record->toArray();
-                    //     // dd($rentalData);
-                    //     $chequesData = $record['cheques']->map(function ($cheque) {
-                    //         return [
-                    //             'cheque_number' => $cheque->cheque_number,
-                    //             'amount'        => $cheque->amount,
-                    //             'due_date'      => $cheque->due_date,
-                    //             'status'        => $cheque->status,
-                    //             'mode_payment'  => $cheque->mode_payment,
-                    //             'cheque_status' => $cheque->cheque_status,
-                    //             'payment_link'  => $cheque->payment_link,
-                    //             'comments'      => $cheque->comments,
-                    //         ];
-                    //     })->toArray();
+                    ->iconButton(),
+                // ->mutateRecordDataUsing(function ($record) {
+                //     // dd($record['cheques']);
+                //     $rentalData = $record->toArray();
+                //     // dd($rentalData);
+                //     $chequesData = $record['cheques']->map(function ($cheque) {
+                //         return [
+                //             'cheque_number' => $cheque->cheque_number,
+                //             'amount'        => $cheque->amount,
+                //             'due_date'      => $cheque->due_date,
+                //             'status'        => $cheque->status,
+                //             'mode_payment'  => $cheque->mode_payment,
+                //             'cheque_status' => $cheque->cheque_status,
+                //             'payment_link'  => $cheque->payment_link,
+                //             'comments'      => $cheque->comments,
+                //         ];
+                //     })->toArray();
 
-                    //     // $form->fill(array_merge($rentalData, ['cheques' => $chequesData]));
+                //     // $form->fill(array_merge($rentalData, ['cheques' => $chequesData]));
 
-                    // })
+                // })
                 // ->form(fn(Form $form, $record) => $this->form($form))
                 // ->using(fn($form, $record) => $this->populateFormForEdit($form, $record)),
             ]);
@@ -240,13 +240,16 @@ class RentalDetailsRelationManager extends RelationManager
     {
         return Action::make('customCreate')
             ->label('Add Rental Details')
-        ->visible(function () {
-            $endDate = RentalDetail::where('flat_tenant_id', $this->ownerRecord->id)->first()
-                ->pluck('contract_end_date')->first();
-            if ($endDate < Carbon::now()->format('d-m-Y')) {
-                return true;
-            }
-        })
+            ->visible(function () {
+                $rentalDetail = RentalDetail::where('flat_tenant_id', $this->ownerRecord->id)->first();
+
+                if (!$rentalDetail) {
+                    return true;
+                }
+
+                $endDate = $rentalDetail->contract_end_date;
+                return $endDate < Carbon::now()->format('Y-m-d');
+            })
             ->action(function (array $data) {
                 $this->handleCustomActionSave($data);
             })
