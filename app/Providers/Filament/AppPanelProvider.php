@@ -226,7 +226,7 @@ class AppPanelProvider extends PanelProvider
                         ) {
                             $builder->groups([
 
-                                NavigationGroup::make('Master Data Module')
+                                NavigationGroup::make('Master Data Management')
                                     ->items([
                                         NavigationItem::make('Facilities')
                                             ->label('Amenities')

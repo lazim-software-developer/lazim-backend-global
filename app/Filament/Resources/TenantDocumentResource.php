@@ -85,9 +85,9 @@ class TenantDocumentResource extends Resource
                             'approved' => 'Approved',
                             'rejected' => 'Rejected',
                         ])
-                        ->disabled(function (Document $record) {
-                            return $record->status != 'submitted';
-                        })
+                        // ->disabled(function (Document $record) {
+                        //     return $record->status != 'submitted';
+                        // })
                         ->searchable()
                         ->live(),
                     Textarea::make('remarks')

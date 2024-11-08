@@ -106,8 +106,8 @@ class PropertyManagerResource extends Resource
                             ->label('Bank Account Number')
                             ->numeric()
                             ->reactive()
-                            ->disabled(function (callable $get) {
-                                return $get('active') === true;
+                            ->disabled(function (?Model $record) {
+                                return $record && $record->bank_account_number;
                             })
                             ->placeholder('Enter account number'),
                         TextInput::make('bank_account_holder_name')
