@@ -159,7 +159,7 @@ class BuildingRelationManager extends RelationManager
                                             TextInput::make('parking_count')
                                                 ->numeric()
                                                 ->minValue(1)
-                                                ->maxValue(999)
+                                                ->maxLength(5)
                                                 ->placeholder('Total Parking Count')
                                                 ->label('Total Parking Count'),
 

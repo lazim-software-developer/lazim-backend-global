@@ -8,6 +8,7 @@ use Filament\Facades\Filament;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
@@ -66,7 +67,8 @@ class VendorRelationManager extends RelationManager
                         ->placeholder('status'),
                     Toggle::make('active')
                         ->rules(['boolean']),
-                    TextInput::make('remarks')
+                    Textarea::make('remarks')
+                        ->maxLength(250)
                         ->default('NA'),
                 ]),
             ]);

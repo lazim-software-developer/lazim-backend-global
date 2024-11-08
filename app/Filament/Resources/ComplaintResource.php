@@ -279,9 +279,9 @@ class ComplaintResource extends Resource
                                     ->searchable()
                                     ->live(),
 
-                                TextInput::make('remarks')
+                                Textarea::make('remarks')
                                     ->label('Remarks')
-                                    ->rules(['max:150'])
+                                    ->rules(['max:250'])
                                     ->required(function (callable $get) {
                                         if ($get('status' === 'closed')) {
                                             return true;

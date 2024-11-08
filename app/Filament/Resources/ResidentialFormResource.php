@@ -171,8 +171,8 @@ class ResidentialFormResource extends Resource
                             ->searchable()
                             ->live(),
 
-                        TextInput::make('remarks')
-                            ->rules(['max:150'])
+                        Textarea::make('remarks')
+                            ->rules(['max:250'])
                             ->visible(function (callable $get) {
                                 return $get('status') == 'rejected';
                             })

@@ -159,7 +159,7 @@ class BuildingResource extends Resource
                     TextInput::make('parking_count')
                         ->numeric()
                         ->minValue(1)
-                        ->maxValue(999)
+                        ->maxLength(5)
                         ->hidden(fn() => !in_array(auth()->user()->role->name, ['Admin', 'Property Manager']))
                         ->placeholder('Total Parking Count')
                         ->label('Total Parking Count'),

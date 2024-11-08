@@ -14,6 +14,7 @@ use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
@@ -101,8 +102,8 @@ class FitOutFormsDocumentResource extends Resource
                         })
                         ->label('Payment status')
                         ->readOnly(),
-                    TextInput::make('remarks')
-                        ->rules(['max:150'])
+                    Textarea::make('remarks')
+                        ->rules(['max:250'])
                         ->visible(function (callable $get) {
                             if ($get('status') == 'rejected') {
                                 return true;

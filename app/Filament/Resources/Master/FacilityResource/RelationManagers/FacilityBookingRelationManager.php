@@ -6,6 +6,7 @@ use App\Models\Building\FacilityBooking;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\TimePicker;
 use Filament\Forms\Components\Toggle;
@@ -82,9 +83,10 @@ class FacilityBookingRelationManager extends RelationManager
                             'lg'      => 12,
                         ]),
 
-                    TextInput::make('remarks')
+                    Textarea::make('remarks')
                         ->required()
                         ->default('NA')
+                        ->maxLength(250)
                         ->columnSpan([
                             'default' => 12,
                             'md'      => 12,

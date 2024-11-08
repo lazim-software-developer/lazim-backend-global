@@ -12,6 +12,7 @@ use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -109,8 +110,8 @@ class FlatDocumentResource extends Resource
                         })
                         ->searchable()
                         ->live(),
-                    TextInput::make('remarks')
-                        ->rules(['max:150'])
+                    Textarea::make('remarks')
+                        ->rules(['max:250'])
                         ->visible(function (callable $get) {
                             if ($get('status') == 'rejected') {
                                 return true;

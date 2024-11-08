@@ -152,8 +152,8 @@ class AccessCardFormsDocumentResource extends Resource
                         })
                         ->label('Payment status')
                         ->readOnly(),
-                    TextInput::make('remarks')
-                        ->rules(['max:150'])
+                    Textarea::make('remarks')
+                        ->rules(['max:250'])
                         ->visible(function (callable $get) {
                             if ($get('status') == 'rejected') {
                                 return true;

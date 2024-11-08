@@ -57,6 +57,13 @@ class AppPanelProvider extends PanelProvider
             ->id('app')
             ->path('app')
             ->login()
+            ->brandName(function(){
+                if(auth()->user()->role->name == 'Property Manager'){
+                    return 'Property Management';
+                } else {
+                    return 'Lazim';
+                }
+            })
             ->profile(AppEditProfile::class)
             ->colors([
                 'danger' => Color::Rose,
@@ -219,7 +226,7 @@ class AppPanelProvider extends PanelProvider
                         ) {
                             $builder->groups([
 
-                                NavigationGroup::make('Master')
+                                NavigationGroup::make('Master Data Module')
                                     ->items([
                                         NavigationItem::make('Facilities')
                                             ->label('Amenities')
