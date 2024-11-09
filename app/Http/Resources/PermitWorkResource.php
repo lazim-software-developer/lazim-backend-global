@@ -19,7 +19,7 @@ class PermitWorkResource extends JsonResource
             'id'            => $this->id,
             'facility_name' => $this->bookable->name,
             'facility_id'   => $this->bookable->id,
-            'facility_icon' => $this->bookable->icon,
+            'facility_icon' => $this->bookable->icon ? env('AWS_URL').'/'.$this->bookable->icon : null,
             'date'          => Carbon::parse($this->date)->format('jS M Y'),
             'start_time'    => Carbon::parse($this->start_time)->format('h:ia'),
             'end_time'      => Carbon::parse($this->end_time)->format('h:ia'),
