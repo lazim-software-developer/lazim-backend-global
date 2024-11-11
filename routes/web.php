@@ -13,8 +13,6 @@ use App\Http\Controllers\TrialBalanceController;
 use App\Http\Controllers\Vendor\DelinquentController;
 use App\Http\Controllers\Vendor\MasterController;
 use App\Livewire\VendorRegistration;
-use Filament\Facades\Filament;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Session;
 
@@ -27,7 +25,7 @@ use Illuminate\Support\Facades\Session;
 | routes are loaded by the RouteServiceProvider within a group which
 | contains the "web" middleware group. Now create something great!
 |
-*/
+ */
 
 Route::get('/', function () {
     return redirect('/admin');
@@ -42,7 +40,6 @@ Route::middleware(['auth:sanctum', 'verified'])
 Route::prefix('/')
     ->middleware(['auth:sanctum', 'verified']);
 Route::get('/vendors/create', VendorRegistration::class);
-
 
 // Service chanrge
 Route::get('service-charge/{saleNOC}/generate-pdf/', [PDFController::class, 'serviceChargePDF']);
@@ -64,22 +61,22 @@ Route::get('/budget/{budget}/available-services/{subcategory}', [MasterControlle
 
 Route::post('/get-delinquent-owners', [DelinquentController::class, 'getDelinquentOwners']);
 
-Route::post('/get-general-fund',[GeneralFundController::class,'getGeneralFund']);
+Route::post('/get-general-fund', [GeneralFundController::class, 'getGeneralFund']);
 
-Route::post('/get-reserve-fund',[ReserveFundController::class,'getReserveFund']);
+Route::post('/get-reserve-fund', [ReserveFundController::class, 'getReserveFund']);
 
-Route::post('/get-general-fund-mollak',[GeneralFundController::class,'getGeneralFundMollak']);
+Route::post('/get-general-fund-mollak', [GeneralFundController::class, 'getGeneralFundMollak']);
 
-Route::post('/get-reserve-fund-mollak',[ReserveFundController::class,'getReserveFundMollak']);
+Route::post('/get-reserve-fund-mollak', [ReserveFundController::class, 'getReserveFundMollak']);
 
-Route::post('/get-trial-balance',[TrialBalanceController::class,'getTrialBalance']);
+Route::post('/get-trial-balance', [TrialBalanceController::class, 'getTrialBalance']);
 
-Route::get('/invoice',[OwnerAssociationInvoice::class,'invoice'])->name('invoice');
+Route::get('/invoice', [OwnerAssociationInvoice::class, 'invoice'])->name('invoice');
 
-Route::get('/receipt',[OwnerAssociationReceipts::class,'receipt'])->name('receipt');
+Route::get('/receipt', [OwnerAssociationReceipts::class, 'receipt'])->name('receipt');
 
 // Route::get('/test',[PDFController::class,'qrCode']);
-Route::get('/qr_code',function(){
+Route::get('/qr_code', function () {
     $data = Session::get('data');
     // Now you can use $data in your view or wherever you need it
     return view('pdf.qr-code', ['data' => $data]);
@@ -87,7 +84,7 @@ Route::get('/qr_code',function(){
 
 Route::post('/download', [TestController::class, 'download'])->name('download');
 
-Route::post('/upload',[TestController::class, 'uploadAll'])->name('uploadAll');
+Route::post('/upload', [TestController::class, 'uploadAll'])->name('uploadAll');
 // Route::get('/admin/ledgers/{invoice}/receipts', function () {
 //     return redirect()->to('/admin/ledgers/{invoice}/receipts');
 // })->name('admin.ledgers.receipts');
@@ -101,3 +98,15 @@ Route::get('/redirect-os', [TestController::class, 'redirectBasedOnOS'])->name('
 
 Route::post('/qr/feedback', [FeedbackController::class, 'submitFeedback'])->name('qr.feedback.submit');
 Route::get('/qr/feedback', [FeedbackController::class, 'index'])->name('qr.feedback.index');
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/app/edit-invoice-status/{record}', \App\Filament\Resources\OwnerAssociationInvoiceResource\Pages\EditInvoiceStatus::class)
+        ->middleware('role:Property Manager') // Add role middleware to ensure only Property Managers can access
+        ->name('edit-invoice-status');
+
+    // Route::get('/app/edit-receipt-status/{record}', \App\Filament\Resources\OwnerAssociationReceiptResource\Pages\EditStatus::class)
+    // ->middleware('role:Property Manager')
+    // ->name('edit-receipt-status');
+
+
+});
