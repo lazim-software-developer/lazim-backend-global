@@ -594,6 +594,11 @@ class AppPanelProvider extends PanelProvider
                                             ->icon('heroicon-o-users')
                                             ->activeIcon('heroicon-o-users')
                                             ->sort(8),
+                                        NavigationItem::make('Permit to Work')
+                                                ->url('/app/facility-bookings')
+                                                ->icon('heroicon-m-briefcase')
+                                                ->activeIcon('heroicon-m-briefcase')
+                                                ->sort(1),
                                         NavigationItem::make('Holiday Homes Guest Registration')
                                             ->url('/app/guest-registrations')
                                             ->hidden(!$user->can('view_any_guest::registration'))
