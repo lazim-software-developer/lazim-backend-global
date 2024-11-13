@@ -29,7 +29,7 @@ class FacilityBookingResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
-    protected static ?string $modelLabel = 'Permit to Work';
+    protected static ?string $modelLabel = 'Work Permit Request';
 
     public static function form(Form $form): Form
     {
@@ -105,6 +105,7 @@ class FacilityBookingResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+        ->emptyStateHeading('No Work Permit Requests')
             ->columns([
                 Tables\Columns\TextColumn::make('building.name')
                     ->default('NA')
