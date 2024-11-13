@@ -227,7 +227,7 @@ class AppEditProfile extends BaseEditProfile
                                     }])
                                     ->reactive()
                                     ->required(function (callable $get) {
-                                        if($get('password') != null) {
+                                        if ($get('password') != null) {
                                             return true;
                                         } else {
                                             return false;
@@ -246,23 +246,33 @@ class AppEditProfile extends BaseEditProfile
         $user             = User::find(auth()->user()->id);
         $ownerAssociation = OwnerAssociation::find($user->owner_association_id);
 
-        $this->form->fill([
-            'first_name'                => $user->first_name,
-            'last_name'                 => $user->last_name,
-            'email'                     => $user->email,
-            'phone'                     => $user->phone,
-            'name'                      => $ownerAssociation->name,
-            'trn_number'                => $ownerAssociation->trn_number,
-            'trade_license_number'      => $ownerAssociation->trade_license_number,
-            'address'                   => $ownerAssociation->address,
-            'bank_account_number'       => $ownerAssociation->bank_account_number,
-            'bank_account_holder_name'  => $ownerAssociation->bank_account_holder_name,
-            'profile_photo'             => $ownerAssociation->profile_photo,
-            'trn_certificate'           => $ownerAssociation->trn_certificate,
-            'trade_license'             => $ownerAssociation->trade_license,
-            'dubai_chamber_document'    => $ownerAssociation->dubai_chamber_document,
-            'memorandum_of_association' => $ownerAssociation->memorandum_of_association,
-        ]);
+        if (auth()->user()->role->name == 'Property Manager') {
+            $this->form->fill([
+                'first_name'                => $user->first_name,
+                'last_name'                 => $user->last_name,
+                'email'                     => $user->email,
+                'phone'                     => $user->phone,
+                'name'                      => $ownerAssociation->name,
+                'trn_number'                => $ownerAssociation->trn_number,
+                'trade_license_number'      => $ownerAssociation->trade_license_number,
+                'address'                   => $ownerAssociation->address,
+                'bank_account_number'       => $ownerAssociation->bank_account_number,
+                'bank_account_holder_name'  => $ownerAssociation->bank_account_holder_name,
+                'profile_photo'             => $ownerAssociation->profile_photo,
+                'trn_certificate'           => $ownerAssociation->trn_certificate,
+                'trade_license'             => $ownerAssociation->trade_license,
+                'dubai_chamber_document'    => $ownerAssociation->dubai_chamber_document,
+                'memorandum_of_association' => $ownerAssociation->memorandum_of_association,
+            ]);
+        } else {
+            $this->form->fill([
+                'first_name' => $user->first_name,
+                'last_name'  => $user->last_name,
+                'email'      => $user->email,
+                'phone'      => $user->phone,
+            ]);
+
+        }
     }
 
     protected function getFormData(): array
