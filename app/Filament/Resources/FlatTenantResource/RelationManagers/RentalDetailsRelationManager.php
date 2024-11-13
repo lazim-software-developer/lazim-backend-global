@@ -269,16 +269,16 @@ class RentalDetailsRelationManager extends RelationManager
     {
         return Action::make('customCreate')
             ->label('Add Rental Details')
-        // ->visible(function () {
-        //     $rentalDetail = RentalDetail::where('flat_tenant_id', $this->ownerRecord->id)->first();
+        ->visible(function () {
+            $rentalDetail = RentalDetail::where('flat_tenant_id', $this->ownerRecord->id)->first();
 
-        //     if (!$rentalDetail) {
-        //         return true;
-        //     }
+            if (!$rentalDetail) {
+                return true;
+            }
 
-        //     $endDate = $rentalDetail->contract_end_date;
-        //     return $endDate < Carbon::now()->format('Y-m-d');
-        // })
+            $endDate = $rentalDetail->contract_end_date;
+            return $endDate < Carbon::now()->format('Y-m-d');
+        })
             ->action(function (array $data) {
                 // dd($data);
                 $this->handleCustomActionSave($data);
