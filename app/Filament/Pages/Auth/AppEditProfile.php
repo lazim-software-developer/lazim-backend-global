@@ -218,15 +218,21 @@ class AppEditProfile extends BaseEditProfile
                                 TextInput::make('password_confirmation')
                                     ->password()
                                     ->revealable()
-                                    ->rules([function (Get $get) {
+                                    ->rules([function (callable $get) {
                                         return function (string $attribute, $value, Closure $fail) use ($get) {
                                             if ($value != $get('password')) {
                                                 $fail('The Confirm password field must match new password.');
                                             }
                                         };
                                     }])
-                                    ->live()
-                                    ->required(fn(Get $get) => $get('password') !== null)
+                                    ->reactive()
+                                    ->required(function (callable $get) {
+                                        if($get('password') != null) {
+                                            return true;
+                                        } else {
+                                            return false;
+                                        }
+                                    })
                                     ->label('Confirm new password'),
                             ])->columns(1),
                     ]),
