@@ -322,7 +322,7 @@ class RentalDetailsRelationManager extends RelationManager
                     'mode_payment'      => $cheque['mode_payment'],
                     'cheque_status'     => $cheque['cheque_status'],
                     'payment_link'      => $cheque['payment_link'] ?? null,
-                    'comments'          => $cheque['comments'] ?? [],
+                    'comments'          => json_encode($cheque['comments']) ?? [],
                 ]);
             }
         }
