@@ -74,6 +74,7 @@ class RentalDetailsRelationManager extends RelationManager
                                         $endDate = FlatTenant::where('id', $this->ownerRecord->id)->first()?->end_date;
                                         return $endDate ? true : false;
                                     })
+                                    ->disabledOn('edit')
                                     ->required(function () {
                                         $endDate = FlatTenant::where('id', $this->ownerRecord->id)->first()?->end_date;
                                         return $endDate ? false : true;
