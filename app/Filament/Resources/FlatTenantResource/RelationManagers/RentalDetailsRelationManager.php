@@ -70,7 +70,14 @@ class RentalDetailsRelationManager extends RelationManager
                                         $endDate = FlatTenant::where('id', $this->ownerRecord->id)->first()?->end_date;
                                         return $endDate ? Carbon::parse($endDate) : null;
                                     })
-                                    ->disabled()
+                                    ->disabled(function () {
+                                        $endDate = FlatTenant::where('id', $this->ownerRecord->id)->first()?->end_date;
+                                        return $endDate ? true : false;
+                                    })
+                                    ->required(function () {
+                                        $endDate = FlatTenant::where('id', $this->ownerRecord->id)->first()?->end_date;
+                                        return $endDate ? false : true;
+                                    })
                                     ->placeholder('Select contract end date'),
                                 TextInput::make('admin_fee')
                                     ->nullable()
@@ -122,11 +129,6 @@ class RentalDetailsRelationManager extends RelationManager
                             ->required()
                             ->addable(fn($context) => $context !== 'edit')
                             ->deletable(fn($context) => $context !== 'edit')
-                        // ->relationship(function ($context) {
-                        //     if ($context === 'edit') {
-                        //         return 'rentalCheques';
-                        //     }
-                        // })
                             ->minItems(fn(callable $get) => $get('cheques_count') ?? 0)
                             ->maxItems(function (callable $get) {
                                 $chequesCount = $get('cheques_count');
@@ -269,16 +271,16 @@ class RentalDetailsRelationManager extends RelationManager
     {
         return Action::make('customCreate')
             ->label('Add Rental Details')
-        ->visible(function () {
-            $rentalDetail = RentalDetail::where('flat_tenant_id', $this->ownerRecord->id)->first();
+            ->visible(function () {
+                $rentalDetail = RentalDetail::where('flat_tenant_id', $this->ownerRecord->id)->first();
 
-            if (!$rentalDetail) {
-                return true;
-            }
+                if (!$rentalDetail) {
+                    return true;
+                }
 
-            $endDate = $rentalDetail->contract_end_date;
-            return $endDate < Carbon::now()->format('Y-m-d');
-        })
+                $endDate = $rentalDetail->contract_end_date;
+                return $endDate < Carbon::now()->format('Y-m-d');
+            })
             ->action(function (array $data) {
                 // dd($data);
                 $this->handleCustomActionSave($data);
