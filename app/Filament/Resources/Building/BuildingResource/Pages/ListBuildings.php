@@ -41,7 +41,7 @@ class ListBuildings extends ListRecords
                     $auth_user = auth()->user();
                     $role      = Role::where('id', $auth_user->role_id)->first()?->name;
 
-                    if ($role === 'Admin') {
+                    if ($role === 'Admin' || $role === 'Property Manager') {
                         return true;
                     }
                 }),

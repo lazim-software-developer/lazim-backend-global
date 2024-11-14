@@ -2,12 +2,11 @@
 
 namespace App\Filament\Resources\Building\BuildingResource\Pages;
 
+use App\Filament\Resources\Building\BuildingResource;
 use App\Models\Floor;
-use Filament\Actions;
-use Filament\Actions\Action;
+use DB;
 use Filament\Resources\Pages\EditRecord;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
-use App\Filament\Resources\Building\BuildingResource;
 
 class EditBuilding extends EditRecord
 {
@@ -49,7 +48,14 @@ class EditBuilding extends EditRecord
         if(array_key_exists('search',$data)){
             $data['address'] = $data['search'];
         }
-        
+        if (auth()->user()->role->name == 'Property Manager') {
+            DB::table('building_owner_association')
+                ->where('building_id', $this->record->id)
+                ->update([
+                    'from' => $data['from'],
+                    'to'   => $data['to'],
+                ]);
+        }
         return $data;
     }
 
@@ -60,7 +66,16 @@ class EditBuilding extends EditRecord
         } else {
             $data['search'] = null;
         }
-        
-        return $data;  
+
+        if (auth()->user()->role->name == 'Property Manager') {
+            $data['from'] = DB::table('building_owner_association')
+                ->where('building_id', $this->record->id)
+                ->first()->from;
+            $data['to'] = DB::table('building_owner_association')
+                ->where('building_id', $this->record->id)
+                ->first()->to;
+        }
+
+        return $data;
     }
 }
