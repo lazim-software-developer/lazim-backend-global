@@ -103,30 +103,30 @@ class AppPanelProvider extends PanelProvider
                 // }
                     $user = User::find(auth()->user()->id) ;
                     if(auth()->user()->role->name == 'Property Manager'){
-                        if (
-                            $user->can('view_any_property::manager')
-                        ) {
-                            $builder->groups([
-                                NavigationGroup::make('Property management')
-                                    ->items([
-                                        NavigationItem::make('Property Managers')
-                                            ->url('/app/property-managers')
-                                            ->hidden(!$user->can('view_any_property::manager'))
-                                            ->icon('heroicon-o-building-office')
-                                            ->activeIcon('heroicon-o-building-office')
-                                            ->sort(1),
+                        // if (
+                        //     $user->can('view_any_property::manager')
+                        // ) {
+                        //     $builder->groups([
+                        //         NavigationGroup::make('Property management')
+                        //             ->items([
+                        //                 NavigationItem::make('Property Managers')
+                        //                     ->url('/app/property-managers')
+                        //                     ->hidden(!$user->can('view_any_property::manager'))
+                        //                     ->icon('heroicon-o-building-office')
+                        //                     ->activeIcon('heroicon-o-building-office')
+                        //                     ->sort(1),
 
-                                        // NavigationItem::make('Facility Managers')
-                                        //     ->url('/app/vendors')
-                                        //     // ->hidden(!$user->can('view_any_mollak::tenant'))
-                                        //     ->icon('heroicon-o-user')
-                                        //     ->activeIcon('heroicon-o-user')
-                                        //     ->sort(1),
+                        //                 // NavigationItem::make('Facility Managers')
+                        //                 //     ->url('/app/vendors')
+                        //                 //     // ->hidden(!$user->can('view_any_mollak::tenant'))
+                        //                 //     ->icon('heroicon-o-user')
+                        //                 //     ->activeIcon('heroicon-o-user')
+                        //                 //     ->sort(1),
 
-                                    ]),
+                        //             ]),
 
-                            ]);
-                        }
+                        //     ]);
+                        // }
 
                         if ($user->can('view_any_building::building') ||
                             $user->can('view_any_building::flat') ||
