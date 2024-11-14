@@ -18,21 +18,26 @@ use App\Filament\Resources\Building\BuildingResource\RelationManagers\Ruleregula
 use App\Imports\OAM\BudgetImport;
 use App\Models\Building\Building;
 use App\Models\Master\Role;
+use Carbon\Carbon;
 use Cheesegrits\FilamentGoogleMaps\Fields\Geocomplete;
 use Cheesegrits\FilamentGoogleMaps\Fields\Map;
 use Closure;
+use DB;
 use Filament\Forms;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\MarkdownEditor;
+use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Actions\Action;
@@ -64,11 +69,11 @@ class BuildingResource extends Resource
                     TextInput::make('name')
                         ->rules(['max:50', 'string'])
                         ->required()
-                        ->disabled(function () {
-                            if (auth()->user()->role->name !== 'Admin') {
-                                return true;
-                            }
-                        })
+                    // ->disabled(function () {
+                    //     if (auth()->user()->role->name !== 'Admin') {
+                    //         return true;
+                    //     }
+                    // })
                         ->unique('buildings', 'name', fn(?Model $record) => $record)
                         ->placeholder('Name'),
 
@@ -82,11 +87,11 @@ class BuildingResource extends Resource
                     TextInput::make('property_group_id')
                         ->rules(['max:50', 'string'])
                         ->required()
-                        ->disabled(function () {
-                            if (auth()->user()->role->name !== 'Admin') {
-                                return true;
-                            }
-                        })
+                    // ->disabled(function () {
+                    //     if (auth()->user()->role->name !== 'Admin') {
+                    //         return true;
+                    //     }
+                    // })
                         ->placeholder('Property Group Id')
                         ->unique(
                             'buildings',
@@ -300,6 +305,28 @@ class BuildingResource extends Resource
                             // ->geolocateOnLoad(true, false)
                             ,
                         ]),
+
+                    Section::make('Contract Dates')
+                        ->visible(auth()->user()->role->name === 'Property Manager')
+                        ->schema([
+                            Grid::make(2)->schema([
+                                DatePicker::make('from')
+                                    ->required()
+                                    ->default(Carbon::now()->format('Y-m-d'))
+                                    ->afterStateUpdated(function (Set $set) {
+                                        $set('to', null);
+                                    }),
+
+                                DatePicker::make('to')
+                                    ->after('from')
+                                    ->required()
+                                // ->disabledOn('edit')
+                                    ->validationMessages([
+                                        'after' => 'The "to" date must be after the "from" date.',
+                                    ]),
+                            ]),
+                        ]),
+
                 ]),
             ]);
     }
@@ -370,6 +397,21 @@ class BuildingResource extends Resource
             // })
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DetachAction::make()
+                    ->label('Remove')
+                    ->modalHeading('Remove Building')
+                    ->modalDescription('Performing this action will result in loosing authority of this building!')
+                    ->modalSubmitActionLabel('Yes, remove it')
+                    ->action(function ($record) {
+                        DB::table('building_owner_association')
+                            ->where('building_id', $record->id)
+                            ->delete();
+                        Notification::make()
+                            ->title('Building removed successfully')
+                            ->success()
+                            ->send();
+                    }),
+
                 Action::make('feature')
                     ->label('Upload Budget') // Set a label for your action
                     ->modalHeading('Upload Budget for Period') // Modal headin

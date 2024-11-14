@@ -4,7 +4,7 @@ namespace App\Filament\Resources\Building\BuildingResource\Pages;
 
 use App\Filament\Resources\Building\BuildingResource;
 use App\Models\Floor;
-use Filament\Actions;
+use DB;
 use Filament\Resources\Pages\CreateRecord;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
@@ -32,12 +32,22 @@ class CreateBuilding extends CreateRecord
                 // Generate a QR code using the QrCode library
                 $qrCode = QrCode::size(200)->generate(json_encode($qrCodeContent));
                 Floor::create([
-                    'floors' => $countfloor,
+                    'floors'      => $countfloor,
                     'building_id' => $this->record->id,
-                    'qr_code' => $qrCode,
+                    'qr_code'     => $qrCode,
                 ]);
                 $countfloor = $countfloor - 1;
             }
+        }
+
+        if(auth()->user()->role->name == 'Property Manager'){
+            DB::table('building_owner_association')->insert([
+                'building_id'          => $this->record->id,
+                'owner_association_id' => auth()->user()->owner_association_id,
+                'from'                 => $this->data['from'],
+                'to'                   => $this->data['to'],
+                'active'               => true,
+            ]);
         }
     }
 }
