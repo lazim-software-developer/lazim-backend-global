@@ -95,28 +95,30 @@ class FacilityManagerResource extends Resource
                             ->icon('heroicon-o-building-office')
                             ->collapsible()
                             ->schema([
-                                TextInput::make('address_line_1')
-                                    ->label('Company Address')
-                                    ->required()
-                                    ->placeholder('Enter complete address'),
+
                                 Grid::make(2)
                                     ->schema([
                                         TextInput::make('landline_number')
                                             ->label('Landline Number')
                                             ->required()
                                             ->tel(),
+                                        TextInput::make('tl_number')
+                                            ->label('Trade License Number')
+                                            ->required()
+                                            ->numeric()
+                                            ->unique(Vendor::class, 'tl_number', ignoreRecord: true),
                                         // TextInput::make('fax')
                                         //     ->label('Fax Number'),
                                     ]),
+                                TextInput::make('address_line_1')
+                                    ->label('Company Address')
+                                    ->required()
+                                    ->placeholder('Enter complete address'),
                                 TextInput::make('website')
                                     ->label('Website')
                                     ->url()
                                     ->placeholder('https://example.com'),
-                                TextInput::make('tl_number')
-                                    ->label('Trade License Number')
-                                    ->required()
-                                    ->numeric()
-                                    ->unique(Vendor::class, 'tl_number', ignoreRecord: true),
+
                                 Grid::make(2)
                                     ->schema([
                                         DatePicker::make('tl_expiry')
