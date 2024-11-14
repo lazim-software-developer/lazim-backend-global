@@ -399,6 +399,9 @@ class BuildingResource extends Resource
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DetachAction::make()
                     ->label('Remove')
+                    ->visible(function () {
+                        return auth()->user()?->role?->name === 'Property Manager';
+                    })
                     ->modalHeading('Remove Building')
                     ->modalDescription('Performing this action will result in loosing authority of this building!')
                     ->modalSubmitActionLabel('Yes, remove it')
