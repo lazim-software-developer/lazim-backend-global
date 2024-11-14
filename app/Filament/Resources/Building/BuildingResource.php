@@ -306,12 +306,13 @@ class BuildingResource extends Resource
                             ,
                         ]),
 
-                    Section::make('Contract Dates')
+                    Section::make('Contract Details')
                         ->visible(auth()->user()->role->name === 'Property Manager')
                         ->schema([
                             Grid::make(2)->schema([
                                 DatePicker::make('from')
                                     ->required()
+                                    ->label('Contract Start Date')
                                     ->default(Carbon::now()->format('Y-m-d'))
                                     ->afterStateUpdated(function (Set $set) {
                                         $set('to', null);
@@ -319,10 +320,11 @@ class BuildingResource extends Resource
 
                                 DatePicker::make('to')
                                     ->after('from')
+                                    ->label('Contract End Date')
                                     ->required()
                                 // ->disabledOn('edit')
                                     ->validationMessages([
-                                        'after' => 'The "to" date must be after the "from" date.',
+                                        'after' => 'The "Contract start date" must be after the "Contract end date".',
                                     ]),
                             ]),
                         ]),
