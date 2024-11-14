@@ -3,7 +3,7 @@
 namespace App\Filament\Resources\OwnerAssociationInvoiceResource\Pages;
 
 use App\Filament\Resources\OwnerAssociationInvoiceResource;
-use App\Models\User;
+use App\Models\User\User;
 use App\Notifications\OverdueInvoiceNotification;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Section;
