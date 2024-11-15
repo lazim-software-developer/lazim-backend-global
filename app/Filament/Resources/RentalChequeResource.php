@@ -1,0 +1,175 @@
+<?php
+
+namespace App\Filament\Resources;
+
+use App\Filament\Resources\RentalChequeResource\Pages;
+use App\Models\RentalCheque;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Form;
+use Filament\Resources\Resource;
+use Filament\Tables;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Table;
+
+class RentalChequeResource extends Resource
+{
+    protected static ?string $model = RentalCheque::class;
+
+    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+
+    public static function form(Form $form): Form
+    {
+        return $form
+            ->schema([
+                Section::make('Cheque Details')
+                    ->description('Edit the Cheque Details.')
+                    ->icon('heroicon-o-document-currency-dollar')
+                    ->collapsible()
+                    ->schema([
+                        Grid::make(2)
+                            ->schema([
+                                TextInput::make('cheque_number')
+                                    ->numeric()
+                                    ->minLength(0)
+                                    ->required()
+                                    ->maxLength(6)
+                                    ->placeholder('Enter cheque number'),
+                                TextInput::make('amount')
+                                    ->maxLength(20)
+                                    ->numeric()
+                                    ->minLength(0)
+                                    ->required()
+                                    ->placeholder('Enter amount'),
+                                DatePicker::make('due_date')
+                                    ->rules(['date'])
+                                    ->required()
+                                    ->placeholder('Select due date'),
+                                Select::make('status')
+                                    ->default('Upcoming')
+                                    ->required()
+                                    ->native(false)
+                                    ->options([
+                                        'Overdue'  => 'Overdue',
+                                        'Paid'     => 'Paid',
+                                        'Upcoming' => 'Upcoming',
+                                    ])
+                                    ->placeholder('Select cheque status'),
+                                Select::make('mode_payment')
+                                    ->label('Payment Mode')
+                                    ->default('Cheque')
+                                    ->required()
+                                    ->native(false)
+                                    ->options([
+                                        'Online' => 'Online',
+                                        'Cheque' => 'Cheque',
+                                        'Cash'   => 'Cash',
+                                    ])
+                                    ->placeholder('Select payment mode'),
+                                Select::make('cheque_status')
+                                    ->native(false)
+                                    ->options([
+                                        'Cancelled' => 'Cancelled',
+                                        'Bounced'   => 'Bounced',
+                                        'Paid'      => 'Paid',
+                                    ])
+                                    ->placeholder('Select cheque status'),
+                                TextInput::make('payment_link')
+                                    ->url()
+                                    ->nullable()
+                                    ->maxLength(200)
+                                    ->placeholder('Enter payment link'),
+                                // Textarea::make('comments')
+                                //     ->nullable()
+                                //     ->maxLength(200)
+                                //     ->placeholder('Enter comments'),
+                            ]),
+                    ]),
+                Section::make('Comments')
+                    ->description('View and add comments.')
+                    ->icon('heroicon-o-chat-bubble-oval-left-ellipsis')
+                    ->collapsible()
+                    ->schema([
+                        Grid::make(1)
+                            ->schema([
+                                Textarea::make('new_comment')
+                                    ->label('New Comment')
+                                    ->rows(3)
+                                    ->placeholder('Enter new comment'),
+                                Textarea::make('old_comments')
+                                    ->label('Old Comments')
+                                    ->disabled()
+                                    ->rows(5)
+                                    ->default(fn($record) => $record ? implode("\n", json_decode($record->comments, true) ?? []) : '')
+                                    ->placeholder('No comments available'),
+                            ]),
+                    ]),
+            ]);
+    }
+
+    public static function table(Table $table): Table
+    {
+        return $table
+            ->columns([
+                Tables\Columns\TextColumn::make('rentalDetail.flat_id')
+                    ->label('Flat number'),
+                Tables\Columns\TextColumn::make('cheque_number')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('amount')
+                    ->numeric(),
+                Tables\Columns\TextColumn::make('due_date')
+                    ->date(),
+
+                Tables\Columns\TextColumn::make('mode_payment'),
+                Tables\Columns\TextColumn::make('cheque_status')
+                    ->badge()
+                    ->color(fn(string $state): string => match ($state) {
+                        'Paid'                            => 'success',
+                        'Bounced'                         => 'primary',
+                        'Cancelled'                       => 'danger',
+                    }),
+                Tables\Columns\TextColumn::make('status')
+                    ->badge()
+                    ->default('NA')
+                    ->color(fn(string $state): string => match ($state) {
+                        'Paid'                            => 'success',
+                        'Upcoming'                        => 'info',
+                        'Overdue'                         => 'danger',
+                        default                             => 'success',
+                    }),
+            ])
+            ->filters([
+                SelectFilter::make('rentalDetail.flat_id')
+                    ->preload()
+                    ->searchable(),
+            ])
+            ->actions([
+                Tables\Actions\EditAction::make(),
+            ])
+            ->bulkActions([
+                // Tables\Actions\BulkActionGroup::make([
+                //     Tables\Actions\DeleteBulkAction::make(),
+                // ]),
+            ]);
+    }
+
+    public static function getRelations(): array
+    {
+        return [
+            //
+        ];
+    }
+
+    public static function getPages(): array
+    {
+        return [
+            'index'  => Pages\ListRentalCheques::route('/'),
+            'create' => Pages\CreateRentalCheque::route('/create'),
+            'edit'   => Pages\EditRentalCheque::route('/{record}/edit'),
+        ];
+    }
+}
