@@ -206,6 +206,13 @@ class AppPanelProvider extends PanelProvider
                                         ->icon('heroicon-o-user-circle')
                                         ->activeIcon('heroicon-o-user-circle')
                                         ->sort(9),
+
+                                    NavigationItem::make('Rental cheques')
+                                        ->url('/app/rental-cheques')
+                                        ->hidden(!$user->can('view_any_tenant::document'))
+                                        ->icon('heroicon-o-document-currency-dollar')
+                                        ->activeIcon('heroicon-o-document-currency-dollar')
+                                        ->sort(9),
                                 ]),
 
                         ]);
