@@ -74,6 +74,7 @@ class ListBuildings extends ListRecords
 
             // ActionGroup::make([
                 ExportAction::make('exporttemplate')
+                    ->visible(auth()->user()?->role?->name === 'Property Manager')
                     ->exports([
                         ExcelExport::make()
                             ->modifyQueryUsing(fn(Builder $query) => $query->where('id', 0))
