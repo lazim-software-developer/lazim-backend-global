@@ -64,6 +64,8 @@ class AppPanelProvider extends PanelProvider
                     return 'Lazim';
                 }
             })
+            ->brandLogo(asset('images/logo.png'))
+            ->brandLogoHeight('35px')
             ->profile(AppEditProfile::class)
             ->colors([
                 'danger' => Color::Rose,

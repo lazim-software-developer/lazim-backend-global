@@ -296,8 +296,9 @@ class FacilitySupportComplaintResource extends Resource
                                     })
                                     ->placeholder('Add remarks'),
 
-                                DateTimePicker::make('close_time')
-                                    ->displayFormat('d-M-Y h:i A')
+                                DatePicker::make('close_time')
+                                    ->displayFormat('d-M-Y')
+                                    ->label('Resolve Date')
                                     // ->default(now()->format('d-M-Y h:i A'))
                                     ->reactive()
                                     ->required(function (callable $get) {

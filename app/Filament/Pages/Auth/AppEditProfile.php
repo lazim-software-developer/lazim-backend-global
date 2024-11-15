@@ -12,6 +12,7 @@ use Filament\Forms\Components\Section;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
+use Filament\Notifications\Notification;
 use Filament\Pages\Auth\EditProfile as BaseEditProfile;
 use Filament\Support\Exceptions\Halt;
 
@@ -93,6 +94,16 @@ class AppEditProfile extends BaseEditProfile
                             ->collapsible()
                             ->icon('heroicon-o-building-library')
                             ->schema([
+                                FileUpload::make('profile_photo')
+                                    ->disk('s3')
+                                    ->directory('dev')
+                                    ->image()
+                                    ->openable(true)
+                                    ->downloadable(true)
+                                    ->maxSize(2048)
+                                    ->rules('file|mimes:jpeg,jpg,png|max:2048')
+                                    ->label('Company Logo')
+                                    ->columnSpanFull(),
                                 TextInput::make('name')
                                     ->label('Company Name')
                                     ->disabled()
@@ -135,17 +146,6 @@ class AppEditProfile extends BaseEditProfile
                             })
                             ->icon('heroicon-o-document')
                             ->schema([
-                                FileUpload::make('profile_photo')
-                                    ->disk('s3')
-                                    ->directory('dev')
-                                    ->image()
-                                    ->openable(true)
-                                    ->downloadable(true)
-                                    ->maxSize(2048)
-                                    ->rules('file|mimes:jpeg,jpg,png|max:2048')
-                                    ->label('Profile Photo')
-                                    ->columnSpanFull(),
-
                                 FileUpload::make('trn_certificate')
                                     ->disk('s3')
                                     ->directory('dev')
@@ -359,8 +359,17 @@ class AppEditProfile extends BaseEditProfile
             }
 
             $this->redirect($this->getRedirectUrl());
+            $this->getSavedNotification()?->send();
+
         } catch (Halt $exception) {
             return;
         }
+    }
+
+    protected function getSavedNotification(): ?Notification
+    {
+        return Notification::make()
+            ->success()
+            ->title('Profile updated successfully');
     }
 }
