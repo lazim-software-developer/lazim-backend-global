@@ -127,19 +127,19 @@ class RentalChequeResource extends Resource
                 Tables\Columns\TextColumn::make('mode_payment'),
                 Tables\Columns\TextColumn::make('cheque_status')
                     ->badge()
+                    ->default('NA')
                     ->color(fn(string $state): string => match ($state) {
                         'Paid'                            => 'success',
                         'Bounced'                         => 'primary',
                         'Cancelled'                       => 'danger',
+                        default                           => 'gray',
                     }),
                 Tables\Columns\TextColumn::make('status')
                     ->badge()
-                    ->default('NA')
                     ->color(fn(string $state): string => match ($state) {
                         'Paid'                            => 'success',
                         'Upcoming'                        => 'info',
                         'Overdue'                         => 'danger',
-                        default                           => 'success',
                     }),
             ])
             ->filters([
