@@ -35,7 +35,7 @@ class Complaintresource extends JsonResource
             'category' => $this->category,
             'remarks' => $this->remarks,
             'opened_on' => $this->open_time_diff,
-            'closed_on' => $this->close_time->toDateString(),
+            'closed_on' => $this->close_time?->toDateString(),
             'resolved' => $this->status != 'closed' ? false : true,
             'media' => MediaResource::collection($this->media),
             'complaint_type' => $this->complaint_type,
