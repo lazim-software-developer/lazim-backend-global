@@ -372,6 +372,10 @@ class ComplaintResource extends Resource
                 TextColumn::make('status')
                     ->label('Status')
                     ->badge()
+                    ->formatStateUsing(fn(string $state): string => match ($state) {
+                        'open'                            => 'Open',
+                        'closed'                          => 'Closed',
+                    })
                     ->color(fn(string $state): string => match ($state) {
                         'open'                            => 'primary',
                         'closed'                          => 'gray',
