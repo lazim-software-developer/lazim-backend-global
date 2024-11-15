@@ -139,7 +139,7 @@ class RentalChequeResource extends Resource
                         'Paid'                            => 'success',
                         'Upcoming'                        => 'info',
                         'Overdue'                         => 'danger',
-                        default                             => 'success',
+                        default                           => 'success',
                     }),
             ])
             ->filters([
