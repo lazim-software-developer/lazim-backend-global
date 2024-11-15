@@ -11,6 +11,7 @@ use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -86,16 +87,19 @@ class RentalDetailsRelationManager extends RelationManager
                                     ->minValue(0)
                                     ->placeholder('Enter the Admin fee')
                                     ->numeric()
+                                    ->suffix('AED')
                                     ->maxLength(10),
                                 TextInput::make('other_charges')
                                     ->nullable()
                                     ->disabledOn('edit')
+                                    ->suffix('AED')
                                     ->minValue(0)
                                     ->numeric()
                                     ->maxLength(10),
                                 TextInput::make('advance_amount')
                                     ->required()
                                     ->maxLength(10)
+                                    ->suffix('AED')
                                     ->numeric()
                                     ->placeholder('Enter advance amount'),
                                 Select::make('advance_amount_payment_mode')
@@ -111,17 +115,18 @@ class RentalDetailsRelationManager extends RelationManager
                                 Select::make('status')
                                     ->default('Active')
                                     ->required()
+                                    ->label('Contract Status')
                                     ->native(false)
                                     ->options([
                                         'Active'            => 'Active',
-                                        'Expired'           => 'Expired',
-                                        'Contract ended'    => 'Contract ended',
-                                        'Contract extended' => 'Contract extended',
+                                        'Contract ended'    => 'Ended',
+                                        'Contract extended' => 'Extended',
                                     ])
                                     ->placeholder('Select status'),
                             ]),
                     ]),
                 Section::make('Cheque Details')
+                    ->hiddenOn('edit')
                     ->description('Enter the Cheque Details.')
                     ->icon('heroicon-o-document-currency-dollar')
                     ->collapsible()
@@ -163,6 +168,7 @@ class RentalDetailsRelationManager extends RelationManager
                                         Select::make('status')
                                             ->default('Upcoming')
                                             ->required()
+                                            ->visibleOn('edit')
                                             ->native(false)
                                             ->options([
                                                 'Overdue'  => 'Overdue',
@@ -173,6 +179,7 @@ class RentalDetailsRelationManager extends RelationManager
                                         Select::make('mode_payment')
                                             ->label('Payment Mode')
                                             ->default('Cheque')
+                                            ->visibleOn('edit')
                                             ->required()
                                             ->native(false)
                                             ->options([
@@ -182,6 +189,7 @@ class RentalDetailsRelationManager extends RelationManager
                                             ])
                                             ->placeholder('Select payment mode'),
                                         Select::make('cheque_status')
+                                            ->visibleOn('edit')
                                             ->native(false)
                                             ->options([
                                                 'Cancelled' => 'Cancelled',
@@ -191,15 +199,21 @@ class RentalDetailsRelationManager extends RelationManager
                                             ->placeholder('Select cheque status'),
                                         TextInput::make('payment_link')
                                             ->url()
+                                            ->visibleOn('edit')
                                             ->nullable()
                                             ->maxLength(200)
                                             ->placeholder('Enter payment link'),
-                                        Repeater::make('comments')
-                                            ->deletable(fn($context) => $context !== 'edit')
-                                            ->simple(
-                                                TextInput::make('comments')
-                                                    ->nullable(),
-                                            ),
+                                        // Repeater::make('comments')
+                                        //     ->deletable(fn($context) => $context !== 'edit')
+                                        //     ->simple(
+                                        //         TextInput::make('comments')
+                                        //             ->nullable(),
+                                        //     ),
+                                        Textarea::make('comments')
+                                            ->visibleOn('edit')
+                                            ->nullable()
+                                            ->maxLength(200)
+                                            ->placeholder('Enter comments'),
                                     ]),
                             ]),
                     ]),
@@ -210,11 +224,15 @@ class RentalDetailsRelationManager extends RelationManager
     {
         return $table
             ->columns([
-                TextColumn::make('flat.property_number'),
-                TextColumn::make('number_of_cheques'),
                 TextColumn::make('contract_start_date'),
                 TextColumn::make('contract_end_date'),
-                TextColumn::make('advance_amount'),
+                TextColumn::make('number_of_cheques'),
+                TextColumn::make('advance_amount')
+                ->default('NA'),
+                TextColumn::make('admin_fee')
+                    ->default('NA'),
+                TextColumn::make('other_charges')
+                    ->default('NA'),
                 TextColumn::make('status'),
             ])
             ->filters([])
@@ -225,45 +243,45 @@ class RentalDetailsRelationManager extends RelationManager
                 Tables\Actions\EditAction::make()
                     ->iconButton()
                     ->form(fn(Form $form, $record) => $this->form($form))
-                    ->beforeFormFilled(function ($record) {
-                        $chequeDetails = RentalCheque::where('rental_detail_id', $record->id)->get();
+                    // ->beforeFormFilled(function ($record) {
+                    //     $chequeDetails = RentalCheque::where('rental_detail_id', $record->id)->get();
 
-                        $cheques = $chequeDetails->map(function ($cheque) use ($record) {
-                            return [
-                                'rental_id'     => $record->id,
-                                'cheque_id'     => $cheque->id,
-                                'cheque_number' => $cheque->cheque_number,
-                                'amount'        => $cheque->amount,
-                                'due_date'      => $cheque->due_date,
-                                'status'        => $cheque->status,
-                                'mode_payment'  => $cheque->mode_payment,
-                                'cheque_status' => $cheque->cheque_status,
-                                'payment_link'  => $cheque->payment_link,
-                                'comments'      => json_decode($cheque->comments),
-                            ];
-                        })->toArray();
+                    //     $cheques = $chequeDetails->map(function ($cheque) use ($record) {
+                    //         return [
+                    //             'rental_id'     => $record->id,
+                    //             'cheque_id'     => $cheque->id,
+                    //             'cheque_number' => $cheque->cheque_number,
+                    //             'amount'        => $cheque->amount,
+                    //             'due_date'      => $cheque->due_date,
+                    //             'status'        => $cheque->status,
+                    //             'mode_payment'  => $cheque->mode_payment,
+                    //             'cheque_status' => $cheque->cheque_status,
+                    //             'payment_link'  => $cheque->payment_link,
+                    //             'comments'      => json_decode($cheque->comments),
+                    //         ];
+                    //     })->toArray();
 
-                        $record->cheques = $cheques;
-                    })
-                    ->action(function (array $data) {
-                        RentalDetail::find($data['cheques'][0]['rental_id'])?->update([
-                            'status' => $data['status'],
-                        ]);
+                    //     $record->cheques = $cheques;
+                    // })
+                    // ->action(function (array $data) {
+                    //     RentalDetail::find($data['cheques'][0]['rental_id'])?->update([
+                    //         'status' => $data['status'],
+                    //     ]);
 
-                        if (!empty($data['cheques'])) {
-                            foreach ($data['cheques'] as $data) {
-                                $cheque = RentalCheque::find($data['cheque_id']);
+                    //     if (!empty($data['cheques'])) {
+                    //         foreach ($data['cheques'] as $data) {
+                    //             $cheque = RentalCheque::find($data['cheque_id']);
 
-                                $cheque->update([
-                                    'status'        => $data['status'],
-                                    'mode_payment'  => $data['mode_payment'],
-                                    'cheque_status' => $data['cheque_status'],
-                                    'payment_link'  => $data['payment_link'],
-                                    'comments'      => json_encode($data['comments']),
-                                ]);
-                            }
-                        }
-                    }),
+                    //             $cheque->update([
+                    //                 'status'        => $data['status'],
+                    //                 'mode_payment'  => $data['mode_payment'],
+                    //                 'cheque_status' => $data['cheque_status'],
+                    //                 'payment_link'  => $data['payment_link'],
+                    //                 'comments'      => json_encode($data['comments']),
+                    //             ]);
+                    //         }
+                    //     }
+                    // }),
             ]);
 
     }

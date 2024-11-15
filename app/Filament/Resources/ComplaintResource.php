@@ -98,7 +98,6 @@ class ComplaintResource extends Resource
                                             ->pluck('property_number', 'id');
                                     })
                                     ->searchable()
-                                    ->required()
                                     ->preload()
                                     ->disabledOn('edit')
                                     ->placeholder('Select Unit Number'),
@@ -294,7 +293,7 @@ class ComplaintResource extends Resource
 
                                  DatePicker::make('close_time')
                                     ->displayFormat('d-M-Y')
-                                    ->label('Resolve Date')
+                                    ->label('Resolved Date')
                                     // ->default(now()->format('d-M-Y h:i A'))
                                     ->reactive()
                                     ->required(function (callable $get) {
