@@ -12,11 +12,9 @@ use App\Models\Master\Service;
 use App\Models\User\User;
 use App\Models\Vendor\ServiceVendor;
 use App\Models\Vendor\Vendor;
-use Carbon\Carbon;
 use Closure;
 use DB;
 use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Repeater;
@@ -298,7 +296,7 @@ class FacilitySupportComplaintResource extends Resource
                                 DatePicker::make('close_time')
                                     ->displayFormat('d-M-Y')
                                     ->label('Resolved Date')
-                                    // ->default(now()->format('d-M-Y h:i A'))
+                                // ->default(now()->format('d-M-Y h:i A'))
                                     ->reactive()
                                     ->required(function (callable $get) {
                                         if ($get('status' === 'closed')) {
@@ -307,7 +305,7 @@ class FacilitySupportComplaintResource extends Resource
                                     })
                                     ->visible(function (callable $get) {
                                         return $get('status') == 'closed';
-                                    })
+                                    }),
                             ]),
 
                         Repeater::make('photo')
@@ -333,8 +331,8 @@ class FacilitySupportComplaintResource extends Resource
             ->pluck('building_id');
         return $table
             ->modifyQueryUsing(fn(Builder $query) => $query
-            ->whereIn('complaintable_type', [get_class(auth()->user()),'App\Models\Vendor\Vendor'])
-            ->whereIn('building_id', $buildingIds)->latest())
+                    ->whereIn('complaintable_type', [get_class(auth()->user()), 'App\Models\Vendor\Vendor'])
+                    ->whereIn('building_id', $buildingIds)->latest())
             ->columns([
                 TextColumn::make('ticket_number')
                     ->label('Ticket Number')
@@ -376,6 +374,12 @@ class FacilitySupportComplaintResource extends Resource
                 TextColumn::make('status')
                     ->label('Status')
                     ->badge()
+                    ->formatStateUsing(function (string $state) {
+                        return match ($state) {
+                            'open'   => 'Open',
+                            'closed' => 'Closed',
+                        };
+                    })
                     ->color(fn(string $state): string => match ($state) {
                         'open'                            => 'primary',
                         'closed'                          => 'gray',

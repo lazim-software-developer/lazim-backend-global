@@ -343,6 +343,15 @@ class BuildingResource extends Resource
                     ->searchable()
                     ->default('NA')
                     ->limit(50),
+                Tables\Columns\TextColumn::make('building_type')
+                    ->label('Type')
+                    ->formatStateUsing(function ($state) {
+                        return match ($state) {
+                            'commercial'  => 'Commercial',
+                            'residential' => 'Residential',
+                            default       => 'NA',
+                        };
+                    }),
                 Tables\Columns\TextColumn::make('property_group_id')
                     ->toggleable()
                     ->searchable()
@@ -350,9 +359,10 @@ class BuildingResource extends Resource
                     ->limit(50),
                 Tables\Columns\TextColumn::make('address_line1')
                     ->toggleable()
+                    ->label('Address')
                     ->searchable()
                     ->default('NA')
-                    ->limit(50),
+                    ->limit(25),
                 // Tables\Columns\TextColumn::make('address_line2')
                 //     ->toggleable()
                 //     ->searchable()

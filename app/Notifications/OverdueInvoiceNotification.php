@@ -25,7 +25,7 @@ class OverdueInvoiceNotification extends Notification
     public function toMail($notifiable)
     {
         \Log::info('Sending mail to:', ['email' => $notifiable->email]);
- 
+
         $pdfPath = storage_path('app/public/invoices/' . $this->invoice->invoice_number . '.pdf');
         $mailMessage = (new MailMessage)
             ->subject('Invoice Overdue Notice')
@@ -33,7 +33,7 @@ class OverdueInvoiceNotification extends Notification
             ->line('Invoice #' . $this->invoice->invoice_number . ' is overdue.')
             ->line('Due Date: ' . $this->invoice->due_date)
             ->line('Amount: ' . $this->invoice->rate)
-            ->line('Please process this payment as soon as possible.')
+            ->line('Please clear this payment as soon as possible.')
             ->error();
 
         if (file_exists($pdfPath)) {

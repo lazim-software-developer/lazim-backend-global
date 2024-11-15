@@ -144,15 +144,26 @@ class TenantDocumentResource extends Resource
                         return Flat::where('id', $flatID)->value('property_number');
                     })
                     ->limit(50),
-                TextColumn::make('status')
-                    ->searchable()
-                    ->default('NA')
-                    ->limit(50),
                 TextColumn::make('documentUsers.first_name')
                     ->searchable()
                     ->label('Resident name')
                     ->default('NA'),
                 ViewColumn::make('Role')->view('tables.columns.role')->alignCenter(),
+                TextColumn::make('status')
+                    ->searchable()
+                    ->badge()
+                    ->formatStateUsing(fn(string $state): string => match ($state) {
+                        'submitted'                          => 'Approval Pending',
+                        'approved'                            => 'Approved',
+                        'rejected'                            => 'Rejected',
+                    })
+                    ->colors([
+                        'success' => 'approved',
+                        'danger'  => 'rejected',
+                        'warning' => fn($state) => $state === null || $state === 'NA' || $state === 'submitted', 
+                    ])
+                    ->default('NA')
+                    ->limit(50),
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
