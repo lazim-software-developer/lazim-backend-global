@@ -26,7 +26,9 @@ class FamilyMember extends Model
         'user_id',
         'owner_association_id',
         'flat_id',
-        'building_id'
+        'building_id',
+        'visa_number',
+        'visa_number_expiry_date',
     ];
 
     protected $cast = [
