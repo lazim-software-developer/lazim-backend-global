@@ -29,7 +29,7 @@ class FamilyMemberController extends Controller
 
         if($request->hasFile('files')){
             foreach ($request->file('files') as $file) {
-                $path = optimizeDocumentAndUpload($file);
+                $path = optimizeDocumentAndUpload($file['file']);
                 $family->documents()->create([
                     'name' => 'Other Document',
                     'document_library_id' => DocumentLibrary::where('name', 'Other documents')->first()->id,
@@ -40,7 +40,7 @@ class FamilyMemberController extends Controller
                     'documentable_id' => $family->id,
                     'documentable_type' => FamilyMember::class,
                     'flat_id' => $request->flat_id,
-                    'expiry_date' => $request->expiry_date,
+                    'expiry_date' => $file['expiry_date'],
                 ]);
             }
         }
@@ -76,13 +76,19 @@ class FamilyMemberController extends Controller
     {
         $familyMember->update($request->all());
 
+        if ($request->has('deleted_files')) {
+            Document::whereIn('id', $request->deleted_files)
+                ->where(['documentable_id' => $familyMember->id, 'documentable_type' => FamilyMember::class])
+                ->delete();
+        }
+
         if($request->hasFile('files')){
             foreach($request->file('files') as $file){
                 $path = optimizeDocumentAndUpload($file['file']);
                 Document::where(['documentable_id' => $familyMember->id, 'documentable_type' => FamilyMember::class, 'id' => $file['id']])->update([
                     'url' => $path,
                     'status' => 'pending',
-                    'expiry_date' => $request->expiry_date,
+                    'expiry_date' => $file['expiry_date'],
                 ]);
             }
         }
@@ -93,7 +99,6 @@ class FamilyMemberController extends Controller
             'code' => 200,
             'status' => 'success'
         ]))->response()->setStatusCode(200);
-
     }
 
     public function delete(FamilyMember $familyMember)
