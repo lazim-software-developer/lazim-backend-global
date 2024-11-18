@@ -3,6 +3,7 @@
 namespace App\Policies\Building;
 
 use App\Models\User\User;
+use Illuminate\Support\Facades\Log;
 use App\Models\Building\FacilityBooking;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
@@ -41,6 +42,7 @@ class FacilityBookingPolicy
      */
     public function create(User $user): bool
     {
+        Log::info('Permession==> '.$user->can('create_building::service::booking'));
         return $user->can('create_building::service::booking');
     }
 
