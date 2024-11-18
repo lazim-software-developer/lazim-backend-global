@@ -88,6 +88,7 @@ class PermitWorkController extends Controller
         $owner_association_id = DB::table('building_owner_association')->where(['building_id' => $request->building_id , 'active' => true])->first()?->owner_association_id;
 
         $data = $request->all();
+        $data['bookable_id'] = $request->facility_id;
         $data['bookable_type'] = WorkPermit::class;
         $data['user_id'] = auth()->user()->id;
         $data['flat_id'] = $flat_id;
