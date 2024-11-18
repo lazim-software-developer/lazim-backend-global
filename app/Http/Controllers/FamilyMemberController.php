@@ -6,7 +6,9 @@ use App\Http\Requests\FamilyMemberRequest;
 use App\Http\Resources\CustomResponseResource;
 use App\Http\Resources\FamilyMemberDetailsResource;
 use App\Models\Building\Building;
+use App\Models\Building\Document;
 use App\Models\FamilyMember;
+use App\Models\Master\DocumentLibrary;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -25,12 +27,30 @@ class FamilyMemberController extends Controller
 
         $family = FamilyMember::create($request->all());
 
+        if($request->hasFile('files')){
+            foreach ($request->file('files') as $file) {
+                $path = optimizeDocumentAndUpload($file);
+                $family->documents()->create([
+                    'name' => 'Other Document',
+                    'document_library_id' => DocumentLibrary::where('name', 'Other Document')->first()->id,
+                    'building_id' => $building->id,
+                    'owner_association_id' => $oa_id,
+                    'url' => $path,
+                    'status' => 'pending',
+                    'documentable_id' => $family->id,
+                    'documentable_type' => FamilyMember::class,
+                    'flat_id' => $request->flat_id,
+                    'expiry_date' => $request->expiry_date,
+                ]);
+            }
+        }
+
         return (new CustomResponseResource([
             'title' => 'Success',
             'message' => 'Family member added successfully',
             'code' => 201,
             'status' => 'success',
-            'data' => $family,
+            'data' => FamilyMemberDetailsResource::make($family),
         ]))->response()->setStatusCode(201);
     }
 
@@ -48,14 +68,24 @@ class FamilyMemberController extends Controller
 
         $family = $familyQuery->get();
         return [
-            'data' => $family,
+            'data' => FamilyMemberDetailsResource::collection($family),
         ];
     }
 
     public function update(FamilyMemberRequest $request, FamilyMember $familyMember)
     {
         $familyMember->update($request->all());
-        $familyMember->save();
+
+        if($request->hasFile('files')){
+            foreach($request->file('files') as $file){
+                $path = optimizeDocumentAndUpload($file['file']);
+                Document::where(['documentable_id' => $familyMember->id, 'documentable_type' => FamilyMember::class, 'id' => $file['id']])->update([
+                    'url' => $path,
+                    'status' => 'pending',
+                    'expiry_date' => $request->expiry_date,
+                ]);
+            }
+        }
 
         return (new CustomResponseResource([
             'title' => 'Updated Successfully',

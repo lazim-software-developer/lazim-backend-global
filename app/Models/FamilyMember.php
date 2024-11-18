@@ -3,8 +3,9 @@
 namespace App\Models;
 
 use App\Models\User\User;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\Building\Document;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class FamilyMember extends Model
 {
@@ -42,5 +43,9 @@ class FamilyMember extends Model
     {
         return $this->belongsTo(User::class,'user_id');
     }
+
+    public function documents()
+    {
+        return $this->morphMany(Document::class, 'documentable');
+    }
 }
-                             
