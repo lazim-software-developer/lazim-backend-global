@@ -16,6 +16,7 @@ use App\Models\Forms\Guest;
 use App\Models\Order;
 use App\Models\OwnerAssociation;
 use App\Models\Vendor\Vendor;
+use App\Models\WorkPermit;
 use App\Traits\UtilsTrait;
 use Carbon\Carbon;
 use Filament\Facades\Filament;
@@ -91,6 +92,8 @@ class AccessCardController extends Controller
         $fitOutForm = auth()->user()->fitOut()->latest()->where('building_id', $building->id)->where('flat_id',$flat_id)->first();
 
         $fitOutFormStatus = $fitOutForm ?? "Not submitted";
+
+        $permitToWork = auth()->user()->bookings()->where('bookable_type', WorkPermit::class)->where('building_id', $building->id)->where('flat_id',$flat_id)->latest()->first();
 
         $moveInForm = auth()->user()->moveinData()->where('type', 'move-in')->where('building_id', $building->id)->where('flat_id',$flat_id)->latest()->first();
 
@@ -191,6 +194,17 @@ class AccessCardController extends Controller
                 'status'          => $guest ? $guest->status : 'not_submitted',
                 'created_at'      => $guestRegistration ? Carbon::parse($guestRegistration->created_at)->diffForHumans() : null,
                 'rejected_reason' => $guest ? $guest->remarks : null,
+                'message'         => null,
+                'payment_link'    => null,
+                'order_id'        => null,
+                'order_status'    => null,
+            ],
+            [
+                'id'              => $permitToWork ? $permitToWork->id : null,
+                'name'            => 'Permit To Work Form',
+                'status'          => $permitToWork ? $permitToWork->approved : 'not_submitted',
+                'created_at'      => $permitToWork ? Carbon::parse($permitToWork->created_at)->diffForHumans() : null,
+                'rejected_reason' => $permitToWork ? $permitToWork->remarks : null,
                 'message'         => null,
                 'payment_link'    => null,
                 'order_id'        => null,
