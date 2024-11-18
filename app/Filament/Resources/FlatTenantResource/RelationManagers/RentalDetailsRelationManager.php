@@ -242,46 +242,11 @@ class RentalDetailsRelationManager extends RelationManager
             ->actions([
                 Tables\Actions\EditAction::make()
                     ->iconButton()
-                    ->form(fn(Form $form, $record) => $this->form($form))
-                    // ->beforeFormFilled(function ($record) {
-                    //     $chequeDetails = RentalCheque::where('rental_detail_id', $record->id)->get();
-
-                    //     $cheques = $chequeDetails->map(function ($cheque) use ($record) {
-                    //         return [
-                    //             'rental_id'     => $record->id,
-                    //             'cheque_id'     => $cheque->id,
-                    //             'cheque_number' => $cheque->cheque_number,
-                    //             'amount'        => $cheque->amount,
-                    //             'due_date'      => $cheque->due_date,
-                    //             'status'        => $cheque->status,
-                    //             'mode_payment'  => $cheque->mode_payment,
-                    //             'cheque_status' => $cheque->cheque_status,
-                    //             'payment_link'  => $cheque->payment_link,
-                    //             'comments'      => json_decode($cheque->comments),
-                    //         ];
-                    //     })->toArray();
-
-                    //     $record->cheques = $cheques;
-                    // })
-                    // ->action(function (array $data) {
-                    //     RentalDetail::find($data['cheques'][0]['rental_id'])?->update([
-                    //         'status' => $data['status'],
-                    //     ]);
-
-                    //     if (!empty($data['cheques'])) {
-                    //         foreach ($data['cheques'] as $data) {
-                    //             $cheque = RentalCheque::find($data['cheque_id']);
-
-                    //             $cheque->update([
-                    //                 'status'        => $data['status'],
-                    //                 'mode_payment'  => $data['mode_payment'],
-                    //                 'cheque_status' => $data['cheque_status'],
-                    //                 'payment_link'  => $data['payment_link'],
-                    //                 'comments'      => json_encode($data['comments']),
-                    //             ]);
-                    //         }
-                    //     }
-                    // }),
+                    ->form(fn(Form $form, $record) => $this->form($form)),
+                Action::make('viewCheques')
+                    ->label('View Cheques')
+                    ->url('/app/rental-cheques')
+                    ->icon('heroicon-o-eye'),
             ]);
 
     }

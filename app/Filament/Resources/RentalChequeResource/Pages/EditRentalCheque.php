@@ -17,21 +17,23 @@ class EditRentalCheque extends EditRecord
 
     protected function mutateFormDataBeforeFill(array $data): array
     {
-        $comments             = is_array($data['comments']) ? $data['comments'] : json_decode($data['comments'], true);
-        $data['old_comments'] = implode("\n", $comments ?? []);
+        $comments = is_array($data['comments']) ? $data['comments'] : json_decode($data['comments'], true);
+        $numberedComments = array_map(fn($comment, $index) => ($index + 1) . '. ' . $comment, $comments ?? [], array_keys($comments ?? []));
+        $data['old_comments'] = implode("\n", $numberedComments);
         return $data;
     }
 
     protected function mutateFormDataBeforeSave(array $data): array
     {
-        $comments = $data['comments'] ?? [];
-        $comments = is_array($comments) ? $comments : json_decode($comments, true);
+        $record = $this->record;
+        $oldComments = $record->comments ?? [];
+        $oldComments = is_array($oldComments) ? $oldComments : json_decode($oldComments, true);
 
         if (!empty($data['new_comment'])) {
-            $comments[] = $data['new_comment'];
+            $oldComments[] = $data['new_comment'];
         }
 
-        $data['comments'] = json_encode($comments);
+        $data['comments'] = json_encode(array_values($oldComments));
 
         unset($data['old_comments'], $data['new_comment']);
         return $data;

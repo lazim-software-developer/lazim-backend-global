@@ -26,6 +26,15 @@ class RentalCheque extends Model
         'comments' => 'array',
     ];
 
+    protected static function booted()
+    {
+        static::saving(function ($rentalCheque) {
+            if (is_array($rentalCheque->comments)) {
+                $rentalCheque->comments = json_encode(array_values($rentalCheque->comments));
+            }
+        });
+    }
+
     public function rentalDetail()
     {
         return $this->belongsTo(RentalDetail::class);
