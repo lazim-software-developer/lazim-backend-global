@@ -140,7 +140,7 @@ class RentalChequeResource extends Resource
             ])
             ->filters([
                 SelectFilter::make('flat_property_number')
-                    ->label('Flat Property Number')
+                    ->label('Flat Number')
                     ->relationship(
                         'rentalDetail.flat',
                         'property_number',
