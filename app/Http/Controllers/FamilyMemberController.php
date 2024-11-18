@@ -27,8 +27,8 @@ class FamilyMemberController extends Controller
 
         $family = FamilyMember::create($request->all());
 
-        if($request->has('files')){
-            foreach ($request->files as $file) {
+        if($request->has('others')){
+            foreach ($request->others as $file) {
                 $path = optimizeDocumentAndUpload($file['file']);
                 $family->documents()->create([
                     'name' => 'Other Document',
@@ -82,8 +82,8 @@ class FamilyMemberController extends Controller
                 ->delete();
         }
 
-        if($request->has('files')){
-            foreach($request->files as $file){
+        if($request->has('others')){
+            foreach($request->others as $file){
                 $path = optimizeDocumentAndUpload($file['file']);
                 Document::where(['documentable_id' => $familyMember->id, 'documentable_type' => FamilyMember::class, 'id' => $file['id']])->update([
                     'url' => $path,
