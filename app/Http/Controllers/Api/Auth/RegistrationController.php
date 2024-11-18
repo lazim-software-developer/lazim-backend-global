@@ -319,6 +319,7 @@ class RegistrationController extends Controller
             'active' => 1,
             'role' => $type,
             'owner_association_id' => $owner_association_id,
+            'residing_in_same_flat' => $request->has('residing') ? $request->residing : 0,
         ]);
 
         $customer = $connection->table('customers')->where(['email'=> $request->email,
