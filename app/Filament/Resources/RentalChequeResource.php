@@ -110,11 +110,11 @@ class RentalChequeResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing((function ($query) {
+            ->modifyQueryUsing(function ($query) {
                 $query->whereHas('rentalDetail.flat.building', function ($query) {
                     $query->where('owner_association_id', auth()->user()->owner_association_id);
                 });
-            }))
+            })
             ->columns([
                 Tables\Columns\TextColumn::make('rentalDetail.flat_id')
                     ->label('Flat number')
@@ -141,20 +141,24 @@ class RentalChequeResource extends Resource
             ->filters([
                 SelectFilter::make('flat_property_number')
                     ->label('Flat Property Number')
-                    ->relationship('rentalDetail.flat', 'property_number')
+                    ->relationship(
+                        'rentalDetail.flat',
+                        'property_number',
+                        fn($query) => $query->whereHas('building', function ($query) {
+                            $query->where('owner_association_id', auth()->user()->owner_association_id);
+                        })
+                    )
                     ->preload()
                     ->searchable(),
                 SelectFilter::make('flat_tenant_name')
                     ->label('Flat Tenant Name')
-                    ->relationship('rentalDetail.flat.tenants.user', 'first_name')
-                    ->options(function () {
-                        return \App\Models\Building\FlatTenant::where('role', 'Tenant')
-                            ->where('owner_association_id', auth()->user()->owner_association_id)
-                            ->with('user')
-                            ->get()
-                            ->pluck('user.first_name', 'user.id')
-                            ->toArray();
-                    })
+                    ->relationship(
+                        'rentalDetail.flat.tenants.user',
+                        'first_name',
+                        fn($query) => $query->whereHas('tenants.flat.building', function ($query) {
+                            $query->where('owner_association_id', auth()->user()->owner_association_id);
+                        })
+                    )
                     ->preload()
                     ->searchable(),
 
