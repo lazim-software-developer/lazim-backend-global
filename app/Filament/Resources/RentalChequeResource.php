@@ -94,19 +94,15 @@ class RentalChequeResource extends Resource
                     ->icon('heroicon-o-chat-bubble-oval-left-ellipsis')
                     ->collapsible()
                     ->schema([
-                        Grid::make(1)
-                            ->schema([
-                                Textarea::make('new_comment')
-                                    ->label('New Comment')
-                                    ->rows(3)
-                                    ->placeholder('Enter new comment'),
-                                Textarea::make('old_comments')
-                                    ->label('Old Comments')
-                                    ->disabled()
-                                    ->rows(5)
-                                    ->default(fn($record) => $record ? implode("\n", json_decode($record->comments, true) ?? []) : '')
-                                    ->placeholder('No comments available'),
-                            ]),
+                        TextInput::make('new_comment')
+                            ->label('New Comment')
+                            ->placeholder('Enter new comment'),
+                        Textarea::make('old_comments')
+                            ->label('Old Comments')
+                            ->rows(5)
+                            ->disabled()
+                            ->default(fn($record) => $record ? implode("\n", array_map(fn($comment, $index) => ($index + 1) . '. ' . $comment, json_decode($record->comments, true) ?? [], array_keys(json_decode($record->comments, true) ?? []))) : '')
+                            ->placeholder('No comments available'),
                     ]),
             ]);
     }
@@ -114,9 +110,15 @@ class RentalChequeResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing((function ($query) {
+                $query->whereHas('rentalDetail.flat.building', function ($query) {
+                    $query->where('owner_association_id', auth()->user()->owner_association_id);
+                });
+            }))
             ->columns([
                 Tables\Columns\TextColumn::make('rentalDetail.flat_id')
-                    ->label('Flat number'),
+                    ->label('Flat number')
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('cheque_number')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('amount')
@@ -134,18 +136,28 @@ class RentalChequeResource extends Resource
                         'Cancelled'                       => 'danger',
                         default                           => 'gray',
                     }),
-                Tables\Columns\TextColumn::make('status')
-                    ->badge()
-                    ->color(fn(string $state): string => match ($state) {
-                        'Paid'                            => 'success',
-                        'Upcoming'                        => 'info',
-                        'Overdue'                         => 'danger',
-                    }),
+
             ])
             ->filters([
-                SelectFilter::make('rentalDetail.flat_id')
+                SelectFilter::make('flat_property_number')
+                    ->label('Flat Property Number')
+                    ->relationship('rentalDetail.flat', 'property_number')
                     ->preload()
                     ->searchable(),
+                SelectFilter::make('flat_tenant_name')
+                    ->label('Flat Tenant Name')
+                    ->relationship('rentalDetail.flat.tenants.user', 'first_name')
+                    ->options(function () {
+                        return \App\Models\Building\FlatTenant::where('role', 'Tenant')
+                            ->where('owner_association_id', auth()->user()->owner_association_id)
+                            ->with('user')
+                            ->get()
+                            ->pluck('user.first_name', 'user.id')
+                            ->toArray();
+                    })
+                    ->preload()
+                    ->searchable(),
+
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
