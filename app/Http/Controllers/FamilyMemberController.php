@@ -17,7 +17,6 @@ class FamilyMemberController extends Controller
 {
     public function store(FamilyMemberRequest $request, Building $building)
     {
-        Log::info('Family Member Request: ', $request->all());
         $userId = auth()->user()->id;
         $oa_id = DB::table('building_owner_association')->where('building_id', $building->id)->where('active', true)->first()?->owner_association_id;
         $request->merge([
@@ -28,8 +27,8 @@ class FamilyMemberController extends Controller
 
         $family = FamilyMember::create($request->all());
 
-        if($request->hasFile('files')){
-            foreach ($request->file('files') as $file) {
+        if($request->has('files')){
+            foreach ($request->files as $file) {
                 $path = optimizeDocumentAndUpload($file['file']);
                 $family->documents()->create([
                     'name' => 'Other Document',
@@ -83,8 +82,8 @@ class FamilyMemberController extends Controller
                 ->delete();
         }
 
-        if($request->hasFile('files')){
-            foreach($request->file('files') as $file){
+        if($request->has('files')){
+            foreach($request->files as $file){
                 $path = optimizeDocumentAndUpload($file['file']);
                 Document::where(['documentable_id' => $familyMember->id, 'documentable_type' => FamilyMember::class, 'id' => $file['id']])->update([
                     'url' => $path,
