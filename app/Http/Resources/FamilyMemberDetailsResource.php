@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use App\Http\Resources\Documents\DocumentResource;
 
 class FamilyMemberDetailsResource extends JsonResource
 {
@@ -25,6 +26,9 @@ class FamilyMemberDetailsResource extends JsonResource
             'emirates_expiry_date' => $this->emirates_expiry_date,
             'gender' => $this->gender,
             'relation' => $this->relation,
+            'visa_number' => $this->visa_number,
+            'visa_expiry_date' => $this->visa_expiry_date,
+            'documents' => DocumentResource::collection($this->documents),
         ];
     }
 }
