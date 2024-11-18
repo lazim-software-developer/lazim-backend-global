@@ -15,6 +15,7 @@ class WorkListResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
+            'id' => $this->id,
             'name' => $this->name,
             'icon' => $this->icon ? env('AWS_URL') .'/'.$this->icon : null,
             'active' => (bool) $this->active,
