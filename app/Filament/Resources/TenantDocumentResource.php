@@ -156,11 +156,12 @@ class TenantDocumentResource extends Resource
                         'submitted'                          => 'Approval Pending',
                         'approved'                            => 'Approved',
                         'rejected'                            => 'Rejected',
+                        'pending'                            => 'Approval Pending',
                     })
                     ->colors([
                         'success' => 'approved',
                         'danger'  => 'rejected',
-                        'warning' => fn($state) => $state === null || $state === 'NA' || $state === 'submitted', 
+                        'warning' => fn($state) => $state === null || $state === 'NA' || $state === 'submitted' || $state === 'pending',
                     ])
                     ->default('NA')
                     ->limit(50),
