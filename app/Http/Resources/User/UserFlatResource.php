@@ -30,6 +30,7 @@ class UserFlatResource extends JsonResource
         $chequeoverdue = $rentalDetails->whereHas('rentalCheques', function($query) {
             $query->where('status', 'Overdue');
         })->exists();
+        $residingInFlat = $flat?->residing_in_same_flat;
         return [
             'flat_name' => $this->property_number,
             'flat_id' => $this->id,
@@ -41,6 +42,7 @@ class UserFlatResource extends JsonResource
             'role' => $flat?->role,
             'showcheques' => $showcheques,
             'chequeoverdue' => $chequeoverdue,
+            'residing_in_flat' => $residingInFlat,
             'oa_logo' => $flatId->ownerAssociation?->profile_photo ? env('AWS_URL').'/'.$flatId->ownerAssociation?->profile_photo : null,
             'building_logo' => $this->building->cover_photo ? env('AWS_URL').'/'.$this->building->cover_photo : null,
         ];

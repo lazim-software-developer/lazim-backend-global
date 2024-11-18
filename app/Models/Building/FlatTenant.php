@@ -31,6 +31,7 @@ class FlatTenant extends Model
         'active',
         'role',
         'owner_association_id',
+        'residing_in_same_flat',
     ];
 
     protected $searchableFields = ['*'];
