@@ -202,7 +202,7 @@ class AccessCardController extends Controller
             [
                 'id'              => $permitToWork ? $permitToWork->id : null,
                 'name'            => 'Permit To Work Form',
-                'status'          => $permitToWork ? $permitToWork->approved : 'not_submitted',
+                'status'          => $permitToWork ? ($permitToWork->approved ? 'approved' : null) : 'not_submitted',
                 'created_at'      => $permitToWork ? Carbon::parse($permitToWork->created_at)->diffForHumans() : null,
                 'rejected_reason' => $permitToWork ? $permitToWork->remarks : null,
                 'message'         => null,
