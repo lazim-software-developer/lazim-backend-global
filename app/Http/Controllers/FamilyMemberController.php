@@ -32,7 +32,7 @@ class FamilyMemberController extends Controller
                 $path = optimizeDocumentAndUpload($file);
                 $family->documents()->create([
                     'name' => 'Other Document',
-                    'document_library_id' => DocumentLibrary::where('name', 'Other Document')->first()->id,
+                    'document_library_id' => DocumentLibrary::where('name', 'Other documents')->first()->id,
                     'building_id' => $building->id,
                     'owner_association_id' => $oa_id,
                     'url' => $path,
