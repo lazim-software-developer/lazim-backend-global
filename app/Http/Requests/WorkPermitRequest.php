@@ -24,8 +24,8 @@ class WorkPermitRequest extends FormRequest
         return [
             'facility_id' => 'required|exists:facilities,id',
             'date' => 'required|date',
-            'start_time' => 'required|date_format:H:i',
-            'end_time' => 'required|date_format:H:i|after:start_time',
+            // 'start_time' => 'required|date_format:H:i',
+            // 'end_time' => 'required|date_format:H:i|after:start_time',
             'flat_id' => 'required|exists:flats,id',
             'building_id' => 'required|exists:buildings,id',
         ];
