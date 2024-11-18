@@ -27,9 +27,9 @@ class UserFlatResource extends JsonResource
         $propertyManager = $ownerAssociation->contains('Property Manager');
         $showcheques = FlatTenant::where(['flat_id' => $this->id,'role' => 'Tenant'])->exists();
         $rentalDetails = RentalDetail::where('flat_id', $this->id);
-        $chequeoverdue = $rentalDetails->each(function($query){
-            $query->rentalCheques()->where('status','Overdue');
-        });
+        $chequeoverdue = $rentalDetails->whereHas('rentalCheques', function($query) {
+            $query->where('status', 'Overdue');
+        })->exists();
         return [
             'flat_name' => $this->property_number,
             'flat_id' => $this->id,
