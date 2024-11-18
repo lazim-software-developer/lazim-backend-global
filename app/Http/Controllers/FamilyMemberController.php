@@ -17,6 +17,7 @@ class FamilyMemberController extends Controller
 {
     public function store(FamilyMemberRequest $request, Building $building)
     {
+        Log::info('Family Member Request: ', $request->all());
         $userId = auth()->user()->id;
         $oa_id = DB::table('building_owner_association')->where('building_id', $building->id)->where('active', true)->first()?->owner_association_id;
         $request->merge([
