@@ -40,7 +40,7 @@ class FamilyMemberController extends Controller
                     'documentable_id' => $family->id,
                     'documentable_type' => FamilyMember::class,
                     'flat_id' => $request->flat_id,
-                    'expiry_date' => $file['expiry_date'],
+                    // 'expiry_date' => $file['expiry_date'],
                 ]);
             }
         }
@@ -88,7 +88,7 @@ class FamilyMemberController extends Controller
                 Document::where(['documentable_id' => $familyMember->id, 'documentable_type' => FamilyMember::class, 'id' => $file['id']])->update([
                     'url' => $path,
                     'status' => 'pending',
-                    'expiry_date' => $file['expiry_date'],
+                    // 'expiry_date' => $file['expiry_date'],
                 ]);
             }
         }
