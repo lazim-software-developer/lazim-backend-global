@@ -111,8 +111,14 @@ class RentalChequeResource extends Resource
     {
         return $table
             ->modifyQueryUsing(function ($query) {
-                $query->whereHas('rentalDetail.flat.building', function ($query) {
-                    $query->where('owner_association_id', auth()->user()->owner_association_id);
+                $ownerAssociationId = auth()->user()?->owner_association_id;
+
+                if (!$ownerAssociationId) {
+                    return $query->whereRaw('1 = 0');
+                }
+
+                return $query->whereHas('rentalDetail.flat', function ($query) use ($ownerAssociationId) {
+                    $query->where('owner_association_id', $ownerAssociationId);
                 });
             })
             ->columns([
