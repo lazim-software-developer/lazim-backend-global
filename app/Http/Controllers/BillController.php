@@ -12,7 +12,8 @@ class BillController extends Controller
 {
     public function index(Flat $flat, Request $request)
     {
-        $bills = Bill::where('flat_id', $flat->id);
+        $bills = Bill::where('flat_id', $flat->id)
+                    ->orderByRaw("FIELD(type, 'BTU', 'lpg', 'Telecommunication', 'DEWA')");
 
         if ($request->filled('date')) {
             $date = Carbon::createFromFormat('m-Y', $request->date);
