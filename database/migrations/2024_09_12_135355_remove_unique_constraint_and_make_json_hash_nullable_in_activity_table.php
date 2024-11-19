@@ -11,10 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::connection(config('activitylog.database_connection'))->table(config('activitylog.table_name'), function (Blueprint $table) {
-            $table->dropUnique('activity_log_log_name_index');  // Ensure this matches the index name
-            $table->string('json_hash')->nullable()->change(); 
-        });
+        if (Schema::connection(config('activitylog.database_connection'))->hasTable(config('activitylog.table_name'))) {
+            Schema::connection(config('activitylog.database_connection'))->table(config('activitylog.table_name'), function (Blueprint $table) {
+                $table->dropUnique('activity_log_log_name_index');  // Ensure this matches the index name
+                $table->string('json_hash')->nullable()->change(); 
+            });
+        }
     }
 
     /**
@@ -22,8 +24,10 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::connection(config('activitylog.database_connection'))->table(config('activitylog.table_name'), function (Blueprint $table) {
-            $table->string('json_hash')->unique()->nullable(false)->change();
-        });
+        if (Schema::connection(config('activitylog.database_connection'))->hasTable(config('activitylog.table_name'))) {
+            Schema::connection(config('activitylog.database_connection'))->table(config('activitylog.table_name'), function (Blueprint $table) {
+                $table->string('json_hash')->unique()->nullable(false)->change();
+            });
+        }
     }
 };
