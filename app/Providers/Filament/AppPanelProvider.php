@@ -7,6 +7,8 @@ use App\Filament\Resources\ComplaintResource;
 use App\Filament\Resources\FacilitySupportComplaintResource;
 use App\Filament\Resources\SubContractorResource;
 use App\Filament\Resources\TechnicianVendorResource;
+use App\Filament\Resources\UnitListResource;
+use DB;
 use Filament\Pages;
 use Filament\Panel;
 use Filament\Widgets;
@@ -78,9 +80,9 @@ class AppPanelProvider extends PanelProvider
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
-            // ->pages([
-            //     Pages\Dashboard::class,
-            // ])
+            ->pages([
+                Pages\Dashboard::class,
+            ])
             // ->discoverWidgets(in: app_path('Filament/App/Widgets'), for: 'App\\Filament\\App\\Widgets')
             // ->widgets([
             //     Widgets\AccountWidget::class,
@@ -91,18 +93,22 @@ class AppPanelProvider extends PanelProvider
             ->databaseNotifications()
             ->databaseNotificationsPolling('5s')
             ->sidebarCollapsibleOnDesktop()
+            ->resources([
+                // ...existing resources...
+                UnitListResource::class,
+            ])
             ->navigation(function (NavigationBuilder $builder): NavigationBuilder {
-                // if (DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] != 'Admin') {
-                    // $builder->groups([
-                    //     NavigationGroup::make('Dashboard')
-                    //         ->items([
-                    //             NavigationItem::make('Dashboard')
-                    //                 ->icon('heroicon-o-home')
-                    //                 ->activeIcon('heroicon-s-home')
-                    //                 ->url('/app'),
-                    //         ]),
-                    // ]);
-                // }
+                if (DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] != 'Admin') {
+                    $builder->groups([
+                        NavigationGroup::make('Dashboard')
+                            ->items([
+                                NavigationItem::make('Dashboard')
+                                    ->icon('heroicon-o-home')
+                                    ->activeIcon('heroicon-s-home')
+                                    ->url('/app'),
+                            ]),
+                    ]);
+                }
                     $user = User::find(auth()->user()->id) ;
                     if(auth()->user()->role->name == 'Property Manager'){
                         // if (
