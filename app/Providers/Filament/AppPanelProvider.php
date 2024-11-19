@@ -8,6 +8,8 @@ use App\Filament\Resources\FacilitySupportComplaintResource;
 use App\Filament\Resources\SubContractorResource;
 use App\Filament\Resources\TechnicianVendorResource;
 use App\Filament\Resources\UnitListResource;
+use App\Filament\Widgets\RentalChequeStatusOverview;
+use App\Filament\Widgets\UnitStatusOverview;
 use DB;
 use Filament\Pages;
 use Filament\Panel;
@@ -80,14 +82,16 @@ class AppPanelProvider extends PanelProvider
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
-            ->pages([
-                Pages\Dashboard::class,
-            ])
-            // ->discoverWidgets(in: app_path('Filament/App/Widgets'), for: 'App\\Filament\\App\\Widgets')
-            // ->widgets([
-            //     Widgets\AccountWidget::class,
-            //     // Widgets\FilamentInfoWidget::class,
+            // ->pages([
+            //     Pages\Dashboard::class,
             // ])
+            ->discoverWidgets(in: app_path('Filament/App/Widgets'), for: 'App\\Filament\\App\\Widgets')
+            ->widgets([
+                // Widgets\AccountWidget::class,
+                // Widgets\FilamentInfoWidget::class,
+                RentalChequeStatusOverview::class,
+                UnitStatusOverview::class,
+            ])
             ->favicon(asset('images/favicon.png'))
             ->darkMode(false)
             ->databaseNotifications()
