@@ -13,7 +13,7 @@ return new class extends Migration
     {
         if (Schema::connection(config('activitylog.database_connection'))->hasTable(config('activitylog.table_name'))) {
             Schema::connection(config('activitylog.database_connection'))->table(config('activitylog.table_name'), function (Blueprint $table) {
-                $table->dropUnique('activity_log_log_name_index');  // Ensure this matches the index name
+                $table->dropUnique('activity_log_json_hash_unique'); // Ensure this matches the index name
                 $table->string('json_hash')->nullable()->change(); 
             });
         }

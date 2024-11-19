@@ -14,7 +14,7 @@ return new class extends Migration
         // Use the specified database connection and table name from the config file
         if (Schema::connection(config('activitylog.database_connection'))->hasTable(config('activitylog.table_name'))) {
             Schema::connection(config('activitylog.database_connection'))->table(config('activitylog.table_name'), function (Blueprint $table) {
-                $table->string('json_hash')->unique(); // Replace 'last_column_name' with the actual column name you want 'json_hash' to appear after
+                $table->string('json_hash')->unique();
             });
         }
     }
