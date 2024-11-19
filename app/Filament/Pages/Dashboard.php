@@ -16,9 +16,18 @@ use Filament\Pages\Dashboard\Concerns\HasFiltersForm;
 class Dashboard extends BaseDashboard
 {
     use HasFiltersForm;
- 
+
+    protected function isPropertyManager(): bool
+    {
+        return auth()->user()->role->name =='Property Manager';
+    }
+
     public function filtersForm(Form $form): Form
     {
+        if ($this->isPropertyManager()) {
+            return $form->schema([]);
+        }
+
         return $form
             ->schema([
                 Section::make('Filters')
@@ -46,6 +55,10 @@ class Dashboard extends BaseDashboard
 
     protected function getActions(): array
     {
+        if ($this->isPropertyManager()) {
+            return [];
+        }
+
         return [
             Action::make('resetFilters')
                 ->label('Reset Filters')
@@ -58,11 +71,11 @@ class Dashboard extends BaseDashboard
     {
         // $this->filters = [];
         $this->filters['building'] = null;
-        $this->filters['startDate'] = null; 
-        $this->filters['endDate'] = null; 
+        $this->filters['startDate'] = null;
+        $this->filters['endDate'] = null;
 
         session()->forget('filters');
-        // $this->redirect('/admin'); 
+        // $this->redirect('/admin');
         // $this->dispatchBrowserEvent('filters-reset');
 
     }
