@@ -110,13 +110,13 @@ class RentalChequeResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            // ->modifyQueryUsing(function ($query) {
-            //     $query->whereHas('rentalDetail.flat.building', function ($query) {
-            //         $query->where('owner_association_id', auth()->user()->owner_association_id);
-            //     });
-            // })
+            ->modifyQueryUsing(function ($query) {
+                $query->whereHas('rentalDetail.flat.building', function ($query) {
+                    $query->where('owner_association_id', auth()->user()->owner_association_id);
+                });
+            })
             ->columns([
-                Tables\Columns\TextColumn::make('rentalDetail.flat_id')
+                Tables\Columns\TextColumn::make('rentalDetail.flat.property_number')
                     ->label('Flat number')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('cheque_number')

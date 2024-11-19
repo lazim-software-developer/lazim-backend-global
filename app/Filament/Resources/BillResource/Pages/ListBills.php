@@ -120,21 +120,25 @@ class ListBills extends ListRecords
                         Column::make('status'),
                     ])
                     ->modifyQueryUsing(function ($query) {
-                        // Create a new query with sample data
                         return Bill::query()
-                            ->whereIn('type', ['BTU', 'DEWA', 'Telecommunication', 'lpg'])
-                            ->orderBy('type')
+                            ->whereIn('type', ['BTU', 'lpg', 'Telecommunication', 'DEWA'])
+                            ->orderByRaw("CASE
+                                WHEN type = 'BTU' THEN 1
+                                WHEN type = 'lpg' THEN 2
+                                WHEN type = 'Telecommunication' THEN 3
+                                WHEN type = 'DEWA' THEN 4
+                                END")
                             ->take(4)
                             ->getQuery()
                             ->fromSub(function ($query) {
                                 $query->selectRaw("
                                     'BTU' as type, '' as amount, '' as due_date, '' as status
                                     UNION ALL
-                                    SELECT 'DEWA', '', '', ''
+                                    SELECT 'lpg', '', '', ''
                                     UNION ALL
                                     SELECT 'Telecommunication', '', '', ''
                                     UNION ALL
-                                    SELECT 'lpg', '', '', ''
+                                    SELECT 'DEWA', '', '', ''
                                 ");
                             }, 'sample_data');
                     }),
