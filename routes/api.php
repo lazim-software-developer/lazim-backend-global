@@ -380,6 +380,7 @@ Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active']
 //RentalDetails Cheques Api's
 Route::middleware(['auth:sanctum', 'email.verified', 'active'])->group(function () {
     Route::get('/rental-details/cheques', [RentalDetailsController::class, 'index']);
+    Route::post('/rentalCheque/{rentalCheque}/request-payment', [RentalDetailsController::class, 'requestPayment']);
 });
 
 //Permit To work Api's
