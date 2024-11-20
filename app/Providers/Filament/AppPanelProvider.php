@@ -9,6 +9,7 @@ use App\Filament\Resources\SubContractorResource;
 use App\Filament\Resources\TechnicianVendorResource;
 use App\Filament\Resources\UnitListResource;
 use App\Filament\Widgets\RentalChequeStatusOverview;
+use App\Filament\Widgets\UnitContractExpiryOverview;
 use App\Filament\Widgets\UnitStatusOverview;
 use DB;
 use Filament\Pages;
@@ -91,6 +92,7 @@ class AppPanelProvider extends PanelProvider
                 // Widgets\FilamentInfoWidget::class,
                 RentalChequeStatusOverview::class,
                 UnitStatusOverview::class,
+                UnitContractExpiryOverview::class,
             ])
             ->favicon(asset('images/favicon.png'))
             ->darkMode(false)

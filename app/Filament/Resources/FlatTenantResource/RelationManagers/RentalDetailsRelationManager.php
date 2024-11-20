@@ -165,7 +165,6 @@ class RentalDetailsRelationManager extends RelationManager
                                     ->schema([
                                         TextInput::make('cheque_number')
                                             ->numeric()
-                                            ->minLength(0)
                                             ->disabledOn('edit')
                                             ->required()
                                             ->minLength(6)
