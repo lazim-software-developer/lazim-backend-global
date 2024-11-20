@@ -18,17 +18,25 @@ use Filament\Widgets;
 use App\Models\User\User;
 use App\Models\Master\Role;
 use Filament\PanelProvider;
+use Filament\Facades\Filament;
+use Filament\Navigation\MenuItem;
 use Filament\Support\Colors\Color;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\Log;
 use Filament\Navigation\NavigationItem;
 use App\Filament\Resources\DemoResource;
 use Filament\Navigation\NavigationGroup;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Navigation\NavigationBuilder;
+use App\Filament\Pages\Auth\AppEditProfile;
 use App\Filament\Resources\VehicleResource;
 use App\Filament\Resources\IncidentResource;
+use App\Filament\Resources\UnitListResource;
+use App\Filament\Widgets\UnitStatusOverview;
+use App\Filament\Resources\ComplaintResource;
 use App\Filament\Resources\User\UserResource;
 use App\Filament\Resources\PatrollingResource;
+use App\Filament\App\Widgets\MoveInOutSchedule;
 use App\Filament\Resources\AgingReportResource;
 use App\Filament\Resources\AppFeedbackResource;
 use Illuminate\Session\Middleware\StartSession;
@@ -36,8 +44,12 @@ use App\Filament\Resources\FamilyMemberResource;
 use App\Filament\Resources\UserApprovalResource;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use App\Filament\Resources\BankStatementResource;
+use App\Filament\Resources\SubContractorResource;
 use App\Filament\Resources\DelinquentOwnerResource;
+use App\Filament\Resources\PropertyManagerResource;
 use App\Filament\Resources\AssetMaintenanceResource;
+use App\Filament\Resources\TechnicianVendorResource;
+use App\Filament\Widgets\RentalChequeStatusOverview;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use App\Filament\Resources\OacomplaintReportsResource;
@@ -48,11 +60,8 @@ use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use App\Filament\Resources\OwnerAssociationInvoiceResource;
 use App\Filament\Resources\OwnerAssociationReceiptResource;
-use App\Filament\Resources\PropertyManagerResource;
-use Filament\Facades\Filament;
-use Filament\Navigation\MenuItem;
+use App\Filament\Resources\FacilitySupportComplaintResource;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
-use Illuminate\Support\Facades\Log;
 
 class AppPanelProvider extends PanelProvider
 {
@@ -93,6 +102,7 @@ class AppPanelProvider extends PanelProvider
                 RentalChequeStatusOverview::class,
                 UnitStatusOverview::class,
                 UnitContractExpiryOverview::class,
+                MoveInOutSchedule::class,
             ])
             ->favicon(asset('images/favicon.png'))
             ->darkMode(false)
