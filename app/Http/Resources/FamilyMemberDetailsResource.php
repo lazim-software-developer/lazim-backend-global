@@ -27,7 +27,7 @@ class FamilyMemberDetailsResource extends JsonResource
             'gender' => $this->gender,
             'relation' => $this->relation,
             'visa_number' => $this->visa_number,
-            'visa_expiry_date' => $this->visa_expiry_date,
+            'visa_number_expiry_date' => $this->visa_number_expiry_date,
             'documents' => DocumentResource::collection($this->documents),
         ];
     }
