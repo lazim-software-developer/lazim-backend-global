@@ -188,7 +188,7 @@ class RegistrationController extends Controller
 
     public function registerWithDocument(RegisterWithEmiratesOrPassportRequest $request)
     {
-        $userData = User::where(['email' => $request->get('email'), 'phone' => $request->get('mobile')]);
+        $userData = User::where(['email' => $request->get('email')]);
         if ($request->type == 'Owner') {
             $userData->where('owner_id', $request->get('owner_id'));
         }
@@ -214,7 +214,7 @@ class RegistrationController extends Controller
         }
 
         // Check if user exists in our DB
-        if (User::where(['email' => $request->email, 'phone' => $request->mobile, 'email_verified' => 1, 'phone_verified' => 1])->exists()) {
+        if (User::where(['email' => $request->email, 'email_verified' => 1, 'phone_verified' => 1])->exists()) {
             return (new CustomResponseResource([
                 'title' => 'account_present',
                 'message' => 'Your email is already registered in our application. Please try login instead!',
