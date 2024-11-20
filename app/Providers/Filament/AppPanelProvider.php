@@ -2,6 +2,15 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Pages\Auth\AppEditProfile;
+use App\Filament\Resources\ComplaintResource;
+use App\Filament\Resources\FacilitySupportComplaintResource;
+use App\Filament\Resources\SubContractorResource;
+use App\Filament\Resources\TechnicianVendorResource;
+use App\Filament\Resources\UnitListResource;
+use App\Filament\Widgets\RentalChequeStatusOverview;
+use App\Filament\Widgets\UnitContractExpiryOverview;
+use App\Filament\Widgets\UnitStatusOverview;
 use DB;
 use Filament\Pages;
 use Filament\Panel;
@@ -92,6 +101,7 @@ class AppPanelProvider extends PanelProvider
                 // Widgets\FilamentInfoWidget::class,
                 RentalChequeStatusOverview::class,
                 UnitStatusOverview::class,
+                UnitContractExpiryOverview::class,
                 MoveInOutSchedule::class,
             ])
             ->favicon(asset('images/favicon.png'))
