@@ -54,7 +54,21 @@ class RentalDetailsRelationManager extends RelationManager
                                         '6' => '6',
                                     ])
                                     ->reactive()
-                                    ->afterStateUpdated(fn($set, $state) => $set('cheques_count', $state)),
+                                    ->afterStateUpdated(function ($set, $state) {
+                                        $set('cheques_count', $state);
+
+                                        // Create an array of empty cheque entries
+                                        $cheques = array_fill(0, (int)$state, [
+                                            'cheque_number' => '',
+                                            'amount' => '',
+                                            'due_date' => '',
+                                            'status' => 'Upcoming',
+                                            'mode_payment' => 'Cheque'
+                                        ]);
+
+                                        $set('cheques', $cheques);
+                                    }),
+                                    // ->afterStateUpdated(fn($set, $state) => $set('cheques_count', $state)),
                                 DatePicker::make('contract_start_date')
                                     ->rules(['date'])
                                     ->default(function () {
@@ -133,16 +147,19 @@ class RentalDetailsRelationManager extends RelationManager
                     ->schema([
                         Repeater::make('cheques')
                             ->required()
-                            ->addable(fn($context) => $context !== 'edit')
-                            ->deletable(fn($context) => $context !== 'edit')
-                            ->minItems(fn(callable $get) => $get('cheques_count') ?? 0)
-                            ->maxItems(function (callable $get) {
-                                $chequesCount = $get('cheques_count');
-                                return $chequesCount !== null ? $chequesCount : PHP_INT_MAX;
-                            })
-                            ->validationMessages([
-                                'minItems' => 'Please enter all the cheques details by clicking on \'Add to cheques\'',
-                            ])
+                            ->addable(false) // Disable manual adding since we're auto-creating
+                            ->deletable(false) // Disable deletion to maintain the required number
+                            ->defaultItems(0)
+                            // ->addable(fn($context) => $context !== 'edit')
+                            // ->deletable(fn($context) => $context !== 'edit')
+                            // ->minItems(fn(callable $get) => $get('cheques_count') ?? 0)
+                            // ->maxItems(function (callable $get) {
+                            //     $chequesCount = $get('cheques_count');
+                            //     return $chequesCount !== null ? $chequesCount : PHP_INT_MAX;
+                            // })
+                            // ->validationMessages([
+                            //     'minItems' => 'Please enter all the cheques details by clicking on \'Add to cheques\'',
+                            // ])
                             ->schema([
                                 Grid::make(2)
                                     ->schema([
@@ -151,7 +168,8 @@ class RentalDetailsRelationManager extends RelationManager
                                             ->minLength(0)
                                             ->disabledOn('edit')
                                             ->required()
-                                            ->maxLength(6)
+                                            ->minLength(6)
+                                            ->maxLength(12)
                                             ->placeholder('Enter cheque number'),
                                         TextInput::make('amount')
                                             ->maxLength(20)
@@ -255,16 +273,16 @@ class RentalDetailsRelationManager extends RelationManager
     {
         return Action::make('customCreate')
             ->label('Add Rental Details')
-            ->visible(function () {
-                $rentalDetail = RentalDetail::where('flat_tenant_id', $this->ownerRecord->id)->first();
+            // ->visible(function () {
+            //     $rentalDetail = RentalDetail::where('flat_tenant_id', $this->ownerRecord->id)->first();
 
-                if (!$rentalDetail) {
-                    return true;
-                }
+            //     if (!$rentalDetail) {
+            //         return true;
+            //     }
 
-                $endDate = $rentalDetail->contract_end_date;
-                return $endDate < Carbon::now()->format('Y-m-d');
-            })
+            //     $endDate = $rentalDetail->contract_end_date;
+            //     return $endDate < Carbon::now()->format('Y-m-d');
+            // })
             ->action(function (array $data) {
                 // dd($data);
                 $this->handleCustomActionSave($data);
@@ -303,39 +321,14 @@ class RentalDetailsRelationManager extends RelationManager
                     'cheque_number'     => $cheque['cheque_number'],
                     'amount'            => $cheque['amount'],
                     'due_date'          => $cheque['due_date'],
-                    'status'            => $cheque['status'],
+                    'status'            => $cheque['status'] ?? 'Upcoming',
                     'status_updated_by' => auth()->user()->id,
-                    'mode_payment'      => $cheque['mode_payment'],
-                    'cheque_status'     => $cheque['cheque_status'],
+                    'mode_payment'      => $cheque['mode_payment'] ?? 'null',
+                    'cheque_status'     => $cheque['cheque_status'] ?? null,
                     'payment_link'      => $cheque['payment_link'] ?? null,
-                    'comments'          => json_encode($cheque['comments']) ?? [],
+                    // 'comments'          => json_encode($cheque['comments']) ?? [],
                 ]);
             }
         }
     }
-
-    private function populateFormForEdit(Form $form, $record)
-    {
-        // Get rental and cheque details for the record being edited
-        $rentalData = array_map(function ($value) {
-            return is_numeric($value) ? (float) $value : $value;
-        }, $record->toArray());
-        // Remove dd() that was causing issues
-        $chequesData = $record->rentalCheques->map(function ($cheque) {
-            return [
-                'cheque_number' => $cheque->cheque_number,
-                'amount'        => (float) $cheque->amount,
-                'due_date'      => $cheque->due_date,
-                'status'        => $cheque->status,
-                'mode_payment'  => $cheque->mode_payment,
-                'cheque_status' => $cheque->cheque_status,
-                'payment_link'  => $cheque->payment_link,
-                'comments'      => $cheque->comments ? json_decode($cheque->comments) : [], // Handle null comments
-            ];
-        })->toArray();
-
-        // Fill form with rental data and set cheques data explicitly
-        $form->fill(array_merge($rentalData, ['cheques' => $chequesData]));
-    }
-
 }
