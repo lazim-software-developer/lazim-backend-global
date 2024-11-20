@@ -28,6 +28,7 @@ class EditRentalCheque extends EditRecord
         $record = $this->record;
         $oldComments = $record->comments ?? [];
         $oldComments = is_array($oldComments) ? $oldComments : json_decode($oldComments, true);
+        $oldComments = $oldComments ?? [];
 
         if (!empty($data['new_comment'])) {
             $oldComments[] = $data['new_comment'];
