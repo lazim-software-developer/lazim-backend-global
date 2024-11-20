@@ -13,6 +13,7 @@ class MoveInOutSchedule extends BaseWidget
 {
     protected static ?string $heading          = 'This Week\'s Move In and Out Schedule';
     protected int|string|array $columnSpan = 'full';
+    protected static ?int $sort = 3;
     public function table(Table $table): Table
     {
         return $table
