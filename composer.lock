@@ -827,22 +827,22 @@
         },
         {
             "name": "cheesegrits/filament-google-maps",
-            "version": "v3.0.16",
+            "version": "v3.0.14",
             "source": {
                 "type": "git",
                 "url": "https://github.com/cheesegrits/filament-google-maps.git",
-                "reference": "79a068dd3d8dfb6a51e4d8ff8c4aca0957714d88"
+                "reference": "39c33d8097d71535e397e9a1f62ee1e4227c12d0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cheesegrits/filament-google-maps/zipball/79a068dd3d8dfb6a51e4d8ff8c4aca0957714d88",
-                "reference": "79a068dd3d8dfb6a51e4d8ff8c4aca0957714d88",
+                "url": "https://api.github.com/repos/cheesegrits/filament-google-maps/zipball/39c33d8097d71535e397e9a1f62ee1e4227c12d0",
+                "reference": "39c33d8097d71535e397e9a1f62ee1e4227c12d0",
                 "shasum": ""
             },
             "require": {
                 "geocoder-php/google-maps-provider": "^4.7",
                 "guzzlehttp/guzzle": "^7.5",
-                "laravel/prompts": "^0.1.4|^0.2.0|^0.3.0",
+                "laravel/prompts": "^0.1.4",
                 "mastani/laravel-google-static-map": "^2.2",
                 "php": "^8.0",
                 "php-http/guzzle7-adapter": "^1.0",
@@ -890,9 +890,9 @@
             "homepage": "https://github.com/cheesegrits/filament-google-maps",
             "support": {
                 "issues": "https://github.com/cheesegrits/filament-google-maps/issues",
-                "source": "https://github.com/cheesegrits/filament-google-maps/tree/v3.0.16"
+                "source": "https://github.com/cheesegrits/filament-google-maps/tree/v3.0.14"
             },
-            "time": "2024-11-15T03:49:58+00:00"
+            "time": "2024-03-22T01:29:25+00:00"
         },
         {
             "name": "clue/stream-filter",
