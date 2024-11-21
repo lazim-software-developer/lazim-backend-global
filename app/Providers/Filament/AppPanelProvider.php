@@ -43,6 +43,7 @@ use Illuminate\Cookie\Middleware\EncryptCookies;
 use App\Filament\Resources\BankStatementResource;
 use App\Filament\Resources\DelinquentOwnerResource;
 use App\Filament\Resources\PropertyManagerResource;
+use App\Filament\App\Widgets\AmenityBookingOverview;
 use App\Filament\Resources\AssetMaintenanceResource;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use Illuminate\Routing\Middleware\SubstituteBindings;
@@ -97,6 +98,7 @@ class AppPanelProvider extends PanelProvider
                 RentalChequeStatusOverview::class,
                 BillsOverviewWidget::class,
                 MoveInOutSchedule::class,
+                AmenityBookingOverview::class,
             ])
             ->favicon(asset('images/favicon.png'))
             ->darkMode(false)
