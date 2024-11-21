@@ -153,6 +153,9 @@ Route::group(['middleware' => ["auth:sanctum", "verified"]], function () {
 
     // List all buildings for the logged in user
     Route::get('/user/flats', [UserController::class, 'fetchUserFlats']);
+
+    //Add flat for residents
+    Route::post('/add-flat', [RegistrationController::class, 'addFlat']);
 });
 /**
  * Middleware Group: API Token Protection

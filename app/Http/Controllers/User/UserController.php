@@ -11,6 +11,7 @@ use App\Models\Building\Building;
 use App\Models\Building\Flat;
 use App\Models\Building\FlatTenant;
 use App\Models\User\User;
+use App\Models\UserApproval;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -22,6 +23,7 @@ class UserController extends Controller
 
         if ($user && $user?->role->name == 'Tenant'){
             $flatIds = FlatTenant::where('tenant_id',$user->id)->where('active', true)->pluck('flat_id');
+            $flatIds = UserApproval::where('user_id',$user->id)->where('status','approved')->whereIn('flat_id',$flatIds)->pluck('flat_id');
             $flats = Flat::whereIn('id',$flatIds)->get();
         }
         else{
@@ -40,7 +42,7 @@ class UserController extends Controller
     public function getUserFlats() {
         // Get the logged-in user's email
         $flats = auth()->user()->flats;
-    
+
         return FlatResource::collection(($flats));
     }
 
@@ -49,7 +51,7 @@ class UserController extends Controller
         return auth()->user()->residentialForm()->where('building_id', $building->id)->where('status', 'approved')->get(['id', 'name']);
     }
 
-    public function deleteUser() 
+    public function deleteUser()
     {
         $user = User::find(auth()->user()->id);
         $user->update(['active' => false]);
@@ -58,6 +60,6 @@ class UserController extends Controller
             'title' => 'Success',
             'message' => 'User deleted successfully!',
             'code' => 200,
-        ]))->response()->setStatusCode(200); 
+        ]))->response()->setStatusCode(200);
     }
 }
