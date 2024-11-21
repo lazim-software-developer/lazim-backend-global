@@ -85,9 +85,16 @@ class FamilyMemberController extends Controller
         if($request->has('others')){
             foreach($request->others as $file){
                 $path = optimizeDocumentAndUpload($file['file']);
-                Document::where(['documentable_id' => $familyMember->id, 'documentable_type' => FamilyMember::class, 'id' => $file['id']])->update([
+                $familyMember->documents()->create([
+                    'name' => 'Other Document',
+                    'document_library_id' => DocumentLibrary::where('name', 'Other documents')->first()->id,
+                    'building_id' => $familyMember->building_id,
+                    'owner_association_id' => $familyMember->owner_association_id,
                     'url' => $path,
                     'status' => 'pending',
+                    'documentable_id' => $familyMember->id,
+                    'documentable_type' => FamilyMember::class,
+                    'flat_id' => $request->flat_id,
                     // 'expiry_date' => $file['expiry_date'],
                 ]);
             }
