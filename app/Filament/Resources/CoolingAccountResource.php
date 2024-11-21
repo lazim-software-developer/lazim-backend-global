@@ -91,86 +91,82 @@ class CoolingAccountResource extends Resource
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
-                Filter::make('date')
+                Filter::make('Date')
                     ->form([
-                        // Flatpickr::make('Date')
-                        //     ->range(true),
+                        Grid::make(2)
+                            ->schema([
+                                DatePicker::make('from')
+                                    ->label('From')
+                                    ->placeholder('Select start date'),
+                                DatePicker::make('to')
+                                    ->label('To')
+                                    ->placeholder('Select end date')
+                                    ->after('from'),
+                            ]),
                     ])
-                    ->query(function (Builder $query, array $data): Builder {
-                        if (isset($data['Date'])) {
-                            $segments = Str::of($data['Date'])->split('/[\s,]+/');
-
-                            if (count($segments) === 3) {
-                                $from = $segments[0];
-                                $until = $segments[2];
-
-                                return $query->whereBetween('date', [$from, $until]);
-                            }
+                    ->indicateUsing(function (array $data): ?string {
+                        if ($data['from'] && $data['to']) {
+                            return "From {$data['from']} to {$data['to']}";
                         }
-                        return $query;
+                        if ($data['from']) {
+                            return "From {$data['from']}";
+                        }
+                        if ($data['to']) {
+                            return "Until {$data['to']}";
+                        }
+                        return null;
+                    })
+                    ->query(function (Builder $query, array $data) {
+                        return $query
+                            ->when($data['from'], fn($query) => $query->whereDate('date', '>=', $data['from']))
+                            ->when($data['to'], fn($query) => $query->whereDate('date', '<=', $data['to']));
                     }),
                 Filter::make('Building')
                     ->form([
                         Select::make('building')
                             ->searchable()
+                            ->preload()
+                            ->placeholder('Select building')
                             ->options(function () {
-                                if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
+                                if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
                                     return Building::all()->pluck('name', 'id');
+                                } elseif (Role::where('id', auth()->user()->role->id)->first()->name == 'Property Manager') {
+                                    return Building::whereIn('id',
+                                        DB::table('building_owner_association')
+                                            ->where('owner_association_id', auth()->user()->owner_association_id)
+                                            ->where('active', true)
+                                            ->pluck('building_id')
+                                    )->pluck('name', 'id');
                                 }
-                                elseif(Role::where('id', auth()->user()->role->id)
-                                ->first()->name == 'Property Manager'){
-                                    $buildingIds = DB::table('building_owner_association')
-                                    ->where('owner_association_id', auth()->user()->owner_association_id)
-                                    ->where('active', true)
-                                    ->pluck('building_id');
-
-                                return Building::whereIn('id', $buildingIds)
+                                return Building::where('owner_association_id', auth()->user()?->owner_association_id)
                                     ->pluck('name', 'id');
-                            }
-                                else{
-                                    return Building::where('owner_association_id', auth()->user()?->owner_association_id)
-                                    ->pluck('name', 'id');
-                                }
                             }),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
-                        return $query
-                            ->when(
-                                $data['building'],
-                                fn(Builder $query, $building_id): Builder => $query->where('building_id', $building_id),
-                            );
+                        return $query->when(
+                            $data['building'],
+                            fn(Builder $query, $building_id): Builder => $query->where('building_id', $building_id),
+                        );
                     }),
-                    Filter::make('Date')
+                Filter::make('status')
                     ->form([
-                        Grid::make(2)
-                        ->schema([
-                            DatePicker::make('from')
-                                ->label('From'),
-                            DatePicker::make('to')
-                                ->label('To'),
-                        ]),
+                        Select::make('status')
+                            ->placeholder('Select status')
+                            ->options([
+                                'paid' => 'Paid',
+                                'overdue' => 'Overdue',
+                                'pending' => 'Pending',
+                            ])
+                            ->preload(),
                     ])
-                    ->columns(1)
-                    ->query(function (Builder $query, array $data) {
-                        if ($data['from'] && $data['to']) {
-                            // if ($data['to'] < $data['from']) {
-                            //     Notification::make()
-                            //     ->title('Invalid Date Range')
-                            //     ->body("'To' date must be greater than or equal to 'From' date.")
-                            //     ->danger()
-                            //     ->send();
-                            // }
-                            $query->whereDate('date', '>=', $data['from'])
-                                  ->whereDate('date', '<=', $data['to']);
-                        } elseif ($data['from']) {
-                            $query->whereDate('date', '>=', $data['from']);
-                        } elseif ($data['to']) {
-                            $query->whereDate('date', '<=', $data['to']);
-                        }
-
-                        return $query;
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query->when(
+                            $data['status'],
+                            fn(Builder $query) => $query->where('status', $data['status'])
+                        );
                     }),
-            ], layout: FiltersLayout::AboveContent)->filtersFormColumns(3)
+            ], layout: FiltersLayout::AboveContentCollapsible)
+            ->filtersFormColumns(3)
             ->actions([
                 // Tables\Actions\ViewAction::make(),
                 // Tables\Actions\EditAction::make(),

@@ -8,6 +8,7 @@ use App\Filament\Resources\FacilitySupportComplaintResource;
 use App\Filament\Resources\SubContractorResource;
 use App\Filament\Resources\TechnicianVendorResource;
 use App\Filament\Resources\UnitListResource;
+use App\Filament\Widgets\BillsOverviewWidget;
 use App\Filament\Widgets\RentalChequeStatusOverview;
 use App\Filament\Widgets\UnitContractExpiryOverview;
 use App\Filament\Widgets\UnitStatusOverview;
@@ -91,9 +92,10 @@ class AppPanelProvider extends PanelProvider
             ->widgets([
                 // Widgets\AccountWidget::class,
                 // Widgets\FilamentInfoWidget::class,
-                RentalChequeStatusOverview::class,
                 UnitStatusOverview::class,
                 UnitContractExpiryOverview::class,
+                RentalChequeStatusOverview::class,
+                BillsOverviewWidget::class,
                 MoveInOutSchedule::class,
             ])
             ->favicon(asset('images/favicon.png'))
@@ -105,44 +107,18 @@ class AppPanelProvider extends PanelProvider
                 // ...existing resources...
                 UnitListResource::class,
             ])
+
             ->navigation(function (NavigationBuilder $builder): NavigationBuilder {
-                if (DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] != 'Admin') {
-                    $builder->groups([
-                        NavigationGroup::make('Dashboard')
-                            ->items([
-                                NavigationItem::make('Dashboard')
-                                    ->icon('heroicon-o-home')
-                                    ->activeIcon('heroicon-s-home')
-                                    ->url('/app'),
-                            ]),
-                    ]);
-                }
+
                     $user = User::find(auth()->user()->id) ;
-                    if(auth()->user()->role->name == 'Property Manager'){
-                        // if (
-                        //     $user->can('view_any_property::manager')
-                        // ) {
-                        //     $builder->groups([
-                        //         NavigationGroup::make('Property management')
-                        //             ->items([
-                        //                 NavigationItem::make('Property Managers')
-                        //                     ->url('/app/property-managers')
-                        //                     ->hidden(!$user->can('view_any_property::manager'))
-                        //                     ->icon('heroicon-o-building-office')
-                        //                     ->activeIcon('heroicon-o-building-office')
-                        //                     ->sort(1),
-
-                        //                 // NavigationItem::make('Facility Managers')
-                        //                 //     ->url('/app/vendors')
-                        //                 //     // ->hidden(!$user->can('view_any_mollak::tenant'))
-                        //                 //     ->icon('heroicon-o-user')
-                        //                 //     ->activeIcon('heroicon-o-user')
-                        //                 //     ->sort(1),
-
-                        //             ]),
-
-                        //     ]);
-                        // }
+                    if(auth()->user()->role->name == 'Property Manager')
+                    {
+                        $builder->items([
+                            NavigationItem::make('Dashboard')
+                                ->icon('heroicon-o-home')
+                                ->activeIcon('heroicon-s-home')
+                                ->url('/app'),
+                        ]);
 
                         if ($user->can('view_any_building::building') ||
                             $user->can('view_any_building::flat') ||

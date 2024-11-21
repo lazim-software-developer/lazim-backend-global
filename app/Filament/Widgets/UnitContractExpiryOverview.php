@@ -10,8 +10,7 @@ use Filament\Widgets\StatsOverviewWidget\Stat;
 class UnitContractExpiryOverview extends BaseWidget
 {
     // protected ?string $heading = 'Contract Expiry Overview';
-    protected static ?int $sort = 3;
-    protected string|int|array $columnSpan = 'full';  // Fix: Update type hint to match parent class
+    protected string|int|array $columnSpan = 'full';
     protected static bool $isLazy = true;
 
     protected function getStats(): array
@@ -59,7 +58,7 @@ class UnitContractExpiryOverview extends BaseWidget
                 ->chart([5, 10, $less60Days + 10, $less60Days])
                 ->extraAttributes([
                     'class' => 'ring-1 ring-danger-500/30',
-                    'style' => 'background: linear-gradient(135deg, #FFF0EA, #FFB4A1);'  // Changed to professional orange-red gradient
+                    'style' => 'background: linear-gradient(135deg, #FFF0EA, #FFB4A1);'
                 ])
                 ->url('/app/contract-expiry-overview?days=60'),
 
@@ -70,7 +69,7 @@ class UnitContractExpiryOverview extends BaseWidget
                 ->chart([2, 4, $less30Days + 5, $less30Days])
                 ->extraAttributes([
                     'class' => 'ring-2 ring-danger-500/50',
-                    'style' => 'background: linear-gradient(135deg, #FFE0E0, #FF8080);'  // Changed to more intense red
+                    'style' => 'background: linear-gradient(135deg, #FFE0E0, #FF8080);'
                 ])
                 ->url('/app/contract-expiry-overview?days=30'),
         ];
