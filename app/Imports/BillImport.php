@@ -51,9 +51,9 @@ class BillImport implements ToCollection, WithHeadingRow
 
     public function collection(Collection $rows)
     {
-        $expectedHeadings = ['type', 'amount', 'due_date', 'status'];
-        $validStatuses = ['Pending', 'Paid', 'Overdue'];
-        $recordsImported = 0;
+        $expectedHeadings  = ['type', 'amount', 'due_date', 'status'];
+        $validStatuses     = ['Pending', 'Paid', 'Overdue'];
+        $recordsImported   = 0;
         $invalidStatusRows = [];
 
         if ($rows->first() == null) {
@@ -66,7 +66,7 @@ class BillImport implements ToCollection, WithHeadingRow
         }
 
         $extractedHeadings = array_keys($rows->first()->toArray());
-        $missingHeadings = array_diff($expectedHeadings, $extractedHeadings);
+        $missingHeadings   = array_diff($expectedHeadings, $extractedHeadings);
 
         if (!empty($missingHeadings)) {
             Notification::make()
@@ -81,7 +81,7 @@ class BillImport implements ToCollection, WithHeadingRow
             if (!in_array($row['status'], $validStatuses, true)) {
                 $invalidStatusRows[] = [
                     'row' => $index + 2, // +2 because of 0-based index and header row
-                    'status' => $row['status']
+                    'status' => $row['status'],
                 ];
                 continue;
             }
@@ -89,14 +89,14 @@ class BillImport implements ToCollection, WithHeadingRow
             $dueDate = $this->convertExcelDate($row['due_date']);
 
             Bill::create([
-                'flat_id' => $this->flatId,
-                'type' => $row['type'],
-                'amount' => $row['amount'],
-                'month' => $this->month,
-                'due_date' => $dueDate,
-                'status' => $row['status'],
-                'uploaded_by' => Auth::id(),
-                'uploaded_on' => Carbon::now(),
+                'flat_id'           => $this->flatId,
+                'type'              => $row['type'],
+                'amount'            => $row['amount'],
+                'month'             => $this->month,
+                'due_date'          => $dueDate,
+                'status'            => $row['status'],
+                'uploaded_by'       => Auth::id(),
+                'uploaded_on'       => Carbon::now(),
                 'status_updated_by' => Auth::id(),
             ]);
 
@@ -113,6 +113,7 @@ class BillImport implements ToCollection, WithHeadingRow
             Notification::make()
                 ->title("Invalid status values detected")
                 ->warning()
+                ->duration(10000)
                 ->body($errorMessage)
                 ->send();
         }
