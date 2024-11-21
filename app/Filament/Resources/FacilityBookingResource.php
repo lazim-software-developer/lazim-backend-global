@@ -83,10 +83,8 @@ class FacilityBookingResource extends Resource
                             ->required()
                             ->disabledOn('edit'),
                         TimePicker::make('start_time')
-                            ->required()
                             ->disabledOn('edit'),
                         TimePicker::make('end_time')
-                            ->required()
                             ->disabledOn('edit'),
                     ]),
                 Textarea::make('description')
@@ -124,10 +122,6 @@ class FacilityBookingResource extends Resource
                     ->default('NA')
                     ->searchable()
                     ->date(),
-                Tables\Columns\TextColumn::make('start_time')
-                    ->default('NA'),
-                Tables\Columns\TextColumn::make('end_time')
-                    ->default('NA'),
                 Tables\Columns\IconColumn::make('approved')
                     ->boolean(),
             ])
