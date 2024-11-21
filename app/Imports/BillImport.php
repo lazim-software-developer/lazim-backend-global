@@ -48,13 +48,17 @@ class BillImport implements ToCollection, WithHeadingRow
 
         return null;
     }
+
     public function collection(Collection $rows)
     {
-        $expectedHeadings = ['type', 'amount', 'due_date', 'status'];
+        $expectedHeadings  = ['type', 'amount', 'due_date', 'status'];
+        $validStatuses     = ['Pending', 'Paid', 'Overdue'];
+        $recordsImported   = 0;
+        $invalidStatusRows = [];
 
         if ($rows->first() == null) {
             Notification::make()
-                ->title("Upload valid excel file.")
+                ->title("Upload failed")
                 ->danger()
                 ->body("You have uploaded an empty file")
                 ->send();
@@ -66,17 +70,22 @@ class BillImport implements ToCollection, WithHeadingRow
 
         if (!empty($missingHeadings)) {
             Notification::make()
-                ->title("Upload valid excel file.")
+                ->title("Upload failed")
                 ->danger()
                 ->body("Missing headings: " . implode(', ', $missingHeadings))
                 ->send();
             return 'failure';
         }
 
-        foreach ($rows as $row) {
-            if (!in_array($row['status'], ['Pending', 'Paid', 'Overdue'])) {
+        foreach ($rows as $index => $row) {
+            if (!in_array($row['status'], $validStatuses, true)) {
+                $invalidStatusRows[] = [
+                    'row' => $index + 2, // +2 because of 0-based index and header row
+                    'status' => $row['status'],
+                ];
                 continue;
             }
+
             $dueDate = $this->convertExcelDate($row['due_date']);
 
             Bill::create([
@@ -90,11 +99,38 @@ class BillImport implements ToCollection, WithHeadingRow
                 'uploaded_on'       => Carbon::now(),
                 'status_updated_by' => Auth::id(),
             ]);
+
+            $recordsImported++;
+        }
+
+        if (!empty($invalidStatusRows)) {
+            $errorMessage = "Invalid status values found:\n";
+            foreach ($invalidStatusRows as $error) {
+                $errorMessage .= "Row {$error['row']}: '{$error['status']}'\n";
+            }
+            $errorMessage .= "\nValid status values are: " . implode(', ', $validStatuses);
+
+            Notification::make()
+                ->title("Invalid status values detected")
+                ->warning()
+                ->duration(10000)
+                ->body($errorMessage)
+                ->send();
+        }
+
+        if ($recordsImported === 0) {
+            Notification::make()
+                ->title("Upload failed")
+                ->danger()
+                ->body("No records were imported. Please check the data and try again.")
+                ->send();
+            return 'failure';
         }
 
         Notification::make()
             ->title("Bills uploaded successfully")
             ->success()
+            ->body("Successfully imported {$recordsImported} records.")
             ->send();
         return 'success';
     }

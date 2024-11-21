@@ -19,10 +19,16 @@ use Filament\Tables;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 
 class RentalDetailsRelationManager extends RelationManager
 {
     protected static string $relationship = 'rentalDetails';
+
+    public static function canViewForRecord(Model $ownerRecord, string $pageClass): bool
+    {
+        return $ownerRecord->role === 'Tenant';
+    }
 
     public function form(Form $form): Form
     {
