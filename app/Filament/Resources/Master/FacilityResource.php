@@ -53,24 +53,26 @@ class FacilityResource extends Resource
                         //     ->searchable()
                         //     ->placeholder('Building'),
 
-                        
+
                         FileUpload::make('icon')
                             ->acceptedFileTypes(['image/jpeg', 'image/png'])
                             ->disk('s3')
                             ->directory('dev')
                             ->required()
                             ->maxSize(2048),
-                        Toggle::make('active')
-                            ->label('Active')
-                            ->default(1)->columnSpan([
-                                'default' => 12,
-                                'md' => 12,
-                                'lg' => 12,
-                            ])
-                            ->rules(['boolean']),
+                        Grid::make([
+                            'sm' => 1,
+                            'md' => 2,
+                            'lg' => 2,
+                        ])->schema([
+                            Toggle::make('active')
+                                ->label('Active')
+                                ->default(1)
+                                ->rules(['boolean']),
+                        ])
 
                     ])
-                    ->Columns(1),
+                    ->Columns(2),
             ]);
     }
 

@@ -15,7 +15,7 @@ class ListHelpdeskcomplaints extends ListRecords
     protected function getTableQuery(): Builder
     {
         if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
-            return parent::getTableQuery();
+            return parent::getTableQuery()->where('complaint_type', 'help_desk');
         }
         return parent::getTableQuery()->where('complaint_type', 'help_desk')->where('owner_association_id',auth()->user()?->owner_association_id);
     }

@@ -99,13 +99,15 @@ class VendorServiceResource extends Resource
                             //         ]),
                             // ])
                             ,
-                        Toggle::make('active')
-                            ->label('Active')
-                            ->default(1)
-                            ->rules(['boolean'])->columnSpan([
-                                'default' => 12,
-                                'md' => 12,
-                                'lg' => 12,
+                            Grid::make([
+                                'sm' => 1,
+                                'md' => 2,
+                                'lg' => 2,
+                            ])->schema([
+                                Toggle::make('active')
+                                    ->label('Active')
+                                    ->default(1)
+                                    ->rules(['boolean']),
                             ]),
 
                     ]),
