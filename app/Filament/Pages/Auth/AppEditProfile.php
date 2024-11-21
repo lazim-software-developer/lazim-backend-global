@@ -6,6 +6,7 @@ use App\Models\Master\Role;
 use App\Models\OwnerAssociation;
 use App\Models\User\User;
 use Closure;
+use Filament\Facades\Filament;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Section;
@@ -44,10 +45,13 @@ class AppEditProfile extends BaseEditProfile
     {
         $formState = $this->form->getState();
 
-        if (isset($formState['password']) && !empty($formState['password'])) {
-            return env('APP_URL');
+        $panel = filament()->getId();
+
+        if ($panel === 'app' && isset($formState['password']) && !empty($formState['password'])) {
+            request()->session()->invalidate();
+            return env('APP_URL') . '/app/login';
         }
-        return env('APP_URL') . '/app/login';
+        return env('APP_URL') . '/app';
     }
 
     public function form(Form $form): Form
