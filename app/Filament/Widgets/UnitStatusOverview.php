@@ -11,6 +11,11 @@ class UnitStatusOverview extends BaseWidget
 {
     protected static ?string $pollingInterval = '30s';
 
+    protected function getColumns(): int
+    {
+        return 4;
+    }
+
     protected function getStats(): array
     {
         $today = Carbon::today();

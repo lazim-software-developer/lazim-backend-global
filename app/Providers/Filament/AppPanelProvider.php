@@ -2,6 +2,16 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Pages\Auth\AppEditProfile;
+use App\Filament\Resources\ComplaintResource;
+use App\Filament\Resources\FacilitySupportComplaintResource;
+use App\Filament\Resources\SubContractorResource;
+use App\Filament\Resources\TechnicianVendorResource;
+use App\Filament\Resources\UnitListResource;
+use App\Filament\Widgets\BillsOverviewWidget;
+use App\Filament\Widgets\RentalChequeStatusOverview;
+use App\Filament\Widgets\UnitContractExpiryOverview;
+use App\Filament\Widgets\UnitStatusOverview;
 use DB;
 use Filament\Pages;
 use Filament\Panel;
@@ -19,12 +29,8 @@ use App\Filament\Resources\DemoResource;
 use Filament\Navigation\NavigationGroup;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Navigation\NavigationBuilder;
-use App\Filament\Pages\Auth\AppEditProfile;
 use App\Filament\Resources\VehicleResource;
 use App\Filament\Resources\IncidentResource;
-use App\Filament\Resources\UnitListResource;
-use App\Filament\Widgets\UnitStatusOverview;
-use App\Filament\Resources\ComplaintResource;
 use App\Filament\Resources\User\UserResource;
 use App\Filament\Resources\PatrollingResource;
 use App\Filament\App\Widgets\MoveInOutSchedule;
@@ -35,14 +41,10 @@ use App\Filament\Resources\FamilyMemberResource;
 use App\Filament\Resources\UserApprovalResource;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use App\Filament\Resources\BankStatementResource;
-use App\Filament\Resources\SubContractorResource;
 use App\Filament\Resources\DelinquentOwnerResource;
 use App\Filament\Resources\PropertyManagerResource;
 use App\Filament\App\Widgets\AmenityBookingOverview;
 use App\Filament\Resources\AssetMaintenanceResource;
-use App\Filament\Resources\TechnicianVendorResource;
-use App\Filament\Widgets\RentalChequeStatusOverview;
-use App\Filament\Widgets\UnitContractExpiryOverview;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use App\Filament\Resources\OacomplaintReportsResource;
@@ -53,7 +55,6 @@ use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use App\Filament\Resources\OwnerAssociationInvoiceResource;
 use App\Filament\Resources\OwnerAssociationReceiptResource;
-use App\Filament\Resources\FacilitySupportComplaintResource;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 
 class AppPanelProvider extends PanelProvider
@@ -92,9 +93,10 @@ class AppPanelProvider extends PanelProvider
             ->widgets([
                 // Widgets\AccountWidget::class,
                 // Widgets\FilamentInfoWidget::class,
-                RentalChequeStatusOverview::class,
                 UnitStatusOverview::class,
                 UnitContractExpiryOverview::class,
+                RentalChequeStatusOverview::class,
+                BillsOverviewWidget::class,
                 MoveInOutSchedule::class,
                 AmenityBookingOverview::class,
             ])
@@ -107,44 +109,18 @@ class AppPanelProvider extends PanelProvider
                 // ...existing resources...
                 UnitListResource::class,
             ])
+
             ->navigation(function (NavigationBuilder $builder): NavigationBuilder {
-                if (DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] != 'Admin') {
-                    $builder->groups([
-                        NavigationGroup::make('Dashboard')
-                            ->items([
-                                NavigationItem::make('Dashboard')
-                                    ->icon('heroicon-o-home')
-                                    ->activeIcon('heroicon-s-home')
-                                    ->url('/app'),
-                            ]),
-                    ]);
-                }
+
                     $user = User::find(auth()->user()->id) ;
-                    if(auth()->user()->role->name == 'Property Manager'){
-                        // if (
-                        //     $user->can('view_any_property::manager')
-                        // ) {
-                        //     $builder->groups([
-                        //         NavigationGroup::make('Property management')
-                        //             ->items([
-                        //                 NavigationItem::make('Property Managers')
-                        //                     ->url('/app/property-managers')
-                        //                     ->hidden(!$user->can('view_any_property::manager'))
-                        //                     ->icon('heroicon-o-building-office')
-                        //                     ->activeIcon('heroicon-o-building-office')
-                        //                     ->sort(1),
-
-                        //                 // NavigationItem::make('Facility Managers')
-                        //                 //     ->url('/app/vendors')
-                        //                 //     // ->hidden(!$user->can('view_any_mollak::tenant'))
-                        //                 //     ->icon('heroicon-o-user')
-                        //                 //     ->activeIcon('heroicon-o-user')
-                        //                 //     ->sort(1),
-
-                        //             ]),
-
-                        //     ]);
-                        // }
+                    if(auth()->user()->role->name == 'Property Manager')
+                    {
+                        $builder->items([
+                            NavigationItem::make('Dashboard')
+                                ->icon('heroicon-o-home')
+                                ->activeIcon('heroicon-s-home')
+                                ->url('/app'),
+                        ]);
 
                         if ($user->can('view_any_building::building') ||
                             $user->can('view_any_building::flat') ||
