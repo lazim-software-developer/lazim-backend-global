@@ -621,9 +621,9 @@ class RegistrationController extends Controller
 
         return (new CustomResponseResource([
             'title' => 'Registration successful!',
-            'message' => "We have sent request to admin once approved you will be able to see that flat in your profile",
+            'message' => "Request sent to admin for approval.",
             'code' => 201,
-            'status' => 'verificationPending'
+            'status' => 'approvalPending'
         ]))->response()->setStatusCode(201);
     }
 }

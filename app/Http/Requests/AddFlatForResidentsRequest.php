@@ -22,7 +22,6 @@ class AddFlatForResidentsRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name'              => 'required|string',
             'document'          => 'required|file|max:2048|mimes:pdf,jpg,jpeg,png,doc,docx',
             'flat_id'           => 'required|exists:flats,id',
             'building_id'       => 'required|exists:buildings,id',

@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\App\Widgets\PreventiveReactiveMaintenance;
 use App\Filament\Pages\Auth\AppEditProfile;
 use App\Filament\Resources\ComplaintResource;
 use App\Filament\Resources\FacilitySupportComplaintResource;
@@ -99,6 +100,7 @@ class AppPanelProvider extends PanelProvider
                 BillsOverviewWidget::class,
                 MoveInOutSchedule::class,
                 AmenityBookingOverview::class,
+                PreventiveReactiveMaintenance::class,
             ])
             ->favicon(asset('images/favicon.png'))
             ->darkMode(false)
