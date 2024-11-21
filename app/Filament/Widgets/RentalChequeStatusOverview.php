@@ -5,6 +5,7 @@ namespace App\Filament\Widgets;
 use App\Models\RentalCheque;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
+use Illuminate\Support\Facades\Log;
 
 class RentalChequeStatusOverview extends BaseWidget
 {
@@ -12,15 +13,24 @@ class RentalChequeStatusOverview extends BaseWidget
 
     protected function getStats(): array
     {
+        Log::info('Starting to fetch rental cheque statistics');
+
         $query = RentalCheque::query()
             ->whereHas('rentalDetail.flat.building', function ($query) {
                 $query->where('owner_association_id', auth()->user()->owner_association_id);
             });
+        Log::info('Base query created for rental cheques');
 
         $overdueCount = (clone $query)->where('status', 'Overdue')->count();
-        $paidCount = (clone $query)->where('status', 'Paid')->count();
-        $upcomingCount = (clone $query)->where('status', 'Upcoming')->count();
+        Log::info('Overdue cheques count: ' . $overdueCount);
 
+        $paidCount = (clone $query)->where('status', 'Paid')->count();
+        Log::info('Paid cheques count: ' . $paidCount);
+
+        $upcomingCount = (clone $query)->where('status', 'Upcoming')->count();
+        Log::info('Upcoming cheques count: ' . $upcomingCount);
+
+        Log::info('Preparing stats array for display');
         return [
             Stat::make('Overdue Cheques', $overdueCount)
                 ->description('Total overdue cheques')

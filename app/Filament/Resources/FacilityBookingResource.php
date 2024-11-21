@@ -83,10 +83,8 @@ class FacilityBookingResource extends Resource
                             ->required()
                             ->disabledOn('edit'),
                         TimePicker::make('start_time')
-                            ->required()
                             ->disabledOn('edit'),
                         TimePicker::make('end_time')
-                            ->required()
                             ->disabledOn('edit'),
                     ]),
                 Textarea::make('description')
@@ -105,7 +103,7 @@ class FacilityBookingResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-        ->emptyStateHeading('No Work Permit Requests')
+            ->emptyStateHeading('No Work Permit Requests')
             ->columns([
                 Tables\Columns\TextColumn::make('building.name')
                     ->default('NA')
@@ -121,16 +119,9 @@ class FacilityBookingResource extends Resource
                     ->default('NA')
                     ->limit(50),
                 Tables\Columns\TextColumn::make('date')
-                    ->date()
                     ->default('NA')
                     ->searchable()
                     ->date(),
-                Tables\Columns\TextColumn::make('start_time')
-                    ->default('NA')
-                    ->time(),
-                Tables\Columns\TextColumn::make('end_time')
-                    ->default('NA')
-                    ->time(),
                 Tables\Columns\IconColumn::make('approved')
                     ->boolean(),
             ])

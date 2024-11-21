@@ -58,17 +58,17 @@ class RentalDetailsRelationManager extends RelationManager
                                         $set('cheques_count', $state);
 
                                         // Create an array of empty cheque entries
-                                        $cheques = array_fill(0, (int)$state, [
+                                        $cheques = array_fill(0, (int) $state, [
                                             'cheque_number' => '',
-                                            'amount' => '',
-                                            'due_date' => '',
-                                            'status' => 'Upcoming',
-                                            'mode_payment' => 'Cheque'
+                                            'amount'        => '',
+                                            'due_date'      => '',
+                                            'status'        => 'Upcoming',
+                                            'mode_payment'  => 'Cheque',
                                         ]);
 
                                         $set('cheques', $cheques);
                                     }),
-                                    // ->afterStateUpdated(fn($set, $state) => $set('cheques_count', $state)),
+                                // ->afterStateUpdated(fn($set, $state) => $set('cheques_count', $state)),
                                 DatePicker::make('contract_start_date')
                                     ->rules(['date'])
                                     ->default(function () {
@@ -150,16 +150,16 @@ class RentalDetailsRelationManager extends RelationManager
                             ->addable(false) // Disable manual adding since we're auto-creating
                             ->deletable(false) // Disable deletion to maintain the required number
                             ->defaultItems(0)
-                            // ->addable(fn($context) => $context !== 'edit')
-                            // ->deletable(fn($context) => $context !== 'edit')
-                            // ->minItems(fn(callable $get) => $get('cheques_count') ?? 0)
-                            // ->maxItems(function (callable $get) {
-                            //     $chequesCount = $get('cheques_count');
-                            //     return $chequesCount !== null ? $chequesCount : PHP_INT_MAX;
-                            // })
-                            // ->validationMessages([
-                            //     'minItems' => 'Please enter all the cheques details by clicking on \'Add to cheques\'',
-                            // ])
+                        // ->addable(fn($context) => $context !== 'edit')
+                        // ->deletable(fn($context) => $context !== 'edit')
+                        // ->minItems(fn(callable $get) => $get('cheques_count') ?? 0)
+                        // ->maxItems(function (callable $get) {
+                        //     $chequesCount = $get('cheques_count');
+                        //     return $chequesCount !== null ? $chequesCount : PHP_INT_MAX;
+                        // })
+                        // ->validationMessages([
+                        //     'minItems' => 'Please enter all the cheques details by clicking on \'Add to cheques\'',
+                        // ])
                             ->schema([
                                 Grid::make(2)
                                     ->schema([
@@ -245,7 +245,7 @@ class RentalDetailsRelationManager extends RelationManager
                 TextColumn::make('contract_end_date'),
                 TextColumn::make('number_of_cheques'),
                 TextColumn::make('advance_amount')
-                ->default('NA'),
+                    ->default('NA'),
                 TextColumn::make('admin_fee')
                     ->default('NA'),
                 TextColumn::make('other_charges')
@@ -272,16 +272,16 @@ class RentalDetailsRelationManager extends RelationManager
     {
         return Action::make('customCreate')
             ->label('Add Rental Details')
-            // ->visible(function () {
-            //     $rentalDetail = RentalDetail::where('flat_tenant_id', $this->ownerRecord->id)->first();
+            ->visible(function () {
+                $rentalDetail = RentalDetail::where('flat_tenant_id', $this->ownerRecord->id)->first();
 
-            //     if (!$rentalDetail) {
-            //         return true;
-            //     }
+                if (!$rentalDetail) {
+                    return true;
+                }
 
-            //     $endDate = $rentalDetail->contract_end_date;
-            //     return $endDate < Carbon::now()->format('Y-m-d');
-            // })
+                $endDate = $rentalDetail->contract_end_date;
+                return $endDate < Carbon::now()->format('Y-m-d');
+            })
             ->action(function (array $data) {
                 // dd($data);
                 $this->handleCustomActionSave($data);
@@ -306,7 +306,7 @@ class RentalDetailsRelationManager extends RelationManager
             'advance_amount_payment_mode' => $data['advance_amount_payment_mode'],
             'status'                      => $data['status'],
             'contract_start_date'         => $startDate,
-            'contract_end_date'           => $endDate,
+            'contract_end_date'           => $endDate ?? $data['contract_end_date'],
             'created_by'                  => auth()->user()->id,
             'status_updated_by'           => auth()->user()->id,
             'property_manager_id'         => auth()->user()->owner_association_id,
