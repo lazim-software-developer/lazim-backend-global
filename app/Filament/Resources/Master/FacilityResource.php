@@ -53,13 +53,18 @@ class FacilityResource extends Resource
                         //     ->searchable()
                         //     ->placeholder('Building'),
 
-
-                        FileUpload::make('icon')
-                            ->acceptedFileTypes(['image/jpeg', 'image/png'])
-                            ->disk('s3')
-                            ->directory('dev')
-                            ->required()
-                            ->maxSize(2048),
+                        Grid::make([
+                            'sm' => 1,
+                            'md' => 2,
+                            'lg' => 2,
+                        ])->schema([
+                            FileUpload::make('icon')
+                                ->acceptedFileTypes(['image/jpeg', 'image/png'])
+                                ->disk('s3')
+                                ->directory('dev')
+                                ->required()
+                                ->maxSize(2048),
+                        ]),
                         Grid::make([
                             'sm' => 1,
                             'md' => 2,
