@@ -895,12 +895,12 @@ class AppPanelProvider extends PanelProvider
                                         ->icon('heroicon-s-user-group')
                                         ->activeIcon('heroicon-s-user-group')
                                         ->sort(14),
-                                    NavigationItem::make('Documents')
-                                        ->hidden(!$user->can('page_Documents'))
-                                        ->url('/app/documents')
-                                        ->icon('heroicon-s-document-text')
-                                        ->activeIcon('heroicon-s-document-text')
-                                        ->sort(15),
+                                    // NavigationItem::make('Documents')
+                                    //     ->hidden(!$user->can('page_Documents'))
+                                    //     ->url('/app/documents')
+                                    //     ->icon('heroicon-s-document-text')
+                                    //     ->activeIcon('heroicon-s-document-text')
+                                    //     ->sort(15),
                                 ]),
                         ]);
                     }

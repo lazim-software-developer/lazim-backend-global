@@ -102,7 +102,11 @@ class VendorServiceResource extends Resource
                         Toggle::make('active')
                             ->label('Active')
                             ->default(1)
-                            ->rules(['boolean']),
+                            ->rules(['boolean'])->columnSpan([
+                                'default' => 12,
+                                'md' => 12,
+                                'lg' => 12,
+                            ]),
 
                     ]),
             ]);

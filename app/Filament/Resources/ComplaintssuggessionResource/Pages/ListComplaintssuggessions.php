@@ -15,7 +15,7 @@ class ListComplaintssuggessions extends ListRecords
     {
 
         if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
-            return parent::getTableQuery();
+            return parent::getTableQuery()->where('complaint_type', 'suggestions');
         }
         return parent::getTableQuery()->where('complaint_type', 'suggestions')->where('owner_association_id',auth()->user()?->owner_association_id);
     }

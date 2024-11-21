@@ -61,16 +61,21 @@ class ServiceResource extends Resource
                             ->minValue(1)
                             ->maxValue(10000)
                             ->placeholder('NA'),
-                        Toggle::make('active')
-                                ->label('Active')
-                                ->default(1)
-                                ->rules(['boolean']),
                         FileUpload::make('icon')
                             ->acceptedFileTypes(['image/jpeg', 'image/png'])
                             ->disk('s3')
                             ->directory('dev')
                             ->required()
                             ->maxSize(2048),
+                        Toggle::make('active')
+                            ->label('Active')
+                            ->default(1)
+                            ->rules(['boolean'])
+                            ->columnSpan([
+                                'default' => 12,
+                                'md' => 12,
+                                'lg' => 12,
+                            ]),
 
                     ]),
             ]);
