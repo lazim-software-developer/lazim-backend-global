@@ -35,9 +35,9 @@ class RentalChequeResource extends Resource
                             ->schema([
                                 TextInput::make('cheque_number')
                                     ->numeric()
-                                    ->minLength(0)
+                                    ->minLength(6)
                                     ->required()
-                                    ->maxLength(6)
+                                    ->maxLength(12)
                                     ->placeholder('Enter cheque number'),
                                 TextInput::make('amount')
                                     ->maxLength(20)
