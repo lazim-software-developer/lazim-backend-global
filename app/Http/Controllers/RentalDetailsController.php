@@ -69,7 +69,7 @@ class RentalDetailsController extends Controller
                 ->sendToDatabase($user);
 
             return response()->json([
-                'message' => 'Notification sent successfully',
+                'message' => 'Request sent successfully.',
                 'status'  => 'success',
             ], 200);
 

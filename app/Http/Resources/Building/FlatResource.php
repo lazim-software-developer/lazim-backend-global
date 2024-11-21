@@ -18,7 +18,10 @@ class FlatResource extends JsonResource
             'id' => $this->id,
             'name' => $this->property_number,
             'building' => $this->building->name,
-            'building_id' => $this->building->id
+            'building_id' => $this->building->id,
+            'property_manager' => $this->whenLoaded('ownerAssociation', function () {
+                return $this->ownerAssociation?->role === 'Property Manager';
+            }, false),
         ];
     }
 }

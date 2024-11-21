@@ -13,7 +13,7 @@ class FlatController extends Controller
     public function fetchFlats(Building $building)
     {
         // $flats = $building->flats()->paginate(10);
-        $flats = $building->flats()->get();
+        $flats = $building->flats()->with('ownerAssociation')->get();
         return FlatResource::collection($flats);
     }
 
