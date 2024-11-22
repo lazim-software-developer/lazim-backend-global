@@ -117,11 +117,14 @@ class AppPanelProvider extends PanelProvider
                     $user = User::find(auth()->user()->id) ;
                     if(auth()->user()->role->name == 'Property Manager')
                     {
-                        $builder->items([
-                            NavigationItem::make('Dashboard')
-                                ->icon('heroicon-o-home')
-                                ->activeIcon('heroicon-s-home')
-                                ->url('/app'),
+                        $builder->groups([
+                            NavigationGroup::make('Dashboard')
+                            ->items([
+                                NavigationItem::make('Dashboard')
+                                    ->icon('heroicon-o-home')
+                                    ->activeIcon('heroicon-s-home')
+                                    ->url('/app'),
+                            ]),
                         ]);
 
                         if ($user->can('view_any_building::building') ||
