@@ -14,7 +14,7 @@ class SubContractor extends Model
     protected $connection = 'mysql';
     protected $table      = 'sub_contractors';
 
-    protected $fillable = ['name', 'email', 'phone', 'company_name', 'trn_no', 'service_provided', 'start_date', 'end_date', 'trade_licence', 'contract_paper', 'agreement_letter', 'additional_doc', 'vendor_id', 'active', 'last_reminded_at'];
+    protected $fillable = ['name', 'email', 'phone', 'company_name', 'trn_no', 'service_provided', 'start_date', 'end_date', 'trade_licence', 'contract_paper', 'agreement_letter', 'additional_doc', 'vendor_id', 'active', 'last_reminded_at', 'trade_licence_expiry_date'];
 
     protected $casts = [
         'active'     => 'boolean',
