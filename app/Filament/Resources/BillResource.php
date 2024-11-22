@@ -2,23 +2,24 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\BillResource\Pages;
-use App\Models\Bill;
-use App\Models\Building\Building;
-use App\Models\Building\Flat;
-use App\Models\User\User;
-use Carbon\Carbon;
 use DB;
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Form;
-use Filament\Forms\Set;
-use Filament\Resources\Resource;
+use Carbon\Carbon;
+use App\Models\Bill;
 use Filament\Tables;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\SelectFilter;
+use Filament\Forms\Get;
+use Filament\Forms\Set;
+use Filament\Forms\Form;
+use App\Models\User\User;
 use Filament\Tables\Table;
+use App\Models\Building\Flat;
+use Filament\Resources\Resource;
+use App\Models\Building\Building;
+use Filament\Forms\Components\Select;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\DatePicker;
+use Filament\Tables\Filters\SelectFilter;
+use App\Filament\Resources\BillResource\Pages;
 
 class BillResource extends Resource
 {
@@ -40,6 +41,13 @@ class BillResource extends Resource
                         'Telecommunication' => 'Telecommunication',
                         'lpg'               => 'lpg',
                     ])
+                    ->live()
+                    ->required(),
+
+                TextInput::make('dewa_number')
+                    ->label('DEWA Number')
+                    ->visible(fn(Get $get) => $get('type') == 'DEWA')
+                    ->placeholder('Enter the DEWA number')
                     ->required(),
 
                 Select::make('building_id')

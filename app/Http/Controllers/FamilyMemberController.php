@@ -122,7 +122,7 @@ class FamilyMemberController extends Controller
         $familyMember->save();
         return (new CustomResponseResource([
             'title' => 'Success',
-            'message' => 'Family member deactivated successfully',
+            'message' => 'Family member deleted successfully',
             'code' => 200,
             'status' => 'success',
         ]))->response()->setStatusCode(200);
