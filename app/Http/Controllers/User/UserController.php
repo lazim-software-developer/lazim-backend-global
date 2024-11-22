@@ -2,18 +2,19 @@
 
 namespace App\Http\Controllers\User;
 
-use App\Http\Controllers\Controller;
-use App\Http\Resources\Building\FlatResource;
-use App\Http\Resources\CustomResponseResource;
-use App\Http\Resources\User\UserFlatResource;
-use App\Models\ApartmentOwner;
-use App\Models\Building\Building;
-use App\Models\Building\Flat;
-use App\Models\Building\FlatTenant;
 use App\Models\User\User;
 use App\Models\UserApproval;
+use Illuminate\Http\Request;
+use App\Models\Building\Flat;
+use App\Models\ApartmentOwner;
+use App\Models\Building\Building;
 use Illuminate\Support\Facades\DB;
+use App\Models\Building\FlatTenant;
 use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
+use App\Http\Resources\Building\FlatResource;
+use App\Http\Resources\User\UserFlatResource;
+use App\Http\Resources\CustomResponseResource;
 
 class UserController extends Controller
 {
@@ -61,5 +62,14 @@ class UserController extends Controller
             'message' => 'User deleted successfully!',
             'code' => 200,
         ]))->response()->setStatusCode(200);
+    }
+
+    public function pendingFlats(Request $request)
+    {
+        $user = auth()->user();
+        $flats = UserApproval::where('user_id', $user->id)->where('status', 'pending')
+            ->pluck('flat_id');
+
+        return UserFlatResource::collection($flats);
     }
 }
