@@ -2,8 +2,9 @@
 
 namespace App\Filament\Resources\RentalChequeResource\Pages;
 
-use App\Filament\Resources\RentalChequeResource;
+use App\Jobs\PaymentLinkResidentEmail;
 use Filament\Resources\Pages\EditRecord;
+use App\Filament\Resources\RentalChequeResource;
 
 class EditRentalCheque extends EditRecord
 {
@@ -38,6 +39,16 @@ class EditRentalCheque extends EditRecord
 
         unset($data['old_comments'], $data['new_comment']);
         return $data;
+    }
+
+    protected function beforeSave(): void
+    {
+        if(in_array($this->record->status,['Paid','Upcoming']) && $this->data['payment_link'] != null && $this->record->payment_link == null){
+            $data = $this->data;
+            $user = $this->record->rentalDetail->flatTenant->user;
+
+            PaymentLinkResidentEmail::dispatch($user, $data);
+        }
     }
 
     protected function getRedirectUrl(): string
