@@ -156,6 +156,9 @@ Route::group(['middleware' => ["auth:sanctum", "verified"]], function () {
 
     //Add flat for residents
     Route::post('/add-flat', [RegistrationController::class, 'addFlat']);
+
+    //show pending flats for logged in user
+    Route::get('/pending-flats', [UserController::class, 'pendingFlats']);
 });
 /**
  * Middleware Group: API Token Protection
