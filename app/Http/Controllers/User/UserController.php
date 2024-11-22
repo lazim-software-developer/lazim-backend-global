@@ -68,6 +68,7 @@ class UserController extends Controller
     {
         $user = auth()->user();
         $flats = UserApproval::where('user_id', $user->id)->where('status', 'pending')
+            ->whereNull('status')
             ->pluck('flat_id');
 
         return UserFlatResource::collection($flats);

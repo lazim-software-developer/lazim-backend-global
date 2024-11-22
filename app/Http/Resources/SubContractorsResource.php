@@ -28,6 +28,7 @@ class SubContractorsResource extends JsonResource
             'start_date'       => Carbon::parse($this->start_date)->format('m-d-Y'),
             'end_date'         => Carbon::parse($this->end_date)->format('m-d-Y'),
             'trade_licence'    => env('AWS_URL') . '/' .$this->trade_licence,
+            'trade_licence_expiry_date' => $this->trade_licence_expiry_date,
             'contract_paper'   => env('AWS_URL') . '/' .$this->contract_paper,
             'agreement_letter' => env('AWS_URL') . '/' .$this->agreement_letter,
             'additional_doc'   => $this->additional_doc ? env('AWS_URL') . '/' .$this->additional_doc : null,

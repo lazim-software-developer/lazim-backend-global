@@ -31,6 +31,7 @@ class SubContractorsRequest extends FormRequest
             'start_date'       => 'required|date',
             'end_date'         => 'required|date',
             'trade_licence'    => 'sometimes|file|mimes:pdf|max:2048',
+            'trade_licence_expiry_date' => 'required|date',
             'contract_paper'   => 'sometimes|file|mimes:png,jpg,pdf|max:2048',
             'agreement_letter' => 'sometimes|file|mimes:png,jpg,pdf|max:2048',
             'additional_doc'   => 'sometimes|file|mimes:png,jpg,pdf|max:2048',
