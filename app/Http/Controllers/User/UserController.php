@@ -67,7 +67,7 @@ class UserController extends Controller
     public function pendingFlats(Request $request)
     {
         $user = auth()->user();
-        $flats = UserApproval::where('user_id', $user->id)->where('status', 'pending')
+        $flats = UserApproval::where('user_id', $user->id)
             ->whereNull('status')
             ->pluck('flat_id');
 
