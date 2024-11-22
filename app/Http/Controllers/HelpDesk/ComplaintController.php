@@ -556,7 +556,26 @@ class ComplaintController extends Controller
     public function update(ComplaintUpdateRequest $request, Complaint $complaint)
     {
         $request['technician_id'] = TechnicianVendor::find($request->technician_id)->technician_id;
+        if($request->has('status') && $request->status == 'closed'){
+            $request['closed_by'] = auth()->user()->id;
+        }
         $complaint->update($request->all());
+
+        if ($request->hasFile('images') && $request->has('status') && $request->status == 'closed') {
+            foreach ($request->file('images') as $image) {
+                $imagePath = optimizeAndUpload($image, 'dev');
+
+                // Create a new media entry for each image
+                $media = new Media([
+                    'name' => "after",
+                    'url'  => $imagePath,
+                ]);
+
+                // Attach the media to the post
+                $complaint->media()->save($media);
+            }
+        }
+
         return (new CustomResponseResource([
             'title'   => 'Complaint Updated Successfully',
             'message' => 'The complaint has been updated.',
