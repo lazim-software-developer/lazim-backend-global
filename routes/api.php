@@ -258,7 +258,7 @@ Route::middleware(['auth:sanctum', 'email.verified', 'active'])->group(function 
     Route::get('complaints/{complaint}', [ComplaintController::class, 'show']);
 
     //Complaint Update API
-    Route::patch('complaints/{complaint}/update', [ComplaintController::class, 'update']);
+    Route::post('complaints/{complaint}/update', [ComplaintController::class, 'update']);
 
     // Add a comment for a complaint
     Route::post('complaints/{complaint}/comments', [CommentController::class, 'addComment']);
