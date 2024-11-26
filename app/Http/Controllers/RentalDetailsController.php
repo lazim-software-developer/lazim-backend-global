@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\RentalDetailsResource;
+use App\Jobs\PaymentRequestMail;
 use App\Models\OwnerAssociation;
 use App\Models\RentalCheque;
 use App\Models\RentalDetail;
@@ -47,6 +48,8 @@ class RentalDetailsController extends Controller
 
             // Find user
             $user = User::where('owner_association_id', $oa)->first();
+
+            PaymentRequestMail::dispatch($user, $rentalCheque);
 
             // Create and send notification
             Notification::make()

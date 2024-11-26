@@ -13,7 +13,7 @@
 		</tr>
 		<tr>
 			<td class="paragraph">
-            {{$content}}
+                You have received a payment request.
 			</td>
 		</tr>
 		<tr>
@@ -21,7 +21,7 @@
 		</tr>
 		<tr>
 			<td class="title">
-            Cheque Payment Details:
+                Cheque Details:
 			</td>
 		</tr>
 
@@ -31,9 +31,8 @@
 
         <tr>
             <td class="paragraph">
-                <strong>Cheque Number: </strong> {{$data['cheque_number']}}<br>
-                <strong>Amount: </strong> {{$data['amount']}}<br>
-                <strong>Payment Link: </strong> <a href="{{$data['payment_link']}}">Click here to make payment</a>
+                <strong>Cheque Number: </strong> {{$rentalCheque['cheque_number']}}<br>
+                <strong>Amount: </strong> {{$rentalCheque['amount']}}<br>
 			</td>
 		</tr>
 
@@ -43,7 +42,7 @@
 
         <tr>
             <td class="paragraph">
-            Thank you for choosing Lazim. We're confident that you'll find great value in our platform, and we look forward to serving you.
+                Please approve the request by providing the payment link for that cheque in admin panel.
 			</td>
 		</tr>
         <tr>
