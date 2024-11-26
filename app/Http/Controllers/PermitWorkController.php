@@ -2,14 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User\User;
 use App\Models\WorkPermit;
 use Illuminate\Http\Request;
+use App\Models\OwnerAssociation;
 use Illuminate\Support\Facades\DB;
 use App\Http\Requests\WorkPermitRequest;
 use App\Http\Resources\WorkListResource;
 use App\Models\Building\FacilityBooking;
+use Filament\Notifications\Notification;
 use App\Http\Resources\PermitWorkResource;
+use Filament\Notifications\Actions\Action;
 use App\Http\Resources\CustomResponseResource;
+use App\Filament\Resources\FacilityBookingResource;
 
 class PermitWorkController extends Controller
 {
@@ -94,7 +99,32 @@ class PermitWorkController extends Controller
         $data['flat_id'] = $flat_id;
         $data['owner_association_id'] = $owner_association_id;
 
-        FacilityBooking::create($data);
+        $workPermit = FacilityBooking::create($data);
+
+        // Find user
+        $user = User::where('owner_association_id', $owner_association_id)->first();
+
+        // Create and send notification
+        if($user){
+            Notification::make()
+                ->success()
+                ->title("Work permit Request")
+                ->icon('heroicon-o-document-text')
+                ->iconColor('warning')
+                ->body("Please approve the Permit to work request.")
+                ->actions([
+                    Action::make('view')
+                        ->button()
+                        ->url(function () use ($owner_association_id, $workPermit) {
+                            $slug = OwnerAssociation::where('id', $owner_association_id)->first()?->slug;
+                            if ($slug) {
+                                return FacilityBookingResource::getUrl('edit', [$slug, $workPermit?->id]);
+                            }
+                            return url('/app/facility-bookings/' . $workPermit?->id . '/edit');
+                        }),
+                ])
+                ->sendToDatabase($user);
+        }
 
         return new CustomResponseResource([
             'title'   => 'Booking Successful',
