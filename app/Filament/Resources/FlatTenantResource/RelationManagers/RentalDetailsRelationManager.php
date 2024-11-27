@@ -53,11 +53,12 @@ class RentalDetailsRelationManager extends RelationManager
                                     ->disabledOn('edit')
                                     ->placeholder('Select the number of cheques')
                                     ->options([
-                                        '1' => '1',
-                                        '2' => '2',
-                                        '3' => '3',
-                                        '4' => '4',
-                                        '6' => '6',
+                                        '1'  => '1',
+                                        '2'  => '2',
+                                        '3'  => '3',
+                                        '4'  => '4',
+                                        '6'  => '6',
+                                        '12' => '12',
                                     ])
                                     ->reactive()
                                     ->afterStateUpdated(function ($set, $state) {
