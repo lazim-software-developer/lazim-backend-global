@@ -48,6 +48,7 @@ class Dashboard extends BaseDashboard
     {
         return [
             Action::make('Accounting Module')
+                ->label('Accounting Module')
                 ->url(env('ACCOUNTING_URL')),
             Action::make('resetFilters')
                 ->label('Reset Filters')
