@@ -88,9 +88,11 @@ class BillImport implements ToCollection, WithHeadingRow
 
             $dueDate = $this->convertExcelDate($row['due_date']);
 
+            $type = $row['type'] === 'DU/Etisalat' ? 'Telecommunication' : $row['type'];
+
             Bill::create([
                 'flat_id'           => $this->flatId,
-                'type'              => $row['type'],
+                'type'              => $type,
                 'amount'            => $row['amount'],
                 'month'             => $this->month,
                 'due_date'          => $dueDate,
