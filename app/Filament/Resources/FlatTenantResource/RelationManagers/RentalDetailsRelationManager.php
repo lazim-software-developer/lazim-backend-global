@@ -5,6 +5,7 @@ namespace App\Filament\Resources\FlatTenantResource\RelationManagers;
 use App\Models\Building\FlatTenant;
 use App\Models\RentalCheque;
 use App\Models\RentalDetail;
+use App\Models\User\User;
 use Carbon\Carbon;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Grid;
@@ -47,6 +48,22 @@ class RentalDetailsRelationManager extends RelationManager
                                     ->label('Flat number')
                                     ->default($this->ownerRecord->flat_id)
                                     ->placeholder('Select a flat number'),
+                            ]),
+
+                        Grid::make(2)
+                            ->schema([
+                                TextInput::make('admin_fee')
+                                    ->nullable()
+                                    ->required()
+                                    ->reactive()
+                                    ->disabledOn('edit')
+                                    ->minValue(0)
+                                    ->label('Contract amount')
+                                    ->placeholder('Enter the Contract amount')
+                                    ->numeric()
+                                    ->suffix('AED')
+                                    ->maxLength(10),
+
                                 Select::make('number_of_cheques')
                                     ->native(false)
                                     ->required()
@@ -75,7 +92,7 @@ class RentalDetailsRelationManager extends RelationManager
 
                                         $set('cheques', $cheques);
                                     }),
-                                // ->afterStateUpdated(fn($set, $state) => $set('cheques_count', $state)),
+
                                 DatePicker::make('contract_start_date')
                                     ->rules(['date'])
                                     ->default(function () {
@@ -86,6 +103,7 @@ class RentalDetailsRelationManager extends RelationManager
                                     })
                                     ->disabled()
                                     ->placeholder('Select contract start date'),
+
                                 DatePicker::make('contract_end_date')
                                     ->rules(['date'])
                                     ->default(function () {
@@ -102,22 +120,7 @@ class RentalDetailsRelationManager extends RelationManager
                                         return $endDate ? false : true;
                                     })
                                     ->placeholder('Select contract end date'),
-                                TextInput::make('admin_fee')
-                                    ->nullable()
-                                    ->disabledOn('edit')
-                                    ->minValue(0)
-                                    ->label('Contract amount')
-                                    ->placeholder('Enter the Contract amount')
-                                    ->numeric()
-                                    ->suffix('AED')
-                                    ->maxLength(10),
-                                TextInput::make('other_charges')
-                                    ->nullable()
-                                    ->disabledOn('edit')
-                                    ->suffix('AED')
-                                    ->minValue(0)
-                                    ->numeric()
-                                    ->maxLength(10),
+
                                 TextInput::make('advance_amount')
                                     ->required()
                                     ->maxLength(10)
@@ -125,6 +128,7 @@ class RentalDetailsRelationManager extends RelationManager
                                     ->label('Security Deposit')
                                     ->numeric()
                                     ->placeholder('Enter the Security Deposit'),
+
                                 Select::make('advance_amount_payment_mode')
                                     ->native(false)
                                     ->required()
@@ -136,6 +140,15 @@ class RentalDetailsRelationManager extends RelationManager
                                         'Cash'   => 'Cash',
                                     ])
                                     ->placeholder('Select payment mode'),
+
+                                TextInput::make('other_charges')
+                                    ->nullable()
+                                    ->disabledOn('edit')
+                                    ->suffix('AED')
+                                    ->minValue(0)
+                                    ->numeric()
+                                    ->maxLength(10),
+
                                 Select::make('status')
                                     ->default('Active')
                                     ->required()
@@ -160,16 +173,6 @@ class RentalDetailsRelationManager extends RelationManager
                             ->addable(false) // Disable manual adding since we're auto-creating
                             ->deletable(false) // Disable deletion to maintain the required number
                             ->defaultItems(0)
-                        // ->addable(fn($context) => $context !== 'edit')
-                        // ->deletable(fn($context) => $context !== 'edit')
-                        // ->minItems(fn(callable $get) => $get('cheques_count') ?? 0)
-                        // ->maxItems(function (callable $get) {
-                        //     $chequesCount = $get('cheques_count');
-                        //     return $chequesCount !== null ? $chequesCount : PHP_INT_MAX;
-                        // })
-                        // ->validationMessages([
-                        //     'minItems' => 'Please enter all the cheques details by clicking on \'Add to cheques\'',
-                        // ])
                             ->schema([
                                 Grid::make(2)
                                     ->schema([
@@ -180,6 +183,7 @@ class RentalDetailsRelationManager extends RelationManager
                                             ->minLength(6)
                                             ->maxLength(12)
                                             ->placeholder('Enter cheque number'),
+
                                         TextInput::make('amount')
                                             ->maxLength(20)
                                             ->numeric()
@@ -187,11 +191,13 @@ class RentalDetailsRelationManager extends RelationManager
                                             ->minLength(0)
                                             ->required()
                                             ->placeholder('Enter amount'),
+
                                         DatePicker::make('due_date')
                                             ->rules(['date'])
                                             ->disabledOn('edit')
                                             ->required()
                                             ->placeholder('Select due date'),
+
                                         Select::make('status')
                                             ->default('Upcoming')
                                             ->required()
@@ -203,6 +209,7 @@ class RentalDetailsRelationManager extends RelationManager
                                                 'Upcoming' => 'Upcoming',
                                             ])
                                             ->placeholder('Select cheque status'),
+
                                         Select::make('mode_payment')
                                             ->label('Payment Mode')
                                             ->default('Cheque')
@@ -215,6 +222,7 @@ class RentalDetailsRelationManager extends RelationManager
                                                 'Cash'   => 'Cash',
                                             ])
                                             ->placeholder('Select payment mode'),
+
                                         Select::make('cheque_status')
                                             ->visibleOn('edit')
                                             ->native(false)
@@ -224,18 +232,14 @@ class RentalDetailsRelationManager extends RelationManager
                                                 'Paid'      => 'Paid',
                                             ])
                                             ->placeholder('Select cheque status'),
+
                                         TextInput::make('payment_link')
                                             ->url()
                                             ->visibleOn('edit')
                                             ->nullable()
                                             ->maxLength(200)
                                             ->placeholder('Enter payment link'),
-                                        // Repeater::make('comments')
-                                        //     ->deletable(fn($context) => $context !== 'edit')
-                                        //     ->simple(
-                                        //         TextInput::make('comments')
-                                        //             ->nullable(),
-                                        //     ),
+
                                         Textarea::make('comments')
                                             ->visibleOn('edit')
                                             ->nullable()
@@ -284,16 +288,16 @@ class RentalDetailsRelationManager extends RelationManager
     {
         return Action::make('customCreate')
             ->label('Add Rental Details')
-            ->visible(function () {
-                $rentalDetail = RentalDetail::where('flat_tenant_id', $this->ownerRecord->id)->first();
+        // ->visible(function () {
+        //     $rentalDetail = RentalDetail::where('flat_tenant_id', $this->ownerRecord->id)->first();
 
-                if (!$rentalDetail) {
-                    return true;
-                }
+        //     if (!$rentalDetail) {
+        //         return true;
+        //     }
 
-                $endDate = $rentalDetail->contract_end_date;
-                return $endDate < Carbon::now()->format('Y-m-d');
-            })
+        //     $endDate = $rentalDetail->contract_end_date;
+        //     return $endDate < Carbon::now()->format('Y-m-d');
+        // })
             ->action(function (array $data) {
                 // dd($data);
                 $this->handleCustomActionSave($data);
