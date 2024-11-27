@@ -21,6 +21,7 @@ use Filament\Tables\Actions\Action;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
+use Filament\Notifications\Notification;
 
 class RentalDetailsRelationManager extends RelationManager
 {
@@ -54,15 +55,36 @@ class RentalDetailsRelationManager extends RelationManager
                             ->schema([
                                 TextInput::make('admin_fee')
                                     ->nullable()
+                                    ->lazy()
                                     ->required()
-                                    ->reactive()
+                                    ->reactive() // Make this reactive to trigger updates
                                     ->disabledOn('edit')
                                     ->minValue(0)
                                     ->label('Contract amount')
                                     ->placeholder('Enter the Contract amount')
                                     ->numeric()
                                     ->suffix('AED')
-                                    ->maxLength(10),
+                                    ->maxLength(10)
+                                    ->afterStateUpdated(function ($get, $set, $state) {
+                                        // Get the number of cheques
+                                        $numberOfCheques = $get('number_of_cheques');
+
+                                        if ($numberOfCheques && $state) {
+                                            // Calculate the default amount per cheque
+                                            $defaultAmount = round($state / $numberOfCheques, 2);
+
+                                            // Update cheque amounts
+                                            $cheques = $get('cheques');
+                                            if (is_array($cheques)) {
+                                                foreach ($cheques as $index => $cheque) {
+                                                    // Only update if the amount hasn't been manually modified
+                                                    if (!isset($cheque['amount_manually_edited'])) {
+                                                        $set("cheques.{$index}.amount", $defaultAmount);
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }),
 
                                 Select::make('number_of_cheques')
                                     ->native(false)
@@ -78,13 +100,16 @@ class RentalDetailsRelationManager extends RelationManager
                                         '12' => '12',
                                     ])
                                     ->reactive()
-                                    ->afterStateUpdated(function ($set, $state) {
+                                    ->afterStateUpdated(function ($get, $set, $state) {
                                         $set('cheques_count', $state);
+
+                                        // Get the admin fee for even distribution
+                                        $adminFee = $get('admin_fee');
 
                                         // Create an array of empty cheque entries
                                         $cheques = array_fill(0, (int) $state, [
                                             'cheque_number' => '',
-                                            'amount'        => '',
+                                            'amount'        => $adminFee ? round($adminFee / $state, 2) : '',
                                             'due_date'      => '',
                                             'status'        => 'Upcoming',
                                             'mode_payment'  => 'Cheque',
@@ -185,12 +210,16 @@ class RentalDetailsRelationManager extends RelationManager
                                             ->placeholder('Enter cheque number'),
 
                                         TextInput::make('amount')
-                                            ->maxLength(20)
                                             ->numeric()
+                                            ->rules(['numeric', 'regex:/^\d{1,17}(\.\d{1,2})?$/']) // Allows up to 17 digits before decimal and 2 after
                                             ->disabledOn('edit')
-                                            ->minLength(0)
+                                            ->minValue(0)
                                             ->required()
-                                            ->placeholder('Enter amount'),
+                                            ->placeholder('Enter amount')
+                                            ->afterStateUpdated(function ($set) {
+                                                // Mark that the amount has been manually edited
+                                                $set('amount_manually_edited', true);
+                                            }),
 
                                         DatePicker::make('due_date')
                                             ->rules(['date'])
@@ -288,18 +317,23 @@ class RentalDetailsRelationManager extends RelationManager
     {
         return Action::make('customCreate')
             ->label('Add Rental Details')
-        // ->visible(function () {
-        //     $rentalDetail = RentalDetail::where('flat_tenant_id', $this->ownerRecord->id)->first();
+            ->action(function (array $data, Action $action) {
+                // Validate cheque amounts sum matches admin fee
+                if (isset($data['cheques']) && isset($data['admin_fee'])) {
+                    $chequesSum = collect($data['cheques'])->sum('amount');
+                    if ($chequesSum != $data['admin_fee']) {
+                        Notification::make()
+                            ->title('Incorrect Cheque Amounts')
+                            ->body('The sum of cheque amounts (' . $chequesSum . ') must be equal to the contract amount (' . $data['admin_fee'] . ')')
+                            ->danger()
+                            ->send();
 
-        //     if (!$rentalDetail) {
-        //         return true;
-        //     }
+                        $action->halt(); // This prevents the modal from closing
+                        return;
+                    }
+                }
 
-        //     $endDate = $rentalDetail->contract_end_date;
-        //     return $endDate < Carbon::now()->format('Y-m-d');
-        // })
-            ->action(function (array $data) {
-                // dd($data);
+                // If validation passes, proceed with saving
                 $this->handleCustomActionSave($data);
             })
             ->form(function (Form $form) {
@@ -309,9 +343,9 @@ class RentalDetailsRelationManager extends RelationManager
 
     private function handleCustomActionSave(array $data)
     {
-        // dd($data);
-        $startDate    = $this->oldFormState['mountedTableActionsData'][0]['contract_start_date'];
-        $endDate      = $this->oldFormState['mountedTableActionsData'][0]['contract_end_date'];
+        $startDate    = $this->ownerRecord->start_date->format('Y-m-d');
+        $endDate    = $this->ownerRecord->end_date->format('Y-m-d');
+
         $rentalDetail = RentalDetail::create([
             'flat_id'                     => $data['flat_id'],
             'flat_tenant_id'              => $this->ownerRecord->id,
@@ -345,5 +379,11 @@ class RentalDetailsRelationManager extends RelationManager
                 ]);
             }
         }
+
+        Notification::make()
+            ->title('Success')
+            ->body('Rental details have been created successfully.')
+            ->success()
+            ->send();
     }
 }
