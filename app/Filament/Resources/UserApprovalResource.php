@@ -32,7 +32,10 @@ class UserApprovalResource extends Resource
             ->schema([
                 Section::make('User Information')
                     ->schema([
-                        TextInput::make('user')->disabledOn('edit'),
+                        Select::make('user_id')
+                            ->relationship('user', 'first_name')
+                            ->label('User')
+                            ->disabledOn('edit'),
                         Select::make('user.role_id')
                             ->relationship('user.role', 'name')
                             ->preload()
