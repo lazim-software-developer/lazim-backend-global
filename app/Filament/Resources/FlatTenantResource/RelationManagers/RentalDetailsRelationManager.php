@@ -121,13 +121,13 @@ class RentalDetailsRelationManager extends RelationManager
                                     ->required()
                                     ->maxLength(10)
                                     ->suffix('AED')
-                                    ->label('Service Deposit')
+                                    ->label('Security Deposit')
                                     ->numeric()
-                                    ->placeholder('Enter the Service Deposit'),
+                                    ->placeholder('Enter the Security Deposit'),
                                 Select::make('advance_amount_payment_mode')
                                     ->native(false)
                                     ->required()
-                                    ->label('Service Deposit Payment Mode')
+                                    ->label('Security Deposit Payment Mode')
                                     ->disabledOn('edit')
                                     ->options([
                                         'Online' => 'Online',
@@ -254,7 +254,7 @@ class RentalDetailsRelationManager extends RelationManager
                 TextColumn::make('contract_end_date'),
                 TextColumn::make('number_of_cheques'),
                 TextColumn::make('advance_amount')
-                    ->label('Service Deposit')
+                    ->label('Security Deposit')
                     ->default('NA'),
                 TextColumn::make('admin_fee')
                     ->label('Contract amount')
