@@ -582,12 +582,7 @@ class AppPanelProvider extends PanelProvider
                                             ->icon('heroicon-s-rectangle-stack')
                                             ->activeIcon('heroicon-s-rectangle-stack')
                                             ->sort(5),
-                                        NavigationItem::make('Residential')
-                                            ->url('/app/residential-forms')
-                                            ->hidden(!$user->can('view_any_residential::form'))
-                                            ->icon('heroicon-s-building-library')
-                                            ->activeIcon('heroicon-s-building-library')
-                                            ->sort(6),
+                                        
                                         NavigationItem::make('Sale NOC')
                                             ->url('/app/noc-forms')
                                             ->hidden(!$user->can('view_any_noc::form'))
