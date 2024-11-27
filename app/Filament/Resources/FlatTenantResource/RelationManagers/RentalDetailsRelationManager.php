@@ -15,13 +15,13 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
-use Filament\Notifications\Notification;
 
 class RentalDetailsRelationManager extends RelationManager
 {
@@ -150,6 +150,7 @@ class RentalDetailsRelationManager extends RelationManager
                                     ->required()
                                     ->maxLength(10)
                                     ->suffix('AED')
+                                    ->disabledOn('edit')
                                     ->label('Security Deposit')
                                     ->numeric()
                                     ->placeholder('Enter the Security Deposit'),
@@ -336,6 +337,17 @@ class RentalDetailsRelationManager extends RelationManager
                 // If validation passes, proceed with saving
                 $this->handleCustomActionSave($data);
             })
+            ->visible(function () {
+                $rentalDetail = RentalDetail::where('flat_tenant_id', $this->ownerRecord->id)->first();
+
+                if (!$rentalDetail) {
+                    return true;
+                }
+
+                $endDate = $rentalDetail->contract_end_date;
+                return $endDate < Carbon::now()->format('Y-m-d');
+            })
+
             ->form(function (Form $form) {
                 return $this->form($form);
             });
@@ -343,8 +355,8 @@ class RentalDetailsRelationManager extends RelationManager
 
     private function handleCustomActionSave(array $data)
     {
-        $startDate    = $this->ownerRecord->start_date->format('Y-m-d');
-        $endDate    = $this->ownerRecord->end_date->format('Y-m-d');
+        $startDate = $this->ownerRecord->start_date->format('Y-m-d');
+        $endDate   = $this->ownerRecord->end_date->format('Y-m-d');
 
         $rentalDetail = RentalDetail::create([
             'flat_id'                     => $data['flat_id'],
