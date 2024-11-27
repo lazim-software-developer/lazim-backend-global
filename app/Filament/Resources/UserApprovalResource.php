@@ -33,6 +33,11 @@ class UserApprovalResource extends Resource
                 Section::make('User Information')
                     ->schema([
                         TextInput::make('user')->disabledOn('edit'),
+                        Select::make('user.role_id')
+                            ->relationship('user.role', 'name')
+                            ->preload()
+                            ->label('Role')
+                            ->disabledOn('edit'),
                         TextInput::make('email')->disabledOn('edit'),
                         TextInput::make('phone')->disabledOn('edit'),
                         DateTimePicker::make('created_at')
@@ -122,6 +127,7 @@ class UserApprovalResource extends Resource
                 Tables\Columns\TextColumn::make('user.first_name')
                     ->numeric()
                     ->searchable(),
+                Tables\Columns\TextColumn::make('user.role.name')->label('Role')->default('--'),
                 Tables\Columns\TextColumn::make('flat.property_number')->label('Flat Number')->default('--'),
                 Tables\Columns\TextColumn::make('flat.building.name')->label('Building')->default('--'),
                 Tables\Columns\TextColumn::make('created_at')->label('Date of creation')->default('--'),
