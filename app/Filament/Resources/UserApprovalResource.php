@@ -36,11 +36,6 @@ class UserApprovalResource extends Resource
                             ->relationship('user', 'first_name')
                             ->label('User')
                             ->disabledOn('edit'),
-                        Select::make('user.role_id')
-                            ->relationship('user.role', 'name')
-                            ->preload()
-                            ->label('Role')
-                            ->disabledOn('edit'),
                         TextInput::make('email')->disabledOn('edit'),
                         TextInput::make('phone')->disabledOn('edit'),
                         DateTimePicker::make('created_at')

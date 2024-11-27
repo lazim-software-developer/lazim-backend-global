@@ -105,7 +105,8 @@ class RentalDetailsRelationManager extends RelationManager
                                     ->nullable()
                                     ->disabledOn('edit')
                                     ->minValue(0)
-                                    ->placeholder('Enter the Admin fee')
+                                    ->label('Contract amount')
+                                    ->placeholder('Enter the Contract amount')
                                     ->numeric()
                                     ->suffix('AED')
                                     ->maxLength(10),
@@ -120,11 +121,13 @@ class RentalDetailsRelationManager extends RelationManager
                                     ->required()
                                     ->maxLength(10)
                                     ->suffix('AED')
+                                    ->label('Service Deposit')
                                     ->numeric()
-                                    ->placeholder('Enter advance amount'),
+                                    ->placeholder('Enter the Service Deposit'),
                                 Select::make('advance_amount_payment_mode')
                                     ->native(false)
                                     ->required()
+                                    ->label('Service Deposit Payment Mode')
                                     ->disabledOn('edit')
                                     ->options([
                                         'Online' => 'Online',
@@ -251,8 +254,10 @@ class RentalDetailsRelationManager extends RelationManager
                 TextColumn::make('contract_end_date'),
                 TextColumn::make('number_of_cheques'),
                 TextColumn::make('advance_amount')
+                    ->label('Service Deposit')
                     ->default('NA'),
                 TextColumn::make('admin_fee')
+                    ->label('Contract amount')
                     ->default('NA'),
                 TextColumn::make('other_charges')
                     ->default('NA'),
