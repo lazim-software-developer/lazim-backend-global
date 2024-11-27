@@ -53,11 +53,12 @@ class RentalDetailsRelationManager extends RelationManager
                                     ->disabledOn('edit')
                                     ->placeholder('Select the number of cheques')
                                     ->options([
-                                        '1' => '1',
-                                        '2' => '2',
-                                        '3' => '3',
-                                        '4' => '4',
-                                        '6' => '6',
+                                        '1'  => '1',
+                                        '2'  => '2',
+                                        '3'  => '3',
+                                        '4'  => '4',
+                                        '6'  => '6',
+                                        '12' => '12',
                                     ])
                                     ->reactive()
                                     ->afterStateUpdated(function ($set, $state) {
@@ -105,7 +106,8 @@ class RentalDetailsRelationManager extends RelationManager
                                     ->nullable()
                                     ->disabledOn('edit')
                                     ->minValue(0)
-                                    ->placeholder('Enter the Admin fee')
+                                    ->label('Contract amount')
+                                    ->placeholder('Enter the Contract amount')
                                     ->numeric()
                                     ->suffix('AED')
                                     ->maxLength(10),
@@ -120,11 +122,13 @@ class RentalDetailsRelationManager extends RelationManager
                                     ->required()
                                     ->maxLength(10)
                                     ->suffix('AED')
+                                    ->label('Security Deposit')
                                     ->numeric()
-                                    ->placeholder('Enter advance amount'),
+                                    ->placeholder('Enter the Security Deposit'),
                                 Select::make('advance_amount_payment_mode')
                                     ->native(false)
                                     ->required()
+                                    ->label('Security Deposit Payment Mode')
                                     ->disabledOn('edit')
                                     ->options([
                                         'Online' => 'Online',
@@ -251,8 +255,10 @@ class RentalDetailsRelationManager extends RelationManager
                 TextColumn::make('contract_end_date'),
                 TextColumn::make('number_of_cheques'),
                 TextColumn::make('advance_amount')
+                    ->label('Security Deposit')
                     ->default('NA'),
                 TextColumn::make('admin_fee')
+                    ->label('Contract amount')
                     ->default('NA'),
                 TextColumn::make('other_charges')
                     ->default('NA'),

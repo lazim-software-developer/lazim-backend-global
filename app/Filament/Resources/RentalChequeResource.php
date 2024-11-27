@@ -119,7 +119,7 @@ class RentalChequeResource extends Resource
 
                 return $query->whereHas('rentalDetail.flat', function ($query) use ($ownerAssociationId) {
                     $query->where('owner_association_id', $ownerAssociationId);
-                });
+                })->orderBy('created_at', 'desc');
             })
             ->columns([
                 Tables\Columns\TextColumn::make('rentalDetail.flat.property_number')

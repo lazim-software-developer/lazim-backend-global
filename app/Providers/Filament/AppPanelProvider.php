@@ -582,7 +582,7 @@ class AppPanelProvider extends PanelProvider
                                             ->icon('heroicon-s-rectangle-stack')
                                             ->activeIcon('heroicon-s-rectangle-stack')
                                             ->sort(5),
-                                        
+
                                         NavigationItem::make('Sale NOC')
                                             ->url('/app/noc-forms')
                                             ->hidden(!$user->can('view_any_noc::form'))
@@ -718,7 +718,7 @@ class AppPanelProvider extends PanelProvider
                                             ->icon('heroicon-m-clipboard-document-list')
                                             ->activeIcon('heroicon-m-clipboard-document-list')
                                             ->sort(1),
-                                        NavigationItem::make('Issues')
+                                        NavigationItem::make('Reactive Maintenance')
                                             ->url(FacilitySupportComplaintResource::getUrl('index'))
                                             ->visible(auth()->user()->role->name == 'Property Manager')
                                             ->hidden(!$user->can('view_any_helpdeskcomplaint'))
@@ -1412,7 +1412,7 @@ class AppPanelProvider extends PanelProvider
                                         ->icon('heroicon-m-clipboard-document-list')
                                         ->activeIcon('heroicon-m-clipboard-document-list')
                                         ->sort(1),
-                                    NavigationItem::make('Issues')
+                                    NavigationItem::make('Reactive Maintenance')
                                         ->url(FacilitySupportComplaintResource::getUrl('index'))
                                         ->visible(auth()->user()->role->name == 'Property Manager')
                                         ->hidden(!$user->can('view_any_helpdeskcomplaint'))

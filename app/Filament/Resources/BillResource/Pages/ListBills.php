@@ -114,7 +114,10 @@ class ListBills extends ListRecords
             ExportAction::make()->exports([
                 ExcelExport::make()
                     ->withColumns([
-                        Column::make('type'),
+                        Column::make('type')
+                            ->formatStateUsing(function ($state) {
+                                return $state === 'Telecommunication' ? 'DU/Etisalat' : $state;
+                            }),
                         Column::make('amount'),
                         Column::make('due_date'),
                         Column::make('status'),
@@ -149,13 +152,13 @@ class ListBills extends ListRecords
     public function getTabs(): array
     {
         return [
-            'BTU'               => Tab::make()
+            'BTU'         => Tab::make()
                 ->modifyQueryUsing(fn(Builder $query) => $query->where('type', 'BTU')),
-            'DEWA'              => Tab::make()
+            'DEWA'        => Tab::make()
                 ->modifyQueryUsing(fn(Builder $query) => $query->where('type', 'DEWA')),
-            'Telecommunication' => Tab::make()
+            'DU/Etisalat' => Tab::make()
                 ->modifyQueryUsing(fn(Builder $query) => $query->where('type', 'Telecommunication')),
-            'lpg'               => Tab::make()
+            'lpg'         => Tab::make()
                 ->label('LPG')
                 ->modifyQueryUsing(fn(Builder $query) => $query->where('type', 'lpg')),
         ];
