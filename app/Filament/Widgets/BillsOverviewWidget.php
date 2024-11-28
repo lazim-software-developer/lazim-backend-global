@@ -16,6 +16,8 @@ class BillsOverviewWidget extends BaseWidget
         return 4;
     }
 
+    protected static ?int $sort = 4;
+
     protected function getStats(): array
     {
         $overdueBTUCount = Bill::where('type', 'BTU')

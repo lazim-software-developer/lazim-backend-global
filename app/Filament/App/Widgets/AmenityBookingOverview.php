@@ -10,7 +10,7 @@ class AmenityBookingOverview extends ChartWidget
 {
     protected static ?string $heading = 'Amenity Booking Statistics';
     protected int|string|array $columnSpan = 'full';
-    protected static ?int $sort = 5;
+    protected static ?int $sort = 7;
     protected static ?string $maxHeight = '300px';
     protected function getData(): array
     {
