@@ -7,9 +7,9 @@ use App\Imports\PropertyManagerBuildingsImport;
 use App\Models\Master\Role;
 use Filament\Actions;
 use Filament\Actions\Action;
-use Filament\Actions\ActionGroup;
 use Filament\Forms\Components\FileUpload;
 use Filament\Resources\Pages\ListRecords;
+use Filament\Resources\Pages\ListRecords\Tab;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -21,17 +21,43 @@ use pxlrbt\FilamentExcel\Exports\ExcelExport;
 class ListBuildings extends ListRecords
 {
     protected static string $resource = BuildingResource::class;
+
+    public function getTabs(): array
+    {
+        if (auth()->user()?->role?->name !== 'Property Manager') {
+            return [];
+        }
+
+        return [
+            'active'   => Tab::make('Attached Buildings')
+                ->modifyQueryUsing(fn(Builder $query) => $query)
+                ->icon('heroicon-o-check-circle'),
+            'inactive' => Tab::make('Detached Buildings')
+                ->modifyQueryUsing(fn(Builder $query) => $query)
+                ->icon('heroicon-o-x-circle'),
+        ];
+    }
+
     protected function getTableQuery(): Builder
     {
-        $buildingIds = DB::table('building_owner_association')->where('owner_association_id', auth()->user()?->owner_association_id)->pluck('building_id');
+        $query = parent::getTableQuery();
+
         if (auth()->user()?->role?->name === 'Property Manager') {
-            return parent::getTableQuery()->whereIn('id', $buildingIds);
+            $buildingIds = DB::table('building_owner_association')
+                ->where('owner_association_id', auth()->user()?->owner_association_id)
+                ->where('active', $this->activeTab === 'active' ? 1 : 0)
+                ->pluck('building_id');
+
+            return $query->whereIn('id', $buildingIds);
         }
+
         if (Role::where('id', auth()->user()->role_id)->first()->name != 'Admin') {
-            return parent::getTableQuery()->where('owner_association_id', auth()->user()?->owner_association_id);
+            return $query->where('owner_association_id', auth()->user()?->owner_association_id);
         }
-        return parent::getTableQuery();
+
+        return $query;
     }
+
     protected function getHeaderActions(): array
     {
         return [
@@ -73,24 +99,24 @@ class ListBuildings extends ListRecords
                 }),
 
             // ActionGroup::make([
-                ExportAction::make('exporttemplate')
-                    ->visible(auth()->user()?->role?->name === 'Property Manager')
-                    ->exports([
-                        ExcelExport::make()
-                            ->modifyQueryUsing(fn(Builder $query) => $query->where('id', 0))
-                            ->withColumns([
-                                Column::make('name'),
-                                Column::make('building_type'),
-                                Column::make('property_group_id'),
-                                Column::make('address_line1'),
-                                Column::make('area'),
-                                Column::make('floors'),
-                                Column::make('parking_count'),
-                                Column::make('from'),
-                                Column::make('to'),
-                            ]),
-                    ])
-                    ->label('Download sample file'),
+            ExportAction::make('exporttemplate')
+                ->visible(auth()->user()?->role?->name === 'Property Manager')
+                ->exports([
+                    ExcelExport::make()
+                        ->modifyQueryUsing(fn(Builder $query) => $query->where('id', 0))
+                        ->withColumns([
+                            Column::make('name'),
+                            Column::make('building_type'),
+                            Column::make('property_group_id'),
+                            Column::make('address_line1'),
+                            Column::make('area'),
+                            Column::make('floors'),
+                            Column::make('parking_count'),
+                            Column::make('from'),
+                            Column::make('to'),
+                        ]),
+                ])
+                ->label('Download sample file'),
             // ])->tooltip('Download sample file'),
         ];
     }
