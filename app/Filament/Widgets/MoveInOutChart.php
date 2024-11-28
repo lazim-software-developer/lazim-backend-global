@@ -13,16 +13,16 @@ class MoveInOutChart extends ChartWidget
     use InteractsWithPageFilters;
 
     protected static ?string $heading   = 'Move In and Out Requests';
-    protected static ?string $maxHeight = '400px';
-    protected static ?string $maxWidth  = '50%';
 
-    // protected static ?string $maxWidth = '100%';
-    protected static ?int $sort = 4;
+    public function getColumnSpan(): array|int|string{
+        return 1;
+    }
+    protected static ?int $sort          = 4;
 
-    // protected function getColumns(): int
-    // {
-    //     return 2;
-    // }
+    protected function getColumns(): int
+    {
+        return 1;
+    }
 
     public static function canView(): bool
     {
