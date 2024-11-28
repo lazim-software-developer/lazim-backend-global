@@ -85,37 +85,76 @@ class PropertyManagerBuildingsImport implements ToCollection, WithHeadingRow
 
         $notImported = [];
         foreach ($rows as $row) {
-            $exists = Building::where('property_group_id', $row['property_group_id'])->exists();
-            if ($exists) {
-                $notImported[] = $row['name'];
-            } else {
-                $fromDate = $this->convertExcelDate($row['from']);
-                $toDate   = $this->convertExcelDate($row['to']);
+            // Check for required fields
+            $requiredFields = ['name', 'building_type', 'property_group_id', 'address_line1'];
+            $missingFields = [];
 
-                $building = Building::create([
-                    'name'                  => $row['name'],
-                    'building_type'         => $row['building_type'],
-                    'property_group_id'     => $row['property_group_id'],
-                    'address_line1'         => $row['address_line1'],
-                    'area'                  => $row['area'],
-                    'floors'                => $row['floors'],
-                    'parking_count'         => $row['parking_count'],
-                    'from'                  => $fromDate ?: null,
-                    'to'                    => $toDate ?: null,
-                    'owner_association_id'  => $this->oaId,
-                    'show_inhouse_services' => 0,
-                    'managed_by'            => 'Property Manager',
-                ]);
-
-                // Sync the relationship with OwnerAssociation with pivot data
-                $building->ownerAssociations()->sync([
-                    $this->oaId => [
-                        'from'   => $fromDate ?: null,
-                        'to'     => $toDate ?: null,
-                        'active' => true,
-                    ],
-                ]);
+            foreach ($requiredFields as $field) {
+                if (empty($row[$field])) {
+                    $missingFields[] = $field;
+                }
             }
+
+            if (!empty($missingFields)) {
+                Notification::make()
+                    ->title("Missing required fields.")
+                    ->danger()
+                    ->body("Missing fields in row: " . implode(', ', $missingFields))
+                    ->send();
+                $notImported[] = $row['name'] ?? 'Unnamed Building';
+                continue;
+            }
+
+            // Check for unique property_group_id
+            $propertyGroupExists = Building::where('property_group_id', $row['property_group_id'])->exists();
+            if ($propertyGroupExists) {
+                Notification::make()
+                    ->title("Duplicate property_group_id.")
+                    ->danger()
+                    ->body("Building with property_group_id: {$row['property_group_id']} already exists.")
+                    ->send();
+                $notImported[] = $row['name'];
+                continue;
+            }
+
+            // Check for unique name
+            $nameExists = Building::where('name', $row['name'])->exists();
+            if ($nameExists) {
+                Notification::make()
+                    ->title("Duplicate name.")
+                    ->danger()
+                    ->body("Building with name: {$row['name']} already exists.")
+                    ->send();
+                $notImported[] = $row['name'];
+                continue;
+            }
+
+            $fromDate = $this->convertExcelDate($row['from']);
+            $toDate   = $this->convertExcelDate($row['to']);
+
+            $building = Building::create([
+                'name'                  => $row['name'],
+                'building_type'         => $row['building_type'],
+                'property_group_id'     => $row['property_group_id'],
+                'address_line1'         => $row['address_line1'],
+                'area'                  => $row['area'],
+                'floors'                => $row['floors'],
+                'parking_count'         => $row['parking_count'],
+                'from'                  => $fromDate ?: null,
+                'to'                    => $toDate ?: null,
+                'owner_association_id'  => $this->oaId,
+                'show_inhouse_services' => 0,
+                'managed_by'            => 'Property Manager',
+            ]);
+
+            // Sync the relationship with OwnerAssociation with pivot data
+            $building->ownerAssociations()->sync([
+                $this->oaId => [
+                    'from'   => $fromDate ?: null,
+                    'to'     => $toDate ?: null,
+                    'active' => true,
+                ],
+            ]);
         }
         if (!empty($notImported)) {
             Notification::make()
