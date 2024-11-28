@@ -25,9 +25,9 @@ class RentalDetailsController extends Controller
         $rentalDetails = RentalDetail::where('flat_id', $request->flat_id);
 
         if ($request->filled('date')) {
-            $date = Carbon::createFromFormat('m-Y', $request->date);
+            $date = Carbon::createFromFormat('Y', $request->date);
             $rentalDetails->whereHas('rentalCheques', function ($query) use ($date) {
-                $query->whereMonth('due_date', $date->month)->whereYear('due_date', $date->year);
+                $query->whereYear('due_date', $date->year);
             });
         }
 
