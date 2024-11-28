@@ -363,50 +363,12 @@ class BuildingResource extends Resource
                     ->searchable()
                     ->default('NA')
                     ->limit(25),
-                // Tables\Columns\TextColumn::make('address_line2')
-                //     ->toggleable()
-                //     ->searchable()
-                //     ->default('NA')
-                //     ->limit(50),
-                // Tables\Columns\TextColumn::make('area')
-                //     ->toggleable()
-                //     ->searchable()
-                //     ->default('NA')
-                //     ->limit(50),
-                // Tables\Columns\TextColumn::make('cities.name')
-                //     ->toggleable()
-                //     ->searchable()
-                //     ->default('NA')
-                //     ->limit(50),
-                // Tables\Columns\TextColumn::make('lat')
-                //     ->toggleable()
-                //     ->searchable()
-                //     ->default('NA')
-                //     ->limit(50),
-                // Tables\Columns\TextColumn::make('lng')
-                //     ->toggleable()
-                //     ->searchable()
-                //     ->default('NA')
-                //     ->limit(50),
-                // Tables\Columns\TextColumn::make('description')
-                //     ->toggleable()
-                //     ->searchable()
-                //     ->default('NA')
-                //     ->limit(50),
-                // Tables\Columns\TextColumn::make('floors')
-                //     ->toggleable()
-                //     ->default('NA')
-                //     ->searchable(),
+
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])
-            // ->emptyStateDescription(function(){
-            //     if(auth()->user()->role->name == 'Property Manager'){
-            //         return 'Create a Building from Property Management to get started';
-            //     }
-            // })
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DetachAction::make()

@@ -37,17 +37,20 @@ class RentalChequeResource extends Resource
                                     ->numeric()
                                     ->minLength(6)
                                     ->required()
+                                    ->disabledOn('edit')
                                     ->maxLength(12)
                                     ->placeholder('Enter cheque number'),
                                 TextInput::make('amount')
                                     ->maxLength(20)
                                     ->numeric()
+                                    ->disabledOn('edit')
                                     ->minLength(0)
                                     ->required()
                                     ->placeholder('Enter amount'),
                                 DatePicker::make('due_date')
                                     ->rules(['date'])
                                     ->required()
+                                    ->disabledOn('edit')
                                     ->placeholder('Select due date'),
                                 Select::make('status')
                                     ->default('Upcoming')
@@ -119,7 +122,7 @@ class RentalChequeResource extends Resource
 
                 return $query->whereHas('rentalDetail.flat', function ($query) use ($ownerAssociationId) {
                     $query->where('owner_association_id', $ownerAssociationId);
-                });
+                })->orderBy('created_at', 'desc');
             })
             ->columns([
                 Tables\Columns\TextColumn::make('rentalDetail.flat.property_number')

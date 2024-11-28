@@ -38,7 +38,7 @@ class BillResource extends Resource
                     ->options([
                         'BTU'               => 'BTU',
                         'DEWA'              => 'DEWA',
-                        'Telecommunication' => 'Telecommunication',
+                        'Telecommunication' => 'DU/Etisalat',
                         'lpg'               => 'lpg',
                     ])
                     ->live()

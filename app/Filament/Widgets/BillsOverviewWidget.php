@@ -26,14 +26,6 @@ class BillsOverviewWidget extends BaseWidget
             ->count();
 
         return [
-            Stat::make('Overdue BTU Bills', $overdueBTUCount)
-                ->description('Total overdue BTU bills')
-                ->color('danger')
-                ->color('orange')
-                ->chart([15, 25, 35, 45, 55])
-                ->extraAttributes(['style' => 'background: linear-gradient(135deg, #FFF7E0, #FED7AA); color: #F97316;'])
-                ->url('/app/bills?tableFilters[status][value]=Overdue'),
-
             Stat::make('Overdue Cooling Accounts', $overdueCoolingCount)
                 ->description('Total overdue cooling accounts')
                 ->color('danger')
