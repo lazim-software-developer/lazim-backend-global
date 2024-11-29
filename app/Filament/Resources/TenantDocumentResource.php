@@ -85,9 +85,9 @@ class TenantDocumentResource extends Resource
                             'approved' => 'Approved',
                             'rejected' => 'Rejected',
                         ])
-                        // ->disabled(function (Document $record) {
-                        //     return $record->status != 'submitted';
-                        // })
+                    // ->disabled(function (Document $record) {
+                    //     return $record->status != 'submitted';
+                    // })
                         ->searchable()
                         ->live(),
                     Textarea::make('remarks')
@@ -124,7 +124,11 @@ class TenantDocumentResource extends Resource
     {
         return $table
             ->poll('60s')
-            ->modifyQueryUsing(fn(Builder $query) => $query->where('documentable_type', 'App\Models\User\User')->withoutGlobalScopes())
+            ->modifyQueryUsing(fn(Builder $query) => $query
+                    ->where('documentable_type', 'App\Models\User\User')
+                    ->where('name', '!=', 'Makani number')
+                    ->withoutGlobalScopes()
+            )
             ->columns([
                 TextColumn::make('name')
                     ->searchable()
@@ -153,10 +157,10 @@ class TenantDocumentResource extends Resource
                     ->searchable()
                     ->badge()
                     ->formatStateUsing(fn(string $state): string => match ($state) {
-                        'submitted'                          => 'Approval Pending',
-                        'approved'                            => 'Approved',
-                        'rejected'                            => 'Rejected',
-                        'pending'                            => 'Approval Pending',
+                        'submitted'                                  => 'Approval Pending',
+                        'approved'                                   => 'Approved',
+                        'rejected'                                   => 'Rejected',
+                        'pending'                                    => 'Approval Pending',
                     })
                     ->colors([
                         'success' => 'approved',
@@ -197,15 +201,15 @@ class TenantDocumentResource extends Resource
             ->actions([
                 ViewAction::make()
                     ->label('View')
-                    ->visible(function($record){
-                        if($record['status']== 'approved'){
+                    ->visible(function ($record) {
+                        if ($record['status'] == 'approved') {
                             return true;
                         }
                     }),
                 EditAction::make()
                     ->label('Approve')
-                    ->visible(function($record){
-                        if($record['status']!== 'approved'){
+                    ->visible(function ($record) {
+                        if ($record['status'] !== 'approved') {
                             return true;
                         }
                     }),
