@@ -10,6 +10,8 @@ class RentalChequeStatusOverview extends BaseWidget
 {
     protected static ?string $pollingInterval = '30s';
 
+    protected static ?int $sort = 3;
+
     protected function getStats(): array
     {
 

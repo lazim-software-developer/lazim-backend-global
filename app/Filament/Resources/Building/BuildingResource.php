@@ -284,6 +284,7 @@ class BuildingResource extends Resource
                                     'fullscreenControl' => true,
                                     'searchBoxControl'  => false, // creates geocomplete field inside map
                                     'zoomControl' => false,
+                                    'mapTypeId'         => 'roadmap', // Use this instead of defaultMapType
                                 ])
                                 ->reactive()
                                 ->afterStateUpdated(function ($state, Set $set, Get $get) {
@@ -372,19 +373,63 @@ class BuildingResource extends Resource
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DetachAction::make()
-                    ->label('Remove')
+                    ->label(function ($record) {
+                        $active = DB::table('building_owner_association')
+                            ->where('building_id', $record->id)
+                            ->where('active', 1)
+                            ->exists();
+
+                        return $active ? 'Detach' : 'Attach';
+                    })
+                    ->icon(function ($record) {
+                        $active = DB::table('building_owner_association')
+                            ->where('building_id', $record->id)
+                            ->where('active', 1)
+                            ->exists();
+
+                        return $active ? 'heroicon-o-x-mark' : 'heroicon-o-plus';
+                    })
                     ->visible(function () {
                         return auth()->user()?->role?->name === 'Property Manager';
                     })
-                    ->modalHeading('Remove Building')
-                    ->modalDescription('Performing this action will result in loosing authority of this building!')
-                    ->modalSubmitActionLabel('Yes, remove it')
+                    ->modalHeading(function ($record) {
+                        $active = DB::table('building_owner_association')
+                            ->where('building_id', $record->id)
+                            ->where('active', 1)
+                            ->exists();
+
+                        return ($active ? 'Detach from ' : 'Attach to ') . $record->name;
+                    })
+                    ->modalDescription(function ($record) {
+                        $active = DB::table('building_owner_association')
+                            ->where('building_id', $record->id)
+                            ->where('active', 1)
+                            ->exists();
+
+                        return $active
+                            ? 'Are you sure you want to detach from this building? This will remove your management authority.'
+                            : 'Are you sure you want to attach to this building? This will grant you management authority.';
+                    })
+                    ->modalSubmitActionLabel(function ($record) {
+                        $active = DB::table('building_owner_association')
+                            ->where('building_id', $record->id)
+                            ->where('active', 1)
+                            ->exists();
+
+                        return $active ? 'Yes, detach' : 'Yes, attach';
+                    })
                     ->action(function ($record) {
+                        $active = DB::table('building_owner_association')
+                            ->where('building_id', $record->id)
+                            ->where('active', 1)
+                            ->exists();
+
                         DB::table('building_owner_association')
                             ->where('building_id', $record->id)
-                            ->delete();
+                            ->update(['active' => $active ? 0 : 1]);
+
                         Notification::make()
-                            ->title('Building removed successfully')
+                            ->title($active ? 'Building detached successfully' : 'Building attached successfully')
                             ->success()
                             ->send();
                     }),

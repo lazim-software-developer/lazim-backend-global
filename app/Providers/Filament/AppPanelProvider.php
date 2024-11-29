@@ -10,6 +10,7 @@ use App\Filament\Resources\SubContractorResource;
 use App\Filament\Resources\TechnicianVendorResource;
 use App\Filament\Resources\UnitListResource;
 use App\Filament\Widgets\BillsOverviewWidget;
+use App\Filament\Widgets\MoveInOutChart;
 use App\Filament\Widgets\RentalChequeStatusOverview;
 use App\Filament\Widgets\UnitContractExpiryOverview;
 use App\Filament\Widgets\UnitStatusOverview;
@@ -98,9 +99,10 @@ class AppPanelProvider extends PanelProvider
                 UnitContractExpiryOverview::class,
                 RentalChequeStatusOverview::class,
                 BillsOverviewWidget::class,
+                MoveInOutChart::class,
                 MoveInOutSchedule::class,
-                AmenityBookingOverview::class,
                 PreventiveReactiveMaintenance::class,
+                AmenityBookingOverview::class,
             ])
             ->favicon(asset('images/favicon.png'))
             ->darkMode(false)

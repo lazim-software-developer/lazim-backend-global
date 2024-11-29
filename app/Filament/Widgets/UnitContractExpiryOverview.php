@@ -13,6 +13,9 @@ class UnitContractExpiryOverview extends BaseWidget
     protected string|int|array $columnSpan = 'full';
     protected static bool $isLazy = true;
 
+    protected static ?int $sort = 2;
+
+
     protected function getStats(): array
     {
         $today = Carbon::now();

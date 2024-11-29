@@ -15,7 +15,7 @@ class PreventiveReactiveMaintenance extends BaseWidget
 {
     protected static ?string $heading          = 'Reactive Maintenance';
     protected int|string|array $columnSpan = 'full';
-    protected static ?int $sort = 1;
+    protected static ?int $sort = 7;
 
     public function table(Table $table): Table
     {

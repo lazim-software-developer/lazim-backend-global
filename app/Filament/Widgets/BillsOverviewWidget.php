@@ -10,11 +10,21 @@ use Filament\Widgets\StatsOverviewWidget\Stat;
 class BillsOverviewWidget extends BaseWidget
 {
     protected static ?string $pollingInterval = '30s';
+    protected static ?array $options = [
+        'cardHeight' => '150px', // Set a custom height for the card
+    ];
 
     protected function getColumns(): int
     {
-        return 4;
+        return 1;
     }
+
+    public function getColumnSpan(): array | int | string
+    {
+        return 1;
+    }
+
+    protected static ?int $sort = 5;
 
     protected function getStats(): array
     {
@@ -32,7 +42,9 @@ class BillsOverviewWidget extends BaseWidget
                 ->url('/app/cooling-accounts?tableFilters[status][status]=overdue')
                 ->color('blue')
                 ->chart([12, 22, 32, 42, 52])
-                ->extraAttributes(['style' => 'background: linear-gradient(135deg, #E0F2FF, #90CDF4); color: #1D4ED8;']),
+                ->extraAttributes([
+                    'style' => 'background: linear-gradient(135deg, #E0F2FF, #90CDF4); color: #1D4ED8; min-height: 150px; max-height: 150px;'
+                ]),
         ];
     }
 }
