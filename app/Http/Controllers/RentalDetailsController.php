@@ -35,22 +35,21 @@ class RentalDetailsController extends Controller
     }
     public function requestPayment(Request $request, RentalCheque $rentalCheque)
     {
+        $request->validate([
+            'building_id' => 'required|exists:buildings,id',
+        ]);
+
+        // Get owner association ID
+        $oa = DB::table('building_owner_association')
+            ->where('building_id', $request->building_id)
+            ->where('active', true)
+            ->first()?->owner_association_id;
+
+        // Find user
+        $user = User::where('owner_association_id', $oa)->first();
+        $rentalCheque->update(['payment_link_requested' => true]);
+        PaymentRequestMail::dispatch($user, $rentalCheque);
         try {
-            $request->validate([
-                'building_id' => 'required|exists:buildings,id',
-            ]);
-
-            // Get owner association ID
-            $oa = DB::table('building_owner_association')
-                ->where('building_id', $request->building_id)
-                ->where('active', true)
-                ->first()?->owner_association_id;
-
-            // Find user
-            $user = User::where('owner_association_id', $oa)->first();
-
-            PaymentRequestMail::dispatch($user, $rentalCheque);
-
             // Create and send notification
             Notification::make()
                 ->success()

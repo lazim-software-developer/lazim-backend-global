@@ -20,10 +20,12 @@ class RentalCheque extends Model
         'cheque_status',
         'payment_link',
         'comments',
+        'payment_link_requested',
     ];
 
     protected $casts = [
         'comments' => 'array',
+        'payment_link_requested' => 'boolean',
     ];
 
     protected static function booted()
