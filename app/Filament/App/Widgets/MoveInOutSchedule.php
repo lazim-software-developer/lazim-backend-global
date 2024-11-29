@@ -56,7 +56,7 @@ class MoveInOutSchedule extends BaseWidget
             ->Actions([
                 Action::make('view_all')
                     ->label(fn($record) =>
-                        'View All ' . ($record->type == 'move-in' ? 'Move In' : 'Move Out') . ' Schedules'
+                        'View All '
                     )
                     ->url(fn($record): string =>
                         $record->type == 'move-in' ? '/app/move-in-forms-documents' : '/app/move-out-forms-documents'
