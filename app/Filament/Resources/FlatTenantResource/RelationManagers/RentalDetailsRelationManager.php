@@ -356,7 +356,7 @@ class RentalDetailsRelationManager extends RelationManager
     private function handleCustomActionSave(array $data)
     {
         $startDate = $this->ownerRecord->start_date->format('Y-m-d');
-        $endDate   = $this->ownerRecord->end_date->format('Y-m-d');
+        $endDate   = $this->ownerRecord->end_date?->format('Y-m-d');
 
         $rentalDetail = RentalDetail::create([
             'flat_id'                     => $data['flat_id'],
