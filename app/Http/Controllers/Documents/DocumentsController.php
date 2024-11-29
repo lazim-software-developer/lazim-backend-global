@@ -85,8 +85,8 @@ class DocumentsController extends Controller
         ]);
 
         return new CustomResponseResource([
-            'title'   => 'Document Submitted',
-            'message' => 'Document has been successfully submitted.',
+            'title'   => 'Makani number added successfully',
+            'message' => 'Makani number added successfully.',
             'code'    => 201,
         ]);
     }
