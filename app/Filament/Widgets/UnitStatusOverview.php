@@ -59,12 +59,11 @@ class UnitStatusOverview extends BaseWidget
 
             Stat::make('Overdue Cooling Accounts', $overdueCoolingCount)
                 ->description('Total overdue cooling accounts')
-                ->color('danger')
                 ->url('/app/cooling-accounts?tableFilters[status][status]=overdue')
                 ->color('blue')
                 ->chart([12, 22, 32, 42, 52])
                 ->extraAttributes([
-                    'style' => 'background: linear-gradient(135deg, #E0F2FF, #90CDF4); color: #1D4ED8; min-height: 150px; max-height: 150px;'
+                    'style' => ' color: #1D4ED8; min-height: 150px; max-height: 150px;'
                 ]),
         ];
     }
