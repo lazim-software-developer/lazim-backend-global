@@ -61,16 +61,12 @@ class FacilityBookingResource extends Resource
                     )
                     ->preload(),
                 Select::make('bookable_id')
+                    ->label('Work Type')
+                    ->relationship('bookable', 'name')
                     ->required()
                     ->disabledOn('edit')
-                    ->options(
-                        DB::table('facilities')
-                            ->pluck('name', 'id')
-                            ->toArray()
-                    )
                     ->searchable()
-                    ->preload()
-                    ->label('Work Type'),
+                    ->preload(),
                 Select::make('user_id')
                     ->relationship('user', 'first_name')
                     ->disabledOn('edit')
@@ -79,11 +75,11 @@ class FacilityBookingResource extends Resource
                 Hidden::make('bookable_type')
                     ->default('App\Models\WorkPermit'),
 
-                Textarea::make('description')
-                    ->disabledOn('edit'),
-
                 DatePicker::make('date')
                     ->required()
+                    ->disabledOn('edit'),
+
+                Textarea::make('description')
                     ->disabledOn('edit'),
 
                 Toggle::make('approved')
@@ -105,7 +101,7 @@ class FacilityBookingResource extends Resource
                     ->default('NA')
                     ->searchable()
                     ->limit(50),
-                Tables\Columns\TextColumn::make('workFacility.name')
+                Tables\Columns\TextColumn::make('bookable.name')
                     ->default('NA')
                     ->searchable()
                     ->limit(50)

@@ -53,11 +53,7 @@ class FacilityBooking extends Model
     }
     public function facility()
     {
-        return $this->belongsTo(Facility::class,);
-    }
-    public function workFacility()
-    {
-        return $this->belongsTo(Facility::class, 'bookable_id');
+        return $this->belongsTo(Facility::class);
     }
 
     public function user()
