@@ -4,6 +4,7 @@ namespace App\Filament\Resources\FlatTenantResource\RelationManagers;
 
 use App\Models\FamilyMember;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -14,6 +15,8 @@ class FamilyMembersRelationManager extends RelationManager
 {
     protected static string $relationship = 'user';
 
+    protected static ?string $title = 'Family Members';
+
     public function form(Form $form): Form
     {
         return $form
@@ -21,21 +24,23 @@ class FamilyMembersRelationManager extends RelationManager
                 TextInput::make('first_name'),
                 TextInput::make('last_name'),
                 TextInput::make('phone'),
-                TextInput::make('passport_number'),
-                DatePicker::make('passport_expiry_date'),
-                TextInput::make('emirates_id'),
-                DatePicker::make('emirates_expiry_date'),
-                TextInput::make('gender'),
-                TextInput::make('relation'),
-                TextInput::make('visa_number'),
-                DatePicker::make('visa_number_expiry_date'),
+                Grid::make()->columns(2)->schema([
+                    TextInput::make('passport_number'),
+                    DatePicker::make('passport_expiry_date'),
+                    TextInput::make('emirates_id'),
+                    DatePicker::make('emirates_expiry_date'),
+                    TextInput::make('gender'),
+                    TextInput::make('relation'),
+                    TextInput::make('visa_number'),
+                    DatePicker::make('visa_number_expiry_date'),
+                ]),
             ])->columns(2);
     }
 
     public function table(Table $table): Table
     {
         return $table
-            ->recordTitleAttribute('id')
+            ->recordTitleAttribute('relation')
             ->query(FamilyMember::where('user_id', $this->ownerRecord->tenant_id)->where('active', true))
             ->columns([
                 Tables\Columns\TextColumn::make('first_name')->label('Name')
