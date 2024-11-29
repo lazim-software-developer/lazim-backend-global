@@ -24,6 +24,7 @@ class RentalChequesResource extends JsonResource
             'cheque_status'     => $this->cheque_status,
             'payment_link'      => $this->payment_link,
             'comments'          => $this->comments,
+            'payment_link_requested' => (bool) $this->payment_link_requested,
         ];
     }
 }
