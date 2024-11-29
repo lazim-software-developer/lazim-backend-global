@@ -78,6 +78,12 @@ class FlatTenantResource extends Resource
                             ->disabled()
                             ->placeholder('NA'),
 
+                        TextInput::make('makani_number_url')
+                            ->label('Makani Number')
+                            ->disabled()
+                            ->default(fn($record) => $record->documents()
+                                    ->where('name', 'Makani number')->first()?->url ?? 'NA'),
+
                         Toggle::make('active')
                             ->label('Active Status')
                             ->rules(['boolean'])
@@ -127,10 +133,9 @@ class FlatTenantResource extends Resource
             ->filters([
                 SelectFilter::make('building_id')
                     ->relationship('building', 'name', function (Builder $query) {
-                        if(Role::where('id', auth()->user()->role_id)->first()->name == 'Property Manager'){
+                        if (Role::where('id', auth()->user()->role_id)->first()->name == 'Property Manager') {
                             $query->where('owner_association_id', auth()->user()->owner_association_id);
-                        }
-                        elseif (Role::where('id', auth()->user()->role_id)->first()->name != 'Admin') {
+                        } elseif (Role::where('id', auth()->user()->role_id)->first()->name != 'Admin') {
                             $query->where('owner_association_id', Filament::getTenant()?->id);
                         }
                     })
@@ -158,7 +163,7 @@ class FlatTenantResource extends Resource
             // FlatTenantResource\RelationManagers\DocumentsRelationManager::class,
             // FlatTenantResource\RelationManagers\ComplaintsRelationManager::class,
             FamilyMembersRelationManager::class,
-            RentalDetailsRelationManager::class
+            RentalDetailsRelationManager::class,
         ];
     }
 

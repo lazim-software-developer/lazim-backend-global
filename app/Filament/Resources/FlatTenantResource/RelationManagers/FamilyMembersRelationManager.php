@@ -3,6 +3,8 @@
 namespace App\Filament\Resources\FlatTenantResource\RelationManagers;
 
 use App\Models\FamilyMember;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
@@ -11,16 +13,23 @@ use Filament\Tables\Table;
 class FamilyMembersRelationManager extends RelationManager
 {
     protected static string $relationship = 'user';
-    protected static ?string $title       = 'Family Members';
 
     public function form(Form $form): Form
     {
         return $form
             ->schema([
-                // Forms\Components\TextInput::make('id')
-                //     ->required()
-                //     ->maxLength(255),
-            ]);
+                TextInput::make('first_name'),
+                TextInput::make('last_name'),
+                TextInput::make('phone'),
+                TextInput::make('passport_number'),
+                DatePicker::make('passport_expiry_date'),
+                TextInput::make('emirates_id'),
+                DatePicker::make('emirates_expiry_date'),
+                TextInput::make('gender'),
+                TextInput::make('relation'),
+                TextInput::make('visa_number'),
+                DatePicker::make('visa_number_expiry_date'),
+            ])->columns(2);
     }
 
     public function table(Table $table): Table
@@ -48,7 +57,7 @@ class FamilyMembersRelationManager extends RelationManager
                 // Tables\Actions\CreateAction::make(),
             ])
             ->actions([
-                // Tables\Actions\EditAction::make(),
+                Tables\Actions\ViewAction::make(),
                 // Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
