@@ -98,7 +98,7 @@ class AppPanelProvider extends PanelProvider
                 UnitStatusOverview::class,
                 UnitContractExpiryOverview::class,
                 RentalChequeStatusOverview::class,
-                BillsOverviewWidget::class,
+                // BillsOverviewWidget::class,
                 MoveInOutChart::class,
                 MoveInOutSchedule::class,
                 PreventiveReactiveMaintenance::class,

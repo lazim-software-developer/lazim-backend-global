@@ -2,6 +2,7 @@
 
 namespace App\Filament\Widgets;
 
+use App\Models\CoolingAccount;
 use App\Models\Forms\MoveInOut;
 use Carbon\Carbon;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
@@ -15,7 +16,7 @@ class UnitStatusOverview extends BaseWidget
 
     protected function getColumns(): int
     {
-        return 4;
+        return 3;
     }
 
     protected function getStats(): array
@@ -37,6 +38,10 @@ class UnitStatusOverview extends BaseWidget
             ->where('moving_date', '>=', $today)
             ->count();
 
+        $overdueCoolingCount = CoolingAccount::where('status', 'overdue')
+    ->count();
+
+
         return [
             Stat::make('Vacant Units', $vacantUnits)
                 ->description('Total vacant units')
@@ -51,6 +56,16 @@ class UnitStatusOverview extends BaseWidget
                 ->color('success')
                 ->url('/app/unit-list?type=upcoming')
                 ->chart([2, 4, 6, 8, 3, $upcomingUnits]),
+
+            Stat::make('Overdue Cooling Accounts', $overdueCoolingCount)
+                ->description('Total overdue cooling accounts')
+                ->color('danger')
+                ->url('/app/cooling-accounts?tableFilters[status][status]=overdue')
+                ->color('blue')
+                ->chart([12, 22, 32, 42, 52])
+                ->extraAttributes([
+                    'style' => 'background: linear-gradient(135deg, #E0F2FF, #90CDF4); color: #1D4ED8; min-height: 150px; max-height: 150px;'
+                ]),
         ];
     }
 }
