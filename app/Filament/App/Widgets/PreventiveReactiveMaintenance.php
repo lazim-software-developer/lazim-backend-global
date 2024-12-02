@@ -7,6 +7,7 @@ use App\Models\Building\Flat;
 use Filament\Forms\Components\Select;
 use Filament\Tables;
 use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget as BaseWidget;
 use Illuminate\Database\Eloquent\Builder;
@@ -15,7 +16,7 @@ class PreventiveReactiveMaintenance extends BaseWidget
 {
     protected static ?string $heading          = 'Reactive Maintenance';
     protected int|string|array $columnSpan = 'full';
-    protected static ?int $sort = 7;
+    protected static ?int $sort                = 7;
 
     public function table(Table $table): Table
     {
@@ -44,12 +45,12 @@ class PreventiveReactiveMaintenance extends BaseWidget
                     ->formatStateUsing(function ($state) {
                         $record = Complaint::find($state);
 
-                        $openTime  = $record->open_time
-                            ? \Carbon\Carbon::parse($record->open_time)->format('d-m-Y H:i:s')
-                            : '--';
+                        $openTime = $record->open_time
+                        ? \Carbon\Carbon::parse($record->open_time)->format('d-m-Y H:i:s')
+                        : '--';
                         $closeTime = $record->close_time
-                            ? \Carbon\Carbon::parse($record->close_time)->format('d-m-Y H:i:s')
-                            : '--';
+                        ? \Carbon\Carbon::parse($record->close_time)->format('d-m-Y H:i:s')
+                        : '--';
 
                         return "Open: $openTime<br>Close: $closeTime";
                     })
@@ -60,6 +61,7 @@ class PreventiveReactiveMaintenance extends BaseWidget
                 Filter::make('complaint_type')
                     ->form([
                         Select::make('flat_id')
+                            ->label('Flat')
                             ->options(Flat::where('owner_association_id', auth()->user()->owner_association_id)
                                     ->pluck('property_number', 'id')
                             )
@@ -71,6 +73,29 @@ class PreventiveReactiveMaintenance extends BaseWidget
                                 $data['flat_id'],
                                 fn(Builder $query): Builder => $query->where('flat_id', $data['flat_id'])
                             );
+                    }),
+                SelectFilter::make('month')
+                    ->label('Month')
+                    ->options([
+                        1  => 'January',
+                        2  => 'February',
+                        3  => 'March',
+                        4  => 'April',
+                        5  => 'May',
+                        6  => 'June',
+                        7  => 'July',
+                        8  => 'August',
+                        9  => 'September',
+                        10 => 'October',
+                        11 => 'November',
+                        12 => 'December',
+                    ])
+                    ->default(null)
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query->when(
+                            $data['value'],
+                            fn(Builder $query, $month): Builder => $query->whereMonth('open_time', $month)
+                        );
                     }),
             ])
             ->defaultSort('created_at', 'desc');

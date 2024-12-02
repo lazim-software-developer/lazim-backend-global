@@ -6,122 +6,89 @@ use App\Models\Forms\MoveInOut;
 use App\Models\User\User;
 use Carbon\Carbon;
 use Filament\Widgets\ChartWidget;
-use Filament\Widgets\Concerns\InteractsWithPageFilters;
 
 class MoveInOutChart extends ChartWidget
 {
-    use InteractsWithPageFilters;
+    public ?string $filter = null; // Remove default value to allow null state
 
-    protected static ?string $heading   = 'Move In and Out Requests';
-
-    public function getColumnSpan(): array|int|string{
-        return 1;
-    }
-    protected static ?int $sort          = 4;
-
-    protected function getColumns(): int
+    public function mount(): void
     {
-        return 1;
+        // Convert month number directly to string
+        $this->filter = (string) now()->month;
     }
 
-    public static function canView(): bool
+    protected static ?string $heading = 'Move In and Out Requests';
+    protected static ?int $sort       = 4;
+
+    protected function getFilters(): ?array
     {
-        $user = User::find(auth()->user()->id);
-        return ($user->can('view_any_move::in::forms::document') || $user->can('view_any_move::out::forms::document'));
+        return [
+            '1'  => 'January',
+            '2'  => 'February',
+            '3'  => 'March',
+            '4'  => 'April',
+            '5'  => 'May',
+            '6'  => 'June',
+            '7'  => 'July',
+            '8'  => 'August',
+            '9'  => 'September',
+            '10' => 'October',
+            '11' => 'November',
+            '12' => 'December',
+        ];
     }
 
     protected function getData(): array
     {
-        $startDate = $this->filters['startDate'] ?? Carbon::now()->startOfYear()->format('Y-m-d');
-        $endDate   = $this->filters['endDate'] ?? Carbon::now()->endOfYear()->format('Y-m-d');
+        $selectedMonth = (int) ($this->filter ?? now()->month);
+        $currentYear   = now()->year;
+        $startDate = Carbon::create($currentYear, $selectedMonth, 1)->startOfMonth();
+        $endDate   = $startDate->copy()->endOfMonth();
 
-        $startDate = Carbon::createFromFormat('Y-m-d', $startDate)->startOfMonth();
-        $endDate   = Carbon::createFromFormat('Y-m-d', $endDate)->endOfMonth();
+        // Count total move-ins
+        $moveInCount = MoveInOut::where('owner_association_id', auth()->user()->owner_association_id)
+            ->where('type', 'move-in')
+            ->whereBetween('created_at', [$startDate, $endDate])
+            ->when($this->filters['building'] ?? null, function ($query) {
+                return $query->where('building_id', $this->filters['building']);
+            })
+            ->count();
 
-        $totalMonths = $startDate->diffInMonths($endDate) + 1;
-
-        $months        = [];
-        $moveInCounts  = [];
-        $moveOutCounts = [];
-
-        for ($i = 0; $i < $totalMonths; $i++) {
-            $currentMonth = $startDate->copy()->addMonths($i);
-            $monthName    = $currentMonth->format('M');
-            $months[]     = $monthName;
-
-            // Count move-ins created in this month
-            $moveInCount = MoveInOut::where('owner_association_id', auth()->user()->owner_association_id)
-                ->where('type', 'move-in')
-                ->whereYear('created_at', $currentMonth->year)
-                ->whereMonth('created_at', $currentMonth->month)
-                ->when($this->filters['building'] ?? null, function ($query) {
-                    return $query->where('building_id', $this->filters['building']);
-                })
-                ->count();
-            $moveInCounts[] = $moveInCount;
-
-            // Count move-outs created in this month
-            $moveOutCount = MoveInOut::where('owner_association_id', auth()->user()->owner_association_id)
-                ->where('type', 'move-out')
-                ->whereYear('created_at', $currentMonth->year)
-                ->whereMonth('created_at', $currentMonth->month)
-                ->when($this->filters['building'] ?? null, function ($query) {
-                    return $query->where('building_id', $this->filters['building']);
-                })
-                ->count();
-            $moveOutCounts[] = $moveOutCount;
-        }
+        // Count total move-outs
+        $moveOutCount = MoveInOut::where('owner_association_id', auth()->user()->owner_association_id)
+            ->where('type', 'move-out')
+            ->whereBetween('created_at', [$startDate, $endDate])
+            ->when($this->filters['building'] ?? null, function ($query) {
+                return $query->where('building_id', $this->filters['building']);
+            })
+            ->count();
 
         return [
             'datasets' => [
                 [
-                    'label'       => 'Move In',
-                    'data'        => $moveInCounts,
-                    'borderColor' => '#4DB6AC',
-                    'borderWidth' => 2,
-                    'fill'        => false,
-                ],
-                [
-                    'label'       => 'Move Out',
-                    'data'        => $moveOutCounts,
-                    'borderColor' => '#fd7e14',
-                    'borderWidth' => 2,
-                    'fill'        => false,
+                    'data'            => [$moveInCount, $moveOutCount],
+                    'backgroundColor' => ['#4DB6AC', '#fd7e14'],
                 ],
             ],
-            'labels'   => $months,
+            'labels'   => ['Move In', 'Move Out'],
         ];
     }
 
     protected function getType(): string
     {
-        return 'line';
+        return 'pie';
     }
 
     protected function getOptions(): array
     {
         return [
-            'scales'  => [
-                'x' => [
-                    'title' => [
-                        'display' => true,
-                        'text'    => 'Month',
-                    ],
-                ],
-                'y' => [
-                    'beginAtZero' => true,
-                    'title'       => [
-                        'display' => true,
-                        'text'    => 'Number of Requests',
-                    ],
-                ],
-            ],
-            'plugins' => [
+            'plugins'             => [
                 'legend' => [
                     'display'  => true,
                     'position' => 'bottom',
                 ],
             ],
+            'maintainAspectRatio' => false,
         ];
     }
 }
