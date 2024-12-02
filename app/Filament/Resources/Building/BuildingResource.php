@@ -407,8 +407,29 @@ class BuildingResource extends Resource
                             ->exists();
 
                         return $active
-                            ? 'Are you sure you want to detach from this building? This will remove your management authority.'
-                            : 'Are you sure you want to attach to this building? This will grant you management authority.';
+                        ? 'Are you sure you want to detach from this building?
+                            This will remove your management authority and deactivate related flat tenants.'
+                        : 'Are you sure you want to attach to this building?
+                             This will grant you management authority.';
+                    })
+                    ->form(function ($record) {
+                        $active = DB::table('building_owner_association')
+                            ->where('building_id', $record->id)
+                            ->where('active', 1)
+                            ->exists();
+
+                        if (!$active) {
+                            return [
+                                DatePicker::make('from')
+                                    ->label('Contract Start Date')
+                                    ->required(),
+                                DatePicker::make('to')
+                                    ->label('Contract End Date')
+                                    ->required(),
+                            ];
+                        }
+
+                        return [];
                     })
                     ->modalSubmitActionLabel(function ($record) {
                         $active = DB::table('building_owner_association')
@@ -418,16 +439,105 @@ class BuildingResource extends Resource
 
                         return $active ? 'Yes, detach' : 'Yes, attach';
                     })
-                    ->action(function ($record) {
+                    ->action(function ($record, array $data) {
                         $active = DB::table('building_owner_association')
                             ->where('building_id', $record->id)
                             ->where('active', 1)
                             ->exists();
 
+                        if (!$active) {
+                            // Check if the building is already associated with another active owner association
+                            $isAssociated = DB::table('building_owner_association')
+                                ->where('building_id', $record->id)
+                                ->where('active', 1)
+                                ->exists();
+
+                            if ($isAssociated) {
+                                Notification::make()
+                                    ->title('Building is already associated with another property manager')
+                                    ->danger()
+                                    ->send();
+                                return;
+                            }
+
+                            // Update the 'from' and 'to' dates and make the record active
+                            DB::table('building_owner_association')
+                                ->where('building_id', $record->id)
+                                ->update([
+                                    'from' => $data['from'],
+                                    'to' => $data['to'],
+                                    'active' => 1,
+                                ]);
+
+                            // Make related flat tenants active
+                            DB::table('flat_tenants')
+                                ->whereIn('flat_id', function ($query) use ($record) {
+                                    $query->select('id')
+                                        ->from('flats')
+                                        ->where('building_id', $record->id);
+                                })
+                                ->update(['active' => 1]);
+
+                            // Make users with the same id as flat_tenant_id active
+                            DB::table('users')
+                                ->whereIn('id', function ($query) use ($record) {
+                                    $query->select('tenant_id')
+                                        ->from('flat_tenants')
+                                        ->whereIn('flat_id', function ($subQuery) use ($record) {
+                                            $subQuery->select('id')
+                                                ->from('flats')
+                                                ->where('building_id', $record->id);
+                                        });
+                                })
+                                ->update(['active' => 1]);
+
+                            Notification::make()
+                                ->title('Building attached successfully')
+                                ->success()
+                                ->send();
+                            return;
+                        }
+
                         DB::table('building_owner_association')
                             ->where('building_id', $record->id)
-                            ->update(['active' => $active ? 0 : 1]);
+                            ->update(['active' => 0]);
 
+                        // Set the 'to' date to now in 'yyyy-mm-dd' format
+                        DB::table('building_owner_association')
+                            ->where('building_id', $record->id)
+                            ->update(['to' => Carbon::now()->format('Y-m-d')]);
+
+                        // Make related flats inactive
+                        // DB::table('flats')
+                        //     ->where('building_id', $record->id)
+                        //     ->update(['active' => 0]);
+
+                        // Make related flat tenants inactive
+
+                        DB::table('building_owner_association')
+                            ->where('building_id', $record->id)
+                            ->update(['to' => Carbon::now()]);
+
+                        DB::table('flat_tenants')
+                            ->whereIn('flat_id', function ($query) use ($record) {
+                                $query->select('id')
+                                    ->from('flats')
+                                    ->where('building_id', $record->id);
+                            })
+                            ->update(['active' => 0]);
+
+                        // Make users with the same id as flat_tenant_id inactive
+                        DB::table('users')
+                            ->whereIn('id', function ($query) use ($record) {
+                                $query->select('tenant_id')
+                                    ->from('flat_tenants')
+                                    ->whereIn('flat_id', function ($subQuery) use ($record) {
+                                        $subQuery->select('id')
+                                            ->from('flats')
+                                            ->where('building_id', $record->id);
+                                    });
+                            })
+                            ->update(['active' => 0]);
                         Notification::make()
                             ->title($active ? 'Building detached successfully' : 'Building attached successfully')
                             ->success()
