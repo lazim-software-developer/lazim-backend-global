@@ -78,6 +78,9 @@ class BillImport implements ToCollection, WithHeadingRow
         }
 
         foreach ($rows as $index => $row) {
+            // Convert status to camelcase
+            $row['status'] = ucfirst(strtolower($row['status']));
+
             if (!in_array($row['status'], $validStatuses, true)) {
                 $invalidStatusRows[] = [
                     'row' => $index + 2, // +2 because of 0-based index and header row

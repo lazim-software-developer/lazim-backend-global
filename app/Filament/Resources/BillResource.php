@@ -179,7 +179,10 @@ class BillResource extends Resource
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                 ]),
-            ]);
+            ])
+            ->modifyQueryUsing(function ($query) {
+                $query->orderBy('created_at', 'desc');
+            });
     }
 
     public static function getRelations(): array
