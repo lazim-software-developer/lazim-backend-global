@@ -28,7 +28,7 @@ class AssetCreateRequest extends FormRequest
             'building_id'          => 'required|exists:buildings,id',
             'service_id'           => 'required|exists:services,id',
             'floor'                => 'required|max:5',
-            'division'             => 'required|max:50',
+            'division'             => 'nullable|max:50',
             'discipline'           => 'required|max:50',
             'frequency_of_service' => 'required|numeric|max:1000',
         ];
