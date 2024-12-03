@@ -8,12 +8,17 @@ use App\Http\Resources\Building\BuildingResource;
 class BuildingController extends Controller
 {
     public function index() {
-        $user = auth()->user(); // Get the logged-in user
+        $user = auth()->user();
 
-        // Assuming the user has a 'technicianVendors' relationship
-        return $buildings = $user->technicianVendors()
-            ->with('vendor.buildings')
+        $vendors = $user->technicianVendors()
+            ->with(['vendor.buildings' => function($query) {
+                $query->wherePivot('active', 1);
+            }])
             ->get();
+
+        $buildings = $vendors->flatMap(function($technicianVendor) {
+            return $technicianVendor->vendor->buildings;
+        })->unique('id');
 
         return BuildingResource::collection($buildings);
     }
