@@ -24,7 +24,11 @@ class UnitStatusOverview extends BaseWidget
 
         $query = MoveInOut::query()
             ->whereHas('building', function ($query) {
-                $query->where('owner_association_id', auth()->user()->owner_association_id);
+                $query->where('owner_association_id', auth()->user()->owner_association_id)
+                      ->whereHas('ownerAssociations', function ($query) {
+                          $query->where('building_owner_association.owner_association_id', auth()->user()->owner_association_id)
+                                ->where('building_owner_association.active', true);
+                      });
             });
 
         $vacantUnits = (clone $query)
@@ -32,7 +36,7 @@ class UnitStatusOverview extends BaseWidget
             ->where('moving_date', '<', $today)
             ->count();
 
-        $upcomingUnits = (clone $query)
+            $upcomingUnits = (clone $query)
             ->where('type', 'move-in')
             ->where('moving_date', '>=', $today)
             ->count();
