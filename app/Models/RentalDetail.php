@@ -18,6 +18,8 @@ class RentalDetail extends Model
         'contract_end_date',
         'admin_fee',
         'other_charges',
+        'admin_charges',
+        'brokerage',
         'advance_amount',
         'advance_amount_payment_mode',
         'status',

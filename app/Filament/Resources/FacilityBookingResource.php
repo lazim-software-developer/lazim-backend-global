@@ -8,11 +8,9 @@ use App\Models\Building\FacilityBooking;
 use App\Models\Master\Role;
 use DB;
 use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\TimePicker;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -55,20 +53,20 @@ class FacilityBookingResource extends Resource
                 Select::make('flat_id')
                     ->label('Flat Number')
                     ->disabledOn('edit')
-                    ->options(function () {
-                        // return \App\Models\Building\Flat::all()->pluck('flat_number', 'id');
-                    }),
-                Select::make('bookable_id')
-                    ->required()
-                    ->disabledOn('edit')
+                    ->reactive()
                     ->options(
-                        DB::table('facilities')
-                            ->pluck('name', 'id')
+                        DB::table('flats')
+                            ->pluck('property_number', 'id')
                             ->toArray()
                     )
+                    ->preload(),
+                Select::make('bookable_id')
+                    ->label('Work Type')
+                    ->relationship('bookable', 'name')
+                    ->required()
+                    ->disabledOn('edit')
                     ->searchable()
-                    ->preload()
-                    ->label('Permit Work'),
+                    ->preload(),
                 Select::make('user_id')
                     ->relationship('user', 'first_name')
                     ->disabledOn('edit')
@@ -77,16 +75,10 @@ class FacilityBookingResource extends Resource
                 Hidden::make('bookable_type')
                     ->default('App\Models\WorkPermit'),
 
-                Grid::make(3)
-                    ->schema([
-                        DatePicker::make('date')
-                            ->required()
-                            ->disabledOn('edit'),
-                        TimePicker::make('start_time')
-                            ->disabledOn('edit'),
-                        TimePicker::make('end_time')
-                            ->disabledOn('edit'),
-                    ]),
+                DatePicker::make('date')
+                    ->required()
+                    ->disabledOn('edit'),
+
                 Textarea::make('description')
                     ->disabledOn('edit'),
 
@@ -113,7 +105,7 @@ class FacilityBookingResource extends Resource
                     ->default('NA')
                     ->searchable()
                     ->limit(50)
-                    ->label('Task'),
+                    ->label('Work Type'),
                 Tables\Columns\TextColumn::make('user.first_name')
                     ->searchable()
                     ->default('NA')

@@ -167,9 +167,24 @@ class RentalDetailsRelationManager extends RelationManager
                                     ])
                                     ->placeholder('Select payment mode'),
 
+                                TextInput::make('admin_charges')
+                                    ->nullable()
+                                    ->suffix('AED')
+                                    ->minValue(0)
+                                    ->numeric()
+                                    ->maxLength(10)
+                                    ->placeholder('Enter the Admin charges'),
+
+                                TextInput::make('brokerage')
+                                    ->nullable()
+                                    ->suffix('AED')
+                                    ->minValue(0)
+                                    ->numeric()
+                                    ->maxLength(10)
+                                    ->placeholder('Enter the Brokerage amount'),
+
                                 TextInput::make('other_charges')
                                     ->nullable()
-                                    ->disabledOn('edit')
                                     ->suffix('AED')
                                     ->minValue(0)
                                     ->numeric()
@@ -337,16 +352,16 @@ class RentalDetailsRelationManager extends RelationManager
                 // If validation passes, proceed with saving
                 $this->handleCustomActionSave($data);
             })
-            ->visible(function () {
-                $rentalDetail = RentalDetail::where('flat_tenant_id', $this->ownerRecord->id)->first();
+            // ->visible(function () {
+            //     $rentalDetail = RentalDetail::where('flat_tenant_id', $this->ownerRecord->id)->first();
 
-                if (!$rentalDetail) {
-                    return true;
-                }
+            //     if (!$rentalDetail) {
+            //         return true;
+            //     }
 
-                $endDate = $rentalDetail->contract_end_date;
-                return $endDate < Carbon::now()->format('Y-m-d');
-            })
+            //     $endDate = $rentalDetail->contract_end_date;
+            //     return $endDate < Carbon::now()->format('Y-m-d');
+            // })
 
             ->form(function (Form $form) {
                 return $this->form($form);
@@ -365,6 +380,8 @@ class RentalDetailsRelationManager extends RelationManager
             'admin_fee'                   => $data['admin_fee'] ?? null,
             'other_charges'               => $data['other_charges'] ?? null,
             'advance_amount'              => $data['advance_amount'],
+            'admin_charges'               => $data['admin_charges'] ?? null,
+            'brokerage'                   => $data['brokerage'] ?? null,
             'advance_amount_payment_mode' => $data['advance_amount_payment_mode'],
             'status'                      => $data['status'],
             'contract_start_date'         => $startDate,

@@ -79,4 +79,9 @@ class FlatTenant extends Model
         return $this->hasMany(RentalDetail::class);
     }
 
+    public function makaniNumber()
+    {
+        return $this->hasOne(Document::class, 'flat_id', 'flat_id')->where('name', 'Makani number');
+    }
+
 }
