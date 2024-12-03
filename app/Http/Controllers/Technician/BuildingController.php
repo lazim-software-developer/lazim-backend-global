@@ -11,13 +11,9 @@ class BuildingController extends Controller
         $user = auth()->user(); // Get the logged-in user
 
         // Assuming the user has a 'technicianVendors' relationship
-        $buildings = $user->technicianVendors()
+        return $buildings = $user->technicianVendors()
             ->with('vendor.buildings')
-            ->where('active', true)
-            ->get()
-            ->pluck('vendor.buildings')
-            ->collapse()
-            ->unique('id');
+            ->get();
 
         return BuildingResource::collection($buildings);
     }
