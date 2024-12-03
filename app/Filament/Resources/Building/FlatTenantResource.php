@@ -80,7 +80,6 @@ class FlatTenantResource extends Resource
 
                         TextInput::make('makani_number_url')
                             ->label('Makani Number')
-                            ->disabled()
                             ->default(fn($record) => $record->documents()
                                     ->where('name', 'Makani number')->first()?->url ?? 'NA'),
 

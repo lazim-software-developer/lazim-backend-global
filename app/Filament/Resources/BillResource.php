@@ -20,6 +20,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\DatePicker;
 use Filament\Tables\Filters\SelectFilter;
 use App\Filament\Resources\BillResource\Pages;
+use Illuminate\Database\Eloquent\Builder;
 
 class BillResource extends Resource
 {
@@ -172,6 +173,29 @@ class BillResource extends Resource
                         'Paid'    => 'Paid',
                         'Overdue' => 'Overdue',
                     ]),
+                SelectFilter::make('month')
+                    ->label('Month')
+                    ->options([
+                        1 => 'January',
+                        2 => 'February',
+                        3 => 'March',
+                        4 => 'April',
+                        5 => 'May',
+                        6 => 'June',
+                        7 => 'July',
+                        8 => 'August',
+                        9 => 'September',
+                        10 => 'October',
+                        11 => 'November',
+                        12 => 'December',
+                    ])
+                    ->default(null)
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query->when(
+                            $data['value'],
+                            fn (Builder $query, $month): Builder => $query->whereMonth('due_date', $month)
+                        );
+                    }),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
