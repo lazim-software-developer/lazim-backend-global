@@ -13,8 +13,7 @@ class BuildingController extends Controller
         // Assuming the user has a 'technicianVendors' relationship
         $buildings = $user->technicianVendors()
             ->with('vendor.buildings')
-            ->where('pivot.active', true)
-            // ->where('pivot.end_date', '>', now()->toDateString())
+            ->where('active', true)
             ->get()
             ->pluck('vendor.buildings')
             ->collapse()
