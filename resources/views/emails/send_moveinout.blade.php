@@ -67,7 +67,11 @@
 </tr>
 <tr>
     <td class="paragraph">
-        Thank you for choosing us. We appreciate your cooperation and are here to ensure a smooth process for your {{ $type }}.
+        @if ($type == 'move-in')
+            We are excited to welcome you and are committed to ensuring a seamless {{ $type }} experience. If you have any questions or require assistance, feel free to contact us.
+        @else
+            Thank you for choosing us. We appreciate your cooperation and are here to ensure a smooth process for your {{ $type }}.
+        @endif
     </td>
 </tr>
 <tr>
