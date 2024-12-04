@@ -352,16 +352,16 @@ class RentalDetailsRelationManager extends RelationManager
                 // If validation passes, proceed with saving
                 $this->handleCustomActionSave($data);
             })
-            // ->visible(function () {
-            //     $rentalDetail = RentalDetail::where('flat_tenant_id', $this->ownerRecord->id)->first();
+            ->visible(function () {
+                $rentalDetail = RentalDetail::where('flat_tenant_id', $this->ownerRecord->id)->first();
 
-            //     if (!$rentalDetail) {
-            //         return true;
-            //     }
+                if (!$rentalDetail) {
+                    return true;
+                }
 
-            //     $endDate = $rentalDetail->contract_end_date;
-            //     return $endDate < Carbon::now()->format('Y-m-d');
-            // })
+                $endDate = $rentalDetail->contract_end_date;
+                return $endDate < Carbon::now()->format('Y-m-d');
+            })
 
             ->form(function (Form $form) {
                 return $this->form($form);

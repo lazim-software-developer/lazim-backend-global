@@ -45,7 +45,7 @@ class ListFlats extends ListRecords
                         ->label('Select Property Manager'),
                     Select::make('building_id')
                         ->options(function(Get $get){
-                            $buildings = DB::table('building_owner_association')->where('owner_association_id',$get('owner_association_id') ?? auth()->user()->owner_association_id)->pluck('building_id');
+                            $buildings = DB::table('building_owner_association')->where('owner_association_id',$get('owner_association_id') ?? auth()->user()->owner_association_id)->where('active', true)->pluck('building_id');
                             return Building::whereIn('id',$buildings)->pluck('name','id');
                         })
                         ->required()
@@ -103,12 +103,16 @@ class ListFlats extends ListRecords
     protected function getTableQuery(): Builder
     {
         $building  = Building::all()->where('owner_association_id', auth()->user()?->owner_association_id)->pluck('id')->toArray();
-        $buildings = DB::table('building_owner_association')->where('owner_association_id', auth()->user()?->owner_association_id)->pluck('building_id');
+
+        $pmBuildings = DB::table('building_owner_association')
+            ->where('owner_association_id', auth()->user()?->owner_association_id)
+            ->where('active', true)
+            ->pluck('building_id');
         if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
             return parent::getTableQuery();
         }
         if (Role::where('id', auth()->user()->role_id)->first()->name == 'Property Manager') {
-            return parent::getTableQuery()->whereIn('building_id', $buildings);
+            return parent::getTableQuery()->whereIn('building_id', $pmBuildings);
         }
         return parent::getTableQuery()->whereIn('building_id', $building);
     }

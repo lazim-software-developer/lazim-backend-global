@@ -19,7 +19,6 @@ use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
 
 class FacilityBookingResource extends Resource
 {
@@ -120,10 +119,22 @@ class FacilityBookingResource extends Resource
             ->filters([
                 SelectFilter::make('building_id')
                     ->label('Building')
-                    ->relationship('building', 'name', function (Builder $query) {
-                        if (Role::where('id', auth()->user()->role_id)->first()->name == 'Property Manager') {
-                            $query->where('owner_association_id', auth()->user()->owner_association_id);
+                    ->options(function () {
+                        if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+                            return Building::all()->pluck('name', 'id');
+                        } elseif (Role::where('id', auth()->user()->role_id)
+                                ->first()->name == 'Property Manager') {
+                            $buildings = DB::table('building_owner_association')
+                                ->where('owner_association_id', auth()->user()->owner_association_id)
+                                ->where('active', true)
+                                ->pluck('building_id');
+                            return Building::whereIn('id', $buildings)->pluck('name', 'id');
+
+                        } else {
+                            return Building::where('owner_association_id', auth()->user()?->owner_association_id)
+                                ->pluck('name', 'id');
                         }
+
                     })
                     ->searchable()
                     ->preload(),

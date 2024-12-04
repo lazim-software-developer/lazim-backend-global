@@ -47,10 +47,19 @@ class ServiceBookingResource extends Resource
                             ->options(function () {
                                 if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
                                     return Building::all()->pluck('name', 'id');
+                                } elseif (Role::where('id', auth()->user()->role_id)
+                                        ->first()->name == 'Property Manager') {
+                                    $buildings = DB::table('building_owner_association')
+                                        ->where('owner_association_id', auth()->user()->owner_association_id)
+                                        ->where('active', true)
+                                        ->pluck('building_id');
+                                    return Building::whereIn('id', $buildings)->pluck('name', 'id');
+
                                 } else {
                                     return Building::where('owner_association_id', auth()->user()?->owner_association_id)
                                         ->pluck('name', 'id');
                                 }
+
                             })
                             ->reactive()
                             ->required()
@@ -161,13 +170,23 @@ class ServiceBookingResource extends Resource
             ->defaultSort('created_at', 'desc')
             ->filters([
                 SelectFilter::make('building_id')
+                    ->label('Building')
                     ->options(function () {
                         if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
                             return Building::all()->pluck('name', 'id');
+                        } elseif (Role::where('id', auth()->user()->role_id)
+                                ->first()->name == 'Property Manager') {
+                            $buildings = DB::table('building_owner_association')
+                                ->where('owner_association_id', auth()->user()->owner_association_id)
+                                ->where('active', true)
+                                ->pluck('building_id');
+                            return Building::whereIn('id', $buildings)->pluck('name', 'id');
+
                         } else {
                             return Building::where('owner_association_id', auth()->user()?->owner_association_id)
                                 ->pluck('name', 'id');
                         }
+
                     })
                     ->searchable()
                     ->preload(),
