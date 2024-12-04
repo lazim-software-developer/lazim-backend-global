@@ -78,6 +78,11 @@ class BillImport implements ToCollection, WithHeadingRow
         }
 
         foreach ($rows as $index => $row) {
+            // Skip DEWA bills
+            if ($row['type'] === 'DEWA') {
+                continue;
+            }
+
             // Convert status to camelcase
             $row['status'] = ucfirst(strtolower($row['status']));
 

@@ -7,6 +7,7 @@ use App\Imports\BillImport;
 use App\Models\Bill;
 use App\Models\Building\Building;
 use App\Models\Building\Flat;
+use Auth;
 use Carbon\Carbon;
 use DB;
 use Filament\Actions\Action;
@@ -14,6 +15,7 @@ use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Set;
 use Filament\Resources\Components\Tab;
 use Filament\Resources\Pages\ListRecords;
@@ -85,6 +87,19 @@ class ListBills extends ListRecords
                                 })
                                 ->searchable()
                                 ->required(),
+
+                            DatePicker::make('month')
+                                ->required()
+                                ->default(now())
+                                ->native(false)
+                                ->displayFormat('m-Y')
+                                ->helperText('Enter the month for which this bill is generated'),
+
+                            TextInput::make('dewa_number')
+                                ->label('DEWA Number')
+                                ->placeholder('Enter the DEWA number')
+                                ->required(),
+
                             FileUpload::make('excel_file')
                                 ->label('Bills Excel Data')
                                 ->acceptedFileTypes([
@@ -92,18 +107,25 @@ class ListBills extends ListRecords
                                     'application/vnd.ms-excel',
                                 ])
                                 ->required(),
-                            DatePicker::make('month')
-                                ->required()
-                                ->default(now())
-                                ->native(false)
-                                ->displayFormat('m-Y')
-                                ->helperText('Enter the month for which this bill is generated'),
                         ]),
 
                 ])
                 ->action(function (array $data) {
                     $month    = Carbon::parse($data['month'])->format('Y-m-d');
                     $filePath = storage_path('app/public/' . $data['excel_file']);
+
+                    // Handle DEWA bill separately
+                    Bill::create([
+                        'flat_id'     => $data['flat_id'],
+                        'type'        => 'DEWA',
+                        'month'       => $month,
+                        'dewa_number' => $data['dewa_number'],
+                        'uploaded_by' => Auth::id(),
+                        'uploaded_on' => Carbon::now(),
+
+                    ]);
+
+                    // Import other bills
                     Excel::import(new BillImport(
                         $data['building_id'],
                         $data['flat_id'],
@@ -124,14 +146,13 @@ class ListBills extends ListRecords
                     ])
                     ->modifyQueryUsing(function ($query) {
                         return Bill::query()
-                            ->whereIn('type', ['BTU', 'lpg', 'Telecommunication', 'DEWA'])
+                            ->whereIn('type', ['BTU', 'lpg', 'Telecommunication'])
                             ->orderByRaw("CASE
                                 WHEN type = 'BTU' THEN 1
                                 WHEN type = 'lpg' THEN 2
                                 WHEN type = 'Telecommunication' THEN 3
-                                WHEN type = 'DEWA' THEN 4
                                 END")
-                            ->take(4)
+                            ->take(3)
                             ->getQuery()
                             ->fromSub(function ($query) {
                                 $query->selectRaw("
@@ -140,8 +161,6 @@ class ListBills extends ListRecords
                                     SELECT 'lpg', '', '', ''
                                     UNION ALL
                                     SELECT 'Telecommunication', '', '', ''
-                                    UNION ALL
-                                    SELECT 'DEWA', '', '', ''
                                 ");
                             }, 'sample_data');
                     }),

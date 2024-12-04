@@ -80,6 +80,7 @@ class FlatTenantResource extends Resource
 
                         TextInput::make('makani_number_url')
                             ->label('Makani Number')
+                            ->disabledOn('edit')
                             ->default(fn($record) => $record->makaniNumber?->url ?? 'NA'),
 
                         Toggle::make('active')
