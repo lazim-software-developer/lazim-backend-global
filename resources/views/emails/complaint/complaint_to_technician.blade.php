@@ -13,7 +13,12 @@
 </tr>
 <tr>
     <td class="paragraph">
-        A new task has been assigned to you. Below are the details of the complaint:
+        A new complaint has been assigned to you.
+    </td>
+</tr>
+<tr>
+    <td class="paragraph">
+        Please find the details below:
     </td>
 </tr>
 <tr>
@@ -29,18 +34,22 @@
 </tr>
 <tr>
     <td class="paragraph">
-        <strong>Ticket Number: </strong> {{$ticket_number}}
-    </td>
-</tr>
-
-<tr>
-    <td class="paragraph">
-        <strong>Building: </strong> {{$building}}
+        ● <strong>Ticket Number: </strong> {{$ticket_number}}
     </td>
 </tr>
 <tr>
     <td class="paragraph">
-        <strong>Flat: </strong> {{$flat}}
+        ● <strong>Building: </strong> {{$building}}
+    </td>
+</tr>
+<tr>
+    <td class="paragraph">
+        ● <strong>Flat: </strong> {{$flat}}
+    </td>
+</tr>
+<tr>
+    <td class="paragraph">
+        ● <strong>Complaint Details: </strong> {{$description}}
     </td>
 </tr>
 <tr>
@@ -48,7 +57,7 @@
 </tr>
 <tr>
     <td class="paragraph">
-        Please address this complaint at your earliest convenience. Thank you for your prompt attention.
+        Kindly address this complaint at your earliest convenience. Your prompt attention and resolution are greatly appreciated.
     </td>
 </tr>
 <tr>
@@ -63,12 +72,14 @@
     <td width="100%" height="5"></td>
 </tr>
 <tr>
-    <td class="paragraph">
-        The Lazim Team
+    <td>
+        <img src="{{url('images/logo.png')}}" alt="Lazim" style="max-width: 150px; height: auto;">
     </td>
 </tr>
 <tr>
-    <td width="100%" height="25"></td>
+    <td class="paragraph">
+        {{$property_manager_name}}
+    </td>
 </tr>
 @include('beautymail::templates.minty.contentEnd')
 

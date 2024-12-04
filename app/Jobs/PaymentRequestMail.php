@@ -26,11 +26,12 @@ class PaymentRequestMail implements ShouldQueue
      */
     public function handle(): void
     {
+        $requestedBy = $this->rentalCheque?->rentalDetail?->flatTenant?->user?->first_name;
         $beautymail = app()->make(Beautymail::class);
-        $beautymail->send('emails.request_payment_link', ['user' => $this->user, 'rentalCheque' => $this->rentalCheque], function ($message) {
+        $beautymail->send('emails.request_payment_link', ['user' => $this->user, 'rentalCheque' => $this->rentalCheque, 'requestedBy' => $requestedBy], function ($message) use ($requestedBy) {
             $message
                 ->to($this->user->email, $this->user->first_name)
-                ->subject('Payment Request For Cheque.');
+                ->subject('Payment Link Request Against Cheque '.$this->rentalCheque?->cheque_number.' '.$requestedBy.'.');
         });
     }
 }
