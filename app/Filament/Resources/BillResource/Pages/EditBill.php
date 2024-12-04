@@ -20,9 +20,9 @@ class EditBill extends EditRecord
     protected function mutateFormDataBeforeFill(array $data): array
     {
         $bill       = $this->record;
+        $dewaNumber = $bill->dewa_number;
         $flatId     = $bill->flat['property_number'];
-        $buildingId = Flat::where('property_number', $flatId)->pluck('building_id');
-
+        $buildingId = Flat::where('property_number', $flatId)->pluck('building_id')[0];
         return [
             'building_id'       => $buildingId,
             'type'              => $bill->type,
@@ -33,14 +33,18 @@ class EditBill extends EditRecord
             'status'            => $bill->status,
             'uploaded_by'       => $bill->uploaded_by,
             'status_updated_by' => $bill->status_updated_by,
+            'dewa_number'       => $dewaNumber ?? null,
 
         ];
     }
 
     protected function mutateFormDataBeforeSave(array $data): array
     {
-        if($data['status']!= $this->record['status']){
-            $data['status_updated_by'] = auth()->id();
+        if ($this->record['type'] != 'DEWA') {
+            if ($data['status'] != $this->record['status']) {
+                $data['status_updated_by'] = auth()->id();
+            }
+
         }
 
         return $data;

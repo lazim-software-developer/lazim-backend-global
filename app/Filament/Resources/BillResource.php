@@ -2,24 +2,24 @@
 
 namespace App\Filament\Resources;
 
-use DB;
-use Carbon\Carbon;
+use App\Filament\Resources\BillResource\Pages;
 use App\Models\Bill;
-use Filament\Tables;
+use App\Models\Building\Building;
+use App\Models\Building\Flat;
+use App\Models\User\User;
+use Carbon\Carbon;
+use DB;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Form;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
-use Filament\Forms\Form;
-use App\Models\User\User;
-use Filament\Tables\Table;
-use App\Models\Building\Flat;
 use Filament\Resources\Resource;
-use App\Models\Building\Building;
-use Filament\Forms\Components\Select;
+use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\DatePicker;
 use Filament\Tables\Filters\SelectFilter;
-use App\Filament\Resources\BillResource\Pages;
+use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 
 class BillResource extends Resource
@@ -43,11 +43,23 @@ class BillResource extends Resource
                         'lpg'               => 'lpg',
                     ])
                     ->live()
+                    ->reactive()
                     ->required(),
 
                 TextInput::make('dewa_number')
                     ->label('DEWA Number')
                     ->visible(fn(Get $get) => $get('type') == 'DEWA')
+                    ->numeric()
+                    ->rules([
+                        'min_digits:10',
+                        'max_digits:10',
+                    ])
+                    ->unique('bills', 'dewa_number', ignoreRecord: true)
+                    ->validationMessages([
+                        'min_digits' => 'The DEWA number must be 10 characters long.',
+                        'max_digits' => 'The DEWA number must be 10 characters long.',
+                        'unique' => 'The DEWA number has already been taken.',
+                    ])
                     ->placeholder('Enter the DEWA number')
                     ->required(),
 
@@ -101,6 +113,7 @@ class BillResource extends Resource
                     ->required(),
                 TextInput::make('amount')
                     ->required()
+                    ->visible(fn(Get $get) => $get('type') !== 'DEWA')
                     ->placeholder('Enter the total bill amount')
                     ->numeric(),
                 DatePicker::make('month')
@@ -110,11 +123,13 @@ class BillResource extends Resource
                     ->displayFormat('m-Y')
                     ->helperText('Enter the month for which this bill is generated'),
                 DatePicker::make('due_date')
+                    ->visible(fn(Get $get) => $get('type') !== 'DEWA')
                     ->required(),
                 // DatePicker::make('uploaded_on')
                 //     ->default(now())
                 //     ->required(),
                 Select::make('status')
+                    ->visible(fn(Get $get) => $get('type') !== 'DEWA')
                     ->helperText('Select the current status of the bill')
                     ->options([
                         'Pending' => 'Pending',
@@ -131,9 +146,9 @@ class BillResource extends Resource
                     ->searchable(),
                 Select::make('status_updated_by')
                     ->relationship('statusUpdatedBy', 'first_name')
+                    ->visible(fn(Get $get) => $get('type') !== 'DEWA')
                     ->disabled()
                     ->live()
-                    ->visibleOn('edit')
                     ->preload()
                     ->searchable(),
             ]);
@@ -151,20 +166,23 @@ class BillResource extends Resource
                         return Carbon::parse($state)->format('m-Y');
                     }),
                 TextColumn::make('amount')
-                    ->numeric(),
+                    ->numeric()
+                    ->default('--')
+                    ->visible(fn() => request()->query('activeTab') !== 'DEWA'),
                 TextColumn::make('due_date')
-                    ->date(),
-                // TextColumn::make('uploaded_on')
-                //     ->date(),
-                // TextColumn::make('statusUpdatedBy.first_name'),
-                TextColumn::make('uploadedBy.first_name'),
+                    ->date()
+                    ->visible(fn() => request()->query('activeTab') !== 'DEWA'),
                 TextColumn::make('status')
+                    ->default('--')
                     ->badge()
                     ->color(fn(string $state): string => match ($state) {
                         'Pending'                         => 'primary',
                         'Paid'                            => 'success',
-                        'Overdue'                         => 'danger'
-                    }),
+                        'Overdue'                         => 'danger',
+                        '--'                              => 'muted',
+                    })
+                    ->visible(fn() => request()->query('activeTab') !== 'DEWA'),
+                TextColumn::make('uploadedBy.first_name'),
             ])
             ->filters([
                 SelectFilter::make('status')
@@ -176,15 +194,15 @@ class BillResource extends Resource
                 SelectFilter::make('month')
                     ->label('Month')
                     ->options([
-                        1 => 'January',
-                        2 => 'February',
-                        3 => 'March',
-                        4 => 'April',
-                        5 => 'May',
-                        6 => 'June',
-                        7 => 'July',
-                        8 => 'August',
-                        9 => 'September',
+                        1  => 'January',
+                        2  => 'February',
+                        3  => 'March',
+                        4  => 'April',
+                        5  => 'May',
+                        6  => 'June',
+                        7  => 'July',
+                        8  => 'August',
+                        9  => 'September',
                         10 => 'October',
                         11 => 'November',
                         12 => 'December',
@@ -193,7 +211,7 @@ class BillResource extends Resource
                     ->query(function (Builder $query, array $data): Builder {
                         return $query->when(
                             $data['value'],
-                            fn (Builder $query, $month): Builder => $query->whereMonth('due_date', $month)
+                            fn(Builder $query, $month): Builder => $query->whereMonth('due_date', $month)
                         );
                     }),
             ])
