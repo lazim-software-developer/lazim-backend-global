@@ -52,6 +52,14 @@ class FacilityBookingResource extends Resource
                             ->options(function () {
                                 if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
                                     return Building::all()->pluck('name', 'id');
+                                } elseif (Role::where('id', auth()->user()->role_id)
+                                        ->first()->name == 'Property Manager') {
+                                    $buildings = DB::table('building_owner_association')
+                                        ->where('owner_association_id', auth()->user()->owner_association_id)
+                                        ->where('active', true)
+                                        ->pluck('building_id');
+                                    return Building::whereIn('id', $buildings)->pluck('name', 'id');
+
                                 } else {
                                     return Building::where('owner_association_id', auth()->user()?->owner_association_id)
                                         ->pluck('name', 'id');
@@ -171,10 +179,12 @@ class FacilityBookingResource extends Resource
             ->defaultSort('created_at', 'desc')
             ->filters([
                 SelectFilter::make('building_id')
-                    ->relationship('building', 'name', function (Builder $query) {
-                        if (Role::where('id', auth()->user()->role_id)->first()->name != 'Admin') {
-                            $query->where('owner_association_id', Filament::getTenant()?->id);
-                        }
+                    ->label('Building')
+                    ->options(function () {
+                        $buildings = DB::table('building_owner_association')
+                            ->where('owner_association_id', auth()->user()->owner_association_id)
+                            ->where('active', true)->pluck('building_id');
+                        return Building::whereIn('id', $buildings)->pluck('name', 'id');
                     })
                     ->searchable()
                     ->preload(),

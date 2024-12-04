@@ -14,8 +14,8 @@ class ListServiceBookings extends ListRecords
     protected static string $resource = ServiceBookingResource::class;
     protected function getTableQuery(): Builder
     {
-        $buildings = Building::all()->where('owner_association_id',auth()->user()?->owner_association_id)->pluck('id')->toArray();
-        if(Role::where('id',auth()->user()->role_id)->first()->name != 'Admin') 
+        $buildings = Building::all()->where('owner_association_id',auth()->user()?->owner_association_id)->where('active', true)->pluck('id')->toArray();
+        if(Role::where('id',auth()->user()->role_id)->first()->name != 'Admin')
         {
             return parent::getTableQuery()->where('bookable_type','App\Models\Master\Service')->whereIn('building_id',$buildings);
         }

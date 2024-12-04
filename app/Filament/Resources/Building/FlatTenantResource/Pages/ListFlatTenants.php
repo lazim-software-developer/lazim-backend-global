@@ -29,7 +29,9 @@ class ListFlatTenants extends ListRecords
         $userRoleName = Role::where('id', $user->role_id)->value('name');
 
         $pmbuildingIds = DB::table('building_owner_association')
-            ->where('owner_association_id', auth()->user()?->owner_association_id)->pluck('building_id');
+            ->where('owner_association_id', auth()->user()?->owner_association_id)
+            ->where('active', true)
+            ->pluck('building_id');
         if (auth()->user()?->role?->name === 'Property Manager') {
             return parent::getTableQuery()->whereIn('building_id', $pmbuildingIds);
         }

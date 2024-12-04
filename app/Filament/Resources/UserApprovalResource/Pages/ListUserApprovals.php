@@ -4,8 +4,7 @@ namespace App\Filament\Resources\UserApprovalResource\Pages;
 
 use App\Filament\Resources\UserApprovalResource;
 use App\Models\Master\Role;
-use App\Models\OwnerAssociation;
-use Filament\Actions;
+use DB;
 use Filament\Facades\Filament;
 use Filament\Resources\Pages\ListRecords;
 use Illuminate\Database\Eloquent\Builder;
@@ -22,12 +21,22 @@ class ListUserApprovals extends ListRecords
     }
     protected function getTableQuery(): Builder
     {
-        if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
-            return parent::getTableQuery()->latest();
+        $pmbuildingIds = DB::table('building_owner_association')
+            ->where('owner_association_id', auth()->user()?->owner_association_id)
+            ->where('active', true)
+            ->pluck('building_id');
+
+        $flats = DB::table('flats')->whereIn('building_id', $pmbuildingIds)->pluck('id')->toArray();
+        if (auth()->user()->role->name == 'Property Manager') {
+            return parent::getTableQuery()
+                ->where('owner_association_id', auth()->user()->owner_association_id)
+                ->whereIn('flat_id', $flats)
+                ->latest();
         }
-        if(Role::where('id', auth()->user()->role_id)->first()->name == 'Property Manager'){
-            return parent::getTableQuery()->where('owner_association_id', auth()->user()->owner_association_id)->latest();
+        $tenant = Filament::getTenant();
+        if ($tenant) {
+            return parent::getTableQuery()->where('owner_association_id', $tenant->id)->latest();
         }
-        return parent::getTableQuery()->where('owner_association_id',Filament::getTenant()->id)->latest();
+        return parent::getTableQuery()->latest();
     }
 }

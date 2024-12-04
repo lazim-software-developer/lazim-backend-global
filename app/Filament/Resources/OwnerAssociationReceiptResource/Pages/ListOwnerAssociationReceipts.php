@@ -37,6 +37,7 @@ class ListOwnerAssociationReceipts extends ListRecords
         } elseif (Role::where('id', auth()->user()->role_id)->first()->name == 'Property Manager') {
             $buildingIds = DB::table('building_owner_association')
                 ->where('owner_association_id', auth()->user()->owner_association_id)
+                ->where('active', true)
                 ->pluck('building_id');
 
             return parent::getTableQuery()->whereIn('building_id', $buildingIds);

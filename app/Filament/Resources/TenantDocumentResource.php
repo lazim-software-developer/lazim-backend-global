@@ -9,6 +9,7 @@ use App\Models\Building\Flat;
 use App\Models\Building\FlatTenant;
 use App\Models\Master\Role;
 use App\Models\User\User;
+use DB;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
@@ -189,10 +190,19 @@ class TenantDocumentResource extends Resource
                     ->options(function () {
                         if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
                             return Building::all()->pluck('name', 'id');
+                        } elseif (Role::where('id', auth()->user()->role_id)
+                                ->first()->name == 'Property Manager') {
+                            $buildings = DB::table('building_owner_association')
+                                ->where('owner_association_id', auth()->user()->owner_association_id)
+                                ->where('active', true)
+                                ->pluck('building_id');
+                            return Building::whereIn('id', $buildings)->pluck('name', 'id');
+
                         } else {
                             return Building::where('owner_association_id', auth()->user()?->owner_association_id)
                                 ->pluck('name', 'id');
                         }
+
                     })
                     ->searchable()
                     ->preload()

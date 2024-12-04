@@ -25,6 +25,7 @@ class ListFacilityBookings extends ListRecords
     {
         $buildings = DB::table('building_owner_association')
             ->where('owner_association_id', auth()->user()->owner_association_id)
+            ->where('active', true)
             ->pluck('building_id')->toArray();
         if (Role::where('id', auth()->user()->role_id)->first()->name == 'Property Manager') {
             return parent::getTableQuery()
