@@ -13,7 +13,7 @@
 		</tr>
 		<tr>
 			<td class="paragraph">
-            We're excited to have you on board with Lazim! Your account has been successfully created, and we're thrilled to welcome you to our community.
+            We are thrilled to welcome you to Lazim! Your account has been successfully created.
 			</td>
 		</tr>
 		<tr>
@@ -24,51 +24,48 @@
             Your Account Details:
 			</td>
 		</tr>
-
 		<tr>
 			<td width="100%" height="10"></td>
 		</tr>
-
         <tr>
             <td class="paragraph">
-                <strong>Email: </strong> {{$user->email}}
+                ● <strong>Email: </strong> {{$user->email}}
 			</td>
 		</tr>
         <tr>
             <td class="paragraph">
-                <strong>Password: </strong> {{$password}}
-                <!-- (We recommend changing this password upon your first login for security reasons.) -->
-			</td>
-		</tr>
-        <tr>
-			<td width="100%" height="25"></td>
-		</tr>
-
-        <tr>
-            <td class="paragraph">
-            Thank you for choosing Lazim. We're confident that you'll find great value in our platform, and we look forward to serving you.
+                ● <strong>Password: </strong> {{$password}}
+                <div style="font-size: 12px; color: #666;">(temporary password, need to change)</div>
 			</td>
 		</tr>
         <tr>
 			<td width="100%" height="25"></td>
 		</tr>
-
+        <tr>
+            <td class="paragraph">
+            Please keep your account credentials secure. You can now log in to your account and start using our platform to access your assigned tasks and services.
+			</td>
+		</tr>
+        <tr>
+            <td class="paragraph">
+            If you have any questions or need assistance, feel free to reach out to us.
+			</td>
+		</tr>
+        <tr>
+			<td width="100%" height="15"></td>
+		</tr>
         <tr>
 			<td class="paragraph">
-               Warm regards,
+               Regards,
             </td>
 		</tr>
 		<tr>
-			<td width="100%" height="5"></td>
+			<td width="100%" height="15"></td>
 		</tr>
 		<tr>
-			<td class="paragraph">
-           Lazim team
+			<td>
+                <img src="{{url('images/logo.png')}}" alt="Lazim" style="max-width: 150px; height: auto;">
 			</td>
-		</tr>
-
-		<tr>
-			<td width="100%" height="25"></td>
 		</tr>
 	@include('beautymail::templates.minty.contentEnd')
 

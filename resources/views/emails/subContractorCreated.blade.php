@@ -58,7 +58,7 @@
 </tr>
 <tr>
     <td>
-        <img src="{{url('images/logo.png')}}" alt="Company Logo" style="max-width: 150px; height: auto;">
+        <img src="{{url('images/logo.png')}}" alt="Lazim" style="max-width: 150px; height: auto;">
     </td>
 </tr>
 @include('beautymail::templates.minty.contentEnd')
