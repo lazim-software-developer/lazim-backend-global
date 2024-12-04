@@ -54,7 +54,7 @@ class ComplaintCreationJob implements ShouldQueue
                 $message
                     ->from($this->mailCredentials['mail_from_address'],env('MAIL_FROM_NAME'))
                     ->to($user->email, $user->first_name)
-                    ->subject('Complaint Request Submitted');
+                    ->subject('Complaint Request Acknowledgment');
             });
         }
         Artisan::call('queue:restart');
