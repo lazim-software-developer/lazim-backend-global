@@ -24,6 +24,7 @@ class CreateComplaint extends CreateRecord
         $data['owner_association_id'] = auth()->user()->owner_association_id;
         $data['category']             = $serviceName;
         $data['ticket_number']        = generate_ticket_number("CP");
+        $data['complaint_type']       = 'preventive_maintenance';
         $data['open_time']            = Carbon::now();
         return $data;
     }

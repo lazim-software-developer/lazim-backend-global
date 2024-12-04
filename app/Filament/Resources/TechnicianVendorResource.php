@@ -18,6 +18,7 @@ use Filament\Forms\Set;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class TechnicianVendorResource extends Resource
 {
@@ -127,6 +128,7 @@ class TechnicianVendorResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(fn(Builder $query) => $query->latest())
             ->columns([
 
                 Tables\Columns\TextColumn::make('user.first_name')
