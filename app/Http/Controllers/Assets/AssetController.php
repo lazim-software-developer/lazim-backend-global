@@ -186,7 +186,7 @@ class AssetController extends Controller
         $building_name        = Building::where('id', $asset->building_id)->first();
         $ownerAssociationId   = DB::table('building_owner_association')->where('building_id', $asset->building_id)->where('active', true)->first()?->owner_association_id;
 
-        $ownerAssociation = OwnerAssociation::where('id',$ownerAssociationId);
+        $ownerAssociation = OwnerAssociation::where('id',$ownerAssociationId)->first();
 
         $ownerAssociationName = $ownerAssociation?->name ?? uniqid('ASSET_');
         $assetCode            = strtoupper(substr($ownerAssociationName, 0, 2)) . '-' . Hashids::encode($asset->id);
