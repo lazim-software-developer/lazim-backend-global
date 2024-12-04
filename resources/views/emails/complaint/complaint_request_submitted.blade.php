@@ -59,15 +59,20 @@
     </td>
 </tr>
 <tr>
-    <td width="100%" height="25"></td>
+    <td width="100%" height="15"></td>
 </tr>
 <tr>
-    <td class="paragraph">
-        Regards,
+    <td>
+        <img src="{{url('images/logo.png')}}" alt="Company Logo" style="max-width: 150px; height: auto;">
     </td>
 </tr>
 <tr>
-    <td width="100%" height="5"></td>
+    <td width="100%" height="10"></td>
+</tr>
+<tr>
+    <td class="paragraph">
+        {{$property_manager_name}}
+    </td>
 </tr>
 <tr>
     <td width="100%" height="25"></td>
