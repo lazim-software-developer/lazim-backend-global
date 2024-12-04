@@ -186,13 +186,9 @@ class AssetController extends Controller
         $building_name        = Building::where('id', $asset->building_id)->first();
         $ownerAssociationId   = DB::table('building_owner_association')->where('building_id', $asset->building_id)->where('active', true)->first()?->owner_association_id;
 
-        try {
-            $ownerAssociation = OwnerAssociation::findOrFail($ownerAssociationId);
-        } catch (\Exception $e) {
-            throw new \Exception('Active Owner Association not found for this building. Please check the configuration.',404);
-        }
+        $ownerAssociation = OwnerAssociation::find($ownerAssociationId);
 
-        $ownerAssociationName = $ownerAssociation->name;
+        $ownerAssociationName = $ownerAssociation?->name ?? uniqid('ASSET_');
         $assetCode            = strtoupper(substr($ownerAssociationName, 0, 2)) . '-' . Hashids::encode($asset->id);
 
         // Build an object with the required properties
@@ -204,7 +200,7 @@ class AssetController extends Controller
             'maintenance_status' => 'not-started',
             'building_name'      => $building_name->name,
             'building_id'        => $asset->building_id,
-            'location'           => $asset->location,
+            'location'           => $asset?->location,
             'description'        => $asset->description,
         ];
 
