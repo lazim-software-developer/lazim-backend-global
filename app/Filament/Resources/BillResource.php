@@ -31,6 +31,7 @@ class BillResource extends Resource
     public static function form(Form $form): Form
     {
         return $form
+        
             ->schema([
                 Select::make('type')
                     ->preload()
