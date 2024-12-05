@@ -302,7 +302,7 @@ class OwnerAssociationInvoice extends Page implements HasForms
 
                 if ($resident && filter_var($resident->email, FILTER_VALIDATE_EMAIL)) {
                     Log::info('Email job dispatched for resident: ', ['email' => $resident->email]);
-                    dispatch(new SendInvoiceEmail($resident->email, $receipt, $pdfPath));
+                    dispatch(new SendInvoiceEmail($resident->email, $receipt, $pdfPath,auth()->user()?->first_name));
                 } else {
                     Log::warning('Resident not found or email invalid: ',
                     ['resident_id' => $data['resident'], 'email' => $resident ? $resident->email : null]);
