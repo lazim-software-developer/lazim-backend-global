@@ -227,10 +227,11 @@ class OwnerAssociationReceipt extends Page
             // Send email if applicable
             if (auth()->user()->role->name == 'Property Manager' && isset($data['resident'])) {
                 $resident = User::find($data['resident']);
+                $pm_oa = auth()->user()?->first_name ?? '';
 
                 if ($resident && filter_var($resident->email, FILTER_VALIDATE_EMAIL)) {
                     Log::info('Email job dispatched for resident: ', ['email' => $resident->email]);
-                    dispatch(new SendReceiptEmail($resident->email, $receipt, $pdfPath,auth()->user()?->first_name));
+                    dispatch(new SendReceiptEmail($resident->email, $receipt, $pdfPath,$pm_oa));
                 } else {
                     Log::warning('Resident not found or email invalid: ', [
                         'resident_id' => $data['resident'],

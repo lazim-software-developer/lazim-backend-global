@@ -22,7 +22,7 @@
         <p>If you have any questions or require further assistance, feel free to reach out to us.</p>
         <p>Thank you for your cooperation.</p>
         <p>Regards,</p>
-        <img src="{{url('images/logo.png')}}" alt="Lazim" style="max-width: 100px; height: 50px;">
+        <img src="{{url('images/logo.png')}}" alt="Lazim" style="max-width: 80px; height: 30px;">
         <p>{{$pm_oa}}</p>
     </body>
 
