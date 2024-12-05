@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Auth;
 
 use App\Models\User\User;
+use App\Traits\UtilsTrait;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Models\Vendor\Vendor;
@@ -25,6 +26,7 @@ use App\Http\Requests\Auth\GateKeeperLoginRequest;
 
 class AuthController extends Controller
 {
+    use UtilsTrait;
     /**
      * Login route for OA user
      */
