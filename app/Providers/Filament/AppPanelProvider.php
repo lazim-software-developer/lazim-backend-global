@@ -421,6 +421,7 @@ class AppPanelProvider extends PanelProvider
                                             ->sort(8),
                                         NavigationItem::make('Assets Maintenance')
                                             ->url(AssetMaintenanceResource::getUrl('index'))
+                                            ->visible(auth()->user()->role->name !== 'Property Manager')
                                             ->hidden(!$user->can('view_any_asset::maintenance'))
                                             ->icon('heroicon-s-document-magnifying-glass')
                                             ->activeIcon('heroicon-s-document-magnifying-glass')
