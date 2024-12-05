@@ -39,6 +39,7 @@
     <td class="paragraph">
         <strong>Account Name:</strong> {{$user->first_name}}<br>
         <strong>Email Address:</strong> {{$user->email}}<br>
+        <strong>Password:</strong> {{$password}}<br>
     </td>
 </tr>
 <tr>
