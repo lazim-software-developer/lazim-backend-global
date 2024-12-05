@@ -22,7 +22,7 @@
         <p>If you have any questions or require further assistance, feel free to reach out to us.</p>
         <p>Thank you for your cooperation.</p>
         <p>Regards,</p>
-        <img src="{{url('images/logo.png')}}" alt="Company Logo" style="max-width: 100px; height: 50px;">
+        <img src="{{url('images/logo.png')}}" alt="Lazim" style="max-width: 100px; height: 50px;">
         <p>{{ auth()->user()?->first_name}}</p>
     </body>
 
