@@ -36,13 +36,13 @@ class Residentapproval implements ShouldQueue
         Config::set('mail.mailers.smtp.password', $this->mailCredentials['mail_password']);
         Config::set('mail.mailers.smtp.encryption', $this->mailCredentials['mail_encryption']);
         Config::set('mail.mailers.smtp.email', $this->mailCredentials['mail_from_address']);
-        
+
         $beautymail = app()->make(Beautymail::class);
         $beautymail->send('emails.Residentapproval', ['user' => $this->user], function ($message) {
             $message
                 ->from($this->mailCredentials['mail_from_address'],env('MAIL_FROM_NAME'))
                 ->to($this->user->email, $this->user->first_name)
-                ->subject('Welcome to Lazim!');
+                ->subject('Welcome to Lazim – Your Account is Approved');
         });
 
         Artisan::call('queue:restart');
