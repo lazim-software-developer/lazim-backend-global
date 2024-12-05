@@ -122,7 +122,10 @@ class RentalChequeResource extends Resource
                 }
 
                 return $query->whereHas('rentalDetail.flat', function ($query) use ($ownerAssociationId) {
-                    $query->where('owner_association_id', $ownerAssociationId);
+                    $query->whereHas('building.ownerAssociations', function($q) use ($ownerAssociationId) {
+                        $q->where('owner_association_id', $ownerAssociationId)
+                          ->where('building_owner_association.active', true);
+                    });
                 })->orderBy('created_at', 'desc');
             })
             ->columns([
@@ -154,8 +157,9 @@ class RentalChequeResource extends Resource
                     ->relationship(
                         'rentalDetail.flat',
                         'property_number',
-                        fn($query) => $query->whereHas('building', function ($query) {
-                            $query->where('owner_association_id', auth()->user()->owner_association_id);
+                        fn($query) => $query->whereHas('building.ownerAssociations', function ($query) {
+                            $query->where('owner_association_id', auth()->user()->owner_association_id)
+                                ->where('building_owner_association.active', true);
                         })
                     )
                     ->preload()
@@ -165,8 +169,9 @@ class RentalChequeResource extends Resource
                     ->relationship(
                         'rentalDetail.flat.tenants.user',
                         'first_name',
-                        fn($query) => $query->whereHas('tenants.flat.building', function ($query) {
-                            $query->where('owner_association_id', auth()->user()->owner_association_id);
+                        fn($query) => $query->whereHas('tenants.flat.building.ownerAssociations', function ($query) {
+                            $query->where('owner_association_id', auth()->user()->owner_association_id)
+                                ->where('building_owner_association.active', true);
                         })
                     )
                     ->preload()
