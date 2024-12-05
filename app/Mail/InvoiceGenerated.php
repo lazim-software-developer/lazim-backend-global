@@ -40,7 +40,7 @@ class InvoiceGenerated extends Mailable
             ]);
 
             return $this->view('emails.invoice-generated')
-                ->subject('New Invoice Generated')
+                ->subject('Invoice Notification and Payment Instructions')
                 ->attach($this->pdfPath, [
                     'as' => 'invoice.pdf',
                     'mime' => 'application/pdf',
@@ -52,7 +52,7 @@ class InvoiceGenerated extends Mailable
 
             // Optionally, send the email without the attachment
             return $this->view('emails.invoice-generated')
-                ->subject('New Invoice Generated');
+                ->subject('Invoice Notification and Payment Instructions');
         }
     }
 
