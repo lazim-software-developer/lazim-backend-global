@@ -232,7 +232,7 @@ class FacilityManagerResource extends Resource
                         if ($state['status'] === 'rejected' && !empty($state['remarks'])) {
                             // Log the remarks before dispatching
                             \Log::info('Remarks before dispatch:', ['remarks' => $state['remarks']]);
-                            RejectedFMJob::dispatch($user, $password, $email, $state['remarks']);
+                            RejectedFMJob::dispatch($user, $password, $email, $state['remarks'], auth()->user()?->first_name);
                         } elseif ($state['status'] === 'approved') {
                             // Update user password
                             $user->password = Hash::make($password);
