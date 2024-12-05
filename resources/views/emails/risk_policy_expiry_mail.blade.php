@@ -13,7 +13,7 @@
 		</tr>
 		<tr>
 			<td class="paragraph">
-                This is a friendly reminder that your Risk Policy Certificate is set to expire on {{$document->expiry_date}}.
+                This is a friendly reminder that your Risk Policy Certificate is set to expire on {{$expiry_date}}.
             </td>
 		</tr>
 		<tr>

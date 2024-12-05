@@ -2,29 +2,31 @@
 
 namespace App\Http\Controllers\Vendor;
 
-use App\Http\Controllers\Controller;
-use App\Http\Requests\Community\StoreCommentRequest;
-use App\Http\Requests\VendorComplaintCreateRequest;
-use App\Http\Resources\Community\CommentResource;
-use App\Http\Resources\CustomResponseResource;
-use App\Http\Resources\Vendor\VendorComplaintsResource;
-use App\Jobs\Complaint\ComplaintCreationJob;
-use App\Models\AccountCredentials;
-use App\Models\Building\BuildingPoc;
-use App\Models\Building\Complaint;
-use App\Models\Community\Comment;
-use App\Models\ExpoPushNotification;
-use App\Models\Master\Service;
-use App\Models\Media;
-use App\Models\TechnicianVendor;
-use App\Models\Vendor\Vendor;
 use Carbon\Carbon;
+use App\Models\Media;
+use App\Traits\UtilsTrait;
 use Illuminate\Http\Request;
+use App\Models\Vendor\Vendor;
+use App\Models\Master\Service;
+use App\Models\TechnicianVendor;
+use App\Models\Community\Comment;
+use App\Models\AccountCredentials;
+use App\Models\Building\Complaint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
+use App\Models\Building\BuildingPoc;
+use App\Models\ExpoPushNotification;
+use App\Jobs\Complaint\ComplaintCreationJob;
+use App\Http\Resources\CustomResponseResource;
+use App\Http\Resources\Community\CommentResource;
+use App\Http\Requests\VendorComplaintCreateRequest;
+use App\Http\Requests\Community\StoreCommentRequest;
+use App\Http\Resources\Vendor\VendorComplaintsResource;
 
 class VendorComplaintController extends Controller
 {
+    use UtilsTrait;
     public function listComplaints(Request $request, Vendor $vendor)
     {
         $end_date   = now();
