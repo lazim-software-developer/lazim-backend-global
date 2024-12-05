@@ -6,10 +6,8 @@ use App\Filament\Resources\AnnouncementResource\Pages;
 use App\Models\Building\Building;
 use App\Models\Community\Post;
 use App\Models\Master\Role;
-use App\Models\OwnerAssociation;
 use App\Models\User\User;
 use Closure;
-use Filament\Facades\Filament;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
@@ -114,7 +112,9 @@ class AnnouncementResource extends Resource
                             return Building::all()->pluck('name', 'id');
                         }
                         if (Role::where('id', auth()->user()->role_id)->first()->name == 'Property Manager') {
-                            $buildings = DB::table('building_owner_association')->where('owner_association_id', auth()->user()?->owner_association_id)->pluck('building_id');
+                            $buildings = DB::table('building_owner_association')
+                                ->where('owner_association_id', auth()->user()?->owner_association_id)
+                                ->where('active', true)->pluck('building_id');
                             return Building::whereIn('id', $buildings)->pluck('name', 'id');
                         }
                         return Building::where('owner_association_id', auth()->user()?->owner_association_id)->pluck('name', 'id');
@@ -173,13 +173,22 @@ class AnnouncementResource extends Resource
                     ->preload()
                     ->label('User'),
                 SelectFilter::make('building_id')
-                    ->relationship('building', 'name', function (Builder $query) {
-                        if (Role::where('id', auth()->user()->role_id)->first()->name != 'Admin') {
-                            $oa        = OwnerAssociation::find(Filament::getTenant()?->id ?: auth()->user()?->owner_association_id);
-                            $buildings = $oa?->building?->pluck('id');
+                    ->options(function () {
+                        if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+                            return Building::pluck('name', 'id');
+                        } elseif (auth()->user()->role->name == 'Property Manager') {
+                            $buildingIds = DB::table('building_owner_association')
+                                ->where('owner_association_id', auth()->user()->owner_association_id)
+                                ->where('active', true)
+                                ->pluck('building_id');
 
-                            $query->whereIn('buildings.id', $buildings ?: []);
+                            return Building::whereIn('id', $buildingIds)
+                                ->pluck('name', 'id');
+
                         }
+                        $oaId = auth()->user()?->owner_association_id;
+                        return Building::where('owner_association_id', $oaId)
+                            ->pluck('name', 'id');
                     })
                     ->searchable()
                     ->preload()
