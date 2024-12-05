@@ -403,7 +403,7 @@ class AdminPanelProvider extends PanelProvider
                     $user->can('page_ReserveFundStatementMollak')
                 ) {
                     $builder->groups([
-                        NavigationGroup::make('Accounting')
+                        NavigationGroup::make('Financial Report')
                             ->items([
                                 NavigationItem::make('Budget')
                                     ->url('/admin/budgets')
