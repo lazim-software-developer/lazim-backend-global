@@ -31,7 +31,7 @@ class BillResource extends Resource
     public static function form(Form $form): Form
     {
         return $form
-        
+
             ->schema([
                 Select::make('type')
                     ->preload()
@@ -59,7 +59,7 @@ class BillResource extends Resource
                     ->validationMessages([
                         'min_digits' => 'The DEWA number must be 10 characters long.',
                         'max_digits' => 'The DEWA number must be 10 characters long.',
-                        'unique' => 'The DEWA number has already been taken.',
+                        'unique'     => 'The DEWA number has already been taken.',
                     ])
                     ->placeholder('Enter the DEWA number')
                     ->required(),
@@ -158,6 +158,16 @@ class BillResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(function ($query) {
+                $buildingIds = DB::table('building_owner_association')
+                    ->where('owner_association_id', auth()->user()->owner_association_id)
+                    ->where('active', true)
+                    ->pluck('building_id');
+
+                $flatIds = Flat::whereIn('building_id', $buildingIds)->pluck('id');
+
+                return $query->whereIn('flat_id', $flatIds);
+            })
             ->columns([
                 TextColumn::make('flat.property_number')
                     ->label('Flat number'),

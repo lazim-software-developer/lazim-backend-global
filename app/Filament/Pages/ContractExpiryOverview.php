@@ -4,6 +4,7 @@ namespace App\Filament\Pages;
 
 use App\Models\Building\FlatTenant;
 use Carbon\Carbon;
+use DB;
 use Filament\Pages\Concerns\InteractsWithFormActions;
 use Filament\Pages\Page;
 use Filament\Tables\Columns\TextColumn;
@@ -39,11 +40,15 @@ class ContractExpiryOverview extends Page implements HasTable
 
     public function getTabGroups(): array
     {
-        $today     = Carbon::now();
+        $today       = Carbon::now();
+        $buildingIds = DB::table('building_owner_association')
+            ->where('owner_association_id', auth()->user()->owner_association_id)
+            ->where('active', true)
+            ->pluck('building_id');
+
         $baseQuery = FlatTenant::query()
-            ->whereHas('building', function ($query) {
-                $query->where('owner_association_id', auth()->user()->owner_association_id);
-            })
+            ->whereIn('building_id', $buildingIds)
+            ->where('owner_association_id', auth()->user()->owner_association_id)
             ->where('active', true);
 
         return [

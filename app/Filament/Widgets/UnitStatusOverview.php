@@ -3,8 +3,10 @@
 namespace App\Filament\Widgets;
 
 use App\Models\Bill;
+use App\Models\Building\Flat;
 use App\Models\Forms\MoveInOut;
 use Carbon\Carbon;
+use DB;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 
@@ -25,24 +27,35 @@ class UnitStatusOverview extends BaseWidget
         $query = MoveInOut::query()
             ->whereHas('building', function ($query) {
                 $query->where('owner_association_id', auth()->user()->owner_association_id)
-                      ->whereHas('ownerAssociations', function ($query) {
-                          $query->where('building_owner_association.owner_association_id', auth()->user()->owner_association_id)
-                                ->where('building_owner_association.active', true);
-                      });
+                    ->whereHas('ownerAssociations', function ($query) {
+                        $query->where('building_owner_association.owner_association_id', auth()->user()->owner_association_id)
+                            ->where('building_owner_association.active', true);
+                    });
             });
+
+        $buildingIds = DB::table('building_owner_association')
+            ->where('owner_association_id', auth()->user()->owner_association_id)
+            ->where('active', true)
+            ->pluck('building_id');
 
         $vacantUnits = (clone $query)
             ->where('type', 'move-out')
             ->where('moving_date', '<', $today)
+            ->whereIn('building_id', $buildingIds)
             ->count();
 
-            $upcomingUnits = (clone $query)
+        $upcomingUnits = (clone $query)
             ->where('type', 'move-in')
             ->where('moving_date', '>=', $today)
+            ->whereIn('building_id', $buildingIds)
             ->count();
 
-        $overdueBTUCount = Bill::where('type', 'BTU')
-            ->where('status', 'Overdue')
+        $flatIds = Flat::whereIn('building_id', $buildingIds)
+            ->pluck('id');
+
+        $overdueBTUCount = Bill::where('type', '=', 'BTU')
+            ->where('status', '=', 'Overdue')
+            ->whereIn('flat_id', $flatIds)
             ->count();
 
         return [
