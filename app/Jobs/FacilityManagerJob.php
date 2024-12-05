@@ -54,7 +54,7 @@ class FacilityManagerJob implements ShouldQueue
                 $message
                     ->from($this->mailCredentials['mail_from_address'], env('MAIL_FROM_NAME'))
                     ->to($this->user->email, $this->user->first_name)
-                    ->subject('Welcome to Lazim!');
+                    ->subject('Welcome to Lazim – Your Account Has Been Successfully Created');
             });
 
         Artisan::call('queue:restart');
