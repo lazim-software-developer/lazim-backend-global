@@ -28,6 +28,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\ContractResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Notifications\Notification;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 use App\Filament\Resources\ContractResource\RelationManagers;
 use Filament\Forms\Components\Section;
@@ -41,6 +42,7 @@ class ContractResource extends Resource
     protected static ?string $navigationGroup = 'Oam';
 
     public static $bm = null;
+    private static $notificationShown = false;  // Add this line
 
     public static function form(Form $form): Form
     {
@@ -71,7 +73,7 @@ class ContractResource extends Resource
                             else{
                                 return Building::where('owner_association_id', auth()->user()?->owner_association_id)
                                     ->pluck('name', 'id');
-                            } 
+                            }
                         })
                         ->reactive()
                         ->required()
@@ -146,42 +148,76 @@ class ContractResource extends Resource
                             $startDate = $get('start_date');
                             $serviceId = $get('service_id');
                             $vendor_id = $get('vendor_id');
-                    
+
                             if (!$buildingId || !$startDate || !$serviceId || !$vendor_id) {
                                 return false;
                             }
-                    
+
                             $startYear = Carbon::parse($startDate)->year;
-                            
-                            $budgetId = Budget::where('building_id', $buildingId)
-                                ->where('owner_association_id', auth()->user()->owner_association_id)
-                                ->whereYear('budget_from', $startYear)->value('id') ?? null;
-                    
+
+                            if(auth()->user()->role->name == 'Admin'){
+                                $budgetId = Budget::where('building_id', $buildingId)
+                                    ->whereYear('budget_from', $startYear)->value('id') ?? null;
+                            }else{
+                                $budgetId = Budget::where('building_id', $buildingId)
+                                    ->where('owner_association_id', auth()->user()->owner_association_id)
+                                    ->whereYear('budget_from', $startYear)->value('id') ?? null;
+                            }
+
+                            if (!$budgetId) {
+                                $set('budget_amount', null);
+                                $set('remaining_amount', null);
+                                if (!self::$notificationShown) {
+                                    Notification::make()
+                                        ->danger()
+                                        ->title("No budget found for the selected building for year {$startYear}")
+                                        ->send();
+                                    self::$notificationShown = true;
+                                }
+                                return true;
+                            }
+
                             $budget = Budgetitem::where('budget_id', $budgetId)
                                 ->where('service_id', $serviceId)
                                 ->value('total') ?? null;
+
+                            if (!$budget) {
+                                $set('budget_amount', null);
+                                $set('remaining_amount', null);
+                                if (!self::$notificationShown) {
+                                    Notification::make()
+                                        ->danger()
+                                        ->title('No budget allocated for the selected service')
+                                        ->seconds(2)
+                                        ->send();
+                                    self::$notificationShown = true;
+                                }
+                                return true;
+                            }
+
+                            self::$notificationShown = false;  // Reset flag when validation passes
 
                             $contractsQuery = Contract::where([
                                 ['building_id', $get('building_id')],
                                 ['service_id', $get('service_id')],
                                 ['vendor_id', $get('vendor_id')]
                             ]);
-                            
+
                             $contractAmountSum = $contractsQuery->sum('amount');
-                            
+
                             if ($contractAmountSum > 0) {
-                                $budgetAmount = $get('budget_amount'); 
+                                $budgetAmount = $get('budget_amount');
                                 $difference = abs($budgetAmount - $contractAmountSum);
                                 $difference = round($difference, 2);
-                            
-                                self::$bm = $difference; 
+
+                                self::$bm = $difference;
                             } else {
                                 self::$bm = $budget;
                             }
 
                             $set('remaining_amount', self::$bm);
                             $set('budget_amount', $budget);
-                                
+
                             return true;
                         }),
 
