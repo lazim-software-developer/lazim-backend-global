@@ -57,7 +57,7 @@ class ApprovedFMJob implements ShouldQueue
                 $message
                     ->from($this->mailCredentials['mail_from_address'], env('MAIL_FROM_NAME'))
                     ->to($this->email, $this->user->first_name)
-                    ->subject('Account Approved - Welcome to Lazim');
+                    ->subject('Welcome to Lazim – Your Account is Approved');
             });
     }
 }
