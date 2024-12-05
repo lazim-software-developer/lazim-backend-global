@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\BillResource\Pages;
 
 use App\Filament\Resources\BillResource;
+use App\Models\Building\Building;
 use App\Models\Building\Flat;
 use Filament\Resources\Pages\EditRecord;
 
@@ -23,8 +24,10 @@ class EditBill extends EditRecord
         $dewaNumber = $bill->dewa_number;
         $flatId     = $bill->flat['property_number'];
         $buildingId = Flat::where('property_number', $flatId)->pluck('building_id')[0];
+        $building = Building::where('id', $buildingId)->pluck('name')[0];
+        
         return [
-            'building_id'       => $buildingId,
+            'building_id'       => $building,
             'type'              => $bill->type,
             'amount'            => $bill->amount,
             'month'             => $bill->month,
