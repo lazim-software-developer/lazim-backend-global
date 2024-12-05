@@ -239,7 +239,7 @@ class FacilityManagerResource extends Resource
                             $user->save();
 
                             // Dispatch approved email job
-                            ApprovedFMJob::dispatch($user, $password, $email);
+                            ApprovedFMJob::dispatch($user, $password, $email, auth()->user()?->first_name);
                         }
                     }),
             ]);
