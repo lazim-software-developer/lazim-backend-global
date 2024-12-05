@@ -40,7 +40,7 @@ class ResidentRejection implements ShouldQueue
             $message
                 ->from($this->mailCredentials['mail_from_address'],env('MAIL_FROM_NAME'))
                 ->to($this->user->email, $this->user->first_name)
-                ->subject('Welcome to Lazim!');
+                ->subject('Account Application Not Approved');
         });
 
         Artisan::call('queue:restart');
