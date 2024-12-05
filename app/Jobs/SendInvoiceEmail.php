@@ -32,7 +32,7 @@ class SendInvoiceEmail implements ShouldQueue
 
         try {
             // Send the email with the InvoiceGenerated Mailable
-            Mail::to($this->email)->send(new InvoiceGenerated($this->invoice, $this->pdfPath));
+            Mail::to($this->email)->send(new InvoiceGenerated($this->invoice, $this->pdfPath,auth()->user()?->first_name));
 
             Log::info('Invoice email sent successfully', ['email' => $this->email, 'invoice_id' => $this->invoice->id]);
         } catch (\Exception $e) {

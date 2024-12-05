@@ -13,11 +13,13 @@ class InvoiceGenerated extends Mailable
 
     public $invoice;
     public $pdfPath;
+    public $pm_oa;
 
-    public function __construct($invoice, $pdfPath)
+    public function __construct($invoice, $pdfPath, $pm_oa)
     {
         $this->invoice = $invoice;
         $this->pdfPath = $pdfPath;
+        $this->pm_oa = $pm_oa;
 
         // Log the invoice data and PDF path for debugging
         Log::info('InvoiceGenerated mailable instantiated', [
