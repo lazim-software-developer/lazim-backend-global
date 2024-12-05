@@ -29,7 +29,7 @@ use App\Http\Requests\Assets\UpdateAssetMaintenanceBeforeRequest;
 
 class AssetController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $technicianId = auth()->user()->id;
         // $currentQuarterStart = Carbon::now()->firstOfQuarter();
@@ -38,6 +38,9 @@ class AssetController extends Controller
         // Paginate the query results before mapping
         $assignedAssets = TechnicianAssets::with(['asset', 'assetMaintenances'])
             ->where('technician_id', $technicianId)
+            ->when($request->filled('building_id'), function($query) use ($request) {
+                return $query->where('building_id', $request->building_id);
+            })
             ->paginate(10); // Set the number of items per page
 
         // Transform the paginated results

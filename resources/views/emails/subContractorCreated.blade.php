@@ -21,23 +21,15 @@
 </tr>
 <tr>
     <td class="paragraph">
-        <strong>Company: </strong> {{$subContractor->company_name}}
-    </td>
-</tr>
-
-<tr>
-    <td class="paragraph">
-        <strong>Service Provided: </strong> {{$subContractor->service_provided}}
+        <strong>Account Details:</strong>
     </td>
 </tr>
 <tr>
-    <td class="paragraph">
-        <strong>Start Date: </strong> {{ \Carbon\Carbon::parse($subContractor->start_date)->format('m-d-Y') }}
-    </td>
-</tr>
-<tr>
-    <td class="paragraph">
-        <strong>End Date: </strong> {{ \Carbon\Carbon::parse($subContractor->end_date)->format('m-d-Y') }}
+    <td class="paragraph" style="padding-left: 20px;">
+        ● <strong>Company:</strong> {{$subContractor->company_name}}<br>
+        ● <strong>Service Provided:</strong> {{$subContractor->services->pluck('name')->implode(', ')}}<br>
+        ● <strong>Start Date:</strong> {{ $start_date }}<br>
+        ● <strong>End Date:</strong> {{ $end_date }}
     </td>
 </tr>
 <tr>
@@ -45,7 +37,12 @@
 </tr>
 <tr>
     <td class="paragraph">
-        If you have any questions or require further assistance, please feel free to reach out.
+        If you have any questions or require further assistance, please feel free to contact us.
+    </td>
+</tr>
+<tr>
+    <td class="paragraph">
+        We look forward to working with you.
     </td>
 </tr>
 <tr>
@@ -53,19 +50,16 @@
 </tr>
 <tr>
     <td class="paragraph">
-        Best regards,
+        Regards,
     </td>
 </tr>
 <tr>
-    <td width="100%" height="5"></td>
+    <td width="100%" height="15"></td>
 </tr>
 <tr>
-    <td class="paragraph">
-        The Lazim Team
+    <td>
+        <img src="{{url('images/logo.png')}}" alt="Lazim" style="max-width: 150px; height: auto;">
     </td>
-</tr>
-<tr>
-    <td width="100%" height="25"></td>
 </tr>
 @include('beautymail::templates.minty.contentEnd')
 

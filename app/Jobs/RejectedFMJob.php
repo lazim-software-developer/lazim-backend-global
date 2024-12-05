@@ -59,7 +59,7 @@ class RejectedFMJob implements ShouldQueue
                 $message
                     ->from($this->mailCredentials['mail_from_address'], env('MAIL_FROM_NAME'))
                     ->to($this->email, $this->user->first_name)
-                    ->subject('Account Rejection Notice - Lazim');
+                    ->subject('Application Update: Account Not Approved');
             });
 
         Artisan::call('queue:restart');

@@ -13,7 +13,7 @@
         </tr>
         <tr>
             <td class="paragraph">
-                We're sorry to inform you that your account application with Lazim has been rejected.
+                We regret to inform you that your account application with Lazim is not approved.
             </td>
         </tr>
         <tr>
@@ -21,7 +21,7 @@
         </tr>
         <tr>
             <td class="title">
-                Rejection Details:
+                Rejection Reason:
             </td>
         </tr>
         <tr>
@@ -29,17 +29,12 @@
         </tr>
         <tr>
             <td class="paragraph">
-                <strong>Email: </strong> {{$user->email}}
-            </td>
-        </tr>
-		<tr>
-            <td class="paragraph">
-                <strong>Remark: </strong> {{$record->remarks}}
+                ● <strong>Remark: </strong> {{$record->remarks}}
             </td>
         </tr>
         <tr>
             <td class="paragraph">
-                To proceed with the approval of your account, please upload the required documents again.
+                To proceed with the approval of your account, kindly upload the required valid documents again.
             </td>
         </tr>
         <tr>
@@ -49,7 +44,12 @@
         </tr>
         <tr>
             <td class="paragraph">
-                If you have any questions or need further assistance, please feel free to contact our support team.
+                If you have any questions or need further assistance, please do not hesitate to contact our support team.
+            </td>
+        </tr>
+        <tr>
+            <td class="paragraph">
+                We appreciate your understanding and look forward to your updated submission.
             </td>
         </tr>
         <tr>
@@ -57,15 +57,23 @@
         </tr>
         <tr>
             <td class="paragraph">
-                Warm regards,
+                Regards,
             </td>
         </tr>
         <tr>
-            <td width="100%" height="5"></td>
+            <td width="100%" height="15"></td>
+        </tr>
+        <tr>
+            <td>
+                <img src="{{url('images/logo.png')}}" alt="Company Logo" style="max-width: 150px; height: auto;">
+            </td>
+        </tr>
+        <tr>
+            <td width="100%" height="10"></td>
         </tr>
         <tr>
             <td class="paragraph">
-                Lazim team
+                {{auth()->user()?->first_name}}
             </td>
         </tr>
         <tr>

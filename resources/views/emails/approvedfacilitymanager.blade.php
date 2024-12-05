@@ -13,7 +13,15 @@
 </tr>
 <tr>
     <td class="paragraph">
-        Congratulations! Your account for Lazim has been approved. We're excited to have you on board as a facility manager.
+        We are delighted to inform you that your account has been successfully approved by the Property Management team.
+    </td>
+</tr>
+<tr>
+    <td width="100%" height="20"></td>
+</tr>
+<tr>
+    <td class="paragraph">
+        Welcome to Lazim!
     </td>
 </tr>
 <tr>
@@ -21,7 +29,7 @@
 </tr>
 <tr>
     <td class="title">
-        Your Login Credentials:
+        Account Details:
     </td>
 </tr>
 <tr>
@@ -29,8 +37,9 @@
 </tr>
 <tr>
     <td class="paragraph">
-        <strong>Email:</strong> {{$user->email}}<br>
-        <strong>Password:</strong> {{$password}}
+        <strong>Account Name:</strong> {{$user->first_name}}<br>
+        <strong>Email Address:</strong> {{$user->email}}<br>
+        <strong>Password:</strong> {{$password}}<br>
     </td>
 </tr>
 <tr>
@@ -38,7 +47,7 @@
 </tr>
 <tr>
     <td class="paragraph">
-        To access your account, please click on <a href="https://lazim-vendor-git-feat-property-management-zysktech.vercel.app/login">this link</a>.
+        You can access our platform to manage tasks, monitor property requests, and streamline your operations efficiently.
     </td>
 </tr>
 <tr>
@@ -46,7 +55,7 @@
 </tr>
 <tr>
     <td class="paragraph">
-        For security reasons, we recommend changing your password after your first login.
+        If you have any questions or require assistance to get started, our support team is available at 043206789.
     </td>
 </tr>
 <tr>
@@ -54,7 +63,7 @@
 </tr>
 <tr>
     <td class="paragraph">
-        If you have any questions or need assistance, please don't hesitate to contact our support team.
+        Thank you for partnering with Lazim. We are excited to work together in delivering exceptional property management services.
     </td>
 </tr>
 <tr>
@@ -62,16 +71,23 @@
 </tr>
 <tr>
     <td class="paragraph">
-        Welcome aboard!
+        Regards,
     </td>
 </tr>
 <tr>
-    <td width="100%" height="5"></td>
+    <td width="100%" height="10"></td>
+</tr>
+<tr>
+    <td>
+        <img src="{{url('images/logo.png')}}" alt="Lazim" style="max-width: 150px; height: auto;">
+    </td>
+</tr>
+<tr>
+    <td width="100%" height="10"></td>
 </tr>
 <tr>
     <td class="paragraph">
-        Best regards,<br>
-        The Lazim Team
+        {{auth()->user()?->first_name}}
     </td>
 </tr>
 

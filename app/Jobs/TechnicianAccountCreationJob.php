@@ -35,7 +35,7 @@ class TechnicianAccountCreationJob implements ShouldQueue
         $beautymail->send('emails.technician_registration', ['user' => $this->user, 'password' => $this->password], function($message) {
             $message
                 ->to($this->user->email, $this->user->first_name)
-                ->subject('Welcome to Lazim!');
+                ->subject('Welcome to Lazim – Account Successfully Created');
         });
     }
 }

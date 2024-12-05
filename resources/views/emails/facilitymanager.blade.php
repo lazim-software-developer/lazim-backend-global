@@ -13,7 +13,7 @@
 </tr>
 <tr>
     <td class="paragraph">
-        We're excited to have you on board with Lazim! Your account has been successfully created, and we're thrilled to welcome you to our community.
+        We're thrilled to welcome you to the Lazim community! Your account has been successfully created, and you're now ready to begin using our platform.
     </td>
 </tr>
 <tr>
@@ -24,28 +24,17 @@
         Your Account Details:
     </td>
 </tr>
-
 <tr>
     <td width="100%" height="10"></td>
 </tr>
-
 <tr>
     <td class="paragraph">
-        <strong>Email: </strong> {{$user->email}}
+        <strong>● Email: </strong> {{$user->email}}
     </td>
 </tr>
 <tr>
     <td class="paragraph">
-        <strong>Password: </strong> {{$password}}
-        <!-- (We recommend changing this password upon your first login for security reasons.) -->
-    </td>
-</tr>
-<tr>
-    <td width="100%" height="25"></td>
-</tr>
-<tr>
-    <td class="paragraph">
-        To access your account and begin using our platform, click on <a href="https://lazim-vendor-git-feat-property-management-zysktech.vercel.app/login">this link</a>. Once logged in, you will be redirected to the document upload page, where you can submit the necessary documents for review. Our admin team will review and approve or reject them accordingly. Once they are approved, a confirmation email will be sent to you with the login credentials after which you can access your account.
+        <strong>● Password: </strong> {{$password}}
     </td>
 </tr>
 <tr>
@@ -53,27 +42,57 @@
 </tr>
 <tr>
     <td class="paragraph">
-        Thank you for choosing Lazim. We're confident that you'll find great value in our platform, and we look forward to serving you.
+        To get started, please <a href="https://lazim-vendor-git-feat-property-management-zysktech.vercel.app/login">click here</a> to access your account. Upon logging in, you will be redirected to the document upload page, where you can submit the required documents for verification.
     </td>
 </tr>
 <tr>
     <td width="100%" height="25"></td>
 </tr>
-
 <tr>
-    <td class="paragraph">
-        Warm regards,
+    <td class="title">
+        Next Steps:
     </td>
 </tr>
 <tr>
-    <td width="100%" height="5"></td>
+    <td class="paragraph">
+        1. Upload the necessary documents for our review.<br>
+        2. Our admin team will assess your submission and approve or provide feedback if updates are required.<br>
+        3. Once approved, you will receive a confirmation email granting full access to your account.
+    </td>
+</tr>
+<tr>
+    <td width="100%" height="25"></td>
 </tr>
 <tr>
     <td class="paragraph">
-        Lazim team
+        We're confident that Lazim will provide you with valuable tools and support to streamline your facility management operations.
     </td>
 </tr>
-
+<tr>
+    <td width="100%" height="20"></td>
+</tr>
+<tr>
+    <td class="paragraph">
+        If you have any questions or need assistance, please don't hesitate to contact us.
+    </td>
+</tr>
+<tr>
+    <td width="100%" height="20"></td>
+</tr>
+<tr>
+    <td class="paragraph">
+        Thank you for choosing Lazim. We look forward to working with you!
+    </td>
+</tr>
+<tr>
+    <td width="100%" height="25"></td>
+</tr>
+<tr>
+    <td class="paragraph">
+        Regards,<br>
+        Lazim Team
+    </td>
+</tr>
 <tr>
     <td width="100%" height="25"></td>
 </tr>
