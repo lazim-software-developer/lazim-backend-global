@@ -66,7 +66,7 @@ class EditUserApproval extends EditRecord
         if ($this->data['status'] == 'approved' && $this->record->status == null) {
             $user->active = true;
             $user->save();
-            Residentapproval::dispatch($user, $mailCredentials);
+            Residentapproval::dispatch($user, $mailCredentials,auth()->user()?->first_name);
             Notification::make()
                 ->title("Resident Approved")
                 ->success()
@@ -74,7 +74,7 @@ class EditUserApproval extends EditRecord
                 ->send();
         }
         if ($this->data['status'] == 'rejected' && $this->record->status == null) {
-            ResidentRejection::dispatch($user, $mailCredentials,$this->record);
+            ResidentRejection::dispatch($user, $mailCredentials,$this->record,auth()->user()?->first_name);
             Notification::make()
                 ->title("Resident Rejected")
                 ->danger()

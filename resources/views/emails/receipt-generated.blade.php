@@ -32,7 +32,7 @@
 
         <p>Regards,</p>
         <img src="{{url('images/logo.png')}}" alt="Lazim" style="max-width: 100px; height: 50px;">
-        <p>{{ auth()->user()?->first_name}}</p>
+        <p>{{$pm_oa}}</p>
     </body>
 
 </html>

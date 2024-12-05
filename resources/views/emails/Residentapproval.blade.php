@@ -71,7 +71,7 @@
         </tr>
         <tr>
             <td class="paragraph">
-                {{auth()->user()->first_name}}
+                {{$pm_oa}}
             </td>
         </tr>
         <tr>

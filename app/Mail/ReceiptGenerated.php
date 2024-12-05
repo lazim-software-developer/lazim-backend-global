@@ -13,11 +13,13 @@ class ReceiptGenerated extends Mailable
 
     public $receipt;
     public $pdfPath;
+    public $pm_oa;
 
-    public function __construct($receipt, $pdfPath)
+    public function __construct($receipt, $pdfPath, $pm_oa)
     {
         $this->receipt = $receipt;
         $this->pdfPath = $pdfPath;
+        $this->pm_oa = $pm_oa;
 
         Log::info('ReceiptGenerated mailable instantiated', [
             'receipt_id' => $receipt->id,

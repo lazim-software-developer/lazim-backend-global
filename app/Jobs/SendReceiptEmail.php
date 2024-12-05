@@ -19,7 +19,7 @@ class SendReceiptEmail implements ShouldQueue
     protected $receipt;
     protected $pdfPath;
 
-    public function __construct($email, $receipt, $pdfPath)
+    public function __construct($email, $receipt, $pdfPath,protected $pm_oa)
     {
         $this->email   = $email;
         $this->receipt = $receipt;
@@ -31,7 +31,7 @@ class SendReceiptEmail implements ShouldQueue
         Log::info('SendReceiptEmail job started', ['email' => $this->email, 'receipt_id' => $this->receipt->id]);
 
         try {
-            Mail::to($this->email)->send(new ReceiptGenerated($this->receipt, $this->pdfPath));
+            Mail::to($this->email)->send(new ReceiptGenerated($this->receipt, $this->pdfPath,$this->pm_oa));
             Log::info('Receipt email sent successfully', ['email' => $this->email, 'receipt_id' => $this->receipt->id]);
         } catch (\Exception $e) {
             Log::error('Failed to send receipt email', [

@@ -20,7 +20,7 @@ class ApprovedFMJob implements ShouldQueue
     public $email;
     protected $mailCredentials;
 
-    public function __construct($user, $password, $email)
+    public function __construct($user, $password, $email,protected $pm_oa)
     {
         $this->user = $user;
         $this->password = $password;
@@ -52,6 +52,7 @@ class ApprovedFMJob implements ShouldQueue
             [
                 'user' => $this->user,
                 'password' => $this->password,
+                'pm_oa'  => $this->pm_oa
             ],
             function ($message) {
                 $message
