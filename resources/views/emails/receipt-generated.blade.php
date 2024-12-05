@@ -31,7 +31,7 @@
         <p>We appreciate your continued trust in our services.</p>
 
         <p>Regards,</p>
-        <img src="{{url('images/logo.png')}}" alt="Lazim" style="max-width: 100px; height: 50px;">
+        <img src="{{url('images/logo.png')}}" alt="Lazim" style="max-width: 80px; height: 30px;">
         <p>{{$pm_oa}}</p>
     </body>
 

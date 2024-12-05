@@ -81,7 +81,7 @@
     </tr>
     <tr>
         <td>
-            <img src="{{ url('images/logo.png') }}" alt="Lazim" style="max-width: 100px; height: 50px;">
+            <img src="{{ url('images/logo.png') }}" alt="Lazim" style="max-width: 80px; height: 30px;">
         </td>
     </tr>
     <tr>
