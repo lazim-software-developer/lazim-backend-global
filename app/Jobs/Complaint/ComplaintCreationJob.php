@@ -74,7 +74,8 @@ class ComplaintCreationJob implements ShouldQueue
             'ticket_number' => $dataObj->ticket_number,
             'building' => $dataObj->building->name,
             'flat' => $dataObj?->flat?->property_number ?? '',
-            'property_manager_name' => $property_manager_name ?? ''
+            'property_manager_name' => $property_manager_name ?? '',
+            'description' => $dataObj->complaint
         ], function ($message) use ($user, $dataObj) {
             $message
                 ->from($this->mailCredentials['mail_from_address'],env('MAIL_FROM_NAME'))
