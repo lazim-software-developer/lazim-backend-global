@@ -186,6 +186,11 @@ return [
                 'create_asset',
                 'update_asset',
 
+                'view_asset::maintenance',
+                'view_any_asset::maintenance',
+                'create_asset::maintenance',
+                'update_asset::maintenance',
+
                 'view_guest::registration',
                 'view_any_guest::registration',
                 'create_guest::registration',
