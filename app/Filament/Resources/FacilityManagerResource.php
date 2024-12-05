@@ -228,18 +228,19 @@ class FacilityManagerResource extends Resource
                         $user     = $livewire->record->user;
                         $email    = $user->email;
                         $password = Str::random(12);
+                        $pm_oa = auth()->user()?->first_name ?? '';
 
                         if ($state['status'] === 'rejected' && !empty($state['remarks'])) {
                             // Log the remarks before dispatching
                             \Log::info('Remarks before dispatch:', ['remarks' => $state['remarks']]);
-                            RejectedFMJob::dispatch($user, $password, $email, $state['remarks'], auth()->user()?->first_name);
+                            RejectedFMJob::dispatch($user, $password, $email, $state['remarks'], $pm_oa);
                         } elseif ($state['status'] === 'approved') {
                             // Update user password
                             $user->password = Hash::make($password);
                             $user->save();
 
                             // Dispatch approved email job
-                            ApprovedFMJob::dispatch($user, $password, $email, auth()->user()?->first_name);
+                            ApprovedFMJob::dispatch($user, $password, $email, $pm_oa);
                         }
                     }),
             ]);
