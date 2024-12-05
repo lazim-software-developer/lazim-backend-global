@@ -326,6 +326,13 @@ class AppPanelProvider extends PanelProvider
                                             ->activeIcon('heroicon-o-rectangle-stack')
                                             ->sort(8),
 
+                                        NavigationItem::make('Assets Maintenance')
+                                            ->url(AssetMaintenanceResource::getUrl('index'))
+                                            ->hidden(!$user->can('view_any_asset::maintenance'))
+                                            ->icon('heroicon-s-document-magnifying-glass')
+                                            ->activeIcon('heroicon-s-document-magnifying-glass')
+                                            ->sort(9),
+
                                         NavigationItem::make('Technicians')
                                         // ->url('/app/technician-vendor')
                                             ->url(TechnicianVendorResource::getUrl('index'))
@@ -364,7 +371,7 @@ class AppPanelProvider extends PanelProvider
                                     ->items([
                                         NavigationItem::make('Vendor')
                                             ->url('/app/vendor/vendors')
-                                            ->hidden(!$user->can('view_any_vendor::vendor'))
+                                            ->hidden(!$user->can('view_any_vendor::vendor') || auth()->user()?->role->name == 'Property Manager')
                                             ->icon('heroicon-m-user-circle')
                                             ->hidden(auth()->user()->role->name == 'Property Manager')
                                             ->activeIcon('heroicon-m-user-circle')
