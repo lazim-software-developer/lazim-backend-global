@@ -37,7 +37,7 @@ class ReceiptGenerated extends Mailable
             ]);
 
             return $this->view('emails.receipt-generated')
-                ->subject('New Receipt Generated')
+                ->subject('Receipt Confirmation for Your Payment')
                 ->attach($this->pdfPath, [
                     'as' => 'receipt.pdf',
                     'mime' => 'application/pdf',
@@ -48,7 +48,7 @@ class ReceiptGenerated extends Mailable
             ]);
 
             return $this->view('emails.receipt-generated')
-                ->subject('New Receipt Generated');
+                ->subject('Receipt Confirmation for Your Payment');
         }
     }
 }
