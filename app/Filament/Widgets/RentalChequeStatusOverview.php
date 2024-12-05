@@ -17,7 +17,10 @@ class RentalChequeStatusOverview extends BaseWidget
 
         $query = RentalCheque::query()
             ->whereHas('rentalDetail.flat.building', function ($query) {
-                $query->where('owner_association_id', auth()->user()->owner_association_id);
+                $query->whereHas('ownerAssociations', function($q) {
+                    $q->where('owner_association_id', auth()->user()->owner_association_id)
+                      ->where('building_owner_association.active', true);
+                });
             });
 
         $overdueCount = (clone $query)->where('status', 'Overdue')->count();
