@@ -55,7 +55,8 @@ class BuildingPocsRelationManager extends RelationManager
                             'user_id',
                         )
                         ->options(function () {
-                            return User::where('role_id', 12)
+                            $role_id = Role::where('name', 'Security')->first()->id;
+                            return User::where('role_id', $role_id)
                                 ->select('id', 'first_name')
                                 ->pluck('first_name', 'id')
                                 ->toArray();
@@ -190,7 +191,7 @@ class BuildingPocsRelationManager extends RelationManager
                             'phone'                => '971' . $data['phone'],
                             'profile_photo'        => $data['profile_photo'],
                             'active'               => $data['active'],
-                            'role_id'              => Role::where('owner_association_id',$oa_id)->where('name','Security')->first()?->id,
+                            'role_id'              => Role::where('name','Security')->first()?->id,
                             'owner_association_id' => $oa_id,
                             'email_verified'       => 1,
                             'phone_verified'       => 1,
