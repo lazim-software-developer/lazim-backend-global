@@ -128,10 +128,10 @@ class CreateUser extends CreateRecord
             ];
 
              $authUserRole = auth()->user()->role->name;
-
+            $pm_oa = auth()->user()?->first_name;
             if ($authUserRole === 'Property Manager') {
                 // If Property Manager is creating users, use CreateUserJob
-                CreateUserJob::dispatch($user, $password, $mailCredentials);
+                CreateUserJob::dispatch($user, $password, $mailCredentials, $pm_oa);
             // } elseif (array_key_exists($user->role?->name, $roleJobMap)) {
             //     // For specific roles, use their mapped jobs
             //     $jobClass = $roleJobMap[$user->role?->name];
