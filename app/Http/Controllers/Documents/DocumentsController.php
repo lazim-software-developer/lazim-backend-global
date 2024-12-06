@@ -68,26 +68,42 @@ class DocumentsController extends Controller
     public function makaniNumber(MakaniNumberRequest $request)
     {
         $currentDate = date('Y-m-d');
-
         $building = DB::table('building_owner_association')->where(['building_id' => $request->building_id, 'active' => true])->first();
 
-        Document::create([
+        // Check if document already exists
+        $existingDocument = Document::where([
+            'document_library_id' => $request->document_library_id,
+            'building_id' => $request->building_id,
+            'flat_id' => $request->flat_id,
+            'documentable_id' => auth()->user()->id,
+            'documentable_type' => User::class,
+        ])->first();
+
+        $documentData = [
             'document_library_id'  => $request->document_library_id,
             'building_id'          => $request->building_id,
             'documentable_id'      => auth()->user()->id,
             'status'               => 'submitted',
-            'expiry_date'          => date('Y-m-d', strtotime('+1 year', strtotime($currentDate))), //to do need to make changes for expiry date
-            'documentable_type' => User::class,
+            'expiry_date'          => date('Y-m-d', strtotime('+1 year', strtotime($currentDate))),
+            'documentable_type'    => User::class,
             'name'                 => $request->name,
             'flat_id'              => $request->flat_id ?? null,
             'owner_association_id' => $building?->owner_association_id,
-            'url'                  => $request->number,
-        ]);
+            'url'                  => $request->number ?? null,
+        ];
+
+        if ($existingDocument) {
+            $existingDocument->update($documentData);
+            $message = 'Makani number updated successfully';
+        } else {
+            Document::create($documentData);
+            $message = 'Makani number added successfully';
+        }
 
         return new CustomResponseResource([
-            'title'   => 'Makani number added successfully',
-            'message' => 'Makani number added successfully.',
-            'code'    => 201,
+            'title'   => $message,
+            'message' => $message,
+            'code'    => 200,
         ]);
     }
 
