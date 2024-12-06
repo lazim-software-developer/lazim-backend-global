@@ -13,8 +13,8 @@
 </tr>
 <tr>
     <td class="paragraph">
-        We're excited to have you on board with Lazim!
-        Your account has been successfully created, and we're thrilled to welcome you to our community.
+        We are excited to have you on board with Lazim! Your account has been successfully created by the Property Manager,
+        and we're thrilled to welcome you to our community.
     </td>
 </tr>
 <tr>
@@ -25,11 +25,9 @@
         Your Account Details:
     </td>
 </tr>
-
 <tr>
     <td width="100%" height="10"></td>
 </tr>
-
 <tr>
     <td class="paragraph">
         <strong>Email: </strong> {{$user->email}}
@@ -38,7 +36,6 @@
 <tr>
     <td class="paragraph">
         <strong>Password: </strong> {{$password}}
-        <!-- (We recommend changing this password upon your first login for security reasons.) -->
     </td>
 </tr>
 <tr>
@@ -49,10 +46,9 @@
     <td class="paragraph">
         To access your account and use our platform, click on
         <a href="{{ env('APP_URL') }}/app/login">this link</a>
-
     </td>
     @else
-    
+
     @endif
 </tr>
 <tr>
@@ -60,30 +56,42 @@
 </tr>
 <tr>
     <td class="paragraph">
-        Thank you for choosing Lazim. We're confident that you'll find great value in our platform,
-         and we look forward to serving you.
+        To get started, simply log in to your account using the credentials you created during registration.
+        If you encounter any issues or require assistance, please don't hesitate to contact us.
     </td>
 </tr>
 <tr>
     <td width="100%" height="25"></td>
 </tr>
-
 <tr>
     <td class="paragraph">
-        Warm regards,
+        We are committed to providing you with a seamless experience and ensuring your needs are met.
+        Thank you for choosing Lazim, and we look forward to serving you.
     </td>
 </tr>
-<tr>
-    <td width="100%" height="5"></td>
-</tr>
-<tr>
-    <td class="paragraph">
-        Lazim team
-    </td>
-</tr>
-
 <tr>
     <td width="100%" height="25"></td>
+</tr>
+<tr>
+    <td class="paragraph">
+        Regards,
+    </td>
+</tr>
+<tr>
+    <td width="100%" height="15"></td>
+</tr>
+<tr>
+    <td>
+        <img src="{{url('images/logo.png')}}" alt="Company Logo" style="max-width: 80px; height: 30px;">
+    </td>
+</tr>
+<tr>
+    <td width="100%" height="10"></td>
+</tr>
+<tr>
+    <td class="paragraph">
+        {{$pm_oa}}
+    </td>
 </tr>
 @include('beautymail::templates.minty.contentEnd')
 
