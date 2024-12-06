@@ -391,6 +391,7 @@ class FacilitySupportComplaintResource extends Resource
                     ->limit(50),
             ])
             ->defaultSort('created_at', 'desc')
+            ->emptyStateHeading('No Reactive Maintenance records')
             ->filters([
                 SelectFilter::make('building_id')
                     ->label('Building')

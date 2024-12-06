@@ -329,7 +329,6 @@ class ComplaintResource extends Resource
             ->where('active', 1);
         return $table
             ->modifyQueryUsing(fn(Builder $query) => $query
-                    ->where('complaintable_type', 'App\Models\Vendor\Vendor')
                     ->whereIn('building_id', $buildingIds)->latest())
             ->columns([
                 TextColumn::make('ticket_number')
@@ -384,6 +383,7 @@ class ComplaintResource extends Resource
                     ->searchable()
                     ->limit(50),
             ])
+            ->emptyStateHeading('No Maintenance Schedules')
             ->defaultSort('created_at', 'desc')
             ->filters([
                 SelectFilter::make('building_id')
