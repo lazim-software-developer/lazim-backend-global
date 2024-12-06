@@ -464,8 +464,8 @@ class BuildingResource extends Resource
                             DB::table('building_owner_association')
                                 ->where('building_id', $record->id)
                                 ->update([
-                                    'from' => $data['from'],
-                                    'to' => $data['to'],
+                                    'from'   => $data['from'],
+                                    'to'     => $data['to'],
                                     'active' => 1,
                                 ]);
 

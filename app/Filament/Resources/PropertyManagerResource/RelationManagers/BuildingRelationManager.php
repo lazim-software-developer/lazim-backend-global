@@ -18,6 +18,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Set;
+use Filament\Notifications\Notification;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Actions\Action;
@@ -40,6 +41,9 @@ class BuildingRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(function (Builder $query) {
+                $query->where('active', true);
+            })
             ->columns([
                 Tables\Columns\TextColumn::make('name')->label('Building Name')
                     ->default('NA')->searchable(),
@@ -61,6 +65,7 @@ class BuildingRelationManager extends RelationManager
 
                                 $existingBuildingIds = DB::table('building_owner_association')
                                     ->whereIn('owner_association_id', $ownerAssociationIds)
+                                    ->where('active', true)
                                     ->pluck('building_id');
 
                                 return Building::whereNotIn('id', $existingBuildingIds)
@@ -216,7 +221,7 @@ class BuildingRelationManager extends RelationManager
                                 ]),
                         ]),
                     ])
-                    ->action(function (array $data, RelationManager $livewire): void {
+                    ->action(function ($record, array $data, RelationManager $livewire): void {
                         $buildingId = $data['building_id'];
 
                         // Check if the building exists, if not, create it
@@ -245,7 +250,43 @@ class BuildingRelationManager extends RelationManager
                             'building_id'          => $building->id,
                             'from'                 => $data['from'],
                             'to'                   => $data['to'],
+                            'active'               => true,
                         ]);
+
+                        // Check if building has any flats and flat_tenants before activation
+                        $hasFlatsWithTenants = DB::table('flats')
+                            ->where('flats.building_id', $buildingId)  // Specify the table name
+                            ->join('flat_tenants', 'flats.id', '=', 'flat_tenants.flat_id')
+                            ->exists();
+
+                        if ($hasFlatsWithTenants) {
+                            // Activate flat_tenants
+                            DB::table('flat_tenants')
+                                ->whereIn('flat_id', function ($query) use ($buildingId) {
+                                    $query->select('id')
+                                        ->from('flats')
+                                        ->where('building_id', $buildingId);
+                                })
+                                ->update(['active' => 1]);
+
+                            // Activate associated users
+                            DB::table('users')
+                                ->whereIn('id', function ($query) use ($buildingId) {
+                                    $query->select('tenant_id')
+                                        ->from('flat_tenants')
+                                        ->whereIn('flat_id', function ($subQuery) use ($buildingId) {
+                                            $subQuery->select('id')
+                                                ->from('flats')
+                                                ->where('building_id', $buildingId);
+                                        });
+                                })
+                                ->update(['active' => 1]);
+                        }
+
+                        Notification::make()
+                            ->title('Building attached successfully')
+                            ->success()
+                            ->send();
                     }),
 
                 Action::make('Upload Buildings')
@@ -292,11 +333,59 @@ class BuildingRelationManager extends RelationManager
                     ->label('Download sample file'),
             ])
             ->actions([
+                // Tables\Actions\DetachAction::make()
+                //     ->label('Remove')
+                //     ->modalHeading('Remove Building')
+                //     ->modalDescription('Performing this action will result in loosing authority of this building!')
+                //     ->modalSubmitActionLabel('Yes, remove it'),
+
                 Tables\Actions\DetachAction::make()
-                    ->label('Remove')
-                    ->modalHeading('Remove Building')
-                    ->modalDescription('Performing this action will result in loosing authority of this building!')
-                    ->modalSubmitActionLabel('Yes, remove it'),
+                    ->label('Detach')
+                    ->icon('heroicon-o-x-mark')
+                    ->modalHeading(fn($record) => 'Detach ' . $record->name . '?')
+                    ->modalDescription('Are you sure you want to detach this building?
+                            This will remove the management authority and deactivate related flat tenants.')
+                    ->modalSubmitActionLabel('Yes, detach')
+                    ->action(function ($record, array $data) {
+                        $active = DB::table('building_owner_association')
+                            ->where('building_id', $record->id)
+                            ->where('active', 1)
+                            ->exists();
+
+                        DB::table('building_owner_association')
+                            ->where('building_id', $record->id)
+                            ->update(['active' => 0]);
+
+                        // Set the 'to' date to now in 'yyyy-mm-dd' format
+                        DB::table('building_owner_association')
+                            ->where('building_id', $record->id)
+                            ->update(['to' => Carbon::now()->format('Y-m-d')]);
+
+                        DB::table('flat_tenants')
+                            ->whereIn('flat_id', function ($query) use ($record) {
+                                $query->select('id')
+                                    ->from('flats')
+                                    ->where('building_id', $record->id);
+                            })
+                            ->update(['active' => 0]);
+
+                        // Make users with the same id as flat_tenant_id inactive
+                        DB::table('users')
+                            ->whereIn('id', function ($query) use ($record) {
+                                $query->select('tenant_id')
+                                    ->from('flat_tenants')
+                                    ->whereIn('flat_id', function ($subQuery) use ($record) {
+                                        $subQuery->select('id')
+                                            ->from('flats')
+                                            ->where('building_id', $record->id);
+                                    });
+                            })
+                            ->update(['active' => 0]);
+                        Notification::make()
+                            ->title('Building detached successfully')
+                            ->success()
+                            ->send();
+                    }),
             ])
             ->emptyStateDescription('Attach or Upload a Building to get started.')
             ->bulkActions([
