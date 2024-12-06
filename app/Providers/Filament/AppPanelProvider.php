@@ -764,7 +764,7 @@ class AppPanelProvider extends PanelProvider
                                     ]),
                             ]);
                         }
-                        if ($user->can('view_any_app::feedback')) {
+                        if (auth()->user()->role->name == 'Admin') {
                             $builder->groups([
                                 NavigationGroup::make('App Feedback')
                                     ->items([
@@ -1451,7 +1451,7 @@ class AppPanelProvider extends PanelProvider
                                 ]),
                         ]);
                     }
-                    if ($user->can('view_any_app::feedback')) {
+                    if (auth()->user()->role->name == 'Admin') {
                         $builder->groups([
                             NavigationGroup::make('App Feedback')
                                 ->items([

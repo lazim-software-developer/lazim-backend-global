@@ -56,6 +56,14 @@ class SnagsResource extends Resource
                             ->options(function () {
                                 if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
                                     return Building::all()->pluck('name', 'id');
+                                } elseif (Role::where('id', auth()->user()->role_id)
+                                        ->first()
+                                        ->name == 'Property Manager') {
+                                        $buildings = DB::table('building_owner_association')
+                                        ->where('owner_association_id', auth()->user()?->owner_association_id)
+                                        ->where('active', true)->pluck('building_id');
+                                    return Building::whereIn('id', $buildings)->pluck('name', 'id');
+
                                 } else {
                                     return Building::where('owner_association_id', auth()->user()?->owner_association_id)
                                         ->pluck('name', 'id');
@@ -81,7 +89,9 @@ class SnagsResource extends Resource
                                 if (is_null($get('building_id'))) {
                                     return [];
                                 } else {
-                                    $userId = DB::table('building_pocs')->where('building_id', $get('building_id'))->where('active', true)->value('user_id');
+                                    $userId = DB::table('building_pocs')
+                                        ->where('building_id', $get('building_id'))
+                                        ->where('active', true)->value('user_id');
                                     return User::where('id', $userId)->pluck('first_name', 'id');
                                 }
                             })
@@ -96,7 +106,14 @@ class SnagsResource extends Resource
                         // ->required()
                             ->disabledOn('edit')
                             ->options(function (Get $get) {
-                                $serviceVendor = ServiceVendor::where('service_id', $get('service_id'))->pluck('vendor_id');
+                                $serviceVendor = ServiceVendor::where('service_id', $get('service_id'))
+                                    ->pluck('vendor_id');
+                                if (Role::where('id', auth()->user()->role_id)->first()->name == 'Property Manager') {
+                                    return Vendor::whereHas('ownerAssociation', function ($query) {
+                                        $query->where('owner_association_id', auth()->user()->owner_association_id);
+                                    })->whereIn('id', $serviceVendor)->pluck('name', 'id');
+
+                                }
                                 if (Role::where('id', auth()->user()->role_id)->first()->name != 'Admin') {
                                     return Vendor::whereHas('ownerAssociation', function ($query) {
                                         $query->where('owner_association_id', Filament::getTenant()->id);
