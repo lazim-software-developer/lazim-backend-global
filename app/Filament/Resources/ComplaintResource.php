@@ -14,7 +14,6 @@ use App\Models\Vendor\ServiceVendor;
 use App\Models\Vendor\Vendor;
 use Closure;
 use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Repeater;
@@ -291,10 +290,10 @@ class ComplaintResource extends Resource
                                     })
                                     ->placeholder('Add remarks'),
 
-                                 DatePicker::make('close_time')
+                                DatePicker::make('close_time')
                                     ->displayFormat('d-M-Y')
                                     ->label('Resolved Date')
-                                    // ->default(now()->format('d-M-Y h:i A'))
+                                // ->default(now()->format('d-M-Y h:i A'))
                                     ->reactive()
                                     ->required(function (callable $get) {
                                         if ($get('status' === 'closed')) {
@@ -303,7 +302,7 @@ class ComplaintResource extends Resource
                                     })
                                     ->visible(function (callable $get) {
                                         return $get('status') == 'closed';
-                                    })
+                                    }),
                             ]),
 
                         Repeater::make('photo')
@@ -326,7 +325,8 @@ class ComplaintResource extends Resource
     {
         $buildingIds = DB::table('building_owner_association')
             ->where('owner_association_id', auth()->user()->owner_association_id)
-            ->pluck('building_id');
+            ->pluck('building_id')
+            ->where('active', 1);
         return $table
             ->modifyQueryUsing(fn(Builder $query) => $query
                     ->where('complaintable_type', 'App\Models\Vendor\Vendor')
@@ -373,8 +373,8 @@ class ComplaintResource extends Resource
                     ->label('Status')
                     ->badge()
                     ->formatStateUsing(fn(string $state): string => match ($state) {
-                        'open'                            => 'Open',
-                        'closed'                          => 'Closed',
+                        'open'                                       => 'Open',
+                        'closed'                                     => 'Closed',
                     })
                     ->color(fn(string $state): string => match ($state) {
                         'open'                            => 'primary',
