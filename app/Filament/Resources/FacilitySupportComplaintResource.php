@@ -333,6 +333,7 @@ class FacilitySupportComplaintResource extends Resource
         return $table
             ->modifyQueryUsing(fn(Builder $query) => $query
                     ->whereIn('complaintable_type', [get_class(auth()->user()), 'App\Models\Building\FlatTenant'])
+                    ->where('complaint_type', 'help_desk')
                     ->whereIn('building_id', $buildingIds)->latest())
             ->columns([
                 TextColumn::make('ticket_number')
