@@ -325,10 +325,12 @@ class ComplaintResource extends Resource
     {
         $buildingIds = DB::table('building_owner_association')
             ->where('owner_association_id', auth()->user()->owner_association_id)
-            ->pluck('building_id')
-            ->where('active', 1);
+            ->where('active', 1)
+            ->pluck('building_id');
+
         return $table
             ->modifyQueryUsing(fn(Builder $query) => $query
+                    ->where('complaint_type', 'preventive_maintenance')
                     ->whereIn('building_id', $buildingIds)->latest())
             ->columns([
                 TextColumn::make('ticket_number')
