@@ -21,6 +21,7 @@ class PreventiveReactiveMaintenance extends BaseWidget
     public function table(Table $table): Table
     {
         return $table
+        ->emptyStateHeading('No Reactive Maintenance records')
             ->query(
                 Complaint::query()->whereIn('complaint_type', ['help_desk', 'tenant_complaint', 'snag'])
                     ->whereIn('flat_id', Flat::where('owner_association_id', auth()->user()->owner_association_id)->pluck('id'))

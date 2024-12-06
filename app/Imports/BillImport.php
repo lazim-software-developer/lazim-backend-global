@@ -96,7 +96,10 @@ class BillImport implements ToCollection, WithHeadingRow
 
             $dueDate = $this->convertExcelDate($row['due_date']);
 
+            // Handle type conversions
             $type = $row['type'] === 'DU/Etisalat' ? 'Telecommunication' : $row['type'];
+            // Convert LPG to lowercase
+            $type = $type === 'LPG' ? 'lpg' : $type;
 
             Bill::create([
                 'flat_id'           => $this->flatId,

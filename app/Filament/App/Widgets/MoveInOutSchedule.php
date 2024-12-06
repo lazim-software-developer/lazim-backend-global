@@ -19,6 +19,7 @@ class MoveInOutSchedule extends BaseWidget
     public function table(Table $table): Table
     {
         return $table
+            ->emptyStateHeading('Currently, No Move-In or Move-Out Records ')
             ->query(MoveInOut::query()
                     ->with(['building', 'flat'])
                     ->whereIn('building_id', function ($query) {

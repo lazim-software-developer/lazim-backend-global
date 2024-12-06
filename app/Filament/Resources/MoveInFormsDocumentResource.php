@@ -267,6 +267,7 @@ class MoveInFormsDocumentResource extends Resource
                     ->default('NA')
                     ->limit(50),
             ])
+            ->emptyStateHeading('Currently, No Move-In Records ')
             ->defaultSort('created_at', 'desc')
             ->filters([
                 SelectFilter::make('building_id')

@@ -169,6 +169,8 @@ class BillResource extends Resource
                 return $query->whereIn('flat_id', $flatIds);
             })
             ->columns([
+                TextColumn::make('flat.building.name')
+                    ->label('Building'),
                 TextColumn::make('flat.property_number')
                     ->label('Flat number'),
                 TextColumn::make('month')

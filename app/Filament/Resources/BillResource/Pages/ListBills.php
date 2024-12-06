@@ -158,7 +158,7 @@ class ListBills extends ListRecords
                                 $query->selectRaw("
                                     'BTU' as type, '' as amount, '' as due_date, '' as status
                                     UNION ALL
-                                    SELECT 'lpg', '', '', ''
+                                    SELECT 'LPG', '', '', ''
                                     UNION ALL
                                     SELECT 'Telecommunication', '', '', ''
                                 ");
