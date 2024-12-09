@@ -45,7 +45,7 @@ class DocumentsController extends Controller
             'flat_id'     => $request->flat_id,
             'active'      => true,
             'role'        => 'Tenant',
-        ])->pluck('tenant_id'))->select('id', 'name')->get();
+        ])->pluck('tenant_id'))->select('id', 'first_name')->get();
 
         $documentLibraries = DocumentLibrary::where('label', 'master')->get();
 
