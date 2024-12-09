@@ -12,7 +12,7 @@ class UserApprovalAudit extends Model
 
     protected $connection = 'mysql';
 
-    protected $fillable = ['document_type', 'status', 'remarks', 'document', 'updated_by', 'emirates_document', 'passport', 'owner_association_id','user_approval_id'];
+    protected $fillable = ['document_type', 'status', 'remarks', 'document', 'updated_by', 'emirates_document', 'trade_license', 'passport', 'owner_association_id','user_approval_id'];
     
     public function userApproval()
     {
