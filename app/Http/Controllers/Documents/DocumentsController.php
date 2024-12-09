@@ -53,7 +53,7 @@ class DocumentsController extends Controller
         $documents = Document::whereIn('documentable_id', $users->pluck('id'))
             ->where('documentable_type', User::class)
             ->whereIn('document_library_id', $documentLibraries->pluck('id'))
-            ->orderBy('created_at', 'desc')
+            ->orderBy('id', 'desc')
             ->get()
             ->groupBy(['documentable_id', 'document_library_id'])
             ->map(function ($userDocs) {

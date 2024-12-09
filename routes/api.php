@@ -170,6 +170,8 @@ Route::group(['middleware' => ["auth:sanctum", "verified"]], function () {
     Route::get('/tenant/documents', [DocumentsController::class, 'tenantDocuments']);
     //List all tenant requests
     Route::get('/tenant/requests', [AccessCardController::class, 'tenantRequests']);
+    //List all tenant Vehicles
+    Route::get('/tenant/vehicles', [VehicleController::class, 'tenantVehicles']);
 });
 /**
  * Middleware Group: API Token Protection

@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\VehicalListRequest;
-use App\Http\Requests\VehicleRequest;
-use App\Http\Resources\CustomResponseResource;
-use App\Models\Building\Flat;
+use App\Http\Resources\VehicleResource;
 use App\Models\Vehicle;
 use Illuminate\Http\Request;
+use App\Models\Building\Flat;
+use App\Models\Building\FlatTenant;
+use App\Http\Requests\VehicleRequest;
+use App\Http\Requests\VehicalListRequest;
+use App\Http\Resources\CustomResponseResource;
 
 class VehicleController extends Controller
 {
@@ -55,5 +57,31 @@ class VehicleController extends Controller
     {
         $vehicles = Vehicle::where(['user_id' => auth()->user()->id, 'flat_id' => $request->flat_id])->get();
         return $vehicles;
+    }
+    public function tenantVehicles(Request $request)
+    {
+        $request->validate([
+            'flat_id' => 'required|exists:flats,id',
+            'building_id' => 'required|exists:buildings,id',
+        ]);
+        $user       = auth()->user();
+        $flatTenant = FlatTenant::where([
+            'tenant_id'   => $user->id,
+            'building_id' => $request->building_id,
+            'flat_id'     => $request->flat_id,
+            'active'      => true,
+        ])->first();
+        abort_if($flatTenant->role !== 'Owner', 403, 'You are not Owner');
+
+        // Get tenant IDs first
+        $tenantIds = FlatTenant::where([
+            'building_id' => $request->building_id,
+            'flat_id'     => $request->flat_id,
+            'active'      => true,
+            'role'        => 'Tenant',
+        ])->pluck('tenant_id');
+
+        $vehicles = Vehicle::whereIn('user_id', $tenantIds)->where('flat_id', $request->flat_id)->get();
+        return VehicleResource::collection($vehicles);
     }
 }
