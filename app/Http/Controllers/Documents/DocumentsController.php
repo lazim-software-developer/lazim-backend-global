@@ -51,7 +51,7 @@ class DocumentsController extends Controller
 
         // Get the latest documents for each user and document type
         $documents = Document::whereIn('documentable_id', $users->pluck('id'))
-            ->where('documentable_type', User::class)
+            ->where(['documentable_type' => User::class, 'flat_id' => $request->flat_id])
             ->whereIn('document_library_id', $documentLibraries->pluck('id'))
             ->orderBy('id', 'desc')
             ->get()
