@@ -20,11 +20,10 @@ class DocumentLibraryResource extends JsonResource
     {
         $tenantId = $this->additional['tenant_id'] ?? auth()->user()->id;
 
-        Log::info('Tenant ID: ' . $tenantId);
+        $flatId   = $request->get('flat_id'); // Assuming flat_id is passed in the request
         // Determine if the document is "Title deed"
         if (in_array($this->name, ['Title deed','Makani number','Unit plan'])) {
             // Fetch the "Title deed" document based on flat_id
-            $flatId   = $request->get('flat_id'); // Assuming flat_id is passed in the request
             $document = $this->documents()
                 ->where([
                     'documentable_type'   => User::class,
@@ -42,6 +41,9 @@ class DocumentLibraryResource extends JsonResource
                     'document_library_id' => $this->id,
                     'documentable_id'     => $tenantId,
                 ])
+                ->when($this->additional(['tenant_id']), function ($query) use ($flatId) {
+                    return $query->where('flat_id', $flatId);
+                })
                 ->orderBy('id', 'desc')
                 ->first();
         }
