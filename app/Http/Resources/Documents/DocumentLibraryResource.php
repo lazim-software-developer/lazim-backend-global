@@ -18,7 +18,8 @@ class DocumentLibraryResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $tenantId = $request->additional['tenant_id'] ?? auth()->user()->id;
+        $tenantId = $this->additional['tenant_id'] ?? auth()->user()->id;
+
         Log::info('Tenant ID: ' . $tenantId);
         // Determine if the document is "Title deed"
         if (in_array($this->name, ['Title deed','Makani number','Unit plan'])) {

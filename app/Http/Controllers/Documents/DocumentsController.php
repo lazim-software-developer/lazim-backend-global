@@ -72,8 +72,9 @@ class DocumentsController extends Controller
                 return [
                     'user_id' => $user?->id,
                     'user_name' => $user?->first_name,
-                    'documents' => DocumentLibraryResource::collection($documentLibraries)
-                        ->additional(['tenant_id' => $user?->id])
+                    'documents' => DocumentLibraryResource::collection($documentLibraries)->map(function ($resource) use ($user) {
+                        return $resource->additional(['tenant_id' => $user?->id]);
+                    })
                 ];
             })
         ]);
