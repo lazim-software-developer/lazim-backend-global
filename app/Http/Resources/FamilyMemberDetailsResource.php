@@ -28,6 +28,7 @@ class FamilyMemberDetailsResource extends JsonResource
             'relation' => $this->relation,
             'visa_number' => $this->visa_number,
             'visa_number_expiry_date' => $this->visa_number_expiry_date,
+            'tenant_name' => $this->resident?->first_name,
             'documents' => DocumentResource::collection($this->documents),
         ];
     }

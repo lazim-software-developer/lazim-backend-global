@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\User;
 
+use App\Http\Resources\FlatTenantResource;
 use App\Models\User\User;
 use App\Models\UserApproval;
 use Illuminate\Http\Request;
@@ -74,5 +75,44 @@ class UserController extends Controller
         $flats = Flat::whereIn('id', $flatIds)->get();
 
         return UserFlatResource::collection($flats);
+    }
+
+    public function fetchTenants(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'building_id' => 'required|exists:buildings,id',
+                'flat_id' => 'required|exists:flats,id',
+            ]);
+
+            $user = auth()->user();
+            $flatTenant = FlatTenant::where([
+                'tenant_id' => $user->id,
+                'building_id' => $validated['building_id'],
+                'flat_id' => $validated['flat_id'],
+                'active' => true
+            ])->first();
+
+            abort_if($flatTenant->role !== 'Owner', 403, 'You are not Owner');
+
+            $tenants = FlatTenant::where([
+                'building_id' => $validated['building_id'],
+                'flat_id' => $validated['flat_id'],
+                'active' => true,
+                'role' => 'Tenant'
+            ])->get();
+
+            return response()->json([
+                'status' => 'success',
+                'data' => FlatTenantResource::collection($tenants)
+            ], 200);
+
+        } catch (\Exception $e) {
+            Log::error('Error fetching tenants: ' . $e->getMessage());
+            return response()->json([
+                'status' => 'error',
+                'message' => 'An error occurred while processing your request'
+            ], 500);
+        }
     }
 }

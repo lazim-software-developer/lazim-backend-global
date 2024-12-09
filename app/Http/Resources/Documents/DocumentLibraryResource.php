@@ -17,6 +17,8 @@ class DocumentLibraryResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $tenantId = $request->additional['tenant_id'] ?? auth()->user()->id;
+
         // Determine if the document is "Title deed"
         if (in_array($this->name, ['Title deed','Makani number','Unit plan'])) {
             // Fetch the "Title deed" document based on flat_id
@@ -25,7 +27,7 @@ class DocumentLibraryResource extends JsonResource
                 ->where([
                     'documentable_type'   => User::class,
                     'document_library_id' => $this->id,
-                    'documentable_id'     => auth()->user()->id,
+                    'documentable_id'     => $tenantId,
                     'flat_id'             => $flatId,
                 ])
                 ->orderBy('id', 'desc')
@@ -36,7 +38,7 @@ class DocumentLibraryResource extends JsonResource
                 ->where([
                     'documentable_type'   => User::class,
                     'document_library_id' => $this->id,
-                    'documentable_id'     => auth()->user()->id,
+                    'documentable_id'     => $tenantId,
                 ])
                 ->orderBy('id', 'desc')
                 ->first();
