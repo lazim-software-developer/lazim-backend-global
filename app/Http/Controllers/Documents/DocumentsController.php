@@ -2,15 +2,16 @@
 
 namespace App\Http\Controllers\Documents;
 
-use App\Http\Requests\MakaniNumberRequest;
 use App\Models\Media;
 use App\Models\User\User;
 use Illuminate\Http\Request;
 use App\Models\Building\Building;
 use App\Models\Building\Document;
 use Illuminate\Support\Facades\DB;
+use App\Models\Building\FlatTenant;
 use App\Http\Controllers\Controller;
 use App\Models\Master\DocumentLibrary;
+use App\Http\Requests\MakaniNumberRequest;
 use App\Http\Resources\CustomResponseResource;
 use App\Http\Requests\Document\DocumentRequest;
 use App\Http\Resources\Documents\DocumentResource;
@@ -23,7 +24,56 @@ class DocumentsController extends Controller
         $documents = DocumentLibrary::where('label', 'master')->get();
         return DocumentLibraryResource::collection($documents);
     }
+    public function tenantDocuments(Request $request)
+    {
+        $request->validate([
+            'flat_id'     => 'required|exists:flats,id',
+            'building_id' => 'required|exists:buildings,id',
+        ]);
+        $user       = auth()->user();
+        $flatTenant = FlatTenant::where([
+            'tenant_id'   => $user->id,
+            'building_id' => $request->building_id,
+            'flat_id'     => $request->flat_id,
+            'active'      => true,
+        ])->first();
+        abort_if($flatTenant->role !== 'Owner', 403, 'You are not Owner');
 
+        // Get users with their names
+        $users = User::whereIn('id', FlatTenant::where([
+            'building_id' => $request->building_id,
+            'flat_id'     => $request->flat_id,
+            'active'      => true,
+            'role'        => 'Tenant',
+        ])->pluck('tenant_id'))->select('id', 'name')->get();
+
+        $documentLibraries = DocumentLibrary::where('label', 'master')->get();
+
+        // Get the latest documents for each user and document type
+        $documents = Document::whereIn('documentable_id', $users->pluck('id'))
+            ->where('documentable_type', User::class)
+            ->whereIn('document_library_id', $documentLibraries->pluck('id'))
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->groupBy(['documentable_id', 'document_library_id'])
+            ->map(function ($userDocs) {
+                return $userDocs->map(function ($docs) {
+                    return $docs->first();
+                });
+            });
+
+        return response()->json([
+            'users' => $users->map(function ($user) use ($documents, $documentLibraries) {
+                $userDocs = $documents[$user->id] ?? collect();
+                return [
+                    'user_id' => $user?->id,
+                    'user_name' => $user?->first_name,
+                    'documents' => DocumentLibraryResource::collection($documentLibraries)
+                        ->additional(['tenant_id' => $user?->id])
+                ];
+            })
+        ]);
+    }
     public function create(DocumentRequest $request)
     {
         $currentDate = date('Y-m-d');

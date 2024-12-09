@@ -159,6 +159,17 @@ Route::group(['middleware' => ["auth:sanctum", "verified"]], function () {
 
     //show pending flats for logged in user
     Route::get('/pending-flats', [UserController::class, 'pendingFlats']);
+
+    //List owner tenants
+    Route::get('/owner/tenants', [UserController::class, 'fetchTenants']);
+    //List all tenant cheques
+    Route::get('/tenant/cheques', [RentalDetailsController::class, 'tenantsCheques']);
+    //List all tenant family members
+    Route::get('/tenant/familyMembers', [FamilyMemberController::class, 'tenantsFamilyMembers']);
+    //List all tenant documents
+    Route::get('/tenant/documents', [DocumentsController::class, 'tenantDocuments']);
+    //List all tenant requests
+    Route::get('/tenant/requests', [AccessCardController::class, 'tenantRequests']);
 });
 /**
  * Middleware Group: API Token Protection

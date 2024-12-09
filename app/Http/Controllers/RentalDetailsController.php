@@ -2,17 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Resources\RentalDetailsResource;
-use App\Jobs\PaymentRequestMail;
-use App\Models\OwnerAssociation;
+use App\Models\User\User;
 use App\Models\RentalCheque;
 use App\Models\RentalDetail;
-use App\Models\User\User;
-use Filament\Notifications\Actions\Action;
-use Filament\Notifications\Notification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use App\Jobs\PaymentRequestMail;
+use App\Models\OwnerAssociation;
 use Illuminate\Support\Facades\DB;
+use App\Models\Building\FlatTenant;
+use Filament\Notifications\Notification;
+use Filament\Notifications\Actions\Action;
+use App\Http\Resources\RentalDetailsResource;
 
 class RentalDetailsController extends Controller
 {
@@ -83,5 +84,38 @@ class RentalDetailsController extends Controller
             ], 500);
         }
 
+    }
+    public function tenantsCheques(Request $request)
+    {
+        $request->validate([
+            'flat_id' => 'required|exists:flats,id',
+            'building_id' => 'required|exists:buildings,id',
+        ]);
+        $user       = auth()->user();
+        $flatTenant = FlatTenant::where([
+            'tenant_id'   => $user->id,
+            'building_id' => $request->building_id,
+            'flat_id'     => $request->flat_id,
+            'active'      => true,
+        ])->first();
+        abort_if($flatTenant->role !== 'Owner', 403, 'You are not Owner');
+
+        $tenants = FlatTenant::where([
+            'building_id' => $request->building_id,
+            'flat_id'     => $request->flat_id,
+            'active'      => true,
+            'role'        => 'Tenant',
+        ])->pluck('id');
+
+        $rentalDetails = RentalDetail::whereIn('flat_tenant_id', $tenants);
+
+        if ($request->filled('date')) {
+            $date = Carbon::createFromFormat('Y', $request->date);
+            $rentalDetails->whereHas('rentalCheques', function ($query) use ($date) {
+                $query->whereYear('due_date', $date->year);
+            });
+        }
+
+        return RentalDetailsResource::collection($rentalDetails->paginate(10));
     }
 }

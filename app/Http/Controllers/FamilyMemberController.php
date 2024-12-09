@@ -2,16 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\FamilyMember;
+use Illuminate\Http\Request;
+use App\Models\Building\Building;
+use App\Models\Building\Document;
+use Illuminate\Support\Facades\DB;
+use App\Models\Building\FlatTenant;
+use Illuminate\Support\Facades\Log;
+use App\Models\Master\DocumentLibrary;
 use App\Http\Requests\FamilyMemberRequest;
 use App\Http\Resources\CustomResponseResource;
 use App\Http\Resources\FamilyMemberDetailsResource;
-use App\Models\Building\Building;
-use App\Models\Building\Document;
-use App\Models\FamilyMember;
-use App\Models\Master\DocumentLibrary;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 class FamilyMemberController extends Controller
 {
@@ -60,7 +61,7 @@ class FamilyMemberController extends Controller
 
         $oa_id = DB::table('building_owner_association')->where('building_id', $building->id)->where('active', true)->first()?->owner_association_id;
 
-        $familyQuery = FamilyMember::where('user_id', $userId)->where(['owner_association_id' => $oa_id, 'building_id' => $building->id,'active'=>true]);
+        $familyQuery = FamilyMember::where('user_id', $userId)->where(['building_id' => $building->id,'active'=>true]);
 
         if($request->unit) {
             $familyQuery->where('flat_id', $request->unit);
@@ -132,5 +133,33 @@ class FamilyMemberController extends Controller
     {
         return new FamilyMemberDetailsResource($familyMember);
 
+    }
+     public function tenantsFamilyMembers(Request $request)
+    {
+        $request->validate([
+            'flat_id'     => 'required|exists:flats,id',
+            'building_id' => 'required|exists:buildings,id',
+        ]);
+        $user       = auth()->user();
+        $flatTenant = FlatTenant::where([
+            'tenant_id'   => $user->id,
+            'building_id' => $request->building_id,
+            'flat_id'     => $request->flat_id,
+            'active'      => true,
+        ])->first();
+        abort_if($flatTenant->role !== 'Owner', 403, 'You are not Owner');
+
+        $tenants = FlatTenant::where([
+            'building_id' => $request->building_id,
+            'flat_id'     => $request->flat_id,
+            'active'      => true,
+            'role'        => 'Tenant',
+        ])->pluck('tenant_id');
+
+        $familyQuery = FamilyMember::whereIn('user_id', $tenants)
+            ->where(['building_id' => $request->building_id,'active'=>true,'flat_id'=>$request->flat_id])
+            ->orderByDesc('id')->get();
+
+        return FamilyMemberDetailsResource::collection($familyQuery);
     }
 }

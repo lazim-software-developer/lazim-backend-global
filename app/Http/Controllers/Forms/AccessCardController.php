@@ -2,27 +2,32 @@
 
 namespace App\Http\Controllers\Forms;
 
-use App\Http\Controllers\Controller;
-use App\Http\Requests\FetchFormStatusRequest;
-use App\Http\Requests\Forms\CreateAccessCardFormsRequest;
-use App\Http\Resources\AccessCardFormResource;
-use App\Http\Resources\CustomResponseResource;
-use App\Jobs\Forms\AccessCardRequestJob;
-use App\Models\AccountCredentials;
-use App\Models\Building\Building;
-use App\Models\ExpoPushNotification;
-use App\Models\Forms\AccessCard;
-use App\Models\Forms\Guest;
+use App\Models\Forms\FitOutForm;
+use App\Models\Forms\MoveInOut;
+use Carbon\Carbon;
 use App\Models\Order;
-use App\Models\OwnerAssociation;
-use App\Models\Vendor\Vendor;
+use App\Models\User\User;
 use App\Models\WorkPermit;
 use App\Traits\UtilsTrait;
-use Carbon\Carbon;
-use Filament\Facades\Filament;
+use App\Models\Forms\Guest;
 use Illuminate\Http\Request;
+use App\Models\Vendor\Vendor;
+use Filament\Facades\Filament;
+use App\Models\ResidentialForm;
+use App\Models\Forms\AccessCard;
+use App\Models\OwnerAssociation;
+use App\Models\Building\Building;
+use App\Models\AccountCredentials;
 use Illuminate\Support\Facades\DB;
+use App\Models\Building\FlatTenant;
 use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
+use App\Models\ExpoPushNotification;
+use App\Jobs\Forms\AccessCardRequestJob;
+use App\Http\Requests\FetchFormStatusRequest;
+use App\Http\Resources\AccessCardFormResource;
+use App\Http\Resources\CustomResponseResource;
+use App\Http\Requests\Forms\CreateAccessCardFormsRequest;
 
 class AccessCardController extends Controller
 {
@@ -212,6 +217,190 @@ class AccessCardController extends Controller
             ],
         ];
     }
+    public function tenantRequests(Request $request)
+    {
+        $request->validate([
+            'flat_id'     => 'required|exists:flats,id',
+            'building_id' => 'required|exists:buildings,id',
+        ]);
+        $user       = auth()->user();
+        $flatTenant = FlatTenant::where([
+            'tenant_id'   => $user->id,
+            'building_id' => $request->building_id,
+            'flat_id'     => $request->flat_id,
+            'active'      => true,
+        ])->first();
+        abort_if($flatTenant->role !== 'Owner', 403, 'You are not Owner');
+
+        // Get tenant IDs first
+        $tenantIds = FlatTenant::where([
+            'building_id' => $request->building_id,
+            'flat_id'     => $request->flat_id,
+            'active'      => true,
+            'role'        => 'Tenant',
+        ])->pluck('tenant_id');
+
+        // Fetch users with eager loaded relationships
+        $users = User::with([
+            'accessCard' => function ($query) use ($request) {
+                $query->where('building_id', $request->building_id)
+                     ->where('flat_id', $request->flat_id)
+                     ->latest()
+                     ->with('orders');
+            },
+            'residentialForm' => function ($query) use ($request) {
+                $query->where('building_id', $request->building_id)
+                     ->where('flat_id', $request->flat_id)
+                     ->latest();
+            },
+            'fitOut' => function ($query) use ($request) {
+                $query->where('building_id', $request->building_id)
+                     ->where('flat_id', $request->flat_id)
+                     ->latest()
+                     ->with('orders');
+            },
+            'moveinData' => function ($query) use ($request) {
+                $query->where('building_id', $request->building_id)
+                     ->where('flat_id', $request->flat_id)
+                     ->latest();
+            },
+            'saleNoc' => function ($query) use ($request) {
+                $query->where('building_id', $request->building_id)
+                     ->where('flat_id', $request->flat_id)
+                     ->latest();
+            },
+            'flatVisitorInitates' => function ($query) use ($request) {
+                $query->where('type', 'guest')
+                     ->where('building_id', $request->building_id)
+                     ->where('flat_id', $request->flat_id)
+                     ->latest();
+            },
+            'bookings' => function ($query) use ($request) {
+                $query->where('bookable_type', WorkPermit::class)
+                     ->where('building_id', $request->building_id)
+                     ->where('flat_id', $request->flat_id)
+                     ->latest();
+            }
+        ])
+        ->whereIn('id', $tenantIds)
+        ->select('id', 'name')
+        ->get();
+
+        $tenantForms = [];
+
+        foreach ($users as $user) {
+            $accessCard = $user->accessCard->first();
+            $residentialForm = $user->residentialForm->first();
+            $fitOutForm = $user->fitOut->first();
+            $moveInForm = $user->moveinData->where('type', 'move-in')->first();
+            $moveOutForm = $user->moveinData->where('type', 'move-out')->first();
+            $saleNocForm = $user->saleNoc->first();
+            $guestRegistration = $user->flatVisitorInitates->first();
+            $permitToWork = $user->bookings->first();
+
+            $guest = $guestRegistration ? Guest::where('flat_visitor_id', $guestRegistration->id)->latest()->first() : null;
+
+            $forms = [
+                [
+                    'id'              => $accessCard ? $accessCard->id : null,
+                    'name'            => 'Access Card',
+                    'status'          => $accessCard ? $accessCard->status : 'not_submitted',
+                    'created_at'      => $accessCard ? Carbon::parse($accessCard->created_at)->diffForHumans() : null,
+                    'rejected_reason' => $accessCard ? $accessCard->remarks : null,
+                    'message'         => null,
+                    'payment_link'    => $accessCard?->payment_link,
+                    'order_id'        => $accessCard?->orders[0]->id ?? null,
+                    'order_status'    => $accessCard?->orders[0]->payment_status ?? null,
+                ],
+                [
+                    'id'              => $residentialForm ? $residentialForm->id : null,
+                    'name'            => 'Residential Form',
+                    'status'          => $residentialForm ? $residentialForm->status : 'not_submitted',
+                    'created_at'      => $residentialForm ? Carbon::parse($residentialForm->created_at)->diffForHumans() : null,
+                    'rejected_reason' => $residentialForm ? $residentialForm->remarks : null,
+                    'message'         => null,
+                    'payment_link'    => null,
+                    'order_id'        => null,
+                    'order_status'    => null,
+                ],
+                [
+                    'id'              => $fitOutForm ? $fitOutForm->id : null,
+                    'name'            => 'Fitout Form',
+                    'status'          => $fitOutForm ? $fitOutForm->status : 'not_submitted',
+                    'created_at'      => $fitOutForm ? Carbon::parse($fitOutForm->created_at)->diffForHumans() : null,
+                    'rejected_reason' => $fitOutForm ? $fitOutForm->remarks : null,
+                    'message'         => null,
+                    'payment_link'    => $fitOutForm?->payment_link,
+                    'order_id'        => $fitOutForm?->orders[0]->id ?? null,
+                    'order_status'    => $fitOutForm?->orders[0]->payment_status ?? null,
+                ],
+                [
+                    'id'              => $moveInForm ? $moveInForm->id : null,
+                    'name'            => 'Move In Form',
+                    'status'          => $moveInForm ? $moveInForm->status : 'not_submitted',
+                    'created_at'      => $moveInForm ? Carbon::parse($moveInForm->created_at)->diffForHumans() : null,
+                    'rejected_reason' => $moveInForm ? $moveInForm->remarks : null,
+                    'message'         => null,
+                    'payment_link'    => null,
+                    'order_id'        => null,
+                    'order_status'    => null,
+                ],
+                [
+                    'id'              => $moveOutForm ? $moveOutForm->id : null,
+                    'name'            => 'Move Out Form',
+                    'status'          => $moveOutForm ? $moveOutForm->status : 'not_submitted',
+                    'created_at'      => $moveOutForm ? Carbon::parse($moveOutForm->created_at)->diffForHumans() : null,
+                    'rejected_reason' => $moveOutForm ? $moveOutForm->remarks : null,
+                    'message'         => null,
+                    'payment_link'    => null,
+                    'order_id'        => null,
+                    'order_status'    => null,
+                ],
+                [
+                    'id'              => $saleNocForm ? $saleNocForm->id : null,
+                    'name'            => 'Sale NOC Form',
+                    'status'          => $saleNocForm ? $saleNocForm->status : 'not_submitted',
+                    'created_at'      => $saleNocForm ? Carbon::parse($saleNocForm->created_at)->diffForHumans() : null,
+                    'rejected_reason' => $saleNocForm ? $saleNocForm->remarks : null,
+                    'message'         => null,
+                    'payment_link'    => $saleNocForm?->payment_link,
+                    'order_id'        => $saleNocForm?->orders[0]->id ?? null,
+                    'order_status'    => $saleNocForm?->orders[0]->payment_status ?? 'pending',
+                ],
+                [
+                    'id'              => $guestRegistration ? $guestRegistration->id : null,
+                    'name'            => 'Holiday Homes Guest Registration Form',
+                    'status'          => $guest ? $guest->status : 'not_submitted',
+                    'created_at'      => $guestRegistration ? Carbon::parse($guestRegistration->created_at)->diffForHumans() : null,
+                    'rejected_reason' => $guest ? $guest->remarks : null,
+                    'message'         => null,
+                    'payment_link'    => null,
+                    'order_id'        => null,
+                    'order_status'    => null,
+                ],
+                [
+                    'id'              => $permitToWork ? $permitToWork->id : null,
+                    'name'            => 'Permit To Work Form',
+                    'status'          => $permitToWork ? ($permitToWork->approved ? 'approved' : null) : 'not_submitted',
+                    'created_at'      => $permitToWork ? Carbon::parse($permitToWork->created_at)->diffForHumans() : null,
+                    'rejected_reason' => $permitToWork ? $permitToWork->remarks : null,
+                    'message'         => null,
+                    'payment_link'    => null,
+                    'order_id'        => null,
+                    'order_status'    => null,
+                ]
+            ];
+
+            $tenantForms[] = [
+                'user_id' => $user->id,
+                'name' => $user->first_name,
+                'forms' => $forms
+            ];
+        }
+
+        return response()->json($tenantForms);
+    }
+
     public function fmlist(Vendor $vendor)
     {
         $ownerAssociationIds = DB::table('owner_association_vendor')
