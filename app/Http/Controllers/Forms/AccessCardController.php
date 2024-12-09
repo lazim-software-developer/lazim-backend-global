@@ -283,7 +283,7 @@ class AccessCardController extends Controller
             }
         ])
         ->whereIn('id', $tenantIds)
-        ->select('id', 'name')
+        ->select('id', 'first_name')
         ->get();
 
         $tenantForms = [];
