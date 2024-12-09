@@ -9,6 +9,7 @@ use App\Models\Building\Building;
 use App\Models\Building\Document;
 use Illuminate\Support\Facades\DB;
 use App\Models\Building\FlatTenant;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Models\Master\DocumentLibrary;
 use App\Http\Requests\MakaniNumberRequest;
@@ -47,6 +48,8 @@ class DocumentsController extends Controller
             'role'        => 'Tenant',
         ])->pluck('tenant_id'))->select('id', 'first_name')->get();
 
+        Log::info('Users: ' . $users);
+
         $documentLibraries = DocumentLibrary::where('label', 'master')->get();
 
         // Get the latest documents for each user and document type
@@ -61,6 +64,7 @@ class DocumentsController extends Controller
                     return $docs->first();
                 });
             });
+        Log::info('Documents: ' . $documents);
 
         return response()->json([
             'users' => $users->map(function ($user) use ($documents, $documentLibraries) {

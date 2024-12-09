@@ -4,8 +4,9 @@ namespace App\Http\Resources\Documents;
 
 use App\Models\User\User;
 use Illuminate\Http\Request;
-use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Http\Resources\Json\JsonResource;
 
 
 class DocumentLibraryResource extends JsonResource
@@ -18,7 +19,7 @@ class DocumentLibraryResource extends JsonResource
     public function toArray(Request $request): array
     {
         $tenantId = $request->additional['tenant_id'] ?? auth()->user()->id;
-
+        Log::info('Tenant ID: ' . $tenantId);
         // Determine if the document is "Title deed"
         if (in_array($this->name, ['Title deed','Makani number','Unit plan'])) {
             // Fetch the "Title deed" document based on flat_id
