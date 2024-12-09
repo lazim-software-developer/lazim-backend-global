@@ -1,5 +1,5 @@
-<script>
-    var scrollToSection = function(event) {
+<script> 
+    var scrollToSection = function(event) { 
         setTimeout(() => {
             const activeSidebarItem = document.querySelectorAll('.fi-sidebar-item');
             const sidebarWrapper = document.querySelector('.fi-sidebar-nav')
