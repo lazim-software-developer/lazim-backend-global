@@ -30,25 +30,25 @@ class DocumentsController extends Controller
         $request->validate([
             'flat_id'     => 'required|exists:flats,id',
             'building_id' => 'required|exists:buildings,id',
+            'tenant_id'   => 'required|exists:users,id',
         ]);
-        $user       = auth()->user();
-        $flatTenant = FlatTenant::where([
-            'tenant_id'   => $user->id,
-            'building_id' => $request->building_id,
-            'flat_id'     => $request->flat_id,
-            'active'      => true,
-        ])->first();
-        abort_if($flatTenant->role !== 'Owner', 403, 'You are not Owner');
+        // $user       = auth()->user();
+        // $flatTenant = FlatTenant::where([
+        //     'tenant_id'   => $user->id,
+        //     'building_id' => $request->building_id,
+        //     'flat_id'     => $request->flat_id,
+        //     'active'      => true,
+        // ])->first();
+        // abort_if($flatTenant->role !== 'Owner', 403, 'You are not Owner');
 
-        // Get users with their names
-        $users = User::whereIn('id', FlatTenant::where([
-            'building_id' => $request->building_id,
-            'flat_id'     => $request->flat_id,
-            'active'      => true,
-            'role'        => 'Tenant',
-        ])->pluck('tenant_id'))->select('id', 'first_name')->get();
-
-        Log::info('Users: ' . $users);
+        // // Get users with their names
+        // $users = User::whereIn('id', FlatTenant::where([
+        //     'building_id' => $request->building_id,
+        //     'flat_id'     => $request->flat_id,
+        //     'active'      => true,
+        //     'role'        => 'Tenant',
+        // ])->pluck('tenant_id'))->select('id', 'first_name')->get();
+        $users = User::where('id', $request->tenant_id)->select('id','first_name')->get();
 
         $documentLibraries = DocumentLibrary::where('label', 'master')->get();
 

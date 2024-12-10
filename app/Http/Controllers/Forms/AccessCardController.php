@@ -222,24 +222,26 @@ class AccessCardController extends Controller
         $request->validate([
             'flat_id'     => 'required|exists:flats,id',
             'building_id' => 'required|exists:buildings,id',
+            'tenant_id'   => 'required|exists:users,id',
         ]);
-        $user       = auth()->user();
-        $flatTenant = FlatTenant::where([
-            'tenant_id'   => $user->id,
-            'building_id' => $request->building_id,
-            'flat_id'     => $request->flat_id,
-            'active'      => true,
-        ])->first();
-        abort_if($flatTenant->role !== 'Owner', 403, 'You are not Owner');
+        // $user       = auth()->user();
+        // $flatTenant = FlatTenant::where([
+        //     'tenant_id'   => $user->id,
+        //     'building_id' => $request->building_id,
+        //     'flat_id'     => $request->flat_id,
+        //     'active'      => true,
+        // ])->first();
+        // abort_if($flatTenant->role !== 'Owner', 403, 'You are not Owner');
 
-        // Get tenant IDs first
-        $tenantIds = FlatTenant::where([
-            'building_id' => $request->building_id,
-            'flat_id'     => $request->flat_id,
-            'active'      => true,
-            'role'        => 'Tenant',
-        ])->pluck('tenant_id');
+        // // Get tenant IDs first
+        // $tenantIds = FlatTenant::where([
+        //     'building_id' => $request->building_id,
+        //     'flat_id'     => $request->flat_id,
+        //     'active'      => true,
+        //     'role'        => 'Tenant',
+        // ])->pluck('tenant_id');
 
+        $tenantIds = $request->tenant_id;
         // Fetch users with eager loaded relationships
         $users = User::with([
             'accessCard' => function ($query) use ($request) {
@@ -282,7 +284,7 @@ class AccessCardController extends Controller
                      ->latest();
             }
         ])
-        ->whereIn('id', $tenantIds)
+        ->where('id', $tenantIds)
         ->select('id', 'first_name')
         ->get();
 

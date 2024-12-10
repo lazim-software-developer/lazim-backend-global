@@ -63,25 +63,27 @@ class VehicleController extends Controller
         $request->validate([
             'flat_id' => 'required|exists:flats,id',
             'building_id' => 'required|exists:buildings,id',
+            'tenant_id' => 'required|exists:users,id',
         ]);
-        $user       = auth()->user();
-        $flatTenant = FlatTenant::where([
-            'tenant_id'   => $user->id,
-            'building_id' => $request->building_id,
-            'flat_id'     => $request->flat_id,
-            'active'      => true,
-        ])->first();
-        abort_if($flatTenant->role !== 'Owner', 403, 'You are not Owner');
+        // $user       = auth()->user();
+        // $flatTenant = FlatTenant::where([
+        //     'tenant_id'   => $user->id,
+        //     'building_id' => $request->building_id,
+        //     'flat_id'     => $request->flat_id,
+        //     'active'      => true,
+        // ])->first();
+        // abort_if($flatTenant->role !== 'Owner', 403, 'You are not Owner');
 
-        // Get tenant IDs first
-        $tenantIds = FlatTenant::where([
-            'building_id' => $request->building_id,
-            'flat_id'     => $request->flat_id,
-            'active'      => true,
-            'role'        => 'Tenant',
-        ])->pluck('tenant_id');
+        // // Get tenant IDs first
+        // $tenantIds = FlatTenant::where([
+        //     'building_id' => $request->building_id,
+        //     'flat_id'     => $request->flat_id,
+        //     'active'      => true,
+        //     'role'        => 'Tenant',
+        // ])->pluck('tenant_id');
+        $tenantIds = $request->tenant_id;
 
-        $vehicles = Vehicle::whereIn('user_id', $tenantIds)->where('flat_id', $request->flat_id)->get();
+        $vehicles = Vehicle::where('user_id', $tenantIds)->where('flat_id', $request->flat_id)->get();
         return VehicleResource::collection($vehicles);
     }
 }

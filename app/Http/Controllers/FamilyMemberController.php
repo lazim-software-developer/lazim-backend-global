@@ -139,24 +139,25 @@ class FamilyMemberController extends Controller
         $request->validate([
             'flat_id'     => 'required|exists:flats,id',
             'building_id' => 'required|exists:buildings,id',
+            'tenant_id'   => 'required|exists:users,id',
         ]);
-        $user       = auth()->user();
-        $flatTenant = FlatTenant::where([
-            'tenant_id'   => $user->id,
-            'building_id' => $request->building_id,
-            'flat_id'     => $request->flat_id,
-            'active'      => true,
-        ])->first();
-        abort_if($flatTenant->role !== 'Owner', 403, 'You are not Owner');
+        // $user       = auth()->user();
+        // $flatTenant = FlatTenant::where([
+        //     'tenant_id'   => $user->id,
+        //     'building_id' => $request->building_id,
+        //     'flat_id'     => $request->flat_id,
+        //     'active'      => true,
+        // ])->first();
+        // abort_if($flatTenant->role !== 'Owner', 403, 'You are not Owner');
 
-        $tenants = FlatTenant::where([
-            'building_id' => $request->building_id,
-            'flat_id'     => $request->flat_id,
-            'active'      => true,
-            'role'        => 'Tenant',
-        ])->pluck('tenant_id');
-
-        $familyQuery = FamilyMember::whereIn('user_id', $tenants)
+        // $tenants = FlatTenant::where([
+        //     'building_id' => $request->building_id,
+        //     'flat_id'     => $request->flat_id,
+        //     'active'      => true,
+        //     'role'        => 'Tenant',
+        // ])->pluck('tenant_id');
+        $tenants = $request->tenant_id;
+        $familyQuery = FamilyMember::where('user_id', $tenants)
             ->where(['building_id' => $request->building_id,'active'=>true,'flat_id'=>$request->flat_id])
             ->orderByDesc('id')->get();
 

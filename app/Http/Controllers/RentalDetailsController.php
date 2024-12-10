@@ -90,24 +90,26 @@ class RentalDetailsController extends Controller
         $request->validate([
             'flat_id' => 'required|exists:flats,id',
             'building_id' => 'required|exists:buildings,id',
+            'flat_tenant_id' => 'required|exists:flat_tenants,id',
         ]);
-        $user       = auth()->user();
-        $flatTenant = FlatTenant::where([
-            'tenant_id'   => $user->id,
-            'building_id' => $request->building_id,
-            'flat_id'     => $request->flat_id,
-            'active'      => true,
-        ])->first();
-        abort_if($flatTenant->role !== 'Owner', 403, 'You are not Owner');
+        // $user       = auth()->user();
+        // $flatTenant = FlatTenant::where([
+        //     'tenant_id'   => $user->id,
+        //     'building_id' => $request->building_id,
+        //     'flat_id'     => $request->flat_id,
+        //     'active'      => true,
+        // ])->first();
+        // abort_if($flatTenant->role !== 'Owner', 403, 'You are not Owner');
 
-        $tenants = FlatTenant::where([
-            'building_id' => $request->building_id,
-            'flat_id'     => $request->flat_id,
-            'active'      => true,
-            'role'        => 'Tenant',
-        ])->pluck('id');
+        // $tenants = FlatTenant::where([
+        //     'building_id' => $request->building_id,
+        //     'flat_id'     => $request->flat_id,
+        //     'active'      => true,
+        //     'role'        => 'Tenant',
+        // ])->pluck('id');
+        $tenants = $request->flat_tenant_id;
 
-        $rentalDetails = RentalDetail::whereIn('flat_tenant_id', $tenants);
+        $rentalDetails = RentalDetail::where('flat_tenant_id', $tenants);
 
         if ($request->filled('date')) {
             $date = Carbon::createFromFormat('Y', $request->date);
