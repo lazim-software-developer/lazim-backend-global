@@ -55,18 +55,6 @@ public function listServices(SubCategory $subcategory)
 
     public function tagServices(SelectServicesRequest $request, Vendor $vendor)
     {
-        $vendor->services()->syncWithoutDetaching([$request->service]);
-
-        return (new CustomResponseResource([
-            'title' => 'Service taged!',
-            'message' => "",
-            'code' => 201,
-            'status' => 'success',
-        ]))->response()->setStatusCode(201);
-    }
-
-    public function untagServices(SelectServicesRequest $request, Vendor $vendor)
-    {
         try {
             // Check if service is already tagged
             if ($vendor->services()->where('service_id', $request->service)->exists()) {
@@ -94,6 +82,18 @@ public function listServices(SubCategory $subcategory)
                 'status'  => 'error',
             ]))->response()->setStatusCode(500);
         }
+    }
+
+    public function untagServices(SelectServicesRequest $request, Vendor $vendor)
+    {
+        $vendor->services()->detach([$request->service]);
+
+        return (new CustomResponseResource([
+            'title' => 'Service untaged!',
+            'message' => "",
+            'code' => 200,
+            'status' => 'success',
+        ]))->response()->setStatusCode(201);
     }
 
     public function showServices(Request $request,Vendor $vendor)
