@@ -4,6 +4,7 @@ namespace App\Http\Resources\Vendor;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use App\Http\Resources\Assets\AssetTechniciansResource;
 
 class AssetListResource extends JsonResource
 {
@@ -29,6 +30,7 @@ class AssetListResource extends JsonResource
             'frequency_of_service' => $this->frequency_of_service,
             'qr_code'              => $this->qr_code ?? null,
             'asset_code'           => $this->asset_code,
+            'technicians'          => AssetTechniciansResource::collection($this->users),
         ];
     }
 }
