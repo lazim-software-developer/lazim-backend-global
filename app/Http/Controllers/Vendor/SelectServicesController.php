@@ -35,7 +35,7 @@ public function listServices(SubCategory $subcategory)
             'active' => 1,
             'owner_association_id' => $vendor->owner_association_id,
         ]);
-        
+
         $service = Service::firstOrCreate(
             [
                 'name' => $request->name
@@ -67,14 +67,33 @@ public function listServices(SubCategory $subcategory)
 
     public function untagServices(SelectServicesRequest $request, Vendor $vendor)
     {
-        $vendor->services()->detach([$request->service]);
+        try {
+            // Check if service is already tagged
+            if ($vendor->services()->where('service_id', $request->service)->exists()) {
+                return (new CustomResponseResource([
+                    'title'   => 'Service already tagged',
+                    'message' => 'This service is already tagged to the vendor.',
+                    'code'    => 409,
+                    'status'  => 'error',
+                ]))->response()->setStatusCode(409);
+            }
 
-        return (new CustomResponseResource([
-            'title' => 'Service untaged!',
-            'message' => "",
-            'code' => 200,
-            'status' => 'success',
-        ]))->response()->setStatusCode(201);
+            $vendor->services()->syncWithoutDetaching([$request->service]);
+
+            return (new CustomResponseResource([
+                'title'   => 'Service tagged successfully',
+                'message' => 'The service has been tagged to the vendor.',
+                'code'    => 201,
+                'status'  => 'success',
+            ]))->response()->setStatusCode(201);
+        } catch (\Exception $e) {
+            return (new CustomResponseResource([
+                'title'   => 'Error',
+                'message' => 'Failed to tag service. Please try again.',
+                'code'    => 500,
+                'status'  => 'error',
+            ]))->response()->setStatusCode(500);
+        }
     }
 
     public function showServices(Request $request,Vendor $vendor)
