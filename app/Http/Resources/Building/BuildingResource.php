@@ -16,7 +16,7 @@ class BuildingResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $oaIds            = DB::table('building_owner_association')->where('building_id', $this->building->id)->pluck('owner_association_id');
+        $oaIds            = DB::table('building_owner_association')->where('building_id', $this->id)->pluck('owner_association_id');
         $ownerAssociation = OwnerAssociation::whereIn('id', $oaIds)->pluck('role')->unique();
         $oA               = $ownerAssociation->contains('OA');
         $propertyManager  = $ownerAssociation->contains('Property Manager');
