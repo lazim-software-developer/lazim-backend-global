@@ -23,8 +23,8 @@ class SubContractorEditRequest extends FormRequest
     {
         return [
             'name'                      => 'required',
-            'email'                     => 'required|unique:sub_contractors,email,' . $this->route('subContract'),
-            'phone'                     => 'required|unique:sub_contractors,phone,' . $this->route('subContract'),
+            'email'                     => 'required|unique:sub_contractors,email,' . $this->route('subContract')->id,
+            'phone'                     => 'required|unique:sub_contractors,phone,' . $this->route('subContract')->id,
             'company_name'              => 'required',
             'trn_no'                    => 'required|max_digits:15',
             'services'                  => 'required',
