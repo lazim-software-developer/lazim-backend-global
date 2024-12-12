@@ -75,7 +75,7 @@ class ResidentialFormController extends Controller
     {
         $request->validate([
             'status' => 'required|in:approved,rejected',
-            'remarks' => 'required_if:status,rejected|max:150',
+            'remarks' => 'required_if:status,rejected|max:250',
         ]);
         $data = $request->only(['status', 'remarks']);
         $residentialForm->update($data);
