@@ -440,7 +440,7 @@ class GuestController extends Controller
     {
         $request->validate([
             'status' => 'required|in:approved,rejected',
-            'remarks' => 'required_if:status,rejected|max:250',
+            'remarks' => 'required_if:status,rejected|max:150',
         ]);
         $data = $request->only(['status','remarks']);
         $guest->update($data);
