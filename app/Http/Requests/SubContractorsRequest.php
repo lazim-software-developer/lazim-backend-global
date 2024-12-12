@@ -23,8 +23,8 @@ class SubContractorsRequest extends FormRequest
     {
         return [
             'name'             => 'required',
-            'email'            => 'required',
-            'phone'            => 'required',
+            'email'            => 'required|unique:sub_contractors,email',
+            'phone'            => 'required|unique:sub_contractors,phone',
             'company_name'     => 'required',
             'trn_no'           => 'required|max_digits:15',
             'services'         => 'required',
