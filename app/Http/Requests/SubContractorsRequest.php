@@ -2,8 +2,9 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Foundation\Http\FormRequest;
 
 class SubContractorsRequest extends FormRequest
 {
@@ -37,6 +38,8 @@ class SubContractorsRequest extends FormRequest
             'active'                    => 'sometimes|in:0,1',
         ];
 
+        Log::info($this->route()->getName());
+        Log::info($this->route('subContract'));
         // If updating (edit route), ignore the current record in unique validation
         if ($this->route()->getName() === 'subcontractors.edit') {
             $subcontractor  = $this->route('subContract');
@@ -47,6 +50,7 @@ class SubContractorsRequest extends FormRequest
             $rules['phone'] = 'required|unique:sub_contractors,phone';
         }
 
+        Log::info('Rules',$rules);
         return $rules;
     }
 }
