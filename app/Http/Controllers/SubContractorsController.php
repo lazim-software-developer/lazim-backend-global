@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\SubContractorEditRequest;
 use App\Http\Requests\SubContractorsRequest;
 use App\Http\Resources\SubContractorsResource;
 use App\Jobs\SendSubcontractorCreatedMailJob;
@@ -35,7 +36,7 @@ class SubContractorsController extends Controller
 
         return SubContractorsResource::make($subContract);
     }
-    public function edit(Vendor $vendor, SubContractor $subContract, SubContractorsRequest $request)
+    public function edit(Vendor $vendor, SubContractor $subContract, SubContractorEditRequest $request)
     {
         $subContract->update($request->all());
 
