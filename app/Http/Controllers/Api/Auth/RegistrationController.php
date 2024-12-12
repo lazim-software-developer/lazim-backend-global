@@ -270,16 +270,18 @@ class RegistrationController extends Controller
         $created_by = $connection->table('users')->where(['type' => 'building', 'building_id' => $request->building_id])->first()?->id;
         if($created_by){
             $customerId = $connection->table('customers')->where('created_by', $created_by)->orderByDesc('customer_id')->first()?->customer_id + 1;
-            $connection->table('customers')->insert([
-                'customer_id' => $customerId,
-                'name' => $request->name,
-                'email'  => $request->email,
-                'contact' => $request->mobile,
-                'type' => $type,
-                'lang' => 'en',
-                'created_by' => $created_by,
-                'is_enable_login' => 0,
-            ]);
+            if($customerId){
+                $connection->table('customers')->insert([
+                    'customer_id' => $customerId,
+                    'name' => $request->name,
+                    'email'  => $request->email,
+                    'contact' => $request->mobile,
+                    'type' => $type,
+                    'lang' => 'en',
+                    'created_by' => $created_by,
+                    'is_enable_login' => 0,
+                ]);
+            }
         }
 
         $imagePath = optimizeDocumentAndUpload($request->document, 'dev');
@@ -552,22 +554,6 @@ class RegistrationController extends Controller
 
         $owner_association_id = DB::table('building_owner_association')->where('building_id', $request->building_id)->where('active', true)->first()?->owner_association_id;
 
-        $connection = DB::connection('lazim_accounts');
-        $created_by = $connection->table('users')->where(['type' => 'building', 'building_id' => $request->building_id])->first()?->id;
-        if($created_by){
-            $customerId = $connection->table('customers')->where('created_by', $created_by)->orderByDesc('customer_id')->first()?->customer_id + 1;
-            $connection->table('customers')->insert([
-                'customer_id' => $customerId,
-                'name' => $userData->name,
-                'email'  => $userData->email,
-                'contact' => $userData->mobile,
-                'type' => $type,
-                'lang' => 'en',
-                'created_by' => $created_by,
-                'is_enable_login' => 0,
-            ]);
-        }
-
         $userApproval = UserApproval::where('user_id', $userData->id)->first();
         $imagePath = optimizeDocumentAndUpload($request->document, 'dev');
 
@@ -606,18 +592,6 @@ class RegistrationController extends Controller
             'owner_association_id' => $owner_association_id,
             'residing_in_same_flat' => $request->has('residing') ? $request->residing : 0,
         ]);
-
-        $customer = $connection->table('customers')->where(['email'=> $userData->email,
-            'contact' => $userData->mobile])->first();
-        $property = Flat::find($request->flat_id)?->property_number;
-        if($customer && $property){
-            $connection->table('customer_flat')->insert([
-                'customer_id' => $customer?->id,
-                'flat_id' => $request->flat_id,
-                'building_id' => $request->building_id,
-                'property_number' => $property
-            ]);
-        }
 
         return (new CustomResponseResource([
             'title' => 'Registration successful!',
