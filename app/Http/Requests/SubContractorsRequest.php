@@ -40,8 +40,8 @@ class SubContractorsRequest extends FormRequest
         // If updating (edit route), ignore the current record in unique validation
         if ($this->route()->getName() === 'subcontractors.edit') {
             $subcontractor  = $this->route('subContract');
-            $rules['email'] = ['required', Rule::unique('sub_contractors')->ignore($subcontractor->id)];
-            $rules['phone'] = ['required', Rule::unique('sub_contractors')->ignore($subcontractor->id)];
+            $rules['email'] = ['required', Rule::unique('sub_contractors','email')->ignore($subcontractor->id)];
+            $rules['phone'] = ['required', Rule::unique('sub_contractors','phone')->ignore($subcontractor->id)];
         } else {
             $rules['email'] = 'required|unique:sub_contractors,email';
             $rules['phone'] = 'required|unique:sub_contractors,phone';
