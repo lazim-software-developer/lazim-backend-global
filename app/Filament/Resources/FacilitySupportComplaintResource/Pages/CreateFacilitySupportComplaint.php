@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\FacilitySupportComplaintResource\Pages;
 
 use App\Filament\Resources\FacilitySupportComplaintResource;
+use App\Models\Building\FlatTenant;
 use App\Models\Master\Service;
 use Carbon\Carbon;
 use Filament\Resources\Pages\CreateRecord;
@@ -17,7 +18,7 @@ class CreateFacilitySupportComplaint extends CreateRecord
 
         $data['priority']             = 3;
         $data['status']               = 'open';
-        $data['complaintable_type']   = get_class(auth()->user());
+        $data['complaintable_type']   = FlatTenant::class;
         $data['complaintable_id']     = auth()->user()->id;
         $data['user_id']              = auth()->user()->id;
         $data['owner_association_id'] = auth()->user()->owner_association_id;
