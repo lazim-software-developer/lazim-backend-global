@@ -14,6 +14,7 @@ use App\Filament\Widgets\MoveInOutChart;
 use App\Filament\Widgets\RentalChequeStatusOverview;
 use App\Filament\Widgets\UnitContractExpiryOverview;
 use App\Filament\Widgets\UnitStatusOverview;
+use App\Models\OwnerAssociation;
 use DB;
 use Filament\Pages;
 use Filament\Panel;
@@ -58,6 +59,7 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use App\Filament\Resources\OwnerAssociationInvoiceResource;
 use App\Filament\Resources\OwnerAssociationReceiptResource;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
+use Storage;
 
 class AppPanelProvider extends PanelProvider
 {
@@ -74,7 +76,15 @@ class AppPanelProvider extends PanelProvider
                     return 'Lazim';
                 }
             })
-            ->brandLogo(asset('images/logo.png'))
+            ->brandLogo(function() {
+                $user = User::find(auth()->id());
+                $oa = OwnerAssociation::where('id', $user->owner_association_id)->first();
+                $companyLogo = $oa->profile_photo;
+                if ($user && $companyLogo) {
+                    return Storage::disk('s3')->url($companyLogo);
+                }
+                return asset('images/logo.png');
+            })
             ->brandLogoHeight('35px')
             ->profile(AppEditProfile::class)
             ->colors([
