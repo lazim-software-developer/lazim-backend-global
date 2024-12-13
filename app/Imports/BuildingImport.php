@@ -4,16 +4,15 @@ namespace App\Imports;
 
 use App\Models\Building\Building;
 use Carbon\Carbon;
+use Filament\Notifications\Notification;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
-use Filament\Notifications\Notification;
-
 
 class BuildingImport implements ToCollection, WithHeadingRow
 {
 
-     public function __construct(protected $oaId)
+    public function __construct(protected $oaId)
     {
         //
     }
@@ -45,8 +44,8 @@ class BuildingImport implements ToCollection, WithHeadingRow
     }
 
     /**
-    * @param Collection $collection
-    */
+     * @param Collection $collection
+     */
     public function collection(Collection $rows)
     {
         // Define the expected headings
@@ -87,46 +86,70 @@ class BuildingImport implements ToCollection, WithHeadingRow
         $notImported = [];
         foreach ($rows as $row) {
             $exists = Building::where('property_group_id', $row['property_group_id'])->exists();
+
+            $errors = [];
+            if ($row['name'] == null) {
+                $errors[] = 'Name is missing';
+            }
+            if ($row['property_group_id'] == null) {
+                $errors[] = 'Property Group ID is missing';
+            }
+            if ($row['address_line1'] == null) {
+                $errors[] = 'Address Line 1 is missing';
+            }
+            if (!is_numeric($row['area'])) {
+                $errors[] = 'Invalid or missing Area';
+            }
+            if (!is_numeric($row['floors'])) {
+                $errors[] = 'Invalid or missing Floors';
+            }
+
+            if (!empty($errors)) {
+                $notImported[] = $row['name'] . ' (' . implode(', ', array_map(function ($error) {
+                    return ucwords(str_replace('_', ' ', $error));
+                }, $errors)) . ')';
+                continue;
+            }
+
             if ($exists) {
-                $notImported[] = $row['name'];
+                $notImported[] = $row['name'] . ' (already exists)';
             } else {
                 $fromDate = $this->convertExcelDate($row['from']);
                 $toDate   = $this->convertExcelDate($row['to']);
 
-
                 $building = Building::create([
-                    'name' => $row['name'],
-                    'building_type' => $row['building_type'],
-                    'property_group_id' => $row['property_group_id'],
-                    'address_line1' => $row['address_line1'],
-                    'area' => $row['area'],
-                    'floors' => $row['floors'],
-                    'parking_count' => $row['parking_count'],
-                    'from' => $fromDate ?: null,
-                    'to' => $toDate ?: null,
-                    'owner_association_id' => $this->oaId,
+                    'name'                  => $row['name'],
+                    'building_type'         => $row['building_type'],
+                    'property_group_id'     => $row['property_group_id'],
+                    'address_line1'         => $row['address_line1'],
+                    'area'                  => $row['area'],
+                    'floors'                => $row['floors'],
+                    'parking_count'         => $row['parking_count'],
+                    'from'                  => $fromDate ?: null,
+                    'to'                    => $toDate ?: null,
+                    'owner_association_id'  => $this->oaId,
                     'show_inhouse_services' => 0,
-                    'managed_by' => 'Property Manager',
+                    'managed_by'            => 'Property Manager',
                 ]);
 
                 // Sync the relationship with OwnerAssociation with pivot data
                 $building->ownerAssociations()->sync([
                     $this->oaId => [
-                        'from' => $fromDate ?: null,
-                        'to' => $toDate ?: null,
+                        'from'   => $fromDate ?: null,
+                        'to'     => $toDate ?: null,
                         'active' => true,
                     ],
                 ]);
             }
         }
-        if (! empty($notImported)) {
+        if (!empty($notImported)) {
             Notification::make()
                 ->title("Could not import Buildings.")
-                ->body('Not imported Buildings' . implode(', ', $notImported))
+                ->body('Not imported Buildings: ' . implode(', ', $notImported))
                 ->danger()
                 ->send();
 
-            return 'success';
+            return 'failure';
         } else {
             Notification::make()
                 ->title("Buildings imported successfully.")
