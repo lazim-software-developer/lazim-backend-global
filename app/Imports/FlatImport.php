@@ -71,41 +71,57 @@ class FlatImport implements ToCollection, WithHeadingRow
 
         $notImported = [];
         foreach ($rows as $row) {
-            $exists         = Flat::where(['property_number' => $row['unit_number'], 'owner_association_id' => $this->oaId, 'building_id' => $this->buildingId])->exists();
+            $exists = Flat::where([
+                'property_number' => $row['unit_number'],
+                'owner_association_id' => $this->oaId,
+                'building_id' => $this->buildingId
+            ])->exists();
 
-            $requiredFields = $row['unit_number'] != null && in_array($row['property_type'], ['Shop', 'Office', 'Unit'])
-                                && is_numeric($row['parking_count']) ? true : false;
+            $errors = [];
+            if ($row['unit_number'] == null) {
+                $errors[] = 'Unit number is missing';
+            }
+            if (!in_array($row['property_type'], ['Shop', 'Office', 'Unit'])) {
+                $errors[] = 'Invalid or missing property type';
+            }
+            if (!is_numeric($row['parking_count'])) {
+                $errors[] = 'Invalid or missing parking count';
+            }
 
-            if (!$requiredFields && $exists) {
-                $notImported[] = $row['unit_number'];
+            if (!empty($errors)) {
+                $notImported[] = $row['unit_number'] . ' (' . implode(', ', $errors) . ')';
+                continue;
+            }
+
+            if ($exists) {
+                $notImported[] = $row['unit_number'] . ' (already exists)';
             } else {
                 Flat::create([
                     'owner_association_id' => $this->oaId,
-                    'building_id'          => $this->buildingId,
-                    'property_number'      => $row['unit_number'],
-                    'property_type'        => $row['property_type'],
-                    // 'mollak_property_id'   => $row['mollak_property_id'],
-                    'suit_area'            => $row['suit_area'],
-                    'actual_area'          => $row['actual_area'],
-                    'balcony_area'         => $row['balcony_area'],
-                    // 'applicable_area'      => $row['applicable_area'],
-                    'plot_number'        => $row['plot_number'],
-                    'parking_count'        => $row['parking_count'],
-                    'makhani_number'       => $row['makhani_number'],
-                    'dewa_number'          => $row['dewa_number'],
-                    'etisalat/du_number'   => $row['btuetisalat_number'],
-                    'btu/ac_number'        => $row['btuac_number'],
+                    'building_id' => $this->buildingId,
+                    'property_number' => $row['unit_number'],
+                    'property_type' => $row['property_type'],
+                    'suit_area' => $row['suit_area'],
+                    'actual_area' => $row['actual_area'],
+                    'balcony_area' => $row['balcony_area'],
+                    'plot_number' => $row['plot_number'],
+                    'parking_count' => $row['parking_count'],
+                    'makhani_number' => $row['makhani_number'],
+                    'dewa_number' => $row['dewa_number'],
+                    'etisalat/du_number' => $row['btuetisalat_number'],
+                    'btu/ac_number' => $row['btuac_number'],
                 ]);
             }
         }
+
         if (!empty($notImported)) {
             Notification::make()
                 ->title("Couldn't upload Flats.")
-                ->body('Not imported Flats '.'-' . implode(',  ', $notImported))
+                ->body('Not imported Flats: ' . implode(', ', $notImported))
                 ->danger()
                 ->send();
 
-            return 'success';
+            return 'failure';
         } else {
             Notification::make()
                 ->title("Flats imported successfully.")

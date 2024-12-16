@@ -184,7 +184,7 @@ class ComplaintResource extends Resource
                                     ->placeholder('Select Service'),
 
                                 Select::make('vendor_id')
-                                    ->label('Vendor Name')
+                                    ->label('Facility Manager')
 
                                 // ->relationship('vendor', 'name')
                                     ->preload()
@@ -192,7 +192,7 @@ class ComplaintResource extends Resource
                                 //     return $get('category') != 'Security Services';
                                 // })
                                     ->searchable()
-                                    ->placeholder('Select Vendor')
+                                    ->placeholder('Select Facility Manager')
                                     ->options(function (Get $get) {
                                         $serviceId = $get('service_id');
 
