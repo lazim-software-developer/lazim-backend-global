@@ -126,6 +126,11 @@ class ItemResource extends Resource
                     ->form([
                         Select::make('vendor_id')
                         ->required()
+                        ->label(function () {
+                            if(auth()->user()?->role->name == 'Property Manager') {
+                                    return 'Facility Managers';
+                                }return 'Vendors';
+                            })
                         ->relationship('vendors', 'name')
                         ->options(function () {
                             $oaId = auth()->user()?->owner_association_id;
@@ -149,10 +154,18 @@ class ItemResource extends Resource
                                 $record->vendors()->sync([$vendorId]);
                             }
                             Notification::make()
-                            ->title("Vendor attached successfully")
+                            ->title(function () {
+                                if (auth()->user()?->role->name == 'Property Manager') {
+                                    return 'Facility Manager attached successfully';
+                                }return 'Vendor attached successfully';
+                            })
                             ->success()
                             ->send();
-                        })->label('Attach Vendor')
+                        })->label(function () {
+                        if (auth()->user()?->role->name == 'Property Manager') {
+                            return 'Attach Facility Manager';
+                        }return 'Attach Vendor';
+                    })
                 ]),
             ])
             ->emptyStateActions([
