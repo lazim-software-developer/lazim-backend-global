@@ -78,10 +78,12 @@ class AppPanelProvider extends PanelProvider
             })
             ->brandLogo(function() {
                 $user = User::find(auth()->id());
-                $oa = OwnerAssociation::where('id', $user->owner_association_id)->first();
-                $companyLogo = $oa->profile_photo;
-                if ($user && $companyLogo) {
-                    return Storage::disk('s3')->url($companyLogo);
+                if($user?->role->name == 'Property Manager'){
+                    $oa = OwnerAssociation::where('id', $user?->owner_association_id)->first();
+                    $companyLogo = $oa->profile_photo;
+                    if ($user && $companyLogo) {
+                        return Storage::disk('s3')->url($companyLogo);
+                    }
                 }
                 return asset('images/logo.png');
             })
