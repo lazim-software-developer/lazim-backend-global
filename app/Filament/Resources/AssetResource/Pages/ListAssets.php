@@ -120,7 +120,8 @@ class ListAssets extends ListRecords
 
                 Action::make('QR Codes')->label('Download QR Codes')
                 ->action(function(){
-                    $data = Parent::getTableQuery()->get();
+                    $query = $this->getTableQuery();
+                    $data = $query->get();
 
                     $pdf = Pdf::loadView('filament.custom.asset-fetch-data', compact('data'));
                         return response()->streamDownload(

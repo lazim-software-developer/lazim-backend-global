@@ -57,22 +57,26 @@ class TechnicianVendorResource extends Resource
                             ->required()
                             ->placeholder('user@example.com')
                             ->email()
-                            ->when(fn($record) => !$record, function ($component) {
-                                $component->unique('users', 'email')
-                                    ->rules(['regex:/^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/']);
-                            })
+                            ->rules(['regex:/^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/'])
+                            ->unique(
+                                table: User::class,
+                                column: 'email',
+                                ignorable: fn($record) => $record?->user
+                            )
                             ->live(onBlur: true)
                             ->disabledOn('edit'),
                         TextInput::make('phone')
                             ->tel()
                             ->live(onBlur: true)
                             ->required()
-                            ->placeholder('5XXXXXXXX')
-                            ->when(fn($record) => !$record, function ($component) {
-                                $component->unique('users', 'phone')
-                                    ->rules(['regex:/^(50|51|52|55|56|58|02|03|04|06|07|09)\d{7}$/']);
-                            })
                             ->prefix('+971')
+                            ->unique(
+                                table: User::class,
+                                column: 'phone',
+                                ignorable: fn($record) => $record?->user
+                            )
+                            ->rules(['regex:/^(50|51|52|55|56|58|02|03|04|06|07|09)\d{7}$/'])
+                            ->placeholder('5XXXXXXXX')
                             ->disabledOn('edit'),
                     ]),
                 Hidden::make('technician_number'),

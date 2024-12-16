@@ -86,6 +86,26 @@ class CreateFacilityManager extends CreateRecord
                         Log::error('Error creating document:', ['error' => $e->getMessage()]);
                     }
                 }
+                if (isset($data['tl_expiry'])) {
+                try {
+                    $documentData = [
+                        'name'                 => 'tl_document',
+                        'document_library_id'  => DocumentLibrary::where('name', 'TL document')->first()->id,
+                        'owner_association_id' => auth()->user()->owner_association_id,
+                        'status'               => 'pending',
+                        'documentable_id'      => $vendor->id,
+                        'documentable_type'    => Vendor::class,
+                        'expiry_date'          => $data['tl_expiry'],
+                    ];
+                    Log::info('Creating document with data:', $documentData);
+
+                    Document::create($documentData);
+                    Log::info('Document created successfully');
+                } catch (\Exception $e) {
+                    Log::error('Error creating document:', ['error' => $e->getMessage()]);
+                }
+            }
+
 
                 $oa_vendorData = [
                     'owner_association_id' => auth()->user()->owner_association_id,

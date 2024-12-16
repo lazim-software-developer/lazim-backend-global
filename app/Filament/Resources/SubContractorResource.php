@@ -50,31 +50,31 @@ class SubContractorResource extends Resource
                     ->required()
                     ->label('Contract End Date'),
                 FileUpload::make('trade_licence')
-                    ->required()
                     ->disk('s3')
                     ->directory('dev')
-                    ->disabled()
+                    ->disabled(fn ($context) => $context === 'view')
                     ->downloadable(true)
-                    ->openable(true),
+                    ->openable(true)
+                    ->required(fn ($context) => $context !== 'view'),
                 FileUpload::make('contract_paper')
-                    ->required()
                     ->disk('s3')
                     ->directory('dev')
-                    ->disabled()
+                    ->disabled(fn ($context) => $context === 'view')
                     ->downloadable(true)
-                    ->openable(true),
+                    ->openable(true)
+                    ->required(fn ($context) => $context !== 'view'),
                 FileUpload::make('agreement_letter')
-                    ->required()
                     ->disk('s3')
                     ->directory('dev')
-                    ->disabled()
+                    ->disabled(fn ($context) => $context === 'view')
                     ->downloadable(true)
-                    ->openable(true),
+                    ->openable(true)
+                    ->required(fn ($context) => $context !== 'view'),
                 FileUpload::make('additional_doc')
                     ->disk('s3')
                     ->label('Additional Documents')
                     ->directory('dev')
-                    ->disabled()
+                    ->disabled(fn ($context) => $context === 'view')
                     ->downloadable(true)
                     ->openable(true),
 

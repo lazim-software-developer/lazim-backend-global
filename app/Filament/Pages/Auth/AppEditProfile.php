@@ -85,6 +85,17 @@ class AppEditProfile extends BaseEditProfile
                                     ->disabled()
                                     ->prefix('971')
                                     ->placeholder('Phone'),
+
+                                FileUpload::make('profile_photo')
+                                    ->disk('s3')
+                                    ->directory('dev')
+                                    ->image()
+                                    ->openable(true)
+                                    ->downloadable(true)
+                                    ->maxSize(2048)
+                                    ->rules('file|mimes:jpeg,jpg,png|max:2048')
+                                    ->label('Profile Photo')
+                                    ->columnSpanFull(),
                             ])->columns(1),
 
                         Section::make('Company Information')

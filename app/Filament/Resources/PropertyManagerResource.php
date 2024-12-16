@@ -50,6 +50,10 @@ class PropertyManagerResource extends Resource
                             ->label('TRN Number')
                             ->disabledOn('edit')
                             ->required()
+                            ->unique('owner_associations', 'trn_number', fn(?Model $record) => $record)
+                            ->validationMessages([
+                                'unique' => 'TRN number already exists.',
+                            ])
                             ->placeholder('Enter TRN number'),
 
                         TextInput::make('trade_license_number')
@@ -104,7 +108,11 @@ class PropertyManagerResource extends Resource
                     ->schema([
                         TextInput::make('bank_account_number')
                             ->label('Bank Account Number')
-                            ->numeric()
+                            ->maxLength(23)
+                            ->minLength(0)
+                            ->validationMessages([
+                                'maxLength' => 'Bank account number should not exceed 23 characters.',
+                            ])
                             ->reactive()
                             ->disabled(function (?Model $record) {
                                 return $record && $record->bank_account_number;
@@ -113,6 +121,7 @@ class PropertyManagerResource extends Resource
                         TextInput::make('bank_account_holder_name')
                             ->label('Bank Account holder name')
                             ->reactive()
+                            ->maxLength(100)
                             ->placeholder('Enter bank account holder name'),
                     ])->columns(2),
 
