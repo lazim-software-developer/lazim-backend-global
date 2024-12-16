@@ -84,6 +84,7 @@ class AppPanelProvider extends PanelProvider
                     if ($user && $companyLogo) {
                         return Storage::disk('s3')->url($companyLogo);
                     }
+                    return asset('images/logo.png');
                 }
                 return asset('images/logo.png');
             })
