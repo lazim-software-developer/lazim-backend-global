@@ -32,8 +32,15 @@ class ListFlatTenants extends ListRecords
             ->where('owner_association_id', auth()->user()?->owner_association_id)
             ->where('active', true)
             ->pluck('building_id');
+
+        $approvedResidents = DB::table('user_approvals')
+            ->where('status', 'approved')
+            ->pluck('user_id')
+            ->toArray();
+
         if (auth()->user()?->role?->name === 'Property Manager') {
-            return parent::getTableQuery()->whereIn('building_id', $pmbuildingIds);
+            return parent::getTableQuery()->whereIn('building_id', $pmbuildingIds)
+                ->whereIn('tenant_id', $approvedResidents);
         }
 
         if ($userRoleName == 'Admin') {
