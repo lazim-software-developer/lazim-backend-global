@@ -79,7 +79,7 @@ class EditUserApproval extends EditRecord
             Notification::make()
                 ->title("Resident Rejected")
                 ->danger()
-                ->body("Resident has been rejacted")
+                ->body("Resident has been rejected")
                 ->send();
         }
         if($this->record->status == null){
