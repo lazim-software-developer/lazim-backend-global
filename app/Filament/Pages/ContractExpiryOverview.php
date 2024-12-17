@@ -84,6 +84,7 @@ class ContractExpiryOverview extends Page implements HasTable
 
         return $table
             ->query($tabGroups[$activeTab]['query'])
+            ->emptyStateHeading('No expiring contracts')
             ->columns([
                 TextColumn::make('user.first_name')
                     ->label('Resident Name')
