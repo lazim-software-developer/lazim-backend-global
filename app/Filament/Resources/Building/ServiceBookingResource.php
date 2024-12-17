@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Building;
 use App\Filament\Resources\Building\ServiceBookingResource\Pages;
 use App\Models\Building\Building;
 use App\Models\Building\FacilityBooking;
+use App\Models\Building\FlatTenant;
 use App\Models\Master\Role;
 use App\Models\User\User;
 use Filament\Forms\Components\DatePicker;
@@ -61,12 +62,29 @@ class ServiceBookingResource extends Resource
                                 }
 
                             })
+                            ->afterStateUpdated(fn(callable $set) => $set('flat_id', null))
                             ->reactive()
                             ->required()
                             ->preload()
                             ->disabledOn('edit')
                             ->searchable()
                             ->placeholder('Building'),
+
+                        Select::make('flat_id')
+                            ->native(false)
+                            ->required()
+                            ->disabledOn('edit')
+                            ->reactive()
+                            ->afterStateUpdated(fn(callable $set) => $set('user_id', null))
+                            ->placeholder('Select Flat')
+                            ->relationship('building.flats', 'property_number')
+                            ->label('Flat')
+                            ->options(function (callable $get) {
+                                return DB::table('flats')
+                                    ->where('building_id', $get('building_id'))
+                                    ->pluck('property_number', 'id');
+                            })
+                            ->preload(),
 
                         Select::make('bookable_id')
                             ->options(
@@ -89,32 +107,52 @@ class ServiceBookingResource extends Resource
                             ->rules(['exists:users,id'])
                             ->required()
                             ->relationship('user', 'first_name')
-                            ->options(function () {
+                            ->options(function (callable $get) {
                                 $roleId = Role::whereIn('name', ['tenant', 'owner'])->pluck('id')->toArray();
 
                                 if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
                                     return User::whereIn('role_id', $roleId)->pluck('first_name', 'id');
                                 } else {
-                                    return User::whereIn('role_id', $roleId)->where('owner_association_id', auth()->user()?->owner_association_id)->pluck('first_name', 'id');
+                                    $flatId    = $get('flat_id');
+                                    $residents = FlatTenant::where('flat_id', $flatId)
+                                        ->where('active', true)
+                                        ->get()
+                                        ->map(function ($tenant) {
+                                            $role            = $tenant->role;
+                                            $roleDescription = $role == 'Owner' ? 'Owner' : 'Tenant';
+                                            return [
+                                                'id'   => $tenant->tenant_id,
+                                                'name' => $tenant->user->first_name . ' (' . $roleDescription . ')',
+                                            ];
+                                        });
+                                    return $residents->pluck('name', 'id')->toArray();
                                 }
                             })
                             ->searchable()
                             ->disabledOn('edit')
                             ->preload()
                             ->placeholder('User'),
-                        DatePicker::make('date')
-                            ->rules(['date'])
-                            ->required()
-                            ->disabledOn('edit')
-                            ->placeholder('Date'),
-                        TimePicker::make('start_time')
-                            ->required()
-                            ->disabledOn('edit')
-                            ->placeholder('Start Time'),
-                        TimePicker::make('end_time')
-                            ->default('NA')
-                            ->disabledOn('edit')
-                            ->placeholder('End Time'),
+
+                        Grid::make([
+                            'sm' => 2,
+                            'md' => 3,
+                            'lg' => 3,
+                        ])
+                            ->schema([
+                                DatePicker::make('date')
+                                    ->rules(['date'])
+                                    ->required()
+                                    ->disabledOn('edit')
+                                    ->placeholder('Date'),
+                                TimePicker::make('start_time')
+                                    ->required()
+                                    ->disabledOn('edit')
+                                    ->placeholder('Start Time'),
+                                TimePicker::make('end_time')
+                                    ->default('NA')
+                                    ->disabledOn('edit')
+                                    ->placeholder('End Time'),
+                            ]),
                         // TextInput::make('remarks')
                         //     ->default('NA')
                         //     ->disabledOn('edit')
