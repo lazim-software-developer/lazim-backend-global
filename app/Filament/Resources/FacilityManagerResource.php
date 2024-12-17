@@ -16,7 +16,6 @@ use App\Models\User\User;
 use App\Models\Vendor\Vendor;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -54,10 +53,7 @@ class FacilityManagerResource extends Resource
                                         TextInput::make('owner_association_id')
                                             ->label('Property Manager')
                                             ->hidden()
-                                            ->default(function () {
-                                                $pmId = auth()->user()->owner_association_id;
-                                                return OwnerAssociation::where('id', $pmId)->pluck('name', 'id')->first();
-                                            })
+                                            ->default(fn() => OwnerAssociation::where('id', auth()->user()->owner_association_id)->pluck('name', 'id')->first())
                                             ->disabled(),
                                         TextInput::make('name')
                                             ->label('Company Name')
@@ -68,11 +64,7 @@ class FacilityManagerResource extends Resource
                                             ->label('Email Address')
                                             ->email()
                                             ->required()
-                                            ->unique(
-                                                table: User::class,
-                                                column: 'email',
-                                                ignorable: fn($record) => $record?->user
-                                            )
+                                            ->unique(User::class, 'email', ignorable: fn($record) => $record?->user)
                                             ->disabledOn('edit')
                                             ->placeholder('company@example.com'),
                                         TextInput::make('user.phone')
@@ -80,11 +72,7 @@ class FacilityManagerResource extends Resource
                                             ->tel()
                                             ->required()
                                             ->prefix('+971')
-                                            ->unique(
-                                                table: User::class,
-                                                column: 'phone',
-                                                ignorable: fn($record) => $record?->user
-                                            )
+                                            ->unique(User::class, 'phone', ignorable: fn($record) => $record?->user)
                                             ->disabledOn('edit')
                                             ->placeholder('5XXXXXXXX'),
                                     ]),
@@ -95,7 +83,6 @@ class FacilityManagerResource extends Resource
                             ->icon('heroicon-o-building-office')
                             ->collapsible()
                             ->schema([
-
                                 Grid::make(2)
                                     ->schema([
                                         TextInput::make('landline_number')
@@ -107,8 +94,6 @@ class FacilityManagerResource extends Resource
                                             ->required()
                                             ->numeric()
                                             ->unique(Vendor::class, 'tl_number', ignoreRecord: true),
-                                        // TextInput::make('fax')
-                                        //     ->label('Fax Number'),
                                     ]),
                                 TextInput::make('address_line_1')
                                     ->label('Company Address')
@@ -118,7 +103,6 @@ class FacilityManagerResource extends Resource
                                     ->label('Website')
                                     ->url()
                                     ->placeholder('https://example.com'),
-
                                 Grid::make(2)
                                     ->schema([
                                         DatePicker::make('tl_expiry')
@@ -143,6 +127,7 @@ class FacilityManagerResource extends Resource
                                     ->live()
                                     ->searchable()
                                     ->required()
+                                    ->multiple()
                                     ->placeholder('Select Sub-Category')
                                     ->label('Sub Category')
                                     ->preload()
@@ -153,14 +138,10 @@ class FacilityManagerResource extends Resource
                                     ->preload()
                                     ->required()
                                     ->searchable()
-                                    ->options(function (callable $get) {
-                                        return Service::where('type', 'vendor_service')
-                                            ->where('subcategory_id', $get('subcategory_id'))->pluck('name', 'id');
-                                    })
+                                    ->multiple()
+                                    ->options(fn(callable $get) => Service::where('type', 'vendor_service')->whereIn('subcategory_id', $get('subcategory_id'))->pluck('name', 'id'))
                                     ->placeholder('Select Service'),
-
                             ]),
-
                     ]),
 
                 Section::make('Manager Information')
@@ -175,30 +156,20 @@ class FacilityManagerResource extends Resource
                                     ->label('Manager Name')
                                     ->placeholder('Full name')
                                     ->live()
-                                    ->required(function ($get) {
-                                        return !empty($get('managers.0.email')) ||
-                                        !empty($get('managers.0.phone'));
-                                    }),
+                                    ->required(fn($get) => !empty($get('managers.0.email')) || !empty($get('managers.0.phone'))),
                                 TextInput::make('managers.0.email')
                                     ->label('Manager Email')
                                     ->email()
                                     ->placeholder('manager@company.com')
                                     ->live()
-                                    ->required(function ($get) {
-                                        return !empty($get('managers.0.name')) ||
-                                        !empty($get('managers.0.phone'));
-                                    }),
+                                    ->required(fn($get) => !empty($get('managers.0.name')) || !empty($get('managers.0.phone'))),
                                 TextInput::make('managers.0.phone')
                                     ->label('Manager Phone')
                                     ->tel()
                                     ->placeholder('5XXXXXXXX')
                                     ->live()
-                                    ->required(function ($get) {
-                                        return !empty($get('managers.0.name')) ||
-                                        !empty($get('managers.0.email'));
-                                    }),
+                                    ->required(fn($get) => !empty($get('managers.0.name')) || !empty($get('managers.0.email'))),
                             ]),
-
                     ]),
 
                 Section::make('Approval Status')
@@ -214,33 +185,28 @@ class FacilityManagerResource extends Resource
                             ])
                             ->live()
                             ->visibleOn('edit'),
-
                         Textarea::make('remarks')
                             ->maxLength(250)
                             ->rows(5)
                             ->required()
-                            ->visible(function (callable $get) {
-                                return $get('status') === 'rejected';
-                            }),
+                            ->visible(fn(callable $get) => $get('status') === 'rejected'),
                     ])
                     ->visibleOn('edit')
                     ->afterStateUpdated(function ($state, $livewire) {
-                        $user     = $livewire->record->user;
-                        $email    = $user->email;
-                        $password = Str::random(12);
-                        $pm_oa = auth()->user()?->first_name ?? '';
+                        if ($livewire->record) {
+                            $user     = $livewire->record->user;
+                            $email    = $user->email;
+                            $password = Str::random(12);
+                            $pm_oa    = auth()->user()?->first_name ?? '';
 
-                        if ($state['status'] === 'rejected' && !empty($state['remarks'])) {
-                            // Log the remarks before dispatching
-                            \Log::info('Remarks before dispatch:', ['remarks' => $state['remarks']]);
-                            RejectedFMJob::dispatch($user, $password, $email, $state['remarks'], $pm_oa);
-                        } elseif ($state['status'] === 'approved') {
-                            // Update user password
-                            $user->password = Hash::make($password);
-                            $user->save();
-
-                            // Dispatch approved email job
-                            ApprovedFMJob::dispatch($user, $password, $email, $pm_oa);
+                            if ($state['status'] === 'rejected' && !empty($state['remarks'])) {
+                                \Log::info('Remarks before dispatch:', ['remarks' => $state['remarks']]);
+                                RejectedFMJob::dispatch($user, $password, $email, $state['remarks'], $pm_oa);
+                            } elseif ($state['status'] === 'approved') {
+                                $user->password = Hash::make($password);
+                                $user->save();
+                                ApprovedFMJob::dispatch($user, $password, $email, $pm_oa);
+                            }
                         }
                     }),
             ]);
@@ -249,9 +215,7 @@ class FacilityManagerResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(function (Builder $query) {
-                $query->where('owner_association_id', auth()->user()->ownerAssociation[0]->id);
-            })
+            ->modifyQueryUsing(fn(Builder $query) => $query->where('owner_association_id', auth()->user()->ownerAssociation[0]->id))
             ->columns([
                 Tables\Columns\TextColumn::make('name')
                     ->label('Company Name')
@@ -290,15 +254,10 @@ class FacilityManagerResource extends Resource
                     ]),
             ])
             ->actions([
-                Tables\Actions\EditAction::make()
-                    ->iconButton(),
-                // Tables\Actions\DeleteAction::make()
-                //     ->iconButton(),
+                Tables\Actions\EditAction::make()->iconButton(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    // Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                Tables\Actions\BulkActionGroup::make([]),
             ]);
     }
 
@@ -308,7 +267,6 @@ class FacilityManagerResource extends Resource
             DocumentsRelationManager::class,
             BuildingsRelationManager::class,
             ComplianceDocumentsRelationManager::class,
-            // ServicesRelationManager::class,
             EscalationMatrixRelationManager::class,
         ];
     }

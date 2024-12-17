@@ -15,12 +15,13 @@ class CreateFacilitySupportComplaint extends CreateRecord
     protected function mutateFormDataBeforeCreate(array $data): array
     {
         $serviceName = Service::where('id', $data['service_id'])->value('name');
+        $userId = FlatTenant::where('flat_id', $data['flat_id'])->pluck('tenant_id')->first();
 
         $data['priority']             = 3;
         $data['status']               = 'open';
         $data['complaintable_type']   = FlatTenant::class;
         $data['complaintable_id']     = auth()->user()->id;
-        $data['user_id']              = auth()->user()->id;
+        $data['user_id']              = $userId ?? auth()->user()->id;
         $data['owner_association_id'] = auth()->user()->owner_association_id;
         $data['category']             = $serviceName;
         $data['ticket_number']        = generate_ticket_number("CP");
