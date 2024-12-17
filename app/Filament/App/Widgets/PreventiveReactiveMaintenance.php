@@ -63,10 +63,14 @@ class PreventiveReactiveMaintenance extends BaseWidget
                     ->form([
                         Select::make('flat_id')
                             ->label('Flat')
-                            ->options(Flat::where('owner_association_id', auth()->user()->owner_association_id)
-                                    ->pluck('property_number', 'id')
-                            )
-                            ->placeholder('Select Flat'),
+                            ->native(false)
+                            ->options(function () {
+                                $flats = Flat::where('owner_association_id', auth()->user()->owner_association_id)
+                                    ->pluck('property_number', 'id');
+                                return $flats->isNotEmpty() ? $flats : ['' => 'No flats found'];
+                            })
+                            ->placeholder('Select Flat')
+                            ->disablePlaceholderSelection(),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         return $query
