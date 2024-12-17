@@ -18,6 +18,10 @@ class CreateService extends CreateRecord
                     'custom'=>0
                 ]);
 
+    }
 
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
     }
 }

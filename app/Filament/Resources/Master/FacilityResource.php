@@ -56,10 +56,12 @@ class FacilityResource extends Resource
                         Toggle::make('active')
                             ->label('Active')
                             ->default(1)
+                            ->inline(false)
                             ->rules(['boolean']),
                         FileUpload::make('icon')
                             ->acceptedFileTypes(['image/jpeg', 'image/png'])
                             ->disk('s3')
+                            ->columnSpanFull()
                             ->directory('dev')
                             ->required()
                             ->maxSize(2048),
