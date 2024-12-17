@@ -30,7 +30,6 @@ class CreateFacilityManager extends CreateRecord
             return DB::transaction(function () use ($data) {
                 Log::info('Starting transaction with data:', $data);
 
-                // 1. Create User
                 $password = Str::random(12);
                 $userData = [
                     'first_name'           => $data['name'],
@@ -48,7 +47,6 @@ class CreateFacilityManager extends CreateRecord
                 $user = User::create($userData);
                 Log::info('User created successfully:', ['user_id' => $user->id]);
 
-                // 2. Create Vendor
                 $vendorData = [
                     'name'                 => $data['name'],
                     'owner_id'             => $user->id,
@@ -56,8 +54,7 @@ class CreateFacilityManager extends CreateRecord
                     'address_line_1'       => $data['address_line_1'],
                     'landline_number'      => $data['landline_number'] ?? null,
                     'website'              => $data['website'] ?? null,
-                    'fax'                  =>  null,
-                    // 'status'               => 'approved',
+                    'fax'                  => null,
                     'tl_number'            => $data['tl_number'],
                     'tl_expiry'            => $data['tl_expiry'],
                 ];
@@ -66,7 +63,6 @@ class CreateFacilityManager extends CreateRecord
                 $vendor = Vendor::create($vendorData);
                 Log::info('Vendor created successfully:', ['vendor_id' => $vendor->id]);
 
-                // 3. Create Risk Policy Document
                 if (isset($data['risk_policy_expiry'])) {
                     try {
                         $documentData = [
@@ -87,54 +83,54 @@ class CreateFacilityManager extends CreateRecord
                     }
                 }
                 if (isset($data['tl_expiry'])) {
-                try {
-                    $documentData = [
-                        'name'                 => 'tl_document',
-                        'document_library_id'  => DocumentLibrary::where('name', 'TL document')->first()->id,
-                        'owner_association_id' => auth()->user()->owner_association_id,
-                        'status'               => 'pending',
-                        'documentable_id'      => $vendor->id,
-                        'documentable_type'    => Vendor::class,
-                        'expiry_date'          => $data['tl_expiry'],
-                    ];
-                    Log::info('Creating document with data:', $documentData);
+                    try {
+                        $documentData = [
+                            'name'                 => 'tl_document',
+                            'document_library_id'  => DocumentLibrary::where('name', 'TL document')->first()->id,
+                            'owner_association_id' => auth()->user()->owner_association_id,
+                            'status'               => 'pending',
+                            'documentable_id'      => $vendor->id,
+                            'documentable_type'    => Vendor::class,
+                            'expiry_date'          => $data['tl_expiry'],
+                        ];
+                        Log::info('Creating document with data:', $documentData);
 
-                    Document::create($documentData);
-                    Log::info('Document created successfully');
-                } catch (\Exception $e) {
-                    Log::error('Error creating document:', ['error' => $e->getMessage()]);
+                        Document::create($documentData);
+                        Log::info('Document created successfully');
+                    } catch (\Exception $e) {
+                        Log::error('Error creating document:', ['error' => $e->getMessage()]);
+                    }
                 }
-            }
-
 
                 $oa_vendorData = [
                     'owner_association_id' => auth()->user()->owner_association_id,
                     'vendor_id'            => $vendor->id,
                     'from'                 => $user->created_at,
                     'active'               => true,
-                    // 'status'               => 'approved',
                     'type'                 => 'Vendor',
                 ];
 
                 DB::table('owner_association_vendor')->insert($oa_vendorData);
                 Log::info('Owner association vendor record created successfully');
 
-                $serviceData = [
-                    'service_id'           => $data['service_id'],
-                    'vendor_id'            => $vendor->id,
-                    'price'                => null,
-                    'start_date'           => null,
-                    'end_date'             => null,
-                    'active'               => true,
-                    'building_id'          => null,
-                    'contract_id'          => null,
-                    'owner_association_id' => auth()->user()->owner_association_id,
+                if (!empty($data['service_id'])) {
+                    foreach ($data['service_id'] as $serviceId) {
+                        $serviceData = [
+                            'service_id'           => $serviceId,
+                            'vendor_id'            => $vendor->id,
+                            'price'                => null,
+                            'start_date'           => null,
+                            'end_date'             => null,
+                            'active'               => true,
+                            'building_id'          => null,
+                            'contract_id'          => null,
+                            'owner_association_id' => auth()->user()->owner_association_id,
+                        ];
 
-                ];
+                        ServiceVendor::create($serviceData);
+                    }
+                }
 
-                ServiceVendor::create($serviceData);
-
-                // 4. Create VendorManager if data provided
                 if (!empty($data['managers'][0]['name'] ?? null) && !empty($data['managers'][0]['email'] ?? null)) {
                     try {
                         $managerData = [
@@ -149,17 +145,14 @@ class CreateFacilityManager extends CreateRecord
                         Log::info('Vendor manager created successfully');
                     } catch (\Exception $e) {
                         Log::error('Error creating vendor manager:', ['error' => $e->getMessage()]);
-                        // Don't throw the error, just log it
                     }
                 }
 
-                // 5. Dispatch job for sending credentials
                 try {
                     FacilityManagerJob::dispatch($user, $password);
                     Log::info('FacilityManagerJob dispatched successfully');
                 } catch (\Exception $e) {
                     Log::error('Error dispatching FacilityManagerJob:', ['error' => $e->getMessage()]);
-                    // Don't throw the error, just log it
                 }
 
                 return $vendor;
