@@ -2,13 +2,11 @@
 
 namespace App\Filament\Resources\FacilityBookingResource\Pages;
 
-use Filament\Actions;
+use App\Filament\Resources\FacilityBookingResource;
 use App\Models\Master\Role;
-use App\Models\Building\Building;
-use Illuminate\Support\Facades\DB;
 use Filament\Resources\Pages\ListRecords;
 use Illuminate\Database\Eloquent\Builder;
-use App\Filament\Resources\FacilityBookingResource;
+use Illuminate\Support\Facades\DB;
 
 class ListFacilityBookings extends ListRecords
 {
@@ -31,6 +29,9 @@ class ListFacilityBookings extends ListRecords
             return parent::getTableQuery()
                 ->where('bookable_type', 'App\Models\WorkPermit')->whereIn('building_id', $buildings);
         }
-        return parent::getTableQuery()->where('bookable_type', 'App\Models\WorkPermit');
+        return parent::getTableQuery()
+            ->where('bookable_type', 'App\Models\WorkPermit')
+            ->latest()
+            ->first();
     }
 }
