@@ -62,7 +62,8 @@ class OwnerAssociationResource extends Resource
                                     'max:30',
                                 ])
                                 ->validationMessages([
-                                    'regex' => 'Slug format is Invalid. It can only accept Lowercase letters, Numbers and hyphen',
+                                    'regex' => 'Slug format is Invalid.
+                                     It can only accept Lowercase letters, Numbers and hyphen',
                                 ])
                                 ->unique('owner_associations', 'slug', ignoreRecord: true)
                                 ->disabled(function () {
@@ -85,13 +86,21 @@ class OwnerAssociationResource extends Resource
                                     'regex:/^\+?(971)(50|51|52|55|56|58|02|03|04|06|07|09)\d{7}$/',
                                     function (Model $record) {
                                         return function (string $attribute, $value, Closure $fail) use ($record) {
-                                            if (DB::table('owner_associations')->whereNot('id', $record->id)->where('phone', $value)->count() > 0) {
+                                            if (DB::table('owner_associations')
+                                                ->whereNot('id', $record->id)
+                                                ->where('phone', $value)->count() > 0) {
                                                 $fail('The phone is already taken by an OA.');
                                             }
-                                            if (DB::table('owner_associations')->where('id', $record->id)->where('verified', 1)->count() > 0) {
-                                                $role_id      = Role::where('owner_association_id', $record->id)->where('name', 'OA')->first();
-                                                $getuserecord = User::where('owner_association_id', $record->id)->where('role_id', $role_id?->id)->first()?->id;
-                                                if (DB::table('users')->whereNot('id', $getuserecord)->where('phone', $value)->exists()) {
+                                            if (DB::table('owner_associations')
+                                                ->where('id', $record->id)
+                                                ->where('verified', 1)->count() > 0) {
+                                                $role_id = Role::where('owner_association_id', $record->id)
+                                                    ->where('name', 'OA')->first();
+                                                $getuserecord = User::where('owner_association_id', $record->id)
+                                                    ->where('role_id', $role_id?->id)->first()?->id;
+                                                if (DB::table('users')
+                                                    ->whereNot('id', $getuserecord)
+                                                    ->where('phone', $value)->exists()) {
                                                     $fail('The phone is already taken by a user.');
                                                 }
                                             } else {
@@ -127,13 +136,21 @@ class OwnerAssociationResource extends Resource
                                     'min:6', 'max:30', 'regex:/^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/',
                                     function (Model $record) {
                                         return function (string $attribute, $value, Closure $fail) use ($record) {
-                                            if (DB::table('owner_associations')->whereNot('id', $record->id)->where('email', $value)->count() > 0) {
+                                            if (DB::table('owner_associations')
+                                                ->whereNot('id', $record->id)
+                                                ->where('email', $value)->count() > 0) {
                                                 $fail('The email is already taken by an OA.');
                                             }
-                                            if (DB::table('owner_associations')->where('id', $record->id)->where('verified', 1)->count() > 0) {
-                                                $role_id      = Role::where('owner_association_id', $record->id)->where('name', 'OA')->first();
-                                                $getuserecord = User::where('owner_association_id', $record->id)->where('role_id', $role_id?->id)->first()?->id;
-                                                if (DB::table('users')->whereNot('id', $getuserecord)->where('email', $value)->exists()) {
+                                            if (DB::table('owner_associations')
+                                                ->where('id', $record->id)
+                                                ->where('verified', 1)->count() > 0) {
+                                                $role_id = Role::where('owner_association_id', $record->id)
+                                                    ->where('name', 'OA')->first();
+                                                $getuserecord = User::where('owner_association_id', $record->id)
+                                                    ->where('role_id', $role_id?->id)->first()?->id;
+                                                if (DB::table('users')
+                                                    ->whereNot('id', $getuserecord)
+                                                    ->where('email', $value)->exists()) {
                                                     $fail('The email is already taken by a USER.');
                                                 }
                                             } else {
