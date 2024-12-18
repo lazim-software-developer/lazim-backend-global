@@ -76,21 +76,18 @@ class UserApprovalResource extends Resource
                     ->directory('dev')
                     ->openable(true)
                     ->downloadable(true)
-                    ->required()
                     ->disabled(),
                 FileUpload::make('emirates_document')
                     ->disk('s3')
                     ->directory('dev')
                     ->openable(true)
                     ->downloadable(true)
-                    ->required()
                     ->disabled(),
                 FileUpload::make('passport')
                     ->disk('s3')
                     ->directory('dev')
                     ->openable(true)
                     ->downloadable(true)
-                    ->required()
                     ->disabled(),
             ])
             ->columns(3),
