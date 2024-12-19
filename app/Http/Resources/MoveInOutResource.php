@@ -44,6 +44,7 @@ class MoveInOutResource extends JsonResource
             'cooling_clearance'    => $this->cooling_clearance ? env('AWS_URL') . '/' . $this->cooling_clearance : null,
             'gas_clearance'        => $this->gas_clearance ? env('AWS_URL') . '/' . $this->gas_clearance : null,
             'dewa_final'           => $this->dewa_final ? env('AWS_URL') . '/' . $this->dewa_final : null,
+            'etisalat_final'       => $this->etisalat_final ? env('AWS_URL') . '/' . $this->etisalat_final : null,
         ];
     }
 }
