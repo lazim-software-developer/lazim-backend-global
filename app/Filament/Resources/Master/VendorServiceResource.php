@@ -99,16 +99,10 @@ class VendorServiceResource extends Resource
                             //         ]),
                             // ])
                             ,
-                            Grid::make([
-                                'sm' => 1,
-                                'md' => 2,
-                                'lg' => 2,
-                            ])->schema([
-                                Toggle::make('active')
-                                    ->label('Active')
-                                    ->default(1)
-                                    ->rules(['boolean']),
-                            ]),
+                        Toggle::make('active')
+                            ->label('Active')
+                            ->default(1)
+                            ->rules(['boolean']),
 
                     ]),
             ]);
