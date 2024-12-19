@@ -346,11 +346,12 @@ class BuildingResource extends Resource
                     ->limit(50),
                 Tables\Columns\TextColumn::make('building_type')
                     ->label('Type')
+                    ->default('--')
                     ->formatStateUsing(function ($state) {
                         return match ($state) {
                             'commercial'  => 'Commercial',
                             'residential' => 'Residential',
-                            default       => 'NA',
+                            default       => '--',
                         };
                     }),
                 Tables\Columns\TextColumn::make('property_group_id')

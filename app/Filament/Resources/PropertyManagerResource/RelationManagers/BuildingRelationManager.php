@@ -47,9 +47,11 @@ class BuildingRelationManager extends RelationManager
             ->columns([
                 Tables\Columns\TextColumn::make('name')->label('Building Name')
                     ->default('NA')->searchable(),
-                Tables\Columns\TextColumn::make('from')->label('From')
+                Tables\Columns\TextColumn::make('from')->label('Contract Start Date')
                     ->default('NA')->searchable(),
-                Tables\Columns\TextColumn::make('to')->searchable(),
+                Tables\Columns\TextColumn::make('to')
+                    ->label('Contract End Date')
+                    ->searchable(),
             ])
             ->headerActions([
                 Action::make('Attach Building')
@@ -208,6 +210,7 @@ class BuildingRelationManager extends RelationManager
                         Grid::make(2)->schema([
                             DatePicker::make('from')
                                 ->required()
+                                ->label('Contract Start Date')
                                 ->default(Carbon::now()->format('Y-m-d'))
                                 ->afterStateUpdated(function (Set $set) {
                                     $set('to', null);
@@ -216,6 +219,7 @@ class BuildingRelationManager extends RelationManager
                             DatePicker::make('to')
                                 ->after('from')
                                 ->required()
+                                ->label('Contract End Date')
                                 ->validationMessages([
                                     'after' => 'The "to" date must be after the "from" date.',
                                 ]),
@@ -255,7 +259,7 @@ class BuildingRelationManager extends RelationManager
 
                         // Check if building has any flats and flat_tenants before activation
                         $hasFlatsWithTenants = DB::table('flats')
-                            ->where('flats.building_id', $buildingId)  // Specify the table name
+                            ->where('flats.building_id', $buildingId) // Specify the table name
                             ->join('flat_tenants', 'flats.id', '=', 'flat_tenants.flat_id')
                             ->exists();
 
