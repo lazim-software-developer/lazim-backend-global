@@ -4,20 +4,21 @@ namespace App\Filament\Resources\UserApprovalResource\Pages;
 
 use Filament\Actions;
 use App\Models\User\User;
+use App\Models\Master\Role;
 use Illuminate\Support\Str;
+use App\Models\UserApproval;
+use App\Jobs\Residentapproval;
+use Filament\Facades\Filament;
+use App\Jobs\ResidentRejection;
 use App\Jobs\AccountsManagerJob;
+use App\Models\OwnerAssociation;
+use App\Models\UserApprovalAudit;
+use App\Models\AccountCredentials;
+use App\Models\Building\FlatTenant;
 use Illuminate\Support\Facades\Hash;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
 use App\Filament\Resources\UserApprovalResource;
-use App\Jobs\Residentapproval;
-use App\Jobs\ResidentRejection;
-use App\Models\AccountCredentials;
-use App\Models\Master\Role;
-use App\Models\OwnerAssociation;
-use App\Models\UserApproval;
-use App\Models\UserApprovalAudit;
-use Filament\Facades\Filament;
 
 class EditUserApproval extends EditRecord
 {
@@ -67,6 +68,7 @@ class EditUserApproval extends EditRecord
         if ($this->data['status'] == 'approved' && $this->record->status == null) {
             $user->active = true;
             $user->save();
+            FlatTenant::where(['user_id'=>$user->id,'flat_id'=>$this->record->flat_id,'active'=>false])->latest()->first()?->update(['active'=>true]);
             Residentapproval::dispatch($user, $mailCredentials,$pm_oa);
             Notification::make()
                 ->title("Resident Approved")
