@@ -48,8 +48,18 @@ class PropertyManagerBuildingsImport implements ToCollection, WithHeadingRow
      */
     public function collection(Collection $rows)
     {
-        // Define the expected headings
-        $expectedHeadings = ['name', 'building_type', 'property_group_id', 'address_line1', 'area', 'floors', 'parking_count', 'from', 'to'];
+        // Update expected headings to match BuildingImport
+        $expectedHeadings = [
+            'name',
+            'building_type',
+            'property_group_id',
+            'address_line1',
+            'area',
+            'floors',
+            'parking_count',
+            'contract_start_date',
+            'contract_end_date',
+        ];
 
         if ($rows->first() == null) {
             Notification::make()
@@ -84,56 +94,75 @@ class PropertyManagerBuildingsImport implements ToCollection, WithHeadingRow
         }
 
         $notImported = [];
-        foreach ($rows as $row) {
-            // Check for required fields
-            $requiredFields = ['name', 'building_type', 'property_group_id', 'address_line1'];
-            $missingFields = [];
+        foreach ($rows as $index => $row) {
+            $errors = [];
 
-            foreach ($requiredFields as $field) {
-                if (empty($row[$field])) {
-                    $missingFields[] = $field;
+            // Basic required field validations
+            if (empty($row['name'])) {
+                $errors[] = 'Name is missing';
+            }
+            if (empty($row['property_group_id'])) {
+                $errors[] = 'Property Group ID is missing';
+            }
+            if (empty($row['address_line1'])) {
+                $errors[] = 'Address Line 1 is missing';
+            }
+
+            // Enhanced date validations with better error messages
+            if (empty($row['contract_start_date'])) {
+                $errors[] = 'Contract Start Date is required';
+            } elseif (!$this->convertExcelDate($row['contract_start_date'])) {
+                $errors[] = 'Invalid Contract Start Date format (use YYYY-MM-DD)';
+            }
+
+            if (empty($row['contract_end_date'])) {
+                $errors[] = 'Contract End Date is required';
+            } elseif (!$this->convertExcelDate($row['contract_end_date'])) {
+                $errors[] = 'Invalid Contract End Date format (use YYYY-MM-DD)';
+            }
+
+            // Only check date comparison if both dates are valid
+            if (!empty($row['contract_start_date']) &&
+                !empty($row['contract_end_date']) &&
+                $this->convertExcelDate($row['contract_start_date']) &&
+                $this->convertExcelDate($row['contract_end_date'])) {
+
+                $fromDate = $this->convertExcelDate($row['contract_start_date']);
+                $toDate = $this->convertExcelDate($row['contract_end_date']);
+
+                if ($toDate <= $fromDate) {
+                    $errors[] = 'Contract End Date must be after Contract Start Date';
                 }
             }
 
-            if (!empty($missingFields)) {
-                Notification::make()
-                    ->title("Missing required fields.")
-                    ->danger()
-                    ->body("Missing fields in row: " . implode(', ', $missingFields))
-                    ->send();
-                $notImported[] = $row['name'] ?? 'Unnamed Building';
+            // Other field validations
+            if (!empty($row['area']) && !is_numeric($row['area'])) {
+                $errors[] = 'Invalid Area format';
+            }
+            if (!empty($row['floors']) && !is_numeric($row['floors'])) {
+                $errors[] = 'Invalid Floors format';
+            }
+
+            // Duplicate checks
+            if (!empty($row['name']) && Building::where('name', $row['name'])->exists()) {
+                $errors[] = 'Building name already exists';
+            }
+            if (!empty($row['property_group_id']) && Building::where('property_group_id', $row['property_group_id'])->exists()) {
+                $errors[] = 'Property Group ID already exists';
+            }
+
+            if (!empty($errors)) {
+                $rowIdentifier = $row['name'] ?? 'Row #' . ($index + 2);
+                $notImported[] = "{$rowIdentifier}: " . implode(', ', $errors);
                 continue;
             }
 
-            // Check for unique property_group_id
-            $propertyGroupExists = Building::where('property_group_id', $row['property_group_id'])->exists();
-            if ($propertyGroupExists) {
-                Notification::make()
-                    ->title("Duplicate property_group_id.")
-                    ->danger()
-                    ->body("Building with property_group_id: {$row['property_group_id']} already exists.")
-                    ->send();
-                $notImported[] = $row['name'];
-                continue;
-            }
-
-            // Check for unique name
-            $nameExists = Building::where('name', $row['name'])->exists();
-            if ($nameExists) {
-                Notification::make()
-                    ->title("Duplicate name.")
-                    ->danger()
-                    ->body("Building with name: {$row['name']} already exists.")
-                    ->send();
-                $notImported[] = $row['name'];
-                continue;
-            }
-
-            $fromDate = $this->convertExcelDate($row['from']);
-            $toDate   = $this->convertExcelDate($row['to']);
+            // Create building if no errors
+            $fromDate = $this->convertExcelDate($row['contract_start_date']);
+            $toDate = $this->convertExcelDate($row['contract_end_date']);
 
             $building = Building::create([
-                'name'                  => $row['name'],
+                'name' => $row['name'],
                 'building_type'         => $row['building_type'],
                 'property_group_id'     => $row['property_group_id'],
                 'address_line1'         => $row['address_line1'],
@@ -158,12 +187,12 @@ class PropertyManagerBuildingsImport implements ToCollection, WithHeadingRow
         }
         if (!empty($notImported)) {
             Notification::make()
-                ->title("Could not import Buildings.")
-                ->body('Not imported Buildings' . implode(', ', $notImported))
+                ->title("Failed to import some buildings")
+                ->body(implode("\n", $notImported))
                 ->danger()
                 ->send();
 
-            return 'success';
+            return 'failure';
         } else {
             Notification::make()
                 ->title("Buildings imported successfully.")
