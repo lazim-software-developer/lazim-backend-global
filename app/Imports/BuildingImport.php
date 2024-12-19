@@ -112,12 +112,12 @@ class BuildingImport implements ToCollection, WithHeadingRow
                 continue;
             }
             if($nameExists){
-                $notImported[] =  'Property group ID '.'('.$row['name'] .')'. ' already exists';
+                $notImported[] = $row['name'] . ' already exists';
                 continue;
             }
 
             if ($exists) {
-                $notImported[] = $row['property_group_id'] . ' (already exists)';
+                $notImported[] = 'Property group ID ' . '(' . $row['property_group_id'] . ')' . ' already exists';
             } else {
                 $fromDate = $this->convertExcelDate($row['from']);
                 $toDate   = $this->convertExcelDate($row['to']);
