@@ -48,7 +48,8 @@ class Complaint extends Model
         'flat_id',
         'complaint_location',
         'ticket_number',
-        'type'
+        'type',
+        'selected_service',
     ];
 
     protected $searchableFields = ['*'];
