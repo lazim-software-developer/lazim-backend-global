@@ -95,6 +95,7 @@ class VendorComplaintController extends Controller
             'complaintable_id'     => $vendor->id,
             'user_id'              => $vendor->owner_id,
             'category'             => $categoryName,
+            'selected_service'     => $request->has('selected_service') ? $request->selected_service : null,
             'open_time'            => now(),
             'technician_id'        => TechnicianVendor::find($request->technician_id)->technician_id,
             'status'               => 'open',

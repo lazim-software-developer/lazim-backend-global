@@ -31,6 +31,7 @@ class Complaintresource extends JsonResource
             'building' => $this->building->name,
             'flat' => $this->flat?->property_number,
             'service_id' => $this->service?->id,
+            'selected_service' => $this->selected_service,
             'service' => $this->service?->name,
             'category' => $this->category,
             'remarks' => $this->remarks,
