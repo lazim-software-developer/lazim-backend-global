@@ -198,12 +198,7 @@ class PropertyManagerResource extends Resource
                             ->onIcon('heroicon-o-check-circle')
                             ->offIcon('heroicon-o-x-mark')
                             ->onColor('success')
-                            ->offColor('danger')
-                            ->afterStateUpdated(function (bool $state, $record) {
-                                if ($state === false) {
-                                    SendInactiveStatusJob::dispatch($record);
-                                }
-                            }),
+                            ->offColor('danger'),
 
                     ])
                     ->hidden(Role::where('id', auth()->user()->role_id)
