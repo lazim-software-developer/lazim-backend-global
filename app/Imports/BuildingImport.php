@@ -112,7 +112,7 @@ class BuildingImport implements ToCollection, WithHeadingRow
                 continue;
             }
             if($nameExists){
-                $notImported[] = $row['name'] . ' (already exists)';
+                $notImported[] =  'Property group ID '.'('.$row['name'] .')'. ' already exists';
                 continue;
             }
 
