@@ -156,19 +156,22 @@ class FacilityManagerResource extends Resource
                                     ->label('Manager Name')
                                     ->placeholder('Full name')
                                     ->live()
-                                    ->required(fn($get) => !empty($get('managers.0.email')) || !empty($get('managers.0.phone'))),
+                                    ->required(),
+                                    // ->required(fn($get) => !empty($get('managers.0.email')) || !empty($get('managers.0.phone'))),
                                 TextInput::make('managers.0.email')
                                     ->label('Manager Email')
                                     ->email()
                                     ->placeholder('manager@company.com')
                                     ->live()
-                                    ->required(fn($get) => !empty($get('managers.0.name')) || !empty($get('managers.0.phone'))),
+                                    ->required(),
+                                    // ->required(fn($get) => !empty($get('managers.0.name')) || !empty($get('managers.0.phone'))),
                                 TextInput::make('managers.0.phone')
                                     ->label('Manager Phone')
                                     ->tel()
                                     ->placeholder('5XXXXXXXX')
                                     ->live()
-                                    ->required(fn($get) => !empty($get('managers.0.name')) || !empty($get('managers.0.email'))),
+                                    ->required(),
+                                    // ->required(fn($get) => !empty($get('managers.0.name')) || !empty($get('managers.0.email'))),
                             ]),
                     ]),
 
