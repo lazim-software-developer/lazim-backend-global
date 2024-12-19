@@ -11,6 +11,7 @@ use App\Models\Master\Service;
 use App\Models\Vendor\Vendor;
 use DB;
 use Filament\Facades\Filament;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -95,11 +96,6 @@ class AssetResource extends Resource
                         TextInput::make('discipline')
                             ->required()
                             ->rules(['max:50']),
-                        TextInput::make('frequency_of_service')
-                            ->required()->integer()->suffix('days')->minValue(1),
-                        Textarea::make('description')
-                            ->label('Description')
-                            ->rules(['max:100', 'regex:/^(?=.*[a-zA-Z])[a-zA-Z0-9\s!@#$%^&*_+\-=,.]*$/']),
                         Select::make('service_id')
                             ->relationship('service', 'name')
                             ->options(function () {
@@ -111,6 +107,13 @@ class AssetResource extends Resource
                             ->preload()
                             ->searchable()
                             ->label('Service'),
+                        TextInput::make('frequency_of_service')
+                            ->required()->integer()->suffix('days')->minValue(1),
+                        Textarea::make('description')
+                            ->label('Description')
+                            ->rules(['max:100', 'regex:/^(?=.*[a-zA-Z])[a-zA-Z0-9\s!@#$%^&*_+\-=,.]*$/']),
+                        DatePicker::make('expiry_date')
+                            ->required(),
                         TextInput::make('asset_code')
                             ->visible(function (callable $get) {
                                 if ($get('asset_code') != null) {
@@ -137,8 +140,8 @@ class AssetResource extends Resource
                 TextColumn::make('name')->searchable()->label('Asset name'),
                 TextColumn::make('description')->searchable()->default('NA')->label('Description'),
                 TextColumn::make('location')->label('Location'),
-                TextColumn::make('service.name')->searchable()->label('Service'),
-                TextColumn::make('building.name')->searchable()->label('Building'),
+                TextColumn::make('service.name')->searchable()->label('Service')->limit(15),
+                TextColumn::make('building.name')->searchable()->label('Building')->limit(15),
                 TextColumn::make('asset_code'),
                 TextColumn::make('vendors.name')->default('NA')
                     ->searchable()->label('Vendor'),

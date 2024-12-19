@@ -86,6 +86,7 @@ class BuildingImport implements ToCollection, WithHeadingRow
         $notImported = [];
         foreach ($rows as $row) {
             $exists = Building::where('property_group_id', $row['property_group_id'])->exists();
+            $nameExists = Building::where('name', $row['name'])->exists();
 
             $errors = [];
             if ($row['name'] == null) {
@@ -110,9 +111,13 @@ class BuildingImport implements ToCollection, WithHeadingRow
                 }, $errors)) . ')';
                 continue;
             }
+            if($nameExists){
+                $notImported[] = $row['name'] . ' (already exists)';
+                continue;
+            }
 
             if ($exists) {
-                $notImported[] = $row['name'] . ' (already exists)';
+                $notImported[] = $row['property_group_id'] . ' (already exists)';
             } else {
                 $fromDate = $this->convertExcelDate($row['from']);
                 $toDate   = $this->convertExcelDate($row['to']);
