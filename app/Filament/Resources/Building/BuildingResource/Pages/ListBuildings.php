@@ -112,8 +112,8 @@ class ListBuildings extends ListRecords
                             Column::make('area'),
                             Column::make('floors'),
                             Column::make('parking_count'),
-                            Column::make('from'),
-                            Column::make('to'),
+                            Column::make('contract_start_date')->heading('Contract Start Date'),
+                            Column::make('contract_end_date')->heading('Contract End Date'),
                         ]),
                 ])
                 ->label('Download sample file'),

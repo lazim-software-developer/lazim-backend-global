@@ -48,8 +48,18 @@ class BuildingImport implements ToCollection, WithHeadingRow
      */
     public function collection(Collection $rows)
     {
-        // Define the expected headings
-        $expectedHeadings = ['name', 'building_type', 'property_group_id', 'address_line1', 'area', 'floors', 'parking_count', 'from', 'to'];
+        // Update expected headings
+        $expectedHeadings = [
+            'name',
+            'building_type',
+            'property_group_id',
+            'address_line1',
+            'area',
+            'floors',
+            'parking_count',
+            'contract_start_date',
+            'contract_end_date',
+        ];
 
         if ($rows->first() == null) {
             Notification::make()
@@ -84,73 +94,102 @@ class BuildingImport implements ToCollection, WithHeadingRow
         }
 
         $notImported = [];
-        foreach ($rows as $row) {
-            $exists = Building::where('property_group_id', $row['property_group_id'])->exists();
-            $nameExists = Building::where('name', $row['name'])->exists();
-
+        foreach ($rows as $index => $row) {
             $errors = [];
-            if ($row['name'] == null) {
+
+            // Basic required field validations
+            if (empty($row['name'])) {
                 $errors[] = 'Name is missing';
             }
-            if ($row['property_group_id'] == null) {
+            if (empty($row['property_group_id'])) {
                 $errors[] = 'Property Group ID is missing';
             }
-            if ($row['address_line1'] == null) {
+            if (empty($row['address_line1'])) {
                 $errors[] = 'Address Line 1 is missing';
             }
-            if (!is_numeric($row['area'])) {
-                $errors[] = 'Invalid or missing Area';
+
+            // Enhanced date validations with better error messages
+            if (empty($row['contract_start_date'])) {
+                $errors[] = 'Contract Start Date is required';
+            } elseif (!$this->convertExcelDate($row['contract_start_date'])) {
+                $errors[] = 'Invalid Contract Start Date format (use YYYY-MM-DD)';
             }
-            if (!is_numeric($row['floors'])) {
-                $errors[] = 'Invalid or missing Floors';
+
+            if (empty($row['contract_end_date'])) {
+                $errors[] = 'Contract End Date is required';
+            } elseif (!$this->convertExcelDate($row['contract_end_date'])) {
+                $errors[] = 'Invalid Contract End Date format (use YYYY-MM-DD)';
+            }
+
+            // Only check date comparison if both dates are valid
+            if (!empty($row['contract_start_date']) &&
+                !empty($row['contract_end_date']) &&
+                $this->convertExcelDate($row['contract_start_date']) &&
+                $this->convertExcelDate($row['contract_end_date'])) {
+
+                $fromDate = $this->convertExcelDate($row['contract_start_date']);
+                $toDate   = $this->convertExcelDate($row['contract_end_date']);
+
+                if ($toDate <= $fromDate) {
+                    $errors[] = 'Contract End Date must be after Contract Start Date';
+                }
+            }
+
+            // Other field validations
+            if (!empty($row['area']) && !is_numeric($row['area'])) {
+                $errors[] = 'Invalid Area format';
+            }
+            if (!empty($row['floors']) && !is_numeric($row['floors'])) {
+                $errors[] = 'Invalid Floors format';
+            }
+
+            // Duplicate checks
+            if (!empty($row['name']) && Building::where('name', $row['name'])->exists()) {
+                $errors[] = 'Building name already exists';
+            }
+            if (!empty($row['property_group_id']) && Building::where('property_group_id', $row['property_group_id'])->exists()) {
+                $errors[] = 'Property Group ID already exists';
             }
 
             if (!empty($errors)) {
-                $notImported[] = $row['name'] . ' (' . implode(', ', array_map(function ($error) {
-                    return ucwords(str_replace('_', ' ', $error));
-                }, $errors)) . ')';
-                continue;
-            }
-            if($nameExists){
-                $notImported[] = $row['name'] . ' (already exists)';
+                $rowIdentifier = $row['name'] ?? 'Row #' . ($index + 2);
+                $notImported[] = "{$rowIdentifier}: " . implode(', ', $errors);
                 continue;
             }
 
-            if ($exists) {
-                $notImported[] = $row['property_group_id'] . ' (already exists)';
-            } else {
-                $fromDate = $this->convertExcelDate($row['from']);
-                $toDate   = $this->convertExcelDate($row['to']);
+            // Create building if no errors
+            // Map the new column names to the database fields
+            $fromDate = $this->convertExcelDate($row['contract_start_date']);
+            $toDate   = $this->convertExcelDate($row['contract_end_date']);
 
-                $building = Building::create([
-                    'name'                  => $row['name'],
-                    'building_type'         => $row['building_type'],
-                    'property_group_id'     => $row['property_group_id'],
-                    'address_line1'         => $row['address_line1'],
-                    'area'                  => $row['area'],
-                    'floors'                => $row['floors'],
-                    'parking_count'         => $row['parking_count'],
-                    'from'                  => $fromDate ?: null,
-                    'to'                    => $toDate ?: null,
-                    'owner_association_id'  => $this->oaId,
-                    'show_inhouse_services' => 0,
-                    'managed_by'            => 'Property Manager',
-                ]);
+            $building = Building::create([
+                'name'                  => $row['name'],
+                'building_type'         => $row['building_type'],
+                'property_group_id'     => $row['property_group_id'],
+                'address_line1'         => $row['address_line1'],
+                'area'                  => $row['area'],
+                'floors'                => $row['floors'],
+                'parking_count'         => $row['parking_count'],
+                'from'                  => $fromDate ?: null,
+                'to'                    => $toDate ?: null,
+                'owner_association_id'  => $this->oaId,
+                'show_inhouse_services' => 0,
+                'managed_by'            => 'Property Manager',
+            ]);
 
-                // Sync the relationship with OwnerAssociation with pivot data
-                $building->ownerAssociations()->sync([
-                    $this->oaId => [
-                        'from'   => $fromDate ?: null,
-                        'to'     => $toDate ?: null,
-                        'active' => true,
-                    ],
-                ]);
-            }
+            // Sync the relationship with OwnerAssociation with pivot data
+            $building->ownerAssociations()->sync([
+                $this->oaId => [
+                    'from'   => $fromDate ?: null,
+                    'to'     => $toDate ?: null,
+                    'active' => true,
+                ],
+            ]);
         }
         if (!empty($notImported)) {
             Notification::make()
-                ->title("Could not import Buildings.")
-                ->body('Not imported Buildings: ' . implode(', ', $notImported))
+                ->title("Failed to import some buildings")
+                ->body(implode("\n", $notImported))
                 ->danger()
                 ->send();
 

@@ -42,7 +42,8 @@ class BuildingRelationManager extends RelationManager
     {
         return $table
             ->modifyQueryUsing(function (Builder $query) {
-                $query->where('active', true);
+                $query->where('active', true)
+                ->latest()->first();
             })
             ->columns([
                 Tables\Columns\TextColumn::make('name')->label('Building Name')
@@ -330,8 +331,8 @@ class BuildingRelationManager extends RelationManager
                                 Column::make('area'),
                                 Column::make('floors'),
                                 Column::make('parking_count'),
-                                Column::make('from'),
-                                Column::make('to'),
+                                Column::make('contract_start_date')->heading('Contract Start Date'), // Changed from 'from'
+                                Column::make('contract_end_date')->heading('Contract End Date'),     // Changed from 'to'
                             ]),
                     ])
                     ->label('Download sample file'),
