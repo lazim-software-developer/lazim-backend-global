@@ -17,16 +17,16 @@ class Dashboard extends BaseDashboard
 {
     use HasFiltersForm;
 
-    protected function isPropertyManager(): bool
-    {
-        return auth()->user()->role->name =='Property Manager';
-    }
+    // protected function isPropertyManager(): bool
+    // {
+    //     return auth()->user()->role->name =='Property Manager';
+    // }
 
     public function filtersForm(Form $form): Form
     {
-        if ($this->isPropertyManager()) {
-            return $form->schema([]);
-        }
+        // if ($this->isPropertyManager()) {
+        //     return $form->schema([]);
+        // }
 
         return $form
             ->schema([
@@ -55,9 +55,9 @@ class Dashboard extends BaseDashboard
 
     protected function getActions(): array
     {
-        if ($this->isPropertyManager()) {
-            return [];
-        }
+        // if ($this->isPropertyManager()) {
+        //     return [];
+        // }
 
         return [
             Action::make('resetFilters')
