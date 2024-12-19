@@ -70,7 +70,7 @@ class UserController extends Controller
         $user = auth()->user();
         $flatIds = UserApproval::where('user_id', $user->id)
             ->whereNull('status')
-            ->where('status','rejected')
+            // ->where('status','rejected')
             ->pluck('flat_id');
 
         $flats = Flat::whereIn('id', $flatIds)->get();
