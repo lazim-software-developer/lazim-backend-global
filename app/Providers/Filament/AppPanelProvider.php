@@ -801,7 +801,7 @@ class AppPanelProvider extends PanelProvider
                         $user->can('view_any_user::user') ||
                         $user->can('view_any_building::documents') ||
                         $user->can('page_Documents') ||
-                        auth()->user()->role_id == 10
+                        auth()->user()->role_id ==10
                     ) {
                         $builder->groups([
                             NavigationGroup::make('Master')
