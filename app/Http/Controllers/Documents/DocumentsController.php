@@ -64,7 +64,7 @@ class DocumentsController extends Controller
                     return $docs->first();
                 });
             });
-        Log::info('Documents: ' . $documents);
+        // Log::info('Documents: ' . $documents);
 
         return response()->json([
             'users' => $users->map(function ($user) use ($documents, $documentLibraries) {
@@ -167,6 +167,25 @@ class DocumentsController extends Controller
     {
         $documents = auth()->user()->userDocuments()->where('documentable_type', 'App\Models\User\User')
             ->where('document_library_id', 5)->get();
+
+        return DocumentResource::collection($documents);
+    }
+
+    public function tenantOtherDocuments(Request $request)
+    {
+        $request->validate([
+            'tenant_id' => 'required|exists:users,id',
+            'building_id' => 'required|exists:buildings,id',
+            'flat_id' => 'required|exists:flats,id',
+        ]);
+
+        $user = User::findOrFail($request->tenant_id);
+        $documents = $user->userDocuments()
+            ->where('documentable_type', 'App\Models\User\User')
+            ->where('document_library_id', 5)
+            ->where('building_id', $request->building_id)
+            ->where('flat_id', $request->flat_id)
+            ->get();
 
         return DocumentResource::collection($documents);
     }
