@@ -64,9 +64,7 @@ class DocumentsUploadController extends Controller
     {
         $documents = Document::where('documentable_id', $vendor->id)->get();
         $data = $documents->mapWithKeys(function ($document) {
-            if($document->url){
-                return [$document->documentLibrary->name => env('AWS_URL') . '/' . $document->url];
-            }
+            return [$document->documentLibrary->name => $document->url ? env('AWS_URL') . '/' . $document->url : null];
         });
         return $data;
     }
