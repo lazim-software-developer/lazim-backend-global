@@ -174,12 +174,12 @@ class DocumentsController extends Controller
     public function tenantOtherDocuments(Request $request)
     {
         $request->validate([
-            'tenant_id' => 'required|exists:users,id',
+            'flat_tenant_id' => 'required|exists:users,id',
             'building_id' => 'required|exists:buildings,id',
             'flat_id' => 'required|exists:flats,id',
         ]);
 
-        $user = User::findOrFail($request->tenant_id);
+        $user = User::findOrFail($request->flat_tenant_id);
         $documents = $user->userDocuments()
             ->where('documentable_type', 'App\Models\User\User')
             ->where('document_library_id', 5)
