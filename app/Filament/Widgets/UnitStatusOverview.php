@@ -9,9 +9,12 @@ use Carbon\Carbon;
 use DB;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
+use Filament\Widgets\Concerns\InteractsWithPageFilters;
 
 class UnitStatusOverview extends BaseWidget
 {
+    use InteractsWithPageFilters;
+
     protected static ?string $pollingInterval = '30s';
     protected static ?int $sort               = 1;
 
@@ -23,6 +26,7 @@ class UnitStatusOverview extends BaseWidget
     protected function getStats(): array
     {
         $today = Carbon::today();
+        $buildingId = $this->filters['building'] ?? null;
 
         $query = MoveInOut::query()
             ->whereHas('building', function ($query) {
@@ -37,6 +41,11 @@ class UnitStatusOverview extends BaseWidget
             ->where('owner_association_id', auth()->user()->owner_association_id)
             ->where('active', true)
             ->pluck('building_id');
+
+        // Apply building filter if selected
+        if ($buildingId) {
+            $buildingIds = [$buildingId];
+        }
 
         $vacantUnits = (clone $query)
             ->where('type', 'move-out')

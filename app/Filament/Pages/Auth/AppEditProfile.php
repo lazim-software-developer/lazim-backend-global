@@ -109,7 +109,7 @@ class AppEditProfile extends BaseEditProfile
                             ->collapsible()
                             ->icon('heroicon-o-building-library')
                             ->schema([
-                                FileUpload::make('profile_photo')
+                                FileUpload::make('company_profile_photo')
                                     ->disk('s3')
                                     ->directory('dev')
                                     ->image()
@@ -267,13 +267,14 @@ class AppEditProfile extends BaseEditProfile
                 'last_name'                 => $user->last_name,
                 'email'                     => $user->email,
                 'phone'                     => $user->phone,
+                'profile_photo'             => $user->profile_photo,
                 'name'                      => $ownerAssociation->name,
                 'trn_number'                => $ownerAssociation->trn_number,
                 'trade_license_number'      => $ownerAssociation->trade_license_number,
                 'address'                   => $ownerAssociation->address,
                 'bank_account_number'       => $ownerAssociation->bank_account_number,
                 'bank_account_holder_name'  => $ownerAssociation->bank_account_holder_name,
-                'profile_photo'             => $ownerAssociation->profile_photo,
+                'company_profile_photo'     => $ownerAssociation->profile_photo,
                 'trn_certificate'           => $ownerAssociation->trn_certificate,
                 'trade_license'             => $ownerAssociation->trade_license,
                 'dubai_chamber_document'    => $ownerAssociation->dubai_chamber_document,
@@ -300,13 +301,14 @@ class AppEditProfile extends BaseEditProfile
             'last_name'                 => $user->last_name,
             'email'                     => $user->email,
             'phone'                     => $user->phone,
+            'profile_photo'             => $user->profile_photo,
             'name'                      => $ownerAssociation->name,
             'trn_number'                => $ownerAssociation->trn_number,
             'trade_license_number'      => $ownerAssociation->trade_license_number,
             'address'                   => $ownerAssociation->address,
             'bank_account_number'       => $ownerAssociation->bank_account_number,
             'bank_account_holder_name'  => $ownerAssociation->bank_account_holder_name,
-            'profile_photo'             => $ownerAssociation->profile_photo,
+            'company_profile_photo'     => $ownerAssociation->profile_photo,
             'trn_certificate'           => $ownerAssociation->trn_certificate,
             'trade_license'             => $ownerAssociation->trade_license,
             'dubai_chamber_document'    => $ownerAssociation->dubai_chamber_document,
@@ -329,8 +331,9 @@ class AppEditProfile extends BaseEditProfile
                     ]);
                 }
                 $user->update([
-                    'first_name' => $data['first_name'],
-                    'last_name'  => $data['last_name'] ?? null,
+                    'first_name'    => $data['first_name'],
+                    'last_name'     => $data['last_name'] ?? null,
+                    'profile_photo' => $data['profile_photo'] ?? null,
                 ]);
 
                 $ownerAssociation = OwnerAssociation::find($user->owner_association_id);
@@ -338,17 +341,12 @@ class AppEditProfile extends BaseEditProfile
                     $ownerAssociation->update([
                         'address'                  => $data['address'],
                         'bank_account_holder_name' => $data['bank_account_holder_name'] ?? null,
+                        'profile_photo'            => $data['company_profile_photo'] ?? null,
                     ]);
 
                     if (isset($data['trn_certificate'])) {
                         $ownerAssociation->update([
                             'trn_certificate' => $data['trn_certificate'],
-                        ]);
-                    }
-
-                    if (isset($data['profile_photo'])) {
-                        $ownerAssociation->update([
-                            'profile_photo' => $data['profile_photo'],
                         ]);
                     }
 

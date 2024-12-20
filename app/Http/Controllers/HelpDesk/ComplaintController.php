@@ -558,6 +558,12 @@ class ComplaintController extends Controller
         if($request->has('status') && $request->status == 'closed'){
             $request['closed_by'] = auth()->user()->id;
         }
+        $categoryName = $request->service_id ? Service::where('id', $request->service_id)->value('name') : '';
+
+        $request->merge([
+            'category'             => $categoryName,
+        ]);
+
         $complaint->update($request->all());
 
         if ($request->hasFile('images') && $request->has('status') && $request->status == 'closed') {

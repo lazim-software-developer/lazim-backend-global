@@ -16,6 +16,7 @@ use Closure;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
@@ -45,15 +46,8 @@ class ComplaintResource extends Resource
                     ->schema([
                         Grid::make(['sm' => 1, 'md' => 1, 'lg' => 2])
                             ->schema([
-                                Select::make('type')
-                                    ->label('Complaint Type')
-                                    ->options([
-                                        'personal' => 'Personal',
-                                        'building' => 'Building',
-                                    ])
-                                    ->disabledOn('edit')
-                                    ->live()
-                                    ->default('NA'),
+                                Hidden::make('type')
+                                    ->default('building'),
 
                                 Toggle::make('Urgent')
                                     ->label('Mark as Urgent')
@@ -107,37 +101,17 @@ class ComplaintResource extends Resource
                                     ->visibleOn('edit'),
 
                                 DatePicker::make('due_date')
-                                    ->label('Due Date')
+                                    ->label('Date')
                                     ->minDate(now()->format('Y-m-d'))
                                 // ->maxDate(now()->addDays(3)->format('Y-m-d'))
                                     ->rules(['date'])
                                     ->disabledOn('edit')
-                                    ->validationMessages([
-                                        'maxDate' =>
-                                        'The due date should be within 3 days of the complaint creation date.',
-                                    ])
-                                    ->placeholder('Select Due Date'),
+                                    ->placeholder('Select Date'),
 
                                 Textarea::make('complaint')
-                                    ->label('Complaint Description')
+                                    ->label('Schedule Details')
                                     ->disabledOn('edit')
-                                    ->placeholder('Describe the complaint in brief'),
-
-                                TextInput::make('priority')
-                                    ->label('Priority')
-                                    ->default('3')
-                                    ->visibleOn('edit')
-                                    ->rules([
-                                        function () {
-                                            return function (string $attribute, $value, Closure $fail) {
-                                                if ($value < 1 || $value > 3) {
-                                                    $fail('Priority must be between 1 and 3.');
-                                                }
-                                            };
-                                        },
-                                    ])
-                                    ->numeric()
-                                    ->placeholder('Priority: 1 (High) - 3 (Low)'),
+                                    ->placeholder('Describe the Schedule Details in brief'),
                             ]),
 
                     ])
@@ -270,7 +244,7 @@ class ComplaintResource extends Resource
                                     ->label('Status')
                                     ->options([
                                         'open'   => 'Open',
-                                        'closed' => 'Closed',
+                                        'closed' => 'Completed',
                                     ])
                                     ->default('open')
                                     ->visibleOn('edit')
@@ -278,7 +252,7 @@ class ComplaintResource extends Resource
                                     ->live(),
 
                                 Textarea::make('remarks')
-                                    ->label('Remarks')
+                                    ->label('Comments')
                                     ->rules(['max:250'])
                                     ->required(function (callable $get) {
                                         if ($get('status' === 'closed')) {
@@ -288,11 +262,11 @@ class ComplaintResource extends Resource
                                     ->visible(function (callable $get) {
                                         return $get('status') == 'closed';
                                     })
-                                    ->placeholder('Add remarks'),
+                                    ->placeholder('Add Comments'),
 
                                 DatePicker::make('close_time')
                                     ->displayFormat('d-M-Y')
-                                    ->label('Resolved Date')
+                                    ->label('Date')
                                 // ->default(now()->format('d-M-Y h:i A'))
                                     ->reactive()
                                     ->required(function (callable $get) {

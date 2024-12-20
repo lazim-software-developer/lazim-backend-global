@@ -587,7 +587,7 @@ class RegistrationController extends Controller
             'building_id' => $request->building_id,
             'start_date' =>  $request->has('start_date') ? $request->start_date : now(),
             'end_date' => $request->has('end_date') ? $request->end_date : null,
-            'active' => 1,
+            'active' => 0,
             'role' => $type,
             'owner_association_id' => $owner_association_id,
             'residing_in_same_flat' => $request->has('residing') ? $request->residing : 0,
