@@ -388,7 +388,7 @@ class RentalDetailsRelationManager extends RelationManager
             'contract_end_date'           => $endDate ?? $data['contract_end_date'],
             'created_by'                  => auth()->user()->id,
             'status_updated_by'           => auth()->user()->id,
-            'property_manager_id'         => auth()->user()->owner_association_id,
+            'property_manager_id'         => auth()->user()->id,
 
         ]);
 
