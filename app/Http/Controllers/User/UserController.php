@@ -23,14 +23,8 @@ class UserController extends Controller
     {
         $user = auth()->user();
 
-        if ($user && $user?->role->name == 'Tenant'){
-            $flatIds = FlatTenant::where('tenant_id',$user->id)->where('active', true)->pluck('flat_id');
-            $flatIds = UserApproval::where('user_id',$user->id)->where('status','approved')->whereIn('flat_id',$flatIds)->pluck('flat_id');
-            $flats = Flat::whereIn('id',$flatIds)->get();
-        }
-        else{
-            $flats = $user->residences;
-        }
+        $flatIds = FlatTenant::where('tenant_id',$user->id)->where('active', true)->pluck('flat_id');
+        $flats = Flat::whereIn('id',$flatIds)->get();
 
         if ($flats->isEmpty()) {
             // Handle the case where there are no flats
