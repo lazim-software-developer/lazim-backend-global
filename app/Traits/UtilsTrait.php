@@ -18,11 +18,13 @@ trait UtilsTrait
                 ],
                 'json'    => $message,
             ]);
+            return 'success';
         } catch (GuzzleException $e) {
             Log::error('Expo notification failed', [
                 'error' => $e->getMessage(),
                 'status' => $e->getCode()
             ]);
+            return $e->getMessage();
         }
     }
     public function expoNotificationFcm($message)
@@ -36,11 +38,13 @@ trait UtilsTrait
                 ],
                 'json'    => $message,
             ]);
+            return 'success';
         } catch (GuzzleException $e) {
             Log::error('Expo notification failed', [
                 'error' => $e->getMessage(),
                 'status' => $e->getCode()
             ]);
+            return $e->getMessage();
         }
     }
 

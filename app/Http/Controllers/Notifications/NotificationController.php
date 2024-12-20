@@ -88,6 +88,7 @@ class NotificationController extends Controller
             $expoPushTokens = ExpoPushNotification::pluck('token');
         }
 
+        $result = [];
         if ($expoPushTokens->count() > 0) {
             foreach ($expoPushTokens as $expoPushToken) {
 
@@ -99,9 +100,14 @@ class NotificationController extends Controller
                     'body'  => 'Notification working',
                     'data'  => ['notificationType' => 'Testing'],
                 ];
-                $this->expoNotification($message);
+               $result[] = $this->expoNotification($message);
             }
         }
+
+        return [
+            'tokens' => $expoPushTokens,
+            'result' => $result
+        ];
     }
     public function pushNotificationNew(Request $request)
     {
@@ -111,6 +117,7 @@ class NotificationController extends Controller
             $expoPushTokens = ExpoPushNotification::pluck('token');
         }
 
+        $result = [];
         if ($expoPushTokens->count() > 0) {
             foreach ($expoPushTokens as $expoPushToken) {
 
@@ -122,8 +129,13 @@ class NotificationController extends Controller
                     'body'  => 'Notification working',
                     'data'  => ['notificationType' => 'Testing'],
                 ];
-                $this->expoNotificationFcm($message);
+                $result[] = $this->expoNotificationFcm($message);
             }
         }
+
+        return [
+            'tokens' => $expoPushTokens,
+            'result' => $result
+        ];
     }
 }
