@@ -29,7 +29,7 @@ trait UtilsTrait
     {
         try {
             $client = new Client();
-            $client->post('https: //fcm.googleapis.com/fcm/send', [
+            $client->post('https://fcm.googleapis.com/fcm/send', [
                 'headers' => [
                     'Accept'       => 'application/json',
                     'Content-Type' => 'application/json',
