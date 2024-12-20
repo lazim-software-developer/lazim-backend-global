@@ -59,8 +59,8 @@ public function listServices(SubCategory $subcategory)
             // Check if service is already tagged
             if ($vendor->services()->where('service_id', $request->service)->exists()) {
                 return (new CustomResponseResource([
-                    'title'   => 'Service already tagged',
-                    'message' => 'This service is already tagged to the vendor.',
+                    'title'   => 'Service already exists.',
+                    'message' => 'Service already exists.',
                     'code'    => 409,
                     'status'  => 'error',
                 ]))->response()->setStatusCode(409);
@@ -69,8 +69,8 @@ public function listServices(SubCategory $subcategory)
             $vendor->services()->syncWithoutDetaching([$request->service]);
 
             return (new CustomResponseResource([
-                'title'   => 'Service tagged successfully',
-                'message' => 'The service has been tagged to the vendor.',
+                'title'   => 'Service tagged successfully.',
+                'message' => 'Service tagged successfully',
                 'code'    => 201,
                 'status'  => 'success',
             ]))->response()->setStatusCode(201);
@@ -133,6 +133,6 @@ public function listServices(SubCategory $subcategory)
             ["id"=>228,
             "name"=>"Other"]
             ]];
-            
+
     }
 }
