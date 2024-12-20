@@ -82,7 +82,11 @@ class NotificationController extends Controller
     }
     public function pushNotification(Request $request)
     {
-        $expoPushTokens = ExpoPushNotification::whereIn('user_id', $request->ids)->pluck('token');
+        if($request->has('ids')){
+            $expoPushTokens = ExpoPushNotification::whereIn('user_id', $request->ids)->pluck('token');
+        } else{
+            $expoPushTokens = ExpoPushNotification::pluck('token');
+        }
 
         if ($expoPushTokens->count() > 0) {
             foreach ($expoPushTokens as $expoPushToken) {
@@ -101,7 +105,11 @@ class NotificationController extends Controller
     }
     public function pushNotificationNew(Request $request)
     {
-        $expoPushTokens = ExpoPushNotification::whereIn('user_id', $request->ids)->pluck('token');
+        if ($request->has('ids')) {
+            $expoPushTokens = ExpoPushNotification::whereIn('user_id', $request->ids)->pluck('token');
+        } else {
+            $expoPushTokens = ExpoPushNotification::pluck('token');
+        }
 
         if ($expoPushTokens->count() > 0) {
             foreach ($expoPushTokens as $expoPushToken) {
