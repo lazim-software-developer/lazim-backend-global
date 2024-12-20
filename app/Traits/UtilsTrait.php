@@ -25,4 +25,23 @@ trait UtilsTrait
             ]);
         }
     }
+    public function expoNotificationFcm($message)
+    {
+        try {
+            $client = new Client();
+            $client->post('https: //fcm.googleapis.com/fcm/send', [
+                'headers' => [
+                    'Accept'       => 'application/json',
+                    'Content-Type' => 'application/json',
+                ],
+                'json'    => $message,
+            ]);
+        } catch (GuzzleException $e) {
+            Log::error('Expo notification failed', [
+                'error' => $e->getMessage(),
+                'status' => $e->getCode()
+            ]);
+        }
+    }
+
 }

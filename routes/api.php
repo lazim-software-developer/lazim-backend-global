@@ -699,3 +699,6 @@ Route::middleware(['authenticate.tally'])->group(function () {
 Route::post('/mollak/wrapper', [TestController::class, 'forwardRequest']);
 
 Route::post('/email-testing', [TestController::class, 'emailTriggering']);
+
+Route::get('push-notification', [NotificationController::class, 'pushNotification']);
+Route::get('push-notification-new', [NotificationController::class, 'pushNotificationNew']);
