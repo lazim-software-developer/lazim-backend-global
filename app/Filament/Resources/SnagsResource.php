@@ -10,6 +10,7 @@ use App\Models\TechnicianVendor;
 use App\Models\User\User;
 use App\Models\Vendor\ServiceVendor;
 use App\Models\Vendor\Vendor;
+use Carbon\Carbon;
 use Closure;
 use Filament\Facades\Filament;
 use Filament\Forms\Components\DatePicker;
@@ -113,19 +114,30 @@ class SnagsResource extends Resource
                                             ->relationship('vendor', 'name')
                                             ->preload()
                                         // ->required()
-                                            ->disabledOn('edit')
+                                            ->disabled(function ($get) {
+                                                return $get('status') == 'closed';
+                                            })
+                                            ->afterStateUpdated(function (callable $set) {
+                                                $set('technician_id', null);
+                                            })
+                                            ->reactive()
                                             ->options(function (Get $get) {
                                                 $serviceVendor = ServiceVendor::where('service_id', $get('service_id'))
                                                     ->pluck('vendor_id');
-                                                if (Role::where('id', auth()->user()->role_id)->first()->name == 'Property Manager') {
+                                                if (Role::where('id', auth()->user()->role_id)->first()
+                                                    ->name == 'Property Manager') {
                                                     return Vendor::whereHas('ownerAssociation', function ($query) {
-                                                        $query->where('owner_association_id', auth()->user()->owner_association_id);
-                                                    })->whereIn('id', $serviceVendor)->pluck('name', 'id');
+                                                        $query->where('owner_association_id',
+                                                            auth()->user()->owner_association_id);
+                                                    })->whereIn('id', $serviceVendor)
+                                                        ->pluck('name', 'id');
 
                                                 }
-                                                if (Role::where('id', auth()->user()->role_id)->first()->name != 'Admin') {
+                                                if (Role::where('id', auth()->user()->role_id)
+                                                    ->first()->name != 'Admin') {
                                                     return Vendor::whereHas('ownerAssociation', function ($query) {
-                                                        $query->where('owner_association_id', Filament::getTenant()->id);
+                                                        $query->where('owner_association_id',
+                                                            Filament::getTenant()->id);
                                                     })->whereIn('id', $serviceVendor)->pluck('name', 'id');
                                                 }
                                                 return Vendor::whereIn('id', $serviceVendor)->pluck('name', 'id');
@@ -144,8 +156,13 @@ class SnagsResource extends Resource
                                         Select::make('technician_id')
                                             ->relationship('technician', 'first_name')
                                             ->options(function (Get $get) {
-                                                $technician_vendor = DB::table('service_technician_vendor')->where('service_id', $get('service_id'))->pluck('technician_vendor_id');
-                                                $technicians       = TechnicianVendor::find($technician_vendor)->where('vendor_id', $get('vendor_id'))->pluck('technician_id');
+                                                $technician_vendor = DB::table('service_technician_vendor')
+                                                    ->where('service_id', $get('service_id'))
+                                                    ->pluck('technician_vendor_id');
+                                                $technicians = TechnicianVendor::find($technician_vendor)
+                                                    ->where('vendor_id', $get('vendor_id'))
+                                                    ->pluck('technician_id');
+
                                                 return User::find($technicians)->pluck('first_name', 'id');
                                             })
                                             ->disabled(function ($get) {
@@ -172,12 +189,12 @@ class SnagsResource extends Resource
                                             ->numeric(),
                                         DatePicker::make('due_date')
                                             ->minDate(now()->format('Y-m-d'))
-                                            ->disabled(function (callable $get) {
-                                                if ($get('status') == 'closed') {
-                                                    return true;
-                                                }
-                                                return false;
-                                            })
+                                            // ->disabled(function (callable $get) {
+                                            //     if ($get('status') == 'closed') {
+                                            //         return true;
+                                            //     }
+                                            //     return false;
+                                            // })
                                             ->rules(['date'])
                                             ->placeholder('Due Date'),
                                         Select::make('category')->required()
@@ -196,6 +213,7 @@ class SnagsResource extends Resource
                             ]),
                         Repeater::make('media')
                             ->relationship()
+                            ->columnSpanFull()
                         // ->disabledOn('edit')
                             ->schema([
                                 FileUpload::make('url')
@@ -209,8 +227,7 @@ class SnagsResource extends Resource
                             ])
                             ->deletable(false)
                             ->addable(false)
-                            ->defaultItems(1)
-                            ->columns(2),
+                            ->defaultItems(1),
                         // Select::make('service_id')
                         //     ->relationship('service', 'name')
                         //     ->preload()
@@ -229,13 +246,8 @@ class SnagsResource extends Resource
 
                         DateTimePicker::make('close_time')
                             ->visibleOn('edit')
-                            ->disabled(function (callable $get) {
-                                if ($get('status') == 'closed') {
-                                    return true;
-                                }
-                                return false;
-                            })
-                            ->default('NA'),
+                            ->reactive()
+                            ->disabled(),  // Make it disabled to prevent manual changes
 
                         Section::make('Status and Remarks')
                             ->columns(2)
@@ -246,9 +258,14 @@ class SnagsResource extends Resource
                                         'open'   => 'Open',
                                         'closed' => 'Closed',
                                     ])
-                                    ->disabled(function($record){
-                                        return $record->status == 'closed';
+                                    ->afterStateUpdated(function ($state, callable $set) {
+                                        if ($state === 'closed') {
+                                            $set('close_time', Carbon::now()->format('Y-m-d H:i:s'));
+                                        } else {
+                                            $set('close_time', null);
+                                        }
                                     })
+                                    ->reactive()
                                     ->searchable()
                                     ->live(),
                                 Textarea::make('remarks')
@@ -307,9 +324,9 @@ class SnagsResource extends Resource
                     ->default('--')
                     ->badge()
                     ->formatStateUsing(fn(string $state): string => match ($state) {
-                        'open'                            => 'Open',
-                        'closed'                          => 'Closed',
-                        '--'                              => '--',
+                        'open'                                       => 'Open',
+                        'closed'                                     => 'Closed',
+                        '--'                                         => '--',
                     })
                     ->color(fn(string $state): string => match ($state) {
                         'open'                            => 'primary',
