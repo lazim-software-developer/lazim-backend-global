@@ -16,6 +16,7 @@ use App\Models\Building\Flat;
 use App\Models\OwnerAssociation;
 use App\Models\Remark;
 use App\Models\Vendor\Vendor;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class Complaint extends Model
 {
@@ -61,6 +62,8 @@ class Complaint extends Model
         'remarks' => 'array',
     ];
 
+    protected $with = ['media']; // Eager load media by default
+
     public function ownerAssociation()
     {
         return $this->belongsTo(OwnerAssociation::class);
@@ -95,7 +98,7 @@ class Complaint extends Model
         return $this->morphMany(Comment::class, 'commentable');
     }
 
-    public function media()
+    public function media(): MorphMany
     {
         return $this->morphMany(Media::class, 'mediaable');
     }
