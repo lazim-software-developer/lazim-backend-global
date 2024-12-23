@@ -276,17 +276,14 @@ class AppPanelProvider extends PanelProvider
                                             ->icon('heroicon-s-user-group')
                                             ->activeIcon('heroicon-s-user-group')
                                             ->sort(11),
-
-
-                                    ]),
-                                NavigationGroup::make('User management')
-                                    ->items([
-                                        NavigationItem::make('Users')
+                                         NavigationItem::make('Users')
                                             ->hidden(!$user->can('view_any_user::user'))
                                             ->url(UserResource::getUrl('index'))
                                             ->icon('heroicon-s-user-group')
                                             ->activeIcon('heroicon-s-user-group')
                                             ->sort(14),
+
+
                                     ]),
                             ]);
                         }
