@@ -62,6 +62,10 @@ class SnagsResource extends Resource
                                     ->schema([
                                         Select::make('building_id')
                                             ->label('Building')
+                                            ->required()
+                                            ->afterStateUpdated(function(callable $set){
+                                                $set('user_id', null);
+                                            })
                                             ->rules(['exists:buildings,id'])
                                             ->options(function () {
                                                 if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
@@ -108,8 +112,7 @@ class SnagsResource extends Resource
                                             ->disabledOn('edit')
                                             ->searchable()
                                             ->preload()
-                                            ->required()
-                                            ->label('User'),
+                                            ->required(),
                                         Select::make('vendor_id')
                                             ->relationship('vendor', 'name')
                                             ->preload()
@@ -258,6 +261,7 @@ class SnagsResource extends Resource
                                         'open'   => 'Open',
                                         'closed' => 'Closed',
                                     ])
+                                    ->default('open')
                                     ->afterStateUpdated(function ($state, callable $set) {
                                         if ($state === 'closed') {
                                             $set('close_time', Carbon::now()->format('Y-m-d H:i:s'));
