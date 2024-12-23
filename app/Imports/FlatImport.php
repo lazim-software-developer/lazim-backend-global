@@ -71,6 +71,11 @@ class FlatImport implements ToCollection, WithHeadingRow
 
         $notImported = [];
         foreach ($rows as $row) {
+            // Normalize property type case
+            if (!empty($row['property_type'])) {
+                $row['property_type'] = ucfirst(strtolower($row['property_type']));
+            }
+
             $exists = Flat::where([
                 'property_number' => $row['unit_number'],
                 'owner_association_id' => $this->oaId,
@@ -78,14 +83,37 @@ class FlatImport implements ToCollection, WithHeadingRow
             ])->exists();
 
             $errors = [];
-            if ($row['unit_number'] == null) {
-                $errors[] = 'Unit number is missing';
+
+            // Required field validations
+            if (empty($row['unit_number'])) {
+                $errors[] = 'Unit number is required';
             }
-            if (!in_array($row['property_type'], ['Shop', 'Office', 'Unit'])) {
-                $errors[] = 'Invalid or missing property type';
+            if (empty($row['property_type'])) {
+                $errors[] = 'Property type is required';
             }
-            if (!is_numeric($row['parking_count'])) {
-                $errors[] = 'Invalid or missing parking count';
+
+            // Property type validation
+            if (!empty($row['property_type']) && !in_array($row['property_type'], ['Shop', 'Office', 'Unit'])) {
+                $errors[] = 'Property type must be Shop, Office, or Unit';
+            }
+
+            // Numeric field validations
+            $numericFields = [
+                'suit_area' => 'Suit area',
+                'actual_area' => 'Actual area',
+                'balcony_area' => 'Balcony area',
+                'parking_count' => 'Parking count',
+                'plot_number' => 'Plot number',
+                'makhani_number' => 'Makhani number',
+                'dewa_number' => 'Dewa number',
+                'btuetisalat_number' => 'BTU/Etisalat number',
+                'btuac_number' => 'BTU/AC number'
+            ];
+
+            foreach ($numericFields as $field => $label) {
+                if (!empty($row[$field]) && !is_numeric($row[$field])) {
+                    $errors[] = "$label must be numeric";
+                }
             }
 
             if (!empty($errors)) {
@@ -101,15 +129,15 @@ class FlatImport implements ToCollection, WithHeadingRow
                     'building_id' => $this->buildingId,
                     'property_number' => $row['unit_number'],
                     'property_type' => $row['property_type'],
-                    'suit_area' => $row['suit_area'],
-                    'actual_area' => $row['actual_area'],
-                    'balcony_area' => $row['balcony_area'],
-                    'plot_number' => $row['plot_number'],
-                    'parking_count' => $row['parking_count'],
-                    'makhani_number' => $row['makhani_number'],
-                    'dewa_number' => $row['dewa_number'],
-                    'etisalat/du_number' => $row['btuetisalat_number'],
-                    'btu/ac_number' => $row['btuac_number'],
+                    'suit_area' => $row['suit_area'] ?: null,
+                    'actual_area' => $row['actual_area'] ?: null,
+                    'balcony_area' => $row['balcony_area'] ?: null,
+                    'plot_number' => $row['plot_number'] ?: null,
+                    'parking_count' => $row['parking_count'] ?: null,
+                    'makhani_number' => $row['makhani_number'] ?: null,
+                    'dewa_number' => $row['dewa_number'] ?: null,
+                    'etisalat/du_number' => $row['btuetisalat_number'] ?: null,
+                    'btu/ac_number' => $row['btuac_number'] ?: null,
                 ]);
             }
         }

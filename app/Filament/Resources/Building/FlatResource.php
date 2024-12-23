@@ -93,16 +93,20 @@ class FlatResource extends Resource
                                 'Office' => 'Office',
                                 'Unit'   => 'Unit',
                             ])
+                            ->label('Property Type')
                             ->required()
                             ->searchable(),
                         TextInput::make('suit_area')
                             ->placeholder('NA')
+                            ->label('Suit Area')
                             ->numeric(),
                         TextInput::make('actual_area')
                             ->placeholder('NA')
+                            ->label('Actual Area')
                             ->numeric(),
                         TextInput::make('balcony_area')
                             ->placeholder('NA')
+                            ->label('Balcony Area')
                             ->numeric(),
                         TextInput::make('applicable_area')
                             ->hidden(in_array(auth()->user()->role->name, ['Property Manager', 'Admin']))
@@ -114,16 +118,20 @@ class FlatResource extends Resource
                             ->numeric(),
                         TextInput::make('parking_count')
                             ->placeholder('NA')
+                            ->label('Parking Count')
                             ->numeric(),
                         TextInput::make('plot_number')
                             ->placeholder('NA')
+                            ->label('Plot Number')
                             ->numeric(),
                         TextInput::make('makhani_number')
                             ->placeholder('NA')
+                            ->label('Makhani Number')
                             ->visible(in_array(auth()->user()->role->name, ['Admin', 'Property Manager']))
                             ->numeric(),
                         TextInput::make('dewa_number')
                             ->placeholder('NA')
+                            ->label('DEWA Number')
                             ->visible(in_array(auth()->user()->role->name, ['Admin', 'Property Manager']))
                             ->numeric(),
                         TextInput::make('etisalat/du_number')
@@ -207,7 +215,7 @@ class FlatResource extends Resource
                             return Building::all()->pluck('name', 'id');
                         } elseif (Role::where('id', auth()->user()->role_id)->first()->name == 'Property Manager') {
                             $buildings = DB::table('building_owner_association')
-                                ->where('owner_association_id',auth()->user()->owner_association_id)
+                                ->where('owner_association_id', auth()->user()->owner_association_id)
                                 ->where('active', true)
                                 ->pluck('building_id');
                             return Building::whereIn('id', $buildings)->pluck('name', 'id');
