@@ -9,12 +9,9 @@ use Carbon\Carbon;
 use DB;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
-use Filament\Widgets\Concerns\InteractsWithPageFilters;
 
 class UnitStatusOverview extends BaseWidget
 {
-    use InteractsWithPageFilters;
-
     protected static ?string $pollingInterval = '30s';
     protected static ?int $sort               = 1;
 
@@ -26,37 +23,23 @@ class UnitStatusOverview extends BaseWidget
     protected function getStats(): array
     {
         $today = Carbon::today();
-        $buildingId = $this->filters['building'] ?? null;
-
-        $query = MoveInOut::query()
-            ->whereHas('building', function ($query) {
-                $query->where('owner_association_id', auth()->user()->owner_association_id)
-                    ->whereHas('ownerAssociations', function ($query) {
-                        $query->where('building_owner_association.owner_association_id', auth()->user()->owner_association_id)
-                            ->where('building_owner_association.active', true);
-                    });
-            });
 
         $buildingIds = DB::table('building_owner_association')
             ->where('owner_association_id', auth()->user()->owner_association_id)
             ->where('active', true)
             ->pluck('building_id');
 
-        // Apply building filter if selected
-        if ($buildingId) {
-            $buildingIds = [$buildingId];
-        }
+        $query = MoveInOut::query()
+            ->whereIn('building_id', $buildingIds);
 
         $vacantUnits = (clone $query)
             ->where('type', 'move-out')
             ->where('moving_date', '<', $today)
-            ->whereIn('building_id', $buildingIds)
             ->count();
 
         $upcomingUnits = (clone $query)
             ->where('type', 'move-in')
-            ->where('moving_date', '>=', $today)
-            ->whereIn('building_id', $buildingIds)
+            ->where('moving_date', '>', $today)
             ->count();
 
         $flatIds = Flat::whereIn('building_id', $buildingIds)

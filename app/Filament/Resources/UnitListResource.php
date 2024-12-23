@@ -10,6 +10,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
 
 class UnitListResource extends Resource
 {
@@ -34,21 +35,21 @@ class UnitListResource extends Resource
 
         return $table
             ->modifyQueryUsing(function (Builder $query) use ($today) {
-                $query->whereHas('building', function ($query) {
-                    $query->where('owner_association_id', auth()->user()->owner_association_id)
-                          ->whereHas('ownerAssociations', function ($query) {
-                              $query->where('building_owner_association.owner_association_id', auth()->user()->owner_association_id)
-                                    ->where('building_owner_association.active', true);
-                          });
-                });
+                $buildingIds = DB::table('building_owner_association')
+                    ->where('owner_association_id', auth()->user()->owner_association_id)
+                    ->where('active', true)
+                    ->pluck('building_id');
+
+                $query->whereIn('building_id', $buildingIds);
 
                 $type = request()->get('type');
+
                 if ($type === 'vacant') {
                     $query->where('type', 'move-out')
                           ->where('moving_date', '<', $today);
                 } elseif ($type === 'upcoming') {
                     $query->where('type', 'move-in')
-                          ->where('moving_date', '>=', $today);
+                          ->where('moving_date', '>', $today);
                 }
 
                 $filters = request()->get('filters', []);
@@ -58,22 +59,12 @@ class UnitListResource extends Resource
                     $startOfMonth = Carbon::parse("first day of $month");
                     $endOfMonth = Carbon::parse("last day of $month");
 
-                    if ($type === 'vacant') {
-                        if ($month === Carbon::now()->format('F')) {
-                            $query->where('moving_date', '<=', $today)
-                                  ->where('moving_date', '>=', Carbon::now()->startOfMonth()->subMonth()->endOfMonth());
-                        } else {
-                            $query->whereBetween('moving_date', [$startOfMonth, $endOfMonth]);
-                        }
-                    } elseif ($type === 'upcoming') {
-                        if ($month === Carbon::now()->format('F')) {
-                            $query->where('moving_date', '>=', $today)
-                                  ->where('moving_date', '<=', $endOfMonth);
-                        } else {
-                            $query->whereBetween('moving_date', [$startOfMonth, $endOfMonth]);
-                        }
+                    if ($type === 'vacant' || $type === 'upcoming') {
+                        $query->whereBetween('moving_date', [$startOfMonth, $endOfMonth]);
                     }
                 }
+
+                return $query;
             })
             ->columns([
                 TextColumn::make('building.name')
