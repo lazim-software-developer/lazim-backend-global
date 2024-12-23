@@ -279,18 +279,41 @@ class ComplaintResource extends Resource
                                     }),
                             ]),
 
-                        Repeater::make('photo')
-                            ->label('Attachments')
-                            ->schema([
-                                FileUpload::make('photo')
-                                    ->label('File')
-                                    ->disk('s3')
-                                    ->directory('dev')
-                                    ->image()
-                                    ->maxSize(2048)
-                                    ->openable(true)
-                                    ->downloadable(true),
-                            ]),
+                        // Repeater::make('photo')
+                        //     ->label('Attachments')
+                        //     ->schema([
+                        //         FileUpload::make('photo')
+                        //             ->label('File')
+                        //             ->disk('s3')
+                        //             ->directory('dev')
+                        //             ->image()
+                        //             ->maxSize(2048)
+                        //             ->openable(true)
+                        //             ->downloadable(true),
+                        //     ]),
+
+                        FileUpload::make('media')
+                            ->label('Complaint Images')
+                            ->multiple()
+                            ->maxFiles(5)
+                            ->maxSize(2048)
+                            ->disk('s3')
+                            ->directory('dev')
+                            ->image()
+                            ->enableDownload()
+                            ->enableOpen()
+                            ->columnSpanFull()
+                            ->downloadable()
+                            ->previewable()
+                            ->helperText('Maximum 5 images allowed. Each image should not exceed 2MB.')
+                            ->getUploadedFileNameForStorageUsing(
+                                fn($file): string => (string) str()->uuid() . '.' . $file->getClientOriginalExtension()
+                            )
+                            ->afterStateUpdated(function ($state, $old, $set) {
+                                if ($old && !$state) {
+                                    $set('media', null);
+                                }
+                            }),
                     ]),
             ]);
     }

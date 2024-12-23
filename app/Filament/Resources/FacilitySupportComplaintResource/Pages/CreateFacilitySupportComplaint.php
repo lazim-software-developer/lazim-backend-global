@@ -35,4 +35,18 @@ class CreateFacilitySupportComplaint extends CreateRecord
         return $this->getResource()::getUrl('index');
     }
 
+    protected function afterCreate(): void
+    {
+        $complaint = $this->record;
+
+        // Save media files
+        if($this->data['media'] ?? null) {
+            foreach($this->data['media'] as $file) {
+                $complaint->media()->create([
+                    'name' => 'before',
+                    'url' => $file,
+                ]);
+            }
+        }
+    }
 }

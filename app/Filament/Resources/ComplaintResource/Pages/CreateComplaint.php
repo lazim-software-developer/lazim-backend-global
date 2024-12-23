@@ -29,6 +29,21 @@ class CreateComplaint extends CreateRecord
         return $data;
     }
 
+    protected function afterCreate(): void
+    {
+        $complaint = $this->record;
+
+        // Save media files
+        if($this->data['media'] ?? null) {
+            foreach($this->data['media'] as $file) {
+                $complaint->media()->create([
+                    'name' => 'before',
+                    'url' => $file,
+                ]);
+            }
+        }
+    }
+
     protected function getRedirectUrl(): string
     {
         return $this->getResource()::getUrl('index');
