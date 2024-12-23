@@ -38,4 +38,43 @@ class SubContractorEditRequest extends FormRequest
             'active'                    => 'sometimes|in:0,1',
         ];
     }
+
+    /**
+     * Get custom validation messages.
+     *
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return [
+            'name.required' => 'The name field is required.',
+            'email.required' => 'The email field is required.',
+            'email.unique' => 'This email is already registered.',
+            'phone.required' => 'The phone number field is required.',
+            'phone.unique' => 'This phone number is already registered.',
+            'company_name.required' => 'The company name field is required.',
+            'trn_no.required' => 'The TRN number field is required.',
+            'trn_no.max_digits' => 'The TRN number must not exceed 15 digits.',
+            'services.required' => 'Please select at least one service.',
+            'start_date.required' => 'The start date field is required.',
+            'start_date.date' => 'Please enter a valid start date.',
+            'end_date.required' => 'The end date field is required.',
+            'end_date.date' => 'Please enter a valid end date.',
+            'trade_licence.file' => 'The trade license must be a file.',
+            'trade_licence.mimes' => 'The trade license must be a PDF file.',
+            'trade_licence.max' => 'The trade license file size must not exceed 2MB.',
+            'trade_licence_expiry_date.required' => 'The trade license expiry date is required.',
+            'trade_licence_expiry_date.date' => 'Please enter a valid trade license expiry date.',
+            'contract_paper.file' => 'The contract paper must be a file.',
+            'contract_paper.mimes' => 'The contract paper must be a PNG, JPG, or PDF file.',
+            'contract_paper.max' => 'The contract paper file size must not exceed 2MB.',
+            'agreement_letter.file' => 'The agreement letter must be a file.',
+            'agreement_letter.mimes' => 'The agreement letter must be a PNG, JPG, or PDF file.',
+            'agreement_letter.max' => 'The agreement letter file size must not exceed 2MB.',
+            'additional_doc.file' => 'The additional document must be a file.',
+            'additional_doc.mimes' => 'The additional document must be a PNG, JPG, or PDF file.',
+            'additional_doc.max' => 'The additional document file size must not exceed 2MB.',
+            'active.in' => 'The active field must be either 0 or 1.',
+        ];
+    }
 }
