@@ -184,9 +184,8 @@ class DocumentsController extends Controller
             ->where('documentable_type', 'App\Models\User\User')
             ->where('document_library_id', 5)
             ->where('building_id', $request->building_id)
-            ->where('flat_id', $request->flat_id)
-            ->get();
+            ->where('flat_id', $request->flat_id);
 
-        return DocumentResource::collection($documents);
+        return DocumentResource::collection($documents->paginate(10));
     }
 }
