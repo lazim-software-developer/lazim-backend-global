@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Building;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Building\FlatOwnerResource;
 use App\Http\Resources\Building\FlatResource;
+use App\Http\Resources\User\UserResource;
 use App\Models\Building\Building;
 use App\Models\Building\Flat;
 
@@ -21,7 +22,11 @@ class FlatController extends Controller
     public function fetchFlatOwners(Flat $flat) {
         // Check if flat exists
         if($flat) {
-            return FlatOwnerResource::collection($flat->owners);
+            if($flat->owners) {
+                return FlatOwnerResource::collection($flat->owners);
+            }
+            $owner = auth()->user();
+            return new UserResource($owner);
         }
     }
 }
