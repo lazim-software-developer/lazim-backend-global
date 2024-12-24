@@ -85,19 +85,9 @@ class BuildingResource extends Resource
                         ->hidden(fn() => !in_array(auth()->user()->role->name, ['Admin', 'Property Manager'])),
 
                     TextInput::make('property_group_id')
-                        ->rules(['max:50', 'string'])
+                        ->rules(['max:50'])
                         ->required()
-                    // ->disabled(function () {
-                    //     if (auth()->user()->role->name !== 'Admin') {
-                    //         return true;
-                    //     }
-                    // })
-                        ->placeholder('Property Group Id')
-                        ->unique(
-                            'buildings',
-                            'property_group_id',
-                            fn(?Model $record) => $record,
-                        ),
+                        ->placeholder('Property Group Id'),
 
                     TextInput::make('address_line1')
                         ->rules(['max:500', 'string'])
@@ -112,7 +102,7 @@ class BuildingResource extends Resource
                         ->default(auth()->user()?->owner_association_id),
 
                     TextInput::make('area')
-                        ->rules(['max:100', 'string'])
+                        ->rules(['max:100'])
                         ->required()
                         ->placeholder('Area'),
 
@@ -149,23 +139,12 @@ class BuildingResource extends Resource
                         ->maxSize(2048)
                         ->label('Cover Photo'),
                     TextInput::make('floors')
-                        ->numeric()
-                        ->minValue(1)
-                        ->maxValue(999)
-                        ->disabled(function (?Model $record) {
-                            if ($record?->floors == null) {
-                                return false;
-                            }
-                            return true;
-                        })
+                        ->rule('regex:/^[0-9\-.,\/_ ]+$/')
                         ->placeholder('Floors')
                         ->label('Floor'),
 
                     TextInput::make('parking_count')
-                        ->numeric()
-                        ->minValue(1)
-                        ->maxLength(5)
-                        ->hidden(fn() => !in_array(auth()->user()->role->name, ['Admin', 'Property Manager']))
+                        ->rule('regex:/^[0-9\-.,\/_ ]+$/')
                         ->placeholder('Total Parking Count')
                         ->label('Total Parking Count'),
 

@@ -48,22 +48,22 @@ class PropertyManagerBuildingsImport implements ToCollection, WithHeadingRow
      */
     public function collection(Collection $rows)
     {
-        // Update expected headings to match BuildingImport
+        // Update expected headings with asterisk (*) for required fields
         $expectedHeadings = [
-            'name',
-            'building_type',
-            'property_group_id',
-            'address_line1',
+            'name*',
+            'building_type*',
+            'property_group_id*',
+            'address_line1*',
             'area',
             'floors',
             'parking_count',
-            'contract_start_date',
-            'contract_end_date',
+            'contract_start_date*',
+            'contract_end_date*',
         ];
 
         if ($rows->first() == null) {
             Notification::make()
-                ->title("Upload valid excel file.")
+                ->title("Upload valid excel file")
                 ->danger()
                 ->body("You have uploaded an empty file")
                 ->send();
@@ -73,20 +73,29 @@ class PropertyManagerBuildingsImport implements ToCollection, WithHeadingRow
         // Extract the headings from the first row
         if ($rows->first()->filter()->isEmpty()) {
             Notification::make()
-                ->title("Upload valid excel file.")
+                ->title("Upload valid excel file")
                 ->danger()
                 ->body("You have uploaded an empty file")
                 ->send();
             return 'failure';
         }
-        $extractedHeadings = array_keys($rows->first()->toArray());
 
-        // Check if all expected headings are present in the extracted headings
+        // Clean the extracted headings (remove asterisks)
+        $extractedHeadings = array_map(function($heading) {
+            return trim(str_replace('*', '', $heading));
+        }, array_keys($rows->first()->toArray()));
+
+        // Clean the expected headings
+        $expectedHeadings = array_map(function($heading) {
+            return trim(str_replace('*', '', $heading));
+        }, $expectedHeadings);
+
+        // Check if all expected headings are present
         $missingHeadings = array_diff($expectedHeadings, $extractedHeadings);
 
         if (!empty($missingHeadings)) {
             Notification::make()
-                ->title("Upload valid excel file.")
+                ->title("Upload valid excel file")
                 ->danger()
                 ->body("Missing headings: " . implode(', ', $missingHeadings))
                 ->send();
@@ -97,31 +106,36 @@ class PropertyManagerBuildingsImport implements ToCollection, WithHeadingRow
         foreach ($rows as $index => $row) {
             $errors = [];
 
-            // Basic required field validations
+            // Basic required field validations with better error messages
             if (empty($row['name'])) {
-                $errors[] = 'Name is missing';
+                $errors[] = 'Name is required';
+            }
+            if (empty($row['building_type'])) {
+                $errors[] = 'Building Type is required';
+            } elseif (!in_array(strtolower($row['building_type']), ['commercial', 'residential'])) {
+                $errors[] = 'Building Type must be either Commercial or Residential';
             }
             if (empty($row['property_group_id'])) {
-                $errors[] = 'Property Group ID is missing';
+                $errors[] = 'Property Group ID is required';
             }
             if (empty($row['address_line1'])) {
-                $errors[] = 'Address Line 1 is missing';
+                $errors[] = 'Address Line 1 is required';
             }
 
-            // Enhanced date validations with better error messages
+            // Date validations with user-friendly messages
             if (empty($row['contract_start_date'])) {
                 $errors[] = 'Contract Start Date is required';
             } elseif (!$this->convertExcelDate($row['contract_start_date'])) {
-                $errors[] = 'Invalid Contract Start Date format (use YYYY-MM-DD)';
+                $errors[] = 'Invalid Contract Start Date format';
             }
 
             if (empty($row['contract_end_date'])) {
                 $errors[] = 'Contract End Date is required';
             } elseif (!$this->convertExcelDate($row['contract_end_date'])) {
-                $errors[] = 'Invalid Contract End Date format (use YYYY-MM-DD)';
+                $errors[] = 'Invalid Contract End Date format';
             }
 
-            // Only check date comparison if both dates are valid
+            // Date comparison validation
             if (!empty($row['contract_start_date']) &&
                 !empty($row['contract_end_date']) &&
                 $this->convertExcelDate($row['contract_start_date']) &&
@@ -135,17 +149,9 @@ class PropertyManagerBuildingsImport implements ToCollection, WithHeadingRow
                 }
             }
 
-            // Other field validations
-            if (!empty($row['area']) && !is_numeric($row['area'])) {
-                $errors[] = 'Invalid Area format';
-            }
-            if (!empty($row['floors']) && !is_numeric($row['floors'])) {
-                $errors[] = 'Invalid Floors format';
-            }
-
-            // Duplicate checks
+            // Duplicate checks with better error messages
             if (!empty($row['name']) && Building::where('name', $row['name'])->exists()) {
-                $errors[] = 'Building name already exists';
+                $errors[] = 'Building with this name already exists';
             }
             if (!empty($row['property_group_id']) && Building::where('property_group_id', $row['property_group_id'])->exists()) {
                 $errors[] = 'Property Group ID already exists';
@@ -163,43 +169,42 @@ class PropertyManagerBuildingsImport implements ToCollection, WithHeadingRow
 
             $building = Building::create([
                 'name' => $row['name'],
-                'building_type'         => $row['building_type'],
-                'property_group_id'     => $row['property_group_id'],
-                'address_line1'         => $row['address_line1'],
-                'area'                  => $row['area'],
-                'floors'                => $row['floors'],
-                'parking_count'         => $row['parking_count'],
-                'from'                  => $fromDate ?: null,
-                'to'                    => $toDate ?: null,
-                'owner_association_id'  => $this->oaId,
+                'building_type' => strtolower($row['building_type']),
+                'property_group_id' => $row['property_group_id'],
+                'address_line1' => $row['address_line1'],
+                'area' => $row['area'] ?: null,
+                'floors' => $row['floors'] ?: null,
+                'parking_count' => $row['parking_count'] ?: null,
+                'from' => $fromDate,
+                'to' => $toDate,
+                'owner_association_id' => $this->oaId,
                 'show_inhouse_services' => 0,
-                'managed_by'            => 'Property Manager',
+                'managed_by' => 'Property Manager',
             ]);
 
-            // Sync the relationship with OwnerAssociation with pivot data
+            // Sync with owner associations
             $building->ownerAssociations()->sync([
                 $this->oaId => [
-                    'from'   => $fromDate ?: null,
-                    'to'     => $toDate ?: null,
+                    'from' => $fromDate,
+                    'to' => $toDate,
                     'active' => true,
                 ],
             ]);
         }
+
         if (!empty($notImported)) {
             Notification::make()
                 ->title("Failed to import some buildings")
                 ->body(implode("\n", $notImported))
                 ->danger()
                 ->send();
-
             return 'failure';
-        } else {
-            Notification::make()
-                ->title("Buildings imported successfully.")
-                ->success()
-                ->send();
-
-            return 'success';
         }
+
+        Notification::make()
+            ->title("Buildings imported successfully")
+            ->success()
+            ->send();
+        return 'success';
     }
 }
