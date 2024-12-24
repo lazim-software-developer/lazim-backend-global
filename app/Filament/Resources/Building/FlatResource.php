@@ -99,15 +99,15 @@ class FlatResource extends Resource
                         TextInput::make('suit_area')
                             ->placeholder('NA')
                             ->label('Suit Area')
-                            ->numeric(),
+                            ->rule('regex:/^[0-9\-.,\/_ ]+$/'), // Allow numbers and special characters
                         TextInput::make('actual_area')
                             ->placeholder('NA')
                             ->label('Actual Area')
-                            ->numeric(),
+                            ->rule('regex:/^[0-9\-.,\/_ ]+$/'),
                         TextInput::make('balcony_area')
                             ->placeholder('NA')
                             ->label('Balcony Area')
-                            ->numeric(),
+                            ->rule('regex:/^[0-9\-.,\/_ ]+$/'),
                         TextInput::make('applicable_area')
                             ->hidden(in_array(auth()->user()->role->name, ['Property Manager', 'Admin']))
                             ->placeholder('NA')
@@ -119,31 +119,27 @@ class FlatResource extends Resource
                         TextInput::make('parking_count')
                             ->placeholder('NA')
                             ->label('Parking Count')
-                            ->numeric(),
+                            ->rule('regex:/^[0-9\-.,\/_ ]+$/'),
                         TextInput::make('plot_number')
                             ->placeholder('NA')
                             ->label('Plot Number')
-                            ->numeric(),
+                            ->rule('regex:/^[0-9\-.,\/_ ]+$/'),
                         TextInput::make('makhani_number')
                             ->placeholder('NA')
-                            ->label('Makhani Number')
-                            ->visible(in_array(auth()->user()->role->name, ['Admin', 'Property Manager']))
-                            ->numeric(),
+                            ->label('Makani Number')
+                            ->rule('regex:/^[0-9\-.,\/_ ]+$/'),
                         TextInput::make('dewa_number')
                             ->placeholder('NA')
                             ->label('DEWA Number')
-                            ->visible(in_array(auth()->user()->role->name, ['Admin', 'Property Manager']))
-                            ->numeric(),
+                            ->rule('regex:/^[0-9\-.,\/_ ]+$/'),
                         TextInput::make('etisalat/du_number')
                             ->label('BTU/Etisalat Number')
                             ->placeholder('NA')
-                            ->visible(in_array(auth()->user()->role->name, ['Admin', 'Property Manager']))
-                            ->numeric(),
+                            ->rule('regex:/^[0-9\-.,\/_ ]+$/'),
                         TextInput::make('btu/ac_number')
                             ->placeholder('NA')
                             ->label('BTU/AC Number')
-                            ->visible(in_array(auth()->user()->role->name, ['Admin', 'Property Manager']))
-                            ->numeric(),
+                            ->rule('regex:/^[0-9\-.,\/_ ]+$/'),
                     ]),
             ]);
     }
