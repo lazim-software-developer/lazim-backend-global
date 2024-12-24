@@ -20,13 +20,9 @@ class FlatController extends Controller
 
     // List all flat owners
     public function fetchFlatOwners(Flat $flat) {
-        // Check if flat exists
-        if($flat) {
-            if($flat->owners) {
-                return FlatOwnerResource::collection($flat->owners);
-            }
-            $owner = auth()->user();
-            return new UserResource($owner);
+        if($flat && $flat->owners->count() > 0) {
+            return FlatOwnerResource::collection($flat->owners);
         }
+        return new UserResource(auth()->user());
     }
 }
