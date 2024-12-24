@@ -2,16 +2,16 @@
 
 namespace App\Filament\Resources\FacilityManagerResource\Pages;
 
-use App\Filament\Resources\FacilityManagerResource;
-use App\Models\Role;
 use App\Models\User\User;
+use App\Models\Master\Role;
 use Filament\Actions\Action;
-use Filament\Actions\CreateAction;
 use Filament\Facades\Filament;
+use Filament\Actions\CreateAction;
+use Illuminate\Support\Facades\DB;
 use Filament\Forms\Components\Select;
 use Filament\Resources\Pages\ListRecords;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\DB;
+use App\Filament\Resources\FacilityManagerResource;
 
 class ListFacilityManagers extends ListRecords
 {
