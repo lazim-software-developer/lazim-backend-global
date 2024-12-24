@@ -31,6 +31,9 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Tables\Columns\ImageColumn;
+use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
+use Filament\Tables\Columns\ViewColumn;
 
 class FacilitySupportComplaintResource extends Resource
 {
@@ -308,18 +311,28 @@ class FacilitySupportComplaintResource extends Resource
                                     }),
                             ]),
 
-                        Repeater::make('photo')
-                            ->label('Attachments')
-                            ->schema([
-                                FileUpload::make('photo')
-                                    ->label('File')
-                                    ->disk('s3')
-                                    ->directory('dev')
-                                    ->image()
-                                    ->maxSize(2048)
-                                    ->openable(true)
-                                    ->downloadable(true),
-                            ]),
+                        FileUpload::make('media')
+                            ->label('Complaint Images')
+                            ->multiple()
+                            ->maxFiles(5) // Maximum 5 files
+                            ->maxSize(2048) // 2MB in kilobytes
+                            ->disk('s3')
+                            ->directory('dev')
+                            ->image()
+                            ->enableDownload()
+                            ->enableOpen()
+                            ->columnSpanFull()
+                            ->downloadable()
+                            ->previewable()
+                            ->helperText('Maximum 5 images allowed. Each image should not exceed 2MB.')
+                            ->getUploadedFileNameForStorageUsing(
+                                fn($file): string => (string) str()->uuid() . '.' . $file->getClientOriginalExtension()
+                            )
+                            ->afterStateUpdated(function ($state, $old, $set) {
+                                if ($old && !$state) {
+                                    $set('media', null);
+                                }
+                            }),
                     ]),
             ]);
     }
@@ -391,7 +404,6 @@ class FacilitySupportComplaintResource extends Resource
                     ->limit(50),
             ])
             ->defaultSort('created_at', 'desc')
-            ->emptyStateHeading('No Reactive Maintenance records')
             ->filters([
                 SelectFilter::make('building_id')
                     ->label('Building')
@@ -415,7 +427,7 @@ class FacilitySupportComplaintResource extends Resource
                     ->searchable()
                     ->preload(),
             ])
-            ->emptyStateHeading('No Issues')
+            ->emptyStateHeading('No Maintenance Schedules')
             ->bulkActions([
                 // ExportBulkAction::make(),
             ])

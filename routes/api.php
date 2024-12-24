@@ -168,6 +168,8 @@ Route::group(['middleware' => ["auth:sanctum", "verified"]], function () {
     Route::get('/tenant/familyMembers', [FamilyMemberController::class, 'tenantsFamilyMembers']);
     //List all tenant documents
     Route::get('/tenant/documents', [DocumentsController::class, 'tenantDocuments']);
+    //List all tenant other documents
+    Route::get('/tenant/other-documents', [DocumentsController::class, 'tenantOtherDocuments']);
     //List all tenant requests
     Route::get('/tenant/requests', [AccessCardController::class, 'tenantRequests']);
     //List all tenant Vehicles
@@ -699,3 +701,6 @@ Route::middleware(['authenticate.tally'])->group(function () {
 Route::post('/mollak/wrapper', [TestController::class, 'forwardRequest']);
 
 Route::post('/email-testing', [TestController::class, 'emailTriggering']);
+
+Route::get('push-notification', [NotificationController::class, 'pushNotification']);
+Route::get('push-notification-new', [NotificationController::class, 'pushNotificationNew']);

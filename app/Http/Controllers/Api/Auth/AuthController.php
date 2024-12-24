@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Auth;
 
+use App\Models\Building\Document;
 use App\Models\User\User;
 use App\Traits\UtilsTrait;
 use Illuminate\Support\Str;
@@ -352,6 +353,19 @@ class AuthController extends Controller
         //         'data' => $user
         //     ]))->response()->setStatusCode(403);
         // }
+
+        $documents = Document::where('documentable_id', $user->vendors->first()?->id)
+            ->whereNotNull('url')
+            ->exists();
+        //check if vendor has uploaded documnets
+        if (!$documents) {
+            return (new CustomResponseResource([
+                'title'   => 'redirect_documents',
+                'message' => "Upload required documents to proceed",
+                'code'    => 403,
+                'data'    => $user->vendors->first(),
+            ]))->response()->setStatusCode(400);
+        }
 
         if ($user && $user->vendors->first()->status == 'rejected') {
             return (new CustomResponseResource([

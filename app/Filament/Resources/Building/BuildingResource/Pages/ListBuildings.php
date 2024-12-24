@@ -105,15 +105,15 @@ class ListBuildings extends ListRecords
                     ExcelExport::make()
                         ->modifyQueryUsing(fn(Builder $query) => $query->where('id', 0))
                         ->withColumns([
-                            Column::make('name'),
-                            Column::make('building_type'),
-                            Column::make('property_group_id'),
+                            Column::make('name*'),
+                            Column::make('building_type*'),
+                            Column::make('property_group_id*'),
                             Column::make('address_line1'),
                             Column::make('area'),
                             Column::make('floors'),
                             Column::make('parking_count'),
-                            Column::make('contract_start_date')->heading('Contract Start Date'),
-                            Column::make('contract_end_date')->heading('Contract End Date'),
+                            Column::make('contract_start_date')->heading('Contract Start Date*'),
+                            Column::make('contract_end_date')->heading('Contract End Date*'),
                         ]),
                 ])
                 ->label('Download sample file'),

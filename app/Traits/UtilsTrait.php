@@ -18,11 +18,34 @@ trait UtilsTrait
                 ],
                 'json'    => $message,
             ]);
+            return 'success';
         } catch (GuzzleException $e) {
             Log::error('Expo notification failed', [
                 'error' => $e->getMessage(),
                 'status' => $e->getCode()
             ]);
+            return $e->getMessage();
         }
     }
+    public function expoNotificationFcm($message)
+    {
+        try {
+            $client = new Client();
+            $client->post('https://fcm.googleapis.com/fcm/send', [
+                'headers' => [
+                    'Accept'       => 'application/json',
+                    'Content-Type' => 'application/json',
+                ],
+                'json'    => $message,
+            ]);
+            return 'success';
+        } catch (GuzzleException $e) {
+            Log::error('Expo notification failed', [
+                'error' => $e->getMessage(),
+                'status' => $e->getCode()
+            ]);
+            return $e->getMessage();
+        }
+    }
+
 }

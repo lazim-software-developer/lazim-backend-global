@@ -93,17 +93,21 @@ class FlatResource extends Resource
                                 'Office' => 'Office',
                                 'Unit'   => 'Unit',
                             ])
+                            ->label('Property Type')
                             ->required()
                             ->searchable(),
                         TextInput::make('suit_area')
                             ->placeholder('NA')
-                            ->numeric(),
+                            ->label('Suit Area')
+                            ->rule('regex:/^[0-9\-.,\/_ ]+$/'), // Allow numbers and special characters
                         TextInput::make('actual_area')
                             ->placeholder('NA')
-                            ->numeric(),
+                            ->label('Actual Area')
+                            ->rule('regex:/^[0-9\-.,\/_ ]+$/'),
                         TextInput::make('balcony_area')
                             ->placeholder('NA')
-                            ->numeric(),
+                            ->label('Balcony Area')
+                            ->rule('regex:/^[0-9\-.,\/_ ]+$/'),
                         TextInput::make('applicable_area')
                             ->hidden(in_array(auth()->user()->role->name, ['Property Manager', 'Admin']))
                             ->placeholder('NA')
@@ -114,28 +118,28 @@ class FlatResource extends Resource
                             ->numeric(),
                         TextInput::make('parking_count')
                             ->placeholder('NA')
-                            ->numeric(),
+                            ->label('Parking Count')
+                            ->rule('regex:/^[0-9\-.,\/_ ]+$/'),
                         TextInput::make('plot_number')
                             ->placeholder('NA')
-                            ->numeric(),
+                            ->label('Plot Number')
+                            ->rule('regex:/^[0-9\-.,\/_ ]+$/'),
                         TextInput::make('makhani_number')
                             ->placeholder('NA')
-                            ->visible(in_array(auth()->user()->role->name, ['Admin', 'Property Manager']))
-                            ->numeric(),
+                            ->label('Makani Number')
+                            ->rule('regex:/^[0-9\-.,\/_ ]+$/'),
                         TextInput::make('dewa_number')
                             ->placeholder('NA')
-                            ->visible(in_array(auth()->user()->role->name, ['Admin', 'Property Manager']))
-                            ->numeric(),
+                            ->label('DEWA Number')
+                            ->rule('regex:/^[0-9\-.,\/_ ]+$/'),
                         TextInput::make('etisalat/du_number')
                             ->label('BTU/Etisalat Number')
                             ->placeholder('NA')
-                            ->visible(in_array(auth()->user()->role->name, ['Admin', 'Property Manager']))
-                            ->numeric(),
+                            ->rule('regex:/^[0-9\-.,\/_ ]+$/'),
                         TextInput::make('btu/ac_number')
                             ->placeholder('NA')
                             ->label('BTU/AC Number')
-                            ->visible(in_array(auth()->user()->role->name, ['Admin', 'Property Manager']))
-                            ->numeric(),
+                            ->rule('regex:/^[0-9\-.,\/_ ]+$/'),
                     ]),
             ]);
     }
@@ -207,7 +211,7 @@ class FlatResource extends Resource
                             return Building::all()->pluck('name', 'id');
                         } elseif (Role::where('id', auth()->user()->role_id)->first()->name == 'Property Manager') {
                             $buildings = DB::table('building_owner_association')
-                                ->where('owner_association_id',auth()->user()->owner_association_id)
+                                ->where('owner_association_id', auth()->user()->owner_association_id)
                                 ->where('active', true)
                                 ->pluck('building_id');
                             return Building::whereIn('id', $buildings)->pluck('name', 'id');

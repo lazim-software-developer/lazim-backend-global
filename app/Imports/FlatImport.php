@@ -5,7 +5,6 @@ namespace App\Imports;
 use App\Models\Building\Flat;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 
@@ -21,20 +20,20 @@ class FlatImport implements ToCollection, WithHeadingRow
      */
     public function collection(Collection $rows)
     {
-        // Define the expected headings
-        $expectedHeadings = ['unit_number',
-                'property_type',
-                // 'mollak_property_id',
-                'suit_area',
-                'actual_area',
-                'balcony_area',
-                // 'applicable_area',
-                'plot_number',
-                'parking_count',
-                'makhani_number',
-                'dewa_number',
-                'btuetisalat_number',
-                'btuac_number'];
+        // Define the expected headings (without asterisks)
+        $expectedHeadings = [
+            'unit_number',
+            'property_type',
+            'suit_area',
+            'actual_area',
+            'balcony_area',
+            'plot_number',
+            'parking_count',
+            'makani_number',
+            'dewa_number',
+            'btuetisalat_number',
+            'btuac_number'
+        ];
 
         if ($rows->first() == null) {
             Notification::make()
@@ -54,8 +53,16 @@ class FlatImport implements ToCollection, WithHeadingRow
                 ->send();
             return 'failure';
         }
-        $extractedHeadings = array_keys($rows->first()->toArray());
-        // dd($extractedHeadings);
+
+        // Clean the extracted headings (remove asterisks)
+        $extractedHeadings = array_map(function($heading) {
+            return trim(str_replace('*', '', $heading));
+        }, array_keys($rows->first()->toArray()));
+
+        // Clean the expected headings
+        $expectedHeadings = array_map(function($heading) {
+            return trim(str_replace('*', '', $heading));
+        }, $expectedHeadings);
 
         // Check if all expected headings are present in the extracted headings
         $missingHeadings = array_diff($expectedHeadings, $extractedHeadings);
@@ -71,45 +78,80 @@ class FlatImport implements ToCollection, WithHeadingRow
 
         $notImported = [];
         foreach ($rows as $row) {
+            // Handle fields with or without asterisk in column names
+            $unitNumber = $row['unit_number*'] ?? $row['unit_number'] ?? null;
+            $propertyType = $row['property_type*'] ?? $row['property_type'] ?? null;
+
+            // Normalize property type case
+            if (!empty($propertyType)) {
+                $propertyType = ucfirst(strtolower($propertyType));
+            }
+
             $exists = Flat::where([
-                'property_number' => $row['unit_number'],
+                'property_number'      => $unitNumber,
                 'owner_association_id' => $this->oaId,
-                'building_id' => $this->buildingId
+                'building_id'          => $this->buildingId,
             ])->exists();
 
             $errors = [];
-            if ($row['unit_number'] == null) {
-                $errors[] = 'Unit number is missing';
+
+            // Required field validations
+            if (empty($unitNumber)) {
+                $errors[] = 'Unit number is required';
             }
-            if (!in_array($row['property_type'], ['Shop', 'Office', 'Unit'])) {
-                $errors[] = 'Invalid or missing property type';
+            if (empty($propertyType)) {
+                $errors[] = 'Property type is required';
             }
-            if (!is_numeric($row['parking_count'])) {
-                $errors[] = 'Invalid or missing parking count';
+
+            // Property type validation
+            if (!empty($propertyType) && !in_array($propertyType, ['Shop', 'Office', 'Unit'])) {
+                $errors[] = 'Property type must be Shop, Office, or Unit';
+            }
+
+            // Updated numeric field validations
+            $numericFields = [
+                'suit_area'          => 'Suit area',
+                'actual_area'        => 'Actual area',
+                'balcony_area'       => 'Balcony area',
+                'parking_count'      => 'Parking count',
+                'plot_number'        => 'Plot number',
+                'makani_number'      => 'Makani number',
+                'dewa_number'        => 'Dewa number',
+                'btuetisalat_number' => 'BTU/Etisalat number',
+                'btuac_number'       => 'BTU/AC number',
+            ];
+
+            foreach ($numericFields as $field => $label) {
+                if (!empty($row[$field])) {
+                    // Allow numbers and special characters but no alphabets
+                    if (preg_match('/[a-zA-Z]/', $row[$field])) {
+                        $errors[] = "$label cannot contain alphabetic characters";
+                    }
+                }
             }
 
             if (!empty($errors)) {
-                $notImported[] = $row['unit_number'] . ' (' . implode(', ', $errors) . ')';
+                $notImported[] = $unitNumber . ' (' . implode(', ', $errors) . ')';
                 continue;
             }
 
             if ($exists) {
-                $notImported[] = $row['unit_number'] . ' (already exists)';
+                $notImported[] = $unitNumber . ' (already exists)';
             } else {
                 Flat::create([
                     'owner_association_id' => $this->oaId,
-                    'building_id' => $this->buildingId,
-                    'property_number' => $row['unit_number'],
-                    'property_type' => $row['property_type'],
-                    'suit_area' => $row['suit_area'],
-                    'actual_area' => $row['actual_area'],
-                    'balcony_area' => $row['balcony_area'],
-                    'plot_number' => $row['plot_number'],
-                    'parking_count' => $row['parking_count'],
-                    'makhani_number' => $row['makhani_number'],
-                    'dewa_number' => $row['dewa_number'],
-                    'etisalat/du_number' => $row['btuetisalat_number'],
-                    'btu/ac_number' => $row['btuac_number'],
+                    'building_id'          => $this->buildingId,
+                    'property_number'      => $unitNumber,
+                    'property_type'        => $propertyType,
+                    'suit_area'            => $row['suit_area'] ?: null,
+                    'actual_area'          => $row['actual_area'] ?: null,
+                    'balcony_area'         => $row['balcony_area'] ?: null,
+                    'plot_number'          => $row['plot_number'] ?: null,
+                    'parking_count'        => $row['parking_count'] ?: null,
+                    'makhani_number'       => $row['makani_number'] ?: null,
+                    'dewa_number'          => $row['dewa_number'] ?: null,
+                    'etisalat/du_number'   => $row['btuetisalat_number'] ?: null,
+                    'btu/ac_number'        => $row['btuac_number'] ?: null,
                 ]);
             }
         }

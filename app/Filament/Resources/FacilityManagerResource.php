@@ -218,7 +218,6 @@ class FacilityManagerResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn(Builder $query) => $query->where('owner_association_id', auth()->user()->ownerAssociation[0]->id))
             ->columns([
                 Tables\Columns\TextColumn::make('name')
                     ->label('Company Name')
