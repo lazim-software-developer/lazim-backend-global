@@ -23,6 +23,6 @@ class FlatController extends Controller
         if($flat && $flat->owners->count() > 0) {
             return FlatOwnerResource::collection($flat->owners);
         }
-        return new UserResource(auth()->user());
+        return UserResource::collection(collect([auth()->user()]));
     }
 }
