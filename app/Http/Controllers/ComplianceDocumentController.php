@@ -13,7 +13,8 @@ class ComplianceDocumentController extends Controller
 {
     public function list(Request $request, Vendor $vendor)
     {
-        $complianceDocument = $vendor->ComplianceDocuments->paginate($request->page ?? 10);
+        $complianceDocument = $vendor->complianceDocuments()
+            ->paginate($request->get('page', 10));
 
         return ComplianceDocumentResource::collection($complianceDocument);
     }
@@ -45,9 +46,9 @@ class ComplianceDocumentController extends Controller
     }
     public function dashboardList(Request $request, Vendor $vendor)
     {
-        $complianceDocument = $vendor->ComplianceDocuments
+        $complianceDocument = $vendor->complianceDocuments()
             ->whereBetween('expiry_date', [now(), now()->addDays(30)])
-            ->paginate($request->page ?? 10);
+            ->paginate($request->get('page', 10));
 
         return ComplianceDocumentResource::collection($complianceDocument);
     }
