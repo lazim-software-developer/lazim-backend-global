@@ -287,6 +287,7 @@ class RegistrationController extends Controller
         $imagePath = optimizeDocumentAndUpload($request->document, 'dev');
         $emirates = optimizeDocumentAndUpload($request->emirates_document, 'dev');
         $passport = optimizeDocumentAndUpload($request->passport_document, 'dev');
+        $tradeLicense = $request->filled('trade_license') ? optimizeDocumentAndUpload($request->trade_license, 'dev') : null;
 
         $oam_id = DB::table('building_owner_association')->where('building_id', $request->building_id)->where('active', true)->first();
         $oam = OwnerAssociation::find($oam_id->owner_association_id ?: auth()->user()->ownerAssociation->id);
@@ -297,6 +298,7 @@ class RegistrationController extends Controller
             'document_type' => $request->type == 'Owner' ? 'Title Deed' : 'Ejari',
             'emirates_document' => $emirates,
             'emirates_document_expiry_date' => $request->has('emirates_document_expiry_date') ? $request->emirates_document_expiry_date : null,
+            'trade_license' => $tradeLicense,
             'passport' => $passport,
             'passport_expiry_date' => $request->has('passport_expiry_date') ? $request->passport_expiry_date : null,
             'flat_id' => $request->flat_id,
@@ -309,6 +311,7 @@ class RegistrationController extends Controller
             'document' => $imagePath,
             'document_type' => $request->type == 'Owner' ? 'Title Deed' : 'Ejari',
             'emirates_document' => $emirates,
+            'trade_license' => $tradeLicense,
             'passport' => $passport,
             'owner_association_id' => $oam?->id,
         ]);
@@ -369,16 +372,19 @@ class RegistrationController extends Controller
             'document' => 'required|file|max:2048|mimes:pdf,jpg,jpeg,png,doc,docx',
             'emirates_document' => 'required|file|max:2048|mimes:pdf,jpg,jpeg,png,doc,docx',
             'passport_document' => 'required|file|max:2048|mimes:pdf,jpg,jpeg,png,doc,docx',
+            'trade_license' => 'nullable|file|max:2048|mimes:pdf,jpg,jpeg,png,doc,docx',
         ]);
 
         $imagePath = optimizeDocumentAndUpload($request->document, 'dev');
         $emirates = optimizeDocumentAndUpload($request->emirates_document, 'dev');
         $passport = optimizeDocumentAndUpload($request->passport_document, 'dev');
+        $tradeLicense = $request->filled('trade_license') ? optimizeDocumentAndUpload($request->trade_license, 'dev') : null;
 
         $userApproval = $resident->update([
             'document' => $imagePath,
             'emirates_document' => $emirates,
             'passport_document' => $passport,
+            'trade_license' => $tradeLicense,
             'status' => null,
             'remarks' => null,
         ]);
@@ -388,6 +394,7 @@ class RegistrationController extends Controller
             'document' => $imagePath,
             'document_type' => $resident->document_type,
             'emirates_document' => $emirates,
+            'trade_license' => $tradeLicense,
             'passport' => $passport,
             'owner_association_id' => $resident->owner_association_id,
         ]);
@@ -426,7 +433,8 @@ class RegistrationController extends Controller
             'document_type' => strtolower($resident->document_type),
             'document' => env('AWS_URL').'/'.$resident->document,
             'emirates_document' => env('AWS_URL').'/'.$resident->emirates_document,
-            'passport' => env('AWS_URL').'/'.$resident->passport
+            'passport' => env('AWS_URL').'/'.$resident->passport,
+            'trade_license' => $resident->trade_license ? env('AWS_URL').'/'.$resident->trade_license : null,
         ];
     }
 

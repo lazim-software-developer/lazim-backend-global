@@ -26,6 +26,7 @@ class RegisterWithEmiratesOrPassportRequest extends FormRequest
             'document' => 'required|file|max:2048|mimes:pdf,jpg,jpeg,png,doc,docx',
             'emirates_document' => 'required|file|max:2048|mimes:pdf,jpg,jpeg,png,doc,docx',
             'passport_document' => 'required|file|max:2048|mimes:pdf,jpg,jpeg,png,doc,docx',
+            'trade_license' => 'nullable|file|max:2048|mimes:pdf,jpg,jpeg,png,doc,docx',
             'flat_id' => 'required|exists:flats,id',
             'building_id' => 'required|exists:buildings,id',
             'type' => 'required|in:Owner,Tenant',
