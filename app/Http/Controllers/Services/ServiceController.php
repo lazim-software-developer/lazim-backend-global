@@ -60,7 +60,7 @@ class ServiceController extends Controller
 
         return new CustomResponseResource([
             'title' => 'Booking Successful',
-            'message' => 'Service booking has been successfully created.',
+            'message' => 'Thank you for your request. One of our customer care representatives will contact you shortly with further details and an estimated cost.',
             'code' => 200,
         ]);
     }
