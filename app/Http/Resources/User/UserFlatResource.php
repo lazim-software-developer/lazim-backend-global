@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\User;
 
+use App\Models\Bill;
 use App\Models\OwnerAssociation;
 use App\Models\RentalDetail;
 use Illuminate\Http\Request;
@@ -31,6 +32,7 @@ class UserFlatResource extends JsonResource
             $query->where('status', 'Overdue');
         })->exists();
         $residingInFlat = $flat?->residing_in_same_flat;
+        $bills = Bill::where('flat_id', $flat->id)->where('status', 'Overdue')->pluck('type');
         return [
             'flat_name' => $this->property_number,
             'flat_id' => $this->id,
@@ -42,6 +44,7 @@ class UserFlatResource extends JsonResource
             'role' => $flat?->role,
             'showcheques' => $showcheques,
             'chequeoverdue' => $chequeoverdue,
+            'bills' => $bills,
             'residing_in_flat' => $residingInFlat,
             'oa_logo' => $flatId->ownerAssociation?->profile_photo ? env('AWS_URL').'/'.$flatId->ownerAssociation?->profile_photo : null,
             'building_logo' => $this->building->cover_photo ? env('AWS_URL').'/'.$this->building->cover_photo : null,
