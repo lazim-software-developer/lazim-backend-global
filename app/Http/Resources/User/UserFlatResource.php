@@ -32,7 +32,7 @@ class UserFlatResource extends JsonResource
             $query->where('status', 'Overdue');
         })->exists();
         $residingInFlat = $flat?->residing_in_same_flat;
-        $bills = Bill::where('flat_id', $flat->id)->where('status', 'Overdue')->pluck('type');
+        $bills = Bill::where('flat_id', $this->id)->where('status', 'Overdue')->pluck('type');
         return [
             'flat_name' => $this->property_number,
             'flat_id' => $this->id,
