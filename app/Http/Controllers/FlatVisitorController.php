@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\DB;
 class FlatVisitorController extends Controller
 {
     use UtilsTrait;
-    public function index(Vendor $vendor)
+    public function index(Vendor $vendor, Request $request)
     {
         $ownerAssociationIds = DB::table('owner_association_vendor')
             ->where('vendor_id', $vendor->id)->pluck('owner_association_id');
@@ -24,7 +24,7 @@ class FlatVisitorController extends Controller
 
         $flatVisitors = FlatVisitor::whereIn('building_id', $buildingIds)->where('type','visitor')->orderByDesc('created_at');
 
-        return FlatVisitorResource::collection($flatVisitors->paginate(10));
+        return FlatVisitorResource::collection($flatVisitors->paginate($request->page ?? 10));
     }
     public function updateStatus(Vendor $vendor, FlatVisitor $flatVisitor, Request $request)
     {

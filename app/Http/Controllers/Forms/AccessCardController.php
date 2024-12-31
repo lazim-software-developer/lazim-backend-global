@@ -403,7 +403,7 @@ class AccessCardController extends Controller
         return response()->json($tenantForms);
     }
 
-    public function fmlist(Vendor $vendor)
+    public function fmlist(Vendor $vendor, Request $request)
     {
         $ownerAssociationIds = DB::table('owner_association_vendor')
             ->where('vendor_id', $vendor->id)->pluck('owner_association_id');
@@ -413,7 +413,7 @@ class AccessCardController extends Controller
 
         $accessCardForms = AccessCard::whereIn('building_id', $buildingIds)->orderByDesc('created_at');
 
-        return AccessCardFormResource::collection($accessCardForms->paginate(10));
+        return AccessCardFormResource::collection($accessCardForms->paginate($request->page ?? 10));
     }
      public function updateStatus(Vendor $vendor, AccessCard $accessCard, Request $request)
     {

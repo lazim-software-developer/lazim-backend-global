@@ -170,7 +170,7 @@ class SaleNocController extends Controller
             'path' => $path,
         ], 200);
     }
-    public function fmlist(Vendor $vendor)
+    public function fmlist(Vendor $vendor, Request $request)
     {
         $ownerAssociationIds = DB::table('owner_association_vendor')
             ->where('vendor_id', $vendor->id)->pluck('owner_association_id');
@@ -180,7 +180,7 @@ class SaleNocController extends Controller
 
         $saleNocForms = SaleNOC::whereIn('building_id', $buildingIds)->orderByDesc('created_at');
 
-        return SaleNocResource::collection($saleNocForms->paginate(10));
+        return SaleNocResource::collection($saleNocForms->paginate($request->page ?? 10));
     }
     public function updateStatus(Vendor $vendor, SaleNOC $saleNOC, Request $request)
     {

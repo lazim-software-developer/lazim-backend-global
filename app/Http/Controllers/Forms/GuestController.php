@@ -433,7 +433,7 @@ class GuestController extends Controller
 
         $guests = Guest::whereIn('flat_visitor_id',$flatVisitorIds)->orderByDesc('created_at');
 
-        return GuestResource::collection($guests->paginate(10));
+        return GuestResource::collection($guests->paginate($request->page ?? 10));
 
     }
     public function updateStatus(Vendor $vendor, Guest $guest, Request $request)

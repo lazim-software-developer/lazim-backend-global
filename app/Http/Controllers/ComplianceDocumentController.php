@@ -11,9 +11,9 @@ use Illuminate\Http\Request;
 
 class ComplianceDocumentController extends Controller
 {
-    public function list(Vendor $vendor)
+    public function list(Request $request, Vendor $vendor)
     {
-        $complianceDocument = $vendor->ComplianceDocuments;
+        $complianceDocument = $vendor->ComplianceDocuments->paginate($request->page ?? 10);
 
         return ComplianceDocumentResource::collection($complianceDocument);
     }
@@ -43,9 +43,11 @@ class ComplianceDocumentController extends Controller
         return ComplianceDocumentResource::make($complianceDocument);
 
     }
-    public function dashboardList(Vendor $vendor)
+    public function dashboardList(Request $request, Vendor $vendor)
     {
-        $complianceDocument = $vendor->ComplianceDocuments->whereBetween('expiry_date', [now(), now()->addDays(30)]);
+        $complianceDocument = $vendor->ComplianceDocuments
+            ->whereBetween('expiry_date', [now(), now()->addDays(30)])
+            ->paginate($request->page ?? 10);
 
         return ComplianceDocumentResource::collection($complianceDocument);
     }

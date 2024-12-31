@@ -156,7 +156,7 @@ class AssetController extends Controller
                                 });
                 $query->whereIn('building_id', $buildings->pluck('id'));
             });
-        return AssetListResource::collection($assets->paginate(10));
+        return AssetListResource::collection($assets->paginate($request->page ?? 10));
     }
 
     public function attachAsset(AssetAttachRequest $request,Asset $asset){

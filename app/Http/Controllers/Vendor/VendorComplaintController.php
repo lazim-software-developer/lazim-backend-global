@@ -57,7 +57,7 @@ class VendorComplaintController extends Controller
                 $query->whereIn('complaint_type', ['help_desk', 'tenant_complaint', 'snag', 'oa_complaint_report']);
             })
             ->whereBetween('updated_at', [$start_date, $end_date])
-            ->latest()->paginate(10);
+            ->latest()->paginate($request->page ?? 10);
 
         return VendorComplaintsResource::collection($complaints);
     }
@@ -255,7 +255,7 @@ class VendorComplaintController extends Controller
                     $query;
                 }
             })
-            ->paginate(10);
+            ->paginate($request->page ?? 10);
 
         return VendorComplaintsResource::collection($complaints);
     }
@@ -306,7 +306,7 @@ class VendorComplaintController extends Controller
                     $query->where('status','in-progress');
                 }
             })
-            ->paginate(10);
+            ->paginate($request->page ?? 10);
 
         return VendorComplaintsResource::collection($complaints);
     }
