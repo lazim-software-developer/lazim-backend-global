@@ -413,7 +413,7 @@ class AccessCardController extends Controller
 
         $accessCardForms = AccessCard::whereIn('building_id', $buildingIds)->orderByDesc('created_at');
 
-        return AccessCardFormResource::collection($accessCardForms->paginate($request->page ?? 10));
+        return AccessCardFormResource::collection($accessCardForms->paginate($request->paginate ?? 10));
     }
      public function updateStatus(Vendor $vendor, AccessCard $accessCard, Request $request)
     {

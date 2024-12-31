@@ -24,7 +24,7 @@ class ItemsController extends Controller
                         });
                     $query->whereIn('building_id', $buildings->pluck('id'));
                 });
-       return ItemsResource::collection($items->paginate($request->page ?? 10));
+       return ItemsResource::collection($items->paginate($request->paginate ?? 10));
     }
 
     public function updateItems(ItemManagmentRequest $request,Item $item){

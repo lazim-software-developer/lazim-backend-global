@@ -95,7 +95,7 @@ class TechnicianController extends Controller
         // $serviceTechnician = DB::table('service_technician_vendor')->where('service_id', $service?->id)->pluck('technician_vendor_id');
         $technicians = TechnicianVendor::whereIn('id', $technicians);
 
-        return ServiceTechnicianResource::collection($technicians->paginate($request->page ?? 10));
+        return ServiceTechnicianResource::collection($technicians->paginate($request->paginate ?? 10));
     }
 
     public function edit(EditTechnicianRequest $request, User $technician)
@@ -231,7 +231,7 @@ class TechnicianController extends Controller
 
     public function allTechnician(Vendor $vendor, Request $request){
         $technicians = TechnicianVendor::where('vendor_id', $vendor->id);
-        return ListAllTechnicianResource::collection($technicians->paginate($request->page ?? 10));
+        return ListAllTechnicianResource::collection($technicians->paginate($request->paginate ?? 10));
     }
 
     public function fetchTechnicianAssetDetails(Asset $asset)

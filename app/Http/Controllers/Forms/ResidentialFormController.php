@@ -69,7 +69,7 @@ class ResidentialFormController extends Controller
 
         $residentForms = ResidentialForm::whereIn('building_id', $buildingIds)->orderByDesc('created_at');
 
-        return ResidentialFormResource::collection($residentForms->paginate($request->page ?? 10));
+        return ResidentialFormResource::collection($residentForms->paginate($request->paginate ?? 10));
     }
     public function updateStatus(Vendor $vendor, ResidentialForm $residentialForm, Request $request)
     {

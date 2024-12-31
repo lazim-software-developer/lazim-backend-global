@@ -180,7 +180,7 @@ class SaleNocController extends Controller
 
         $saleNocForms = SaleNOC::whereIn('building_id', $buildingIds)->orderByDesc('created_at');
 
-        return SaleNocResource::collection($saleNocForms->paginate($request->page ?? 10));
+        return SaleNocResource::collection($saleNocForms->paginate($request->paginate ?? 10));
     }
     public function updateStatus(Vendor $vendor, SaleNOC $saleNOC, Request $request)
     {

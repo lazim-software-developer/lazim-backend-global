@@ -24,7 +24,7 @@ class TenderController extends Controller
             ->latest()
             ->pluck('tender_id');
 
-        $tenders = Tender::whereIn('id', $tendersIds)->paginate($request->page ?? 10);
+        $tenders = Tender::whereIn('id', $tendersIds)->paginate($request->paginate ?? 10);
 
         return TenderResource::collection($tenders);
     }

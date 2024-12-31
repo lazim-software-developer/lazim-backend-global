@@ -24,7 +24,7 @@ class FlatVisitorController extends Controller
 
         $flatVisitors = FlatVisitor::whereIn('building_id', $buildingIds)->where('type','visitor')->orderByDesc('created_at');
 
-        return FlatVisitorResource::collection($flatVisitors->paginate($request->page ?? 10));
+        return FlatVisitorResource::collection($flatVisitors->paginate($request->paginate ?? 10));
     }
     public function updateStatus(Vendor $vendor, FlatVisitor $flatVisitor, Request $request)
     {

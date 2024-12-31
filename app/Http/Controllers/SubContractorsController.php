@@ -15,7 +15,7 @@ class SubContractorsController extends Controller
     public function index(Vendor $vendor, Request $request)
     {
         $subContractors = $vendor->subContractors();
-        return SubContractorsResource::collection($subContractors->paginate($request->page ?? 10));
+        return SubContractorsResource::collection($subContractors->paginate($request->paginate ?? 10));
     }
     public function store(Vendor $vendor, SubContractorsRequest $request)
     {

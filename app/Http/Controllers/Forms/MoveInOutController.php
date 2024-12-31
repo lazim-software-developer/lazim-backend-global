@@ -180,7 +180,7 @@ class MoveInOutController extends Controller
 
         $moveInOut = MoveInOut::whereIn('building_id',$buildingIds)->where('type',$request->type)->orderByDesc('created_at');
 
-        return MoveInOutResource::collection($moveInOut->paginate($request->page ?? 10));
+        return MoveInOutResource::collection($moveInOut->paginate($request->paginate ?? 10));
 
     }
     public function updateStatus(Vendor $vendor, MoveInOut $moveInOut, Request $request)
