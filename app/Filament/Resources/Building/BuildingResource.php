@@ -531,6 +531,7 @@ class BuildingResource extends Resource
                         Forms\Components\Select::make('budget_period')
                             ->label('Select Budget Period')
                             ->options([
+                                'Jan 2025 - Dec 2025' => '2025',
                                 'Jan 2024 - Dec 2024' => '2024',
                                 'Jan 2023 - Dec 2023' => '2023',
                                 'Jan 2022 - Dec 2022' => '2022',
