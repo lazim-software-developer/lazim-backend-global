@@ -44,13 +44,17 @@ class ComplaintController extends Controller
      */
     public function index(Request $request, Building $building)
     {
-        $flats = FlatTenant::where('tenant_id', auth()->user()->id)->where('active', 1)->pluck('flat_id');
+        $flats = FlatTenant::where('tenant_id', auth()->user()->id)
+            ->where('active', 1)
+            ->pluck('flat_id');
+
+        // First query for user's direct complaints
         $query = Complaint::where([
-            'user_id'              => auth()->user()->id,
-            'building_id'          => $building->id,
-            'complaint_type'       => $request->type,
-        ])->when($flats->isNotEmpty(), function ($query) use ($flats) {
-            $query->whereIn('flat_id', $flats);
+            'building_id'    => $building->id,
+            'complaint_type' => $request->type,
+        ])->where(function($q) use ($flats) {
+            $q->where('user_id', auth()->user()->id)
+              ->orWhereIn('flat_id', $flats);
         });
 
         // Filter based on status if provided
