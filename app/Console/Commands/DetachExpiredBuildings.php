@@ -115,7 +115,7 @@ class DetachExpiredBuildings extends Command
                             ->where('building_id', $relation->building_id)
                             ->where('vendor_id', $relation->vendor_id)
                             ->where('end_date', $relation->end_date)
-                            ->delete();
+                            ->update(['active' => false]);
 
                         DB::commit();
                     } catch (Exception $e) {
