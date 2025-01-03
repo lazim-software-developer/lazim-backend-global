@@ -123,9 +123,6 @@ class AuthController extends Controller
                 'email' => ['The provided credentials are incorrect.'],
             ]);
         }
-        if ($user && in_array($user?->role->name, ['Owner', 'Tenant'])) {
-            abort_if(FlatTenant::where('tenant_id', $user->id)->where('active', true)->count() < 1, 422, "Currently, you don't have any active units.");
-        }
 
         // Check if the user's email and phone number is verified
 
@@ -150,14 +147,12 @@ class AuthController extends Controller
         // no active flats for resident
         $flatExists = FlatTenant::where('tenant_id', $user->id)->where('active', true)->exists();
         if (!$flatExists) {
-            return new CustomResponseResource([
-                'title' => 'No Active Units',
-                'message' => 'No active units found. Await for admin approval.',
+            return (new CustomResponseResource([
+                'title' => 'Access Forbidden',
+                'message' => 'You currently have no active units. Please await admin approval.',
                 'code' => 403,
-                'status' => 'approval pending',
-                'data' => $user,
-                'type' => 'registration'
-            ]);
+                'data' => $user
+            ]))->response()->setStatusCode(403);
         }
 
         // Create a new access token
