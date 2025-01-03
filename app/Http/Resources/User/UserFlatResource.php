@@ -47,7 +47,7 @@ class UserFlatResource extends JsonResource
             'showcheques' => $showcheques,
             'chequeoverdue' => $chequeoverdue,
             'bills' => $bills,
-            '$status' => $status?->status,
+            'status' => $status?->status,
             'remarks' => $status?->remarks,
             'residing_in_flat' => $residingInFlat,
             'oa_logo' => $flatId->ownerAssociation?->profile_photo ? env('AWS_URL').'/'.$flatId->ownerAssociation?->profile_photo : null,
