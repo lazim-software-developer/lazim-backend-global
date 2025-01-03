@@ -593,6 +593,30 @@ class RegistrationController extends Controller
                     'code' => 400,
                 ]))->response()->setStatusCode(400);
             }
+            $ownerResiding = DB::table('flat_tenants')
+                ->where(['flat_id' => $flat->id, 'active' => 1, 'role' => 'Owner', 'residing_in_same_flat' => true])
+                ->exists();
+
+            if ($ownerResiding) {
+                return (new CustomResponseResource([
+                    'title'   => 'flat_error',
+                    'message' => 'Flat is already allocated to one owner residing in same flat!',
+                    'code'    => 400,
+                ]))->response()->setStatusCode(400);
+            }
+        }
+        if ($request->type === 'Owner' && $request->has('residing') && $request->residing) {
+            $tenantExists = DB::table('flat_tenants')
+                ->where(['flat_id' => $flat->id, 'active' => 1, 'role' => 'Tenant'])
+                ->exists();
+
+            if ($tenantExists) {
+                return (new CustomResponseResource([
+                    'title'   => 'flat_error',
+                    'message' => 'Looks like this flat is already allocated to one tenant!',
+                    'code'    => 400,
+                ]))->response()->setStatusCode(400);
+            }
         }
 
         // Determine the type (tenant or owner)
