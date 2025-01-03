@@ -68,6 +68,11 @@ class UserController extends Controller
                       ->orWhere('status', 'rejected')
                       ->orWhere('status', 'approved');
             })
+            ->orderByRaw("CASE
+                WHEN status IS NULL THEN 1 
+                WHEN status = 'rejected' THEN 2
+                WHEN status = 'approved' THEN 3
+                ELSE 4 END")
             ->orderBy('created_at', 'desc')
             ->pluck('flat_id');
 
