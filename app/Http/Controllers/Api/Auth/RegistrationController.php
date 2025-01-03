@@ -277,7 +277,7 @@ class RegistrationController extends Controller
             'first_name' => $request->name,
             'phone' => $request->mobile, // Assuming phone is still provided for communication
             'role_id' => $role,
-            'active' => 0,
+            'active' => 1,
             'owner_association_id' => $owner_association_id,
         ]);
 
