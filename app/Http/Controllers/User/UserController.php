@@ -65,7 +65,8 @@ class UserController extends Controller
         $flatIds = UserApproval::where('user_id', $user->id)
             ->where(function($query) {
                 $query->whereNull('status')
-                      ->orWhere('status', 'rejected');
+                      ->orWhere('status', 'rejected')
+                      ->orWhere('status', 'pending');
             })
             ->pluck('flat_id');
 
