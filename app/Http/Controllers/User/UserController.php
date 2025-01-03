@@ -66,7 +66,7 @@ class UserController extends Controller
             ->where(function($query) {
                 $query->whereNull('status')
                       ->orWhere('status', 'rejected')
-                      ->orWhere('status', 'pending');
+                      ->orWhere('status', 'approved');
             })
             ->pluck('flat_id');
 
