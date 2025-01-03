@@ -251,19 +251,19 @@ class RegistrationController extends Controller
                 ]))->response()->setStatusCode(400);
             }
         }
-        if($type === 'Owner' && $request->has('residing') && $request->residing){
-            $flatOwner = DB::table('flat_tenants')
-                ->where(['flat_id' => $flat->id, 'active' => 1, 'role' => $type, 'residing_in_same_flat' => true])
-                ->exists();
+        // if($type === 'Owner' && $request->has('residing') && $request->residing){
+        //     $flatOwner = DB::table('flat_tenants')
+        //         ->where(['flat_id' => $flat->id, 'active' => 1, 'role' => $type, 'residing_in_same_flat' => true])
+        //         ->exists();
 
-            if ($flatOwner) {
-                return (new CustomResponseResource([
-                    'title' => 'flat_error',
-                    'message' => 'Looks like this flat is already allocated to one owner residing in same flat!',
-                    'code' => 400,
-                ]))->response()->setStatusCode(400);
-            }
-        }
+        //     if ($flatOwner) {
+        //         return (new CustomResponseResource([
+        //             'title' => 'flat_error',
+        //             'message' => 'Looks like this flat is already allocated to one owner residing in same flat!',
+        //             'code' => 400,
+        //         ]))->response()->setStatusCode(400);
+        //     }
+        // }
 
         // Identify role based on the type
         $role = Role::where('name', $type)->value('id');
@@ -551,7 +551,7 @@ class RegistrationController extends Controller
         $flat = Flat::find($request->flat_id);
 
         // check if the flat is already registered to the same user
-        $flatTenant = FlatTenant::where('flat_id', $request->flat_id)->where('tenant_id', $userData->id)->first();
+        $flatTenant = FlatTenant::where(['flat_id'=> $request->flat_id,'tenant_id'=> $userData->id,'active'=>true])->first();
         if ($flatTenant) {
             return (new CustomResponseResource([
                 'title' => 'Registration error',
@@ -566,7 +566,7 @@ class RegistrationController extends Controller
             if ($flatOwner) {
                 return (new CustomResponseResource([
                     'title' => 'Registration error',
-                    'message' => 'Looks like this flat is already allocated to someone!',
+                    'message' => 'Looks like this flat is already allocated to one tenant!',
                     'code' => 400,
                 ]))->response()->setStatusCode(400);
             }
