@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\DB;
 
 class TenderController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $vendor = Vendor::where('owner_id', auth()->user()->id)->first();
 
@@ -24,7 +24,7 @@ class TenderController extends Controller
             ->latest()
             ->pluck('tender_id');
 
-        $tenders = Tender::whereIn('id', $tendersIds)->paginate(10);
+        $tenders = Tender::whereIn('id', $tendersIds)->paginate($request->paginate ?? 10);
 
         return TenderResource::collection($tenders);
     }

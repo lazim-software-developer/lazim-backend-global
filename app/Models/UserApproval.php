@@ -13,7 +13,7 @@ class UserApproval extends Model
 
     protected $connection = 'mysql';
 
-    protected $fillable = ['user_id', 'document_type', 'status', 'remarks', 'document', 'updated_by', 'emirates_document', 'passport', 'owner_association_id', 'flat_id',
+    protected $fillable = ['user_id', 'document_type', 'status', 'remarks', 'document', 'updated_by', 'emirates_document', 'trade_license', 'passport', 'owner_association_id', 'flat_id',
                             'emirates_document_expiry_date', 'passport_expiry_date'];
 
     /**

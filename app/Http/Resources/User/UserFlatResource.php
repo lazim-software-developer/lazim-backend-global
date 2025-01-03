@@ -2,8 +2,10 @@
 
 namespace App\Http\Resources\User;
 
+use App\Models\Bill;
 use App\Models\OwnerAssociation;
 use App\Models\RentalDetail;
+use App\Models\UserApproval;
 use Illuminate\Http\Request;
 use App\Models\Building\Flat;
 use Illuminate\Support\Facades\DB;
@@ -31,6 +33,8 @@ class UserFlatResource extends JsonResource
             $query->where('status', 'Overdue');
         })->exists();
         $residingInFlat = $flat?->residing_in_same_flat;
+        $bills = Bill::where('flat_id', $this->id)->where('status', 'Overdue')->pluck('type');
+        $status = UserApproval::where(['user_id' => auth()->user()->id, 'flat_id' => $this->id])->latest()->first();
         return [
             'flat_name' => $this->property_number,
             'flat_id' => $this->id,
@@ -42,6 +46,9 @@ class UserFlatResource extends JsonResource
             'role' => $flat?->role,
             'showcheques' => $showcheques,
             'chequeoverdue' => $chequeoverdue,
+            'bills' => $bills,
+            'status' => $status?->status,
+            'remarks' => $status?->remarks,
             'residing_in_flat' => $residingInFlat,
             'oa_logo' => $flatId->ownerAssociation?->profile_photo ? env('AWS_URL').'/'.$flatId->ownerAssociation?->profile_photo : null,
             'building_logo' => $this->building->cover_photo ? env('AWS_URL').'/'.$this->building->cover_photo : null,

@@ -67,6 +67,7 @@ class EscalationMatrixRelationManager extends RelationManager
                 Tables\Actions\BulkActionGroup::make([
                     // Tables\Actions\DeleteBulkAction::make(),
                 ]),
-            ]);
+            ])
+            ->emptyStateDescription('No escalation matrix found.');
     }
 }

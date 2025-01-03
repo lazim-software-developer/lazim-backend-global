@@ -106,10 +106,10 @@ Route::middleware(['auth:sanctum', 'email.verified', 'active'])->group(function 
 });
 
 
+// Login routes for mobile app
+Route::post('/customer-login', [AuthController::class, 'customerLogin']);
 // These APIs work only if the user's account is active
 Route::middleware(['active'])->group(function () {
-    // Login routes for mobile app
-    Route::post('/customer-login', [AuthController::class, 'customerLogin']);
 
     // Vendor login
     Route::post('/vendor-login', [AuthController::class, 'vendorLogin']);

@@ -59,7 +59,7 @@ class ResidentialFormController extends Controller
             'data'    => $residentialForm,
         ], 201);
     }
-    public function fmlist(Vendor $vendor)
+    public function fmlist(Vendor $vendor, Request $request)
     {
         $ownerAssociationIds = DB::table('owner_association_vendor')
             ->where('vendor_id', $vendor->id)->pluck('owner_association_id');
@@ -69,7 +69,7 @@ class ResidentialFormController extends Controller
 
         $residentForms = ResidentialForm::whereIn('building_id', $buildingIds)->orderByDesc('created_at');
 
-        return ResidentialFormResource::collection($residentForms->paginate(10));
+        return ResidentialFormResource::collection($residentForms->paginate($request->paginate ?? 10));
     }
     public function updateStatus(Vendor $vendor, ResidentialForm $residentialForm, Request $request)
     {

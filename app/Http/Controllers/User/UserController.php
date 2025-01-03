@@ -65,11 +65,13 @@ class UserController extends Controller
         $flatIds = UserApproval::where('user_id', $user->id)
             ->where(function($query) {
                 $query->whereNull('status')
-                      ->orWhere('status', 'rejected');
+                      ->orWhere('status', 'rejected')
+                      ->orWhere('status', 'approved');
             })
+            ->orderBy('id', 'desc')
             ->pluck('flat_id');
 
-        $flats = Flat::whereIn('id', $flatIds)->get();
+        $flats = Flat::whereIn('id', $flatIds)->paginate($request->paginate ?? 10);
 
         return UserFlatResource::collection($flats);
     }

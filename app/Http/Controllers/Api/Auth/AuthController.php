@@ -123,9 +123,6 @@ class AuthController extends Controller
                 'email' => ['The provided credentials are incorrect.'],
             ]);
         }
-        if ($user && in_array($user?->role->name, ['Owner', 'Tenant'])) {
-            abort_if(FlatTenant::where('tenant_id', $user->id)->where('active', true)->count() < 1, 422, "Currently, you don't have any active units.");
-        }
 
         // Check if the user's email and phone number is verified
 
@@ -142,6 +139,34 @@ class AuthController extends Controller
             return (new CustomResponseResource([
                 'title' => 'Phone Verification Required',
                 'message' => 'Phone number is not verified.',
+                'code' => 403,
+                'data' => $user
+            ]))->response()->setStatusCode(403);
+        }
+
+        $flatExists = FlatTenant::where('tenant_id', $user->id)->where('active', true)->exists();
+        if(!$user->active && !$flatExists){
+            return (new CustomResponseResource([
+                'title' => 'Access Forbidden',
+                'message' => 'Account under review. Please wait.',
+                'code' => 403,
+                'data' => $user
+            ]))->response()->setStatusCode(403);
+        }
+
+        if(!$user->active){
+            return (new CustomResponseResource([
+                'title' => 'Account Status',
+                'message' => 'Access denied. Please contact the admin team.',
+                'code' => 400,
+            ]))->response()->setStatusCode(403);
+        }
+
+        // no active flats for resident
+        if (!$flatExists) {
+            return (new CustomResponseResource([
+                'title' => 'Access Forbidden',
+                'message' => 'You currently have no active units. Please await for admin approval.',
                 'code' => 403,
                 'data' => $user
             ]))->response()->setStatusCode(403);

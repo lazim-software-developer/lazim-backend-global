@@ -13,10 +13,17 @@ class BuildingController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $buildings = Building::get();
+        $query = Building::query();
 
+        if ($request->has('type')) {
+            $query->whereHas('ownerAssociations', function($q) use ($request) {
+                $q->where('role', $request->type);
+            });
+        }
+
+        $buildings = $query->get();
         return BuildingResource::collection($buildings);
     }
 }

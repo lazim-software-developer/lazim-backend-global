@@ -88,14 +88,14 @@ class TechnicianController extends Controller
         ]))->response()->setStatusCode(201);
     }
 
-    public function index(Service $service, Vendor $vendor)
+    public function index(Service $service, Vendor $vendor, Request $request)
     {
 
         $technicians = $service->technicianVendors->where('vendor_id', $vendor->id)->where('active',true)->pluck('id');
         // $serviceTechnician = DB::table('service_technician_vendor')->where('service_id', $service?->id)->pluck('technician_vendor_id');
         $technicians = TechnicianVendor::whereIn('id', $technicians);
 
-        return ServiceTechnicianResource::collection($technicians->paginate(5));
+        return ServiceTechnicianResource::collection($technicians->paginate($request->paginate ?? 10));
     }
 
     public function edit(EditTechnicianRequest $request, User $technician)
@@ -229,9 +229,9 @@ class TechnicianController extends Controller
         return ListTechnicianResource::collection($technicians);
     }
 
-    public function allTechnician(Vendor $vendor){
+    public function allTechnician(Vendor $vendor, Request $request){
         $technicians = TechnicianVendor::where('vendor_id', $vendor->id);
-        return ListAllTechnicianResource::collection($technicians->paginate(10));
+        return ListAllTechnicianResource::collection($technicians->paginate($request->paginate ?? 10));
     }
 
     public function fetchTechnicianAssetDetails(Asset $asset)

@@ -177,7 +177,7 @@ class FitOutFormsController extends Controller
 
         $fitOut = FitOutForm::whereIn('building_id',$buildingIds)->orderByDesc('created_at');
 
-        return FitOutFormResource::collection($fitOut->paginate(10));
+        return FitOutFormResource::collection($fitOut->paginate($request->paginate ?? 10));
 
     }
      public function updateStatus(Vendor $vendor, FitOutForm $fitOutForm, Request $request)
