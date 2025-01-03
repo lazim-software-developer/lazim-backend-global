@@ -282,7 +282,7 @@ class RegistrationController extends Controller
             if ($tenantExists) {
                 return (new CustomResponseResource([
                     'title' => 'flat_error',
-                    'message' => 'Flat is already allocated to one tenant!',
+                    'message' => 'Looks like this flat is already allocated to one tenant!',
                     'code' => 400,
                 ]))->response()->setStatusCode(400);
             }
