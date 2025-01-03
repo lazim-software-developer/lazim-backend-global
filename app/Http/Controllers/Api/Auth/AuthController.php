@@ -150,12 +150,14 @@ class AuthController extends Controller
         // no active flats for resident
         $flatExists = FlatTenant::where('tenant_id', $user->id)->where('active', true)->exists();
         if (!$flatExists) {
-            return (new CustomResponseResource([
+            return new CustomResponseResource([
                 'title' => 'No Active Units',
                 'message' => 'No active units found. Await for admin approval.',
                 'code' => 403,
-                'data' => $user
-            ]))->response()->setStatusCode(403);
+                'status' => 'approval pending',
+                'data' => $user,
+                'type' => 'registration'
+            ]);
         }
 
         // Create a new access token
