@@ -70,7 +70,7 @@ class UserController extends Controller
             })
             ->pluck('flat_id');
 
-        $flats = Flat::whereIn('id', $flatIds)->get();
+        $flats = Flat::whereIn('id', $flatIds)->paginate($request->paginate ?? 10);
 
         return UserFlatResource::collection($flats);
     }
