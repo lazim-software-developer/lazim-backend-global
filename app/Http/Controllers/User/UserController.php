@@ -68,6 +68,7 @@ class UserController extends Controller
                       ->orWhere('status', 'rejected')
                       ->orWhere('status', 'approved');
             })
+            ->orderBy('created_at', 'desc')
             ->pluck('flat_id');
 
         $flats = Flat::whereIn('id', $flatIds)->paginate($request->paginate ?? 10);
