@@ -26,7 +26,8 @@ class BuildingController extends Controller
         if($request->registration){
             $activeBuildings = DB::table('building_owner_association')
                 ->where('building_id', $query->pluck('id'))
-                ->where('active', 1);
+                ->where('active', 1)
+                ->pluck('building_id');
             $query = Building::whereIn('id',$activeBuildings);
         }
 
