@@ -43,7 +43,7 @@ class BuildingRelationManager extends RelationManager
         return $table
             ->modifyQueryUsing(function (Builder $query) {
                 $query->where('active', true)
-                ->latest()->first();
+                    ->latest()->first();
             })
             ->columns([
                 Tables\Columns\TextColumn::make('name')->label('Building Name')
@@ -250,13 +250,25 @@ class BuildingRelationManager extends RelationManager
                             ]
                         );
 
-                        DB::table('building_owner_association')->insert([
-                            'owner_association_id' => $livewire->ownerRecord->id,
-                            'building_id'          => $building->id,
-                            'from'                 => $data['from'],
-                            'to'                   => $data['to'],
-                            'active'               => true,
-                        ]);
+                        if (DB::table('building_owner_association')->where('building_id', $building->id)
+                            ->where('owner_association_id', $this->ownerRecord->id)->exists()) {
+                            DB::table('building_owner_association')
+                                ->where('building_id', $building->id)
+                                ->where('owner_association_id', $this->ownerRecord->id)
+                                ->update([
+                                    'from'   => $data['from'],
+                                    'to'     => $data['to'],
+                                    'active' => true,
+                                ]);
+                        } else {
+                            DB::table('building_owner_association')->insert([
+                                'owner_association_id' => $livewire->ownerRecord->id,
+                                'building_id'          => $building->id,
+                                'from'                 => $data['from'],
+                                'to'                   => $data['to'],
+                                'active'               => true,
+                            ]);
+                        }
 
                         // Check if building has any flats and flat_tenants before activation
                         $hasFlatsWithTenants = DB::table('flats')
@@ -332,7 +344,7 @@ class BuildingRelationManager extends RelationManager
                                 Column::make('floors'),
                                 Column::make('parking_count'),
                                 Column::make('contract_start_date')->heading('Contract Start Date'), // Changed from 'from'
-                                Column::make('contract_end_date')->heading('Contract End Date'),     // Changed from 'to'
+                                Column::make('contract_end_date')->heading('Contract End Date'), // Changed from 'to'
                             ]),
                     ])
                     ->label('Download sample file'),
