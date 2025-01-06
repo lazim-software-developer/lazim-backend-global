@@ -17,7 +17,9 @@ use App\Filament\Resources\Building\BuildingResource\RelationManagers\Ownercommi
 use App\Filament\Resources\Building\BuildingResource\RelationManagers\RuleregulationsRelationManager;
 use App\Imports\OAM\BudgetImport;
 use App\Models\Building\Building;
+use App\Models\Building\BuildingPoc;
 use App\Models\Master\Role;
+use App\Models\User\User;
 use Carbon\Carbon;
 use Cheesegrits\FilamentGoogleMaps\Fields\Geocomplete;
 use Cheesegrits\FilamentGoogleMaps\Fields\Map;
@@ -458,19 +460,6 @@ class BuildingResource extends Resource
                                 })
                                 ->update(['active' => 1]);
 
-                            // Make users with the same id as flat_tenant_id active
-                            DB::table('users')
-                                ->whereIn('id', function ($query) use ($record) {
-                                    $query->select('tenant_id')
-                                        ->from('flat_tenants')
-                                        ->whereIn('flat_id', function ($subQuery) use ($record) {
-                                            $subQuery->select('id')
-                                                ->from('flats')
-                                                ->where('building_id', $record->id);
-                                        });
-                                })
-                                ->update(['active' => 1]);
-
                             Notification::make()
                                 ->title('Building attached successfully')
                                 ->success()
@@ -487,37 +476,62 @@ class BuildingResource extends Resource
                             ->where('building_id', $record->id)
                             ->update(['to' => Carbon::now()->format('Y-m-d')]);
 
-                        // Make related flats inactive
-                        // DB::table('flats')
-                        //     ->where('building_id', $record->id)
-                        //     ->update(['active' => 0]);
-
                         // Make related flat tenants inactive
-
-                        DB::table('building_owner_association')
-                            ->where('building_id', $record->id)
-                            ->update(['to' => Carbon::now()]);
-
-                        DB::table('flat_tenants')
+                        $flatResidents = DB::table('flat_tenants')
                             ->whereIn('flat_id', function ($query) use ($record) {
                                 $query->select('id')
                                     ->from('flats')
                                     ->where('building_id', $record->id);
-                            })
-                            ->update(['active' => 0]);
+                            });
+                        if($flatResidents->exists()) {
+                            $tenantIds = $flatResidents->pluck('tenant_id');
+                            foreach ($tenantIds as $tenantId) {
+                                $otherFlats = DB::table('flat_tenants')
+                                    ->where('tenant_id', $tenantId)
+                                    ->where('building_id', '!=', $record->id)
+                                    ->where('active', 1)
+                                    ->exists();
 
-                        // Make users with the same id as flat_tenant_id inactive
-                        DB::table('users')
-                            ->whereIn('id', function ($query) use ($record) {
-                                $query->select('tenant_id')
-                                    ->from('flat_tenants')
-                                    ->whereIn('flat_id', function ($subQuery) use ($record) {
-                                        $subQuery->select('id')
-                                            ->from('flats')
-                                            ->where('building_id', $record->id);
-                                    });
-                            })
-                            ->update(['active' => 0]);
+                                if (!$otherFlats) {
+                                    User::findOrFail($tenantId)->tokens()->delete();
+                                }
+                            }
+                        }
+                        $flatResidents->update(['active' => 0]);
+                        // Make related vendor building inactive
+                        $vendorAssociated = DB::table('building_vendor')
+                            ->where('building_id', $record->id);
+                        if($vendorAssociated->exists()) {
+                            $vendorIds = $vendorAssociated->pluck('vendor_id');
+                            foreach ($vendorIds as $vendorId) {
+                                $otherBuildings = DB::table('building_vendor')
+                                    ->where('vendor_id', $vendorId)
+                                    ->where('building_id', '!=', $record->id)
+                                    ->where('active', 1)
+                                    ->exists();
+
+                                if (!$otherBuildings) {
+                                    User::findOrFail($vendorId)->tokens()->delete();
+                                }
+                            }
+                        }
+                        $vendorAssociated->update(['active' => 0, 'end_date' => Carbon::now()->format('Y-m-d')]);
+                        // Make related security guards inactive
+                        $security = BuildingPoc::where('building_id', $record->id);
+                        if($security->exists()) {
+                            $userIds = $security->pluck('user_id');
+                            foreach ($userIds as $userId) {
+                                $otherBuildings = BuildingPoc::where('user_id', $userId)
+                                    ->where('building_id', '!=', $record->id)
+                                    ->where('active', 1)
+                                    ->exists();
+
+                                if (!$otherBuildings) {
+                                    User::findOrFail($userId)->tokens()->delete();
+                                }
+                            }
+                        }
+                        $security->update(['active' => 0]);
                         Notification::make()
                             ->title($active ? 'Building detached successfully' : 'Building attached successfully')
                             ->success()
