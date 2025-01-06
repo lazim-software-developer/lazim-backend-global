@@ -24,9 +24,11 @@ class BuildingController extends Controller
             });
         }
         if($request->registration){
-            $query->whereHas('ownerAssociations', function($q) {
-                $q->where('active', 1);
-            });
+            $activeBuildings = DB::table('building_owner_association')
+                ->where('building_id', $query->pluck('id'))
+                ->where('active', 1)
+                ->pluck('building_id');
+            $query = Building::whereIn('id',$activeBuildings);
         }
 
         $buildings = $query->get();
