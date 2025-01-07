@@ -22,9 +22,9 @@ class OwnerAssociationController extends Controller
         try {
             $user = auth()->user();
             $data = $this->repository->list($request);
-            return response()->json(['data' => $data->paginate($request->per_page ?? 10)], 200);
+            return response()->json(["success"=>true,"message"=>'Data Found',"error"=>[],'data' => $data->paginate($request->per_page ?? 10)], 200);
         } catch (\Exception $e) {
-            return response()->json(['message' => 'Error fetching owner associations'], 500);
+            return response()->json(['message' => $e->getMessage()], 500);
         }
     }
 
@@ -32,9 +32,9 @@ class OwnerAssociationController extends Controller
     {
         try {
             $data = $this->repository->store($request->validated());
-            return response()->json(['data' => new OwnerAssociationResource($data), 'message' => 'Owner Association created successfully'], 201);
+            return response()->json(['success' => true,'error' => [],'data' => new OwnerAssociationResource($data), 'message' => 'Owner Association created successfully'], 201);
         } catch (\Exception $e) {
-            return response()->json(['message' => 'Error creating owner association'], 500);
+            return response()->json(['message' => $e->getMessage()], 500);
         }
     }
 
@@ -42,9 +42,9 @@ class OwnerAssociationController extends Controller
     {
         try {
             $data = $this->repository->update($id, $request->validated());
-            return response()->json(['data' =>  new OwnerAssociationResource($data), 'message' => 'Owner Association updated successfully'], 200);
+            return response()->json(['success' => true,'error' => [],'data' =>  new OwnerAssociationResource($data), 'message' => 'Owner Association updated successfully'], 200);
         } catch (\Exception $e) {
-            return response()->json(['message' => 'Error updating owner association'], 500);
+            return response()->json(['message' => $e->getMessage()], 500);
         }
     }
 
@@ -76,7 +76,8 @@ public function show($id)
         
         // Using Resource to transform the data
         return response()->json([
-            'status' => true,
+            'success' => true,
+            'error' => [],
             'data' => new OwnerAssociationResource($ownerAssociation),
             'message' => 'Owner Association details retrieved successfully'
         ], 200);
