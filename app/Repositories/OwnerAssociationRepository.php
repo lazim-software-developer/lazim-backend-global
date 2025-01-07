@@ -21,8 +21,7 @@ class OwnerAssociationRepository
                 $query->where('name', 'like', "%{$request->search}%")
                     ->orWhere('oa_number', 'like', "%{$request->search}%");
             })
-            ->orderBy($request->sort_by ?? 'created_at', $request->sort_order ?? 'desc')
-            ->paginate($request->per_page ?? 10);
+            ->orderBy($request->sort_by ?? 'created_at', $request->sort_order ?? 'desc');
     }
 
     public function store($data)

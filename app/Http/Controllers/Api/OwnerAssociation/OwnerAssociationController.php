@@ -22,7 +22,7 @@ class OwnerAssociationController extends Controller
         try {
             $user = auth()->user();
             $data = $this->repository->list($request);
-            return response()->json(['data' => $data], 200);
+            return response()->json(['data' => $data->paginate($request->per_page ?? 10)], 200);
         } catch (\Exception $e) {
             return response()->json(['message' => 'Error fetching owner associations'], 500);
         }
