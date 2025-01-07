@@ -461,6 +461,14 @@ class BuildingResource extends Resource
                                 })
                                 ->update(['active' => 1]);
 
+                            $vendorAll = DB::table('owner_association_vendor')
+                                ->where(['owner_association_id'=> auth()->user()->owner_association_id, 'active'=> 1])
+                                ->pluck('vendor_id');
+                            DB::table('building_vendor')
+                                ->where('building_id', $record->id)
+                                ->whereIn('vendor_id',$vendorAll)
+                                ->update(['active' => 1, 'start_date' => $data['from'], 'end_date' => $data['to']]);
+
                             Notification::make()
                                 ->title('Building attached successfully')
                                 ->success()
