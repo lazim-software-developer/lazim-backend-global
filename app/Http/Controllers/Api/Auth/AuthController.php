@@ -62,6 +62,23 @@ class AuthController extends Controller
             ]))->response()->setStatusCode(403);
         }
 
+        $vendors = $user->technicianVendors()
+            ->with(['vendor.buildings' => function ($query) {
+                $query->wherePivot('active', 1);
+            }])
+            ->get();
+
+        $buildings = $vendors->flatMap(function ($technicianVendor) {
+            return $technicianVendor->vendor->buildings;
+        })->unique('id');
+
+        if ($buildings->isEmpty()) {
+            return (new CustomResponseResource([
+                'title'   => 'Unauthorized!',
+                'message' => 'No active buildings. Please contact admin!',
+                'code'    => 400,
+            ]))->response()->setStatusCode(400);
+        }
         // if (!$user->phone_verified) {
         //     return (new CustomResponseResource([
         //         'title' => 'Phone Verification Required',
