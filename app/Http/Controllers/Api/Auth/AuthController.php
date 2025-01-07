@@ -166,7 +166,7 @@ class AuthController extends Controller
         if (!$flatExists) {
             return (new CustomResponseResource([
                 'title' => 'Access Forbidden',
-                'message' => 'You currently have no active units. Please await for admin approval.',
+                'message' => 'You currently have no active units. Please contact admin.',
                 'code' => 403,
                 'data' => $user
             ]))->response()->setStatusCode(403);

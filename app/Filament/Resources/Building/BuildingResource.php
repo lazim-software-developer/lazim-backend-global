@@ -20,6 +20,7 @@ use App\Models\Building\Building;
 use App\Models\Building\BuildingPoc;
 use App\Models\Master\Role;
 use App\Models\User\User;
+use App\Models\Vendor\Vendor;
 use Carbon\Carbon;
 use Cheesegrits\FilamentGoogleMaps\Fields\Geocomplete;
 use Cheesegrits\FilamentGoogleMaps\Fields\Map;
@@ -493,6 +494,7 @@ class BuildingResource extends Resource
                                     ->exists();
 
                                 if (!$otherFlats) {
+                                    Log::info('Deleting token for user: ' . $tenantId);
                                     User::findOrFail($tenantId)->tokens()->delete();
                                 }
                             }
@@ -511,6 +513,9 @@ class BuildingResource extends Resource
                                     ->exists();
 
                                 if (!$otherBuildings) {
+                                    $vendor = Vendor::findOrFail($vendorId);
+                                    $userId = $vendor->owner_id;
+                                    Log::info('Deleting token for user: ' . $userId);
                                     User::findOrFail($vendorId)->tokens()->delete();
                                 }
                             }
@@ -527,6 +532,7 @@ class BuildingResource extends Resource
                                     ->exists();
 
                                 if (!$otherBuildings) {
+                                    Log::info('Deleting token for user: ' . $userId);
                                     User::findOrFail($userId)->tokens()->delete();
                                 }
                             }
