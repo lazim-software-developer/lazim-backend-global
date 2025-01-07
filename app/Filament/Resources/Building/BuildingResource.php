@@ -542,12 +542,22 @@ class BuildingResource extends Resource
                                         ->where('active', 1)
                                         ->exists();
 
-                                    if (!$otherBuildings) {
+                                    $user = User::findOrFail($technicianId);
+                                    $vendors = $user->technicianVendors()
+                                        ->with(['vendor.buildings' => function ($query) {
+                                            $query->wherePivot('active', 1);
+                                        }])
+                                        ->get();
+                                    $buildings = $vendors->flatMap(function ($technicianVendor) {
+                                        return $technicianVendor->vendor->buildings;
+                                    })->unique('id');
+
+                                    if (!$otherBuildings && $buildings->isEmpty()) {
                                         Log::info('Deleting token for user: ' . $technicianId);
                                         DB::table('refresh_tokens')
                                             ->where('user_id', $technicianId)
                                             ->delete();
-                                        User::findOrFail($technicianId)->tokens()->delete();
+                                        $user->tokens()->delete();
                                     }
                                 }
 
