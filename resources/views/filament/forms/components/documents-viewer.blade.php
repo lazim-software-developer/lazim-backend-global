@@ -4,6 +4,7 @@
         @php
             $record = $getRecord();
             $documents = $record->documents;
+            $awsUrl = env('AWS_URL');
         @endphp
 
         @if($documents->isEmpty())
@@ -11,7 +12,7 @@
         @else
             @foreach($documents as $document)
                 <div class="flex items-center space-x-2">
-                    <a href="{{ $document->url }}"
+                    <a href="{{ $awsUrl . '/' . $document->url }}"
                        target="_blank"
                        class="text-primary-600 hover:text-primary-500">
                         {{ $document->name ?: 'Document ' . ($loop->iteration) }}
@@ -21,4 +22,3 @@
         @endif
     </div>
 </div>
- 
