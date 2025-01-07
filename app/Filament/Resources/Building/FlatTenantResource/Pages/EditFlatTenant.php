@@ -33,7 +33,7 @@ class EditFlatTenant extends EditRecord
         DB::table('documents')
             ->where('name', 'Makani number')
             ->where('flat_id', $data['flat_id'])
-            ->update(['url' => $data['makani_number_url']]);
+            ->update(['url' => $data['makani_number_url']?? null]);
         return $data;
     }
 }

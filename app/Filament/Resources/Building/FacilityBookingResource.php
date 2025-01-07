@@ -70,6 +70,10 @@ class FacilityBookingResource extends Resource
                             ->disabledOn('edit')
                             ->required()
                             ->preload()
+                            ->afterStateUpdated(function(callable $set) {
+                                $set('bookable_id', null);
+                                $set('flat_id', null);
+                            })
                             ->searchable()
                             ->placeholder('Building'),
 
@@ -89,17 +93,23 @@ class FacilityBookingResource extends Resource
                             })
                             ->preload(),
 
-                        Select::make('bookable_id')
+                            Select::make('bookable_id')
                             ->required()
-                            ->disabledOn('edit')
-                            ->options(
-                                DB::table('facilities')
+                            ->reactive()
+                            ->options(function (callable $get) {
+                                $facilityId = DB::table('building_facility')
+                                ->where('building_id', $get('building_id'))
+                                ->pluck('facility_id');
+                                return DB::table('facilities')
+                                    ->whereIn('id', $facilityId)
+                                    ->where('active', true)
                                     ->pluck('name', 'id')
-                                    ->toArray()
-                            )
+                                    ->toArray();
+                            })
                             ->searchable()
-                            ->preload()
-                            ->label('Amenity'),
+                            ->label('Amenities')
+                            ->disabledOn('edit')
+                            ->preload(),
 
                         Hidden::make('bookable_type')
                             ->default('App\Models\Master\Facility'),
