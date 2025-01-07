@@ -24,6 +24,14 @@ function optimizeAndUpload($image, $path, $width = 474, $height = 622)
     return $fullPath;
 }
 
+function imageUploadonS3($image, $path)
+{
+    $filename = uniqid() . '.' . $image->getClientOriginalExtension();
+    $fullPath = $path . '/' . $filename;
+    $file=Storage::disk('s3')->put($path, $image, 'public');
+    return $file;
+}
+
 function optimizeDocumentAndUpload($file, $path = 'dev', $width = 474, $height = 622)
 {
     if ($file) {
