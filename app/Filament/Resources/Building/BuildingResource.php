@@ -512,12 +512,27 @@ class BuildingResource extends Resource
                                     ->where('active', 1)
                                     ->exists();
 
+                                $vendor = Vendor::findOrFail($vendorId);
                                 if (!$otherBuildings) {
-                                    $vendor = Vendor::findOrFail($vendorId);
                                     $userId = $vendor->owner_id;
                                     Log::info('Deleting token for user: ' . $userId);
                                     User::findOrFail($vendorId)->tokens()->delete();
                                 }
+                                $technicianIds = DB::table('technician_vendors')
+                                    ->where('vendor_id', $vendorId)
+                                    ->pluck('technician_id');
+                                foreach ($technicianIds as $technicianId) {
+                                    $otherBuildings = DB::table('building_vendor')
+                                        ->where('vendor_id', $vendorId)
+                                        ->where('building_id', '!=', $record->id)
+                                        ->where('active', 1)
+                                        ->exists();
+
+                                    if (!$otherBuildings) {
+                                        Log::info('Deleting token for user: ' . $technicianId);
+                                        User::findOrFail($technicianId)->tokens()->delete();
+                                }
+
                             }
                         }
                         $vendorAssociated->update(['active' => 0, 'end_date' => Carbon::now()->format('Y-m-d')]);
