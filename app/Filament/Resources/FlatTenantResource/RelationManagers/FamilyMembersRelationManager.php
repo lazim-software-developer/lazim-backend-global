@@ -37,7 +37,7 @@ class FamilyMembersRelationManager extends RelationManager
                 ]),
                 ViewField::make('documents')
                     ->view('filament.forms.components.document-preview')
-                    ->columnSpanFull(),
+                    ->columns(2),
             ])->columns(2);
     }
 
