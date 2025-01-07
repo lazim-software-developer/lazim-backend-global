@@ -202,6 +202,15 @@ class VendorRegistrationController extends Controller
             "expiry_date" => $request->risk_policy_expiry,
             "documentable_type" => Vendor::class,
         ]);
+        Document::create([
+            "name" => "tl_document",
+            "document_library_id" => DocumentLibrary::where('name', 'TL document')->first()->id,
+            "owner_association_id" => $request->owner_association_id,
+            "status" => 'pending',
+            "documentable_id" => $vendor->id,
+            "expiry_date" => $request->tl_expiry,
+            "documentable_type" => Vendor::class,
+        ]);
 
         return (new CustomResponseResource([
             'title' => 'Company Details entered successful!',
