@@ -26,6 +26,10 @@ class BuildingsRelationManager extends RelationManager
             ->recordTitleAttribute('name')
             ->columns([
                 Tables\Columns\TextColumn::make('name'),
+                Tables\Columns\TextColumn::make('start_date')
+                    ->label('Contract Start Date'),
+                Tables\Columns\TextColumn::make('end_date')
+                    ->label('Contract End Date'),
             ])
             ->filters([
                 //
@@ -61,14 +65,14 @@ class BuildingsRelationManager extends RelationManager
                             ->schema([
                                 DatePicker::make('start_date')
                                     ->default(Carbon::now()->format('Y-m-d'))
-                                    ->label('From')
+                                    ->label('Contract Start Date')
                                     ->required()
                                     ->afterStateUpdated(function (Set $set) {
                                         $set('end_date', null);
                                     }),
 
                                 DatePicker::make('end_date')
-                                    ->label('To')
+                                    ->label('Contract End Date')
                                     ->required()
                                     ->after('start_date')
                                     ->validationMessages([
