@@ -6,6 +6,9 @@ use App\Filament\Resources\UserApprovalResource\Pages;
 use App\Filament\Resources\UserApprovalResource\RelationManagers\HistoryRelationManager;
 use App\Models\Building\Flat;
 use App\Models\UserApproval;
+use Carbon\Carbon;
+use DB;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
@@ -90,6 +93,46 @@ class UserApprovalResource extends Resource
                 Section::make('Approval Details')
                     ->schema([
                         Grid::make(2)->schema([
+                            DatePicker::make('start_date')
+                                ->label('Contract Start Date')
+                                ->disabledOn('edit')
+                                ->visible(function ($record) {
+                                    $role = DB::table('flat_tenants')
+                                        ->where('tenant_id', $record->user_id)
+                                        ->value('role');
+                                    return $role == 'Tenant';
+                                })
+                                ->afterStateHydrated(function ($state, $set, $record) {
+                                    if ($record) {
+                                        $startDate = DB::table('flat_tenants')
+                                            ->where('tenant_id', $record->user_id)
+                                            ->value('start_date');
+                                        if ($startDate) {
+                                            $startDate = Carbon::parse($startDate)->format('Y-m-d');
+                                            $set('start_date', $startDate);
+                                        }
+                                    }
+                                }),
+                            DatePicker::make('end_date')
+                                ->label('Contract End Date')
+                                ->disabledOn('edit')
+                                ->visible(function ($record) {
+                                    $role = DB::table('flat_tenants')
+                                        ->where('tenant_id', $record->user_id)
+                                        ->value('role');
+                                    return $role == 'Tenant';
+                                })
+                                ->afterStateHydrated(function ($state, $set, $record) {
+                                    if ($record) {
+                                        $endDate = DB::table('flat_tenants')
+                                            ->where('tenant_id', $record->user_id)
+                                            ->value('end_date');
+                                        if ($endDate) {
+                                            $endDate = Carbon::parse($endDate)->format('Y-m-d');
+                                            $set('end_date', $endDate);
+                                        }
+                                    }
+                                }),
                             Select::make('status')
                                 ->options([
                                     'approved' => 'Approve',

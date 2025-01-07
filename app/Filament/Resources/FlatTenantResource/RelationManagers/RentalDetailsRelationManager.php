@@ -131,6 +131,10 @@ class RentalDetailsRelationManager extends RelationManager
 
                                 DatePicker::make('contract_end_date')
                                     ->rules(['date'])
+                                    ->after('contract_start_date')
+                                    ->validationMessages([
+                                        'after' => 'The contract end date must be after the start date.',
+                                    ])
                                     ->default(function () {
                                         $endDate = FlatTenant::where('id', $this->ownerRecord->id)->first()?->end_date;
                                         return $endDate ? Carbon::parse($endDate) : null;
