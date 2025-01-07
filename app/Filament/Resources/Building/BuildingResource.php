@@ -495,6 +495,9 @@ class BuildingResource extends Resource
 
                                 if (!$otherFlats) {
                                     Log::info('Deleting token for user: ' . $tenantId);
+                                    DB::table('refresh_tokens')
+                                        ->where('user_id', $tenantId)
+                                        ->delete();
                                     User::findOrFail($tenantId)->tokens()->delete();
                                 }
                             }
@@ -516,6 +519,9 @@ class BuildingResource extends Resource
                                 if (!$otherBuildings) {
                                     $userId = $vendor->owner_id;
                                     Log::info('Deleting token for user: ' . $userId);
+                                    DB::table('refresh_tokens')
+                                        ->where('user_id', $tenantId)
+                                        ->delete();
                                     User::findOrFail($vendorId)->tokens()->delete();
                                 }
                                 $technicianIds = DB::table('technician_vendors')
@@ -530,6 +536,9 @@ class BuildingResource extends Resource
 
                                     if (!$otherBuildings) {
                                         Log::info('Deleting token for user: ' . $technicianId);
+                                        DB::table('refresh_tokens')
+                                            ->where('user_id', $tenantId)
+                                            ->delete();
                                         User::findOrFail($technicianId)->tokens()->delete();
                                     }
                                 }
@@ -549,6 +558,9 @@ class BuildingResource extends Resource
 
                                 if (!$otherBuildings) {
                                     Log::info('Deleting token for user: ' . $userId);
+                                    DB::table('refresh_tokens')
+                                        ->where('user_id', $tenantId)
+                                        ->delete();
                                     User::findOrFail($userId)->tokens()->delete();
                                 }
                             }
