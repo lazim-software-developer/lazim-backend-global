@@ -531,6 +531,7 @@ class BuildingResource extends Resource
                                     if (!$otherBuildings) {
                                         Log::info('Deleting token for user: ' . $technicianId);
                                         User::findOrFail($technicianId)->tokens()->delete();
+                                    }
                                 }
 
                             }
