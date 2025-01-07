@@ -76,7 +76,7 @@ class BuildingsRelationManager extends RelationManager
                                     ->required()
                                     ->after('start_date')
                                     ->validationMessages([
-                                        'after' => 'The "to" date must be after the "from" date.',
+                                        'after' => 'The "Contract End" date must be after the "Contract Start" date.',
                                     ]),
                             ]),
                     ])
