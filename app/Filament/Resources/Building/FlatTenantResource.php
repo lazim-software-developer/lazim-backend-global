@@ -102,6 +102,19 @@ class FlatTenantResource extends Resource
                             })
                             ->default(fn($record) => $record->makaniNumber?->url ?? 'NA'),
 
+                        Toggle::make('residing_in_same_flat')
+                            ->label('Residing in same flat')
+                            ->rules(['boolean'])
+                            ->disabled()
+                            ->visible(function ($record) {
+                                return $record->role == 'Owner';
+                            })
+                            ->inline(false)
+                            ->onIcon('heroicon-o-check-circle')
+                            ->offIcon('heroicon-o-x-mark')
+                            ->onColor('success')
+                            ->offColor('danger'),
+
                         Toggle::make('active')
                             ->label('Active Status')
                             ->rules(['boolean'])
