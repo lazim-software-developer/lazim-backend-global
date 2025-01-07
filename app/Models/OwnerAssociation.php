@@ -13,6 +13,7 @@ use App\Models\Building\Building;
 use Spatie\Sluggable\SlugOptions;
 use App\Models\Building\Complaint;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 use App\Models\Building\FacilityBooking;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -102,5 +103,25 @@ class OwnerAssociation extends Model
     public function complaints()
     {
         return $this->hasMany(Complaint::class);
+    }
+    public function getProfilePhotoAttribute($value)
+    {
+        return !empty($value) ? Storage::disk('s3')->url($value) : null;
+    }
+    public function getTradeLicenseAttribute($value)
+    {
+        return !empty($value) ? Storage::disk('s3')->url($value) : null;
+    }
+    public function getDubaiChamberDocumentAttribute($value)
+    {
+        return !empty($value) ? Storage::disk('s3')->url($value) : null;
+    }
+    public function getTrnCertificateAttribute($value)
+    {
+        return !empty($value) ? Storage::disk('s3')->url($value) : null;
+    }
+    public function getMemorandumOfAssociationAttribute($value)
+    {
+        return !empty($value) ? Storage::disk('s3')->url($value) : null;
     }
 }
