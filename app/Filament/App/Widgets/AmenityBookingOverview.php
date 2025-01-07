@@ -24,7 +24,9 @@ class AmenityBookingOverview extends ChartWidget
 
     protected function getData(): array
     {
-        $buildings = DB::table('building_owner_association')->where('owner_association_id', auth()->user()->owner_association_id)
+        $buildings = DB::table('building_owner_association')
+            ->where('owner_association_id', auth()->user()->owner_association_id)
+            ->where('active', true)
             ->pluck('building_id');
         $selectedMonth = (int) ($this->filter ?? now()->month);
         $bookings = FacilityBooking::where('bookable_type', 'App\Models\Master\Facility')
