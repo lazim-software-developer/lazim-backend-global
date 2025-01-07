@@ -2,15 +2,15 @@
 
 namespace App\Imports;
 
-use Illuminate\Support\Str;
 use App\Models\Building\Flat;
 use App\Models\CoolingAccount;
 use Filament\Facades\Filament;
+use Filament\Notifications\Notification;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Session;
-use Filament\Notifications\Notification;
+use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 
@@ -25,8 +25,8 @@ class CoolingAccountImport implements ToCollection, WithHeadingRow
     {
 
         $this->buildingId = $buildingId;
-        $this->month = $month;
-        $this->dueDate = $dueDate;
+        $this->month      = $month;
+        $this->dueDate    = $dueDate;
     }
     /**
      * @param Collection $collection
@@ -36,76 +36,117 @@ class CoolingAccountImport implements ToCollection, WithHeadingRow
         $date = Carbon::parse($this->month)->format('Y-m-d');
         // Define the expected headings
         $expectedHeadings = [
-            'unit_no','opening_balance_receivable_advance',
+            'unit_no', 'opening_balance_receivable_advance',
             'in_unit_consumption', 'in_unit_demand_charge',
             'in_unit_security_deposit', 'in_unit_billing_charges',
-            'in_unit_other_charges', 'receipts', 'closing_balance', 'status'
-           ];
+            'in_unit_other_charges', 'receipts', 'closing_balance', 'status',
+        ];
 
-           if($rows->first()== null){
+        if ($rows->first() == null) {
             Notification::make()
                 ->title("Upload valid excel file.")
                 ->danger()
                 ->body("You have uploaded an empty file")
                 ->send();
+            Log::error("Uploaded an empty file.");
             return 'failure';
-            }
+        }
 
-           // Extract the headings from the first row
-           $extractedHeadings = array_keys($rows->first()->toArray());
+        // Extract the headings from the first row
+        $extractedHeadings = array_keys($rows->first()->toArray());
 
-           // Check if all expected headings are present in the extracted headings
-           $missingHeadings = array_diff($expectedHeadings, $extractedHeadings);
+        // Check if all expected headings are present in the extracted headings
+        $missingHeadings = array_diff($expectedHeadings, $extractedHeadings);
 
-           if (!empty($missingHeadings)) {
-               Notification::make()
-                   ->title("Upload valid excel file.")
-                   ->danger()
-                   ->body("Missing headings: " . implode(', ', $missingHeadings))
-                   ->send();
-               return 'failure';
-           } else {
-            $tenant = Filament::getTenant();
+        if (!empty($missingHeadings)) {
+            Notification::make()
+                ->title("Upload valid excel file.")
+                ->danger()
+                ->body("Missing headings: " . implode(', ', $missingHeadings))
+                ->send();
+            Log::error("Missing headings: " . implode(', ', $missingHeadings));
+            return 'failure';
+        } else {
+            $tenant       = Filament::getTenant();
+            $success      = true;
+            $errorDetails = [];
 
             foreach ($rows as $row) {
                 $flatId = Flat::where(['building_id' => $this->buildingId, 'property_number' => $row['unit_no']])->first()?->id;
-                $status = $row['status'] ?? 'pending';
-                if(! $flatId || ! in_array($status,['pending','overdue','paid'])) {
+                $status = strtolower($row['status'] ?? 'pending');
+
+                if (!$flatId) {
+                    $errorDetails[] = "Unit number {$row['unit_no']} does not exist in the specified building.";
+                    Log::error("Unit number {$row['unit_no']} does not exist in building_id: {$this->buildingId}");
+                    $success = false;
                     continue;
                 }
-                if (CoolingAccount::where(['building_id' => $this->buildingId, 'flat_id' => $flatId])->exists()) {
+
+                if (!in_array($status, ['pending', 'overdue', 'paid'])) {
+                    $errorDetails[] = "Invalid status for unit_no: {$row['unit_no']}. Allowed values are 'pending', 'overdue', 'paid'.";
+                    Log::error("Invalid status for unit_no: {$row['unit_no']}. Status provided: {$status}");
+                    $success = false;
+                    continue;
+                }
+
+                if (CoolingAccount::where(['building_id' => $this->buildingId, 'flat_id' => $flatId, 'date' => $date])->exists()) {
                     Notification::make()
-                        ->title("You have already uploaded details for the month ".Str::ucfirst($this->month))
+                        ->title("You have already uploaded details for the month " . Str::ucfirst($this->month))
                         ->danger()
                         ->send();
+                    Log::error("Duplicate entry for building_id: {$this->buildingId}, flat_id: {$flatId}, date: {$date}");
                     return 'error';
                 }
-                CoolingAccount::firstOrCreate(
-                    [
-                        'building_id'           => $this->buildingId,
-                        'flat_id'               => $flatId,
-                        'date'                  => $date,
-                        'owner_association_id'  => $tenant?->id ?? auth()->user()->owner_association_id,
-                    ],
-                    [
-                        'opening_balance'       => $row['opening_balance_receivable_advance'],
-                        'consumption'           => $row['in_unit_consumption'],
-                        'demand_charge'         => $row['in_unit_demand_charge'],
-                        'security_deposit'      => $row['in_unit_security_deposit'],
-                        'billing_charges'       => $row['in_unit_billing_charges'],
-                        'other_charges'         => $row['in_unit_other_charges'],
-                        'receipts'              => $row['receipts'],
-                        'closing_balance'       => $row['closing_balance'],
-                        'status'                => $status,
-                        'due_date'              => $this->dueDate? : null
-                    ]
-                );
+                try {
+                    CoolingAccount::firstOrCreate(
+                        [
+                            'building_id'          => $this->buildingId,
+                            'flat_id'              => $flatId,
+                            'date'                 => $date,
+                            'owner_association_id' => $tenant?->id ?? auth()->user()->owner_association_id,
+                        ],
+                        [
+                            'opening_balance'  => $row['opening_balance_receivable_advance'],
+                            'consumption'      => $row['in_unit_consumption'],
+                            'demand_charge'    => $row['in_unit_demand_charge'],
+                            'security_deposit' => $row['in_unit_security_deposit'],
+                            'billing_charges'  => $row['in_unit_billing_charges'],
+                            'other_charges'    => $row['in_unit_other_charges'],
+                            'receipts'         => $row['receipts'],
+                            'closing_balance'  => $row['closing_balance'],
+                            'status'           => $status,
+                            'due_date'         => $this->dueDate ?: null,
+                        ]
+                    );
+                } catch (ValidationException $e) {
+                    $errorDetails[] = "Validation error for unit_no: {$row['unit_no']} - " . $e->getMessage();
+                    Notification::make()
+                        ->title("Validation error")
+                        ->danger()
+                        ->body("Error importing row: " . json_encode($row))
+                        ->send();
+                    Log::error("Validation error for row: " . json_encode($row) . " with message: " . $e->getMessage());
+                    $success = false;
+                    continue;
+                }
             }
-            Notification::make()
-                ->title("Details uploaded successfully")
-                ->success()
-                ->send();
-            return 'success';
+
+            if ($success) {
+                Notification::make()
+                    ->title("Details uploaded successfully")
+                    ->success()
+                    ->send();
+                Log::info("Details uploaded successfully for building_id: {$this->buildingId}");
+                return 'success';
+            } else {
+                Notification::make()
+                    ->title("Some rows failed to import")
+                    ->danger()
+                    ->body("Failed to import data for units: " . implode(', ', $errorDetails))
+                    ->send();
+                Log::error("Some rows failed to import for building_id: {$this->buildingId}");
+                return 'failure';
+            }
         }
     }
 }

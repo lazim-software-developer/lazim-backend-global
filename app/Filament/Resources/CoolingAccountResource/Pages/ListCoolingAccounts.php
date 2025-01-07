@@ -37,6 +37,7 @@ class ListCoolingAccounts extends ListRecords
 
                 Action::make('upload')
                     ->slideOver()
+                    ->modalWidth('md')
                     ->color("primary")
                     ->form([
                         Select::make('building_id')
