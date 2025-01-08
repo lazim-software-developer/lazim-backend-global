@@ -12,12 +12,10 @@ use App\Models\Master\Service;
 use App\Models\User\User;
 use App\Models\Vendor\ServiceVendor;
 use App\Models\Vendor\Vendor;
-use Closure;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -407,7 +405,7 @@ class ComplaintResource extends Resource
                     ->searchable()
                     ->preload(),
             ])
-            ->emptyStateHeading('No Issues')
+            ->emptyStateHeading('No Maintenance Schedules')
             ->bulkActions([
                 // ExportBulkAction::make(),
             ])

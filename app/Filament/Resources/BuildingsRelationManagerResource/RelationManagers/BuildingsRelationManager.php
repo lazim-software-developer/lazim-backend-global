@@ -45,7 +45,9 @@ class BuildingsRelationManager extends RelationManager
                                 $pmId = OwnerAssociation::where('email', auth()->user()->email)->pluck('id')[0];
 
                                 $buildingId = DB::table('building_owner_association')
-                                    ->where('owner_association_id', $pmId)->pluck('building_id');
+                                    ->where('owner_association_id', $pmId)
+                                    ->where('active', true)
+                                    ->pluck('building_id');
 
                                 $existingBuildingIds = DB::table('building_vendor')
                                     ->whereIn('vendor_id', $livewire->ownerRecord)

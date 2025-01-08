@@ -226,7 +226,8 @@ class MoveInFormsDocumentResource extends Resource
                                 'movers_license'       => 'Movers license',
                                 'movers_liability'     => 'Movers liability',
                             ])
-                            ->columns(4)
+                            ->columnSpanFull()
+                            ->columns(2)
                             ->visible(function (callable $get) {
                                 return $get('status') == 'rejected';
                             }),
@@ -239,7 +240,19 @@ class MoveInFormsDocumentResource extends Resource
     {
         return $table
             ->poll('60s')
-            ->modifyQueryUsing(fn(Builder $query) => $query->where('type', 'move-in')->withoutGlobalScopes())
+            ->modifyQueryUsing(function (Builder $query) {
+                $pmBuildings = DB::table('building_owner_association')
+                    ->where('owner_association_id', auth()->user()?->owner_association_id)
+                    ->where('active', true)
+                    ->pluck('building_id');
+
+                if (auth()->user()?->role->name == 'Property Manager') {
+                    return $query
+                        ->where('type', 'move-in')->withoutGlobalScopes()
+                        ->whereIn('building_id', $pmBuildings);
+                }
+                return $query->where('type', 'move-in')->withoutGlobalScopes();
+            })
             ->columns([
                 TextColumn::make('ticket_number')
                     ->searchable()
