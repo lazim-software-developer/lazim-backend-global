@@ -20,7 +20,13 @@ class ListVisitorForms extends ListRecords
     }
     protected function getTableQuery(): Builder
     {
+        $pmBuildings = DB::table('building_owner_association')
+            ->where('owner_association_id', auth()->user()?->owner_association_id)
+            ->where('active', true)
+            ->pluck('building_id');
+
         return auth()->user()->role->name == 'Admin' ? parent::getTableQuery():
-        parent::getTableQuery()->where('owner_association_id', auth()->user()?->owner_association_id);
+        parent::getTableQuery()->where('owner_association_id', auth()->user()?->owner_association_id)
+        ->whereIn('building_id', $pmBuildings);
     }
 }

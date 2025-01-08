@@ -5,6 +5,7 @@ namespace App\Filament\Widgets;
 use App\Models\Forms\MoveInOut;
 use App\Models\User\User;
 use Carbon\Carbon;
+use DB;
 use Filament\Widgets\ChartWidget;
 
 class MoveInOutChart extends ChartWidget
@@ -42,13 +43,18 @@ class MoveInOutChart extends ChartWidget
     {
         $selectedMonth = (int) ($this->filter ?? now()->month);
         $currentYear   = now()->year;
-        $startDate = Carbon::create($currentYear, $selectedMonth, 1)->startOfMonth();
-        $endDate   = $startDate->copy()->endOfMonth();
+        $startDate     = Carbon::create($currentYear, $selectedMonth, 1)->startOfMonth();
+        $endDate       = $startDate->copy()->endOfMonth();
+        $pmBuildings   = DB::table('building_owner_association')
+            ->where('owner_association_id', auth()->user()?->owner_association_id)
+            ->where('active', true)
+            ->pluck('building_id');
 
         // Count total move-ins
         $moveInCount = MoveInOut::where('owner_association_id', auth()->user()->owner_association_id)
             ->where('type', 'move-in')
             ->whereBetween('created_at', [$startDate, $endDate])
+            ->whereIn('building_id', $pmBuildings)
             ->when($this->filters['building'] ?? null, function ($query) {
                 return $query->where('building_id', $this->filters['building']);
             })
@@ -58,6 +64,7 @@ class MoveInOutChart extends ChartWidget
         $moveOutCount = MoveInOut::where('owner_association_id', auth()->user()->owner_association_id)
             ->where('type', 'move-out')
             ->whereBetween('created_at', [$startDate, $endDate])
+            ->whereIn('building_id', $pmBuildings)
             ->when($this->filters['building'] ?? null, function ($query) {
                 return $query->where('building_id', $this->filters['building']);
             })

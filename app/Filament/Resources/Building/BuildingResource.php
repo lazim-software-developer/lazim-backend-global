@@ -408,6 +408,9 @@ class BuildingResource extends Resource
                                     ->required(),
                                 DatePicker::make('to')
                                     ->label('Contract End Date')
+                                    ->validationMessages([
+                                        'after' => 'The "Contract End date" must be after the "Contract Start date".',
+                                    ])
                                     ->required(),
                             ];
                         }
