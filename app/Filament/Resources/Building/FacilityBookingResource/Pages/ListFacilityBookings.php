@@ -31,7 +31,7 @@ class ListFacilityBookings extends ListRecords
         }
 
         if (Role::where('id', auth()->user()->role_id)->first()->name != 'Admin') {
-            return parent::getTableQuery()->where('bookable_type', $bookableType)->whereIn('building_id', $buildings);
+            return parent::getTableQuery()->where('bookable_type', $bookableType)->whereIn('building_id', $pmBuildings);
         }
         return parent::getTableQuery()->where('bookable_type', $bookableType);
     }
