@@ -418,7 +418,7 @@ class AuthController extends Controller
             ]))->response()->setStatusCode(403);
         }
 
-        if ($user && $user->vendors->first()->status != 'approved' && $user->vendors->first()->escalationMatrix()->exists()) {
+        if ($user && $user->vendors->first()->status != 'approved') {
             return (new CustomResponseResource([
                 'title' => 'Approve Pending',
                 'message' => 'Your Document approval is pending!',
@@ -429,7 +429,7 @@ class AuthController extends Controller
 
         $buildingsExists = DB::table('building_vendor')->where(['vendor_id' => $user->vendors->first()->id, 'active' => 1])->exists();
 
-        if (!$buildingsExists) {
+        if (!$buildingsExists && $user->vendors->first()->escalationMatrix()->exists()) {
             return (new CustomResponseResource([
                 'title'   => 'Unauthorized!',
                 'message' => 'No active buildings. please contact admin.!',
