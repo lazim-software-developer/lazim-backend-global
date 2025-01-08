@@ -418,7 +418,7 @@ class AuthController extends Controller
             ]))->response()->setStatusCode(403);
         }
 
-        if ($user && $user->vendors->first()->status != 'approved') {
+        if ($user && $user->vendors->first()->status != 'approved' && $user->vendors->first()->escalationMatrix()->exists()) {
             return (new CustomResponseResource([
                 'title' => 'Approve Pending',
                 'message' => 'Your Document approval is pending!',
