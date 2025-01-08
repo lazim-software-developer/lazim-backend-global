@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\AccessCardFormsDocumentResource\Pages;
 
+use DB;
 use Filament\Actions;
 use App\Models\Building\Building;
 use Filament\Resources\Pages\ListRecords;
@@ -14,7 +15,11 @@ class ListAccessCardFormsDocuments extends ListRecords
     protected static ?string $title = 'Access card';
     protected function getTableQuery(): Builder
     {
-        return auth()->user()->role->name == 'Admin' ? parent::getTableQuery() : parent::getTableQuery()->where('owner_association_id', auth()->user()?->owner_association_id);
+        $pmBuildings = DB::table('building_owner_association')->where('owner_association_id', auth()->user()?->owner_association_id)
+            ->where('active', true)
+            ->pluck('id');
+        return auth()->user()->role->name == 'Admin' ? parent::getTableQuery() : parent::getTableQuery()->where('owner_association_id', auth()->user()?->owner_association_id)
+        ->whereIn('building_id', $pmBuildings);
     }
     protected function getHeaderActions(): array
     {
