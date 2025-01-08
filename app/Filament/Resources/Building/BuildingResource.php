@@ -461,6 +461,11 @@ class BuildingResource extends Resource
                                 })
                                 ->update(['active' => 1]);
 
+                            // Make related security guards active
+                            BuildingPoc::where('building_id', $record->id)
+                                ->update(['active' => 1]);
+
+                            // Make related vendor building active
                             $vendorAll = DB::table('owner_association_vendor')
                                 ->where(['owner_association_id'=> auth()->user()->owner_association_id, 'active'=> 1])
                                 ->pluck('vendor_id');
