@@ -29,6 +29,12 @@ class ListFacilityBookings extends ListRecords
             return parent::getTableQuery()
                 ->where('bookable_type', 'App\Models\WorkPermit')->whereIn('building_id', $buildings);
         }
+        if (Role::where('id', auth()->user()->role_id)->first()->name != 'Admin') {
+            return parent::getTableQuery()
+                ->where('bookable_type', 'App\Models\WorkPermit')
+                ->whereIn('building_id', $buildings);
+        }
+
         return parent::getTableQuery()
             ->where('bookable_type', 'App\Models\WorkPermit')
             ->latest()

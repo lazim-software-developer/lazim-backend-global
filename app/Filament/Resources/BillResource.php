@@ -178,14 +178,21 @@ class BillResource extends Resource
                     ->formatStateUsing(function ($state) {
                         return Carbon::parse($state)->format('m-Y');
                     }),
+                TextColumn::make('dewa_number')
+                    ->label('DEWA Number')
+                    ->default('--')
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('amount')
                     ->numeric()
                     ->default('--')
+                    ->toggleable(isToggledHiddenByDefault: true)
                     ->visible(fn() => request()->query('activeTab') !== 'DEWA'),
                 TextColumn::make('due_date')
+                    ->toggleable(isToggledHiddenByDefault: true)
                     ->date()
                     ->visible(fn() => request()->query('activeTab') !== 'DEWA'),
                 TextColumn::make('status')
+                    ->toggleable(isToggledHiddenByDefault: true)
                     ->default('--')
                     ->badge()
                     ->color(fn(string $state): string => match ($state) {
