@@ -70,10 +70,24 @@ class FlatTenantResource extends Resource
                             ->disabled()
                             ->required()
                             ->placeholder('Created Date'),
-                        // DatePicker::make('end_date')
-                        //     ->rules(['date'])
-                        //     ->disabled()
-                        //     ->placeholder('End Date'),
+
+                        DatePicker::make('start_date')
+                            ->label('Contract Start Date')
+                            ->disabledOn('edit')
+                            ->visible(function ($record) {
+                                if ($record->role == 'Tenant') {
+                                    return true;
+                                }return false;
+                            }),
+
+                        DatePicker::make('end_date')
+                            ->label('Contract End Date')
+                            ->disabledOn('edit')
+                            ->visible(function ($record) {
+                                if ($record->role == 'Tenant') {
+                                    return true;
+                                }return false;
+                            }),
                         TextInput::make('role')
                             ->disabled()
                             ->placeholder('NA'),
@@ -81,12 +95,25 @@ class FlatTenantResource extends Resource
                         TextInput::make('makani_number_url')
                             ->label('Makani Number')
                             ->disabledOn('edit')
-                            ->visible(function($record){
-                                if($record->role == 'Owner'){
+                            ->visible(function ($record) {
+                                if ($record->role == 'Owner') {
                                     return true;
                                 }return false;
                             })
                             ->default(fn($record) => $record->makaniNumber?->url ?? 'NA'),
+
+                        Toggle::make('residing_in_same_flat')
+                            ->label('Residing in same flat')
+                            ->rules(['boolean'])
+                            ->disabled()
+                            ->visible(function ($record) {
+                                return $record->role == 'Owner';
+                            })
+                            ->inline(false)
+                            ->onIcon('heroicon-o-check-circle')
+                            ->offIcon('heroicon-o-x-mark')
+                            ->onColor('success')
+                            ->offColor('danger'),
 
                         Toggle::make('active')
                             ->label('Active Status')

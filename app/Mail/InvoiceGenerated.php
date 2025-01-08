@@ -21,25 +21,13 @@ class InvoiceGenerated extends Mailable
         $this->pdfPath = $pdfPath;
         $this->pm_oa = $pm_oa;
 
-        // Log the invoice data and PDF path for debugging
-        Log::info('InvoiceGenerated mailable instantiated', [
-            'invoice_id' => $invoice->id,
-            'pdf_path'   => $pdfPath,
-        ]);
     }
 
     public function build()
     {
-        // Log when the email is being built
-        Log::info('Building InvoiceGenerated email', [
-            'invoice_id' => $this->invoice->id,
-        ]);
 
         // Ensure the PDF path is valid and the file exists before attaching
         if (file_exists($this->pdfPath)) {
-            Log::info('PDF found, attaching to email', [
-                'pdf_path' => $this->pdfPath,
-            ]);
 
             return $this->view('emails.invoice-generated')
                 ->subject('Invoice Notification and Payment Instructions')
@@ -48,9 +36,6 @@ class InvoiceGenerated extends Mailable
                     'mime' => 'application/pdf',
                 ]);
         } else {
-            Log::error('PDF not found, email sent without attachment', [
-                'pdf_path' => $this->pdfPath,
-            ]);
 
             // Optionally, send the email without the attachment
             return $this->view('emails.invoice-generated')

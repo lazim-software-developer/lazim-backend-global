@@ -6,6 +6,7 @@ use App\Models\FamilyMember;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\ViewField;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
@@ -34,6 +35,9 @@ class FamilyMembersRelationManager extends RelationManager
                     TextInput::make('visa_number'),
                     DatePicker::make('visa_number_expiry_date'),
                 ]),
+                ViewField::make('documents')
+                    ->view('filament.forms.components.document-preview')
+                    ->columns(2),
             ])->columns(2);
     }
 

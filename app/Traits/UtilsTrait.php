@@ -20,7 +20,7 @@ trait UtilsTrait
             ]);
             return 'success';
         } catch (GuzzleException $e) {
-            Log::error('Expo notification failed', [
+            Log::error('ExpoFailed', [
                 'error' => $e->getMessage(),
                 'status' => $e->getCode()
             ]);
@@ -40,7 +40,7 @@ trait UtilsTrait
             ]);
             return 'success';
         } catch (GuzzleException $e) {
-            Log::error('Expo notification failed', [
+            Log::error('ExpoFailed', [
                 'error' => $e->getMessage(),
                 'status' => $e->getCode()
             ]);

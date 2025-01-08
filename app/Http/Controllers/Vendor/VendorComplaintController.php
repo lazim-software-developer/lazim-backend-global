@@ -238,6 +238,7 @@ class VendorComplaintController extends Controller
         $start_date = $request->has('start_date') ? Carbon::parse($request->start_date) : now()->subDays(6);
 
         $complaints = Complaint::where(['vendor_id'=> $vendor->id,'complaint_type'=>'preventive_maintenance'])
+            ->whereIn('building_id', $vendor->buildings->where('pivot.active', true)->unique()->pluck('id'))
             ->when($request->filled('building_id'), function ($query) use ($request) {
                 $query->where('building_id', $request->building_id);
             })
@@ -263,6 +264,7 @@ class VendorComplaintController extends Controller
     public function dashboardPreventive(Vendor $vendor,Request $request)
     {
         $complaints = Complaint::where(['vendor_id'=> $vendor->id,'complaint_type'=>'preventive_maintenance'])
+            ->whereIn('building_id', $vendor->buildings->where('pivot.active', true)->unique()->pluck('id'))
             ->when($request->filled('building_id'), function ($query) use ($request) {
                 $query->where('building_id', $request->building_id);
             })->get();

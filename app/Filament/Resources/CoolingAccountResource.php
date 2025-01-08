@@ -78,6 +78,11 @@ class CoolingAccountResource extends Resource
                 TextColumn::make('closing_balance'),
                 TextColumn::make('status')
                     ->badge()
+                    ->formatStateUsing(fn(string $state): string => match ($state) {
+                        'paid'    => 'Paid',
+                        'overdue'   => 'Overdue',
+                        'pending'   => 'Pending',
+                    })
                     ->color(fn (string $state): string => match ($state) {
                         'paid' => 'success',
                         'overdue' => 'danger',

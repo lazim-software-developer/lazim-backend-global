@@ -120,6 +120,7 @@ class RentalDetailsRelationManager extends RelationManager
 
                                 DatePicker::make('contract_start_date')
                                     ->rules(['date'])
+                                    ->label('Contract Start Date')
                                     ->default(function () {
                                         $startDate = FlatTenant::where('id', $this->ownerRecord->id)
                                             ->first()?->start_date;
@@ -131,6 +132,11 @@ class RentalDetailsRelationManager extends RelationManager
 
                                 DatePicker::make('contract_end_date')
                                     ->rules(['date'])
+                                    ->label('Contract End Date')
+                                    ->after('contract_start_date')
+                                    ->validationMessages([
+                                        'after' => 'The "Contract End" date must be after the "Contract Start" date.',
+                                    ])
                                     ->default(function () {
                                         $endDate = FlatTenant::where('id', $this->ownerRecord->id)->first()?->end_date;
                                         return $endDate ? Carbon::parse($endDate) : null;
@@ -300,8 +306,10 @@ class RentalDetailsRelationManager extends RelationManager
     {
         return $table
             ->columns([
-                TextColumn::make('contract_start_date'),
-                TextColumn::make('contract_end_date'),
+                TextColumn::make('contract_start_date')
+                    ->label('Contract Start Date'),
+                TextColumn::make('contract_end_date')
+                    ->label('Contract End Date'),
                 TextColumn::make('number_of_cheques'),
                 TextColumn::make('advance_amount')
                     ->label('Security Deposit')

@@ -409,7 +409,9 @@ class AccessCardController extends Controller
             ->where('vendor_id', $vendor->id)->pluck('owner_association_id');
 
         $buildingIds = DB::table('building_owner_association')
-            ->whereIn('owner_association_id', $ownerAssociationIds)->pluck('building_id');
+            ->whereIn('owner_association_id', $ownerAssociationIds)
+            ->where('active',true)
+            ->pluck('building_id');
 
         $accessCardForms = AccessCard::whereIn('building_id', $buildingIds)->orderByDesc('created_at');
 

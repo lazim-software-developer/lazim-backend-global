@@ -28,7 +28,6 @@ class CreateFacilityManager extends CreateRecord
     {
         try {
             return DB::transaction(function () use ($data) {
-                Log::info('Starting transaction with data:', $data);
 
                 $password = Str::random(12);
                 $userData = [
@@ -42,10 +41,8 @@ class CreateFacilityManager extends CreateRecord
                     'role_id'              => Role::where('name', 'Facility Manager')->value('id'),
                     'owner_association_id' => auth()->user()->owner_association_id,
                 ];
-                Log::info('Creating user with data:', $userData);
 
                 $user = User::create($userData);
-                Log::info('User created successfully:', ['user_id' => $user->id]);
 
                 $vendorData = [
                     'name'                 => $data['name'],
@@ -58,10 +55,8 @@ class CreateFacilityManager extends CreateRecord
                     'tl_number'            => $data['tl_number'],
                     'tl_expiry'            => $data['tl_expiry'],
                 ];
-                Log::info('Creating vendor with data:', $vendorData);
 
                 $vendor = Vendor::create($vendorData);
-                Log::info('Vendor created successfully:', ['vendor_id' => $vendor->id]);
 
                 if (isset($data['risk_policy_expiry'])) {
                     try {
@@ -74,10 +69,8 @@ class CreateFacilityManager extends CreateRecord
                             'documentable_type'    => Vendor::class,
                             'expiry_date'          => $data['risk_policy_expiry'],
                         ];
-                        Log::info('Creating document with data:', $documentData);
 
                         Document::create($documentData);
-                        Log::info('Document created successfully');
                     } catch (\Exception $e) {
                         Log::error('Error creating document:', ['error' => $e->getMessage()]);
                     }
@@ -93,10 +86,8 @@ class CreateFacilityManager extends CreateRecord
                             'documentable_type'    => Vendor::class,
                             'expiry_date'          => $data['tl_expiry'],
                         ];
-                        Log::info('Creating document with data:', $documentData);
 
                         Document::create($documentData);
-                        Log::info('Document created successfully');
                     } catch (\Exception $e) {
                         Log::error('Error creating document:', ['error' => $e->getMessage()]);
                     }
@@ -111,7 +102,6 @@ class CreateFacilityManager extends CreateRecord
                 ];
 
                 DB::table('owner_association_vendor')->insert($oa_vendorData);
-                Log::info('Owner association vendor record created successfully');
 
                 if (!empty($data['service_id'])) {
                     foreach ($data['service_id'] as $serviceId) {
@@ -139,10 +129,8 @@ class CreateFacilityManager extends CreateRecord
                             'email'     => $data['managers'][0]['email'],
                             'phone'     => $data['managers'][0]['phone'] ?? null,
                         ];
-                        Log::info('Creating vendor manager with data:', $managerData);
 
                         VendorManager::create($managerData);
-                        Log::info('Vendor manager created successfully');
                     } catch (\Exception $e) {
                         Log::error('Error creating vendor manager:', ['error' => $e->getMessage()]);
                     }
@@ -150,7 +138,6 @@ class CreateFacilityManager extends CreateRecord
 
                 try {
                     FacilityManagerJob::dispatch($user, $password);
-                    Log::info('FacilityManagerJob dispatched successfully');
                 } catch (\Exception $e) {
                     Log::error('Error dispatching FacilityManagerJob:', ['error' => $e->getMessage()]);
                 }

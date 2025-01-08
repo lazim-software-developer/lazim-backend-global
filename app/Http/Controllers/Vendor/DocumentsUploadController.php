@@ -55,7 +55,7 @@ class DocumentsUploadController extends Controller
 
     public function showDocuments(Vendor $vendor)
     {
-        $documents = Document::where('documentable_id', $vendor->id)->get();
+        $documents = Document::where(['documentable_id'=> $vendor->id, 'documentable_type'=> Vendor::class])->get();
 
         return VendorDocumentResource::collection($documents);
     }

@@ -34,12 +34,10 @@ class SendInactiveStatusToResident implements ShouldQueue
             $user = $this->flatTenant->user;
 
             if (!$user) {
-                Log::error('User not found for FlatTenant ID: ' . $this->flatTenant->id);
                 return;
             }
 
             if (!$user->email) {
-                Log::error('Email not found for User ID: ' . $user->id);
                 return;
             }
 
@@ -48,7 +46,6 @@ class SendInactiveStatusToResident implements ShouldQueue
                 'email' => $user->email,
             ];
 
-            Log::info('Sending inactive status email to user:', $userData);
 
             $beautymail = app()->make(Beautymail::class);
             $beautymail->send('emails.resident_inactive_status',
@@ -67,4 +64,3 @@ class SendInactiveStatusToResident implements ShouldQueue
         }
     }
 }
-

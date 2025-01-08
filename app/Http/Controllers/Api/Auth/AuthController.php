@@ -62,6 +62,23 @@ class AuthController extends Controller
             ]))->response()->setStatusCode(403);
         }
 
+        $vendors = $user->technicianVendors()
+            ->with(['vendor.buildings' => function ($query) {
+                $query->wherePivot('active', 1);
+            }])
+            ->get();
+
+        $buildings = $vendors->flatMap(function ($technicianVendor) {
+            return $technicianVendor->vendor->buildings;
+        })->unique('id');
+
+        if ($buildings->isEmpty()) {
+            return (new CustomResponseResource([
+                'title'   => 'Unauthorized!',
+                'message' => 'No active buildings. Please contact admin!',
+                'code'    => 400,
+            ]))->response()->setStatusCode(400);
+        }
         // if (!$user->phone_verified) {
         //     return (new CustomResponseResource([
         //         'title' => 'Phone Verification Required',
@@ -166,7 +183,7 @@ class AuthController extends Controller
         if (!$flatExists) {
             return (new CustomResponseResource([
                 'title' => 'Access Forbidden',
-                'message' => 'You currently have no active units. Please await for admin approval.',
+                'message' => 'You currently have no active units. Please contact admin.',
                 'code' => 403,
                 'data' => $user
             ]))->response()->setStatusCode(403);
@@ -303,7 +320,7 @@ class AuthController extends Controller
         if (!$building->exists()) {
             return (new CustomResponseResource([
                 'title' => 'Error',
-                'message' => "You don't have access to login to the application!",
+                'message' => "No active buildings. Please contact admin.!",
                 'code' => 403,
             ]))->response()->setStatusCode(403);
         }
@@ -368,6 +385,15 @@ class AuthController extends Controller
                 'code' => 403,
                 'data' => $user
             ]))->response()->setStatusCode(403);
+        }
+        $buildingsExists = DB::table('building_vendor')->where(['vendor_id' => $user->vendors->first()->id, 'active' => 1])->exists();
+
+        if (!$buildingsExists) {
+            return (new CustomResponseResource([
+                'title' => 'Unauthorized!',
+                'message' => 'No active buildings. please contact admin.!',
+                'code' => 400,
+            ]))->response()->setStatusCode(400);
         }
 
         // if (!$user->phone_verified) {

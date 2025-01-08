@@ -18,7 +18,7 @@ class ItemsController extends Controller
     public function index(Request $request,Vendor $vendor){
        $items = $vendor->items()
                 ->when($request->filled('type'), function ($query) use ($vendor, $request) {
-                    $buildings = $vendor->buildings->where('pivot.active', true)->where('pivot.end_date', '>', now()->toDateString())->unique()
+                    $buildings = $vendor->buildings->where('pivot.active', true)->unique()
                         ->filter(function($buildings) use($request){
                             return $buildings->ownerAssociations->contains('role',$request->type);
                         });

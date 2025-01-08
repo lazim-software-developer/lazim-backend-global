@@ -15,27 +15,19 @@ class CheckOverdueInvoices extends Command
 
     public function handle()
     {
-        \Log::info('Starting overdue invoice check');
         $this->info('Starting overdue invoice check...');
 
         $today = Carbon::today();
-        \Log::info('Checking for due date before:', ['date' => $today]);
 
         $query = OwnerAssociationInvoice::where('status', '!=', 'paid')
             ->where('due_date', '<=', $today);
 
-        \Log::info('Query:', ['sql' => $query->toSql(), 'bindings' => $query->getBindings()]);
 
         $overdueInvoices = $query->get();
 
-        \Log::info('Query results:', [
-            'count' => $overdueInvoices->count(),
-            'invoices' => $overdueInvoices->pluck('invoice_number', 'id')->toArray()
-        ]);
 
         if ($overdueInvoices->isEmpty()) {
             $this->info('No overdue invoices found');
-            \Log::info('No overdue invoices found');
             return;
         }
 
@@ -58,20 +50,8 @@ class CheckOverdueInvoices extends Command
                     // Remove test mail connection since we'll verify with actual invoice
                     $propertyManager->notify(new OverdueInvoiceNotification($invoice));
                     $this->info('Notification sent successfully');
-                    \Log::info('Mail sent to property manager', [
-                        'email' => $propertyManager->email,
-                        'invoice' => $invoice->invoice_number,
-                        'pdf_path' => storage_path('app/public/invoices/' . $invoice->invoice_number . '.pdf')
-                    ]);
                 } catch (\Exception $e) {
                     $this->error("Failed to send notification: {$e->getMessage()}");
-                    \Log::error("Mail notification failed", [
-                        'invoice' => $invoice->id,
-                        'manager' => $propertyManager->id,
-                        'email' => $propertyManager->email,
-                        'error' => $e->getMessage(),
-                        'trace' => $e->getTraceAsString()
-                    ]);
                 }
             } else {
                 $this->warn("No property manager found for invoice #{$invoice->invoice_number}");

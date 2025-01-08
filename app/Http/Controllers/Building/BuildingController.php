@@ -7,6 +7,7 @@ use App\Http\Resources\Building\BuildingResource;
 use App\Http\Resources\Building\BuildingResourceCollection;
 use App\Models\Building\Building;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class BuildingController extends Controller
 {
@@ -21,6 +22,13 @@ class BuildingController extends Controller
             $query->whereHas('ownerAssociations', function($q) use ($request) {
                 $q->where('role', $request->type);
             });
+        }
+        if($request->registration){
+            $activeBuildings = DB::table('building_owner_association')
+                ->whereIn('building_id', $query->pluck('id'))
+                ->where('active', true)
+                ->pluck('building_id');
+            $query = Building::whereIn('id',$activeBuildings);
         }
 
         $buildings = $query->get();

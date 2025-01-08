@@ -90,6 +90,7 @@ class ServiceBookingResource extends Resource
                             ->options(
                                 DB::table('services')
                                     ->where('type', 'inhouse')
+                                    ->where('active', true)
                                     ->pluck('name', 'id')
                                     ->toArray()
                             )

@@ -203,7 +203,6 @@ class FacilityManagerResource extends Resource
                             $pm_oa    = auth()->user()?->first_name ?? '';
 
                             if ($state['status'] === 'rejected' && !empty($state['remarks'])) {
-                                \Log::info('Remarks before dispatch:', ['remarks' => $state['remarks']]);
                                 RejectedFMJob::dispatch($user, $password, $email, $state['remarks'], $pm_oa);
                             } elseif ($state['status'] === 'approved') {
                                 $user->password = Hash::make($password);

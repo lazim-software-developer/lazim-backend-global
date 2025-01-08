@@ -24,7 +24,6 @@ class OverdueInvoiceNotification extends Notification
 
     public function toMail($notifiable)
     {
-        \Log::info('Sending mail to:', ['email' => $notifiable->email]);
 
         $pdfPath = storage_path('app/public/invoices/' . $this->invoice->invoice_number . '.pdf');
         $mailMessage = (new MailMessage)
@@ -37,16 +36,11 @@ class OverdueInvoiceNotification extends Notification
             ->error();
 
         if (file_exists($pdfPath)) {
-            \Log::info('PDF file found, attaching to email', ['path' => $pdfPath]);
             $mailMessage->attach($pdfPath, [
                 'as' => 'invoice-' . $this->invoice->invoice_number . '.pdf',
                 'mime' => 'application/pdf',
             ]);
         } else {
-            \Log::warning('PDF file not found', [
-                'invoice' => $this->invoice->invoice_number,
-                'expected_path' => $pdfPath
-            ]);
             $mailMessage->line('Invoice PDF is not available at the moment.');
         }
 

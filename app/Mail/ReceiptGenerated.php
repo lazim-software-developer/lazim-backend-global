@@ -21,22 +21,12 @@ class ReceiptGenerated extends Mailable
         $this->pdfPath = $pdfPath;
         $this->pm_oa = $pm_oa;
 
-        Log::info('ReceiptGenerated mailable instantiated', [
-            'receipt_id' => $receipt->id,
-            'pdf_path'   => $pdfPath,
-        ]);
     }
 
     public function build()
     {
-        Log::info('Building ReceiptGenerated email', [
-            'receipt_id' => $this->receipt->id,
-        ]);
 
         if (file_exists($this->pdfPath)) {
-            Log::info('PDF found, attaching to email', [
-                'pdf_path' => $this->pdfPath,
-            ]);
 
             return $this->view('emails.receipt-generated')
                 ->subject('Receipt Confirmation for Your Payment')
@@ -45,9 +35,6 @@ class ReceiptGenerated extends Mailable
                     'mime' => 'application/pdf',
                 ]);
         } else {
-            Log::error('PDF not found, email sent without attachment', [
-                'pdf_path' => $this->pdfPath,
-            ]);
 
             return $this->view('emails.receipt-generated')
                 ->subject('Receipt Confirmation for Your Payment');
