@@ -507,7 +507,6 @@ class BuildingResource extends Resource
                                     ->exists();
 
                                 if (!$otherFlats) {
-                                    Log::info('Deleting token for user: ' . $tenantId);
                                     DB::table('refresh_tokens')
                                         ->where('user_id', $tenantId)
                                         ->delete();
@@ -531,7 +530,6 @@ class BuildingResource extends Resource
                                 $vendor = Vendor::findOrFail($vendorId);
                                 if (!$otherBuildings) {
                                     $userId = $vendor->owner_id;
-                                    Log::info('Deleting token for user: ' . $userId);
                                     DB::table('refresh_tokens')
                                         ->where('user_id', $userId)
                                         ->delete();
@@ -558,7 +556,6 @@ class BuildingResource extends Resource
                                     })->unique('id');
 
                                     if (!$otherBuildings && $buildings->isEmpty()) {
-                                        Log::info('Deleting token for user: ' . $technicianId);
                                         DB::table('refresh_tokens')
                                             ->where('user_id', $technicianId)
                                             ->delete();
@@ -580,7 +577,6 @@ class BuildingResource extends Resource
                                     ->exists();
 
                                 if (!$otherBuildings) {
-                                    Log::info('Deleting token for user: ' . $userId);
                                     DB::table('refresh_tokens')
                                         ->where('user_id', $userId)
                                         ->delete();

@@ -38,7 +38,6 @@ class ApprovedFMJob implements ShouldQueue
 
     public function handle(): void
     {
-        Log::info('Sending approval email to:', ['email' => $this->email]);
 
         Config::set('mail.mailers.smtp.host', $this->mailCredentials['mail_host']);
         Config::set('mail.mailers.smtp.port', $this->mailCredentials['mail_port']);

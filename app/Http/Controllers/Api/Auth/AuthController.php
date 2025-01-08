@@ -320,7 +320,7 @@ class AuthController extends Controller
         if (!$building->exists()) {
             return (new CustomResponseResource([
                 'title' => 'Error',
-                'message' => "You don't have access to login to the application!",
+                'message' => "No active buildings. Please contact admin.!",
                 'code' => 403,
             ]))->response()->setStatusCode(403);
         }

@@ -28,13 +28,11 @@ class SendInvoiceEmail implements ShouldQueue
 
     public function handle()
     {
-        Log::info('SendInvoiceEmail job started', ['email' => $this->email, 'invoice_id' => $this->invoice->id]);
 
         try {
             // Send the email with the InvoiceGenerated Mailable
             Mail::to($this->email)->send(new InvoiceGenerated($this->invoice, $this->pdfPath,$this->pm_oa));
 
-            Log::info('Invoice email sent successfully', ['email' => $this->email, 'invoice_id' => $this->invoice->id]);
         } catch (\Exception $e) {
             Log::error('Failed to send invoice email', [
                 'email'      => $this->email,

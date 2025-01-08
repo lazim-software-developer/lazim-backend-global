@@ -48,7 +48,6 @@ class CoolingAccountImport implements ToCollection, WithHeadingRow
                 ->danger()
                 ->body("You have uploaded an empty file")
                 ->send();
-            Log::error("Uploaded an empty file.");
             return 'failure';
         }
 
@@ -64,7 +63,6 @@ class CoolingAccountImport implements ToCollection, WithHeadingRow
                 ->danger()
                 ->body("Missing headings: " . implode(', ', $missingHeadings))
                 ->send();
-            Log::error("Missing headings: " . implode(', ', $missingHeadings));
             return 'failure';
         } else {
             $tenant       = Filament::getTenant();
@@ -77,14 +75,12 @@ class CoolingAccountImport implements ToCollection, WithHeadingRow
 
                 if (!$flatId) {
                     $errorDetails[] = "Unit number {$row['unit_no']} does not exist in the specified building.";
-                    Log::error("Unit number {$row['unit_no']} does not exist in building_id: {$this->buildingId}");
                     $success = false;
                     continue;
                 }
 
                 if (!in_array($status, ['pending', 'overdue', 'paid'])) {
                     $errorDetails[] = "Invalid status for unit_no: {$row['unit_no']}. Allowed values are 'pending', 'overdue', 'paid'.";
-                    Log::error("Invalid status for unit_no: {$row['unit_no']}. Status provided: {$status}");
                     $success = false;
                     continue;
                 }
@@ -94,7 +90,6 @@ class CoolingAccountImport implements ToCollection, WithHeadingRow
                         ->title("You have already uploaded details for the month " . Str::ucfirst($this->month))
                         ->danger()
                         ->send();
-                    Log::error("Duplicate entry for building_id: {$this->buildingId}, flat_id: {$flatId}, date: {$date}");
                     return 'error';
                 }
                 try {
@@ -125,7 +120,6 @@ class CoolingAccountImport implements ToCollection, WithHeadingRow
                         ->danger()
                         ->body("Error importing row: " . json_encode($row))
                         ->send();
-                    Log::error("Validation error for row: " . json_encode($row) . " with message: " . $e->getMessage());
                     $success = false;
                     continue;
                 }
@@ -136,7 +130,6 @@ class CoolingAccountImport implements ToCollection, WithHeadingRow
                     ->title("Details uploaded successfully")
                     ->success()
                     ->send();
-                Log::info("Details uploaded successfully for building_id: {$this->buildingId}");
                 return 'success';
             } else {
                 Notification::make()
@@ -144,7 +137,6 @@ class CoolingAccountImport implements ToCollection, WithHeadingRow
                     ->danger()
                     ->body("Failed to import data for units: " . implode(', ', $errorDetails))
                     ->send();
-                Log::error("Some rows failed to import for building_id: {$this->buildingId}");
                 return 'failure';
             }
         }
