@@ -96,10 +96,9 @@ class ListItems extends ListRecords
         if (auth()->user()?->role?->name === 'Property Manager') {
             return parent::getTableQuery()->whereIn('building_id', $buildingIds);
         }
-
         elseif(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
             return parent::getTableQuery();
         }
-        return parent::getTableQuery()->where('owner_association_id', Filament::getTenant()?->id);
+        return parent::getTableQuery()->whereIn('building_id', $buildingIds);
     }
 }
