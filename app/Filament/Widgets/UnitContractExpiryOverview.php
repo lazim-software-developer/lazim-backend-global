@@ -80,8 +80,8 @@ class UnitContractExpiryOverview extends BaseWidget
 
     public static function canView(): bool
     {
-        return auth()->check() && in_array(auth()->user()->role->name, [
-            'OA', 'MD', 'Property Manager'
+        return in_array(auth()->user()->role->name, [
+            'Property Manager'
         ]);
     }
 }
