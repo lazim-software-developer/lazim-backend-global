@@ -17,7 +17,7 @@ class ListAccessCardFormsDocuments extends ListRecords
     {
         $pmBuildings = DB::table('building_owner_association')->where('owner_association_id', auth()->user()?->owner_association_id)
             ->where('active', true)
-            ->pluck('id');
+            ->pluck('building_id');
         return auth()->user()->role->name == 'Admin' ? parent::getTableQuery() : parent::getTableQuery()
         ->whereIn('building_id', $pmBuildings);
     }

@@ -42,7 +42,7 @@
 </tr>
 <tr>
     <td class="paragraph">
-        To get started, please <a href="https://lazim-vendor-git-feat-property-management-zysktech.vercel.app/login">click here</a> to access your account. Upon logging in, you will be redirected to the document upload page, where you can submit the required documents for verification.
+        To get started, please <a href="{{env('VENDOR_URL')}}/login">click here</a> to access your account. Upon logging in, you will be redirected to the document upload page, where you can submit the required documents for verification.
     </td>
 </tr>
 <tr>

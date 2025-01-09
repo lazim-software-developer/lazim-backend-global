@@ -46,7 +46,7 @@
 <tr>
     <td class="paragraph">
         <ul>
-            <li>To update your application, please <a href="https://lazim-vendor-git-feat-property-management-zysktech.vercel.app/login">click here</a></li>
+            <li>To update your application, please <a href="{{ env('VENDOR_URL') }}/login">click here</a></li>
             <li>Once your updates are submitted, we will review your application again promptly</li>
         </ul>
     </td>

@@ -18,7 +18,7 @@ class ListGuestRegistrations extends ListRecords
             ->where('owner_association_id', auth()->user()?->owner_association_id)
             ->where('active', true)
             ->pluck('building_id');
-        $flatVisitorIds = DB::table('flat_visitor')
+        $flatVisitorIds = DB::table('flat_visitors')
             ->whereIn('building_id', $pmBuildings)
             ->where('type', 'guest')
             ->pluck('id');
