@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Building\BuildingResource\RelationManagers;
 
 use App\Models\Building\FacilityBooking;
+use App\Models\Building\FlatTenant;
 use App\Models\ExpoPushNotification;
 use App\Models\Master\Role;
 use App\Models\Master\Service;
@@ -72,6 +73,10 @@ class ServiceBookingsRelationManager extends RelationManager
 
                                 if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
                                     return User::whereIn('role_id', $roleId)->pluck('first_name', 'id');
+                                }elseif(Role::where('id', auth()->user()->role_id)->first()->name == 'Property Manager'){
+                                    $flatTenantId = FlatTenant::where('building_id', $this->ownerRecord->id)
+                                    ->pluck('tenant_id');
+                                    return User::whereIn('id', $flatTenantId)->pluck('first_name', 'id');
                                 } else {
                                     return User::whereIn('role_id', $roleId)->where('owner_association_id', auth()->user()?->owner_association_id)->pluck('first_name', 'id');
                                 }
