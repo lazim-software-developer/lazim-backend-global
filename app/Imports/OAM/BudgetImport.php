@@ -89,7 +89,7 @@ class BudgetImport implements ToCollection, WithHeadingRow
 
         $budget = Budget::create([
             'building_id'          => $this->buildingId,
-            'owner_association_id' => Filament::getTenant()->id,
+            'owner_association_id' => Filament::getTenant()?->id ?? auth()->user()?->owner_association_id,
             'budget_period'        => $this->budgetPeriod,
             'budget_from'          => $startDate->toDateString(),
             'budget_to'            => $endDate->toDateString(),
