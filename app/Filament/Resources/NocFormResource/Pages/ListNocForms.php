@@ -19,7 +19,7 @@ class ListNocForms extends ListRecords
             ->where('active', true)
             ->pluck('building_id');
 
-        return auth()->user()->role->name == 'Admin' ? parent::getTableQuery() : parent::getTableQuery()->where('owner_association_id', auth()->user()?->owner_association_id)
+        return auth()->user()->role->name == 'Admin' ? parent::getTableQuery() : parent::getTableQuery()
         ->whereIn('building_id', $pmBuildings);
     }
     protected function getHeaderActions(): array
