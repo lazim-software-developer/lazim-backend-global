@@ -52,4 +52,10 @@ class RentalChequeStatusOverview extends BaseWidget
                 ->chart([3, 5, 7, 4, 6, $upcomingCount]),
         ];
     }
+     public static function canView(): bool
+    {
+        return in_array(auth()->user()->role->name, [
+            'Property Manager'
+        ]);
+    }
 }

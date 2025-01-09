@@ -47,4 +47,10 @@ class BillsOverviewWidget extends BaseWidget
                 ]),
         ];
     }
+     public static function canView(): bool
+    {
+        return in_array(auth()->user()->role->name, [
+            'Property Manager'
+        ]);
+    }
 }

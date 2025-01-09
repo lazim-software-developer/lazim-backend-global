@@ -36,6 +36,7 @@ class ItemInventoryResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
     protected static ?string $modelLabel = 'Item inventory';
     protected static ?string $navigationGroup = 'Inventory Management';
+    protected static bool $isScopedToTenant = false;
     public static function form(Form $form): Form
     {
         return $form

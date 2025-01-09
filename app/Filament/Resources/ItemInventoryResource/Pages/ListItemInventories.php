@@ -40,6 +40,6 @@ class ListItemInventories extends ListRecords
         elseif(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
             return parent::getTableQuery();
         }
-        return parent::getTableQuery()->where('owner_association_id', Filament::getTenant()?->id);
+        return parent::getTableQuery()->whereIn('item_id', $itemId);
     }
 }

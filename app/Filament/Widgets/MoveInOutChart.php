@@ -98,4 +98,10 @@ class MoveInOutChart extends ChartWidget
             'maintainAspectRatio' => false,
         ];
     }
+    public static function canView(): bool
+    {
+        return in_array(auth()->user()->role->name, [
+            'Property Manager'
+        ]);
+    }
 }

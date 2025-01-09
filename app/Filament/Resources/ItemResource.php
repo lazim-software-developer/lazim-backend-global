@@ -35,6 +35,7 @@ class ItemResource extends Resource
     protected static ?string $model = Item::class;
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
     protected static ?string $navigationGroup = 'Inventory Management';
+    protected static bool $isScopedToTenant = false;
 
     public static function form(Form $form): Form
     {
