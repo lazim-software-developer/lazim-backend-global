@@ -18,9 +18,12 @@ class ListGuestRegistrations extends ListRecords
             ->where('owner_association_id', auth()->user()?->owner_association_id)
             ->where('active', true)
             ->pluck('building_id');
+        $flatVisitorIds = DB::table('flat_visitors')
+            ->whereIn('building_id', $pmBuildings)
+            ->where('type', 'guest')
+            ->pluck('id');
 
-        return auth()->user()->role->name == 'Admin' ? parent::getTableQuery() : parent::getTableQuery()->where('owner_association_id', auth()->user()?->owner_association_id)
-        ->whereIn('building_id', $pmBuildings);
+        return auth()->user()->role->name == 'Admin' ? parent::getTableQuery() : parent::getTableQuery()->whereIn('flat_visitor_id',$flatVisitorIds);
     }
     protected function getHeaderActions(): array
     {

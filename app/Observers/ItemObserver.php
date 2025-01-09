@@ -49,9 +49,9 @@ class ItemObserver
             ->url(function() use ($item){
                 $slug = OwnerAssociation::where('id',$item->owner_association_id)->first()?->slug;
                 if($slug){
-                    return ItemResource::getUrl('edit', [$slug,$item?->id]);
+                    return ItemResource::getUrl('view', [$slug,$item?->id]);
                 }
-                return url('/app/items/' . $item?->id.'/edit');
+                return url('/app/items/' . $item?->id.'');
             }),
             ])
         ->sendToDatabase($notifyTo);

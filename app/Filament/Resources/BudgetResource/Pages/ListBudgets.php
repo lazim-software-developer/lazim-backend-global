@@ -29,7 +29,9 @@ class ListBudgets extends ListRecords
         if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
             return parent::getTableQuery();
         }
-        $buildings_id = DB::table('building_owner_association')->where('owner_association_id',Filament::getTenant()->id)->where('active', true)->pluck('building_id');
+        $buildings_id = DB::table('building_owner_association')
+            ->where('owner_association_id',Filament::getTenant()?->id ?? auth()->user()?->owner_association_id)
+            ->where('active', true)->pluck('building_id');
         return parent::getTableQuery()->whereIn('building_id', $buildings_id);
     }
 
@@ -48,7 +50,10 @@ class ListBudgets extends ListRecords
                                 return Building::all()->pluck('name', 'id');
                             }
                             else{
-                                return Building::where('owner_association_id', Filament::getTenant()->id)
+                                $buildings_id = DB::table('building_owner_association')
+                                ->where('owner_association_id',Filament::getTenant()?->id ?? auth()->user()?->owner_association_id)
+                                ->where('active', true)->pluck('building_id');
+                                return Building::whereIn('id', $buildings_id)
                                 ->pluck('name', 'id');
                             }
                         })

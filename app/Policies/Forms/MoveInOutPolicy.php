@@ -2,8 +2,9 @@
 
 namespace App\Policies\Forms;
 
-use App\Models\User\User;
 use App\Models\Forms\MoveInOut;
+use App\Models\User\User;
+use DB;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class MoveInOutPolicy
@@ -30,7 +31,19 @@ class MoveInOutPolicy
      */
     public function view(User $user, MoveInOut $moveInOut): bool
     {
+        $pmbuildingIds = DB::table('building_owner_association')
+            ->where('owner_association_id', auth()->user()?->owner_association_id)
+            ->where('active', true)
+            ->pluck('building_id')
+            ->toArray();
+
+        if (auth()->user()->role->name == 'Property Manager') {
+            return $user->can('view_move::out::forms::document')
+            && in_array($moveInOut->building_id, $pmbuildingIds);
+        }
+
         return $user->can('view_move::out::forms::document');
+
     }
 
     /**
@@ -53,6 +66,17 @@ class MoveInOutPolicy
      */
     public function update(User $user, MoveInOut $moveInOut): bool
     {
+        $pmbuildingIds = DB::table('building_owner_association')
+            ->where('owner_association_id', auth()->user()?->owner_association_id)
+            ->where('active', true)
+            ->pluck('building_id')
+            ->toArray();
+
+        if (auth()->user()->role->name == 'Property Manager') {
+            return $user->can('update_move::out::forms::document')
+            && in_array($moveInOut->building_id, $pmbuildingIds);
+        }
+
         return $user->can('update_move::out::forms::document');
     }
 

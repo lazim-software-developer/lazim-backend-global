@@ -35,6 +35,7 @@ class ItemResource extends Resource
     protected static ?string $model = Item::class;
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
     protected static ?string $navigationGroup = 'Inventory Management';
+    protected static bool $isScopedToTenant = false;
 
     public static function form(Form $form): Form
     {
@@ -96,9 +97,7 @@ class ItemResource extends Resource
 
     public static function table(Table $table): Table
     {
-        $buildings = Building::where('owner_association_id',auth()->user()?->owner_association_id)->pluck('id');
         return $table
-        // ->modifyQueryUsing(fn(Builder $query) => $query->whereIn('building_id', $buildings)->orderBy('created_at','desc')->withoutGlobalScopes())
             ->columns([
                 TextColumn::make('name')
                     ->searchable(),

@@ -10,6 +10,7 @@ use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -89,9 +90,10 @@ class WDAResource extends Resource
                             ->disabled(function (WDA $record) {
                                 return $record->status != 'pending';
                             })
+                            ->required()
                             ->searchable()
                             ->live(),
-                        TextInput::make('remarks')
+                        Textarea::make('remarks')
                             ->rules(['max:150'])
                             ->visible(function (callable $get) {
                                 if ($get('status') == 'rejected') {

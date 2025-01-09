@@ -76,4 +76,10 @@ class UnitStatusOverview extends BaseWidget
                 ->url('/app/bills?tableFilters[status][value]=Overdue'),
         ];
     }
+     public static function canView(): bool
+    {
+        return in_array(auth()->user()->role->name, [
+            'Property Manager'
+        ]);
+    }
 }
