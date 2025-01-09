@@ -341,6 +341,13 @@ class BuildingPocsRelationManager extends RelationManager
                         }
                         $userId->active = $data['active'];
                         $userId->save();
+
+                        if(!$userId->active){
+                            $record->tokens()->delete();
+                            DB::table('refresh_tokens')
+                                ->where('user_id', $record->id)
+                                ->delete();
+                        }
                     })
                     ->slideOver(),
 
