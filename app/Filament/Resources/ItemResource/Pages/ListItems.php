@@ -90,13 +90,10 @@ class ListItems extends ListRecords
     protected function getTableQuery(): Builder
     {
         $buildingIds = DB::table('building_owner_association')
-            ->where('owner_association_id', auth()->user()?->owner_association_id)
+            ->where('owner_association_id', auth()->user()?->owner_association_id ?? Filament::getTenant()?->id)
             ->where('active', true)
             ->pluck('building_id');
-        if (auth()->user()?->role?->name === 'Property Manager') {
-            return parent::getTableQuery()->whereIn('building_id', $buildingIds);
-        }
-        elseif(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
+        if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
             return parent::getTableQuery();
         }
         return parent::getTableQuery()->whereIn('building_id', $buildingIds);
