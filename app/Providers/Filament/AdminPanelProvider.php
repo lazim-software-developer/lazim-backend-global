@@ -246,7 +246,7 @@ class AdminPanelProvider extends PanelProvider
                 $user->can('view_any_oacomplaint::reports')
                  ){
                     $builder->groups([
-                        NavigationGroup::make('Property management')
+                        NavigationGroup::make('Building management')
                             ->items([
                                 NavigationItem::make('Buildings')
                                     ->url('/admin/building/buildings')
