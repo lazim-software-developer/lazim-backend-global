@@ -91,7 +91,7 @@ class SubContractorResource extends Resource
             ->modifyQueryUsing(function (Builder $query) {
                 $vendorId = DB::table('owner_association_vendor')->where('owner_association_id', auth()->user()?->owner_association_id)
                     ->pluck('vendor_id');
-                $query->where('vendor_id', $vendorId);
+                $query->whereIn('vendor_id', $vendorId);
             })
             ->columns([
                 Tables\Columns\TextColumn::make('name')
