@@ -25,7 +25,7 @@ class ListTenantDocuments extends ListRecords
             return parent::getTableQuery()->whereIn('building_id', $pmBuildings);
         }
 
-        return parent::getTableQuery()->where('owner_association_id', auth()->user()?->owner_association_id);
+        return parent::getTableQuery()->whereIn('building_id', $pmBuildings);
     }
     protected function getHeaderActions(): array
     {

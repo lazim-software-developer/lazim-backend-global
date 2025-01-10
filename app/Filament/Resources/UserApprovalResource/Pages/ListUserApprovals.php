@@ -29,13 +29,12 @@ class ListUserApprovals extends ListRecords
         $flats = DB::table('flats')->whereIn('building_id', $pmbuildingIds)->pluck('id')->toArray();
         if (auth()->user()->role->name == 'Property Manager') {
             return parent::getTableQuery()
-                ->where('owner_association_id', auth()->user()->owner_association_id)
                 ->whereIn('flat_id', $flats)
                 ->latest();
         }
         $tenant = Filament::getTenant();
         if ($tenant) {
-            return parent::getTableQuery()->where('owner_association_id', $tenant->id)->latest();
+            return parent::getTableQuery()->whereIn('flat_id', $flats)->latest();
         }
         return parent::getTableQuery()->latest();
     }
