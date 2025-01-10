@@ -25,9 +25,9 @@ class Handler extends ExceptionHandler
     {
         if ($request->expectsJson()) {
             return (new CustomResponseResource([
-                'title' => 'Unauthenticated',
+                'title'   => 'Unauthenticated',
                 'message' => 'You are not authenticated. Please log in.',
-                'code' => 401,
+                'code'    => 401,
             ]))->response()->setStatusCode(401);
         }
 
@@ -56,14 +56,16 @@ class Handler extends ExceptionHandler
     public function render($request, Throwable $exception)
     {
         if ($exception instanceof AuthorizationException) {
+            // For API requests, return JSON response
             // if ($request->expectsJson()) {
             //     return (new CustomResponseResource([
-            //         'title' => 'Unauthorized',
+            //         'title'   => 'Unauthorized',
             //         'message' => 'This action is unauthorized.',
-            //         'code' => 403,
+            //         'code'    => 403,
             //     ]))->response()->setStatusCode(403);
             // }
 
+            // For web requests, return custom error page
             return response()->view('errors.403', [], 403);
         }
 
