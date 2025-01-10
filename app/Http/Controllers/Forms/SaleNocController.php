@@ -167,7 +167,7 @@ class SaleNocController extends Controller
         $path = optimizeDocumentAndUpload($request->file, 'dev');
 
         return response()->json([
-            'path' => $path,
+            'path' => env('AWS_URL').'/'.$path,
         ], 200);
     }
     public function fmlist(Vendor $vendor, Request $request)
