@@ -23,6 +23,9 @@ class BuildingsRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
+        ->modifyQueryUsing(function($query){
+            return $query->where('active', true);
+        })
             ->recordTitleAttribute('name')
             ->columns([
                 Tables\Columns\TextColumn::make('name'),

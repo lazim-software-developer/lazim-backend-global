@@ -163,6 +163,7 @@ class FacilitySupportComplaintResource extends Resource
                                     ->afterStateUpdated(function (Set $set) {
                                         $set('vendor_id', null);
                                         $set('technician_id', null);
+                                        $set('service_id', null);
                                     }),
 
                                 Select::make('service_id')
