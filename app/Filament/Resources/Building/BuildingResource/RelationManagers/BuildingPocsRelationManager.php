@@ -71,9 +71,9 @@ class BuildingPocsRelationManager extends RelationManager
                                 ->required()
                                 ->maxLength(255),
                             TextInput::make('phone')
-                                ->rules(['regex:/^(971)(50|51|52|55|56|58|02|03|04|06|07|09)\d{7}$/'])
-                                ->required()
-                                ->maxLength(255),
+                                ->length(9)
+                                ->placeholder('XXXXXXXXX')
+                                ->required(),
                             FileUpload::make('profile_photo')
                                 ->disk('s3')
                                 ->directory('dev')
