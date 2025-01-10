@@ -23,7 +23,7 @@ class UserApprovalObserver
             ->where(['building_id'=> $userApproval->flat?->building?->id, 'active' => true])
             ->pluck('owner_association_id');
         $roles = Role::whereIn('owner_association_id',$ownerAssociationIds)->whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor','Staff','Facility Manager'])->pluck('id');
-        $notifyTo = User::whereIn('owner_association_id', $ownerAssociationIds)->whereNotIn('role_id', $roles)->whereNot('id', auth()->user()?->id)->get()
+        $notifyTo = User::whereIn('owner_association_id', $ownerAssociationIds)->whereNotIn('role_id', $roles)->whereNot('id', auth()->user()?->id)->distinct()->get()
         ->filter(function ($notifyTo) use ($requiredPermissions) {
             return $notifyTo->can($requiredPermissions);
         });//MAKE AUTH USER ID IN USER WHERENOT-----------
