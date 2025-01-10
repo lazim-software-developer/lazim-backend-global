@@ -32,17 +32,13 @@ class UserApprovalPolicy
      */
     public function view(User $user, UserApproval $userApproval): bool
     {
-        $pmbuildingIds = DB::table('building_owner_association')
-            ->where('owner_association_id', auth()->user()?->owner_association_id)
+        $buildingExists = DB::table('building_owner_association')
+            ->where(['owner_association_id' => auth()->user()?->owner_association_id, 'building_id' => $userApproval->flat?->building?->id])
             ->where('active', true)
-            ->pluck('building_id');
-
-        $flats = Flat::whereIn('building_id', $pmbuildingIds)->pluck('id')->toArray();
+            ->exists();
 
         if (auth()->user()->role->name == 'Property Manager') {
-            return $user->can('view_user::approval')
-            && $userApproval->owner_association_id === $user->owner_association_id
-            && in_array($userApproval->flat_id, $flats);
+            return $user->can('view_user::approval') && $buildingExists;
         }
         return $user->can('view_user::approval');
     }
@@ -67,17 +63,13 @@ class UserApprovalPolicy
      */
     public function update(User $user, UserApproval $userApproval): bool
     {
-        $pmbuildingIds = DB::table('building_owner_association')
-            ->where('owner_association_id', auth()->user()?->owner_association_id)
+        $buildingExists = DB::table('building_owner_association')
+            ->where(['owner_association_id' => auth()->user()?->owner_association_id , 'building_id' => $userApproval->flat?->building?->id])
             ->where('active', true)
-            ->pluck('building_id');
-
-        $flats = Flat::whereIn('building_id', $pmbuildingIds)->pluck('id')->toArray();
+            ->exists();
 
         if (auth()->user()->role->name == 'Property Manager') {
-            return $user->can('update_user::approval')
-            && $userApproval->owner_association_id === $user->owner_association_id
-            && in_array($userApproval->flat_id, $flats);
+            return $user->can('update_user::approval') && $buildingExists;
         }
         return $user->can('update_user::approval');
     }
