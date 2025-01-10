@@ -2,8 +2,9 @@
 
 namespace App\Policies\Building;
 
-use App\Models\User\User;
 use App\Models\Building\FacilityBooking;
+use App\Models\User\User;
+use DB;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class FacilityBookingPolicy
@@ -30,6 +31,17 @@ class FacilityBookingPolicy
      */
     public function view(User $user, FacilityBooking $facilityBooking): bool
     {
+        $pmbuildingIds = DB::table('building_owner_association')
+            ->where('owner_association_id', auth()->user()?->owner_association_id)
+            ->where('active', true)
+            ->pluck('building_id')
+            ->toArray();
+
+        if (auth()->user()->role->name == 'Property Manager') {
+            return $user->can('view_building::service::booking')
+            && in_array($facilityBooking->building_id, $pmbuildingIds);
+        }
+
         return $user->can('view_building::service::booking');
     }
 
@@ -53,6 +65,17 @@ class FacilityBookingPolicy
      */
     public function update(User $user, FacilityBooking $facilityBooking): bool
     {
+        $pmbuildingIds = DB::table('building_owner_association')
+            ->where('owner_association_id', auth()->user()?->owner_association_id)
+            ->where('active', true)
+            ->pluck('building_id')
+            ->toArray();
+
+        if (auth()->user()->role->name == 'Property Manager') {
+            return $user->can('update_building::service::booking')
+            && in_array($facilityBooking->building_id, $pmbuildingIds);
+        }
+
         return $user->can('update_building::service::booking');
     }
 
