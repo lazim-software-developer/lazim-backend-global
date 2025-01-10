@@ -25,6 +25,11 @@ class EditFacilityManager extends EditRecord
     protected function mutateFormDataBeforeFill(array $data): array
     {
         $vendor        = $this->record;
+        $approvalStatus = DB::table('owner_association_vendor')
+            ->where('vendor_id', $vendor->id)
+            ->where('owner_association_id', auth()->user()->owner_association_id)
+            ->pluck('status')
+            ->first();
         $user          = $vendor->user;
         $manager       = $vendor->managers->first();
         $services      = $vendor->services->pluck('id')->toArray();
@@ -44,7 +49,7 @@ class EditFacilityManager extends EditRecord
             'tl_number'            => $vendor->tl_number ?? '',
             'tl_expiry'            => $vendor->tl_expiry,
             'risk_policy_expiry'   => $riskPolicy ? $riskPolicy->expiry_date : null,
-            'status'               => $vendor->status ?? 'pending',
+            'status'               => $approvalStatus ?? 'pending',
             'remarks'              => $vendor->remarks ?? null,
             'subcategory_id'       => $subcategories,
             'service_id'           => $services,

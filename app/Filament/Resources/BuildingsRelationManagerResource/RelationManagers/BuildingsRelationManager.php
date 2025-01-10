@@ -23,6 +23,10 @@ class BuildingsRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
+        ->modifyQueryUsing(function($query){
+            return $query->where('active', true)
+            ->where('owner_association_id', auth()->user()?->owner_association_id);
+        })
             ->recordTitleAttribute('name')
             ->columns([
                 Tables\Columns\TextColumn::make('name'),

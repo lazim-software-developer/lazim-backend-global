@@ -51,6 +51,8 @@ class EditBuilding extends EditRecord
         if (auth()->user()->role->name == 'Property Manager') {
             DB::table('building_owner_association')
                 ->where('building_id', $this->record->id)
+                ->where('owner_association_id', auth()->user()->owner_association_id)
+                ->where('active', true)
                 ->update([
                     'from' => $data['from'],
                     'to'   => $data['to'],
@@ -70,8 +72,12 @@ class EditBuilding extends EditRecord
         if (auth()->user()->role->name == 'Property Manager') {
             $data['from'] = DB::table('building_owner_association')
                 ->where('building_id', $this->record->id)
+                ->where('owner_association_id', auth()->user()->owner_association_id)
+                ->where('active', true)
                 ->first()->from;
-            $data['to'] = DB::table('building_owner_association')
+                $data['to'] = DB::table('building_owner_association')
+                ->where('owner_association_id', auth()->user()->owner_association_id)
+                ->where('active', true)
                 ->where('building_id', $this->record->id)
                 ->first()->to;
         }

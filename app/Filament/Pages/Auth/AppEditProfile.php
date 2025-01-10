@@ -37,7 +37,7 @@ class AppEditProfile extends BaseEditProfile
     {
         return [
             'hasTopbar' => $this->hasTopbar(),
-            'maxWidth'  => $this->getMaxWidth(),
+            // 'maxWidth'  => $this->getMaxWidth(),
         ];
     }
 
