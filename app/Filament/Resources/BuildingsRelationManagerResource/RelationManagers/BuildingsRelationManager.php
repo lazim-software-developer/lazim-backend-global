@@ -24,7 +24,8 @@ class BuildingsRelationManager extends RelationManager
     {
         return $table
         ->modifyQueryUsing(function($query){
-            return $query->where('active', true);
+            return $query->where('active', true)
+            ->where('owner_association_id', auth()->user()?->owner_association_id);
         })
             ->recordTitleAttribute('name')
             ->columns([
