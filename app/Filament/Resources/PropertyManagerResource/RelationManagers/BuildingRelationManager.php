@@ -3,7 +3,6 @@
 namespace App\Filament\Resources\PropertyManagerResource\RelationManagers;
 
 use App\Imports\BuildingImport;
-use App\Imports\PropertyManagerBuildingsImport;
 use App\Models\Building\Building;
 use App\Models\OwnerAssociation;
 use App\Models\User\User;
@@ -329,7 +328,7 @@ class BuildingRelationManager extends RelationManager
                             return;
                         }
 
-                        Excel::import(new PropertyManagerBuildingsImport($oaId), $fullPath);
+                        Excel::import(new BuildingImport($oaId), $fullPath);
                     }),
 
                 ExportAction::make('exporttemplate')
@@ -337,15 +336,15 @@ class BuildingRelationManager extends RelationManager
                         ExcelExport::make()
                             ->modifyQueryUsing(fn(Builder $query) => $query->where('id', 0))
                             ->withColumns([
-                                Column::make('name*'),
-                                Column::make('building_type*'),
-                                Column::make('property_group_id*'),
-                                Column::make('address_line1*'),
+                                Column::make('name'),
+                                Column::make('building_type'),
+                                Column::make('property_group_id'),
+                                Column::make('address_line1'),
                                 Column::make('area'),
                                 Column::make('floors'),
                                 Column::make('parking_count'),
-                                Column::make('contract_start_date')->heading('Contract Start Date*'),
-                                Column::make('contract_end_date')->heading('Contract End Date*'),
+                                Column::make('contract_start_date')->heading('Contract Start Date'), // Changed from 'from'
+                                Column::make('contract_end_date')->heading('Contract End Date'), // Changed from 'to'
                             ]),
                     ])
                     ->label('Download sample file'),

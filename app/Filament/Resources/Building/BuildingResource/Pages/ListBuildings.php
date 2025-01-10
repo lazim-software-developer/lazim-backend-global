@@ -108,7 +108,7 @@ class ListBuildings extends ListRecords
                             Column::make('name*'),
                             Column::make('building_type*'),
                             Column::make('property_group_id*'),
-                            Column::make('address_line1*'),
+                            Column::make('address_line1'),
                             Column::make('area'),
                             Column::make('floors'),
                             Column::make('parking_count'),

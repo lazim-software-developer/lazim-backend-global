@@ -2,9 +2,8 @@
 
 namespace App\Policies\Forms;
 
-use App\Models\Forms\AccessCard;
 use App\Models\User\User;
-use DB;
+use App\Models\Forms\AccessCard;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class AccessCardPolicy
@@ -31,17 +30,6 @@ class AccessCardPolicy
      */
     public function view(User $user, AccessCard $accessCard): bool
     {
-        $pmbuildingIds = DB::table('building_owner_association')
-            ->where('owner_association_id', auth()->user()?->owner_association_id)
-            ->where('active', true)
-            ->pluck('building_id')
-            ->toArray();
-
-        if (auth()->user()->role->name == 'Property Manager') {
-            return $user->can('view_access::card::forms::document')
-            && in_array($accessCard->building_id, $pmbuildingIds);
-        }
-
         return $user->can('view_access::card::forms::document');
     }
 
@@ -65,17 +53,6 @@ class AccessCardPolicy
      */
     public function update(User $user, AccessCard $accessCard): bool
     {
-        $pmbuildingIds = DB::table('building_owner_association')
-            ->where('owner_association_id', auth()->user()?->owner_association_id)
-            ->where('active', true)
-            ->pluck('building_id')
-            ->toArray();
-
-        if (auth()->user()->role->name == 'Property Manager') {
-            return $user->can('update_access::card::forms::document')
-            && in_array($accessCard->building_id, $pmbuildingIds);
-        }
-
         return $user->can('update_access::card::forms::document');
     }
 

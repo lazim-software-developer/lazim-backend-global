@@ -209,9 +209,20 @@ class FlatsRelationManager extends RelationManager
                     ->slideOver()
                     ->label('New Flat'),
 
-                Action::make('Upload Flats')
+                Action::make('feature')
+                    ->label('Upload Flats') // Set a label for your action
                     ->visible(in_array(auth()->user()->role->name, ['Admin', 'Property Manager']))
                     ->form([
+                        // Select::make('owner_association_id')
+                        //     ->options(function () {
+                        //         return OwnerAssociation::where('role', 'Property Manager')->pluck('name', 'id');
+                        //     })
+                        //     ->visible(auth()->user()->role->name === 'Admin')
+                        //     ->required()
+                        //     ->live()
+                        //     ->preload()
+                        //     ->searchable()
+                        //     ->label('Select Property Manager'),
                         Select::make('building_id')
                             ->options(function () {
                                 $buildings = DB::table('building_owner_association')
@@ -227,14 +238,15 @@ class FlatsRelationManager extends RelationManager
                         FileUpload::make('excel_file')
                             ->label('Upload File')
                             ->acceptedFileTypes([
-                                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                                'application/vnd.ms-excel',
+                                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // for .xlsx
+                                'application/vnd.ms-excel', // for .xls
                             ])
                             ->required()
-                            ->disk('local')
-                            ->directory('budget_imports'),
+                            ->disk('local') // or your preferred disk
+                            ->directory('budget_imports'), // or your preferred directory
                     ])
                     ->action(function ($record, array $data, $livewire) {
+
                         $filePath   = $data['excel_file'];
                         $fullPath   = storage_path('app/' . $filePath);
                         $oaId       = $this->ownerRecord->id;
@@ -244,27 +256,27 @@ class FlatsRelationManager extends RelationManager
                             Log::error("File not found at path: ", [$fullPath]);
                         }
 
-                        Excel::import(new FlatImport($oaId, $buildingId), $fullPath);
+                        // Now import using the file path
+                        Excel::import(new FlatImport($oaId, $buildingId), $fullPath); // Notify user of success
                     }),
-
-                ExportAction::make('exporttemplate')
-                    ->exports([
-                        ExcelExport::make()
-                            ->modifyQueryUsing(fn(Builder $query) => $query->where('id', 0))
-                            ->withColumns([
-                                Column::make('unit_number*'),
-                                Column::make('property_type*'),
-                                Column::make('suit_area'),
-                                Column::make('actual_area'),
-                                Column::make('balcony_area'),
-                                Column::make('parking_count'),
-                                Column::make('plot_number'),
-                                Column::make('makani_number'),
-                                Column::make('dewa_number'),
-                                Column::make('btu/etisalat_number'),
-                                Column::make('btu/ac_number'),
-                            ]),
-                    ])
+                ExportAction::make('exporttemplate')->exports([
+                    ExcelExport::make()
+                        ->modifyQueryUsing(fn(Builder $query) => $query->where('id', 0))
+                        ->withColumns([
+                            Column::make('unit_number'),
+                            Column::make('property_type'),
+                            Column::make('mollak_property_id'),
+                            Column::make('suit_area'),
+                            Column::make('actual_area'),
+                            Column::make('balcony_area'),
+                            Column::make('applicable_area'),
+                            Column::make('parking_count'),
+                            Column::make('makhani_number'),
+                            Column::make('dewa_number'),
+                            Column::make('etisalat/du_number'),
+                            Column::make('btu/ac_number'),
+                        ]),
+                ])
                     ->visible(in_array(auth()->user()->role->name, ['Admin', 'Property Manager']))
                     ->label('Download sample file'),
             ])
