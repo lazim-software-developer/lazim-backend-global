@@ -102,7 +102,7 @@ class VendorRegistrationController extends Controller
                 if ($isAttached) {
                     return (new CustomResponseResource([
                         'title' => 'vendor_already_exists',
-                        'message' => "This vendor is already registered with this ".$ownerAssociation->role.'.',
+                        'message' => "This vendor is already registered with this ".$ownerAssociation?->role ?? 'Association'.'.',
                         'code' => 403, // Conflict status code
                         'data' => $vendor,
                     ]))->response()->setStatusCode(403);
@@ -112,7 +112,7 @@ class VendorRegistrationController extends Controller
                 $vendor->ownerAssociation()->attach($request->owner_association_id, ['from' => now()->toDateString(),'active' =>false,'type' => $request->role]);
                 return (new CustomResponseResource([
                     'title' => 'vendor_exists',
-                    'message' => "You have successfully registered with the new ".$ownerAssociation.". They will get back to you soon!",
+                    'message' => "You have successfully registered with the new ".$ownerAssociation?->role ?? 'Association'.". They will get back to you soon!",
                     'code' => 200,
                     'status' => 'success',
                     'data' => $vendor,
