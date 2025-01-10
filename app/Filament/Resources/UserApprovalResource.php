@@ -8,7 +8,6 @@ use App\Models\Building\Flat;
 use App\Models\UserApproval;
 use Carbon\Carbon;
 use DB;
-use Filament\Facades\Filament;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
@@ -103,7 +102,6 @@ class UserApprovalResource extends Resource
                                         ->value('role');
                                     return $role == 'Tenant';
                                 })
-                                ->hidden(is_numeric( Filament::getTenant()?->id))
                                 ->afterStateHydrated(function ($state, $set, $record) {
                                     if ($record) {
                                         $startDate = DB::table('flat_tenants')
@@ -124,7 +122,6 @@ class UserApprovalResource extends Resource
                                         ->value('role');
                                     return $role == 'Tenant';
                                 })
-                                ->hidden(is_numeric( Filament::getTenant()?->id))
                                 ->afterStateHydrated(function ($state, $set, $record) {
                                     if ($record) {
                                         $endDate = DB::table('flat_tenants')

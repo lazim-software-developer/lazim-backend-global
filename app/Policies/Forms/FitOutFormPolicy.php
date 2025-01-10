@@ -2,9 +2,8 @@
 
 namespace App\Policies\Forms;
 
-use App\Models\Forms\FitOutForm;
 use App\Models\User\User;
-use DB;
+use App\Models\Forms\FitOutForm;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class FitOutFormPolicy
@@ -31,17 +30,6 @@ class FitOutFormPolicy
      */
     public function view(User $user, FitOutForm $fitOutForm): bool
     {
-        $pmbuildingIds = DB::table('building_owner_association')
-            ->where('owner_association_id', auth()->user()?->owner_association_id)
-            ->where('active', true)
-            ->pluck('building_id')
-            ->toArray();
-
-        if (auth()->user()->role->name == 'Property Manager') {
-            return $user->can('view_fit::out::forms::document')
-            && in_array($fitOutForm->building_id, $pmbuildingIds);
-        }
-
         return $user->can('view_fit::out::forms::document');
     }
 
@@ -65,17 +53,6 @@ class FitOutFormPolicy
      */
     public function update(User $user, FitOutForm $fitOutForm): bool
     {
-        $pmbuildingIds = DB::table('building_owner_association')
-            ->where('owner_association_id', auth()->user()?->owner_association_id)
-            ->where('active', true)
-            ->pluck('building_id')
-            ->toArray();
-
-        if (auth()->user()->role->name == 'Property Manager') {
-            return $user->can('update_fit::out::forms::document')
-            && in_array($fitOutForm->building_id, $pmbuildingIds);
-        }
-
         return $user->can('update_fit::out::forms::document');
     }
 

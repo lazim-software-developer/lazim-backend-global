@@ -2,9 +2,8 @@
 
 namespace App\Policies\Forms;
 
-use App\Models\Forms\SaleNOC;
 use App\Models\User\User;
-use DB;
+use App\Models\Forms\SaleNOC;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class SaleNOCPolicy
@@ -31,18 +30,6 @@ class SaleNOCPolicy
      */
     public function view(User $user, SaleNOC $saleNOC): bool
     {
-
-        $pmbuildingIds = DB::table('building_owner_association')
-            ->where('owner_association_id', auth()->user()?->owner_association_id)
-            ->where('active', true)
-            ->pluck('building_id')
-            ->toArray();
-
-        if (auth()->user()->role->name == 'Property Manager') {
-            return $user->can('view_noc::form')
-            && in_array($saleNOC->building_id, $pmbuildingIds);
-        }
-
         return $user->can('view_noc::form');
     }
 
@@ -66,17 +53,6 @@ class SaleNOCPolicy
      */
     public function update(User $user, SaleNOC $saleNOC): bool
     {
-        $pmbuildingIds = DB::table('building_owner_association')
-            ->where('owner_association_id', auth()->user()?->owner_association_id)
-            ->where('active', true)
-            ->pluck('building_id')
-            ->toArray();
-
-        if (auth()->user()->role->name == 'Property Manager') {
-            return $user->can('update_noc::form')
-            && in_array($saleNOC->building_id, $pmbuildingIds);
-        }
-
         return $user->can('update_noc::form');
     }
 

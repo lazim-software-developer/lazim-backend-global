@@ -2,9 +2,8 @@
 
 namespace App\Policies\Forms;
 
-use App\Models\Forms\Guest;
 use App\Models\User\User;
-use DB;
+use App\Models\Forms\Guest;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class GuestPolicy
@@ -31,25 +30,6 @@ class GuestPolicy
      */
     public function view(User $user, Guest $guest): bool
     {
-        $pmBuildings = DB::table('building_owner_association')
-            ->where('owner_association_id', auth()->user()?->owner_association_id)
-            ->where('active', true)
-            ->pluck('building_id');
-
-        $flatIds = DB::table('flats')
-            ->whereIn('building_id', $pmBuildings)
-            ->pluck('id');
-
-        $active = DB::table('flat_visitors')
-            ->whereIn('flat_id', $flatIds)
-            ->pluck('id')
-            ->toArray();
-
-        if (auth()->user()->role->name == 'Property Manager') {
-            return $user->can('view_guest::registration')
-            && in_array($guest->flat_visitor_id, $active);
-        }
-
         return $user->can('view_guest::registration');
     }
 
@@ -73,25 +53,6 @@ class GuestPolicy
      */
     public function update(User $user, Guest $guest): bool
     {
-        $pmBuildings = DB::table('building_owner_association')
-            ->where('owner_association_id', auth()->user()?->owner_association_id)
-            ->where('active', true)
-            ->pluck('building_id');
-
-        $flatIds = DB::table('flats')
-            ->whereIn('building_id', $pmBuildings)
-            ->pluck('id');
-
-        $active = DB::table('flat_visitors')
-            ->whereIn('flat_id', $flatIds)
-            ->pluck('id')
-            ->toArray();
-
-        if (auth()->user()->role->name == 'Property Manager') {
-            return $user->can('update_guest::registration')
-            && in_array($guest->flat_visitor_id, $active);
-        }
-
         return $user->can('update_guest::registration');
     }
 

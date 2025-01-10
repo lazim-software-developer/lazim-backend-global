@@ -2,10 +2,8 @@
 
 namespace App\Policies;
 
-use App\Models\Building\Flat;
-use App\Models\UserApproval;
 use App\Models\User\User;
-use DB;
+use App\Models\UserApproval;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class UserApprovalPolicy
@@ -32,18 +30,6 @@ class UserApprovalPolicy
      */
     public function view(User $user, UserApproval $userApproval): bool
     {
-        $pmbuildingIds = DB::table('building_owner_association')
-            ->where('owner_association_id', auth()->user()?->owner_association_id)
-            ->where('active', true)
-            ->pluck('building_id');
-
-        $flats = Flat::whereIn('building_id', $pmbuildingIds)->pluck('id')->toArray();
-
-        if (auth()->user()->role->name == 'Property Manager') {
-            return $user->can('view_user::approval')
-            && $userApproval->owner_association_id === $user->owner_association_id
-            && in_array($userApproval->flat_id, $flats);
-        }
         return $user->can('view_user::approval');
     }
 
@@ -67,18 +53,6 @@ class UserApprovalPolicy
      */
     public function update(User $user, UserApproval $userApproval): bool
     {
-        $pmbuildingIds = DB::table('building_owner_association')
-            ->where('owner_association_id', auth()->user()?->owner_association_id)
-            ->where('active', true)
-            ->pluck('building_id');
-
-        $flats = Flat::whereIn('building_id', $pmbuildingIds)->pluck('id')->toArray();
-
-        if (auth()->user()->role->name == 'Property Manager') {
-            return $user->can('update_user::approval')
-            && $userApproval->owner_association_id === $user->owner_association_id
-            && in_array($userApproval->flat_id, $flats);
-        }
         return $user->can('update_user::approval');
     }
 

@@ -43,7 +43,7 @@ class Handler extends ExceptionHandler
             //
         });
     }
-
+    
     /**
      * Render an exception into an HTTP response.
      *
@@ -56,15 +56,11 @@ class Handler extends ExceptionHandler
     public function render($request, Throwable $exception)
     {
         if ($exception instanceof AuthorizationException) {
-            // if ($request->expectsJson()) {
-            //     return (new CustomResponseResource([
-            //         'title' => 'Unauthorized',
-            //         'message' => 'This action is unauthorized.',
-            //         'code' => 403,
-            //     ]))->response()->setStatusCode(403);
-            // }
-
-            return response()->view('errors.403', [], 403);
+            return (new CustomResponseResource([
+                'title' => 'Unauthorized',
+                'message' => 'This action is unauthorized.',
+                'code' => 403,
+            ]))->response()->setStatusCode(403);
         }
 
         return parent::render($request, $exception);

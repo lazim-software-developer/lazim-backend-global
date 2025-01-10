@@ -130,7 +130,7 @@ class GuestController extends Controller
         Notification::make()
             ->success()
             ->title('Visitor Request')
-            ->body("Visitor request received for $request->start_date")
+            ->body("visitor request received for $request->start_date")
             ->actions([
                 Action::make('View')
                     ->button()

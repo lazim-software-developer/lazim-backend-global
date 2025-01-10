@@ -4,7 +4,6 @@ namespace App\Policies\Visitor;
 
 use App\Models\User\User;
 use App\Models\Visitor\FlatVisitor;
-use DB;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class FlatVisitorPolicy
@@ -31,16 +30,6 @@ class FlatVisitorPolicy
      */
     public function view(User $user, FlatVisitor $flatVisitor): bool
     {
-        $pmbuildingIds = DB::table('building_owner_association')
-            ->where('owner_association_id', auth()->user()?->owner_association_id)
-            ->where('active', true)
-            ->pluck('building_id')
-            ->toArray();
-
-        if (auth()->user()->role->name == 'Property Manager') {
-            return $user->can('view_visitor::form')
-            && in_array($flatVisitor->building_id, $pmbuildingIds);
-        }
         return $user->can('view_visitor::form');
     }
 
@@ -64,16 +53,7 @@ class FlatVisitorPolicy
      */
     public function update(User $user, FlatVisitor $flatVisitor): bool
     {
-        $pmbuildingIds = DB::table('building_owner_association')
-            ->where('owner_association_id', auth()->user()?->owner_association_id)
-            ->where('active', true)
-            ->pluck('building_id')
-            ->toArray();
-
-        if (auth()->user()->role->name == 'Property Manager') {
-            return $user->can('update_visitor::form')
-            && in_array($flatVisitor->building_id, $pmbuildingIds);
-        }return $user->can('update_visitor::form');
+        return $user->can('update_visitor::form');
     }
 
     /**
