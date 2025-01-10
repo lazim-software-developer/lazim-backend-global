@@ -19,7 +19,7 @@ class UserApprovalObserver
     public function created(UserApproval $userApproval): void
     {
         $requiredPermissions = ['view_any_user::approval'];
-        $ownerAssociationIds = DB::table('building_owner_association')->where('building_id', $userApproval->flat->building_id)
+        $ownerAssociationIds = DB::table('building_owner_association')->where('building_id', $userApproval->flat?->building?->id)
             ->pluck('owner_association_id');
         $roles = Role::whereIn('owner_association_id',$ownerAssociationIds)->whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor','Staff','Property Manager'])->pluck('id');
         $notifyTo = User::whereIn('owner_association_id', $ownerAssociationIds)->whereNotIn('role_id', $roles)->whereNot('id', auth()->user()?->id)->get()
