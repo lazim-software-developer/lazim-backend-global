@@ -74,10 +74,8 @@ class PropertyManagerResource extends Resource
                             ->required()
                             ->disabledOn('edit')
                             ->tel()
-                            ->placeholder('5XXXXXXXX')
-                            ->rules([
-                                'regex:/^\+?(50|51|52|55|56|58|02|03|04|06|07|09)\d{7}$/',
-                            ])
+                            ->placeholder('XXXXXXXXX')
+                            ->length(9)
                             ->prefix('+971')
                             ->unique('owner_associations', 'phone', fn(?Model $record) => $record),
 

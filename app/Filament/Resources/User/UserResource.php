@@ -56,7 +56,7 @@ class UserResource extends Resource
                         ->placeholder('Email'),
 
                     TextInput::make('phone')
-                        ->rules(['regex:/^(50|51|52|55|56|58|02|03|04|06|07|09)\d{7}$/'])
+                        ->length(9)
                     // ->required()
                         ->disabledOn('edit')
                         ->prefix('971')

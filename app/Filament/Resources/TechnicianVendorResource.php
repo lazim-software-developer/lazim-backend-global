@@ -75,8 +75,8 @@ class TechnicianVendorResource extends Resource
                                 column: 'phone',
                                 ignorable: fn($record) => $record?->user
                             )
-                            ->rules(['regex:/^(50|51|52|55|56|58|02|03|04|06|07|09)\d{7}$/'])
-                            ->placeholder('5XXXXXXXX')
+                            ->length(9)
+                            ->placeholder('XXXXXXXXX')
                             ->disabledOn('edit'),
                     ]),
                 Hidden::make('technician_number'),

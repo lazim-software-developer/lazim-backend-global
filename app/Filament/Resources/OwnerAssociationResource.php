@@ -82,8 +82,10 @@ class OwnerAssociationResource extends Resource
                                 ->disabled()
                                 ->placeholder('TRN Number'),
                             TextInput::make('phone')
+                            ->length(9)
+                            ->prefix('971')
+                            ->placeholder('XXXXXXXXX')
                                 ->rules([
-                                    'regex:/^\+?(971)(50|51|52|55|56|58|02|03|04|06|07|09)\d{7}$/',
                                     function (Model $record) {
                                         return function (string $attribute, $value, Closure $fail) use ($record) {
                                             if (DB::table('owner_associations')
@@ -118,8 +120,7 @@ class OwnerAssociationResource extends Resource
                                         ->where('email', $get('email'))
                                         ->where('verified', 1)
                                         ->exists();
-                                })
-                                ->placeholder('Contact Number'),
+                                }),
                             TextInput::make('address')
                                 ->required()
                                 ->disabled(function (callable $get) {
