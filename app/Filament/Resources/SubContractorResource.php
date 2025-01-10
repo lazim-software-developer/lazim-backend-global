@@ -13,6 +13,7 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
 
 class SubContractorResource extends Resource
 {
@@ -88,8 +89,8 @@ class SubContractorResource extends Resource
     {
         return $table
             ->modifyQueryUsing(function (Builder $query) {
-                $vendorId = Vendor::where('owner_association_id', auth()->user()->ownerAssociation[0]->id)
-                    ->value('id');
+                $vendorId = DB::table('owner_association_vendor')->where('owner_association_id', auth()->user()?->owner_association_id)
+                    ->pluck('vendor_id');
                 $query->where('vendor_id', $vendorId);
             })
             ->columns([
