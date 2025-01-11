@@ -70,8 +70,13 @@ class Building extends Model
         'owner_association_id',
         'allow_postupload',
         'slug',
+        'status',
         'cover_photo',
         'show_inhouse_services',
+        'resource',
+        'created_by',
+        'updated_by',
+        'deleted_at',
     ];
 
     protected $casts = [
