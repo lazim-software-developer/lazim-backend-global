@@ -6,6 +6,8 @@ use App\Models\Building\Flat;
 use App\Models\Building\Building;
 use App\Http\Controllers\Controller;
 use App\Repositories\FlatRepository;
+use App\Http\Requests\Flat\StoreFlatRequest;
+use App\Http\Requests\Flat\UpdateFlatRequest;
 use App\Http\Resources\Building\FlatResource;
 use App\Http\Resources\Building\FlatOwnerResource;
 
@@ -67,7 +69,10 @@ class FlatController extends Controller
             $this->repository->delete($id);
             return response()->json(['success' => true,'error' => [],'data' =>  [],'message' => 'Record deleted successfully'], 200);
         } catch (\Exception $e) {
-            return response()->json(['message' => $e->getMessage()], 500);
+            if (str_contains($e->getMessage(), 'No query results for model')) {
+                return response()->json(['success' => false,'error' => ['message' => 'Flat not found'],'data' =>  []], 500);
+            }
+            return response()->json(['success' => false,'error' => ['message' => $e->getMessage()],'data' =>  []], 500);
         }
     }
 
@@ -77,25 +82,30 @@ class FlatController extends Controller
             $data = $this->repository->changeStatus($id);
             return response()->json(['success' => true,'error' => [],'data' => ['id'=>$data->id,'status'=>$data->status], 'message' => 'Status updated successfully'], 200);
         } catch (\Exception $e) {
-            return response()->json(['message' => $e->getMessage()], 500);
+            if (str_contains($e->getMessage(), 'No query results for model')) {
+                return response()->json(['success' => false,'error' => ['message' => 'Flat not found'],'data' =>  []], 500);
+            }
+            return response()->json(['success' => false,'error' => ['message' => $e->getMessage()],'data' =>  []], 500);
         }
     }
     public function show($id)
     {
         try {
-            $building = $this->repository->show($id);
+            $flat = $this->repository->show($id);
             
             // Using Resource to transform the data
             return response()->json([
                 'success' => true,
                 'error' => [],
-                'data' => new FlatResource($building),
+                'data' => new FlatResource($flat),
                 'message' => 'Flat details retrieved successfully'
             ], 200);
             
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return response()->json([
                 'status' => false,
+                'error' => [],
+                'data'=>[],
                 'message' => 'Flat Detail not found'
             ], 404);
             

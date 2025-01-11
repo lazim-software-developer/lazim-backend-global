@@ -3,6 +3,7 @@
 namespace App\Models\Building;
 
 use App\Models\User\User;
+use App\Models\FlatOwners;
 use App\Models\Forms\Guest;
 use App\Models\LegalNotice;
 use App\Models\MollakTenant;
@@ -45,7 +46,9 @@ class Flat extends Model
         'applicable_area',
         'virtual_account_number',
         'parking_count',
-        'plot_number'
+        'plot_number',
+        'resource',
+        'status'
     ];
 
     protected $searchableFields = ['*'];
@@ -137,5 +140,9 @@ class Flat extends Model
     public function legalNotices()
     {
         return $this->hasMany(LegalNotice::class);
+    }
+    public function flatOwners()
+    {
+        return $this->hasMany(FlatOwners::class, 'flat_id');
     }
 }

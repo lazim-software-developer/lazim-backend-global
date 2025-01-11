@@ -3,6 +3,7 @@ namespace App\Repositories;
 
 use Illuminate\Support\Str;
 use App\Models\Building\Flat;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class FlatRepository
@@ -30,18 +31,8 @@ class FlatRepository
     public function store($data)
     {
         $user = auth()->user();
-        $data['slug'] = rand(1000,9999).Str::slug($data['name']);
         $data['created_by'] = $user->id;
         $data['updated_by'] = $user->id;
-        // Handle file uploads
-        $uploadFields = ['cover_photo'];
-        foreach ($uploadFields as $field) {
-            if (isset($data[$field])) {
-                    $image = $data[$field];
-                    $imagePath = imageUploadonS3($image, 'buildings/'.$field);
-                    $data[$field] = $imagePath;
-            }
-        }
         return $this->model->create($data);
     }
 
@@ -50,24 +41,20 @@ class FlatRepository
         $building = $this->model->findOrFail($id);
         $user = auth()->user();
         $data['updated_by'] = $user->id;
-        
-        // Handle file uploads
-        $uploadFields = ['cover_photo'];
-        foreach ($uploadFields as $field) {
-            if (isset($data[$field])) {
-                    $image = $data[$field];
-                    $imagePath = imageUploadonS3($image, 'buildings/'.$field);
-                    $data[$field] = $imagePath;
-            }
-        }
         $building->update($data);
         return $building;
     }
 
     public function delete($id)
     {
-        $building = $this->model->findOrFail($id);
-        $building->delete();
+        $flat = $this->model->findOrFail($id);
+        DB::transaction(function () use ($flat) {
+            // Delete child records first
+            $flat->flatOwners()->delete();  // Assuming you have a relationship defined
+            // Then delete the flat
+            $flat->delete();
+        });
+        $flat->delete();
         return true;
     }
 

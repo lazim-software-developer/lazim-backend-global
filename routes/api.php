@@ -620,7 +620,7 @@ Route::middleware(['auth:sanctum', 'email.verified', 'active'])->group(function 
     Route::patch('buildings/{id}/change-status', [BuildingController::class, 'changeStatus']);
 });
 Route::middleware(['auth:sanctum', 'email.verified', 'active'])->group(function () {
-    Route::post('/flats/{id}', [FlatController::class, 'update']);
-    Route::apiResource('flats', FlatController::class);
-    Route::patch('flats/{id}/change-status', [FlatController::class, 'changeStatus']);
+    Route::post('/flatsModule/{id}', [FlatController::class, 'update']);
+    Route::apiResource('flatsModule', FlatController::class);
+    Route::patch('flatsModule/{id}/change-status', [FlatController::class, 'changeStatus']);
 });
