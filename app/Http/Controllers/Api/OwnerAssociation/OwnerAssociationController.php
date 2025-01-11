@@ -52,7 +52,7 @@ class OwnerAssociationController extends Controller
     {
         try {
             $this->repository->delete($id);
-            return response()->json(['message' => 'Owner Association deleted successfully'], 200);
+            return response()->json(['success' => true,'error' => [],'data' =>  [],'message' => 'Owner Association deleted successfully'], 200);
         } catch (\Exception $e) {
             return response()->json(['message' => 'Error deleting owner association'], 500);
         }
@@ -62,7 +62,7 @@ class OwnerAssociationController extends Controller
     {
         try {
             $data = $this->repository->changeStatus($id);
-            return response()->json(['data' => $data, 'message' => 'Status updated successfully'], 200);
+            return response()->json(['success' => true,'error' => [],'data' => $data, 'message' => 'Status updated successfully'], 200);
         } catch (\Exception $e) {
             return response()->json(['message' => 'Error changing status'], 500);
         }

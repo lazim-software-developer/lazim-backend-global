@@ -166,7 +166,7 @@ Route::middleware([])->group(function () {
     Route::get('/resident/{unitNumber}', [RegistrationController::class, 'fetchResidentDetails']);
 
     // Building API resource: Use only index method(To be changed a notmal route if we don't use other routes)
-    Route::apiResource('buildings', BuildingController::class)->only(['index']);
+    // Route::apiResource('buildings', BuildingController::class)->only(['index']);
 
     // Get all unit numbers(flats) for a given propertygroup(building)
     Route::get('/flats/{building}', [FlatController::class, 'fetchFlats']);
@@ -613,4 +613,9 @@ Route::middleware(['auth:sanctum', 'email.verified', 'active'])->group(function 
     Route::post('/owner-associations/{id}', [OwnerAssociationController::class, 'update']);
     Route::apiResource('owner-associations', OwnerAssociationController::class);
     Route::patch('owner-associations/{id}/change-status', [OwnerAssociationController::class, 'changeStatus']);
+});
+Route::middleware(['auth:sanctum', 'email.verified', 'active'])->group(function () {
+    Route::post('/buildings/{id}', [BuildingController::class, 'update']);
+    Route::apiResource('buildings', BuildingController::class);
+    Route::patch('buildings/{id}/change-status', [BuildingController::class, 'changeStatus']);
 });
