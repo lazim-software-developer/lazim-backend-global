@@ -63,7 +63,7 @@ class ComplaintController extends Controller
         }
 
         // Get the complaints in latest first order
-        $complaints = $query->latest()->paginate(10);
+        $complaints = $query->latest()->paginate($request->paginate ?? 10);
 
         return ComplaintResource::collection($complaints);
     }

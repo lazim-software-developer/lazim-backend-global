@@ -13,7 +13,7 @@ class PollController extends Controller
 {
     public function index(Building $building)
     {
-        $count = request('count', 10);
+        $count = request('paginate', 10);
         $polls = Poll::with(['responses' => function ($query) {
             $query->where('submitted_by', auth()->id());
         }])

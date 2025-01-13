@@ -9,6 +9,7 @@ use App\Models\Building\Building;
 use App\Models\OfferPromotion;
 
 use function PHPUnit\Framework\isEmpty;
+use Illuminate\Http\Request;
 
 class CommunityController extends Controller
 {
@@ -24,12 +25,14 @@ class CommunityController extends Controller
         ];
     }
 
-    public function emergencyHotline(Building $building)
+    public function emergencyHotline(Building $building,Request $request)
     {
-        if($building->emergencyNumbers->isEmpty()){
+        $emergencyNumbers = $building->emergencyNumbers()->paginate($request->paginate ?? 10);
+
+        if($emergencyNumbers->isEmpty()){
             return response()->json(['message' => 'No Emergency numbers currently available. Please try again later.'], 404);
         }
-        return $building->emergencyNumbers;
+        return $emergencyNumbers;
     }
 
     public function offerPromotions(Building $building)

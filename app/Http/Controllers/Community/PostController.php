@@ -44,7 +44,7 @@ class PostController extends Controller
         }
 
         // Paginate and get latest post first
-        $posts = $query->latest()->paginate(10);
+        $posts = $query->latest()->paginate($request->paginate ?? 10);
         return PostResource::collection($posts);
     }
 

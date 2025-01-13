@@ -55,9 +55,11 @@ class VehicleController extends Controller
 
     public function index(VehicalListRequest $request)
     {
-        $vehicles = Vehicle::where(['user_id' => auth()->user()->id, 'flat_id' => $request->flat_id])->get();
-        return $vehicles;
+        $vehicles = Vehicle::where(['user_id' => auth()->user()->id, 'flat_id' => $request->flat_id])
+            ->paginate($request->paginate ?? 10);
+        return VehicleResource::collection($vehicles);
     }
+
     public function tenantVehicles(Request $request)
     {
         $request->validate([
@@ -83,7 +85,7 @@ class VehicleController extends Controller
         // ])->pluck('tenant_id');
         $tenantIds = $request->tenant_id;
 
-        $vehicles = Vehicle::where('user_id', $tenantIds)->where('flat_id', $request->flat_id)->get();
+        $vehicles = Vehicle::where('user_id', $tenantIds)->where('flat_id', $request->flat_id)->paginate($request->paginate ?? 10);
         return VehicleResource::collection($vehicles);
     }
 }
