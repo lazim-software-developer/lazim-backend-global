@@ -22,9 +22,11 @@ class BuildingController extends Controller
         if ($request->has('type')) {
             $type = $request->input('type');
             $query->whereHas('ownerAssociations', function($q) use ($type) {
+                Log::info($type);
                 $q->where('role', $type);
             });
         }
+        Log::info($query->toSql());
 
         if($request->registration){
             $activeBuildings = DB::table('building_owner_association')
