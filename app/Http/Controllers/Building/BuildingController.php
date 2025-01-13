@@ -25,6 +25,9 @@ class BuildingController extends Controller
                 $q->where('role', $type);
             });
         }
+        Log::info($query->pluck('id')->toArray());
+        Log::info($query->toSql());
+        Log::info($query->pluck('id')->toArray());
 
         if($request->registration){
             $activeBuildings = DB::table('building_owner_association')
