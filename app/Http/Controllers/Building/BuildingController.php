@@ -21,7 +21,7 @@ class BuildingController extends Controller
         $query = Building::query();
 
         if ($request->has('type')) {
-            $oaPm = OwnerAssociation::where('role',$request->type)->pluck('id');
+            $oaPm = OwnerAssociation::where('role',$request->type)->pluck('id')->toArray();
             Log::info($oaPm);
             $oaPmBuildings = DB::table('building_owner_association')
                 ->whereIn('owner_association_id', $oaPm)
