@@ -50,16 +50,16 @@ class BillResource extends Resource
                     ->label('Bill Number')
                     ->numeric()
                     ->rules([
-                        'min_digits:10',
-                        'max_digits:10',
+                        'min_digits:8',
+                        'max_digits:12',
                     ])
                     ->unique('bills', 'bill_number', ignoreRecord: true)
                     ->validationMessages([
-                        'min_digits' => 'The DEWA number must be 10 characters long.',
-                        'max_digits' => 'The DEWA number must be 10 characters long.',
-                        'unique'     => 'The DEWA number has already been taken.',
+                        'min_digits' => 'The Bill number must be 8 characters long.',
+                        'max_digits' => 'The Bill number must be 12 characters long.',
+                        'unique'     => 'The Bill number has already been taken.',
                     ])
-                    ->placeholder('Enter the DEWA number')
+                    ->placeholder('Enter the Bill number')
                     ->required(),
 
                 Select::make('building_id')
@@ -173,20 +173,14 @@ class BillResource extends Resource
                         return Carbon::parse($state)->format('m-Y');
                     }),
                 TextColumn::make('bill_number')
-                    ->label('DEWA Number')
-                    ->default('--')
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->label('Bill Number')
+                    ->default('--'),
                 TextColumn::make('amount')
                     ->numeric()
-                    ->default('--')
-                    ->toggleable(isToggledHiddenByDefault: true)
-                    ->visible(fn() => request()->query('activeTab') !== 'DEWA'),
+                    ->default('--'),
                 TextColumn::make('due_date')
-                    ->toggleable(isToggledHiddenByDefault: true)
-                    ->date()
-                    ->visible(fn() => request()->query('activeTab') !== 'DEWA'),
+                    ->date(),
                 TextColumn::make('status')
-                    ->toggleable(isToggledHiddenByDefault: true)
                     ->default('--')
                     ->badge()
                     ->color(fn(string $state): string => match ($state) {
@@ -194,11 +188,10 @@ class BillResource extends Resource
                         'Paid'                            => 'success',
                         'Overdue'                         => 'danger',
                         '--'                              => 'muted',
-                    })
-                    ->visible(fn() => request()->query('activeTab') !== 'DEWA'),
-                TextColumn::make('uploadedBy.first_name'),
+                    }),
             ])
             ->filters([
+
                 SelectFilter::make('status')
                     ->options([
                         'Pending' => 'Pending',

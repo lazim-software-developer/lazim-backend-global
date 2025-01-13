@@ -9,7 +9,6 @@ use Auth;
 use Carbon\Carbon;
 use DB;
 use Filament\Actions\Action;
-use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Select;
@@ -33,6 +32,7 @@ class ListBills extends ListRecords
 
             Action::make('upload')
                 ->slideOver()
+                ->modalWidth('md')
                 ->color("primary")
                 ->form([
                     Grid::make(2)
@@ -40,6 +40,7 @@ class ListBills extends ListRecords
                             Select::make('building_id')
                                 ->required()
                                 ->preload()
+                                ->columnSpan(2)
                                 ->live()
                                 ->afterStateUpdated(fn(Set $set) => $set('flat_id', null))
                                 ->options(function () {
@@ -62,35 +63,66 @@ class ListBills extends ListRecords
                                 ->searchable()
                                 ->label('Building Name'),
 
-                            DatePicker::make('month')
+                            Select::make('year')
                                 ->required()
-                                ->default(now())
-                                ->native(false)
-                                ->displayFormat('m-Y')
-                                ->helperText('Enter the month for which this bill is generated'),
+                                ->options(function () {
+                                    $currentYear = now()->year;
+                                    return collect(range($currentYear - 2, $currentYear + 2))
+                                        ->mapWithKeys(fn($year) => [$year => $year]);
+                                })
+                                ->default(now()->year)
+                                ->live()
+                                ->columnSpan(1)
+                                ->helperText('Select the year'),
 
-                            Select::make('type')
+                            Select::make('month')
                                 ->required()
-                                ->options([
-                                    'BTU'               => 'BTU',
-                                    'DEWA'              => 'DEWA',
-                                    'lpg'               => 'LPG',
-                                    'Telecommunication' => 'DU/Etisalat',
-                                ])
-                                ->label('Bill Type'),
-
-                            FileUpload::make('excel_file')
-                                ->label('Bills Excel Data')
-                                ->acceptedFileTypes([
-                                    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                                    'application/vnd.ms-excel',
-                                ])
-                                ->required(),
+                                ->columnSpan(1)
+                                ->options(function () {
+                                    return [
+                                        '01' => 'January',
+                                        '02' => 'February',
+                                        '03' => 'March',
+                                        '04' => 'April',
+                                        '05' => 'May',
+                                        '06' => 'June',
+                                        '07' => 'July',
+                                        '08' => 'August',
+                                        '09' => 'September',
+                                        '10' => 'October',
+                                        '11' => 'November',
+                                        '12' => 'December',
+                                    ];
+                                })
+                                ->default(now()->format('m'))
+                                ->helperText('Select the month'),
                         ]),
 
+                    Select::make('type')
+                        ->required()
+                        ->options([
+                            'BTU'               => 'BTU',
+                            'DEWA'              => 'DEWA',
+                            'Telecommunication' => 'DU/Etisalat',
+                            'lpg'               => 'LPG',
+                        ])
+                        ->label('Bill Type'),
+
+                    FileUpload::make('excel_file')
+                        ->label('Bills Excel Data')
+                        ->acceptedFileTypes([
+                            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                            'application/vnd.ms-excel',
+                        ])
+                        ->required(),
                 ])
+
                 ->action(function (array $data) {
-                    $month    = Carbon::parse($data['month'])->format('Y-m-d');
+                    // Combine year and month to create date
+                    $month = Carbon::createFromFormat('Y-m', $data['year'] . '-' . $data['month'])
+                        ->startOfMonth()
+                        ->format('Y-m-d');
+
                     $filePath = storage_path('app/public/' . $data['excel_file']);
 
                     // Import bills
