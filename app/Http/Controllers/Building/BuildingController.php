@@ -22,17 +22,17 @@ class BuildingController extends Controller
 
         if ($request->has('type')) {
             $oaPm = OwnerAssociation::where('role',$request->type)->pluck('id');
+            Log::info($oaPm);
             $oaPmBuildings = DB::table('building_owner_association')
                 ->whereIn('building_id', $query->pluck('id'))
                 ->whereIn('owner_association_id', $oaPm)
                 ->where('active', true)
                 ->pluck('building_id');
+            Log::info($oaPmBuildings);
             $query = Building::whereIn('id',$oaPmBuildings);
 
         }
-        Log::info($query->pluck('id')->toArray());
-        Log::info($query->toSql());
-        Log::info($query->pluck('id')->toArray());
+        Log::info($query->pluck('id'));
 
         if($request->registration){
             $activeBuildings = DB::table('building_owner_association')
