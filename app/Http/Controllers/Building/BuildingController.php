@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Building\BuildingResource;
 use App\Http\Resources\Building\BuildingResourceCollection;
 use App\Models\Building\Building;
-use App\Models\OwnerAssociation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -21,17 +20,11 @@ class BuildingController extends Controller
         $query = Building::query();
 
         if ($request->has('type')) {
-            $oaPm = OwnerAssociation::where('role',$request->type)->pluck('id')->toArray();
-            Log::info($oaPm);
-            $oaPmBuildings = DB::table('building_owner_association')
-                ->whereIn('owner_association_id', $oaPm)
-                ->where('active', true);
-            Log::info($oaPmBuildings->toSql());
-            Log::info($oaPmBuildings->pluck('building_id'));
-            $query = Building::whereIn('id',$oaPmBuildings->pluck('building_id'));
-
+            $type = $request->input('type');
+            $query->whereHas('ownerAssociations', function($q) use ($type) {
+                $q->where('role', $type);
+            });
         }
-        Log::info($query->pluck('id'));
 
         if($request->registration){
             $activeBuildings = DB::table('building_owner_association')
