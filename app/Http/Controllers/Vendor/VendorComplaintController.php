@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Vendor;
 
+use App\Models\Building\FlatTenant;
 use Carbon\Carbon;
 use App\Models\Media;
 use App\Traits\UtilsTrait;
@@ -223,6 +224,46 @@ class VendorComplaintController extends Controller
                 ]);
             } else {
                 Log::info("No technicians to add", []);
+            }
+        }
+        if($request->complaint_type === 'preventive_maintenance'){
+            $residentIds = FlatTenant::where([
+                'building_id' => $request->building_id,
+                'active' => true
+            ])->distinct()->pluck('tenant_id');
+            if($residentIds->count() > 0){
+                // Create individual notifications for each resident
+                foreach($residentIds as $residentId) {
+                    $residentTokens = ExpoPushNotification::where('user_id',$residentId)->first()?->token;
+                    $message = [
+                        'to'    => $residentTokens,
+                        'sound' => 'default',
+                        'title' => 'Preventive Maintenance',
+                        'body'  => 'A preventive maintenance has been scheduled for your building',
+                        'data'  => ['notificationType' => 'PreventiveMaintenance'],
+                    ];
+                    $this->expoNotification($message);
+                    DB::table('notifications')->insert([
+                        'id'              => (string) \Ramsey\Uuid\Uuid::uuid4(),
+                        'type'            => 'Filament\Notifications\DatabaseNotification',
+                        'notifiable_type' => 'App\Models\User\User',
+                        'notifiable_id'   => $residentId,
+                        'data'            => json_encode([
+                            'actions'   => [],
+                            'body'      => 'A preventive maintenance has been scheduled for your building',
+                            'duration'  => 'persistent',
+                            'icon'      => 'heroicon-o-document-text',
+                            'iconColor' => 'warning',
+                            'title'     => 'Preventive Maintenance',
+                            'view'      => 'notifications::notification',
+                            'viewData'  => [],
+                            'format'    => 'filament',
+                            'url'       => 'PreventiveMaintenance',
+                        ]),
+                        'created_at'      => now()->format('Y-m-d H:i:s'),
+                        'updated_at'      => now()->format('Y-m-d H:i:s'),
+                    ]);
+                }
             }
         }
         return (new CustomResponseResource([
