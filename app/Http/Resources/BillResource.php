@@ -19,7 +19,7 @@ class BillResource extends JsonResource
             'amount'   => $this->amount,
             'month'    => Carbon::parse($this->month)->format('m-Y'),
             'type'     => $this->type,
-            'dewa_number' => $this->dewa_number,
+            'bill_number' => $this->bill_number,
             'flat_id'  => $this->flat_id,
             'due_date' => $this->due_date,
             'status'   => $this->status,

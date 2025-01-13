@@ -14,6 +14,9 @@ class BillController extends Controller
     {
         $bills = Bill::where('flat_id', $flat->id)
                     ->orderByRaw("FIELD(type, 'BTU', 'lpg', 'Telecommunication', 'DEWA')");
+        if($request->has('type')) {
+            $bills->where('type', $request->type);
+        }
 
         if ($request->filled('date')) {
             $date = Carbon::createFromFormat('m-Y', $request->date);
