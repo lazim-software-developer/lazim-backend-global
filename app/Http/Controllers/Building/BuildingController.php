@@ -24,12 +24,11 @@ class BuildingController extends Controller
             $oaPm = OwnerAssociation::where('role',$request->type)->pluck('id');
             Log::info($oaPm);
             $oaPmBuildings = DB::table('building_owner_association')
-                ->whereIn('building_id', $query->pluck('id'))
                 ->whereIn('owner_association_id', $oaPm)
-                ->where('active', true)
-                ->pluck('building_id');
-            Log::info($oaPmBuildings);
-            $query = Building::whereIn('id',$oaPmBuildings);
+                ->where('active', true);
+            Log::info($oaPmBuildings->toSql());
+            Log::info($oaPmBuildings->pluck('building_id'));
+            $query = Building::whereIn('id',$oaPmBuildings->pluck('building_id'));
 
         }
         Log::info($query->pluck('id'));
