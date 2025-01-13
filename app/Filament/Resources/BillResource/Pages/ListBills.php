@@ -95,7 +95,7 @@ class ListBills extends ListRecords
                                 ->displayFormat('m-Y')
                                 ->helperText('Enter the month for which this bill is generated'),
 
-                            TextInput::make('dewa_number')
+                            TextInput::make('bill_number')
                                 ->label('DEWA Number')
                                 ->placeholder('Enter the DEWA number')
                                 ->required(),
@@ -119,7 +119,7 @@ class ListBills extends ListRecords
                         'flat_id'     => $data['flat_id'],
                         'type'        => 'DEWA',
                         'month'       => $month,
-                        'dewa_number' => $data['dewa_number'],
+                        'bill_number' => $data['bill_number'],
                         'uploaded_by' => Auth::id(),
                         'uploaded_on' => Carbon::now(),
 

@@ -47,7 +47,7 @@ class BillResource extends Resource
                     ->reactive()
                     ->required(),
 
-                TextInput::make('dewa_number')
+                TextInput::make('bill_number')
                     ->label('DEWA Number')
                     ->visible(fn(Get $get) => $get('type') == 'DEWA')
                     ->numeric()
@@ -55,7 +55,7 @@ class BillResource extends Resource
                         'min_digits:10',
                         'max_digits:10',
                     ])
-                    ->unique('bills', 'dewa_number', ignoreRecord: true)
+                    ->unique('bills', 'bill_number', ignoreRecord: true)
                     ->validationMessages([
                         'min_digits' => 'The DEWA number must be 10 characters long.',
                         'max_digits' => 'The DEWA number must be 10 characters long.',
@@ -178,7 +178,7 @@ class BillResource extends Resource
                     ->formatStateUsing(function ($state) {
                         return Carbon::parse($state)->format('m-Y');
                     }),
-                TextColumn::make('dewa_number')
+                TextColumn::make('bill_number')
                     ->label('DEWA Number')
                     ->default('--')
                     ->toggleable(isToggledHiddenByDefault: true),
