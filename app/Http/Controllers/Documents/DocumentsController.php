@@ -163,12 +163,12 @@ class DocumentsController extends Controller
     }
 
     // Fetch other documents for the user
-    function fetchOtherDocuments()
+    function fetchOtherDocuments(Request $request)
     {
         $documents = auth()->user()->userDocuments()->where('documentable_type', 'App\Models\User\User')
             ->where('document_library_id', 5);
 
-        return DocumentResource::collection($documents->paginate(10));
+        return DocumentResource::collection($documents->paginate($request->paginate ?? 10));
     }
 
     public function tenantOtherDocuments(Request $request)

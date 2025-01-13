@@ -13,9 +13,10 @@ use Illuminate\Http\Request;
 
 class FacilityController extends Controller
 {
-    public function index(Building $building)
+    public function index(Request $request, Building $building)
     {
-        $facilities = $building->facilities->where('active',true);
+        $facilities = $building->facilities->where('active', true)
+            ->paginate($request->paginate ?? 10);
         return FacilityResource::collection($facilities);
     }
 
@@ -86,7 +87,7 @@ class FacilityController extends Controller
         } elseif ($type === 'services') {
             $query->where('bookable_type', 'App\Models\Master\Service');
         }
-        $bookings = $query->latest()->paginate(10);
+        $bookings = $query->latest()->paginate($request->paginate ?? 10);
 
         return FacilityBookingResource::collection($bookings);
     }

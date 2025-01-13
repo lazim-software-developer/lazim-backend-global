@@ -53,7 +53,7 @@ class PermitWorkController extends Controller
             'flat_id'       => $request->flat_id,
         ]);
 
-        return PermitWorkResource::collection($workPermit->paginate(10));
+        return PermitWorkResource::collection($workPermit->paginate($request->paginate ?? 10));
     }
 
     public function store(WorkPermitRequest $request)
