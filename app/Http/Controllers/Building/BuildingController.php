@@ -8,6 +8,7 @@ use App\Http\Resources\Building\BuildingResourceCollection;
 use App\Models\Building\Building;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class BuildingController extends Controller
 {
@@ -23,6 +24,9 @@ class BuildingController extends Controller
                 $q->where('role', $request->type);
             });
         }
+        Log::info($request->type);
+        Log::info($query->toSql());
+        Log::info('Buildings', $query->pluck('id')->toArray());
         if($request->registration){
             $activeBuildings = DB::table('building_owner_association')
                 ->whereIn('building_id', $query->pluck('id'))
