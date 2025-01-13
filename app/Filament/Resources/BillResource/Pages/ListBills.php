@@ -4,9 +4,7 @@ namespace App\Filament\Resources\BillResource\Pages;
 
 use App\Filament\Resources\BillResource;
 use App\Imports\BillImport;
-use App\Models\Bill;
 use App\Models\Building\Building;
-use App\Models\Building\Flat;
 use Auth;
 use Carbon\Carbon;
 use DB;
@@ -15,7 +13,6 @@ use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Set;
 use Filament\Resources\Components\Tab;
 use Filament\Resources\Pages\ListRecords;
@@ -65,29 +62,6 @@ class ListBills extends ListRecords
                                 ->searchable()
                                 ->label('Building Name'),
 
-                            Select::make('flat_id')
-                                ->relationship('flat', 'property_number')
-                                ->preload()
-                                ->noSearchResultsMessage('No Flats found for this building.')
-                                ->placeholder('Select the Flat')
-                                ->options(function (callable $get) {
-                                    return Flat::where('building_id', $get('building_id'))
-                                        ->pluck('property_number', 'id');
-                                })
-                                ->disabled(function (callable $get) {
-                                    if ($get('building_id') == null) {
-                                        return true;
-                                    }
-                                    return false;
-                                })
-                                ->helperText(function (callable $get) {
-                                    if ($get('building_id') == null) {
-                                        return 'Select the Building to load it\'s flats';
-                                    }return '';
-                                })
-                                ->searchable()
-                                ->required(),
-
                             DatePicker::make('month')
                                 ->required()
                                 ->default(now())
@@ -95,10 +69,15 @@ class ListBills extends ListRecords
                                 ->displayFormat('m-Y')
                                 ->helperText('Enter the month for which this bill is generated'),
 
-                            TextInput::make('bill_number')
-                                ->label('DEWA Number')
-                                ->placeholder('Enter the DEWA number')
-                                ->required(),
+                            Select::make('type')
+                                ->required()
+                                ->options([
+                                    'BTU'               => 'BTU',
+                                    'DEWA'              => 'DEWA',
+                                    'lpg'               => 'LPG',
+                                    'Telecommunication' => 'DU/Etisalat',
+                                ])
+                                ->label('Bill Type'),
 
                             FileUpload::make('excel_file')
                                 ->label('Bills Excel Data')
@@ -114,55 +93,38 @@ class ListBills extends ListRecords
                     $month    = Carbon::parse($data['month'])->format('Y-m-d');
                     $filePath = storage_path('app/public/' . $data['excel_file']);
 
-                    // Handle DEWA bill separately
-                    Bill::create([
-                        'flat_id'     => $data['flat_id'],
-                        'type'        => 'DEWA',
-                        'month'       => $month,
-                        'bill_number' => $data['bill_number'],
-                        'uploaded_by' => Auth::id(),
-                        'uploaded_on' => Carbon::now(),
-
-                    ]);
-
-                    // Import other bills
+                    // Import bills
                     Excel::import(new BillImport(
                         $data['building_id'],
-                        $data['flat_id'],
-                        $month
+                        $month,
+                        $data['type']
                     ), $filePath);
                 }),
 
             ExportAction::make()->exports([
                 ExcelExport::make()
                     ->withColumns([
-                        Column::make('type')
-                            ->formatStateUsing(function ($state) {
-                                return $state === 'Telecommunication' ? 'DU/Etisalat' : $state;
-                            }),
-                        Column::make('amount'),
-                        Column::make('due_date'),
-                        Column::make('status'),
+                        Column::make('unit_number')
+                            ->heading('Unit Number'),
+                        Column::make('bill_number')
+                            ->heading('Bill Number'),
+                        Column::make('amount')
+                            ->heading('Amount'),
+                        Column::make('due_date')
+                            ->heading('Due Date'),
+                        Column::make('status')
+                            ->heading('Status'),
                     ])
                     ->modifyQueryUsing(function ($query) {
-                        return Bill::query()
-                            ->whereIn('type', ['BTU', 'lpg', 'Telecommunication'])
-                            ->orderByRaw("CASE
-                                WHEN type = 'BTU' THEN 1
-                                WHEN type = 'lpg' THEN 2
-                                WHEN type = 'Telecommunication' THEN 3
-                                END")
-                            ->take(3)
-                            ->getQuery()
-                            ->fromSub(function ($query) {
-                                $query->selectRaw("
-                                    'BTU' as type, '' as amount, '' as due_date, '' as status
-                                    UNION ALL
-                                    SELECT 'LPG', '', '', ''
-                                    UNION ALL
-                                    SELECT 'Telecommunication', '', '', ''
-                                ");
-                            }, 'sample_data');
+                        return DB::table(DB::raw('(SELECT 1) as dummy'))
+                            ->select([
+                                DB::raw("'' as unit_number"),
+                                DB::raw("'' as bill_number"),
+                                DB::raw("'' as amount"),
+                                DB::raw("'' as due_date"),
+                                DB::raw("'' as status"),
+                            ])
+                            ->orderBy('unit_number');
                     }),
             ])->label('Download sample file'),
         ];
