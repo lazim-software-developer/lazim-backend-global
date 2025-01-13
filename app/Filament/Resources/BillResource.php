@@ -13,7 +13,6 @@ use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
-use Filament\Forms\Get;
 use Filament\Forms\Set;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -41,15 +40,14 @@ class BillResource extends Resource
                         'BTU'               => 'BTU',
                         'DEWA'              => 'DEWA',
                         'Telecommunication' => 'DU/Etisalat',
-                        'lpg'               => 'lpg',
+                        'lpg'               => 'LPG',
                     ])
                     ->live()
                     ->reactive()
                     ->required(),
 
                 TextInput::make('bill_number')
-                    ->label('DEWA Number')
-                    ->visible(fn(Get $get) => $get('type') == 'DEWA')
+                    ->label('Bill Number')
                     ->numeric()
                     ->rules([
                         'min_digits:10',
@@ -114,7 +112,6 @@ class BillResource extends Resource
                     ->required(),
                 TextInput::make('amount')
                     ->required()
-                    ->visible(fn(Get $get) => $get('type') !== 'DEWA')
                     ->placeholder('Enter the total bill amount')
                     ->numeric(),
                 DatePicker::make('month')
@@ -124,13 +121,11 @@ class BillResource extends Resource
                     ->displayFormat('m-Y')
                     ->helperText('Enter the month for which this bill is generated'),
                 DatePicker::make('due_date')
-                    ->visible(fn(Get $get) => $get('type') !== 'DEWA')
                     ->required(),
                 // DatePicker::make('uploaded_on')
                 //     ->default(now())
                 //     ->required(),
                 Select::make('status')
-                    ->visible(fn(Get $get) => $get('type') !== 'DEWA')
                     ->helperText('Select the current status of the bill')
                     ->options([
                         'Pending' => 'Pending',
@@ -147,7 +142,6 @@ class BillResource extends Resource
                     ->searchable(),
                 Select::make('status_updated_by')
                     ->relationship('statusUpdatedBy', 'first_name')
-                    ->visible(fn(Get $get) => $get('type') !== 'DEWA')
                     ->disabled()
                     ->live()
                     ->preload()
