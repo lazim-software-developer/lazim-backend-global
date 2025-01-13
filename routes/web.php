@@ -30,9 +30,9 @@ use Illuminate\Support\Facades\Session;
 Route::get('/', function () {
     return redirect('/app/login');
 });
-Route::get('/app', function () {
-    return redirect('/app/login');
-});
+// Route::get('/app', function () {
+//     return redirect('/app/login');
+// });
 
 Route::middleware(['auth:sanctum', 'verified'])
     ->get('/dashboard', function () {
