@@ -50,13 +50,13 @@ class BillResource extends Resource
                     ->label('Bill Number')
                     ->numeric()
                     ->rules([
-                        'min_digits:8',
-                        'max_digits:12',
+                        'min_digits:4',
+                        'max_digits:15',
                     ])
                     ->unique('bills', 'bill_number', ignoreRecord: true)
                     ->validationMessages([
-                        'min_digits' => 'The Bill number must be 8 characters long.',
-                        'max_digits' => 'The Bill number must be 12 characters long.',
+                        'min_digits' => 'The Bill number must be at least 4 characters long.',
+                        'max_digits' => 'The Bill number must not be greater than 15 characters.',
                         'unique'     => 'The Bill number has already been taken.',
                     ])
                     ->placeholder('Enter the Bill number')
