@@ -486,15 +486,23 @@ class ComplaintController extends Controller
                 } elseif ($complaint->complaint_type == 'snag') {
 
                     $notificationType = 'MyComplaints';
-                } else {
+                } elseif ($complaint->complaint_type == 'preventive_maintenance') {
+                    $notificationType = 'PreventiveMaintenance';
+                }
+                else {
                     $notificationType = 'InAppNotficationScreen';
                 }
                 $message = [
                     'to'    => $expoPushToken,
                     'sound' => 'default',
-                    'title' => 'Complaint status',
-                    'body'  => 'Your complaint has been resolved by : ' . auth()->user()->role->name . ' ' . auth()->user()->first_name,
-                    'data'  => ['notificationType' => $notificationType],
+                    'title' => ($complaint->complaint_type === 'preventive_maintenance' ? 'PreventiveMaintenance' : 'complaint').' status',
+                    'body'  => 'Your '.($complaint->complaint_type === 'preventive_maintenance' ? 'PreventiveMaintenance' : 'complaint').' has been resolved by : ' . auth()->user()->role->name . ' ' . auth()->user()->first_name,
+                    'data'  => [
+                        'notificationType' => $notificationType,
+                        'complaintId'      => $complaint?->id,
+                        'open_time' => $complaint?->open_time,
+                        'close_time' => $complaint?->close_time
+                ],
                 ];
                 $this->expoNotification($message);
                 DB::table('notifications')->insert([
@@ -504,13 +512,17 @@ class ComplaintController extends Controller
                     'notifiable_id'   => $complaint->user_id,
                     'data'            => json_encode([
                         'actions'   => [],
-                        'body'      => 'Your complaint has been resolved by : ' . auth()->user()->role->name . ' ' . auth()->user()->first_name,
+                        'body'      => 'Your '.($complaint->complaint_type === 'preventive_maintenance' ? 'PreventiveMaintenance' : 'complaint').' has been resolved by : ' . auth()->user()->role->name . ' ' . auth()->user()->first_name,
                         'duration'  => 'persistent',
                         'icon'      => 'heroicon-o-document-text',
                         'iconColor' => 'warning',
-                        'title'     => 'Complaint status',
+                        'title'     => ($complaint->complaint_type === 'preventive_maintenance' ? 'PreventiveMaintenance' : 'complaint').' status',
                         'view'      => 'notifications::notification',
-                        'viewData'  => [],
+                        'viewData'  => [
+                            'complaintId'      => $complaint?->id,
+                            'open_time' => $complaint?->open_time,
+                            'close_time' => $complaint?->close_time
+                        ],
                         'format'    => 'filament',
                         'url'       => $notificationType,
                     ]),
@@ -525,8 +537,8 @@ class ComplaintController extends Controller
                 $message          = [
                     'to'    => $expoPushToken,
                     'sound' => 'default',
-                    'title' => 'Complaint status',
-                    'body'  => 'A complaint has been resolved by : ' . auth()->user()->role->name . ' ' . auth()->user()->first_name,
+                    'title' => ($complaint->complaint_type === 'preventive_maintenance' ? 'PreventiveMaintenance' : 'complaint').' status',
+                    'body'  => 'A '.($this->record->complaint_type === 'preventive_maintenance' ? 'PreventiveMaintenance' : 'complaint').' has been resolved by : ' . auth()->user()->role->name . ' ' . auth()->user()->first_name,
                     'data'  => ['notificationType' => $notificationType],
                 ];
                 $this->expoNotification($message);
@@ -537,11 +549,11 @@ class ComplaintController extends Controller
                     'notifiable_id'   => $complaint->technician_id,
                     'data'            => json_encode([
                         'actions'   => [],
-                        'body'      => 'A complaint has been resolved by : ' . auth()->user()->role->name . ' ' . auth()->user()->first_name,
+                        'body'      => 'A '.($complaint->complaint_type === 'preventive_maintenance' ? 'PreventiveMaintenance' : 'complaint').' has been resolved by : ' . auth()->user()->role->name . ' ' . auth()->user()->first_name,
                         'duration'  => 'persistent',
                         'icon'      => 'heroicon-o-document-text',
                         'iconColor' => 'warning',
-                        'title'     => 'Complaint status',
+                        'title'     => ($complaint->complaint_type === 'preventive_maintenance' ? 'PreventiveMaintenance' : 'complaint').' status',
                         'view'      => 'notifications::notification',
                         'viewData'  => [],
                         'format'    => 'filament',
