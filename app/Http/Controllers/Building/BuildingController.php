@@ -53,7 +53,10 @@ class BuildingController extends Controller
             $data = $this->repository->update($id, $request->all());
             return response()->json(['success' => true,'error' => [],'data' =>  new BuildingResource($data), 'message' => 'Record updated successfully'], 200);
         } catch (\Exception $e) {
-            return response()->json(['message' => $e->getMessage()], 500);
+            if (str_contains($e->getMessage(), 'No query results for model')) {
+                return response()->json(['success' => false,'error' => ['message' => 'Flat not found'],'data' =>  []], 500);
+            }
+            return response()->json(['success' => false,'error' => ['message' => $e->getMessage()],'data' =>  []], 500);
         }
     }
 
@@ -63,7 +66,10 @@ class BuildingController extends Controller
             $this->repository->delete($id);
             return response()->json(['success' => true,'error' => [],'data' =>  [],'message' => 'Record deleted successfully'], 200);
         } catch (\Exception $e) {
-            return response()->json(['message' => $e->getMessage()], 500);
+            if (str_contains($e->getMessage(), 'No query results for model')) {
+                return response()->json(['success' => false,'error' => ['message' => 'Flat not found'],'data' =>  []], 500);
+            }
+            return response()->json(['success' => false,'error' => ['message' => $e->getMessage()],'data' =>  []], 500);
         }
     }
 
@@ -73,7 +79,10 @@ class BuildingController extends Controller
             $data = $this->repository->changeStatus($id);
             return response()->json(['success' => true,'error' => [],'data' => ['id'=>$data->id,'status'=>$data->status], 'message' => 'Status updated successfully'], 200);
         } catch (\Exception $e) {
-            return response()->json(['message' => $e->getMessage()], 500);
+            if (str_contains($e->getMessage(), 'No query results for model')) {
+                return response()->json(['success' => false,'error' => ['message' => 'Flat not found'],'data' =>  []], 500);
+            }
+            return response()->json(['success' => false,'error' => ['message' => $e->getMessage()],'data' =>  []], 500);
         }
     }
     // app/Http/Controllers/Api/OwnerAssociationController.php
@@ -94,6 +103,8 @@ class BuildingController extends Controller
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return response()->json([
                 'status' => false,
+                'data' => [],
+                'error' => [],
                 'message' => 'Building Detail not found'
             ], 404);
             
