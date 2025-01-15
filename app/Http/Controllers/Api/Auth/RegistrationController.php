@@ -136,15 +136,31 @@ class RegistrationController extends Controller
         $connection = DB::connection('lazim_accounts');
         $created_by = $connection->table('users')->where(['type' => 'building', 'building_id' => $request->building_id])->first()->id;
         $customerId = $connection->table('customers')->where('created_by', $created_by)->orderByDesc('customer_id')->first()?->customer_id + 1;
+        $primary = $connection->table('customers')->where('flat_id', $flat->id)->where('type', 'Owner')->where('primary',true)->exists();
+        $name = $firstName . ' - ' . $flat->property_number;
         $connection->table('customers')->insert([
             'customer_id' => $customerId,
-            'name' => $firstName,
-            'email'                => $request->email,
+            'name' => $name,
+            'email' => $request->email,
             'contact' => $request->mobile,
             'type' => $type,
             'lang' => 'en',
             'created_by' => $created_by,
             'is_enable_login' => 0,
+            'billing_name' => $name,
+            'billing_country' => 'UAE',
+            'billing_city' => 'Dubai',
+            'billing_phone' => $request->mobile,
+            'billing_address' => $building->address_line1 . ', ' . $building->area,
+            'shipping_name' => $name,
+            'shipping_country' => 'UAE',
+            'shipping_city' => 'Dubai',
+            'shipping_phone' => $request->mobile,
+            'shipping_address' => $building->address_line1 . ', ' . $building->area,
+            'created_by_lazim' => true,
+            'flat_id' => $flat->id,
+            'building_id' => $flat->building_id,
+            'primary' => $primary ? 0 : 1,
         ]);
 
         // Store details to Flat tenants table
@@ -266,15 +282,31 @@ class RegistrationController extends Controller
         $connection = DB::connection('lazim_accounts');
         $created_by = $connection->table('users')->where(['type' => 'building', 'building_id' => $request->building_id])->first()->id;
         $customerId = $connection->table('customers')->where('created_by', $created_by)->orderByDesc('customer_id')->first()?->customer_id + 1;
+        $primary = $connection->table('customers')->where('flat_id', $flat->id)->where('type', 'Owner')->where('primary',true)->exists();
+        $name = $request->name . ' - ' . $flat->property_number;
         $connection->table('customers')->insert([
             'customer_id' => $customerId,
-            'name' => $request->name,
+            'name' => $name,
             'email'  => $request->email,
             'contact' => $request->mobile,
             'type' => $type,
             'lang' => 'en',
             'created_by' => $created_by,
             'is_enable_login' => 0,
+            'billing_name' => $name,
+            'billing_country' => 'UAE',
+            'billing_city' => 'Dubai',
+            'billing_phone' => $request->mobile,
+            'billing_address' => $building->address_line1 . ', ' . $building->area,
+            'shipping_name' => $name,
+            'shipping_country' => 'UAE',
+            'shipping_city' => 'Dubai',
+            'shipping_phone' => $request->mobile,
+            'shipping_address' => $building->address_line1 . ', ' . $building->area,
+            'created_by_lazim' => true,
+            'flat_id' => $flat->id,
+            'building_id' => $flat->building_id,
+            'primary' => $primary ? 0 : 1,
         ]);
 
         $imagePath = optimizeDocumentAndUpload($request->document, 'dev');
@@ -320,15 +352,17 @@ class RegistrationController extends Controller
             'owner_association_id' => $owner_association_id,
         ]);
 
-        $customer = $connection->table('customers')->where(['email'=> $request->email,
-            'contact' => $request->mobile])->first();
-        $property = Flat::find($request->flat_id)?->property_number;
-        $connection->table('customer_flat')->insert([
-            'customer_id' => $customer?->id,
-            'flat_id' => $request->flat_id,
-            'building_id' => $request->building_id,
-            'property_number' => $property
-        ]);
+        // $customer = $connection->table('customers')->where([
+        //     'email' => $request->email,
+        //     'contact' => $request->mobile
+        // ])->first();
+        // $property = Flat::find($request->flat_id)?->property_number;
+        // $connection->table('customer_flat')->insert([
+        //     'customer_id' => $customer?->id,
+        //     'flat_id' => $request->flat_id,
+        //     'building_id' => $request->building_id,
+        //     'property_number' => $property
+        // ]);
 
         // Send email after 5 seconds
         SendVerificationOtp::dispatch($user)->delay(now()->addSeconds(5));
@@ -341,15 +375,16 @@ class RegistrationController extends Controller
         ]))->response()->setStatusCode(201);
     }
 
-    public function reuploadDocument(Request $request,UserApproval $resident){
-        if($resident->status == null){
+    public function reuploadDocument(Request $request, UserApproval $resident)
+    {
+        if ($resident->status == null) {
             return (new CustomResponseResource([
                 'title' => 'Error',
                 'message' => 'Your last changes is not yet approved!',
                 'code' => 400,
             ]))->response()->setStatusCode(400);
         }
-        if($resident->status == 'approved'){
+        if ($resident->status == 'approved') {
             return (new CustomResponseResource([
                 'title' => 'Error',
                 'message' => 'Your account is already approved!',
@@ -362,7 +397,7 @@ class RegistrationController extends Controller
             'passport_document' => 'required|file|max:2048|mimes:pdf,jpg,jpeg,png,doc,docx',
             'trade_license' => 'nullable|file|max:2048|mimes:pdf,jpg,jpeg,png,doc,docx',
         ]);
-        
+
         $imagePath = optimizeDocumentAndUpload($request->document, 'dev');
         $emirates = optimizeDocumentAndUpload($request->emirates_document, 'dev');
         $passport = optimizeDocumentAndUpload($request->passport_document, 'dev');
@@ -397,14 +432,14 @@ class RegistrationController extends Controller
 
     public function documentStatus(UserApproval $resident)
     {
-        if($resident->status == null){
+        if ($resident->status == null) {
             return (new CustomResponseResource([
                 'title' => 'Error',
                 'message' => 'You have already uploaded documents, approve pending!',
                 'code' => 403,
             ]))->response()->setStatusCode(403);
         }
-        if($resident->status == 'approved'){
+        if ($resident->status == 'approved') {
             return (new CustomResponseResource([
                 'title' => 'Error',
                 'message' => 'Your account is already approved!',
@@ -419,10 +454,10 @@ class RegistrationController extends Controller
     {
         return [
             'document_type' => strtolower($resident->document_type),
-            'document' => env('AWS_URL').'/'.$resident->document,
-            'emirates_document' => env('AWS_URL').'/'.$resident->emirates_document,
-            'passport' => env('AWS_URL').'/'.$resident->passport,
-            'trade_license' => $resident->trade_license ? env('AWS_URL').'/'.$resident->trade_license : null,
+            'document' => env('AWS_URL') . '/' . $resident->document,
+            'emirates_document' => env('AWS_URL') . '/' . $resident->emirates_document,
+            'passport' => env('AWS_URL') . '/' . $resident->passport,
+            'trade_license' => $resident->trade_license ? env('AWS_URL') . '/' . $resident->trade_license : null,
         ];
     }
 
@@ -439,7 +474,7 @@ class RegistrationController extends Controller
             ['otp' => $otp]
         );
 
-        EmailOtp::dispatch($otp, $type,$contactValue);
+        EmailOtp::dispatch($otp, $type, $contactValue);
 
         return (new CustomResponseResource([
             'title' => 'Success',
@@ -451,15 +486,15 @@ class RegistrationController extends Controller
     public function verifyOtp(EmailVerificationRequest $request)
     {
         $otpEntry = DB::table('otp_verifications')
-                        ->where('type', $request->type)
-                        ->where('contact_value', $request->contact_value)
-                        ->first();
+            ->where('type', $request->type)
+            ->where('contact_value', $request->contact_value)
+            ->first();
 
         if (!$otpEntry || $otpEntry->otp !== $request->otp) {
             return (new CustomResponseResource([
                 'title' => 'Error',
                 'message' => 'Invalid OTP. Please try again.',
-                'code' => 400, 
+                'code' => 400,
             ]))->response()->setStatusCode(400);
         }
 
