@@ -104,6 +104,8 @@ class BillImport implements ToCollection, WithHeadingRow
             }
             if (!isset($row['bill_number']) || trim($row['bill_number']) === '') {
                 $validationErrors[] = "Bill Number cannot be empty";
+            } elseif (strlen($row['bill_number']) < 4 || strlen($row['bill_number']) > 15) {
+                $validationErrors[] = "Bill Number must be between 4 and 15 characters";
             }
 
             if (!isset($row['amount']) || trim($row['amount']) === '') {
