@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\QuotationController;
 use App\Http\Controllers\RentalDetailsController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -681,6 +682,9 @@ Route::get('/app-version',[AppController::class, 'version']);
 
 //web enquiries
 Route::post('/web-enquiry',[EnquiryController::class,'store']);
+
+//web quatations
+Route::post('/web-quotation',[QuotationController::class,'store']);
 
 //webhook
 // Route::post('/webhook',[MollakController::class,'webhook'])->middleware('check.MollakToken');
