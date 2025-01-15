@@ -54,6 +54,9 @@ class FacilitySupportComplaintResource extends Resource
                                         'building' => 'Building',
                                     ])
                                     ->live()
+                                    ->afterStateUpdated(function (Set $set) {
+                                        $set('flat_id', null);
+                                    })
                                     ->disabledOn('edit')
                                     ->default('NA'),
 
@@ -100,6 +103,11 @@ class FacilitySupportComplaintResource extends Resource
                                     })
                                     ->searchable()
                                     ->preload()
+                                    ->visible(function (callable $get) {
+                                        if ($get('type') == 'personal') {
+                                            return true;
+                                        }return false;
+                                    })
                                     ->disabledOn('edit')
                                     ->placeholder('Select Unit Number'),
 
