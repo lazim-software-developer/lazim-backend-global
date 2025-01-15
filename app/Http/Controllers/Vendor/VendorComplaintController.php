@@ -226,9 +226,9 @@ class VendorComplaintController extends Controller
                 Log::info("No technicians to add", []);
             }
         }
-        if($request->complaint_type === 'preventive_maintenance'){
+        if($complaint->complaint_type === 'preventive_maintenance'){
             $residentIds = FlatTenant::where([
-                'building_id' => $request->building_id,
+                'building_id' => $complaint->building_id,
                 'active' => true
             ])->distinct()->pluck('tenant_id');
             if($residentIds->count() > 0){
@@ -240,7 +240,12 @@ class VendorComplaintController extends Controller
                         'sound' => 'default',
                         'title' => 'Preventive Maintenance',
                         'body'  => 'A preventive maintenance has been scheduled for your building',
-                        'data'  => ['notificationType' => 'PreventiveMaintenance'],
+                        'data'  => [
+                                'notificationType' => 'PreventiveMaintenance',
+                                'complaintId'      => $complaint?->id,
+                                'open_time' => $complaint?->open_time,
+                                'close_time' => $complaint?->close_time
+                        ],
                     ];
                     $this->expoNotification($message);
                     DB::table('notifications')->insert([
@@ -256,7 +261,11 @@ class VendorComplaintController extends Controller
                             'iconColor' => 'warning',
                             'title'     => 'Preventive Maintenance',
                             'view'      => 'notifications::notification',
-                            'viewData'  => [],
+                            'viewData'  => [
+                                'complaintId'      => $complaint?->id,
+                                'open_time' => $complaint?->open_time,
+                                'close_time' => $complaint?->close_time
+                            ],
                             'format'    => 'filament',
                             'url'       => 'PreventiveMaintenance',
                         ]),

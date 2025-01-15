@@ -89,7 +89,9 @@ class CreateComplaint extends CreateRecord
                             'body'  => 'A preventive maintenance has been scheduled for your building',
                             'data'  => [
                                 'notificationType' => 'PreventiveMaintenance',
-                                'complaintId'      => $complaint->id,
+                                'complaintId'      => $complaint?->id,
+                                'open_time' => $complaint?->open_time,
+                                'close_time' => $complaint?->close_time
                             ],
                         ];
 
@@ -123,7 +125,11 @@ class CreateComplaint extends CreateRecord
                         'iconColor' => 'warning',
                         'title'     => 'Preventive Maintenance',
                         'view'      => 'notifications::notification',
-                        'viewData'  => [],
+                        'viewData'  => [
+                                'complaintId'      => $complaint?->id,
+                                'open_time' => $complaint?->open_time,
+                                'close_time' => $complaint?->close_time
+                        ],
                         'format'    => 'filament',
                         'url'       => 'PreventiveMaintenance',
                     ]),
