@@ -138,12 +138,12 @@ class ListBills extends ListRecords
                     ->withColumns([
                         Column::make('unit_number')
                             ->heading('Unit Number'),
-                        Column::make('bill_number')
-                            ->heading('Bill Number'),
                         Column::make('amount')
                             ->heading('Amount'),
                         Column::make('due_date')
                             ->heading('Due Date'),
+                        Column::make('bill_number')
+                            ->heading('Bill Number'),
                         Column::make('status')
                             ->heading('Status'),
                     ])
