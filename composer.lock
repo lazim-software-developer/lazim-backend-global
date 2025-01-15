@@ -970,7 +970,6 @@
                     "type": "tidelift"
                 }
             ],
-<<<<<<< HEAD
             "time": "2024-07-12T11:35:52+00:00"
         },
         {
@@ -1046,9 +1045,6 @@
                 "source": "https://github.com/savannabits/filament-flatpickr/tree/v3.1.1"
             },
             "time": "2024-09-19T12:32:24+00:00"
-=======
-            "time": "2024-09-19T14:15:21+00:00"
->>>>>>> cron-addition/fetch-from-mollak
         },
         {
             "name": "danharrin/date-format-converter",
