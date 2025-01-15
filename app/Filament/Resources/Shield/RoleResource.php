@@ -352,45 +352,129 @@ class RoleResource extends Resource implements HasShieldPermissions
     public static function getResourceEntitiesSchema(callable $get): ?array
     {
         static::$permissionsCollection = static::$permissionsCollection ?: Utils::getPermissionModel()::all();
-
         $searchTerm = str_replace(' ', '', strtolower($get('search', '')));
-        $resources = collect(FilamentShield::getResources());
-        // dd($resources);
 
-        // if ($searchTerm) {
-        //     $resources = $resources->filter(function ($entity) use ($searchTerm) {
-        //         $fqcnValue = strtolower(FilamentShield::getLocalizedResourceLabel($entity['fqcn']));
-        //     return str_contains($fqcnValue, strtolower($searchTerm));
-        //     });
-        // }
+        // Check if user is Property Manager
+        if (auth()->user()->role && auth()->user()->role->name === 'Property Manager') {
+            $exclusions = [
+                'ActivityResource',
+                'BankStatementResource',
+                'AgingReportResource',
+                'AppFeedbackResource',
+                'BudgetResource',
+                'ServiceBookingResource',
+                'ComplaintsEnquiryResource',
+                'ComplaintssuggestionResource',
+                'ContractResource',
+                'OAMInvoiceResource',
+                'InvoiceResource',
+                'LedgersResource',
+                'LegalNoticeResource',
+                'VendorServiceResource',
+                'OacomplaintReportsResource',
+                'BillResource',
+                'OwnerAssociationResource',
+                'PatrollingResource',
+                'PollResource',
+                'ProposalResource',
+                'ResidentialFormResource',
+                'TechnicianAssetsResource',
+                'TenderResource',
+                'VendorLedgersResource',
+                'VisitorFormResource',
+                'VendorResource',
+                'VehicleResource',
+                'WDAResource'
+            ];
 
-        if ($searchTerm) {
-            $resources = $resources->sortBy(function ($entity) use ($searchTerm) {
-                $fqcnValue = str_replace(' ', '', strtolower(FilamentShield::getLocalizedResourceLabel($entity['fqcn'])));
-                // dd(FilamentShield::getLocalizedResourceLabel("App\Filament\Resources\WDAResource"));
-                return str_contains($fqcnValue, strtolower($searchTerm)) ? 0 : 1;
-            });
-            // dd($resources);
+            $resources = collect(FilamentShield::getResources())
+                ->filter(function ($entity) use ($exclusions, $searchTerm) {
+                    $resourceClass = class_basename($entity['fqcn']);
+
+                    // First check exclusions
+                    if (in_array($resourceClass, $exclusions)) {
+                        return false;
+                    }
+
+                    // Then check search if term exists
+                    if ($searchTerm) {
+                        $label = strtolower(FilamentShield::getLocalizedResourceLabel($entity['fqcn']));
+                        return str_contains($label, $searchTerm);
+                    }
+
+                    return true;
+                });
+        } else {
+            // Original behavior for other roles
+            $resources = collect(FilamentShield::getResources())
+                ->filter(function ($entity) use ($searchTerm) {
+                    if ($searchTerm) {
+                        $label = strtolower(FilamentShield::getLocalizedResourceLabel($entity['fqcn']));
+                        return str_contains($label, $searchTerm);
+                    }
+                    return true;
+                });
         }
 
-        return $resources
-            // ->sortKeys()
-            ->map(function ($entity) {
-                return Forms\Components\Section::make(FilamentShield::getLocalizedResourceLabel($entity['fqcn']))
-                // ->description(fn () => new HtmlString('<span style="word-break: break-word;">' . Utils::showModelPath($entity['fqcn']) . '</span>'))
-                    ->description(fn () => new HtmlString('<span style="word-break: break-word;">'))
-                    ->compact()
-                    ->schema([
-                        static::getCheckBoxListComponentForResource($entity),
-                    ])
-                    ->columnSpan(FilamentShieldPlugin::get()->getSectionColumnSpan());
-                    // ->collapsible();
-            })
-            ->toArray();
+        // Keep original mapping logic
+        return $resources->map(function ($entity) {
+            return Forms\Components\Section::make(FilamentShield::getLocalizedResourceLabel($entity['fqcn']))
+                ->description(fn() => new HtmlString('<span style="word-break: break-word;">'))
+                ->compact()
+                ->schema([
+                    static::getCheckBoxListComponentForResource($entity),
+                ])
+                ->columnSpan(FilamentShieldPlugin::get()->getSectionColumnSpan());
+        })->toArray();
     }
 
     public static function getResourceTabBadgeCount(): ?int
     {
+        // Check if user is Property Manager
+        if (auth()->user()->role && auth()->user()->role->name === 'Property Manager') {
+            $exclusions = [
+                'ActivityResource',
+                'BankStatementResource',
+                'AgingReportResource',
+                'AppFeedbackResource',
+                'BudgetResource',
+                'ServiceBookingResource',
+                'ComplaintsEnquiryResource',
+                'ComplaintssuggestionResource',
+                'ContractResource',
+                'OAMInvoiceResource',
+                'InvoiceResource',
+                'LedgersResource',
+                'LegalNoticeResource',
+                'VendorServiceResource',
+                'OacomplaintReportsResource',
+                'BillResource',
+                'OwnerAssociationResource',
+                'PatrollingResource',
+                'PollResource',
+                'ProposalResource',
+                'ResidentialFormResource',
+                'TechnicianAssetsResource',
+                'TenderResource',
+                'VendorLedgersResource',
+                'VisitorFormResource',
+                'VendorResource',
+                'VehicleResource',
+                'WDAResource'
+            ];
+
+            return collect(FilamentShield::getResources())
+                // First filter out excluded resources
+                ->filter(function ($entity) use ($exclusions) {
+                    $resourceClass = class_basename($entity['fqcn']);
+                    return !in_array($resourceClass, $exclusions);
+                })
+                // Then count permissions for remaining resources
+                ->map(fn ($resource) => count(static::getResourcePermissionOptions($resource)))
+                ->sum();
+        }
+
+        // Original behavior for other roles
         return collect(FilamentShield::getResources())
             ->map(fn ($resource) => count(static::getResourcePermissionOptions($resource)))
             ->sum();
@@ -402,42 +486,42 @@ class RoleResource extends Resource implements HasShieldPermissions
         $resourcesWithoutCreate = config('role_resource_permission.resourcesWithoutCreate');
         $resourcesWithoutEdit = config('role_resource_permission.resourcesWithoutEdit');
         $resourcesWithoutView = config('role_resource_permission.resourcesWithoutView');
-    
+
         // Get permission prefixes dynamically from the utility function
         $permissionPrefixes = collect(Utils::getResourcePermissionPrefixes($entity['fqcn']));
 
         // Dynamically construct permissions
         return $permissionPrefixes->flatMap(function ($permission) use ($entity, $resourcesWithoutCreate, $resourcesWithoutEdit, $resourcesWithoutView) {
-    
+
             // Skip the 'create' permission if the resource is in the list
             if ($permission === 'create' && in_array(class_basename($entity['fqcn']), $resourcesWithoutCreate)) {
                 return []; // Don't add 'create' permission for this resource
             }
-    
+
             // Skip the 'edit' or 'update' permission if the resource is in the list
             if (($permission === 'edit' || $permission === 'update') && in_array(class_basename($entity['fqcn']), $resourcesWithoutEdit)) {
                 return []; // Don't add 'edit/update' permission for this resource
             }
-    
+
             // Skip the 'view' permission if the resource is in the list
             if ($permission === 'view' && in_array(class_basename($entity['fqcn']), $resourcesWithoutView)) {
                 return []; // Don't add 'view' permission for this resource
             }
-    
+
             // Check if it's the 'view_any' permission and modify the label accordingly
             if ($permission === 'view_any') {
                 return [
                     $permission . '_' . $entity['resource'] => 'Show Resource', // Custom label for 'view_any'
                 ];
             }
-    
+
             // Handle all other permissions dynamically
             return [
                 $permission . '_' . $entity['resource'] => FilamentShield::getLocalizedResourcePermissionLabel($permission),
             ];
-    
+
         })->toArray();
-    }    
+    }
 
     public static function setPermissionStateForRecordPermissions(Component $component, string $operation, array $permissions, ?Model $record): void
     {
@@ -497,6 +581,39 @@ class RoleResource extends Resource implements HasShieldPermissions
 
     public static function getPageOptions(): array
     {
+        // Check if user is Property Manager
+        if (auth()->user()->role && auth()->user()->role->name === 'Property Manager') {
+            $exclusions = [
+                'Dashboard',
+                'OwnerAssociationInvoice',
+                'OwnerAssociationReceipt',
+                'AgingReport',
+                'DelinquentOwners',
+                'BudgetListing',
+                'CreateTender',
+                'ListAllReceipts',
+                'BudgetVsActual',
+                'GeneralFundStatement',
+                'GeneralFundStatementMollak',
+                'ReserveFundStatement',
+                'ReserveFundStatementMollak',
+                'TrialBalance'
+            ];
+
+            return collect(FilamentShield::getPages())
+                // First filter out excluded pages
+                ->filter(function ($page) use ($exclusions) {
+                    $pageClass = class_basename($page['class']);
+                    return !in_array($pageClass, $exclusions);
+                })
+                // Then map the remaining pages
+                ->flatMap(fn ($page) => [
+                    $page['permission'] => FilamentShield::getLocalizedPageLabel($page['class']),
+                ])
+                ->toArray();
+        }
+
+        // Original behavior for other roles
         return collect(FilamentShield::getPages())
             ->flatMap(fn ($page) => [
                 $page['permission'] => FilamentShield::getLocalizedPageLabel($page['class']),
