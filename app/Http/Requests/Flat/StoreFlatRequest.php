@@ -2,13 +2,21 @@
 namespace App\Http\Requests\Flat;
 
 use Illuminate\Foundation\Http\FormRequest;
-
+use Illuminate\Validation\Rule;
 class StoreFlatRequest extends FormRequest
 {
     public function rules()
     {
         return [
-            'floor' => 'required|string|max:255',
+            'floor' => [
+                'required',
+                'max:255',
+                'string',
+                Rule::unique('flats')->where(function ($query) {
+                    return $query->where('building_id', $this->building_id)
+                                ->where('owner_association_id', $this->owner_association_id);
+                })
+            ],
             'building_id' => 'required|integer|exists:buildings,id',
             'owner_association_id' => 'required|integer|exists:owner_associations,id',
             'description' => 'required|string',
@@ -21,6 +29,13 @@ class StoreFlatRequest extends FormRequest
             'virtual_account_number' => 'required|string',
             'parking_count' => 'required|integer',
             'plot_number' => 'required|integer',
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'floor.unique' => 'A Flat with this Floor already exists with the same Building and owner association.',
         ];
     }
 }
