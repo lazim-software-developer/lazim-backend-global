@@ -74,7 +74,8 @@ class FacilityManagerResource extends Resource
                                             ->prefix('+971')
                                             ->unique(User::class, 'phone', ignorable: fn($record) => $record?->user)
                                             ->disabledOn('edit')
-                                            ->placeholder('5XXXXXXXX'),
+                                            ->length(9)
+                                            ->placeholder('XXXXXXXXX'),
                                     ]),
                             ])->columnSpan(2),
 
@@ -168,7 +169,8 @@ class FacilityManagerResource extends Resource
                                 TextInput::make('managers.0.phone')
                                     ->label('Manager Phone')
                                     ->tel()
-                                    ->placeholder('5XXXXXXXX')
+                                    ->length(9)
+                                    ->placeholder('XXXXXXXXX')
                                     ->live()
                                     ->required(),
                                     // ->required(fn($get) => !empty($get('managers.0.name')) || !empty($get('managers.0.email'))),

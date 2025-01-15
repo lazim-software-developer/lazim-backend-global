@@ -77,21 +77,7 @@ class ComplaintResource extends Resource
                                     ->preload()
                                     ->searchable()
                                     ->disabledOn('edit')
-                                    ->afterStateUpdated(function (Set $set) {
-                                        $set('flat_id', null);
-                                    })
                                     ->placeholder('Select Building'),
-
-                                Select::make('flat_id')
-                                    ->label('Unit Number')
-                                    ->options(function (callable $get) {
-                                        return Flat::where('building_id', $get('building_id'))
-                                            ->pluck('property_number', 'id');
-                                    })
-                                    ->searchable()
-                                    ->preload()
-                                    ->disabledOn('edit')
-                                    ->placeholder('Select Unit Number'),
 
                                 TextInput::make('ticket_number')
                                     ->label('Ticket Number')
