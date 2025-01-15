@@ -438,7 +438,8 @@ class ComplaintObserver
                                     'viewData' => [
                                         'complaintId'      => $complaint?->id,
                                         'open_time' => $complaint?->open_time,
-                                        'close_time' => $complaint?->close_time
+                                        'close_time' => $complaint?->close_time,
+                                        'due_date' => $complaint?->due_date,
                                     ],
                                     'format' => 'filament',
                                     'url' => $complaint->complaint_type == 'preventive_maintenance' ? 'PreventiveMaintenance' : 'task',
@@ -554,7 +555,8 @@ class ComplaintObserver
                                 'viewData' => [
                                     'complaintId'      => $complaint?->id,
                                     'open_time' => $complaint?->open_time,
-                                    'close_time' => $complaint?->close_time
+                                    'close_time' => $complaint?->close_time,
+                                    'due_date' => $complaint?->due_date,
                                 ],
                                 'format' => 'filament',
                                 'url' => $complaint->complaint_type == 'preventive_maintenance' ? 'PreventiveMaintenance' : 'task',
@@ -624,7 +626,8 @@ class ComplaintObserver
                                 'viewData' => [
                                     'complaintId'      => $complaint?->id,
                                     'open_time' => $complaint?->open_time,
-                                    'close_time' => $complaint?->close_time
+                                    'close_time' => $complaint?->close_time,
+                                    'due_date' => $complaint?->due_date,
                                 ],
                                 'format' => 'filament',
                                 'url' => $complaint->complaint_type == 'preventive_maintenance' ? 'PreventiveMaintenance' : 'task',
@@ -691,7 +694,8 @@ class ComplaintObserver
                             'viewData' => [
                                 'complaintId'      => $complaint?->id,
                                 'open_time' => $complaint?->open_time,
-                                'close_time' => $complaint?->close_time
+                                'close_time' => $complaint?->close_time,
+                                'due_date' => $complaint?->due_date,
                             ],
                             'format' => 'filament',
                             'url' => $complaint->complaint_type == 'preventive_maintenance' ? 'PreventiveMaintenance' : 'task',

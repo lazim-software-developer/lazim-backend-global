@@ -58,7 +58,8 @@ class EditHelpdeskcomplaint extends EditRecord
                         'data' => ['notificationType' => $this->record->complaint_type == 'help_desk'? 'HelpDeskTabResolved': ($this->record->complaint_type === 'preventive_maintenance' ? 'PreventiveMaintenance':'InAppNotficationScreen'),
                         'complaintId'      => $this->record?->id,
                         'open_time' => $this->record?->open_time,
-                        'close_time' => $this->record?->close_time
+                        'close_time' => $this->record?->close_time,
+                        'due_date' => $this->record?->due_date,
                     ],
                     ];
                     $this->expoNotification($message);
@@ -80,7 +81,8 @@ class EditHelpdeskcomplaint extends EditRecord
                             'viewData' => [
                                 'complaintId'      => $this->record?->id,
                                 'open_time' => $this->record?->open_time,
-                                'close_time' => $this->record?->close_time
+                                'close_time' => $this->record?->close_time,
+                                'due_date' => $this->record?->due_date,
                             ],
                             'format' => 'filament',
                             'url' => $this->record->complaint_type === 'preventive_maintenance' ? 'PreventiveMaintenance':'HelpDeskTabResolved',

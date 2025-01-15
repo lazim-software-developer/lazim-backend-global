@@ -244,7 +244,8 @@ class VendorComplaintController extends Controller
                                 'notificationType' => 'PreventiveMaintenance',
                                 'complaintId'      => $complaint?->id,
                                 'open_time' => $complaint?->open_time,
-                                'close_time' => $complaint?->close_time
+                                'close_time' => $complaint?->close_time,
+                                'due_date' => $complaint?->due_date,
                         ],
                     ];
                     $this->expoNotification($message);
@@ -264,7 +265,8 @@ class VendorComplaintController extends Controller
                             'viewData'  => [
                                 'complaintId'      => $complaint?->id,
                                 'open_time' => $complaint?->open_time,
-                                'close_time' => $complaint?->close_time
+                                'close_time' => $complaint?->close_time,
+                                'due_date' => $complaint?->due_date,
                             ],
                             'format'    => 'filament',
                             'url'       => 'PreventiveMaintenance',

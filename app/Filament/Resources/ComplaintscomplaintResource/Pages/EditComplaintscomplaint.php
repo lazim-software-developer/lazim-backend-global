@@ -74,7 +74,9 @@ class EditComplaintscomplaint extends EditRecord
                             'notificationType' => $this->record->complaint_type === 'preventive_maintenance' ? 'PreventiveMaintenance' : 'InAppNotficationScreen',
                             'complaintId'      => $this->record?->id,
                             'open_time' => $this->record?->open_time,
-                            'close_time' => $this->record?->close_time
+                            'close_time' => $this->record?->close_time,
+                            'due_date' => $this->record?->due_date,
+
                         ],
                     ];
                     $this->expoNotification($message);
@@ -98,7 +100,8 @@ class EditComplaintscomplaint extends EditRecord
                             'viewData' => [
                                 'complaintId'      => $this->record?->id,
                                 'open_time' => $this->record?->open_time,
-                                'close_time' => $this->record?->close_time
+                                'close_time' => $this->record?->close_time,
+                                'due_date' => $this->record?->due_date,
                             ],
                             'format' => 'filament',
                             'url' => $this->record->complaint_type === 'preventive_maintenance' ? 'PreventiveMaintenance' : 'InAppNotficationScreen',

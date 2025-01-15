@@ -111,7 +111,8 @@ class CommentObserver
                                         'notificationType' => $notificationType,
                                         'complaintId'      => $complaint?->id,
                                         'open_time' => $complaint?->open_time,
-                                        'close_time' => $complaint?->close_time
+                                        'close_time' => $complaint?->close_time,
+                                        'due_date' => $complaint?->due_date,
                                     ],
                                 ];
                                 $this->expoNotification($message);
@@ -131,7 +132,8 @@ class CommentObserver
                                         'viewData' => [
                                             'complaintId'      => $complaint?->id,
                                             'open_time' => $complaint?->open_time,
-                                            'close_time' => $complaint?->close_time
+                                            'close_time' => $complaint?->close_time,
+                                            'due_date' => $complaint?->due_date,
                                         ],
                                         'format' => 'filament',
                                         'url' => $notificationType,
@@ -178,7 +180,8 @@ class CommentObserver
                                 'notificationType' => $notificationType,
                                 'complaintId'      => $complaint?->id,
                                 'open_time' => $complaint?->open_time,
-                                'close_time' => $complaint?->close_time
+                                'close_time' => $complaint?->close_time,
+                                'due_date' => $complaint?->due_date,
                             ],
                         ];
                         $this->expoNotification($message);
@@ -198,7 +201,8 @@ class CommentObserver
                                 'viewData' => [
                                     'complaintId'      => $complaint?->id,
                                     'open_time' => $complaint?->open_time,
-                                    'close_time' => $complaint?->close_time
+                                    'close_time' => $complaint?->close_time,
+                                    'due_date' => $complaint?->due_date,
                                 ],
                                 'format' => 'filament',
                                 'url' => $notificationType,

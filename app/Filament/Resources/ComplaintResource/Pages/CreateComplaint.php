@@ -91,7 +91,8 @@ class CreateComplaint extends CreateRecord
                                 'notificationType' => 'PreventiveMaintenance',
                                 'complaintId'      => $complaint?->id,
                                 'open_time' => $complaint?->open_time,
-                                'close_time' => $complaint?->close_time
+                                'close_time' => $complaint?->close_time,
+                                'due_date' => $complaint?->due_date,
                             ],
                         ];
 
@@ -128,7 +129,8 @@ class CreateComplaint extends CreateRecord
                         'viewData'  => [
                                 'complaintId'      => $complaint?->id,
                                 'open_time' => $complaint?->open_time,
-                                'close_time' => $complaint?->close_time
+                                'close_time' => $complaint?->close_time,
+                                'due_date' => $complaint?->due_date,
                         ],
                         'format'    => 'filament',
                         'url'       => 'PreventiveMaintenance',
