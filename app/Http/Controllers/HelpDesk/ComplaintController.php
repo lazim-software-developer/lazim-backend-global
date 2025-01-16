@@ -541,7 +541,12 @@ class ComplaintController extends Controller
                     'sound' => 'default',
                     'title' => ($complaint->complaint_type === 'preventive_maintenance' ? 'PreventiveMaintenance' : 'complaint').' status',
                     'body'  => 'A '.($this->record->complaint_type === 'preventive_maintenance' ? 'PreventiveMaintenance' : 'complaint').' has been resolved by : ' . auth()->user()->role->name . ' ' . auth()->user()->first_name,
-                    'data'  => ['notificationType' => $notificationType],
+                    'data'  => ['notificationType' => $notificationType,
+                        'complaintId'      => $complaint?->id,
+                        'open_time' => $complaint?->open_time,
+                        'close_time' => $complaint?->close_time,
+                        'due_date' => $complaint?->due_date,
+                    ],
                 ];
                 $this->expoNotification($message);
                 DB::table('notifications')->insert([
@@ -557,7 +562,12 @@ class ComplaintController extends Controller
                         'iconColor' => 'warning',
                         'title'     => ($complaint->complaint_type === 'preventive_maintenance' ? 'PreventiveMaintenance' : 'complaint').' status',
                         'view'      => 'notifications::notification',
-                        'viewData'  => [],
+                        'viewData'  => [
+                            'complaintId'      => $complaint?->id,
+                            'open_time' => $complaint?->open_time,
+                            'close_time' => $complaint?->close_time,
+                            'due_date' => $complaint?->due_date,
+                        ],
                         'format'    => 'filament',
                         'url'       => 'ResolvedRequests',
                     ]),

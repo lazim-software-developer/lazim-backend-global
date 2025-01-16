@@ -197,8 +197,8 @@ class VendorComplaintController extends Controller
                 $message = [
                     'to'    => $expoPushToken,
                     'sound' => 'default',
-                    'title' => 'Task Assigned',
-                    'body'  => 'Task has been assigned',
+                    'title' => $complaint->complaint_type == 'preventive_maintenance' ? 'Schedule Assigned' :'Task Assigned',
+                    'body'  => $complaint->complaint_type == 'preventive_maintenance' ? 'Schedule has been assigned' :'Task has been assigned',
                     'data'  => ['notificationType' => 'PendingRequests'],
                 ];
                 $this->expoNotification($message);
@@ -209,11 +209,11 @@ class VendorComplaintController extends Controller
                     'notifiable_id'   => $complaint->technician_id,
                     'data'            => json_encode([
                         'actions'   => [],
-                        'body'      => 'Task has been assigned',
+                        'body'      => $complaint->complaint_type == 'preventive_maintenance' ? 'Schedule has been assigned' :'Task has been assigned',
                         'duration'  => 'persistent',
                         'icon'      => 'heroicon-o-document-text',
                         'iconColor' => 'warning',
-                        'title'     => 'Task Assigned',
+                        'title'     => $complaint->complaint_type == 'preventive_maintenance' ? 'Schedule Assigned' :'Task Assigned',
                         'view'      => 'notifications::notification',
                         'viewData'  => [],
                         'format'    => 'filament',

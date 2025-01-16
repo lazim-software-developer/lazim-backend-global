@@ -181,7 +181,7 @@ class ComplaintObserver
             }
         }
 
-        //Notifying to vendor
+        //Notifying to vendor when type is tenant_complaint or help_desk
         if ($complaint->vendor_id) {
             $vendor = Vendor::where('id', $complaint->vendor_id)->first();
             if ($complaint->complaint_type == 'tenant_complaint') {
@@ -305,7 +305,7 @@ class ComplaintObserver
         }
 
         //assign technician notification to assigned technician (assigned by 'OA', 'Vendor')
-        $allowedRole = ['OA', 'Vendor'];
+        $allowedRole = ['OA', 'Vendor','Facility Manager','Property Manager'];
         if($complaint->technician_id){
             if (in_array($user->role->name, $allowedRole)) {
                 if ($complaint->technician_id != $newValues['technician_id']) {
@@ -454,11 +454,46 @@ class ComplaintObserver
         }
 
         //complaints status update push notification to technician mobile app (if closed by 'Owner', 'OA', 'Tenant')
-        $allowedRoles = ['Owner', 'OA', 'Tenant'];
+        $allowedRoles = ['Owner', 'OA', 'Tenant','Facility Manager','Property Manager'];
         if($complaint->technician_id){
             if (in_array($user->role->name, $allowedRoles)) {
                 if ($complaint->status == 'closed') {
                     if ($complaint->complaint_type == 'help_desk') {
+                        $expoPushTokens = ExpoPushNotification::where('user_id', $complaint->technician_id)->pluck('token');
+                        if ($expoPushTokens->count() > 0) {
+                            foreach ($expoPushTokens as $expoPushToken) {
+                                $message = [
+                                    'to' => $expoPushToken,
+                                    'sound' => 'default',
+                                    'title' => ($complaint->complaint_type === 'preventive_maintenance' ? 'PreventiveMaintenance' : 'complaint').' status',
+                                    'body' => 'A '.($complaint->complaint_type === 'preventive_maintenance' ? 'PreventiveMaintenance' : 'complaint').' has been resolved by a ' . $user->role->name . ' ' . auth()->user()->first_name,
+                                    'data' => ['notificationType' => 'ResolvedRequests'],
+                                ];
+                                $this->expoNotification($message);
+                                DB::table('notifications')->insert([
+                                    'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
+                                    'type' => 'Filament\Notifications\DatabaseNotification',
+                                    'notifiable_type' => 'App\Models\User\User',
+                                    'notifiable_id' => $complaint->technician_id,
+                                    'data' => json_encode([
+                                        'actions' => [],
+                                        'body' => 'A '.($complaint->complaint_type === 'preventive_maintenance' ? 'PreventiveMaintenance' : 'complaint').' has been resolved by a ' . $user->role->name . ' ' . auth()->user()->first_name,
+                                        'duration' => 'persistent',
+                                        'icon' => 'heroicon-o-document-text',
+                                        'iconColor' => 'warning',
+                                        'title' => ($complaint->complaint_type === 'preventive_maintenance' ? 'PreventiveMaintenance' : 'complaint').' status',
+                                        'view' => 'notifications::notification',
+                                        'viewData' => [],
+                                        'format' => 'filament',
+                                        'url' => 'ResolvedRequests',
+                                    ]),
+                                    'created_at' => now()->format('Y-m-d H:i:s'),
+                                    'updated_at' => now()->format('Y-m-d H:i:s'),
+                                ]);
+                            }
+                        }
+                    }
+                    if ($complaint->complaint_type == 'preventive_maintenance') {
                         $expoPushTokens = ExpoPushNotification::where('user_id', $complaint->technician_id)->pluck('token');
                         if ($expoPushTokens->count() > 0) {
                             foreach ($expoPushTokens as $expoPushToken) {
@@ -507,8 +542,8 @@ class ComplaintObserver
                         $message = [
                             'to' => $expoPushToken,
                             'sound' => 'default',
-                            'title' => ($complaint->complaint_type === 'preventive_maintenance' ? 'PreventiveMaintenance' : 'complaint').' Date Changes',
-                            'body' => 'Due date for '.($complaint->complaint_type === 'preventive_maintenance' ? 'PreventiveMaintenance' : 'complaint').' has been changed by ' . $user->role->name . '. Check the application for the infomation.',
+                            'title' => ($complaint->complaint_type === 'preventive_maintenance' ? 'Schedule' : 'complaint').' Date has been updated',
+                            'body' => 'Due date for '.($complaint->complaint_type === 'preventive_maintenance' ? 'Schedule' : 'complaint').' has been changed by ' . $user->role->name . '. Check the application for the infomation.',
                             'data' => ['notificationType' => 'PendingRequests'],
                         ];
                         $this->expoNotification($message);
@@ -519,11 +554,11 @@ class ComplaintObserver
                             'notifiable_id' => $complaint->technician_id,
                             'data' => json_encode([
                                 'actions' => [],
-                                'body' => 'Due date for '.($complaint->complaint_type === 'preventive_maintenance' ? 'PreventiveMaintenance' : 'complaint').' has been changed by ' . $user->role->name . '. Check the application for the infomation.',
+                                'body' => 'Due date for '.($complaint->complaint_type === 'preventive_maintenance' ? 'Schedule' : 'complaint').' has been changed by ' . $user->role->name . '. Check the application for the infomation.',
                                 'duration' => 'persistent',
                                 'icon' => 'heroicon-o-document-text',
                                 'iconColor' => 'warning',
-                                'title' => ($complaint->complaint_type === 'preventive_maintenance' ? 'PreventiveMaintenance' : 'complaint').' Date Changes',
+                                'title' => ($complaint->complaint_type === 'preventive_maintenance' ? 'Schedule' : 'complaint').' Date has been updated',
                                 'view' => 'notifications::notification',
                                 'viewData' => [],
                                 'format' => 'filament',
@@ -537,7 +572,7 @@ class ComplaintObserver
 
                 //if OA is updating the due_date then vendor will notify
                 if($complaint->vendor_id){
-                    if ($user->role->name == 'OA') {
+                    if (in_array($user->role->name, ['OA','Property Manager'])) {
                         $vendor = Vendor::where('id', $complaint->vendor_id)->first();
                         DB::table('notifications')->insert([
                             'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
@@ -578,8 +613,8 @@ class ComplaintObserver
                         $message = [
                             'to' => $expoPushToken,
                             'sound' => 'default',
-                            'title' => ($complaint->complaint_type === 'preventive_maintenance' ? 'PreventiveMaintenance' : 'complaint').' Priority Changes',
-                            'body' => 'Priority for '.($complaint->complaint_type === 'preventive_maintenance' ? 'PreventiveMaintenance' : 'complaint').' has been changed by ' . $user->role->name . '. Check the application for the infomation.',
+                            'title' => ($complaint->complaint_type === 'preventive_maintenance' ? 'Schedule' : 'complaint').' Priority has been updated',
+                            'body' => 'Priority for '.($complaint->complaint_type === 'preventive_maintenance' ? 'Schedule' : 'complaint').' has been changed by ' . $user->role->name . '. Check the application for the infomation.',
                             'data' => ['notificationType' => 'PendingRequests'],
                         ];
                         $this->expoNotification($message);
@@ -590,11 +625,11 @@ class ComplaintObserver
                             'notifiable_id' => $complaint->technician_id,
                             'data' => json_encode([
                                 'actions' => [],
-                                'body' => 'Priority for '.($complaint->complaint_type === 'preventive_maintenance' ? 'PreventiveMaintenance' : 'complaint').' has been changed by ' . $user->role->name . '. Check the application for the infomation.',
+                                'body' => 'Priority for '.($complaint->complaint_type === 'preventive_maintenance' ? 'Schedule' : 'complaint').' has been changed by ' . $user->role->name . '. Check the application for the infomation.',
                                 'duration' => 'persistent',
                                 'icon' => 'heroicon-o-document-text',
                                 'iconColor' => 'warning',
-                                'title' => ($complaint->complaint_type === 'preventive_maintenance' ? 'PreventiveMaintenance' : 'complaint').' Priority Changes',
+                                'title' => ($complaint->complaint_type === 'preventive_maintenance' ? 'Schedule' : 'complaint').' Priority has been updated',
                                 'view' => 'notifications::notification',
                                 'viewData' => [],
                                 'format' => 'filament',
