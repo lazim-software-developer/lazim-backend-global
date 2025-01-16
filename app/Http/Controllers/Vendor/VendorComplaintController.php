@@ -179,53 +179,6 @@ class VendorComplaintController extends Controller
             }
         }
 
-        if ($complaint->technician_id) {
-
-            $credentials     = AccountCredentials::where('oa_id', $complaint->owner_association_id)->where('active', true)->latest()->first();
-            $mailCredentials = [
-                'mail_host'         => $credentials->host ?? env('MAIL_HOST'),
-                'mail_port'         => $credentials->port ?? env('MAIL_PORT'),
-                'mail_username'     => $credentials->username ?? env('MAIL_USERNAME'),
-                'mail_password'     => $credentials->password ?? env('MAIL_PASSWORD'),
-                'mail_encryption'   => $credentials->encryption ?? env('MAIL_ENCRYPTION'),
-                'mail_from_address' => $credentials->email ?? env('MAIL_FROM_ADDRESS'),
-            ];
-            ComplaintCreationJob::dispatch($complaint->id, $complaint->technician_id, $mailCredentials);
-
-            $expoPushToken = ExpoPushNotification::where('user_id', $complaint->technician_id)->first()?->token;
-            if ($expoPushToken) {
-                $message = [
-                    'to'    => $expoPushToken,
-                    'sound' => 'default',
-                    'title' => $complaint->complaint_type == 'preventive_maintenance' ? 'Schedule Assigned' :'Task Assigned',
-                    'body'  => $complaint->complaint_type == 'preventive_maintenance' ? 'Schedule has been assigned' :'Task has been assigned',
-                    'data'  => ['notificationType' => 'PendingRequests'],
-                ];
-                $this->expoNotification($message);
-                DB::table('notifications')->insert([
-                    'id'              => (string) \Ramsey\Uuid\Uuid::uuid4(),
-                    'type'            => 'Filament\Notifications\DatabaseNotification',
-                    'notifiable_type' => 'App\Models\User\User',
-                    'notifiable_id'   => $complaint->technician_id,
-                    'data'            => json_encode([
-                        'actions'   => [],
-                        'body'      => $complaint->complaint_type == 'preventive_maintenance' ? 'Schedule has been assigned' :'Task has been assigned',
-                        'duration'  => 'persistent',
-                        'icon'      => 'heroicon-o-document-text',
-                        'iconColor' => 'warning',
-                        'title'     => $complaint->complaint_type == 'preventive_maintenance' ? 'Schedule Assigned' :'Task Assigned',
-                        'view'      => 'notifications::notification',
-                        'viewData'  => [],
-                        'format'    => 'filament',
-                        'url'       => 'PendingRequests',
-                    ]),
-                    'created_at'      => now()->format('Y-m-d H:i:s'),
-                    'updated_at'      => now()->format('Y-m-d H:i:s'),
-                ]);
-            } else {
-                Log::info("No technicians to add", []);
-            }
-        }
         if($complaint->complaint_type === 'preventive_maintenance'){
             $residentIds = FlatTenant::where([
                 'building_id' => $complaint->building_id,
