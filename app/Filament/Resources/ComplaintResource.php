@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\ComplaintResource\Pages;
+use App\Filament\Resources\ComplaintResource\RelationManagers\CommentsRelationManager;
 use App\Models\Accounting\SubCategory;
 use App\Models\Building\Building;
 use App\Models\Building\Complaint;
@@ -220,6 +221,7 @@ class ComplaintResource extends Resource
 
                 Section::make('Additional Details')
                     ->collapsible()
+                    ->visibleOn('edit')
                     ->schema([
                         Grid::make(['sm' => 1, 'md' => 1, 'lg' => 2])
                             ->schema([
@@ -236,7 +238,7 @@ class ComplaintResource extends Resource
                                     ->live(),
 
                                 Textarea::make('remarks')
-                                    ->label('Comments')
+                                    ->label('Remarks')
                                     ->rules(['max:250'])
                                     ->required(function (callable $get) {
                                         if ($get('status' === 'closed')) {
@@ -246,7 +248,7 @@ class ComplaintResource extends Resource
                                     ->visible(function (callable $get) {
                                         return $get('status') == 'closed';
                                     })
-                                    ->placeholder('Add Comments'),
+                                    ->placeholder('Add Remarks'),
 
                                 DatePicker::make('close_time')
                                     ->displayFormat('d-M-Y')
@@ -277,7 +279,7 @@ class ComplaintResource extends Resource
                         //     ]),
 
                         FileUpload::make('media')
-                            ->label('Complaint Images')
+                            ->label('Images')
                             ->multiple()
                             ->maxFiles(5)
                             ->maxSize(2048)
@@ -285,11 +287,16 @@ class ComplaintResource extends Resource
                             ->directory('dev')
                             ->image()
                             ->enableDownload()
+                            ->visible(function($record) {
+                                if ($record) {
+                                    return $record->media->isNotEmpty();
+                                }
+                                return false;
+                            })
                             ->enableOpen()
                             ->columnSpanFull()
                             ->downloadable()
                             ->previewable()
-                            ->helperText('Maximum 5 images allowed. Each image should not exceed 2MB.')
                             ->getUploadedFileNameForStorageUsing(
                                 fn($file): string => (string) str()->uuid() . '.' . $file->getClientOriginalExtension()
                             )
@@ -345,7 +352,7 @@ class ComplaintResource extends Resource
                     ->limit(50),
 
                 TextColumn::make('complaint')
-                    ->label('Complaint')
+                    ->label('Remarks')
                     ->toggleable()
                     ->default('NA')
                     ->limit(20)
@@ -401,7 +408,7 @@ class ComplaintResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            CommentsRelationManager::class,
         ];
     }
 
