@@ -105,12 +105,12 @@ class OwnerAssociation extends Model
     {
         return $this->hasMany(Complaint::class);
     }
-<<<<<<< HEAD
 
     public function vendors()
     {
         return $this->belongsToMany(Vendor::class,'owner_association_vendor')->withPivot(['status']);
-=======
+    }
+
     public function getProfilePhotoAttribute($value)
     {
         return !empty($value) ? Storage::disk('s3')->url($value) : null;
@@ -130,6 +130,5 @@ class OwnerAssociation extends Model
     public function getMemorandumOfAssociationAttribute($value)
     {
         return !empty($value) ? Storage::disk('s3')->url($value) : null;
->>>>>>> Dilip-Building-Module
     }
 }
