@@ -291,7 +291,7 @@ class ComplaintObserver
         $oldValues = $complaint->getOriginal();
         $newValues = $complaint->getAttributes();
         $building = Building::where('id', $complaint->building_id)->first();
-        $roles = Role::where('owner_association_id',$building->owner_association_id)->whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor','Staff', 'Facility Manager'])->pluck('id');
+        $roles = Role::whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor','Staff', 'Facility Manager'])->pluck('id');
         $notifyTo = User::where('owner_association_id', $building->owner_association_id)->whereNotIn('role_id', $roles)->whereNot('id', auth()->user()?->id)->get();
         //DB notification for ADMIN status update from resident/technician
         if ($complaint->status == 'closed') {
