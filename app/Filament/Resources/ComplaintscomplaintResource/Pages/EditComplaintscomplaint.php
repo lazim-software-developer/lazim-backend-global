@@ -41,7 +41,7 @@ class EditComplaintscomplaint extends EditRecord
     public function beforeSave()
     {
         $data = $this->form->getState();
-        
+
         if ((array_key_exists('remarks', $data) && $data['remarks'] != $this->record->remarks) || (array_key_exists('status', $data) && $data['status'] != $this->record->status)){
 
             Remark::create([
@@ -66,9 +66,18 @@ class EditComplaintscomplaint extends EditRecord
                     $message = [
                         'to' => $expoPushToken,
                         'sound' => 'default',
-                        'title' => 'Complaint status',
-                        'body' => 'Your complaint has been resolved by '.$role->name.' : '.auth()->user()->first_name,
-                        'data' => ['notificationType' => 'InAppNotficationScreen'],
+                        'title' => ($this->record->complaint_type === 'preventive_maintenance' ? 'PreventiveMaintenance' : 'complaint').' status',
+                        'body' => ('Your '.$this->record->complaint_type === 'preventive_maintenance'
+                                    ? 'PreventiveMaintenance'
+                                    : 'complaint').' has been resolved by '.$role->name.' : '.auth()->user()->first_name,
+                        'data' => [
+                            'notificationType' => $this->record->complaint_type === 'preventive_maintenance' ? 'PreventiveMaintenance' : 'InAppNotficationScreen',
+                            'complaintId'      => $this->record?->id,
+                            'open_time' => $this->record?->open_time,
+                            'close_time' => $this->record?->close_time,
+                            'due_date' => $this->record?->due_date,
+
+                        ],
                     ];
                     $this->expoNotification($message);
                 }
@@ -80,15 +89,22 @@ class EditComplaintscomplaint extends EditRecord
                         'notifiable_id' => $this->record->user_id,
                         'data' => json_encode([
                             'actions' => [],
-                            'body' => 'Your complaint has been resolved by '.$role->name.' : '.auth()->user()->first_name,
+                            'body' => ('Your '.$this->record->complaint_type === 'preventive_maintenance'
+                                    ? 'PreventiveMaintenance'
+                                    : 'complaint').' has been resolved by '.$role->name.' : '.auth()->user()->first_name,
                             'duration' => 'persistent',
                             'icon' => 'heroicon-o-document-text',
                             'iconColor' => 'warning',
-                            'title' => 'Complaint status',
+                            'title' => ($this->record->complaint_type === 'preventive_maintenance' ? 'PreventiveMaintenance' : 'complaint').' status',
                             'view' => 'notifications::notification',
-                            'viewData' => [],
+                            'viewData' => [
+                                'complaintId'      => $this->record?->id,
+                                'open_time' => $this->record?->open_time,
+                                'close_time' => $this->record?->close_time,
+                                'due_date' => $this->record?->due_date,
+                            ],
                             'format' => 'filament',
-                            'url' => 'InAppNotficationScreen',
+                            'url' => $this->record->complaint_type === 'preventive_maintenance' ? 'PreventiveMaintenance' : 'InAppNotficationScreen',
                         ]),
                         'created_at' => now()->format('Y-m-d H:i:s'),
                         'updated_at' => now()->format('Y-m-d H:i:s'),
@@ -103,10 +119,10 @@ class EditComplaintscomplaint extends EditRecord
                         'mail_password' => $credentials->password ?? env('MAIL_PASSWORD'),
                         'mail_encryption' => $credentials->encryption ?? env('MAIL_ENCRYPTION'),
                         'mail_from_address' => $credentials->email ?? env('MAIL_FROM_ADDRESS'),
-                    ];    
-                    $complaintType = 'Complaint';  
+                    ];
+                    $complaintType = 'Complaint';
                     $remarks = Remark::where('complaint_id',$this->record->id)->get();
-                    
+
                     ComplaintStatusMail::dispatch($this->record->user->email,$this->record->user->first_name,$remarks,$complaintType,$mailCredentials);
 
                 if($this->record->technician_id){
@@ -116,8 +132,8 @@ class EditComplaintscomplaint extends EditRecord
                         $message = [
                             'to' => $expoPushToken,
                             'sound' => 'default',
-                            'title' => 'Complaint status',
-                            'body' => 'A complain has been resolved by '.$role->name.' : '.auth()->user()->first_name,
+                            'title' => ($this->record->complaint_type === 'preventive_maintenance' ? 'PreventiveMaintenance' : 'complaint').' status',
+                            'body' => 'A '.($this->record->complaint_type === 'preventive_maintenance' ? 'PreventiveMaintenance' : 'complaint').' has been resolved by '.$role->name.' : '.auth()->user()->first_name,
                             'data' => ['notificationType' => 'ResolvedRequests'],
                         ];
                         $this->expoNotification($message);
@@ -130,11 +146,11 @@ class EditComplaintscomplaint extends EditRecord
                             'notifiable_id' => $this->record->technician_id,
                             'data' => json_encode([
                                 'actions' => [],
-                                'body' => 'A complain has been resolved by '.$role->name.' : '.auth()->user()->first_name,
+                                'body' => 'A '.($this->record->complaint_type === 'preventive_maintenance' ? 'PreventiveMaintenance' : 'complaint').' has been resolved by '.$role->name.' : '.auth()->user()->first_name,
                                 'duration' => 'persistent',
                                 'icon' => 'heroicon-o-document-text',
                                 'iconColor' => 'warning',
-                                'title' => 'Complaint status',
+                                'title' => ($this->record->complaint_type === 'preventive_maintenance' ? 'PreventiveMaintenance' : 'complaint').' status',
                                 'view' => 'notifications::notification',
                                 'viewData' => [],
                                 'format' => 'filament',

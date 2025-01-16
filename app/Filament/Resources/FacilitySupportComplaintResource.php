@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Resources\ComplaintResource\RelationManagers\CommentsRelationManager;
 use App\Filament\Resources\FacilitySupportComplaintResource\Pages;
 use App\Models\Accounting\SubCategory;
 use App\Models\Building\Building;
@@ -54,6 +55,9 @@ class FacilitySupportComplaintResource extends Resource
                                         'building' => 'Building',
                                     ])
                                     ->live()
+                                    ->afterStateUpdated(function (Set $set) {
+                                        $set('flat_id', null);
+                                    })
                                     ->disabledOn('edit')
                                     ->default('NA'),
 
@@ -100,6 +104,11 @@ class FacilitySupportComplaintResource extends Resource
                                     })
                                     ->searchable()
                                     ->preload()
+                                    ->visible(function (callable $get) {
+                                        if ($get('type') == 'personal') {
+                                            return true;
+                                        }return false;
+                                    })
                                     ->disabledOn('edit')
                                     ->placeholder('Select Unit Number'),
 
@@ -264,6 +273,7 @@ class FacilitySupportComplaintResource extends Resource
                     ]),
 
                 Section::make('Additional Details')
+                    ->visibleOn('edit')
                     ->collapsible()
                     ->schema([
                         Grid::make(['sm' => 1, 'md' => 1, 'lg' => 2])
@@ -309,7 +319,7 @@ class FacilitySupportComplaintResource extends Resource
                             ]),
 
                         FileUpload::make('media')
-                            ->label('Complaint Images')
+                            ->label('Images')
                             ->multiple()
                             ->maxFiles(5) // Maximum 5 files
                             ->maxSize(2048) // 2MB in kilobytes
@@ -321,7 +331,12 @@ class FacilitySupportComplaintResource extends Resource
                             ->columnSpanFull()
                             ->downloadable()
                             ->previewable()
-                            ->helperText('Maximum 5 images allowed. Each image should not exceed 2MB.')
+                            ->visible(function($record) {
+                                if ($record) {
+                                    return $record->media->isNotEmpty();
+                                }
+                                return false;
+                            })
                             ->getUploadedFileNameForStorageUsing(
                                 fn($file): string => (string) str()->uuid() . '.' . $file->getClientOriginalExtension()
                             )
@@ -376,7 +391,7 @@ class FacilitySupportComplaintResource extends Resource
                     ->limit(50),
 
                 TextColumn::make('complaint')
-                    ->label('Complaint')
+                    ->label('Remarks')
                     ->toggleable()
                     ->default('NA')
                     ->limit(20)
@@ -433,7 +448,7 @@ class FacilitySupportComplaintResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            CommentsRelationManager::class,
         ];
     }
 

@@ -58,7 +58,7 @@ class VendorComplaintController extends Controller
                 $query->whereIn('complaint_type', ['help_desk', 'tenant_complaint', 'snag', 'oa_complaint_report']);
             })
             ->whereBetween('updated_at', [$start_date, $end_date])
-            ->latest()->paginate($request->paginate ?? 10);
+            ->latest()->get();
 
         return VendorComplaintsResource::collection($complaints);
     }
@@ -179,56 +179,9 @@ class VendorComplaintController extends Controller
             }
         }
 
-        if ($complaint->technician_id) {
-
-            $credentials     = AccountCredentials::where('oa_id', $complaint->owner_association_id)->where('active', true)->latest()->first();
-            $mailCredentials = [
-                'mail_host'         => $credentials->host ?? env('MAIL_HOST'),
-                'mail_port'         => $credentials->port ?? env('MAIL_PORT'),
-                'mail_username'     => $credentials->username ?? env('MAIL_USERNAME'),
-                'mail_password'     => $credentials->password ?? env('MAIL_PASSWORD'),
-                'mail_encryption'   => $credentials->encryption ?? env('MAIL_ENCRYPTION'),
-                'mail_from_address' => $credentials->email ?? env('MAIL_FROM_ADDRESS'),
-            ];
-            ComplaintCreationJob::dispatch($complaint->id, $complaint->technician_id, $mailCredentials);
-
-            $expoPushToken = ExpoPushNotification::where('user_id', $complaint->technician_id)->first()?->token;
-            if ($expoPushToken) {
-                $message = [
-                    'to'    => $expoPushToken,
-                    'sound' => 'default',
-                    'title' => 'Task Assigned',
-                    'body'  => 'Task has been assigned',
-                    'data'  => ['notificationType' => 'PendingRequests'],
-                ];
-                $this->expoNotification($message);
-                DB::table('notifications')->insert([
-                    'id'              => (string) \Ramsey\Uuid\Uuid::uuid4(),
-                    'type'            => 'Filament\Notifications\DatabaseNotification',
-                    'notifiable_type' => 'App\Models\User\User',
-                    'notifiable_id'   => $complaint->technician_id,
-                    'data'            => json_encode([
-                        'actions'   => [],
-                        'body'      => 'Task has been assigned',
-                        'duration'  => 'persistent',
-                        'icon'      => 'heroicon-o-document-text',
-                        'iconColor' => 'warning',
-                        'title'     => 'Task Assigned',
-                        'view'      => 'notifications::notification',
-                        'viewData'  => [],
-                        'format'    => 'filament',
-                        'url'       => 'PendingRequests',
-                    ]),
-                    'created_at'      => now()->format('Y-m-d H:i:s'),
-                    'updated_at'      => now()->format('Y-m-d H:i:s'),
-                ]);
-            } else {
-                Log::info("No technicians to add", []);
-            }
-        }
-        if($request->complaint_type === 'preventive_maintenance'){
+        if($complaint->complaint_type === 'preventive_maintenance'){
             $residentIds = FlatTenant::where([
-                'building_id' => $request->building_id,
+                'building_id' => $complaint->building_id,
                 'active' => true
             ])->distinct()->pluck('tenant_id');
             if($residentIds->count() > 0){
@@ -240,7 +193,13 @@ class VendorComplaintController extends Controller
                         'sound' => 'default',
                         'title' => 'Preventive Maintenance',
                         'body'  => 'A preventive maintenance has been scheduled for your building',
-                        'data'  => ['notificationType' => 'PreventiveMaintenance'],
+                        'data'  => [
+                                'notificationType' => 'PreventiveMaintenance',
+                                'complaintId'      => $complaint?->id,
+                                'open_time' => $complaint?->open_time,
+                                'close_time' => $complaint?->close_time,
+                                'due_date' => $complaint?->due_date,
+                        ],
                     ];
                     $this->expoNotification($message);
                     DB::table('notifications')->insert([
@@ -256,7 +215,12 @@ class VendorComplaintController extends Controller
                             'iconColor' => 'warning',
                             'title'     => 'Preventive Maintenance',
                             'view'      => 'notifications::notification',
-                            'viewData'  => [],
+                            'viewData'  => [
+                                'complaintId'      => $complaint?->id,
+                                'open_time' => $complaint?->open_time,
+                                'close_time' => $complaint?->close_time,
+                                'due_date' => $complaint?->due_date,
+                            ],
                             'format'    => 'filament',
                             'url'       => 'PreventiveMaintenance',
                         ]),
@@ -297,7 +261,7 @@ class VendorComplaintController extends Controller
                     $query;
                 }
             })
-            ->paginate($request->paginate ?? 10);
+            ->get();
 
         return VendorComplaintsResource::collection($complaints);
     }
@@ -349,7 +313,7 @@ class VendorComplaintController extends Controller
                     $query->where('status','in-progress');
                 }
             })
-            ->paginate($request->paginate ?? 10);
+            ->get();
 
         return VendorComplaintsResource::collection($complaints);
     }

@@ -13,7 +13,6 @@ use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
-use Filament\Forms\Get;
 use Filament\Forms\Set;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -41,27 +40,26 @@ class BillResource extends Resource
                         'BTU'               => 'BTU',
                         'DEWA'              => 'DEWA',
                         'Telecommunication' => 'DU/Etisalat',
-                        'lpg'               => 'lpg',
+                        'lpg'               => 'LPG',
                     ])
                     ->live()
                     ->reactive()
                     ->required(),
 
                 TextInput::make('bill_number')
-                    ->label('DEWA Number')
-                    ->visible(fn(Get $get) => $get('type') == 'DEWA')
+                    ->label('Bill Number')
                     ->numeric()
                     ->rules([
-                        'min_digits:10',
-                        'max_digits:10',
+                        'min_digits:4',
+                        'max_digits:15',
                     ])
                     ->unique('bills', 'bill_number', ignoreRecord: true)
                     ->validationMessages([
-                        'min_digits' => 'The DEWA number must be 10 characters long.',
-                        'max_digits' => 'The DEWA number must be 10 characters long.',
-                        'unique'     => 'The DEWA number has already been taken.',
+                        'min_digits' => 'The Bill number must be at least 4 characters long.',
+                        'max_digits' => 'The Bill number must not be greater than 15 characters.',
+                        'unique'     => 'The Bill number has already been taken.',
                     ])
-                    ->placeholder('Enter the DEWA number')
+                    ->placeholder('Enter the Bill number')
                     ->required(),
 
                 Select::make('building_id')
@@ -114,7 +112,6 @@ class BillResource extends Resource
                     ->required(),
                 TextInput::make('amount')
                     ->required()
-                    ->visible(fn(Get $get) => $get('type') !== 'DEWA')
                     ->placeholder('Enter the total bill amount')
                     ->numeric(),
                 DatePicker::make('month')
@@ -124,13 +121,11 @@ class BillResource extends Resource
                     ->displayFormat('m-Y')
                     ->helperText('Enter the month for which this bill is generated'),
                 DatePicker::make('due_date')
-                    ->visible(fn(Get $get) => $get('type') !== 'DEWA')
                     ->required(),
                 // DatePicker::make('uploaded_on')
                 //     ->default(now())
                 //     ->required(),
                 Select::make('status')
-                    ->visible(fn(Get $get) => $get('type') !== 'DEWA')
                     ->helperText('Select the current status of the bill')
                     ->options([
                         'Pending' => 'Pending',
@@ -147,7 +142,6 @@ class BillResource extends Resource
                     ->searchable(),
                 Select::make('status_updated_by')
                     ->relationship('statusUpdatedBy', 'first_name')
-                    ->visible(fn(Get $get) => $get('type') !== 'DEWA')
                     ->disabled()
                     ->live()
                     ->preload()
@@ -179,20 +173,14 @@ class BillResource extends Resource
                         return Carbon::parse($state)->format('m-Y');
                     }),
                 TextColumn::make('bill_number')
-                    ->label('DEWA Number')
-                    ->default('--')
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->label('Bill Number')
+                    ->default('--'),
                 TextColumn::make('amount')
                     ->numeric()
-                    ->default('--')
-                    ->toggleable(isToggledHiddenByDefault: true)
-                    ->visible(fn() => request()->query('activeTab') !== 'DEWA'),
+                    ->default('--'),
                 TextColumn::make('due_date')
-                    ->toggleable(isToggledHiddenByDefault: true)
-                    ->date()
-                    ->visible(fn() => request()->query('activeTab') !== 'DEWA'),
+                    ->date(),
                 TextColumn::make('status')
-                    ->toggleable(isToggledHiddenByDefault: true)
                     ->default('--')
                     ->badge()
                     ->color(fn(string $state): string => match ($state) {
@@ -200,11 +188,10 @@ class BillResource extends Resource
                         'Paid'                            => 'success',
                         'Overdue'                         => 'danger',
                         '--'                              => 'muted',
-                    })
-                    ->visible(fn() => request()->query('activeTab') !== 'DEWA'),
-                TextColumn::make('uploadedBy.first_name'),
+                    }),
             ])
             ->filters([
+
                 SelectFilter::make('status')
                     ->options([
                         'Pending' => 'Pending',
