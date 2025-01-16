@@ -607,19 +607,17 @@ Route::post('/email-testing', [TestController::class, 'emailTriggering']);
 
 
 
-
 // Dilip Shekhawat [Created New APIs]
 Route::middleware(['auth:sanctum', 'email.verified', 'active'])->group(function () {
+    //Owner-Association
     Route::post('/owner-associations/{id}', [OwnerAssociationController::class, 'update']);
     Route::apiResource('owner-associations', OwnerAssociationController::class);
     Route::patch('owner-associations/{id}/change-status', [OwnerAssociationController::class, 'changeStatus']);
-});
-Route::middleware(['auth:sanctum', 'email.verified', 'active'])->group(function () {
+    //New Building Module Routes
     Route::post('/buildings/{id}', [BuildingController::class, 'update']);
     Route::apiResource('buildings', BuildingController::class);
     Route::patch('buildings/{id}/change-status', [BuildingController::class, 'changeStatus']);
-});
-Route::middleware(['auth:sanctum', 'email.verified', 'active'])->group(function () {
+    //New Flat Module Routes
     Route::post('/flatsModule/{id}', [FlatController::class, 'update']);
     Route::apiResource('flatsModule', FlatController::class);
     Route::patch('flatsModule/{id}/change-status', [FlatController::class, 'changeStatus']);
