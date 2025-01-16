@@ -580,7 +580,7 @@ class ComplaintController extends Controller
 
         return new CustomResponseResource([
             'title'   => $complaint->complaint_type == 'preventive_maintenance' ? 'Schedule completed' : 'Complaint Resolved',
-            'message' => $complaint->complaint_type == 'preventive_maintenance' ? 'Schedule has been completed' : 'Complaint has been resolved.',
+            'message' => $complaint->complaint_type == 'preventive_maintenance' ? 'Schedule has been successfully completed' : 'Complaint has been resolved.',
         ]);
     }
 
