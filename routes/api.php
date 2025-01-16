@@ -411,7 +411,7 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('vendor')->group(function 
     Route::patch('/managers-deatils/{vendor}',[VendorRegistrationController::class, 'updateManagerDetails']);
     Route::get('/{vendor}/services', [SelectServicesController::class, 'showServices']);
     Route::get('/{vendor}/show-documents', [DocumentsUploadController::class, 'showDocuments']);
-    
+
     Route::post('/{vendor}/escalation-matrix', [EscalationMatrixController::class, 'store']);
     Route::patch('/escalation-matrix/{escalationmatrix}', [EscalationMatrixController::class, 'edit']);
     Route::get('/{vendor}/escalation-matrix', [EscalationMatrixController::class, 'show']);
@@ -613,7 +613,6 @@ Route::post('/email-testing', [TestController::class, 'emailTriggering']);
 
 
 
-
 // Dilip Shekhawat [Created New APIs]
 Route::middleware(['auth:sanctum', 'email.verified', 'active'])->group(function () {
     //Owner-Association
@@ -624,4 +623,8 @@ Route::middleware(['auth:sanctum', 'email.verified', 'active'])->group(function 
     Route::post('/buildings/{id}', [BuildingController::class, 'update']);
     Route::apiResource('buildings', BuildingController::class);
     Route::patch('buildings/{id}/change-status', [BuildingController::class, 'changeStatus']);
+    //New Flat Module Routes
+    Route::post('/flatsModule/{id}', [FlatController::class, 'update']);
+    Route::apiResource('flatsModule', FlatController::class);
+    Route::patch('flatsModule/{id}/change-status', [FlatController::class, 'changeStatus']);
 });
