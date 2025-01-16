@@ -593,7 +593,7 @@ class ComplaintObserver
                             'to' => $expoPushToken,
                             'sound' => 'default',
                             'title' => ($complaint->complaint_type === 'preventive_maintenance' ? 'Schedule' : 'complaint').' Date has been updated',
-                            'body' => 'Due date for '.($complaint->complaint_type === 'preventive_maintenance' ? 'Schedule' : 'complaint').' has been changed by ' . $user->role->name . '. Check the application for the infomation.',
+                            'body' => 'Date for '.($complaint->complaint_type === 'preventive_maintenance' ? 'Schedule' : 'complaint').' has been changed by ' . $user->role->name . '. Check the application for the infomation.',
                             'data' => ['notificationType' => 'PendingRequests'],
                         ];
                         $this->expoNotification($message);
