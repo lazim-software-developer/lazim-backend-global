@@ -489,8 +489,8 @@ class ComplaintController extends Controller
                 $message          = [
                     'to'    => $expoPushToken,
                     'sound' => 'default',
-                    'title' => ($complaint->complaint_type === 'preventive_maintenance' ? 'PreventiveMaintenance' : 'complaint').' status',
-                    'body'  => 'A '.($complaint->complaint_type === 'preventive_maintenance' ? 'PreventiveMaintenance' : 'complaint').' has been resolved by : ' . auth()->user()->role->name . ' ' . auth()->user()->first_name,
+                    'title' => ($complaint->complaint_type === 'preventive_maintenance' ? 'Preventive Maintenance' : 'complaint').' status',
+                    'body'  => 'A '.($complaint->complaint_type === 'preventive_maintenance' ? 'Preventive Maintenance has been completed' : 'complaint has been resolved').' by : ' . auth()->user()->role->name . ' ' . auth()->user()->first_name,
                     'data'  => ['notificationType' => $notificationType,
                         'complaintId'      => $complaint?->id,
                         'open_time' => $complaint?->open_time,
@@ -506,11 +506,11 @@ class ComplaintController extends Controller
                     'notifiable_id'   => $complaint->technician_id,
                     'data'            => json_encode([
                         'actions'   => [],
-                        'body'      => 'A '.($complaint->complaint_type === 'preventive_maintenance' ? 'PreventiveMaintenance' : 'complaint').' has been resolved by : ' . auth()->user()->role->name . ' ' . auth()->user()->first_name,
+                        'body'      => 'A '.($complaint->complaint_type === 'preventive_maintenance' ? 'Preventive Maintenance has been completed' : 'complaint has been resolved').' by : ' . auth()->user()->role->name . ' ' . auth()->user()->first_name,
                         'duration'  => 'persistent',
                         'icon'      => 'heroicon-o-document-text',
                         'iconColor' => 'warning',
-                        'title'     => ($complaint->complaint_type === 'preventive_maintenance' ? 'PreventiveMaintenance' : 'complaint').' status',
+                        'title'     => ($complaint->complaint_type === 'preventive_maintenance' ? 'Preventive Maintenance' : 'complaint').' status',
                         'view'      => 'notifications::notification',
                         'viewData'  => [
                             'complaintId'      => $complaint?->id,
@@ -524,6 +524,57 @@ class ComplaintController extends Controller
                     'created_at'      => now()->format('Y-m-d H:i:s'),
                     'updated_at'      => now()->format('Y-m-d H:i:s'),
                 ]);
+            }
+        }
+        if($complaint->complaint_type == 'preventive_maintenance'){
+            $residentIds = FlatTenant::where([
+                'building_id' => $complaint->building_id,
+                'active'      => true,
+            ])->distinct()->pluck('tenant_id');
+            if ($residentIds->count() > 0) {
+                // Create individual notifications for each resident
+                foreach ($residentIds as $residentId) {
+                    $residentTokens = ExpoPushNotification::where('user_id', $residentId)->first()?->token;
+                    $message        = [
+                        'to'    => $residentTokens,
+                        'sound' => 'default',
+                        'title' => 'Preventive Maintenance status',
+                        'body'  => 'A '.($complaint->complaint_type === 'preventive_maintenance' ? 'Preventive Maintenance has been completed' : 'complaint has been resolved').' by : ' . auth()->user()->role->name . ' ' . auth()->user()->first_name,
+                        'data'  => [
+                            'notificationType' => 'PreventiveMaintenance',
+                            'complaintId'      => $complaint?->id,
+                            'open_time'        => $complaint?->open_time,
+                            'close_time'       => $complaint?->close_time,
+                            'due_date'         => $complaint?->due_date,
+                        ],
+                    ];
+                    $this->expoNotification($message);
+                    DB::table('notifications')->insert([
+                        'id'              => (string) \Ramsey\Uuid\Uuid::uuid4(),
+                        'type'            => 'Filament\Notifications\DatabaseNotification',
+                        'notifiable_type' => 'App\Models\User\User',
+                        'notifiable_id'   => $residentId,
+                        'data'            => json_encode([
+                            'actions'   => [],
+                            'body'      => 'A '.($complaint->complaint_type === 'preventive_maintenance' ? 'PreventiveMaintenance has been completed' : 'complaint has been resolved').' by : ' . auth()->user()->role->name . ' ' . auth()->user()->first_name,
+                            'duration'  => 'persistent',
+                            'icon'      => 'heroicon-o-document-text',
+                            'iconColor' => 'warning',
+                            'title'     => 'Preventive Maintenance status',
+                            'view'      => 'notifications::notification',
+                            'viewData'  => [
+                                'complaintId' => $complaint?->id,
+                                'open_time'   => $complaint?->open_time,
+                                'close_time'  => $complaint?->close_time,
+                                'due_date'    => $complaint?->due_date,
+                            ],
+                            'format'    => 'filament',
+                            'url'       => 'PreventiveMaintenance',
+                        ]),
+                        'created_at'      => now()->format('Y-m-d H:i:s'),
+                        'updated_at'      => now()->format('Y-m-d H:i:s'),
+                    ]);
+                }
             }
         }
 
