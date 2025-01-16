@@ -11,6 +11,7 @@ use App\Models\Building\Building;
 use App\Models\AccountCredentials;
 use App\Models\Building\Complaint;
 use Illuminate\Support\Facades\DB;
+use App\Models\Building\FlatTenant;
 use Illuminate\Support\Facades\Log;
 use App\Models\ExpoPushNotification;
 use Filament\Notifications\Notification;
@@ -551,7 +552,7 @@ class ComplaintObserver
                                     'to' => $expoPushToken,
                                     'sound' => 'default',
                                     'title' => ($complaint->complaint_type === 'preventive_maintenance' ? 'PreventiveMaintenance' : 'complaint').' status',
-                                    'body' => 'A '.($complaint->complaint_type === 'preventive_maintenance' ? 'PreventiveMaintenance' : 'complaint').' has been resolved by a ' . $user->role->name . ' ' . auth()->user()->first_name,
+                                    'body' => 'A '.($complaint->complaint_type === 'preventive_maintenance' ? 'PreventiveMaintenance' : 'complaint').' has been completed by a ' . $user->role->name . ' ' . auth()->user()->first_name,
                                     'data' => ['notificationType' => 'ResolvedRequests'],
                                 ];
                                 $this->expoNotification($message);
@@ -562,7 +563,7 @@ class ComplaintObserver
                                     'notifiable_id' => $complaint->technician_id,
                                     'data' => json_encode([
                                         'actions' => [],
-                                        'body' => 'A '.($complaint->complaint_type === 'preventive_maintenance' ? 'PreventiveMaintenance' : 'complaint').' has been resolved by a ' . $user->role->name . ' ' . auth()->user()->first_name,
+                                        'body' => 'A '.($complaint->complaint_type === 'preventive_maintenance' ? 'PreventiveMaintenance' : 'complaint').' has been completed by a ' . $user->role->name . ' ' . auth()->user()->first_name,
                                         'duration' => 'persistent',
                                         'icon' => 'heroicon-o-document-text',
                                         'iconColor' => 'warning',
@@ -577,6 +578,56 @@ class ComplaintObserver
                                 ]);
                             }
                         }
+                        $residentIds = FlatTenant::where([
+                            'building_id' => $complaint->building_id,
+                            'active'      => true,
+                        ])->distinct()->pluck('tenant_id');
+                        if ($residentIds->count() > 0) {
+                            // Create individual notifications for each resident
+                            foreach ($residentIds as $residentId) {
+                                $residentTokens = ExpoPushNotification::where('user_id', $residentId)->first()?->token;
+                                $message        = [
+                                    'to'    => $residentTokens,
+                                    'sound' => 'default',
+                                    'title' => 'Preventive Maintenance status',
+                                    'body'  => 'A '.($complaint->complaint_type === 'preventive_maintenance' ? 'PreventiveMaintenance' : 'complaint').' has been completed by a ' . $user->role->name . ' ' . auth()->user()->first_name,
+                                    'data'  => [
+                                        'notificationType' => 'PreventiveMaintenance',
+                                        'complaintId'      => $complaint?->id,
+                                        'open_time'        => $complaint?->open_time,
+                                        'close_time'       => $complaint?->close_time,
+                                        'due_date'         => $complaint?->due_date,
+                                    ],
+                                ];
+                                $this->expoNotification($message);
+                                DB::table('notifications')->insert([
+                                    'id'              => (string) \Ramsey\Uuid\Uuid::uuid4(),
+                                    'type'            => 'Filament\Notifications\DatabaseNotification',
+                                    'notifiable_type' => 'App\Models\User\User',
+                                    'notifiable_id'   => $residentId,
+                                    'data'            => json_encode([
+                                        'actions'   => [],
+                                        'body'      => 'A '.($complaint->complaint_type === 'preventive_maintenance' ? 'PreventiveMaintenance' : 'complaint').' has been completed by a ' . $user->role->name . ' ' . auth()->user()->first_name,
+                                        'duration'  => 'persistent',
+                                        'icon'      => 'heroicon-o-document-text',
+                                        'iconColor' => 'warning',
+                                        'title'     => 'Preventive Maintenance status',
+                                        'view'      => 'notifications::notification',
+                                        'viewData'  => [
+                                            'complaintId' => $complaint?->id,
+                                            'open_time'   => $complaint?->open_time,
+                                            'close_time'  => $complaint?->close_time,
+                                            'due_date'    => $complaint?->due_date,
+                                        ],
+                                        'format'    => 'filament',
+                                        'url'       => 'PreventiveMaintenance',
+                                    ]),
+                                    'created_at'      => now()->format('Y-m-d H:i:s'),
+                                    'updated_at'      => now()->format('Y-m-d H:i:s'),
+                                ]);
+                            }
+                        }
+
                     }
                 }
 
