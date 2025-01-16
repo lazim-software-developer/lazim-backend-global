@@ -611,6 +611,104 @@ class ComplaintController extends Controller
                 $complaint->media()->save($media);
             }
         }
+        if ($complaint->user_id != auth()->user()->id) {
+
+            $expoPushToken = ExpoPushNotification::where('user_id', $complaint->user_id)->first()?->token;
+            if ($expoPushToken) {
+                if ($complaint->complaint_type == 'help_desk') {
+                    $notificationType = 'HelpDeskTabResolved';
+                } elseif ($complaint->complaint_type == 'snag') {
+
+                    $notificationType = 'MyComplaints';
+                } elseif ($complaint->complaint_type == 'preventive_maintenance') {
+                    $notificationType = 'PreventiveMaintenance';
+                } else {
+                    $notificationType = 'InAppNotficationScreen';
+                }
+                $message = [
+                    'to'    => $expoPushToken,
+                    'sound' => 'default',
+                    'title' => ($complaint->complaint_type === 'preventive_maintenance' ? 'PreventiveMaintenance' : 'complaint') . ' status',
+                    'body'  => 'Your ' . ($complaint->complaint_type === 'preventive_maintenance' ? 'PreventiveMaintenance' : 'complaint') . ' has been resolved by : ' . auth()->user()->role->name . ' ' . auth()->user()->first_name,
+                    'data'  => [
+                        'notificationType' => $notificationType,
+                        'complaintId'      => $complaint?->id,
+                        'open_time'        => $complaint?->open_time,
+                        'close_time'       => $complaint?->close_time,
+                        'due_date'         => $complaint?->due_date,
+                    ],
+                ];
+                $this->expoNotification($message);
+                DB::table('notifications')->insert([
+                    'id'              => (string) \Ramsey\Uuid\Uuid::uuid4(),
+                    'type'            => 'Filament\Notifications\DatabaseNotification',
+                    'notifiable_type' => 'App\Models\User\User',
+                    'notifiable_id'   => $complaint->user_id,
+                    'data'            => json_encode([
+                        'actions'   => [],
+                        'body'      => 'Your ' . ($complaint->complaint_type === 'preventive_maintenance' ? 'PreventiveMaintenance' : 'complaint') . ' has been resolved by : ' . auth()->user()->role->name . ' ' . auth()->user()->first_name,
+                        'duration'  => 'persistent',
+                        'icon'      => 'heroicon-o-document-text',
+                        'iconColor' => 'warning',
+                        'title'     => ($complaint->complaint_type === 'preventive_maintenance' ? 'PreventiveMaintenance' : 'complaint') . ' status',
+                        'view'      => 'notifications::notification',
+                        'viewData'  => [
+                            'complaintId' => $complaint?->id,
+                            'open_time'   => $complaint?->open_time,
+                            'close_time'  => $complaint?->close_time,
+                            'due_date'    => $complaint?->due_date,
+                        ],
+                        'format'    => 'filament',
+                        'url'       => $notificationType,
+                    ]),
+                    'created_at'      => now()->format('Y-m-d H:i:s'),
+                    'updated_at'      => now()->format('Y-m-d H:i:s'),
+                ]);
+            }
+        } else {
+            $expoPushToken = ExpoPushNotification::where('user_id', $complaint->technician_id)->first()?->token;
+            if ($expoPushToken) {
+                $notificationType = 'ResolvedRequests';
+                $message          = [
+                    'to'    => $expoPushToken,
+                    'sound' => 'default',
+                    'title' => ($complaint->complaint_type === 'preventive_maintenance' ? 'PreventiveMaintenance' : 'complaint') . ' status',
+                    'body'  => 'A ' . ($this->record->complaint_type === 'preventive_maintenance' ? 'PreventiveMaintenance' : 'complaint') . ' has been resolved by : ' . auth()->user()->role->name . ' ' . auth()->user()->first_name,
+                    'data'  => ['notificationType' => $notificationType,
+                        'complaintId'                  => $complaint?->id,
+                        'open_time'                    => $complaint?->open_time,
+                        'close_time'                   => $complaint?->close_time,
+                        'due_date'                     => $complaint?->due_date,
+                    ],
+                ];
+                $this->expoNotification($message);
+                DB::table('notifications')->insert([
+                    'id'              => (string) \Ramsey\Uuid\Uuid::uuid4(),
+                    'type'            => 'Filament\Notifications\DatabaseNotification',
+                    'notifiable_type' => 'App\Models\User\User',
+                    'notifiable_id'   => $complaint->technician_id,
+                    'data'            => json_encode([
+                        'actions'   => [],
+                        'body'      => 'A ' . ($complaint->complaint_type === 'preventive_maintenance' ? 'PreventiveMaintenance' : 'complaint') . ' has been resolved by : ' . auth()->user()->role->name . ' ' . auth()->user()->first_name,
+                        'duration'  => 'persistent',
+                        'icon'      => 'heroicon-o-document-text',
+                        'iconColor' => 'warning',
+                        'title'     => ($complaint->complaint_type === 'preventive_maintenance' ? 'PreventiveMaintenance' : 'complaint') . ' status',
+                        'view'      => 'notifications::notification',
+                        'viewData'  => [
+                            'complaintId' => $complaint?->id,
+                            'open_time'   => $complaint?->open_time,
+                            'close_time'  => $complaint?->close_time,
+                            'due_date'    => $complaint?->due_date,
+                        ],
+                        'format'    => 'filament',
+                        'url'       => 'ResolvedRequests',
+                    ]),
+                    'created_at'      => now()->format('Y-m-d H:i:s'),
+                    'updated_at'      => now()->format('Y-m-d H:i:s'),
+                ]);
+            }
+        }
 
         return (new CustomResponseResource([
             'title'   => 'Complaint Updated Successfully',
