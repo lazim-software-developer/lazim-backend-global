@@ -614,9 +614,7 @@ Route::middleware(['auth:sanctum', 'email.verified', 'active'])->group(function 
     Route::post('/owner-associations/{id}', [OwnerAssociationController::class, 'update']);
     Route::apiResource('owner-associations', OwnerAssociationController::class);
     Route::patch('owner-associations/{id}/change-status', [OwnerAssociationController::class, 'changeStatus']);
-});
-//New Building Module Routes
-Route::middleware(['auth:sanctum', 'email.verified', 'active'])->group(function () {
+    //New Building Module Routes
     Route::post('/buildings/{id}', [BuildingController::class, 'update']);
     Route::apiResource('buildings', BuildingController::class);
     Route::patch('buildings/{id}/change-status', [BuildingController::class, 'changeStatus']);
