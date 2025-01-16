@@ -15,8 +15,7 @@ class FacilityController extends Controller
 {
     public function index(Request $request, Building $building)
     {
-        $facilities = $building->facilities->where('active', true)
-            ->paginate($request->paginate ?? 10);
+        $facilities = $building->facilities->where('active',true);
         return FacilityResource::collection($facilities);
     }
 
