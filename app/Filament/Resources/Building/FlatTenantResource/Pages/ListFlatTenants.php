@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Building\FlatTenantResource\Pages;
 
 use App\Filament\Resources\Building\FlatTenantResource;
 use App\Models\Building\Building;
+use App\Models\Building\FlatTenant;
 use App\Models\Master\Role;
 use App\Models\UserApproval;
 use DB;
@@ -29,7 +30,7 @@ class ListFlatTenants extends ListRecords
 
         $userRoleName = Role::where('id', $user->role_id)->value('name');
 
-        $approvedTenants = UserApproval::where('status', 'Approved')->pluck('user_id')->toArray();
+        $approvedTenants = FlatTenant::where('active', true)->pluck('tenant_id')->toArray();
 
         $pmbuildingIds = DB::table('building_owner_association')
             ->where('owner_association_id', auth()->user()?->owner_association_id)
@@ -37,8 +38,7 @@ class ListFlatTenants extends ListRecords
             ->pluck('building_id');
 
         if (auth()->user()?->role?->name === 'Property Manager') {
-            return parent::getTableQuery()->whereIn('building_id', $pmbuildingIds)
-                ->whereIn('tenant_id', $approvedTenants);
+            return parent::getTableQuery()->whereIn('building_id', $pmbuildingIds);
         }
 
         if ($userRoleName == 'Admin') {

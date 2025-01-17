@@ -66,7 +66,6 @@ class AppPanelProvider extends PanelProvider
     public function panel(Panel $panel): Panel
     {
         return $panel
-            ->default()
             ->id('app')
             ->path('app')
             ->login()
