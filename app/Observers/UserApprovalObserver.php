@@ -23,8 +23,7 @@ class UserApprovalObserver
             ->where(['building_id'=> $userApproval->flat?->building?->id, 'active' => true])
             ->pluck('owner_association_id');
         foreach ($ownerAssociationIds as $ownerAssociation) {
-            $roles = Role::where('owner_association_id',$ownerAssociation)
-                ->whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor','Staff','Facility Manager'])
+            $roles = Role::whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor','Staff','Facility Manager'])
                 ->pluck('id');
             $notifyTo = User::where('owner_association_id', $ownerAssociation)->whereNotIn('role_id', $roles)
                 ->whereNot('id', auth()->user()?->id)->distinct()->get()
