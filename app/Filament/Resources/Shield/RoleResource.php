@@ -384,7 +384,8 @@ class RoleResource extends Resource implements HasShieldPermissions
                 'VisitorFormResource',
                 'VendorResource',
                 'VehicleResource',
-                'WDAResource'
+                'WDAResource',
+                'DelinquentOwnerResource'
             ];
 
             $resources = collect(FilamentShield::getResources())
@@ -404,7 +405,38 @@ class RoleResource extends Resource implements HasShieldPermissions
 
                     return true;
                 });
-        } else {
+        }
+        elseif (auth()->user()->role && auth()->user()->role->name === 'OA') {
+            $exclusions = [
+                'BillResource',
+                'FacilityBookingResource',
+                'FacilityManagerResource',
+                'FacilitySupportComplaintResource',
+                'PropertyManagerResource',
+                'RentalChequeResource',
+                'SubContractorResource',
+            ];
+
+        $resources = collect(FilamentShield::getResources())
+            ->filter(function ($entity) use ($exclusions, $searchTerm) {
+                $resourceClass = class_basename($entity['fqcn']);
+
+                // First check exclusions
+                if (in_array($resourceClass, $exclusions)) {
+                    return false;
+                }
+
+                // Then check search if term exists
+                if ($searchTerm) {
+                    $label = strtolower(FilamentShield::getLocalizedResourceLabel($entity['fqcn']));
+                    return str_contains($label, $searchTerm);
+                }
+
+                return true;
+            });
+    }
+
+        else {
             // Original behavior for other roles
             $resources = collect(FilamentShield::getResources())
                 ->filter(function ($entity) use ($searchTerm) {
@@ -460,7 +492,29 @@ class RoleResource extends Resource implements HasShieldPermissions
                 'VisitorFormResource',
                 'VendorResource',
                 'VehicleResource',
-                'WDAResource'
+                'WDAResource',
+                'DelinquentOwnerResource'
+            ];
+
+            return collect(FilamentShield::getResources())
+                // First filter out excluded resources
+                ->filter(function ($entity) use ($exclusions) {
+                    $resourceClass = class_basename($entity['fqcn']);
+                    return !in_array($resourceClass, $exclusions);
+                })
+                // Then count permissions for remaining resources
+                ->map(fn ($resource) => count(static::getResourcePermissionOptions($resource)))
+                ->sum();
+        }
+        if (auth()->user()->role && auth()->user()->role->name === 'OA') {
+            $exclusions = [
+                'BillResource',
+                'FacilityBookingResource',
+                'FacilityManagerResource',
+                'FacilitySupportComplaintResource',
+                'PropertyManagerResource',
+                'RentalChequeResource',
+                'SubContractorResource',
             ];
 
             return collect(FilamentShield::getResources())
@@ -598,6 +652,23 @@ class RoleResource extends Resource implements HasShieldPermissions
                 'ReserveFundStatement',
                 'ReserveFundStatementMollak',
                 'TrialBalance'
+            ];
+
+            return collect(FilamentShield::getPages())
+                // First filter out excluded pages
+                ->filter(function ($page) use ($exclusions) {
+                    $pageClass = class_basename($page['class']);
+                    return !in_array($pageClass, $exclusions);
+                })
+                // Then map the remaining pages
+                ->flatMap(fn ($page) => [
+                    $page['permission'] => FilamentShield::getLocalizedPageLabel($page['class']),
+                ])
+                ->toArray();
+        }
+        if (auth()->user()->role && auth()->user()->role->name === 'OA') {
+            $exclusions = [
+                'Contract Expiry Overview'
             ];
 
             return collect(FilamentShield::getPages())
