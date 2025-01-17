@@ -506,7 +506,7 @@ class RoleResource extends Resource implements HasShieldPermissions
                 ->map(fn ($resource) => count(static::getResourcePermissionOptions($resource)))
                 ->sum();
         }
-        if (auth()->user()->role && auth()->user()->role->name === 'OA') {
+        elseif (auth()->user()->role && auth()->user()->role->name === 'OA') {
             $exclusions = [
                 'BillResource',
                 'FacilityBookingResource',
@@ -666,7 +666,7 @@ class RoleResource extends Resource implements HasShieldPermissions
                 ])
                 ->toArray();
         }
-        if (auth()->user()->role && auth()->user()->role->name === 'OA') {
+        elseif (auth()->user()->role && auth()->user()->role->name === 'OA') {
             $exclusions = [
                 'Contract Expiry Overview'
             ];

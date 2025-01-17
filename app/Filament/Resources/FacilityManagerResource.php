@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\BuildingsRelationManagerResource\RelationManagers\BuildingsRelationManager;
@@ -21,13 +20,13 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
+use Filament\Forms\Get;
 use Filament\Forms\Set;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Hash;
-use Illuminate\Database\Eloquent\Builder;
 use Str;
 
 class FacilityManagerResource extends Resource
@@ -53,7 +52,9 @@ class FacilityManagerResource extends Resource
                                         TextInput::make('owner_association_id')
                                             ->label('Property Manager')
                                             ->hidden()
-                                            ->default(fn() => OwnerAssociation::where('id', auth()->user()->owner_association_id)->pluck('name', 'id')->first())
+                                            ->default(fn() =>
+                                                OwnerAssociation::where('id', auth()->user()->owner_association_id)
+                                                    ->pluck('name', 'id')->first())
                                             ->disabled(),
                                         TextInput::make('name')
                                             ->label('Company Name')
@@ -132,7 +133,19 @@ class FacilityManagerResource extends Resource
                                     ->placeholder('Select Sub-Category')
                                     ->label('Sub Category')
                                     ->preload()
-                                    ->afterStateUpdated(fn(Set $set) => $set('service_id', null)),
+                                    ->afterStateUpdated(function ($state, Set $set, Get $get) {
+                                        $currentServices = $get('service_id') ?? [];
+                                        if (empty($currentServices)) {
+                                            return;
+                                        }
+
+                                        $validServices = Service::whereIn('subcategory_id', $state ?? [])
+                                            ->whereIn('id', $currentServices)
+                                            ->pluck('id')
+                                            ->toArray();
+
+                                        $set('service_id', $validServices);
+                                    }),
                                 Select::make('service_id')
                                     ->label('Service')
                                     ->live()
@@ -140,7 +153,10 @@ class FacilityManagerResource extends Resource
                                     ->required()
                                     ->searchable()
                                     ->multiple()
-                                    ->options(fn(callable $get) => Service::where('type', 'vendor_service')->whereIn('subcategory_id', $get('subcategory_id'))->pluck('name', 'id'))
+                                    ->options(fn(callable $get) =>
+                                        Service::where('type', 'vendor_service')
+                                            ->whereIn('subcategory_id', $get('subcategory_id'))
+                                            ->pluck('name', 'id'))
                                     ->placeholder('Select Service'),
                             ]),
                     ]),
@@ -158,14 +174,14 @@ class FacilityManagerResource extends Resource
                                     ->placeholder('Full name')
                                     ->live()
                                     ->required(),
-                                    // ->required(fn($get) => !empty($get('managers.0.email')) || !empty($get('managers.0.phone'))),
+                                // ->required(fn($get) => !empty($get('managers.0.email')) || !empty($get('managers.0.phone'))),
                                 TextInput::make('managers.0.email')
                                     ->label('Manager Email')
                                     ->email()
                                     ->placeholder('manager@company.com')
                                     ->live()
                                     ->required(),
-                                    // ->required(fn($get) => !empty($get('managers.0.name')) || !empty($get('managers.0.phone'))),
+                                // ->required(fn($get) => !empty($get('managers.0.name')) || !empty($get('managers.0.phone'))),
                                 TextInput::make('managers.0.phone')
                                     ->label('Manager Phone')
                                     ->tel()
@@ -173,7 +189,7 @@ class FacilityManagerResource extends Resource
                                     ->placeholder('XXXXXXXXX')
                                     ->live()
                                     ->required(),
-                                    // ->required(fn($get) => !empty($get('managers.0.name')) || !empty($get('managers.0.email'))),
+                                // ->required(fn($get) => !empty($get('managers.0.name')) || !empty($get('managers.0.email'))),
                             ]),
                     ]),
 
@@ -204,7 +220,7 @@ class FacilityManagerResource extends Resource
                             $password = Str::random(12);
                             $pm_oa    = auth()->user()?->first_name ?? '';
 
-                            if ($state['status'] === 'rejected' && !empty($state['remarks'])) {
+                            if ($state['status'] === 'rejected' && ! empty($state['remarks'])) {
                                 RejectedFMJob::dispatch($user, $password, $email, $state['remarks'], $pm_oa);
                             } elseif ($state['status'] === 'approved') {
                                 $user->password = Hash::make($password);
