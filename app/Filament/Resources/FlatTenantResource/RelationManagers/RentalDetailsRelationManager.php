@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Filament\Resources\FlatTenantResource\RelationManagers;
 
 use App\Models\Building\FlatTenant;
@@ -61,6 +60,9 @@ class RentalDetailsRelationManager extends RelationManager
                                     ->disabledOn('edit')
                                     ->minValue(0)
                                     ->label('Contract amount')
+                                    ->validationMessages([
+                                        'required' => 'The Contract amount is required.',
+                                    ])
                                     ->placeholder('Enter the Contract amount')
                                     ->numeric()
                                     ->suffix('AED')
@@ -78,7 +80,7 @@ class RentalDetailsRelationManager extends RelationManager
                                             if (is_array($cheques)) {
                                                 foreach ($cheques as $index => $cheque) {
                                                     // Only update if the amount hasn't been manually modified
-                                                    if (!isset($cheque['amount_manually_edited'])) {
+                                                    if (! isset($cheque['amount_manually_edited'])) {
                                                         $set("cheques.{$index}.amount", $defaultAmount);
                                                     }
                                                 }
@@ -90,6 +92,9 @@ class RentalDetailsRelationManager extends RelationManager
                                     ->native(false)
                                     ->required()
                                     ->disabledOn('edit')
+                                    ->validationMessages([
+                                        'required' => 'The number of cheques is required.',
+                                    ])
                                     ->placeholder('Select the number of cheques')
                                     ->options([
                                         '1'  => '1',
@@ -120,6 +125,10 @@ class RentalDetailsRelationManager extends RelationManager
 
                                 DatePicker::make('contract_start_date')
                                     ->rules(['date'])
+                                    ->required()
+                                    ->validationMessages([
+                                        'required' => 'The Contract Start date is required.',
+                                    ])
                                     ->label('Contract Start Date')
                                     ->default(function () {
                                         $startDate = FlatTenant::where('id', $this->ownerRecord->id)
@@ -127,15 +136,17 @@ class RentalDetailsRelationManager extends RelationManager
 
                                         return $startDate ? Carbon::parse($startDate) : null;
                                     })
-                                    ->disabled()
+                                    ->disabledOn('edit')
                                     ->placeholder('Select contract start date'),
 
                                 DatePicker::make('contract_end_date')
                                     ->rules(['date'])
                                     ->label('Contract End Date')
                                     ->after('contract_start_date')
+                                    ->required()
                                     ->validationMessages([
-                                        'after' => 'The "Contract End" date must be after the "Contract Start" date.',
+                                        'after'    => 'The "Contract End" date must be after the "Contract Start" date.',
+                                        'required' => 'The Contract End date is required.',
                                     ])
                                     ->default(function () {
                                         $endDate = FlatTenant::where('id', $this->ownerRecord->id)->first()?->end_date;
@@ -146,10 +157,10 @@ class RentalDetailsRelationManager extends RelationManager
                                         return $endDate ? true : false;
                                     })
                                     ->disabledOn('edit')
-                                    ->required(function () {
-                                        $endDate = FlatTenant::where('id', $this->ownerRecord->id)->first()?->end_date;
-                                        return $endDate ? false : true;
-                                    })
+                                // ->required(function () {
+                                //     $endDate = FlatTenant::where('id', $this->ownerRecord->id)->first()?->end_date;
+                                //     return $endDate ? false : true;
+                                // })
                                     ->placeholder('Select contract end date'),
 
                                 TextInput::make('advance_amount')
@@ -159,12 +170,18 @@ class RentalDetailsRelationManager extends RelationManager
                                     ->disabledOn('edit')
                                     ->label('Security Deposit')
                                     ->numeric()
+                                    ->validationMessages([
+                                        'required' => 'The Security Deposit is required.',
+                                    ])
                                     ->placeholder('Enter the Security Deposit'),
 
                                 Select::make('advance_amount_payment_mode')
                                     ->native(false)
                                     ->required()
                                     ->label('Security Deposit Payment Mode')
+                                    ->validationMessages([
+                                        'required' => 'The Security Deposit Payment Mode is required.',
+                                    ])
                                     ->disabledOn('edit')
                                     ->options([
                                         'Online' => 'Online',
@@ -217,7 +234,7 @@ class RentalDetailsRelationManager extends RelationManager
                     ->schema([
                         Repeater::make('cheques')
                             ->required()
-                            ->addable(false) // Disable manual adding since we're auto-creating
+                            ->addable(false)   // Disable manual adding since we're auto-creating
                             ->deletable(false) // Disable deletion to maintain the required number
                             ->defaultItems(0)
                             ->schema([
@@ -227,6 +244,9 @@ class RentalDetailsRelationManager extends RelationManager
                                             ->numeric()
                                             ->disabledOn('edit')
                                             ->required()
+                                            ->validationMessages([
+                                                'required' => 'The Cheque number is required.',
+                                            ])
                                             ->minLength(6)
                                             ->maxLength(12)
                                             ->placeholder('Enter cheque number'),
@@ -247,6 +267,9 @@ class RentalDetailsRelationManager extends RelationManager
                                             ->rules(['date'])
                                             ->disabledOn('edit')
                                             ->required()
+                                            ->validationMessages([
+                                                'required' => 'The Due date is required.',
+                                            ])
                                             ->placeholder('Select due date'),
 
                                         Select::make('status')
@@ -305,6 +328,9 @@ class RentalDetailsRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
+        ->modifyQueryUsing(function ($query) {
+            $query->latest();
+        })
             ->columns([
                 TextColumn::make('contract_start_date')
                     ->label('Contract Start Date'),
@@ -357,20 +383,20 @@ class RentalDetailsRelationManager extends RelationManager
                     }
                 }
 
-                // If validation passes, proceed with saving
                 $this->handleCustomActionSave($data);
             })
             ->visible(function () {
-                $rentalDetail = RentalDetail::where('flat_tenant_id', $this->ownerRecord->id)->first();
+                $latestRentalDetail = RentalDetail::where('flat_tenant_id', $this->ownerRecord->id)
+                    ->orderBy('contract_end_date', 'desc')
+                    ->first();
 
-                if (!$rentalDetail) {
+                if (! $latestRentalDetail) {
                     return true;
                 }
 
-                $endDate = $rentalDetail->contract_end_date;
+                $endDate = $latestRentalDetail->contract_end_date;
                 return $endDate < Carbon::now()->format('Y-m-d');
             })
-
             ->form(function (Form $form) {
                 return $this->form($form);
             });
@@ -378,7 +404,7 @@ class RentalDetailsRelationManager extends RelationManager
 
     private function handleCustomActionSave(array $data)
     {
-        $startDate = $this->ownerRecord->start_date->format('Y-m-d');
+        $startDate = $this->ownerRecord->start_date?->format('Y-m-d');
         $endDate   = $this->ownerRecord->end_date?->format('Y-m-d');
 
         $rentalDetail = RentalDetail::create([
@@ -392,8 +418,8 @@ class RentalDetailsRelationManager extends RelationManager
             'brokerage'                   => $data['brokerage'] ?? null,
             'advance_amount_payment_mode' => $data['advance_amount_payment_mode'],
             'status'                      => $data['status'],
-            'contract_start_date'         => $startDate,
-            'contract_end_date'           => $endDate ?? $data['contract_end_date'],
+            'contract_start_date'         => $data['contract_start_date'] ?? $startDate,
+            'contract_end_date'           => $data['contract_end_date'] ?? $endDate,
             'created_by'                  => auth()->user()->id,
             'status_updated_by'           => auth()->user()->id,
             'property_manager_id'         => auth()->user()->id,
