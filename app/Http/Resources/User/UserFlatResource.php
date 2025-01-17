@@ -23,7 +23,8 @@ class UserFlatResource extends JsonResource
     {
         $flat = FlatTenant::where(['flat_id' => $this->id, 'tenant_id' => auth()->user()->id])->first();
         $flatId = Flat::find($this->id);
-        $oaIds = DB::table('building_owner_association')->where('building_id',$this->building->id)->pluck('owner_association_id');
+        $oaIds = DB::table('building_owner_association')->where(['building_id'=>$this->building->id,'active' => true])
+            ->pluck('owner_association_id');
         $ownerAssociation = OwnerAssociation::whereIn('id',$oaIds)->pluck('role')->unique();
         $oA = $ownerAssociation->contains('OA');
         $propertyManager = $ownerAssociation->contains('Property Manager');
