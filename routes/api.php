@@ -617,8 +617,12 @@ Route::middleware(['auth:sanctum', 'email.verified', 'active'])->group(function 
     Route::post('/buildings/{id}', [BuildingController::class, 'update']);
     Route::apiResource('buildings', BuildingController::class);
     Route::patch('buildings/{id}/change-status', [BuildingController::class, 'changeStatus']);
+    Route::post('buildingsimport', [BuildingController::class, 'import']);
+    Route::get('buildingsexport', [BuildingController::class, 'export']);
     //New Flat Module Routes
     Route::post('/flatsModule/{id}', [FlatController::class, 'update']);
     Route::apiResource('flatsModule', FlatController::class);
     Route::patch('flatsModule/{id}/change-status', [FlatController::class, 'changeStatus']);
+    Route::post('flatsimport', [FlatController::class, 'import']);
+    Route::get('flatsexport', [FlatController::class, 'export']);
 });
