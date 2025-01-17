@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Building;
 
 use Illuminate\Http\Request;
+use App\Models\OwnerAssociation;
 use App\Models\Building\Building;
 use App\Http\Controllers\Controller;
 use App\Repositories\BuildingRepository;
@@ -102,6 +103,85 @@ class BuildingController extends Controller
                 'status' => false,
                 'message' => 'Error retrieving owner association details',
                 'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function export()
+    {
+        try {
+            $filename = "buildings-" . date('Y-m-d-His') . ".csv";
+            $filepath = storage_path('app/public/' . $filename);
+
+            // Open file
+            $file = fopen($filepath, 'w');
+
+            // Add headers
+            fputcsv($file, [
+                'Name',
+                'Owner Association',
+                'Property Group ID',
+                'Address Line 1',
+                'Address Line 2',
+                'Area',
+                'City',
+                'Description',
+                'Floors',
+                'Allow Post Upload',
+                'Show InHouse Services',
+                'Status',
+                'Create Date',
+                'Cover Photo',
+            ]);
+
+            $buildings = Building::select([
+                'name',
+                'cover_photo',
+                'property_group_id',
+                'address_line1',
+                'address_line2',
+                'area',
+                'city_id',
+                'description',
+                'floors',
+                'owner_association_id',
+                'allow_postupload',
+                'show_inhouse_services',
+                'status',
+                'created_at',
+            ])->get();
+
+            foreach ($buildings as $building) {
+                $ownerAssociationName=OwnerAssociation::where('id',$building->owner_association_id)->value('name');
+                fputcsv($file, [
+                    $building->name,
+                    $ownerAssociationName,
+                    $building->property_group_id,
+                    $building->address_line1,
+                    $building->address_line2,
+                    $building->area,
+                    $building->cities->name ?? null,
+                    $building->description,
+                    $building->floors,
+                    $building->allow_postupload=== 1 ? 'TRUE' : 'FALSE', 
+                    $building->show_inhouse_services=== 1 ? 'TRUE' : 'FALSE',
+                    $building->status=== 1 ? 'Active' : 'In-Active',
+                    $building->created_at,
+                    $building->cover_photo,
+                ]);
+            }
+            fclose($file);
+            die('asds');
+            return response()->download($filepath, $filename, [
+                'Content-Type' => 'text/csv',
+            ])->deleteFileAfterSend(true);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Export failed',
+                'data'    => [],
+                'error'   => $e->getMessage(),
+                'status'  => false,
             ], 500);
         }
     }
