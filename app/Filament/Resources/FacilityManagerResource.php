@@ -27,7 +27,6 @@ use Filament\Tables;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Hash;
-use Illuminate\Database\Eloquent\Builder;
 use Str;
 
 class FacilityManagerResource extends Resource
@@ -53,7 +52,9 @@ class FacilityManagerResource extends Resource
                                         TextInput::make('owner_association_id')
                                             ->label('Property Manager')
                                             ->hidden()
-                                            ->default(fn() => OwnerAssociation::where('id', auth()->user()->owner_association_id)->pluck('name', 'id')->first())
+                                            ->default(fn() =>
+                                                OwnerAssociation::where('id', auth()->user()->owner_association_id)
+                                                    ->pluck('name', 'id')->first())
                                             ->disabled(),
                                         TextInput::make('name')
                                             ->label('Company Name')
@@ -140,7 +141,10 @@ class FacilityManagerResource extends Resource
                                     ->required()
                                     ->searchable()
                                     ->multiple()
-                                    ->options(fn(callable $get) => Service::where('type', 'vendor_service')->whereIn('subcategory_id', $get('subcategory_id'))->pluck('name', 'id'))
+                                    ->options(fn(callable $get) =>
+                                        Service::where('type', 'vendor_service')
+                                            ->whereIn('subcategory_id', $get('subcategory_id'))
+                                            ->pluck('name', 'id'))
                                     ->placeholder('Select Service'),
                             ]),
                     ]),
@@ -158,14 +162,14 @@ class FacilityManagerResource extends Resource
                                     ->placeholder('Full name')
                                     ->live()
                                     ->required(),
-                                    // ->required(fn($get) => !empty($get('managers.0.email')) || !empty($get('managers.0.phone'))),
+                                // ->required(fn($get) => !empty($get('managers.0.email')) || !empty($get('managers.0.phone'))),
                                 TextInput::make('managers.0.email')
                                     ->label('Manager Email')
                                     ->email()
                                     ->placeholder('manager@company.com')
                                     ->live()
                                     ->required(),
-                                    // ->required(fn($get) => !empty($get('managers.0.name')) || !empty($get('managers.0.phone'))),
+                                // ->required(fn($get) => !empty($get('managers.0.name')) || !empty($get('managers.0.phone'))),
                                 TextInput::make('managers.0.phone')
                                     ->label('Manager Phone')
                                     ->tel()
@@ -173,7 +177,7 @@ class FacilityManagerResource extends Resource
                                     ->placeholder('XXXXXXXXX')
                                     ->live()
                                     ->required(),
-                                    // ->required(fn($get) => !empty($get('managers.0.name')) || !empty($get('managers.0.email'))),
+                                // ->required(fn($get) => !empty($get('managers.0.name')) || !empty($get('managers.0.email'))),
                             ]),
                     ]),
 
