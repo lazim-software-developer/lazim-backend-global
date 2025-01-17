@@ -27,12 +27,10 @@ class CommunityController extends Controller
 
     public function emergencyHotline(Building $building,Request $request)
     {
-        $emergencyNumbers = $building->emergencyNumbers()->paginate($request->paginate ?? 10);
-
-        if($emergencyNumbers->isEmpty()){
+        if($building->emergencyNumbers->isEmpty()){
             return response()->json(['message' => 'No Emergency numbers currently available. Please try again later.'], 404);
         }
-        return $emergencyNumbers;
+        return $building->emergencyNumbers;
     }
 
     public function offerPromotions(Building $building)
