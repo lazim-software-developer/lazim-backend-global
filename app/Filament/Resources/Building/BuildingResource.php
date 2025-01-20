@@ -144,7 +144,11 @@ class BuildingResource extends Resource
                     TextInput::make('floors')
                         ->rule('regex:/^[0-9\-.,\/_ ]+$/')
                         ->placeholder('Floors')
-                        ->disabledOn('edit')
+                        ->disabled(function($record){
+                            if($record){
+                                return $record->floors!=null;
+                            }return false;
+                        })
                         ->label('Floor'),
 
                     TextInput::make('parking_count')
