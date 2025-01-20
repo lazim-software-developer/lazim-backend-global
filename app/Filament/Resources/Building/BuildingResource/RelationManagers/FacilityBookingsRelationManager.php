@@ -168,7 +168,11 @@ class FacilityBookingsRelationManager extends RelationManager
                                                 'sound' => 'default',
                                                 'title' => $facilityName->name . ' Booking Status.',
                                                 'body'  => 'Your amenity booking request for ' . $facilityName->name . ' is approved',
-                                                'data'  => ['notificationType' => 'MyBookingsFacility'],
+                                                'data'  => [
+                                                    'notificationType' => 'MyBookingsFacility',
+                                                    'building_id'      => $user->building_id,
+                                                    'flat_id'          => $user->flat_id,
+                                                ],
                                             ];
                                             $this->expoNotification($message);
                                         }
@@ -186,7 +190,10 @@ class FacilityBookingsRelationManager extends RelationManager
                                             'iconColor' => 'warning',
                                             'title'     => $facilityName->name . ' Booking Status.',
                                             'view'      => 'notifications::notification',
-                                            'viewData'  => [],
+                                            'viewData'  => [
+                                                'building_id' => $user->building_id,
+                                                'flat_id'     => $user->flat_id,
+                                            ],
                                             'format'    => 'filament',
                                             'url'       => 'MyBookingsFacility',
                                         ]),
@@ -204,7 +211,11 @@ class FacilityBookingsRelationManager extends RelationManager
                                                 'sound' => 'default',
                                                 'title' => $facilityName->name . ' Booking Status.',
                                                 'body'  => 'Your amenity booking request for ' . $facilityName->name . ' is rejected',
-                                                'data'  => ['notificationType' => 'MyBookingsFacility'],
+                                                'data'  => [
+                                                    'notificationType' => 'MyBookingsFacility',
+                                                    'building_id'      => $user->building_id,
+                                                    'flat_id'          => $user->flat_id,
+                                                ],
                                             ];
                                             $this->expoNotification($message);
                                         }
@@ -222,7 +233,10 @@ class FacilityBookingsRelationManager extends RelationManager
                                             'iconColor' => 'danger',
                                             'title'     => $facilityName->name . ' Booking Status.',
                                             'view'      => 'notifications::notification',
-                                            'viewData'  => [],
+                                            'viewData'  => [
+                                                'building_id' => $user->building_id,
+                                                'flat_id'     => $user->flat_id,
+                                            ],
                                             'format'    => 'filament',
                                             'url'       => 'MyBookingsFacility',
                                         ]),
