@@ -61,7 +61,7 @@ class InvoiceController extends Controller
         $wda        = WDA::find($request->wda_id);
         $name       = $vendor->OA->name;
         $invoice_id = strtoupper(substr($name, 0, 4)) . date('YmdHis');
-        $oa_id      = DB::table('building_owner_association')->where('building_id', $wda->building_id)->where('active', true)->first()?->owner_association_id;
+        $oa_id      = DB::table('building_owner_association')->where('building_id', $wda->building_id)->where('active', true)->first()->owner_association_id;
         $request->merge([
             'building_id'          => $wda->building_id,
             'contract_id'          => $wda->contract_id,
