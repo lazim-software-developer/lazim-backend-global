@@ -170,7 +170,7 @@ class BillResource extends Resource
                 TextColumn::make('month')
                     ->date()
                     ->formatStateUsing(function ($state) {
-                        return Carbon::parse($state)->format('m-Y');
+                        return Carbon::parse($state)->format('M-Y');
                     }),
                 TextColumn::make('bill_number')
                     ->label('Bill Number')
