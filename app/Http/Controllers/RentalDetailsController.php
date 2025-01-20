@@ -45,10 +45,17 @@ class RentalDetailsController extends Controller
         $oa = DB::table('building_owner_association')
             ->where('building_id', $request->building_id)
             ->where('active', true)
-            ->first()?->owner_association_id;
+            ->pluck('owner_association_id');
 
+        $pm = OwnerAssociation::whereIn('id', $oa)->where('role', 'Property Manager')->first()->id;
         // Find user
-        $user = User::where('owner_association_id', $oa)->first();
+        $user = User::where('owner_association_id', $pm)->first();
+        if (!$user) {
+            return response()->json([
+                'message' => 'Property Manager not found.',
+                'status'  => 'error',
+            ], 404);
+        }
         $rentalCheque->update(['payment_link_requested' => true]);
         PaymentRequestMail::dispatch($user, $rentalCheque);
         try {
