@@ -702,32 +702,7 @@ class AppPanelProvider extends PanelProvider
                         //     ]);
                         // }
 
-                        if ($user->can('view_any_complaintscomplaint') || $user->can('view_any_complaintsenquiry') || $user->can('view_any_complaintssuggession')) {
-                            $builder->groups([
-                                NavigationGroup::make('Happiness center')
-                                    ->items([
-                                        NavigationItem::make('Complaints')
-                                            ->url('/app/complaintscomplaints')
-                                            ->hidden(!$user->can('view_any_complaintscomplaint'))
-                                            ->icon('heroicon-m-clipboard-document-list')
-                                            ->activeIcon('heroicon-m-clipboard-document-list')
-                                            ->sort(1),
-                                        NavigationItem::make('Enquiries')
-                                            ->url('/app/complaintsenquiries')
-                                            ->hidden(!$user->can('view_any_complaintsenquiry'))
-                                            ->icon('heroicon-m-clipboard-document-check')
-                                            ->activeIcon('heroicon-m-clipboard-document-check')
-                                            ->sort(2),
-                                        NavigationItem::make('Suggestions')
-                                            ->url('/app/complaintssuggessions')
-                                            ->hidden(!$user->can('view_any_complaintssuggession'))
-                                            ->icon('heroicon-s-pencil-square')
-                                            ->activeIcon('heroicon-s-pencil-square')
-                                            ->sort(3),
-                                    ]),
-                            ]);
-                        }
-                        if ($user->can('view_any_helpdeskcomplaint')) {
+                        if ($user->can('view_any_helpdeskcomplaint') || $user->can('view_any_complaintsenquiry') || $user->can('view_any_complaintssuggession')){
                             $builder->groups([
                                 NavigationGroup::make('Facility Support')
                                     ->items([
@@ -752,6 +727,18 @@ class AppPanelProvider extends PanelProvider
                                             ->icon('heroicon-m-calendar-days')
                                             ->activeIcon('heroicon-m-calendar-days')
                                             ->sort(1),
+                                        NavigationItem::make('Enquiries')
+                                            ->url('/app/complaintsenquiries')
+                                            ->hidden(!$user->can('view_any_complaintsenquiry'))
+                                            ->icon('heroicon-m-clipboard-document-check')
+                                            ->activeIcon('heroicon-m-clipboard-document-check')
+                                            ->sort(2),
+                                        NavigationItem::make('Suggestions')
+                                            ->url('/app/complaintssuggessions')
+                                            ->hidden(!$user->can('view_any_complaintssuggession'))
+                                            ->icon('heroicon-s-pencil-square')
+                                            ->activeIcon('heroicon-s-pencil-square')
+                                            ->sort(3),
                                     ]),
                             ]);
                         }
