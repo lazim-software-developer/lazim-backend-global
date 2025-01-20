@@ -7,8 +7,10 @@ use App\Models\Building\Building;
 use App\Http\Controllers\Controller;
 use App\Repositories\BuildingRepository;
 use App\Http\Resources\Building\BuildingResource;
+use App\Http\Resources\Building\BuildingsResource;
 use App\Http\Requests\Building\StoreBuildingRequest;
 use App\Http\Requests\Building\UpdateBuildingRequest;
+use App\Http\Resources\Building\BuildingResourceCollection;
 
 class BuildingController extends Controller
 {
@@ -20,12 +22,17 @@ class BuildingController extends Controller
     /**
      * Display a listing of the resource.
      */
-    // public function index()
-    // {
-    //     $buildings = Building::get();
+    public function fetchbuildings(Request $request)
+    {
+        $query = Building::query();
+    
+        if ($request->has('type') && $request->type === 'globalOa') {
+            $query->where('resource', 'Default');
+        }
         
-    //     return new BuildingResourceCollection($buildings);
-    // }
+        $buildings = $query->get();
+        return BuildingsResource::collection($buildings);
+    }
     public function index(Request $request)
     {
         try {
