@@ -172,13 +172,18 @@ class MoveInOutController extends Controller
             'type' => 'required|in:move-out,move-in',
         ]);
 
-        $ownerAssociationIds = DB::table('owner_association_vendor')
-            ->where('vendor_id',$vendor->id)->pluck('owner_association_id');
+        // $ownerAssociationIds = DB::table('owner_association_vendor')
+        //     ->where('vendor_id',$vendor->id)->pluck('owner_association_id');
 
-        $buildingIds = DB::table('building_owner_association')
-                ->whereIn('owner_association_id',$ownerAssociationIds)
-                ->where('active',true)
-                ->pluck('building_id');
+        // $buildingIds = DB::table('building_owner_association')
+        //         ->whereIn('owner_association_id',$ownerAssociationIds)
+        //         ->where('active',true)
+        //         ->pluck('building_id');
+        $buildingIds = DB::table('building_vendor')
+            ->where('vendor_id', $vendor->id)
+            ->where('active', true)
+            ->pluck('building_id');
+
 
         $moveInOut = MoveInOut::whereIn('building_id',$buildingIds)->where('type',$request->type)->orderByDesc('created_at');
 
