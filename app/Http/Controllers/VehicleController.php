@@ -10,12 +10,14 @@ use App\Models\Building\FlatTenant;
 use App\Http\Requests\VehicleRequest;
 use App\Http\Requests\VehicalListRequest;
 use App\Http\Resources\CustomResponseResource;
+use Illuminate\Support\Facades\DB;
 
 class VehicleController extends Controller
 {
     public function store(VehicleRequest $request)
     {
         $flat = Flat::find($request->flat_id);
+        DB::table('building_owner_association')->where('building_id', $flat->building->id)->where('active', true)->first()->owner_association_id;
         $oa_id = $flat?->owner_association_id;
 
         $vehicleCount = Vehicle::where('flat_id',$request->flat_id)->get()->count();

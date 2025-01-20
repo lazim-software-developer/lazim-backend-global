@@ -42,7 +42,7 @@ class GuestController extends Controller
      */
     public function store(CreateGuestRequest $request)
     {
-        $ownerAssociationId = DB::table('building_owner_association')->where(['building_id' => $request->building_id,'active'=>true])->first()?->owner_association_id;
+        $ownerAssociationId = DB::table('building_owner_association')->where(['building_id' => $request->building_id,'active'=>true])->first()->owner_association_id;
 
         $request->merge([
             'start_time'           => $request->start_date,

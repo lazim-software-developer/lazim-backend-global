@@ -24,7 +24,7 @@ class ResidentialFormController extends Controller
     {
         $validated = $request->validated();
 
-        $ownerAssociationId = DB::table('building_owner_association')->where(['building_id' => $request->building_id,'active'=>true])->first()?->owner_association_id;
+        $ownerAssociationId = DB::table('building_owner_association')->where(['building_id' => $request->building_id,'active'=>true])->first()->owner_association_id;
 
         $validated['passport_url'] = optimizeDocumentAndUpload($request->file('file_passport_url'));
         $validated['emirates_url'] = optimizeDocumentAndUpload($request->file('file_emirates_url'));
