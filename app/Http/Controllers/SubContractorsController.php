@@ -45,13 +45,13 @@ class SubContractorsController extends Controller
             $subContract->update(['additional_doc' => optimizeDocumentAndUpload($request->additional_doc)]);
         }
         if($request->has('trade_licence') && isset($request->trade_licence)){
-            $subContract->trade_licence = optimizeDocumentAndUpload($request->trade_licence);
+            $subContract->update(['trade_licence' => optimizeDocumentAndUpload($request->trade_licence)]);
         }
         if($request->has('contract_paper') && isset($request->contract_paper)){
-            $subContract->contract_paper = optimizeDocumentAndUpload($request->contract_paper);
+            $subContract->update(['contract_paper' => optimizeDocumentAndUpload($request->contract_paper)]);
         }
         if($request->has('agreement_letter') && isset($request->agreement_letter)){
-            $subContract->agreement_letter = optimizeDocumentAndUpload($request->agreement_letter);
+            $subContract->update(['agreement_letter' => optimizeDocumentAndUpload($request->agreement_letter)]);
         }
         $subContract->services()->sync($request->services);
 
