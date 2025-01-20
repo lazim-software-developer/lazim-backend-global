@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Filament\Resources\RentalChequeResource;
 use App\Models\User\User;
 use App\Models\RentalCheque;
 use App\Models\RentalDetail;
@@ -44,10 +45,17 @@ class RentalDetailsController extends Controller
         $oa = DB::table('building_owner_association')
             ->where('building_id', $request->building_id)
             ->where('active', true)
-            ->first()?->owner_association_id;
+            ->pluck('owner_association_id');
 
+        $pm = OwnerAssociation::whereIn('id', $oa)->where('role', 'Property Manager')->first()->id;
         // Find user
-        $user = User::where('owner_association_id', $oa)->first();
+        $user = User::where('owner_association_id', $pm)->first();
+        if (!$user) {
+            return response()->json([
+                'message' => 'Property Manager not found.',
+                'status'  => 'error',
+            ], 404);
+        }
         $rentalCheque->update(['payment_link_requested' => true]);
         PaymentRequestMail::dispatch($user, $rentalCheque);
         try {
@@ -61,10 +69,10 @@ class RentalDetailsController extends Controller
                 ->actions([
                     Action::make('view')
                         ->button()
-                        ->url(function () use ($oa, $rentalCheque) {
-                            $slug = OwnerAssociation::where('id', $oa)->first()?->slug;
+                        ->url(function () use ($pm, $rentalCheque) {
+                            $slug = OwnerAssociation::where('id', $pm)->first()?->slug;
                             if ($slug) {
-                                return RentalDetailsResource::getUrl('edit', [$slug, $rentalCheque?->id]);
+                                return RentalChequeResource::getUrl('edit', [$slug, $rentalCheque?->id]);
                             }
                             return url('/app/rental-cheques/' . $rentalCheque?->id . '/edit');
                         }),

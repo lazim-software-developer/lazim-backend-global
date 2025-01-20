@@ -37,7 +37,7 @@ class AccessCardController extends Controller
      */
     public function create(CreateAccessCardFormsRequest $request)
     {
-        $ownerAssociationId = DB::table('building_owner_association')->where(['building_id' => $request->building_id,'active'=>true])->first()?->owner_association_id;
+        $ownerAssociationId = DB::table('building_owner_association')->where(['building_id' => $request->building_id,'active'=>true])->first()->owner_association_id;
 
         // Handle multiple images
         $document_paths = [
@@ -405,12 +405,17 @@ class AccessCardController extends Controller
 
     public function fmlist(Vendor $vendor, Request $request)
     {
-        $ownerAssociationIds = DB::table('owner_association_vendor')
-            ->where('vendor_id', $vendor->id)->pluck('owner_association_id');
+        // $ownerAssociationIds = DB::table('owner_association_vendor')
+        //     ->where('vendor_id', $vendor->id)->pluck('owner_association_id');
 
-        $buildingIds = DB::table('building_owner_association')
-            ->whereIn('owner_association_id', $ownerAssociationIds)
-            ->where('active',true)
+        // $buildingIds = DB::table('building_owner_association')
+        //     ->whereIn('owner_association_id', $ownerAssociationIds)
+        //     ->where('active',true)
+        //     ->pluck('building_id');
+
+        $buildingIds = DB::table('building_vendor')
+            ->where('vendor_id', $vendor->id)
+            ->where('active', true)
             ->pluck('building_id');
 
         $accessCardForms = AccessCard::whereIn('building_id', $buildingIds)->orderByDesc('created_at');

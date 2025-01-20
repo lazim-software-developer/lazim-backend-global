@@ -53,7 +53,7 @@ class DocumentLibraryResource extends JsonResource
             'name' => $this->name,
             'status' => $document?->status,
             'remarks' => $document?->remarks,
-            'url' => $document !== null ? ($this->name != 'Makani number' ? Storage::disk('s3')->url($document?->url) : $document?->url) : null
+            'url' => $document?->url != null ? ($this->name != 'Makani number' ? Storage::disk('s3')->url($document?->url) : $document?->url) : null
         ];
     }
 }

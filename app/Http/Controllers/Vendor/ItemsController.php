@@ -20,7 +20,7 @@ class ItemsController extends Controller
                 ->when($request->filled('type'), function ($query) use ($vendor, $request) {
                     $buildings = $vendor->buildings->where('pivot.active', true)->unique()
                         ->filter(function($buildings) use($request){
-                            return $buildings->ownerAssociations->contains('role',$request->type);
+                            return $buildings->ownerAssociations->where('pivot.active', true)->contains('role',$request->type);
                         });
                     $query->whereIn('building_id', $buildings->pluck('id'));
                 });
@@ -70,7 +70,7 @@ class ItemsController extends Controller
     public function create(Vendor $vendor,ItemCreateRequest $request)
     {
         $data = $request->only(['name','quantity','building_id','description']);
-        $data['owner_association_id'] = DB::table('building_owner_association')->where('building_id',$request->building_id)->first()?->owner_association_id;
+        $data['owner_association_id'] = DB::table('building_owner_association')->where('building_id',$request->building_id)->first()->owner_association_id;
         $item = Item::create($data);
 
         $vendor->items()->attach($item->id);

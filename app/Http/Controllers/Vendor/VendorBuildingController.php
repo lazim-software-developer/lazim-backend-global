@@ -12,7 +12,7 @@ class VendorBuildingController extends Controller
 {
     public function listBuildings(Request $request,Vendor $vendor){
 
-        $buildings = $vendor->buildings->where('pivot.active', true)->where('pivot.end_date','>',now()->toDateString())->unique();
+        $buildings = $vendor->buildings->where('pivot.active', true)->unique();
 
         if ($request->has('filter') && $request->input('filter') == true) {
             $buildings = $vendor->buildings->unique();

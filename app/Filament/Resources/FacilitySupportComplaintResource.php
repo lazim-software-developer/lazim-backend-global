@@ -26,6 +26,7 @@ use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
@@ -65,6 +66,23 @@ class FacilitySupportComplaintResource extends Resource
                                     ->label('Mark as Urgent')
                                     ->inline(false)
                                     ->live()
+                                    ->afterStateUpdated(function (Set $set, $state) {
+                                        if ($state) {
+                                            $set('priority', 1);
+                                            Notification::make()
+                                                ->title('Complaint Marked as Urgent')
+                                                ->body('The complaint has been marked as urgent and priority has been set to 1.')
+                                                ->icon('heroicon-o-exclamation-triangle')
+                                                ->send();
+                                        } else {
+                                            $set('priority', 3);
+                                            Notification::make()
+                                                ->title('Complaint Marked as Non-Urgent')
+                                                ->body('The complaint has been marked as non-urgent and priority has been set to 3.')
+                                                ->icon('heroicon-o-exclamation-circle')
+                                                ->send();
+                                        }
+                                    })
                                     ->onIcon('heroicon-o-exclamation-triangle')
                                     ->offIcon('heroicon-o-x-circle')
                                     ->onColor('danger')
@@ -132,11 +150,22 @@ class FacilitySupportComplaintResource extends Resource
                                 Textarea::make('complaint')
                                     ->label('Complaint Description')
                                     ->disabledOn('edit')
+                                    ->required()
                                     ->placeholder('Describe the complaint in brief'),
 
                                 TextInput::make('priority')
                                     ->label('Priority')
+                                    ->reactive()
                                     ->default('3')
+                                    ->afterStateUpdated(function( callable $set, $state) {
+                                        if ($state == 1) {
+                                            $set('Urgent', true);
+
+                                        } else {
+                                            $set('Urgent', false);
+
+                                        }
+                                    })
                                     ->visibleOn('edit')
                                     ->rules([
                                         function () {

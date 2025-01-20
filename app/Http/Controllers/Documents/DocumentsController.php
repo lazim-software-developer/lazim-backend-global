@@ -83,7 +83,8 @@ class DocumentsController extends Controller
     {
         $currentDate = date('Y-m-d');
 
-        $building = DB::table('building_owner_association')->where(['building_id' => $request->building_id,'active'=> true])->first();
+        $building = DB::table('building_owner_association')
+            ->where(['building_id' => $request->building_id,'active'=> true])->first()->owner_association_id;
 
         $document = Document::create([
             'document_library_id' => $request->document_library_id,
@@ -94,7 +95,7 @@ class DocumentsController extends Controller
             'documentable_type' => User::class,
             'name' => $request->name,
             'flat_id' => $request->flat_id ?? null,
-            'owner_association_id' => $building?->owner_association_id
+            'owner_association_id' => $building
         ]);
 
         // Handle multiple images
@@ -123,7 +124,8 @@ class DocumentsController extends Controller
     public function makaniNumber(MakaniNumberRequest $request)
     {
         $currentDate = date('Y-m-d');
-        $building = DB::table('building_owner_association')->where(['building_id' => $request->building_id, 'active' => true])->first();
+        $building = DB::table('building_owner_association')
+            ->where(['building_id' => $request->building_id, 'active' => true])->first()->owner_association_id;
 
         // Check if document already exists
         $existingDocument = Document::where([
@@ -143,7 +145,7 @@ class DocumentsController extends Controller
             'documentable_type'    => User::class,
             'name'                 => $request->name,
             'flat_id'              => $request->flat_id ?? null,
-            'owner_association_id' => $building?->owner_association_id,
+            'owner_association_id' => $building,
             'url'                  => $request->number ?? null,
         ];
 

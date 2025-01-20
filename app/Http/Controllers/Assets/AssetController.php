@@ -91,7 +91,7 @@ class AssetController extends Controller
                 'after' => ''
             ]
         ];
-        $oa_id = DB::table('building_owner_association')->where('building_id', $request->building_id)->where('active', true)->first()?->owner_association_id;
+        $oa_id = DB::table('building_owner_association')->where('building_id', $request->building_id)->where('active', true)->first()->owner_association_id;
         $data = AssetMaintenance::create([
             'maintenance_date' => now(),
             'comment' => json_encode($jsonData['comment']),
@@ -152,7 +152,7 @@ class AssetController extends Controller
             ->when($request->filled('type'), function ($query) use ($vendor, $request) {
                 $buildings = $vendor->buildings->where('pivot.active', true)->where('pivot.end_date', '>', now()->toDateString())->unique()
                                 ->filter(function($buildings) use($request){
-                                        return $buildings->ownerAssociations->contains('role',$request->type);
+                                        return $buildings->ownerAssociations->where('pivot.active', true)->contains('role',$request->type);
                                 });
                 $query->whereIn('building_id', $buildings->pluck('id'));
             });
@@ -187,7 +187,7 @@ class AssetController extends Controller
         $asset = Asset::create($request->all());
         // Fetch Building name
         $building_name        = Building::where('id', $asset->building_id)->first();
-        $ownerAssociationId   = DB::table('building_owner_association')->where('building_id', $asset->building_id)->where('active', true)->first()?->owner_association_id;
+        $ownerAssociationId   = DB::table('building_owner_association')->where('building_id', $asset->building_id)->where('active', true)->first()->owner_association_id;
 
         $ownerAssociation = OwnerAssociation::where('id',$ownerAssociationId)->first();
 

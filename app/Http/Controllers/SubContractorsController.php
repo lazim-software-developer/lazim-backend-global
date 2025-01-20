@@ -38,16 +38,21 @@ class SubContractorsController extends Controller
     }
     public function edit(Vendor $vendor, SubContractor $subContract, SubContractorEditRequest $request)
     {
-        $subContract->update($request->all());
+        $updateData = $request->except(['additional_doc', 'trade_licence', 'contract_paper', 'agreement_letter']);
+        $subContract->update($updateData);
 
         if ($request->has('additional_doc') && isset($request->additional_doc)) {
             $subContract->update(['additional_doc' => optimizeDocumentAndUpload($request->additional_doc)]);
         }
-        $subContract->update([
-            'trade_licence'    => optimizeDocumentAndUpload($request->trade_licence),
-            'contract_paper'   => optimizeDocumentAndUpload($request->contract_paper),
-            'agreement_letter' => optimizeDocumentAndUpload($request->agreement_letter),
-        ]);
+        if($request->has('trade_licence') && isset($request->trade_licence)){
+            $subContract->update(['trade_licence' => optimizeDocumentAndUpload($request->trade_licence)]);
+        }
+        if($request->has('contract_paper') && isset($request->contract_paper)){
+            $subContract->update(['contract_paper' => optimizeDocumentAndUpload($request->contract_paper)]);
+        }
+        if($request->has('agreement_letter') && isset($request->agreement_letter)){
+            $subContract->update(['agreement_letter' => optimizeDocumentAndUpload($request->agreement_letter)]);
+        }
         $subContract->services()->sync($request->services);
 
         return SubContractorsResource::make($subContract);
