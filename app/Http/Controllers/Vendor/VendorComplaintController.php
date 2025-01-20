@@ -46,7 +46,7 @@ class VendorComplaintController extends Controller
             ->when($request->filled('type'), function ($query) use ($vendor, $request) {
                 $buildings = $vendor->buildings->where('pivot.active', true)->where('pivot.end_date', '>', now()->toDateString())->unique()
                                 ->filter(function($buildings) use($request){
-                                        return $buildings->ownerAssociations->contains('role',$request->type);
+                                        return $buildings->ownerAssociations->where('pivot.active', true)->contains('role',$request->type);
                                 });
 
                 $query->whereIn('building_id', $buildings->pluck('id'));
@@ -199,6 +199,8 @@ class VendorComplaintController extends Controller
                                 'open_time' => $complaint?->open_time,
                                 'close_time' => $complaint?->close_time,
                                 'due_date' => $complaint?->due_date,
+                                'building_id' => $complaint?->building_id,
+                                'flat_id' => $complaint?->flat_id,
                         ],
                     ];
                     $this->expoNotification($message);
@@ -220,6 +222,8 @@ class VendorComplaintController extends Controller
                                 'open_time' => $complaint?->open_time,
                                 'close_time' => $complaint?->close_time,
                                 'due_date' => $complaint?->due_date,
+                                'building_id' => $complaint?->building_id,
+                                'flat_id' => $complaint?->flat_id,
                             ],
                             'format'    => 'filament',
                             'url'       => 'PreventiveMaintenance',
