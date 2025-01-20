@@ -20,7 +20,7 @@ class ItemsController extends Controller
                 ->when($request->filled('type'), function ($query) use ($vendor, $request) {
                     $buildings = $vendor->buildings->where('pivot.active', true)->unique()
                         ->filter(function($buildings) use($request){
-                            return $buildings->ownerAssociations->contains('role',$request->type);
+                            return $buildings->ownerAssociations->where('pivot.active', true)->contains('role',$request->type);
                         });
                     $query->whereIn('building_id', $buildings->pluck('id'));
                 });
