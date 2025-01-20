@@ -18,6 +18,7 @@ use App\Filament\Resources\Building\BuildingResource\RelationManagers\Ruleregula
 use App\Imports\OAM\BudgetImport;
 use App\Models\Building\Building;
 use App\Models\Building\BuildingPoc;
+use App\Models\Building\Flat;
 use App\Models\Master\Role;
 use App\Models\User\User;
 use App\Models\Vendor\Vendor;
@@ -153,6 +154,29 @@ class BuildingResource extends Resource
 
                     TextInput::make('parking_count')
                         ->rule('regex:/^[0-9\-.,\/_ ]+$/')
+                        ->live(onBlur: true) // Only trigger on blur (when user leaves the field)
+                        ->debounce(5000) // Wait 2 seconds after last keystroke before validating
+                        ->afterStateUpdated(function($state, $record, Set $set) {
+                            if (!$state || !$record) {
+                                return;
+                            }
+
+                            $flatsParking = Flat::where('building_id', $record->id)
+                                ->pluck('parking_count')
+                                ->toArray();
+
+                            $totalFlatParking = array_sum(array_filter($flatsParking, fn($value) => !is_null($value)));
+
+                            if ((int)$state < $totalFlatParking) {
+                                Notification::make()
+                                    ->title('Invalid parking count')
+                                    ->body("Total parking count cannot be less than sum of flat parking counts ($totalFlatParking)")
+                                    ->danger()
+                                    ->send();
+
+                                $set('parking_count', null);
+                            }
+                        })
                         ->placeholder('Total Parking Count')
                         ->label('Total Parking Count'),
 
