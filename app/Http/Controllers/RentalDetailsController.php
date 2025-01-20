@@ -69,8 +69,8 @@ class RentalDetailsController extends Controller
                 ->actions([
                     Action::make('view')
                         ->button()
-                        ->url(function () use ($oa, $rentalCheque) {
-                            $slug = OwnerAssociation::where('id', $oa)->first()?->slug;
+                        ->url(function () use ($pm, $rentalCheque) {
+                            $slug = OwnerAssociation::where('id', $pm)->first()?->slug;
                             if ($slug) {
                                 return RentalChequeResource::getUrl('edit', [$slug, $rentalCheque?->id]);
                             }
