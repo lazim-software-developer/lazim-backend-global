@@ -19,7 +19,7 @@ class DocumentResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'status'=> $this->status,
-            'url' => Storage::disk('s3')->url($this->url),
+            'url' => $this?->url != null ? Storage::disk('s3')->url($this->url) : null,
             'expiry_date' => $this->expiry_date,
         ];
     }
