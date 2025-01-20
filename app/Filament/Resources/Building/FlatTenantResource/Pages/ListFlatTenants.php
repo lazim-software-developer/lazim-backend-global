@@ -26,11 +26,9 @@ class ListFlatTenants extends ListRecords
     {
         $user = auth()->user();
 
-        $buildingIds = Building::where('owner_association_id', $user?->owner_association_id)->pluck('id')->toArray();
-
         $userRoleName = Role::where('id', $user->role_id)->value('name');
 
-        $approvedTenants = FlatTenant::where('active', true)->pluck('tenant_id')->toArray();
+        // $approvedTenants = FlatTenant::where('active', true)->pluck('tenant_id')->toArray();
 
         $pmbuildingIds = DB::table('building_owner_association')
             ->where('owner_association_id', auth()->user()?->owner_association_id)
@@ -38,7 +36,12 @@ class ListFlatTenants extends ListRecords
             ->pluck('building_id');
 
         if (auth()->user()?->role?->name === 'Property Manager') {
-            return parent::getTableQuery()->whereIn('building_id', $pmbuildingIds);
+            return parent::getTableQuery()->whereIn('building_id', $pmbuildingIds)
+                ->whereIn('tenant_id', function($query){
+                    $query->select('user_id')
+                        ->from('user_approvals')
+                        ->where('status', 'approved');
+                });
         }
 
         if ($userRoleName == 'Admin') {
