@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Filament\Resources\RentalChequeResource;
 use App\Models\User\User;
 use App\Models\RentalCheque;
 use App\Models\RentalDetail;
@@ -64,7 +65,7 @@ class RentalDetailsController extends Controller
                         ->url(function () use ($oa, $rentalCheque) {
                             $slug = OwnerAssociation::where('id', $oa)->first()?->slug;
                             if ($slug) {
-                                return RentalDetailsResource::getUrl('edit', [$slug, $rentalCheque?->id]);
+                                return RentalChequeResource::getUrl('edit', [$slug, $rentalCheque?->id]);
                             }
                             return url('/app/rental-cheques/' . $rentalCheque?->id . '/edit');
                         }),
