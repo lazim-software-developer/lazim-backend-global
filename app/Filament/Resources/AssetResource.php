@@ -144,7 +144,11 @@ class AssetResource extends Resource
                 TextColumn::make('building.name')->searchable()->label('Building')->limit(15),
                 TextColumn::make('asset_code'),
                 TextColumn::make('vendors.name')->default('NA')
-                    ->searchable()->label('Vendor'),
+                    ->searchable()->label(function(){
+                        if (auth()->user()?->role->name == 'Property Manager') {
+                            return 'Facility Managers';
+                        }return 'Vendors';
+                    }),
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
