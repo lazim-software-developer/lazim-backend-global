@@ -218,6 +218,16 @@ return [
                 'create_incident',
                 'update_incident',
 
+                'view_complaintsenquiry',
+                'view_any_complaintsenquiry',
+                'create_complaintsenquiry',
+                'update_complaintsenquiry',
+                
+                'view_complaintssuggession',
+                'view_any_complaintssuggession',
+                'create_complaintssuggession',
+                'update_complaintssuggession',
+
             ],
         ],
     ],
