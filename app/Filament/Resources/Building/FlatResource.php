@@ -14,6 +14,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
@@ -119,6 +120,51 @@ class FlatResource extends Resource
                         TextInput::make('parking_count')
                             ->placeholder('NA')
                             ->label('Parking Count')
+                            ->live(onBlur: true)
+                            ->debounce(2000)
+                            ->afterStateUpdated(function ($state, $get, Set $set) {
+                                if (!$state) {
+                                    return;
+                                }
+
+                                $buildingId = $get('building_id');
+                                $building = Building::find($buildingId);
+
+                                // Check if building exists and has parking count defined
+                                if (!$building || !$building->parking_count) {
+                                    Notification::make()
+                                        ->title('Parking not available')
+                                        ->body("This building does not have any parking spaces allocated.")
+                                        ->danger()
+                                        ->persistent()
+                                        ->send();
+
+                                    $set('parking_count', null);
+                                    return;
+                                }
+
+                                // Continue with existing validation for parking count limit
+                                $flatsParkingQuery = Flat::where('building_id', $buildingId)
+                                    ->where(function($query) use ($get) {
+                                        if ($get('id')) {
+                                            $query->where('id', '!=', $get('id'));
+                                        }
+                                    });
+
+                                $totalFlatsParking = $flatsParkingQuery->sum('parking_count');
+                                $newTotal = $totalFlatsParking + (int)$state;
+
+                                if ($newTotal > $building->parking_count) {
+                                    Notification::make()
+                                        ->title('Invalid parking count')
+                                        ->body("Total parking count of all flats ({$newTotal}) cannot exceed building's parking count ({$building->parking_count})")
+                                        ->danger()
+                                        ->persistent()
+                                        ->send();
+
+                                    $set('parking_count', null);
+                                }
+                            })
                             ->rule('regex:/^[0-9\-.,\/_ ]+$/'),
                         TextInput::make('plot_number')
                             ->placeholder('NA')
