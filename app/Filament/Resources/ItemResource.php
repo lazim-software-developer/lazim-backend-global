@@ -106,9 +106,16 @@ class ItemResource extends Resource
                 TextColumn::make('building.name')
                     ->searchable(),
                 TextColumn::make('vendors.name')
-                    ->searchable(),
+                    ->searchable()
+                    ->default('--')
+                    ->label(function () {
+                        if (auth()->user()?->role->name == 'Property Manager') {
+                            return 'Facility Managers';
+                        }return 'Vendors';
+                    }),
                 TextColumn::make('description')
-                    ->searchable(),
+                    ->searchable()
+                    ->limit(20),
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
