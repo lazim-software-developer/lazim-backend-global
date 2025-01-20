@@ -149,10 +149,10 @@ class ServiceBookingResource extends Resource
                                     ->required()
                                     ->disabledOn('edit')
                                     ->placeholder('Start Time'),
-                                TimePicker::make('end_time')
-                                    ->default('NA')
-                                    ->disabledOn('edit')
-                                    ->placeholder('End Time'),
+                                // TimePicker::make('end_time')
+                                //     ->default('NA')
+                                //     ->disabledOn('edit')
+                                //     ->placeholder('End Time'),
                             ]),
                         // TextInput::make('remarks')
                         //     ->default('NA')
