@@ -220,7 +220,7 @@ class ComplaintController extends Controller
      */
     public function create(ComplaintStoreRequest $request, Building $building)
     {
-        $oa_id = DB::table('building_owner_association')->where('building_id', $building->id)->where('active', true)->first()?->owner_association_id;
+        $oa_id = DB::table('building_owner_association')->where('building_id', $building->id)->where('active', true)->first()->owner_association_id;
 
         if (auth()->user()->role->name == 'Security') {
             // Check if the gatekeeper has active member of the building
