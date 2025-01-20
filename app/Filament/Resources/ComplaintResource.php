@@ -48,20 +48,6 @@ class ComplaintResource extends Resource
                                 Hidden::make('type')
                                     ->default('building'),
 
-                                Toggle::make('Urgent')
-                                    ->label('Mark as Urgent')
-                                    ->inline(false)
-                                    ->live()
-                                    ->onIcon('heroicon-o-exclamation-triangle')
-                                    ->offIcon('heroicon-o-x-circle')
-                                    ->onColor('danger')
-                                    ->visible(function (callable $get) {
-                                        if ($get('type') == 'personal') {
-                                            return true;
-                                        }return false;
-                                    })
-                                    ->default(false),
-
                                 Select::make('building_id')
                                     ->label('Building')
                                     ->options(function () {
@@ -96,6 +82,7 @@ class ComplaintResource extends Resource
                                 Textarea::make('complaint')
                                     ->label('Schedule Details')
                                     ->disabledOn('edit')
+                                    ->required()
                                     ->placeholder('Describe the Schedule Details in brief'),
                             ]),
 

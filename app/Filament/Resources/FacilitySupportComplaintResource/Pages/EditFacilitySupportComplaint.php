@@ -24,6 +24,11 @@ class EditFacilitySupportComplaint extends EditRecord
     {
         $data = parent::mutateFormDataBeforeFill($data);
 
+        if( $data['priority'] == 1 ) {
+            $data['Urgent'] = true;
+        }
+
+
         $complaint = $this->record;
 
         $service = Service::find($complaint->service_id);
@@ -47,6 +52,7 @@ class EditFacilitySupportComplaint extends EditRecord
                     'close_time' => Carbon::now(),
                 ]);
         }
+        
 
         $complaint = $this->record;
 
