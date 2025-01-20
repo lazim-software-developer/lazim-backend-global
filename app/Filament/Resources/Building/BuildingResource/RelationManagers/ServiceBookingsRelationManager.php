@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Filament\Resources\Building\BuildingResource\RelationManagers;
 
 use App\Models\Building\FacilityBooking;
@@ -73,9 +72,9 @@ class ServiceBookingsRelationManager extends RelationManager
 
                                 if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
                                     return User::whereIn('role_id', $roleId)->pluck('first_name', 'id');
-                                }elseif(Role::where('id', auth()->user()->role_id)->first()->name == 'Property Manager'){
+                                } elseif (Role::where('id', auth()->user()->role_id)->first()->name == 'Property Manager') {
                                     $flatTenantId = FlatTenant::where('building_id', $this->ownerRecord->id)
-                                    ->pluck('tenant_id');
+                                        ->pluck('tenant_id');
                                     return User::whereIn('id', $flatTenantId)->pluck('first_name', 'id');
                                 } else {
                                     return User::whereIn('role_id', $roleId)->where('owner_association_id', auth()->user()?->owner_association_id)->pluck('first_name', 'id');
@@ -145,7 +144,14 @@ class ServiceBookingsRelationManager extends RelationManager
                 //
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make()->label('Create Personal Service Booking'),
+                Tables\Actions\CreateAction::make()->label('Create Personal Service Booking')
+                    ->after(function ($record) {
+                        $flatId = FlatTenant::where('tenant_id', $record->user_id)->pluck('flat_id');
+                        $record->update([
+                            'flat_id' => $flatId[0],
+                        ]);
+
+                    }),
             ])
             ->actions([
                 Tables\Actions\EditAction::make()
