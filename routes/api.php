@@ -174,6 +174,12 @@ Route::middleware([])->group(function () {
     // Resend otp
     Route::post('/resend-otp', [RegistrationController::class, 'resendOtp']);
 
+    // email otp
+    Route::post('/send-otp',[RegistrationController::class, 'emailOtp']);
+
+    //verify otp
+    Route::post('/verify-otp',[RegistrationController::class, 'verifyOtp']);
+
     // List all tags
     Route::get('/tags', [TagController::class, 'index']);
 });
@@ -405,7 +411,7 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('vendor')->group(function 
     Route::patch('/managers-deatils/{vendor}',[VendorRegistrationController::class, 'updateManagerDetails']);
     Route::get('/{vendor}/services', [SelectServicesController::class, 'showServices']);
     Route::get('/{vendor}/show-documents', [DocumentsUploadController::class, 'showDocuments']);
-    
+
     Route::post('/{vendor}/escalation-matrix', [EscalationMatrixController::class, 'store']);
     Route::patch('/escalation-matrix/{escalationmatrix}', [EscalationMatrixController::class, 'edit']);
     Route::get('/{vendor}/escalation-matrix', [EscalationMatrixController::class, 'show']);
@@ -606,7 +612,7 @@ Route::post('/email-testing', [TestController::class, 'emailTriggering']);
 
 
 
-
+Route::get('fetchbuildings', [BuildingController::class, 'fetchbuildings']);
 // Dilip Shekhawat [Created New APIs]
 Route::middleware(['auth:sanctum', 'email.verified', 'active'])->group(function () {
     //Owner-Association

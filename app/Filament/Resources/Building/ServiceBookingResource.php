@@ -27,7 +27,9 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\Building\ServiceBookingResource\Pages;
 use App\Filament\Resources\Building\ServiceBookingResource\RelationManagers;
+use App\Models\Building\Flat;
 use Filament\Facades\Filament;
+use Filament\Tables\Filters\Filter;
 use Illuminate\Database\Eloquent\Model;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
@@ -67,6 +69,13 @@ class ServiceBookingResource extends Resource
                             ->disabledOn('edit')
                             ->searchable()
                             ->placeholder('Building'),
+
+                        TextInput::make('flat_id')
+                            ->formatStateUsing(function($state){
+                                return Flat::where('id',$state)->value('property_number');
+                            })
+                            ->label('Flat')
+                            ->disabledOn('edit'),
 
                         Select::make('bookable_id')
                             ->options(
@@ -145,6 +154,14 @@ class ServiceBookingResource extends Resource
                     ->searchable()
                     ->default('NA')
                     ->limit(50),
+                Tables\Columns\TextColumn::make('flat_id')
+                    ->formatStateUsing(function($state){
+                        return Flat::where('id',$state)->value('property_number');
+                    })
+                    ->default('NA')
+                    ->searchable()
+                    ->limit(50)
+                    ->label('Flat'),
                 Tables\Columns\TextColumn::make('bookable.name')
                     ->searchable()
                     ->default('NA')
@@ -171,19 +188,45 @@ class ServiceBookingResource extends Resource
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
-                SelectFilter::make('building_id')
-                ->options(function () {
-                    if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
-                        return Building::all()->pluck('name', 'id');
-                    }
-                    else{
-                        return Building::where('owner_association_id', auth()->user()?->owner_association_id)
-                        ->pluck('name', 'id');
-                    }    
-                })
-                    ->searchable()
-                    ->preload()
+                Filter::make('filter')
+                    ->form([
+                        Select::make('building_id')
+                            ->options(function () {
+                                if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+                                    return Building::all()->pluck('name', 'id');
+                                } else {
+                                    $buildingId = DB::table('building_owner_association')->where('owner_association_id',auth()->user()?->owner_association_id)->where('active',true)->pluck('building_id');
+                                    return Building::whereIn('id',$buildingId)->pluck('name', 'id');
+                                }
+                            })
+                            ->searchable()
+                            ->preload()
+                            ->label('Building')
+                            ->reactive(),
+                        Select::make('flat_id')
+                            ->label('Flat')
+                            ->options(function (callable $get) {
+                                if (empty($get('building_id'))) {
+                                    return [];
+                                } else {
+                                    return Flat::where('building_id', $get('building_id'))
+                                        ->pluck('property_number', 'id');
+                                }
+                            })
+                            ->searchable(),
+                    ])
+                    ->columns(2)
+                    ->query(function (Builder $query, array $data) {
+                        if (isset($data['building_id']) && $data['building_id']) {
+                            $query->where('building_id', $data['building_id']);
+                        }
+            
+                        if (isset($data['flat_id']) && $data['flat_id']) {
+                            $query->where('flat_id', $data['flat_id']);
+                        }
+                    }),
             ])
+            ->filtersFormColumns(3) 
             ->actions([
                 EditAction::make(),
             ])

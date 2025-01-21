@@ -67,23 +67,13 @@ class ProposalResource extends Resource
                     ->disabled(),
                 Select::make('vendor_id')
                     ->relationship('vendor', 'name')
-                    ->label('Vendor Name')
+                    ->label('Vendor')
                     ->disabled(),
                 TextInput::make('submitted_on')
                     ->disabled()
                     ->default(now()),
                 ViewField::make('Budget amount')
                         ->view('forms.components.budgetamount'),
-                FileUpload::make('document')
-                    ->disk('s3')
-                    ->directory('dev')
-                    ->disabled()
-                    ->label('Document')
-                    ->columnSpan([
-                        'sm' => 1,
-                        'md' => 1,
-                        'lg' => 2,
-                    ]),
                 Select::make('status')
                     ->options([
                         'approved' => 'Approve',
@@ -107,6 +97,11 @@ class ProposalResource extends Resource
                         return $record->status != null;
                     })
                     ->required(),
+                FileUpload::make('document')
+                    ->disk('s3')
+                    ->directory('dev')
+                    ->disabled()
+                    ->label('Document'),
             ])
         ]);
     }
@@ -117,8 +112,8 @@ class ProposalResource extends Resource
             ->columns([
                 TextColumn::make('amount')->searchable()->label('Amount'),
                 ViewColumn::make('Budget amount')->view('tables.columns.budgetamount')->alignCenter(),
-                TextColumn::make('submittedBy.name')->searchable()->label('Vendor Name'),
-                TextColumn::make('submitted_on')->label('Submitted On'),
+                TextColumn::make('submittedBy.name')->searchable()->label('Vendor name'),
+                TextColumn::make('submitted_on')->label('Submitted on'),
                 TextColumn::make('status')->default('NA')->searchable()->label('Status'),
             ])
             ->defaultSort('created_at', 'desc')

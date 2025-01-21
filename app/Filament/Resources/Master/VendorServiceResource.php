@@ -51,7 +51,7 @@ class VendorServiceResource extends Resource
                             ->required()
                             ->placeholder('NA'),
                         Select::make('subcategory_id')
-                            ->label('Sub Categories')
+                            ->label('Sub categories')
                             ->relationship('subcategory', 'name')
                             ->searchable()
                             ->preload()
@@ -125,7 +125,7 @@ class VendorServiceResource extends Resource
                 //
             ])
             ->actions([
-                // Tables\Actions\EditAction::make(),
+                Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -149,7 +149,7 @@ class VendorServiceResource extends Resource
         return [
             'index' => Pages\ListVendorServices::route('/'),
             'create' => Pages\CreateVendorService::route('/create'),
-            // 'edit' => Pages\EditVendorService::route('/{record}/edit'),
+            'edit' => Pages\EditVendorService::route('/{record}/edit'),
         ];
     }
 }

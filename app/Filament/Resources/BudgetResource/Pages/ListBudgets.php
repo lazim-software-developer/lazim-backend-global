@@ -17,6 +17,7 @@ use App\Filament\Resources\BudgetResource;
 use App\Models\Master\Role;
 use EightyNine\ExcelImport\ExcelImportAction;
 use Filament\Facades\Filament;
+use Filament\Forms\Components\Grid;
 use Illuminate\Support\Facades\DB;
 
 class ListBudgets extends ListRecords
@@ -39,7 +40,9 @@ class ListBudgets extends ListRecords
                 ->label('Upload Budget') // Set a label for your action
                 ->modalHeading('Upload Budget for Period') // Modal heading
                 ->form([
-                    Select::make('building_id')
+                    Grid::make(2)
+                    ->schema([
+                        Select::make('building_id')
                         ->options(function(){
                             if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
                                 return Building::all()->pluck('name', 'id');
@@ -75,6 +78,7 @@ class ListBudgets extends ListRecords
                         ->required()
                         ->disk('local') // or your preferred disk
                         ->directory('budget_imports'), // or your preferred directory
+                        ])
                 ])
                 ->action(function ($record, array $data, $livewire) {
                     // try {

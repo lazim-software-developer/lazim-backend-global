@@ -8,6 +8,8 @@ use Spatie\Sluggable\HasSlug;
 use App\Models\Community\Poll;
 use App\Models\Community\Post;
 use App\Models\Vendor\Contract;
+use App\Models\Vendor\Vendor;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\Accounting\Budget;
 use App\Models\Building\Building;
 use Spatie\Sluggable\SlugOptions;
@@ -16,7 +18,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Building\FacilityBooking;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class OwnerAssociation extends Model
 {
@@ -104,6 +105,12 @@ class OwnerAssociation extends Model
     {
         return $this->hasMany(Complaint::class);
     }
+
+    public function vendors()
+    {
+        return $this->belongsToMany(Vendor::class,'owner_association_vendor')->withPivot(['status']);
+    }
+
     public function getProfilePhotoAttribute($value)
     {
         return !empty($value) ? Storage::disk('s3')->url($value) : null;

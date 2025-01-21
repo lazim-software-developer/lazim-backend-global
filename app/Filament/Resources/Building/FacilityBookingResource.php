@@ -7,6 +7,8 @@ use Filament\Forms\Form;
 use App\Models\User\User;
 use Filament\Tables\Table;
 use App\Models\Master\Role;
+use App\Models\Building\Flat;
+use Filament\Facades\Filament;
 use Filament\Resources\Resource;
 use App\Models\Building\Building;
 use Illuminate\Support\Facades\DB;
@@ -16,16 +18,16 @@ use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
 use Filament\Tables\Actions\EditAction;
+use Illuminate\Database\Eloquent\Model;
 use App\Models\Building\FacilityBooking;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\TimePicker;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
-use App\Filament\Resources\Building\FacilityBookingResource\Pages;
-use Filament\Facades\Filament;
-use Illuminate\Database\Eloquent\Model;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
+use App\Filament\Resources\Building\FacilityBookingResource\Pages;
+use Filament\Tables\Filters\Filter;
 
 class FacilityBookingResource extends Resource
 {
@@ -65,6 +67,13 @@ class FacilityBookingResource extends Resource
                             ->preload()
                             ->searchable()
                             ->placeholder('Building'),
+                        
+                        TextInput::make('flat_id')
+                            ->formatStateUsing(function($state){
+                                return Flat::where('id',$state)->value('property_number');
+                            })
+                            ->label('Flat')
+                            ->disabledOn('edit'),
 
                         Select::make('bookable_id')
                             ->required()
@@ -145,6 +154,14 @@ class FacilityBookingResource extends Resource
                     ->default('NA')
                     ->searchable()
                     ->limit(50),
+                Tables\Columns\TextColumn::make('flat_id')
+                    ->formatStateUsing(function($state){
+                        return Flat::where('id',$state)->value('property_number');
+                    })
+                    ->default('NA')
+                    ->searchable()
+                    ->limit(50)
+                    ->label('Flat'),
                 Tables\Columns\TextColumn::make('bookable.name')
                     ->default('NA')
                     ->searchable()
@@ -173,16 +190,45 @@ class FacilityBookingResource extends Resource
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
-                SelectFilter::make('building_id')
-                    ->relationship('building', 'name',function (Builder $query){
-                        if(Role::where('id',auth()->user()->role_id)->first()->name != 'Admin')
-                        {
-                            $query->where('owner_association_id',Filament::getTenant()?->id);
+                Filter::make('filter')
+                    ->form([
+                        Select::make('building_id')
+                            ->options(function () {
+                                if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+                                    return Building::all()->pluck('name', 'id');
+                                } else {
+                                    $buildingId = DB::table('building_owner_association')->where('owner_association_id',auth()->user()?->owner_association_id)->where('active',true)->pluck('building_id');
+                                    return Building::whereIn('id',$buildingId)->pluck('name', 'id');
+                                }
+                            })
+                            ->searchable()
+                            ->preload()
+                            ->label('Building')
+                            ->reactive(),
+                        Select::make('flat_id')
+                            ->label('Flat')
+                            ->options(function (callable $get) {
+                                if (empty($get('building_id'))) {
+                                    return [];
+                                } else {
+                                    return Flat::where('building_id', $get('building_id'))
+                                        ->pluck('property_number', 'id');
+                                }
+                            })
+                            ->searchable(),
+                    ])
+                    ->columns(2)
+                    ->query(function (Builder $query, array $data) {
+                        if (isset($data['building_id']) && $data['building_id']) {
+                            $query->where('building_id', $data['building_id']);
                         }
-                    })
-                    ->searchable()
-                    ->preload()
+            
+                        if (isset($data['flat_id']) && $data['flat_id']) {
+                            $query->where('flat_id', $data['flat_id']);
+                        }
+                    }),
             ])
+            ->filtersFormColumns(3)            
             ->actions([
                 EditAction::make(),
                 Action::make('Update Status')

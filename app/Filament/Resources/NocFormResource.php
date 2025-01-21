@@ -2,26 +2,31 @@
 
 namespace App\Filament\Resources;
 
+use Closure;
+use App\Models\Order;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use App\Models\Master\Role;
 use App\Models\Forms\SaleNOC;
+use Filament\Facades\Filament;
 use Filament\Resources\Resource;
+use App\Models\Building\Building;
 use Filament\Forms\Components\Grid;
+use Filament\Tables\Filters\Filter;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
+use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Repeater;
 use Filament\Tables\Columns\TextColumn;
+use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\NocFormResource\Pages;
-use App\Models\Order;
-use Closure;
-use Filament\Facades\Filament;
-use Illuminate\Database\Eloquent\Model;
+use App\Models\Building\Flat;
+use Illuminate\Support\Facades\DB;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class NocFormResource extends Resource
@@ -64,7 +69,7 @@ class NocFormResource extends Resource
                         ->preload()
                         ->disabled()
                         ->searchable()
-                        ->label('Unit Number'),
+                        ->label('Flat'),
                     DatePicker::make('service_charge_paid_till')
                         ->disabled()
                         ->date(),
@@ -104,7 +109,10 @@ class NocFormResource extends Resource
                                     }
                                     return false;
                                 }),
-                            FileUpload::make('emirates_document_url')
+                            Section::make('Documents')
+                            ->columns(3)
+                            ->schema([
+                                FileUpload::make('emirates_document_url')
                                 ->visible(function (callable $get) {
                                     if ($get('emirates_document_url') != null) {
                                         return true;
@@ -152,12 +160,17 @@ class NocFormResource extends Resource
                                 ->label('Passport Document File')
                                 ->downloadable(true)
                                 ->openable(true),
+                            ])
                         ])
+                        ->columns(2)
                         ->columnSpan([
                             'sm' => 1,
-                            'md' => 1,
+                            'md' => 2,
                             'lg' => 2,
                         ]),
+                    Section::make('Documents')
+                    ->columns(2)
+                    ->schema([
                     FileUpload::make('cooling_receipt')
                         ->visible(function (callable $get) {
                             if ($get('cooling_receipt') != null) {
@@ -230,6 +243,7 @@ class NocFormResource extends Resource
                             'md' => '1',
                             'lg' => '2',
                         ]),
+                    ]),
                     Toggle::make('cooling_bill_paid')
                         ->disabled()
                         ->columnSpan([
@@ -320,7 +334,7 @@ class NocFormResource extends Resource
                 TextColumn::make('ticket_number')
                     ->searchable()
                     ->default('NA')
-                    ->label('Ticket Number'),
+                    ->label('Ticket number'),
                 TextColumn::make('user.first_name')
                     ->searchable()
                     ->default('NA'),
@@ -329,14 +343,14 @@ class NocFormResource extends Resource
                     ->default('NA'),
                 TextColumn::make('flat.property_number')
                     ->searchable()
-                    ->label('Unit Number')
-                    ->default('NA'),
+                    ->label('Flat')
+                    ->default('Pending'),
                 TextColumn::make('status')
                     ->searchable()
                     ->default('NA'),
                 TextColumn::make('orders')
                     ->formatStateUsing(fn ($state) => json_decode($state)? (json_decode($state)->payment_status == 'requires_payment_method' ? 'Payment Failed' : json_decode($state)->payment_status): 'NA')
-                    ->label('Payment Status')
+                    ->label('Payment status')
                     ->default('NA')
                     ->limit(50),
                 TextColumn::make('remarks')
@@ -345,22 +359,76 @@ class NocFormResource extends Resource
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
-                SelectFilter::make('building_id')
-                    ->relationship('building', 'name', function (Builder $query) {
-                        if (Role::where('id', auth()->user()->role_id)->first()->name != 'Admin') {
-                            $query->where('owner_association_id', Filament::getTenant()?->id);
+                Filter::make('building')
+                ->form([
+                    Select::make('Building')
+                        ->searchable()
+                        ->options(function () {
+                            if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+                                return Building::all()->pluck('name', 'id');
+                            } else {
+                                $buildingId = DB::table('building_owner_association')->where('owner_association_id',auth()->user()?->owner_association_id)->where('active',true)->pluck('building_id');
+                                return Building::whereIn('id',$buildingId)->pluck('name', 'id');
+                            }
+                        })
+                        ->reactive()
+                        ->afterStateUpdated(function (callable $set) {
+                            $set('flat', null);
+                        }),
+                    
+                    Select::make('flat')
+                        ->searchable()
+                        ->options(function (callable $get) {
+                            $buildingId = $get('Building'); // Get selected building ID
+                            if (empty($buildingId)) {
+                                return []; 
+                            }
+            
+                            return Flat::where('building_id', $buildingId)->pluck('property_number', 'id');
+                        }),
+                ])
+                ->columns(2) 
+                ->query(function (Builder $query, array $data): Builder {
+                    if (!empty($data['Building'])) {
+                        $flatIds = Flat::where('building_id', $data['Building'])->pluck('id');
+                        $query->whereIn('flat_id', $flatIds);
+                    }
+                    if (!empty($data['flat'])) {
+                        $query->where('flat_id', $data['flat']);
+                    }
+            
+                    return $query;
+                }),
+
+                Filter::make('status')
+                    ->form([
+                        Select::make('status')
+                            ->options([
+                                'approved' => 'Approved',
+                                'rejected' => 'Rejected',
+                                'NA' => 'Pending'
+                            ])
+                            ->label('Status')
+                            ->placeholder('Select Status')
+                            ->required(),
+                    ])
+                    ->columns(2)
+                    ->query(function (Builder $query, array $data): Builder {
+                        $selectedStatus = $data['status'] ?? null;
+                        
+                        if ($selectedStatus === 'NA') {
+                            $query->whereNull('status')
+                                    ->orWhereNotIn('status', ['approved', 'rejected']);
+                        }elseif ($selectedStatus !== null) {
+                            $query->where('status', $selectedStatus);
                         }
 
+                        return $query;
                     })
-                    ->searchable()
-                    ->preload()
-                    ->label('Building'),
-                // SelectFilter::make('flat_id')
-                //     ->relationship('flat', 'property_number')
-                //     ->searchable()
-                //     ->preload()
-                //     ->label('Unit Number'),
+
+            
             ])
+            ->filtersFormColumns(3) 
             ->bulkActions([
                 ExportBulkAction::make(),
                ])

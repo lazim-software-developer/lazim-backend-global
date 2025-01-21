@@ -43,7 +43,9 @@ class PollResource extends Resource
                 'sm' => 1,
                 'md' => 1,
                 'lg' => 1,
-            ])->schema([
+            ])
+            ->columns(2)
+            ->schema([
                 TextInput::make('question')
                     ->rules([function () {
                         return function (string $attribute, $value, Closure $fail) {
@@ -56,6 +58,7 @@ class PollResource extends Resource
                     ->suffix('?')
                     ->label('Question'),
                 KeyValue::make('options')
+                    ->columnSpanFull()
                     ->addActionLabel('Add Option')
                     ->default([
                         'option1' => '',
@@ -195,6 +198,11 @@ class PollResource extends Resource
                     ->searchable()
                     ->preload()
                     ->label('Building'),
+                SelectFilter::make('status')
+                    ->options([
+                        'published' => 'Published',
+                        'draft' => 'Draft',
+                    ])
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),

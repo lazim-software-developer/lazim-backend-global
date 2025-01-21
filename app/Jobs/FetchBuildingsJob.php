@@ -65,27 +65,23 @@ class FetchBuildingsJob implements ShouldQueue
 
                 $connection = DB::connection('lazim_accounts');
                 $created_by = $connection->table('users')->where('owner_association_id', $this->ownerAssociation->id)->where('type', 'company')->first()?->id;
-                $connection->table('users')->updateOrInsert(
-                    [
-                        'created_by' => $created_by,
-                        'owner_association_id' => $this->ownerAssociation->id,
-                        'building_id' => $building->id,
-                    ],
-                    [
-                        'name' => $building->name,
-                        'email' => 'user' . Str::random(8) . '@lazim.ae',
-                        'email_verified_at' => now(),
-                        'password' => Hash::make('password'),
-                        'type' => 'building',
-                        'lang' => 'en',
-                        'is_disable' => 0,
-                        'plan' => 1,
-                        'is_enable_login' => 1,
-                        'created_at' => now(), // Only relevant for insert
-                        'updated_at' => now()
-                    ]
-                );
-
+                $connection->table('users')->updateOrInsert([
+                    'building_id' => $building->id,
+                    'owner_association_id' => $this->ownerAssociation->id,
+                ],[
+                    'name' => $building->name,
+                    'email' => 'user' . Str::random(8) . '@lazim.ae',
+                    'email_verified_at' => now(),
+                    'password' => Hash::make('password'),
+                    'type' => 'building',
+                    'lang' => 'en',
+                    'created_by' => $created_by,
+                    'is_disable' => 0,
+                    'plan' => 1,
+                    'is_enable_login' => 1,
+                    'created_at' => now(),
+                    'updated_at' => now()
+                ]);
 
                 FetchFlatsAndOwnersForBuilding::dispatch($building);
             }

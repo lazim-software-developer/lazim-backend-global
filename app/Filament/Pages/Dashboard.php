@@ -47,6 +47,9 @@ class Dashboard extends BaseDashboard
     protected function getActions(): array
     {
         return [
+            Action::make('Accounting Module')
+                ->label('Accounting Module')
+                ->url(env('ACCOUNTING_URL')),
             Action::make('resetFilters')
                 ->label('Reset Filters')
                 ->color('danger')

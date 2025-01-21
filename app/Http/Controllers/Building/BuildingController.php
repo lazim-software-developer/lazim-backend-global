@@ -12,8 +12,10 @@ use App\Http\Controllers\Controller;
 use App\Repositories\BuildingRepository;
 use App\Http\Requests\Flat\ImportFlatRequest;
 use App\Http\Resources\Building\BuildingResource;
+use App\Http\Resources\Building\BuildingsResource;
 use App\Http\Requests\Building\StoreBuildingRequest;
 use App\Http\Requests\Building\UpdateBuildingRequest;
+use App\Http\Resources\Building\BuildingResourceCollection;
 
 class BuildingController extends Controller
 {
@@ -26,12 +28,17 @@ class BuildingController extends Controller
     /**
      * Display a listing of the resource.
      */
-    // public function index()
-    // {
-    //     $buildings = Building::get();
+    public function fetchbuildings(Request $request)
+    {
+        $query = Building::query();
+    
+        if ($request->has('type') && $request->type === 'globalOa') {
+            $query->where('resource', 'Default');
+        }
         
-    //     return new BuildingResourceCollection($buildings);
-    // }
+        $buildings = $query->get();
+        return BuildingsResource::collection($buildings);
+    }
     public function index(Request $request)
     {
         try {
@@ -59,7 +66,10 @@ class BuildingController extends Controller
             $data = $this->repository->update($id, $request->all());
             return response()->json(['success' => true,'error' => [],'data' =>  new BuildingResource($data), 'message' => 'Record updated successfully'], 200);
         } catch (\Exception $e) {
-            return response()->json(['message' => $e->getMessage()], 500);
+            if (str_contains($e->getMessage(), 'No query results for model')) {
+                return response()->json(['success' => false,'error' => ['message' => 'Flat not found'],'data' =>  []], 500);
+            }
+            return response()->json(['success' => false,'error' => ['message' => $e->getMessage()],'data' =>  []], 500);
         }
     }
 
@@ -69,7 +79,10 @@ class BuildingController extends Controller
             $this->repository->delete($id);
             return response()->json(['success' => true,'error' => [],'data' =>  [],'message' => 'Record deleted successfully'], 200);
         } catch (\Exception $e) {
-            return response()->json(['message' => $e->getMessage()], 500);
+            if (str_contains($e->getMessage(), 'No query results for model')) {
+                return response()->json(['success' => false,'error' => ['message' => 'Flat not found'],'data' =>  []], 500);
+            }
+            return response()->json(['success' => false,'error' => ['message' => $e->getMessage()],'data' =>  []], 500);
         }
     }
 
@@ -79,7 +92,10 @@ class BuildingController extends Controller
             $data = $this->repository->changeStatus($id);
             return response()->json(['success' => true,'error' => [],'data' => ['id'=>$data->id,'status'=>$data->status], 'message' => 'Status updated successfully'], 200);
         } catch (\Exception $e) {
-            return response()->json(['message' => $e->getMessage()], 500);
+            if (str_contains($e->getMessage(), 'No query results for model')) {
+                return response()->json(['success' => false,'error' => ['message' => 'Flat not found'],'data' =>  []], 500);
+            }
+            return response()->json(['success' => false,'error' => ['message' => $e->getMessage()],'data' =>  []], 500);
         }
     }
     // app/Http/Controllers/Api/OwnerAssociationController.php
@@ -100,6 +116,8 @@ class BuildingController extends Controller
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return response()->json([
                 'status' => false,
+                'data' => [],
+                'error' => [],
                 'message' => 'Building Detail not found'
             ], 404);
             

@@ -35,7 +35,7 @@ class InvoicesRelationManager extends RelationManager
             ->schema([
                 Grid::make([
                     'sm' => 1,
-                    'md' => 1,
+                    'md' => 2,
                     'lg' => 2,
                 ])
                     ->schema([
@@ -81,7 +81,7 @@ class InvoicesRelationManager extends RelationManager
                             ->label('Document')
                             ->columnSpan([
                                 'sm' => 1,
-                                'md' => 1,
+                                'md' => 2,
                                 'lg' => 2,
                             ]),
                         TextInput::make('opening_balance')

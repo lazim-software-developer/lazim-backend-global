@@ -17,10 +17,14 @@ use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\CheckboxList;
 use App\Filament\Resources\AccessCardFormsDocumentResource\Pages;
+use App\Models\Building\Building;
+use App\Models\Building\Flat;
 use App\Models\Order;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 use Filament\Tables;
+use Filament\Tables\Filters\Filter;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class AccessCardFormsDocumentResource extends Resource
 {
@@ -40,13 +44,13 @@ class AccessCardFormsDocumentResource extends Resource
                 ])->schema([
                     TextInput::make('card_type')
                         ->disabled()
-                        ->label('Card Type'),
+                        ->label('Card type'),
                     TextInput::make('email')
                         ->label('Email')
                         ->disabled()
                         ->placeholder('Email'),
                     TextInput::make('mobile')
-                        ->label('Mobile Number')
+                        ->label('Mobile number')
                         ->disabled()
                         ->placeholder('Mobile Number'),
                     Select::make('building_id')
@@ -54,13 +58,13 @@ class AccessCardFormsDocumentResource extends Resource
                         ->preload()
                         ->disabled()
                         ->searchable()
-                        ->label('Building Name'),
+                        ->label('Building name'),
                     Select::make('flat_id')
                         ->relationship('flat', 'property_number')
                         ->preload()
                         ->disabled()
                         ->searchable()
-                        ->label('Unit Number'),
+                        ->label('Flat'),
                     Select::make('user_id')
                         ->rules(['exists:users,id'])
                         ->relationship('user', 'first_name')
@@ -103,7 +107,7 @@ class AccessCardFormsDocumentResource extends Resource
                             }
                             return false;
                         })
-                        ->label('Vehicle Registration'),
+                        ->label('Vehicle registration'),
                     FileUpload::make('title_deed')
                         ->visible(function (callable $get) {
                             if ($get('title_deed') != null) {
@@ -149,7 +153,7 @@ class AccessCardFormsDocumentResource extends Resource
                             }
                             return 'NA';
                         })
-                        ->label('Payment Status')
+                        ->label('Payment status')
                         ->readOnly(),
                     TextInput::make('remarks')
                         ->rules(['max:150'])
@@ -197,7 +201,7 @@ class AccessCardFormsDocumentResource extends Resource
                 TextColumn::make('ticket_number')
                 ->searchable()
                 ->default('NA')
-                ->label('Ticket Number'),
+                ->label('Ticket number'),
                 TextColumn::make('card_type')
                     ->searchable()
                     ->default('NA')
@@ -213,7 +217,7 @@ class AccessCardFormsDocumentResource extends Resource
                 TextColumn::make('flat.property_number')
                     ->searchable()
                     ->default('NA')
-                    ->label('Unit Number')
+                    ->label('Flat')
                     ->limit(50),
                 // ImageColumn::make('tenancy')
                 //     ->label('Tenancy')
@@ -227,11 +231,11 @@ class AccessCardFormsDocumentResource extends Resource
                 //     ->disk('s3'),
                 TextColumn::make('status')
                     ->searchable()
-                    ->default('NA')
+                    ->default('Pending')
                     ->limit(50),
                 TextColumn::make('orders')
                     ->formatStateUsing(fn ($state) => json_decode($state)? (json_decode($state)->payment_status == 'requires_payment_method' ? 'Payment Failed' : json_decode($state)->payment_status): 'NA')
-                    ->label('Payment Status')
+                    ->label('Payment status')
                     ->default('NA')
                     ->limit(50),
                 TextColumn::make('remarks')
@@ -242,17 +246,76 @@ class AccessCardFormsDocumentResource extends Resource
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
-                SelectFilter::make('building_id')
-                    ->relationship('building', 'name', function (Builder $query) {
-                        if (Role::where('id', auth()->user()->role_id)->first()->name != 'Admin') {
-                            $query->where('owner_association_id', auth()->user()?->owner_association_id);
+                Filter::make('building')
+                ->form([
+                    Select::make('Building')
+                        ->searchable()
+                        ->options(function () {
+                            if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+                                return Building::all()->pluck('name', 'id');
+                            } else {
+                                $buildingId = DB::table('building_owner_association')->where('owner_association_id',auth()->user()?->owner_association_id)->where('active',true)->pluck('building_id');
+                                return Building::whereIn('id',$buildingId)->pluck('name', 'id');
+                            }
+                        })
+                        ->reactive()
+                        ->afterStateUpdated(function (callable $set) {
+                            $set('flat', null);
+                        }),
+                    
+                    Select::make('flat')
+                        ->searchable()
+                        ->options(function (callable $get) {
+                            $buildingId = $get('Building'); // Get selected building ID
+                            if (empty($buildingId)) {
+                                return []; 
+                            }
+            
+                            return Flat::where('building_id', $buildingId)->pluck('property_number', 'id');
+                        }),
+                ])
+                ->columns(2) 
+                ->query(function (Builder $query, array $data): Builder {
+                    if (!empty($data['Building'])) {
+                        $flatIds = Flat::where('building_id', $data['Building'])->pluck('id');
+                        $query->whereIn('flat_id', $flatIds);
+                    }
+                    if (!empty($data['flat'])) {
+                        $query->where('flat_id', $data['flat']);
+                    }
+            
+                    return $query;
+                }),
+
+                Filter::make('status')
+                    ->form([
+                        Select::make('status')
+                            ->options([
+                                'approved' => 'Approved',
+                                'rejected' => 'Rejected',
+                                'NA' => 'Pending'
+                            ])
+                            ->label('Status')
+                            ->placeholder('Select Status')
+                            ->required(),
+                    ])
+                    ->columns(2)
+                    ->query(function (Builder $query, array $data): Builder {
+                        $selectedStatus = $data['status'] ?? null;
+                        
+                        if ($selectedStatus === 'NA') {
+                            $query->whereNull('status')
+                                    ->orWhereNotIn('status', ['approved', 'rejected']);
+                        }elseif ($selectedStatus !== null) {
+                            $query->where('status', $selectedStatus);
                         }
 
+                        return $query;
                     })
-                    ->searchable()
-                    ->preload()
-                    ->label('Building'),
+
+            
             ])
+            ->filtersFormColumns(3) 
             ->bulkActions([
                 ExportBulkAction::make(),
                 Tables\Actions\BulkActionGroup::make([

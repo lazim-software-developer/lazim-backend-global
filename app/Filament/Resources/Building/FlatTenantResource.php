@@ -20,6 +20,10 @@ use Illuminate\Database\Eloquent\Builder;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 use App\Filament\Resources\Building\FlatTenantResource\Pages;
 use App\Filament\Resources\FlatTenantResource\RelationManagers\FamilyMembersRelationManager;
+use App\Models\Building\Building;
+use App\Models\Building\Flat;
+use Filament\Tables\Filters\Filter;
+use Illuminate\Support\Facades\DB;
 
 class FlatTenantResource extends Resource
 {
@@ -39,22 +43,6 @@ class FlatTenantResource extends Resource
                     'lg' => 2
                 ])
                     ->schema([
-                        Select::make('flat_id')
-                            ->rules(['exists:flats,id'])
-                            ->disabled()
-                            ->required()
-                            ->relationship('flat', 'property_number')
-                            ->searchable()
-                            ->preload()
-                            ->label('Unit Number'),
-                        Select::make('tenant_id')
-                            ->rules(['exists:users,id'])
-                            ->required()
-                            ->disabled()
-                            ->relationship('user', 'first_name')
-                            ->searchable()
-                            ->preload()
-                            ->placeholder('User'),
                         Select::make('building_id')
                             ->rules(['exists:buildings,id'])
                             ->relationship('building', 'name')
@@ -63,6 +51,22 @@ class FlatTenantResource extends Resource
                             ->preload()
                             ->searchable()
                             ->placeholder('Building'),
+                        Select::make('flat_id')
+                            ->rules(['exists:flats,id'])
+                            ->disabled()
+                            ->required()
+                            ->relationship('flat', 'property_number')
+                            ->searchable()
+                            ->preload()
+                            ->label('Flat'),
+                        Select::make('tenant_id')
+                            ->rules(['exists:users,id'])
+                            ->required()
+                            ->disabled()
+                            ->relationship('user', 'first_name')
+                            ->searchable()
+                            ->preload()
+                            ->placeholder('User'),
                         DatePicker::make('start_date')->label('Created Date')
                             ->rules(['date'])
                             ->disabled()
@@ -87,10 +91,14 @@ class FlatTenantResource extends Resource
         return $table
             ->poll('60s')
             ->columns([
+                TextColumn::make('building.name')
+                    ->default('NA')
+                    ->searchable()
+                    ->limit(50),
                 TextColumn::make('flat.property_number')
                     ->default('NA')
                     ->searchable()
-                    ->label('Unit Number')
+                    ->label('Flat')
                     ->limit(50),
                 TextColumn::make('user.first_name')
                     ->default('NA')
@@ -100,24 +108,57 @@ class FlatTenantResource extends Resource
                 TextColumn::make('start_date')
                     ->label('Created Date')
                     ->date(),
-                TextColumn::make('building.name')
-                    ->default('NA')
-                    ->searchable()
-                    ->limit(50),
                 TextColumn::make('role')->default('NA'),
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
-                SelectFilter::make('building_id')
-                    ->relationship('building', 'name', function (Builder $query) {
-                        if (Role::where('id', auth()->user()->role_id)->first()->name != 'Admin') {
-                            $query->where('owner_association_id', Filament::getTenant()?->id);
-                        }
-                    })
-                    ->searchable()
-                    ->label('Building')
-                    ->preload()
+                Filter::make('building')
+                ->form([
+                    Select::make('building_id')
+                        ->label('Building')
+                        ->native(false)
+                        ->options(function () {
+                            if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+                                return Building::all()->pluck('name', 'id');
+                            } else {
+                                $buildingId = DB::table('building_owner_association')
+                                    ->where('owner_association_id', auth()->user()?->owner_association_id)
+                                    ->where('active', true)
+                                    ->pluck('building_id');
+                                return Building::whereIn('id', $buildingId)->pluck('name', 'id');
+                            }
+                        })
+                        ->searchable()
+                        ->reactive()  // Make it reactive to trigger updates in flat selection
+                        ->afterStateUpdated(function (callable $set, $state) {
+                            $set('flat_id', null); // Reset the flat selection when the building changes
+                        }),
+                    
+                    Select::make('flat_id')
+                        ->label('Flat')
+                        ->native(false)
+                        ->options(function (callable $get) {
+                            $selectedBuildingId = $get('building_id'); // Get selected building ID
+                            if (empty($selectedBuildingId)) {
+                                return [];  // If no building is selected, return an empty array
+                            }
+                            return Flat::where('building_id', $selectedBuildingId)->pluck('property_number', 'id');
+                        })
+                        ->searchable(),
+                ])
+                ->columns(2)
+                ->query(function (Builder $query, array $data): Builder {
+                    if (!empty($data['building_id'])) {
+                        $query->where('building_id', $data['building_id']);
+                    }
+                    if (!empty($data['flat_id'])) {
+                        $query->where('flat_id', $data['flat_id']);
+                    }
+                    return $query;
+                })
+            
             ])
+            ->filtersFormColumns(3)
             ->actions([
                 Tables\Actions\EditAction::make(),
             ])
