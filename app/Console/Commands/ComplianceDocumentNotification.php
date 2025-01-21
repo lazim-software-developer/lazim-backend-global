@@ -42,7 +42,7 @@ class ComplianceDocumentNotification extends Command
 
             if ($daysLeft > 7 && $daysLeft <= 30) {
                 // Weekly reminder
-                if ($today->isSameDay($document->last_reminded_at->addWeek())) {
+                if ($document->last_reminded_at === null || $today->isSameDay($document->last_reminded_at->addWeek())) {
                     // Send email
                     Mail::to($document->vendor->user->email)->send(new ComplianceDocumentReminder($document));
                     // Update reminder timestamp

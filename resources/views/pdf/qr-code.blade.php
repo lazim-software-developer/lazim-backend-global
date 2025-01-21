@@ -47,7 +47,7 @@
 @endif
     <div>
         <div>
-            <h2>Asset Code : 
+            <h2>Asset Code :
             @if($data)
             {{$data['asset_code']}}
             @else
@@ -61,13 +61,13 @@
         <img src="{{ $data['qr_code'] }}" alt="QR Code">
             @else
             {{'NA'}}
-            @endif</h2>         
+            @endif</h2>
         </div>
         <!-- Print button -->
         <button onclick="printDocument()" class="print-button">Print</button>
-        <button onclick="window.location.href='/admin/assets'" class="print-button">Go Back</button>
+        <button onclick="window.location.href='{{ isset($data['is_property_manager']) && $data['is_property_manager'] ? '/app/assets' : '/admin/assets' }}'" class="print-button">Go Back</button>
     </div>
-    
+
     <script>
         // Function to open the print dialog
         function printDocument() {

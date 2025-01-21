@@ -1,12 +1,8 @@
 <?php
-
 namespace App\Filament\Resources\Building\FlatTenantResource\Pages;
 
 use App\Filament\Resources\Building\FlatTenantResource;
-use App\Models\Building\Building;
-use App\Models\Building\FlatTenant;
 use App\Models\Master\Role;
-use App\Models\UserApproval;
 use DB;
 use Filament\Resources\Pages\ListRecords;
 use Illuminate\Database\Eloquent\Builder;
@@ -37,7 +33,8 @@ class ListFlatTenants extends ListRecords
 
         if (auth()->user()?->role?->name === 'Property Manager') {
             return parent::getTableQuery()->whereIn('building_id', $pmbuildingIds)
-                ->whereIn('tenant_id', function($query){
+                ->where('active', true)
+                ->whereIn('tenant_id', function ($query) {
                     $query->select('user_id')
                         ->from('user_approvals')
                         ->where('status', 'approved');

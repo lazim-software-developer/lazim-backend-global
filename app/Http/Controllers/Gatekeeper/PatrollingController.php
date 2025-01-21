@@ -27,13 +27,13 @@ class PatrollingController extends Controller
 
         // Fetch floors
         $floors = Patrolling::where(['building_id' => $buildingId])->whereDate('created_at', $today)->get();
-        
+
         return FloorResource::collection($floors);
     }
 
     // Start patrolling API
     public function store(Request $request, Building $building) {
-        $oa_id = DB::table('building_owner_association')->where('building_id', $building->id)->where('active', true)->first()?->owner_association_id;
+        $oa_id = DB::table('building_owner_association')->where('building_id', $building->id)->where('active', true)->first()->owner_association_id;
         $floor = Floor::where(['floors' => $request->input('floor'), 'building_id' => $building->id])->first();
         if(BuildingPoc::where('building_id', $building->id)->where('active',true)->first()->user_id != auth()->user()->id) {
             return (new CustomResponseResource([
@@ -53,7 +53,7 @@ class PatrollingController extends Controller
                 'code' => 400,
             ]))->response()->setStatusCode(400);
         }
-        
+
         $request->merge([
             'building_id' => $building->id,
             'patrolled_by' => auth()->user()->id,

@@ -34,13 +34,13 @@ class SaleNocController extends Controller
         $oam_id = DB::table('building_owner_association')->where('building_id', $request->building_id)->where('active', true)->first();
 
         $validated['user_id']              = auth()->user()->id;
-        $validated['owner_association_id'] = $oam_id?->owner_association_id;
+        $validated['owner_association_id'] = $oam_id->owner_association_id;
         $validated['submit_status']        = 'download_file';
         $validated['ticket_number']        = generate_ticket_number("SN");
 
         // Create the SaleNoc entry
         $saleNoc          = SaleNoc::create($validated);
-        $tenant           = Filament::getTenant()?->id ?? $oam_id?->owner_association_id;
+        $tenant           = Filament::getTenant()?->id ?? $oam_id->owner_association_id;
         // $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
 
         $credentials = AccountCredentials::where('oa_id', $tenant)->where('active', true)->latest()->first();

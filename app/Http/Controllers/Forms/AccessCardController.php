@@ -37,7 +37,7 @@ class AccessCardController extends Controller
      */
     public function create(CreateAccessCardFormsRequest $request)
     {
-        $ownerAssociationId = DB::table('building_owner_association')->where(['building_id' => $request->building_id,'active'=>true])->first()?->owner_association_id;
+        $ownerAssociationId = DB::table('building_owner_association')->where(['building_id' => $request->building_id,'active'=>true])->first()->owner_association_id;
 
         // Handle multiple images
         $document_paths = [

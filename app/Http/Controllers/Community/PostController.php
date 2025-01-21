@@ -12,6 +12,7 @@ use App\Models\Building\Building;
 use App\Models\ExpoPushNotification;
 use App\Models\Media;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class PostController extends Controller
 {
@@ -50,6 +51,8 @@ class PostController extends Controller
 
     public function store(CreatePostRequest $request, Building $building)
     {
+        $oa_id = DB::table('building_owner_association')->where('building_id', $building->id)->where('active', true)->first()->owner_association_id;
+
         // $this->authorize('create', [Post::class, $building->id]);
         // Create a new post with the provided data and the building_id and user_id
         $post = Post::create([

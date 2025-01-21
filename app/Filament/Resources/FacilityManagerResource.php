@@ -63,7 +63,7 @@ class FacilityManagerResource extends Resource
                                                 'required' => 'Company Name is required',
                                             ])
                                             ->placeholder('Enter company name')
-                                            ->maxLength(100),
+                                            ->maxLength(50),
                                         TextInput::make('user.email')
                                             ->label('Email Address')
                                             ->email()

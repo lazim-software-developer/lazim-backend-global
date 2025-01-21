@@ -19,11 +19,10 @@ class ViewAsset extends ViewRecord
             ->action(function ($record) {
                 $data = [
                     'qr_code' => $record->qr_code,
-                    'asset_code' => $record->asset_code
+                    'asset_code' => $record->asset_code,
+                    'is_property_manager' => in_array(auth()->user()->role->name, ['Property Manager', 'Admin'])
                 ];
-                // $pdf= Pdf::loadView('pdf.qr-code', compact('data'));
-                // return $pdf->download('qrcode.pdf');
-                return redirect('/qr_code')->with('data',$data);
+                return redirect('/qr_code')->with('data', $data);
             })
         ];
     }
