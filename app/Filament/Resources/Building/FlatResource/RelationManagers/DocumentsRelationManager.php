@@ -26,6 +26,7 @@ class DocumentsRelationManager extends RelationManager
                     ->maxLength(50),
                 Select::make('document_library_id')
                     ->required()
+                    ->label('Document Library')
                     ->options(function () {
                         return DocumentLibrary::where('label', 'property_manager')->pluck('name', 'id');
                     })
@@ -66,10 +67,11 @@ class DocumentsRelationManager extends RelationManager
                 //
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make(),
+                // Tables\Actions\CreateAction::make(),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                // Tables\Actions\EditAction::make(),
+                Tables\Actions\ViewAction::make(),
                 // Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
