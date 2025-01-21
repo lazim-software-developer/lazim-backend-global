@@ -287,6 +287,7 @@ class FlatResource extends Resource
     public static function getRelations(): array
     {
         if (auth()->user()?->role?->name === 'Property Manager') {
+            
             return [
                 // FlatResource\RelationManagers\FlatDomesticHelpRelationManager::class,
                 // FlatResource\RelationManagers\FlatTenantRelationManager::class,
