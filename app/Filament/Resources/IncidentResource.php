@@ -2,10 +2,13 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Resources\ComplaintscomplaintResource\RelationManagers\CommentsRelationManager;
 use App\Filament\Resources\IncidentResource\Pages;
 use App\Filament\Resources\IncidentResource\RelationManagers;
+use App\Models\Building\Building;
 use App\Models\Building\Complaint;
 use App\Models\Incident;
+use App\Models\Master\Role;
 use App\Models\User\User;
 use Closure;
 use Filament\Forms;
@@ -22,6 +25,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -70,21 +74,6 @@ class IncidentResource extends Resource
                             ->preload()
                             ->required()
                             ->label('User'),
-                        Repeater::make('media')
-                            ->relationship()
-                            ->disabled()
-                            ->helperText(function($state){
-                                return $state == [] ? 'No media' : '';
-                            })
-                            ->schema([
-                                FileUpload::make('url')
-                                    ->disk('s3')
-                                    ->directory('dev')
-                                    ->maxSize(2048)
-                                    ->openable(true)
-                                    ->downloadable(true)
-                                    ->label('File'),
-                            ]),
                         DateTimePicker::make('open_time')->disabled()->label('created at'),
                         Textarea::make('complaint')->label('Incident Details')
                             ->disabled()
@@ -126,6 +115,24 @@ class IncidentResource extends Resource
                                 'md' => 1,
                                 'lg' => 2,
                             ]),
+                        Repeater::make('media')
+                            ->relationship()
+                            ->disabled()
+                            ->helperText(function($state){
+                                return $state == [] ? 'No media' : '';
+                            })
+                            ->schema([
+                                FileUpload::make('url')
+                                    ->disk('s3')
+                                    ->directory('dev')
+                                    ->maxSize(2048)
+                                    ->openable(true)
+                                    ->downloadable(true)
+                                    ->label('File'),
+                            ])
+                            ->visible(function ($record) {
+                                return $record && $record->media()->exists();
+                            }),
                     ]),
             ]);
     }
@@ -154,7 +161,24 @@ class IncidentResource extends Resource
                     ->limit(50),
             ])
             ->filters([
-                //
+                SelectFilter::make('building_id')
+                    ->label('Building')
+                    ->preload()
+                    ->searchable()
+                    ->options(function () {
+                        if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+                            return Building::all()->pluck('name', 'id');
+                        } else {
+                            $buildingId = DB::table('building_owner_association')->where('owner_association_id',auth()->user()?->owner_association_id)->where('active',true)->pluck('building_id');
+                            return Building::whereIn('id',$buildingId)->pluck('name', 'id');
+                        }
+                    }),
+            
+                SelectFilter::make('status')
+                    ->options([
+                        'open' => 'Open',
+                        'closed' => 'Closed'
+                    ])
             ])
             ->actions([
                 // Tables\Actions\ViewAction::make(),
@@ -170,7 +194,7 @@ class IncidentResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            CommentsRelationManager::class
         ];
     }
 

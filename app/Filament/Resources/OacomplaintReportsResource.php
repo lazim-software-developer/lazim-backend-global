@@ -26,8 +26,11 @@ use Filament\Forms\Components\FileUpload;
 use App\Filament\Resources\OacomplaintReportsResource\Pages;
 use App\Models\Accounting\SubCategory;
 use App\Models\Master\Service;
+use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Repeater;
+use Filament\Tables\Filters\SelectFilter;
+use Illuminate\Support\Facades\DB;
 
 class OacomplaintReportsResource extends Resource
 {
@@ -40,12 +43,16 @@ class OacomplaintReportsResource extends Resource
     public static function form(Form $form): Form
     {
         return $form
-            ->schema([
+        ->schema([
+            Grid::make([
+                'sm' => 1,
+                'md' => 2,
+                'lg' => 2   ,
+            ])->schema([
                 TextInput::make('ticket_number')
                     ->disabled()
                     ->visible(fn($livewire) => $livewire instanceof Pages\EditOacomplaintReports) // Only show on edit page
-                    ->label('Ticket Number')
-                    ->columnSpanFull(),
+                    ->label('Ticket Number'),
                 Select::make('type')
                     ->options([
                         'Technician' => 'Technician',
@@ -142,13 +149,11 @@ class OacomplaintReportsResource extends Resource
                         }
                     })
                     ->live()
-                    ->required()
-                    ->columnSpanFull(),
+                    ->required(),
 
                 Textarea::make('complaint')->label('Issue')
                     ->maxLength(350)
-                    ->required()->disabledOn('edit')
-                    ->columnSpanFull(),
+                    ->required()->disabledOn('edit'),
                 // FileUpload::make('image')
                 //     ->disk('s3')
                 //     ->rules('file|mimes:jpeg,jpg,png|max:2048')
@@ -173,12 +178,6 @@ class OacomplaintReportsResource extends Resource
                             ->required()
                             ->maxSize(2048)
                             ->label('Image')
-                            ->columnSpanFull()
-                    ])
-                    ->columnSpan([
-                        'sm' => 1,
-                        'md' => 1,
-                        'lg' => 2
                     ])
                     ->addable(false)->disabledOn('edit')
                     ->deletable(false),
@@ -205,7 +204,8 @@ class OacomplaintReportsResource extends Resource
                     ->default('OA Complaint'),
                 Hidden::make('complaint_type')
                     ->default('oa_complaint_report')
-            ]);
+                ]),
+        ]);
     }
 
     public static function table(Table $table): Table
@@ -221,7 +221,18 @@ class OacomplaintReportsResource extends Resource
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
-                //
+                    SelectFilter::make('building_id')
+                        ->options(function () {
+                            if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+                                return Building::all()->pluck('name', 'id');
+                            } else {
+                                $buildingId = DB::table('building_owner_association')->where('owner_association_id',auth()->user()?->owner_association_id)->where('active',true)->pluck('building_id');
+                                return Building::whereIn('id',$buildingId)->pluck('name', 'id');
+                            }
+                        })
+                        ->searchable()
+                        ->preload()
+                        ->label('Building')
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

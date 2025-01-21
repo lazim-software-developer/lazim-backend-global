@@ -48,7 +48,7 @@ class TechnicianAssetsResource extends Resource
                     })
                     ->live()
                     ->searchable()
-                    ->label('Building Name'),
+                    ->label('Building'),
                 Select::make('asset_id')
                     ->relationship('asset', 'name')
                     ->options(function () {
@@ -57,7 +57,7 @@ class TechnicianAssetsResource extends Resource
                     })
                     ->preload()
                     ->searchable()
-                    ->label('Asset Name'),
+                    ->label('Asset name'),
                 Select::make('technician_id')
                     ->relationship('user', 'first_name')
                     ->options(function () {
@@ -68,7 +68,7 @@ class TechnicianAssetsResource extends Resource
                     })
                     ->preload()
                     ->searchable()
-                    ->label('Technician Name'),
+                    ->label('Technician name'),
                 Select::make('vendor_id')
                     ->relationship('vendor', 'name')
                     ->options(function (Get $get) {
@@ -81,7 +81,7 @@ class TechnicianAssetsResource extends Resource
                     })
                     ->preload()
                     ->searchable()
-                    ->label('Vendor Name'),
+                    ->label('Vendor name'),
 
                 Toggle::make('active')
                     ->rules(['boolean']),
@@ -93,10 +93,10 @@ class TechnicianAssetsResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('asset.name')->searchable()->label('Asset Name'),
-                TextColumn::make('user.first_name')->searchable()->label('Technician Name'),
-                TextColumn::make('vendor.name')->searchable()->label('Vendor Name'),
-                TextColumn::make('building.name')->searchable()->label('Building Name'),
+                TextColumn::make('asset.name')->searchable()->label('Asset name'),
+                TextColumn::make('user.first_name')->searchable()->label('Technician name'),
+                TextColumn::make('vendor.name')->searchable()->label('Vendor name'),
+                TextColumn::make('building.name')->searchable()->label('Building name'),
                 IconColumn::make('active')
                     ->boolean()
                     ->trueIcon('heroicon-o-check-badge')
@@ -122,6 +122,21 @@ class TechnicianAssetsResource extends Resource
                     ->searchable()
                     ->preload()
                     ->label('Vendor'),
+
+                SelectFilter::make('technician_id')
+                    ->options(function(){
+                        if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+                            $userId = TechnicianAssets::pluck('technician_id');
+                            return User::whereIn('id',$userId)->pluck('first_name','id');
+                        } else {
+                            $userId = TechnicianAssets::where('owner_association_id',auth()->user()->owner_association_id)->pluck('technician_id');
+                            return User::whereIn('id',$userId)->pluck('first_name','id');
+                        }
+                    })
+                    ->searchable()
+                    ->preload()
+                    ->native(false)
+                    ->label('Technician')
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),

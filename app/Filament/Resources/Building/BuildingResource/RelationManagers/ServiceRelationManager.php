@@ -9,6 +9,7 @@ use Filament\Tables\Table;
 use App\Models\Master\Service;
 use Illuminate\Support\Facades\DB;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Toggle;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -31,6 +32,7 @@ class ServiceRelationManager extends RelationManager
                 Forms\Components\TextInput::make('name')
                     ->required()
                     ->maxLength(255),
+                Toggle::make('active')
             ]);
     }
 
@@ -73,7 +75,7 @@ class ServiceRelationManager extends RelationManager
                     }),
             ])
             ->actions([
-                //Tables\Actions\EditAction::make(),
+                Tables\Actions\EditAction::make(),
                 // Tables\Actions\DetachAction::make()->label('Remove'),
                 //Tables\Actions\DeleteAction::make(),
             ])

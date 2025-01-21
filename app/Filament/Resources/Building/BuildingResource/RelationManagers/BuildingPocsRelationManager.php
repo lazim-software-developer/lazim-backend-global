@@ -42,8 +42,8 @@ class BuildingPocsRelationManager extends RelationManager
             ->schema([
                 Grid::make([
                     'sm' => 1,
-                    'md' => 1,
-                    'lg' => 1,
+                    'md' => 2,
+                    'lg' => 2,
                 ])->schema([
 
                     Select::make('user_id')
@@ -132,6 +132,12 @@ class BuildingPocsRelationManager extends RelationManager
                     ->visible(fn(RelationManager $livewire) => BuildingPoc::where('building_id', $livewire->ownerRecord->id)->where('active', 1)->count() == 0)
                     ->button()
                     ->form([
+                        Grid::make([
+                            'sm' => 1,
+                            'md' => 2,
+                            'lg' => 2   ,
+                        ])
+                    ->schema([
                         TextInput::make('first_name')
                             ->required(),
                         TextInput::make('last_name')
@@ -170,6 +176,7 @@ class BuildingPocsRelationManager extends RelationManager
                             ->default(function (RelationManager $livewire) {
                                 return $livewire->ownerRecord->id;
                             }),
+                        ])
                     ])
                     ->action(function (RelationManager $livewire, array $data): void {
 

@@ -2,20 +2,21 @@
 
 namespace App\Filament\Resources\User;
 
-use App\Filament\Resources\User\UserResource\Pages;
-use App\Models\Master\Role;
+use Filament\Tables;
+use Filament\Forms\Form;
 use App\Models\User\User;
+use Filament\Tables\Table;
+use App\Models\Master\Role;
+use Filament\Resources\Resource;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
-use Filament\Tables;
-use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Filament\Forms\Components\TextInput;
+use Filament\Tables\Filters\SelectFilter;
+use Illuminate\Database\Eloquent\Builder;
+use App\Filament\Resources\User\UserResource\Pages;
 
 class UserResource extends Resource
 {
@@ -128,20 +129,16 @@ class UserResource extends Resource
             ->poll('60s')
             ->columns([
                 Tables\Columns\TextColumn::make('first_name')
-                    ->toggleable()
                     ->searchable()
                     ->limit(15),
                 Tables\Columns\TextColumn::make('email')
-                    ->toggleable()
                     ->searchable()
                     ->limit(50),
                 Tables\Columns\TextColumn::make('phone')
-                    ->toggleable()
                     ->searchable()
                     ->limit(50)
                     ->default('NA'),
-                Tables\Columns\ToggleColumn::make('active')
-                    ->toggleable(),
+                Tables\Columns\ToggleColumn::make('active'),
                 // Tables\Columns\TextColumn::make('lazim_id')
                 //     ->toggleable()
                 //     ->searchable()
@@ -152,7 +149,17 @@ class UserResource extends Resource
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
-                //
+                SelectFilter::make('role_id')
+                ->options(function(){
+                    if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+                        return Role::all()->pluck('name', 'id');
+                    } else {
+                        return Role::where('owner_association_id', auth()->user()?->owner_association_id)
+                            ->pluck('name', 'id');
+                    }
+                })
+                ->label('Role')
+                ->searchable(),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

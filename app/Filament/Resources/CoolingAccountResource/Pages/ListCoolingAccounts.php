@@ -21,6 +21,7 @@ use App\Filament\Resources\CoolingAccountResource;
 use App\Models\Master\Role;
 use pxlrbt\FilamentExcel\Actions\Pages\ExportAction;
 use Coolsam\FilamentFlatpickr\Forms\Components\Flatpickr;
+use Filament\Forms\Components\Grid;
 
 class ListCoolingAccounts extends ListRecords
 {
@@ -35,50 +36,53 @@ class ListCoolingAccounts extends ListRecords
                     ->slideOver()
                     ->color("primary")
                     ->form([
-                        Select::make('building_id')
-                        ->required()
-                        ->relationship('building', 'name')
-                        ->options(function () {
-                            if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
-                                return Building::all()->pluck('name', 'id');
-                            }
-                            else{
-                                return Building::where('owner_association_id', auth()->user()?->owner_association_id)
-                                ->pluck('name', 'id');
-                            } 
-                        })
-                        ->searchable()
-                        ->label('Building Name'),
-                        FileUpload::make('excel_file')
-                        ->label('Cooling Accounts Excel Data')
-                        ->acceptedFileTypes([
-                            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // for .xlsx
-                            'application/vnd.ms-excel', // for .xls
+                        Grid::make(2)
+                        ->schema([
+                            Select::make('building_id')
+                            ->required()
+                            ->relationship('building', 'name')
+                            ->options(function () {
+                                if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
+                                    return Building::all()->pluck('name', 'id');
+                                }
+                                else{
+                                    return Building::where('owner_association_id', auth()->user()?->owner_association_id)
+                                    ->pluck('name', 'id');
+                                } 
+                            })
+                            ->searchable()
+                            ->label('Building'),
+                            Select::make('month')
+                            ->searchable()
+                            ->required()
+                            ->placeholder('Select Month')
+                            ->options([
+                                'january' => 'January',
+                                'february' => 'February',
+                                'march' => 'March',
+                                'april' => 'April',
+                                'may' => 'May',
+                                'june' => 'June',
+                                'july' => 'July',
+                                'august' => 'August',
+                                'september' => 'September',
+                                'october' => 'October',
+                                'november' => 'November',
+                                'december' => 'December',
+                            ]),
+                            Select::make('year')
+                            ->required()
+                            ->searchable()
+                            ->placeholder('Select Year')
+                            ->options(array_combine(range(now()->year, 2018), range(now()->year, 2018))),
+                            FileUpload::make('excel_file')
+                            ->label('Cooling Accounts Excel Data')
+                            ->acceptedFileTypes([
+                                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // for .xlsx
+                                'application/vnd.ms-excel', // for .xls
+                            ])
+                            ->required(),
                         ])
-                        ->required(),
-                        Select::make('month')
-                        ->searchable()
-                        ->required()
-                        ->placeholder('Select Month')
-                        ->options([
-                            'january' => 'January',
-                            'february' => 'February',
-                            'march' => 'March',
-                            'april' => 'April',
-                            'may' => 'May',
-                            'june' => 'June',
-                            'july' => 'July',
-                            'august' => 'August',
-                            'september' => 'September',
-                            'october' => 'October',
-                            'november' => 'November',
-                            'december' => 'December',
-                        ]),
-                        Select::make('year')
-                        ->required()
-                        ->searchable()
-                        ->placeholder('Select Year')
-                        ->options(array_combine(range(now()->year, 2018), range(now()->year, 2018))),
                     ])
                     ->action(function (array $data) {
                     $buildingId= $data['building_id'];

@@ -16,6 +16,7 @@ use App\Models\AccountCredentials;
 use App\Models\Master\Role;
 use App\Models\OwnerAssociation;
 use App\Models\UserApproval;
+use App\Models\UserApprovalAudit;
 use Filament\Facades\Filament;
 
 class EditUserApproval extends EditRecord
@@ -79,6 +80,29 @@ class EditUserApproval extends EditRecord
                 ->danger()
                 ->body("Resident has been rejacted")
                 ->send();
+        }
+        if($this->record->status == null){
+            $userHistory = UserApprovalAudit::where('user_approval_id', $this->record->id)->where('status', null)->first();
+            if(!$userHistory){
+                UserApprovalAudit::create([
+                    'user_approval_id' => $this->record->id,
+                    'document' => $this->record->document,
+                    'document_type' => $this->record->document_type,
+                    'emirates_document' => $this->record->emirates_document,
+                    'passport' => $this->record->passport,
+                    'status' => $this->data['status'],
+                    'remarks' => $this->data['remarks'],
+                    'updated_by' => auth()->user()->id,
+                    'owner_association_id' => $this->record->owner_association_id,
+                ]);
+            }
+            else{
+                $userHistory->update([
+                    'status' => $this->data['status'],
+                    'remarks' => $this->data['remarks'],
+                    'updated_by' => auth()->user()->id,
+                ]);
+            }
         }
     }
     protected function getRedirectUrl(): string

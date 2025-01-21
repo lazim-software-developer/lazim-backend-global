@@ -42,6 +42,7 @@ class BuildingserviceRelationManager extends RelationManager
                     'md' => 1,
                     'lg' => 1,
                 ])
+                    ->columns(2)
                     ->schema([
                         TextInput::make('name')
                             ->rules(['max:50', 'string'])
@@ -52,7 +53,8 @@ class BuildingserviceRelationManager extends RelationManager
                         TextInput::make('code')
                             ->alphaDash()
                             ->required()
-                            ->placeholder('NA'),
+                            ->placeholder('NA')
+                            ->disabledOn('edit'),
                         TextInput::make('payment_link')
                             ->placeholder('NA')
                             ->url(),
@@ -99,7 +101,7 @@ class BuildingserviceRelationManager extends RelationManager
                 // Tables\Actions\CreateAction::make(),
             ])
             ->actions([
-                // Tables\Actions\EditAction::make(),
+                Tables\Actions\EditAction::make(),
                 // Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([

@@ -25,6 +25,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\ItemInventoryResource\Pages;
 use App\Filament\Resources\ItemInventoryResource\RelationManagers;
 use App\Models\Master\Role;
+use Filament\Tables\Filters\SelectFilter;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class ItemInventoryResource extends Resource
@@ -112,9 +113,20 @@ class ItemInventoryResource extends Resource
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
-                //
+                SelectFilter::make('item_id')
+                    ->label('Item')
+                    ->options(function(){
+                        if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+                            return Item::pluck('name','id');
+                        } else {
+                           return Item::where('owner_association_id',auth()->user()->owner_association_id)->pluck('name','id');
+                        }
+                    })
+                    ->searchable()
+                    ->preload()
             ])
             ->actions([
+                Tables\Actions\EditAction::make(),
                 Tables\Actions\ViewAction::make(),
             ])
             ->bulkActions([
@@ -141,7 +153,7 @@ class ItemInventoryResource extends Resource
             'index' => Pages\ListItemInventories::route('/'),
             'create' => Pages\CreateItemInventory::route('/create'),
             'view' => Pages\ViewItemInventory::route('/{record}'),
-            // 'edit' => Pages\EditItemInventory::route('/{record}/edit'),
+            'edit' => Pages\EditItemInventory::route('/{record}/edit'),
         ];
     }
 }

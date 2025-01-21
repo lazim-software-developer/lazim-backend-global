@@ -193,9 +193,10 @@ class ActivityResource extends Resource
                 //     ->label(__('filament-logger::filament-logger.resource.label.type'))
                 //     ->options(static::getLogNameList()),
 
-                // SelectFilter::make('subject_type')
-                //     ->label(__('filament-logger::filament-logger.resource.label.subject_type'))
-                //     ->options(static::getSubjectTypeList()),
+                SelectFilter::make('subject_type')
+                    ->label('Feature')
+                    ->options(static::getSubjectTypeList())
+                    ->searchable(),
 
                 // Filter::make('properties->old')
                 //     ->indicateUsing(function (array $data): ?string {

@@ -2,9 +2,13 @@
 
 namespace App\Observers;
 
+use App\Filament\Resources\Building\FlatTenantResource;
 use App\Filament\Resources\MoveInFormsDocumentResource;
 use App\Filament\Resources\MoveOutFormsDocumentResource;
+use App\Jobs\MoveoutNotificationJob;
+use App\Models\AccountCredentials;
 use App\Models\Building\Building;
+use App\Models\Building\FlatTenant;
 use App\Models\Forms\MoveInOut;
 use App\Models\Master\Role;
 use App\Models\OwnerAssociation;
@@ -57,6 +61,35 @@ class MoveInOutObserver
                     ->url(fn () => MoveOutFormsDocumentResource::getUrl('edit', [OwnerAssociation::where('id',$moveInOut->owner_association_id)->first()?->slug,$moveInOut->id])),
             ])
             ->sendToDatabase($notifyTo);
+            if($moveInOut->moving_date < now()->subDay()->toDateString()){
+                $moveout = $moveInOut;
+                $user = User::whereHas('role', function($query) {
+                    $query->where('name', 'OA');
+                })->where('owner_association_id',$moveout->owner_association_id)->first();
+                $flatTenat = FlatTenant::where('tenant_id', $moveout->user_id)->where('flat_id', $moveout->flat_id)->first();
+            Notification::make()
+                    ->success()
+                    ->title("Moveout")
+                    ->icon('heroicon-o-document-text')
+                    ->iconColor('warning')
+                    ->body('There is a resident moving out on ' . $moveout->moving_date )
+                    ->actions([
+                        Action::make('view')
+                            ->button()
+                            ->url(fn () => FlatTenantResource::getUrl('edit', [OwnerAssociation::where('id',$moveout->owner_association_id)->first()?->slug,$flatTenat?->id])),
+                    ])
+                    ->sendToDatabase($user);
+            $credentials = AccountCredentials::where('oa_id', $moveout->owner_association_id)->where('active', true)->latest()->first();
+            $mailCredentials = [
+                'mail_host' => $credentials->host??env('MAIL_HOST'),
+                'mail_port' => $credentials->port??env('MAIL_PORT'),
+                'mail_username'=> $credentials->username??env('MAIL_USERNAME'),
+                'mail_password' => $credentials->password??env('MAIL_PASSWORD'),
+                'mail_encryption' => $credentials->encryption??env('MAIL_ENCRYPTION'),
+                'mail_from_address' => $credentials->email??env('MAIL_FROM_ADDRESS'),
+            ];
+            MoveoutNotificationJob::dispatch($user, $moveout, $mailCredentials);
+            }
         }
     }
 
