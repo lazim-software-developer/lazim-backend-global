@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Resources\ComplaintResource\RelationManagers\CommentsRelationManager;
 use App\Filament\Resources\SnagsResource\Pages;
 use App\Models\Building\Building;
 use App\Models\Building\Complaint;
@@ -360,7 +361,7 @@ class SnagsResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            CommentsRelationManager::class,
         ];
     }
 
