@@ -204,10 +204,11 @@ class RegistrationController extends Controller
     {
         $userData = User::where(['email' => $request->get('email'), 'phone' => $request->get('mobile')]);
         if ($request->type == 'Owner') {
+            $ownerId=$request->get('owner_id');
             $userData->where('owner_id', $request->get('owner_id'));
+        }else{
+            $ownerId=NULL;
         }
-
-
         if ($userData->exists() && ($userData->first()->email_verified == 0)) {
             return (new CustomResponseResource([
                 'title' => 'account_present',
@@ -276,6 +277,7 @@ class RegistrationController extends Controller
             'phone' => $request->mobile, // Assuming phone is still provided for communication
             'role_id' => $role,
             'active' => 0,
+            'owner_id' => $ownerId,
             'owner_association_id' => $owner_association_id,
         ]);
 
