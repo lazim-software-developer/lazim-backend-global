@@ -31,20 +31,25 @@ class ListFlatTenants extends ListRecords
             ->where('active', true)
             ->pluck('building_id');
 
+        $pmFlats = DB::table('property_manager_flats')
+            ->where('owner_association_id', auth()->user()?->owner_association_id)
+            ->where('active', true)
+            ->pluck('flat_id')
+            ->toArray();
+
         if (auth()->user()?->role?->name === 'Property Manager') {
-            return parent::getTableQuery()->whereIn('building_id', $pmbuildingIds)
+            return parent::getTableQuery()
                 ->where('active', true)
+                ->whereIn('flat_id', $pmFlats)
                 ->whereIn('tenant_id', function ($query) {
                     $query->select('user_id')
                         ->from('user_approvals')
                         ->where('status', 'approved');
                 });
-        }
+        } elseif ($userRoleName == 'OA') {
+            return parent::getTableQuery()->whereIn('building_id', $pmbuildingIds);
 
-        if ($userRoleName == 'Admin') {
-            return parent::getTableQuery(); // Full query for Property Manager/Admin
         }
-
-        return parent::getTableQuery()->whereIn('building_id', $pmbuildingIds);
+        return parent::getTableQuery();
     }
 }

@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Filament\Resources\TenantDocumentResource\Pages;
 
 use App\Filament\Resources\TenantDocumentResource;
@@ -18,14 +17,20 @@ class ListTenantDocuments extends ListRecords
             ->where('active', true)
             ->pluck('building_id');
 
-        if (auth()->user()->role->name == 'Admin') {
-            return parent::getTableQuery();
-        }
+        $pmFlats = DB::table('property_manager_flats')
+            ->where('owner_association_id', auth()->user()?->owner_association_id)
+            ->where('active', true)
+            ->pluck('flat_id')
+            ->toArray();
+
         if (Role::where('id', auth()->user()->role_id)->first()->name == 'Property Manager') {
+            return parent::getTableQuery()
+                ->whereIn('flat_id', $pmFlats);
+        } elseif (Role::where('id', auth()->user()->role_id)->first()->name == 'OA') {
             return parent::getTableQuery()->whereIn('building_id', $pmBuildings);
         }
 
-        return parent::getTableQuery()->whereIn('building_id', $pmBuildings);
+        return parent::getTableQuery();
     }
     protected function getHeaderActions(): array
     {

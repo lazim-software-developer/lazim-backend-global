@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Filament\Resources\Building\FacilityBookingResource\Pages;
 
 use App\Filament\Resources\Building\FacilityBookingResource;
@@ -22,12 +21,16 @@ class ListFacilityBookings extends ListRecords
             ->where('active', true)
             ->pluck('building_id');
 
-        $buildings = Building::all()->where('owner_association_id', auth()->user()?->owner_association_id)
-            ->where('active', true)->pluck('id')->toArray();
+        $pmFlats = DB::table('property_manager_flats')
+            ->where('owner_association_id', auth()->user()?->owner_association_id)
+            ->where('active', true)
+            ->pluck('flat_id')
+            ->toArray();
+
         if (auth()->user()->role->name == 'Property Manager') {
             return parent::getTableQuery()
                 ->where('bookable_type', $bookableType)
-                ->whereIn('building_id', $pmBuildings);
+                ->whereIn('flat_id', $pmFlats);
         }
 
         if (Role::where('id', auth()->user()->role_id)->first()->name != 'Admin') {

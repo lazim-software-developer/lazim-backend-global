@@ -1,9 +1,9 @@
 <?php
-
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\RentalChequeResource\Pages;
 use App\Models\RentalCheque;
+use DB;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Section;
@@ -117,15 +117,22 @@ class RentalChequeResource extends Resource
             ->modifyQueryUsing(function ($query) {
                 $ownerAssociationId = auth()->user()?->owner_association_id;
 
-                if (!$ownerAssociationId) {
+                if (! $ownerAssociationId) {
                     return $query->whereRaw('1 = 0');
                 }
 
                 return $query->whereHas('rentalDetail.flat', function ($query) use ($ownerAssociationId) {
-                    $query->whereHas('building.ownerAssociations', function($q) use ($ownerAssociationId) {
-                        $q->where('owner_association_id', $ownerAssociationId)
-                          ->where('building_owner_association.active', true);
-                    });
+                    $pmFlats = DB::table('property_manager_flats')
+                        ->where('owner_association_id', $ownerAssociationId)
+                        ->where('active', true)
+                        ->pluck('flat_id')
+                        ->toArray();
+                    $query
+                        ->whereIn('flat_id', $pmFlats)
+                        ->whereHas('building.ownerAssociations', function ($q) use ($ownerAssociationId) {
+                            $q->where('owner_association_id', $ownerAssociationId)
+                                ->where('building_owner_association.active', true);
+                        });
                 })->orderBy('created_at', 'desc');
             })
             ->columns([
@@ -152,17 +159,32 @@ class RentalChequeResource extends Resource
 
             ])
             ->filters([
+
                 SelectFilter::make('flat_property_number')
                     ->label('Flat Number')
-                    ->relationship(
-                        'rentalDetail.flat',
-                        'property_number',
-                        fn($query) => $query->whereHas('building.ownerAssociations', function ($query) {
-                            $query->where('owner_association_id', auth()->user()->owner_association_id)
-                                ->where('building_owner_association.active', true);
-                        })
-                    )
                     ->preload()
+                    ->options(function () {
+                        $pmBuildings = DB::table('building_owner_association')
+                            ->where('owner_association_id', auth()->user()?->owner_association_id)
+                            ->where('active', true)
+                            ->pluck('building_id')
+                            ->toArray();
+                        $pmFlats = DB::table('property_manager_flats')
+                            ->where('owner_association_id', auth()->user()?->owner_association_id)
+                            ->where('active', true)
+                            ->pluck('flat_id')
+                            ->toArray();
+
+                        if (auth()->user()->role->name == 'Property Manager') {
+                            return DB::table('flats')
+                                ->whereIn('id', $pmFlats)
+                                ->pluck('property_number', 'id');
+                        }
+
+                        return DB::table('flats')
+                            ->whereIn('building_id', $pmBuildings)
+                            ->pluck('property_number', 'id');
+                    })
                     ->searchable(),
                 SelectFilter::make('flat_tenant_name')
                     ->label('Flat Tenant Name')
@@ -170,7 +192,14 @@ class RentalChequeResource extends Resource
                         'rentalDetail.flat.tenants.user',
                         'first_name',
                         fn($query) => $query->whereHas('tenants.flat.building.ownerAssociations', function ($query) {
+                            $pmFlats = DB::table('property_manager_flats')
+                                ->where('owner_association_id', auth()->user()?->owner_association_id)
+                                ->where('active', true)
+                                ->pluck('flat_id')
+                                ->toArray();
+
                             $query->where('owner_association_id', auth()->user()->owner_association_id)
+                                ->whereIn('flat_id', $pmFlats)
                                 ->where('building_owner_association.active', true);
                         })
                     )
@@ -179,15 +208,15 @@ class RentalChequeResource extends Resource
                 SelectFilter::make('month')
                     ->label('Month')
                     ->options([
-                        1 => 'January',
-                        2 => 'February',
-                        3 => 'March',
-                        4 => 'April',
-                        5 => 'May',
-                        6 => 'June',
-                        7 => 'July',
-                        8 => 'August',
-                        9 => 'September',
+                        1  => 'January',
+                        2  => 'February',
+                        3  => 'March',
+                        4  => 'April',
+                        5  => 'May',
+                        6  => 'June',
+                        7  => 'July',
+                        8  => 'August',
+                        9  => 'September',
                         10 => 'October',
                         11 => 'November',
                         12 => 'December',
@@ -196,7 +225,7 @@ class RentalChequeResource extends Resource
                     ->query(function (Builder $query, array $data): Builder {
                         return $query->when(
                             $data['value'],
-                            fn (Builder $query, $month): Builder => $query->whereMonth('due_date', $month)
+                            fn(Builder $query, $month): Builder => $query->whereMonth('due_date', $month)
                         );
                     }),
             ])
