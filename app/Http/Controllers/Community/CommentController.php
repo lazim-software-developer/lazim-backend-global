@@ -40,7 +40,7 @@ class CommentController extends Controller
         $comment->save();
         $notifyTo = User::where('id',$post->user_id)->get();
         $buildingId = DB::table('building_post')->where('post_id', $post->id)->first();
-        $oam_id = DB::table('building_owner_association')->where('building_id', $buildingId?->building_id)->where('active', true)->first()->owner_association_id;
+        $oam_id = DB::table('building_owner_association')->where('building_id', $buildingId?->building_id)->where('active', true)->first()?->owner_association_id;
 
 
         Notification::make()
@@ -74,6 +74,8 @@ class CommentController extends Controller
     // Add a comment for a complaint in help-desk
     public function addComment(StoreCommentRequest $request, Complaint $complaint)
     {
+        $oa_id = DB::table('building_owner_association')->where('building_id', $complaint->building_id)->where('active', true)->first()->owner_association_id;
+
         $comment = new Comment([
             'body' => $request->body,
             'user_id' => auth()->user()->id,

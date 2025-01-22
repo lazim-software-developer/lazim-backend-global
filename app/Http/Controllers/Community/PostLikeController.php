@@ -9,12 +9,18 @@ use App\Models\Community\Post;
 use App\Models\Community\PostLike;
 use App\Models\ExpoPushNotification;
 use App\Traits\UtilsTrait;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
 
 class PostLikeController extends Controller
 {
     use UtilsTrait;
-    public function like(Post $post)
+    public function like(Post $post,Request $request)
     {
+        if ($request->has('building_id')) {
+            $oa_id = DB::table('building_owner_association')->where('building_id', $request->building_id)->where('active', true)->first()->owner_association_id;
+        }
+
         $existingLike = PostLike::where('post_id', $post->id)
             ->where('user_id', auth()->user()->id)
             ->first();

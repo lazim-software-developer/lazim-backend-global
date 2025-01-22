@@ -406,6 +406,7 @@ class ComplaintController extends Controller
 
     public function resolve(Request $request, Complaint $complaint)
     {
+        $oa_id = DB::table('building_owner_association')->where('building_id', $complaint->building_id)->where('active', true)->first()->owner_association_id;
         $complaint->update([
             'status'     => 'closed',
             'close_time' => $request->has('close_time') ? $request->close_time : now(),
@@ -588,6 +589,8 @@ class ComplaintController extends Controller
 
     public function update(ComplaintUpdateRequest $request, Complaint $complaint)
     {
+        $oa_id = DB::table('building_owner_association')->where('building_id', $complaint->building_id)->where('active', true)->first()->owner_association_id;
+
         $request['technician_id'] = TechnicianVendor::find($request->technician_id)->technician_id;
         if($request->has('status') && $request->status == 'closed'){
             $request['closed_by'] = auth()->user()->id;

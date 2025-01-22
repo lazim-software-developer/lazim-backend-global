@@ -10,11 +10,16 @@ use App\Models\Building\Document;
 use App\Models\Master\DocumentLibrary;
 use App\Models\Vendor\Vendor;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class DocumentsUploadController extends Controller
 {
     public function documentsUpload(DocumentsUploadRequest $request, Vendor $vendor)
     {
+        if ($request->has('building_id')) {
+            $oa_id = DB::table('building_owner_association')->where('building_id', $request->building_id)->where('active', true)->first()->owner_association_id;
+        }
+
         $status = 0;
         foreach($request->docs as $key => $value) {
             $path = optimizeDocumentAndUpload($value);
@@ -81,7 +86,11 @@ class DocumentsUploadController extends Controller
         ];
     }
 
-    public function updateRiskPolicy(Request $request,Vendor $vendor){
+    public function updateRiskPolicy(Request $request,Vendor $vendor)
+    {
+        if ($request->has('building_id')) {
+            $oa_id = DB::table('building_owner_association')->where('building_id', $request->building_id)->where('active', true)->first()->owner_association_id;
+        }
 
         $document = Document::where('documentable_id',$vendor->id)->where('name','risk_policy')->latest()->first();
         if(empty($document)){
