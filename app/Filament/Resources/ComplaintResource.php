@@ -35,13 +35,13 @@ use Illuminate\Support\Facades\DB;
 class ComplaintResource extends Resource
 {
     protected static ?string $model      = Complaint::class;
-    protected static ?string $modelLabel = 'Maintenance Schedule';
+    protected static ?string $modelLabel = 'Preventive Maintenance Schedule';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Section::make('Complaint Details')
+                Section::make('Schedule')
                     ->schema([
                         Grid::make(['sm' => 1, 'md' => 1, 'lg' => 2])
                             ->schema([
@@ -360,7 +360,7 @@ class ComplaintResource extends Resource
                     ->searchable()
                     ->limit(50),
             ])
-            ->emptyStateHeading('No Maintenance Schedules')
+            ->emptyStateHeading('No Preventive Maintenance Schedules')
             ->defaultSort('created_at', 'desc')
             ->filters([
                 SelectFilter::make('building_id')
@@ -385,7 +385,7 @@ class ComplaintResource extends Resource
                     ->searchable()
                     ->preload(),
             ])
-            ->emptyStateHeading('No Maintenance Schedules')
+            ->emptyStateHeading('No Preventive Maintenance Schedules')
             ->bulkActions([
                 // ExportBulkAction::make(),
             ])

@@ -708,7 +708,7 @@ class AppPanelProvider extends PanelProvider
                                             ->icon('heroicon-m-clipboard-document-list')
                                             ->activeIcon('heroicon-m-clipboard-document-list')
                                             ->sort(1),
-                                        NavigationItem::make('Preventive Maintenance Schedule')
+                                        NavigationItem::make('Preventive Maintenance')
                                             ->url(ComplaintResource::getUrl('index'))
                                             ->visible(auth()->user()->role->name == 'Property Manager')
                                             ->hidden(!$user->can('view_any_helpdeskcomplaint'))
