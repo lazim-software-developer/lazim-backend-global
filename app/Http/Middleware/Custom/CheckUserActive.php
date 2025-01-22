@@ -40,7 +40,7 @@ class CheckUserActive
         if($inactive) {
             return (new CustomResponseResource([
                 'title' => 'Account Status',
-                'message' => 'Your account is inactive. Please contact support team for more details!',
+                'message' => 'Please wait while we verify your details. You’ll receive a confirmation soon.',
                 'code' => 400, 
             ]))->response()->setStatusCode(400);
         }
