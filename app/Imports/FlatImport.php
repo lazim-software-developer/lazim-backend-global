@@ -31,8 +31,8 @@ class FlatImport implements ToCollection, WithHeadingRow
             'parking_count',
             'makani_number',
             'dewa_number',
-            'btuetisalat_number',
-            'btuac_number',
+            'duetisalat_number',
+            'btuac_number'
         ];
 
         if ($rows->first() == null) {
@@ -117,7 +117,7 @@ class FlatImport implements ToCollection, WithHeadingRow
                 'plot_number'        => 'Plot number',
                 'makani_number'      => 'Makani number',
                 'dewa_number'        => 'Dewa number',
-                'btuetisalat_number' => 'BTU/Etisalat number',
+                'duetisalat_number' => 'BTU/Etisalat number',
                 'btuac_number'       => 'BTU/AC number',
             ];
 
@@ -151,7 +151,7 @@ class FlatImport implements ToCollection, WithHeadingRow
                     'parking_count'        => $row['parking_count'] ?: null,
                     'makhani_number'       => $row['makani_number'] ?: null,
                     'dewa_number'          => $row['dewa_number'] ?: null,
-                    'etisalat/du_number'   => $row['btuetisalat_number'] ?: null,
+                    'etisalat/du_number'   => $row['duetisalat_number'] ?: null,
                     'btu/ac_number'        => $row['btuac_number'] ?: null,
                 ]);
 
