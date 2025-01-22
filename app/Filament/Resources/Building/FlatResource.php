@@ -179,7 +179,7 @@ class FlatResource extends Resource
                             ->label('DEWA Number')
                             ->rule('regex:/^[0-9\-.,\/_ ]+$/'),
                         TextInput::make('etisalat/du_number')
-                            ->label('BTU/Etisalat Number')
+                            ->label('DU/Etisalat Number')
                             ->placeholder('NA')
                             ->rule('regex:/^[0-9\-.,\/_ ]+$/'),
                         TextInput::make('btu/ac_number')
@@ -287,6 +287,7 @@ class FlatResource extends Resource
     public static function getRelations(): array
     {
         if (auth()->user()?->role?->name === 'Property Manager') {
+            
             return [
                 // FlatResource\RelationManagers\FlatDomesticHelpRelationManager::class,
                 // FlatResource\RelationManagers\FlatTenantRelationManager::class,

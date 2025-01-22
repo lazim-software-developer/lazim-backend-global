@@ -1,12 +1,10 @@
 <?php
-
 namespace App\Filament\App\Widgets;
 
-use Filament\Widgets\ChartWidget;
-use Illuminate\Support\Facades\DB;
 use App\Models\Building\FacilityBooking;
 use Filament\Forms\Components\Select;
-use Filament\Tables\Filters\SelectFilter;
+use Filament\Widgets\ChartWidget;
+use Illuminate\Support\Facades\DB;
 
 class AmenityBookingOverview extends ChartWidget
 {
@@ -18,9 +16,7 @@ class AmenityBookingOverview extends ChartWidget
     }
 
     protected static ?string $heading = 'Amenity Booking Statistics';
-    protected int|string|array $columnSpan = 'full';
-    protected static ?int $sort = 8;
-    protected static ?string $maxHeight = '300px';
+    protected static ?int $sort = 5;
 
     protected function getData(): array
     {
@@ -29,7 +25,7 @@ class AmenityBookingOverview extends ChartWidget
             ->where('active', true)
             ->pluck('building_id');
         $selectedMonth = (int) ($this->filter ?? now()->month);
-        $bookings = FacilityBooking::where('bookable_type', 'App\Models\Master\Facility')
+        $bookings      = FacilityBooking::where('bookable_type', 'App\Models\Master\Facility')
             ->whereIn('building_id', $buildings)
             ->whereMonth('created_at', $selectedMonth)
             ->select(
@@ -41,31 +37,33 @@ class AmenityBookingOverview extends ChartWidget
         return [
             'datasets' => [
                 [
-                    'label' => 'Booking Status',
-                    'data' => [$bookings->approved_count, $bookings->rejected_count],
+                    'label'           => 'Booking Status',
+                    'data'            => [$bookings->approved_count, $bookings->rejected_count],
                     'backgroundColor' => ['#10B981', '#EF4444'],
-                ]
+                ],
             ],
-            'labels' => ['Approved', 'Rejected'],
+            'labels'   => ['Approved', 'Rejected'],
         ];
     }
 
     protected function getType(): string
     {
-        return 'bar';
+        return 'doughnut';
     }
 
     protected function getOptions(): array
     {
         return [
-            'plugins' => [
+            'plugins'             => [
                 'legend' => [
-                    'display' => false,
+                    'display'  => true,
+                    'cutout'   => '60%',
+                    'position' => 'bottom',
                 ],
             ],
+            'maintainAspectRatio' => false,
         ];
     }
-
     protected function getFilters(): ?array
     {
         return [
