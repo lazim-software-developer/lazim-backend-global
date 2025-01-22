@@ -159,7 +159,12 @@ class AssetController extends Controller
         return AssetListResource::collection($assets->paginate($request->paginate ?? 10));
     }
 
-    public function attachAsset(AssetAttachRequest $request,Asset $asset){
+    public function attachAsset(AssetAttachRequest $request,Asset $asset)
+    {
+        if ($request->has('building_id')) {
+            $oa_id = DB::table('building_owner_association')->where('building_id', $request->building_id)->where('active', true)->first()->owner_association_id;
+        }
+
         $assets = TechnicianAssets::firstOrCreate([
             'asset_id' => $asset->id,
             'technician_id' => $request->technician_id,
@@ -184,10 +189,10 @@ class AssetController extends Controller
     public function create(Vendor $vendor, AssetCreateRequest $request)
     {
         $request['owner_association_id'] = auth()->user()->owner_association_id;
+        $ownerAssociationId   = DB::table('building_owner_association')->where('building_id', $request->building_id)->where('active', true)->first()->owner_association_id;
         $asset = Asset::create($request->all());
         // Fetch Building name
         $building_name        = Building::where('id', $asset->building_id)->first();
-        $ownerAssociationId   = DB::table('building_owner_association')->where('building_id', $asset->building_id)->where('active', true)->first()->owner_association_id;
 
         $ownerAssociation = OwnerAssociation::where('id',$ownerAssociationId)->first();
 
@@ -251,6 +256,8 @@ class AssetController extends Controller
     }
     public function updateAsset(Vendor $vendor, Asset $asset, AssetUpdateRequest $request)
     {
+        $oa_id = DB::table('building_owner_association')->where('building_id', $asset->building_id)->where('active', true)->first()->owner_association_id;
+
         $asset->update($request->all());
         $building_name = Building::where('id', $asset->building_id)->first();
 

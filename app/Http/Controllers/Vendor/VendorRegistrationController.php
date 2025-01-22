@@ -183,6 +183,10 @@ class VendorRegistrationController extends Controller
 
     public function companyDetails(CompanyDetailsRequest $request)
     {
+        if ($request->has('building_id')) {
+            $oa_id = DB::table('building_owner_association')->where('building_id', $request->building_id)->where('active', true)->first()->owner_association_id;
+        }
+
         $request->merge([
             'name' => User::find($request->owner_id)->first_name,
         ]);
@@ -223,6 +227,10 @@ class VendorRegistrationController extends Controller
 
     public function managerDetails(ManagerDetailsRequest $request, Vendor $vendor)
     {
+        if ($request->has('building_id')) {
+            $oa_id = DB::table('building_owner_association')->where('building_id', $request->building_id)->where('active', true)->first()->owner_association_id;
+        }
+
         $request->merge(['vendor_id' => $vendor->id]);
 
         $existingVendorEmail = VendorManager::where(['email' => $request->email])->first();
@@ -257,6 +265,10 @@ class VendorRegistrationController extends Controller
 
     public function updateManagerDetails(ManagerDetailsRequest $request, Vendor $vendor)
     {
+        if ($request->has('building_id')) {
+            $oa_id = DB::table('building_owner_association')->where('building_id', $request->building_id)->where('active', true)->first()->owner_association_id;
+        }
+
         $managerId = VendorManager::where('vendor_id', $vendor->id)->first()?->id;
         $request->merge(['vendor_id' => $vendor->id]);
 
@@ -312,6 +324,10 @@ class VendorRegistrationController extends Controller
 
     public function editVendorDetails(EditVendorRequest $request,Vendor $vendor)
     {
+        if ($request->has('building_id')) {
+            $oa_id = DB::table('building_owner_association')->where('building_id', $request->building_id)->where('active', true)->first()->owner_association_id;
+        }
+
         if(isset($request->name)){
             $request->merge([
                 'first_name' => $request->name

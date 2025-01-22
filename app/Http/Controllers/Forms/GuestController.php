@@ -108,7 +108,9 @@ class GuestController extends Controller
 
     public function saveFlatVisitors(FlatVisitorRequest $request)
     {
-        $ownerAssociationId = DB::table('building_owner_association')->where('building_id', $request->building_id)->where('active', true)->first()->owner_association_id;
+        if ($request->has('building_id')) {
+            $oa_id = DB::table('building_owner_association')->where('building_id', $request->building_id)->where('active', true)->first()->owner_association_id;
+        }
         // $ownerAssociationId = Building::find($request->building_id)->owner_association_id;
 
         $request->merge([
@@ -116,14 +118,14 @@ class GuestController extends Controller
             'end_time'             => $request->start_date,
             'phone'                => $request->phone,
             'email'                => $request->email,
-            'owner_association_id' => $ownerAssociationId,
+            'owner_association_id' => $oa_id,
             'type'                 => $request->type ?:'visitor',
         ]);
 
         $requiredPermissions = ['view_any_visitor::form'];
         $visitor             = FlatVisitor::create($request->all());
-        $roles               = Role::where('owner_association_id', $ownerAssociationId)->whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor', 'Staff', 'Facility Manager'])->pluck('id');
-        $user                = User::where('owner_association_id', $ownerAssociationId)->whereNotIn('role_id', $roles)->whereNot('id', auth()->user()?->id)->get() //->where('role_id', Role::where('name','OA')->value('id'))->get();
+        $roles               = Role::where('owner_association_id', $oa_id)->whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor', 'Staff', 'Facility Manager'])->pluck('id');
+        $user                = User::where('owner_association_id', $oa_id)->whereNotIn('role_id', $roles)->whereNot('id', auth()->user()?->id)->get() //->where('role_id', Role::where('name','OA')->value('id'))->get();
             ->filter(function ($notifyTo) use ($requiredPermissions) {
                 return $notifyTo->can($requiredPermissions);
             });
@@ -134,8 +136,8 @@ class GuestController extends Controller
             ->actions([
                 Action::make('View')
                     ->button()
-                    ->url(function() use ($ownerAssociationId,$visitor){
-                        $slug = OwnerAssociation::where('id',$ownerAssociationId)->first()?->slug;
+                    ->url(function() use ($oa_id,$visitor){
+                        $slug = OwnerAssociation::where('id',$oa_id)->first()?->slug;
                         if($slug){
                             return VisitorFormResource::getUrl('edit', [$slug,$visitor?->id]);
                         }
@@ -444,6 +446,8 @@ class GuestController extends Controller
     }
     public function updateStatus(Vendor $vendor, Guest $guest, Request $request)
     {
+        $oa_id = DB::table('building_owner_association')->where('building_id', $guest->flatVisitor->building_id)->where('active', true)->first()->owner_association_id;
+
         $request->validate([
             'status' => 'required|in:approved,rejected',
             'remarks' => 'required_if:status,rejected|max:150',

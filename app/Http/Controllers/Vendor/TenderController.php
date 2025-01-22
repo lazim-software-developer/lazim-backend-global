@@ -32,6 +32,9 @@ class TenderController extends Controller
     // Create proposal
     public function store(Tender $tender, Request $request)
     {
+        if ($request->has('building_id')) {
+            $oa_id = DB::table('building_owner_association')->where('building_id', $request->building_id)->where('active', true)->first()->owner_association_id;
+        }
         $vendor = Vendor::where('owner_id', auth()->user()->id)->first();
 
         $proposalExists = Proposal::where(['tender_id' => $tender->id, 'vendor_id' => $vendor->id])->exists();

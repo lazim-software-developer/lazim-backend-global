@@ -121,7 +121,7 @@ class RegistrationController extends Controller
 
         // If the check passes, store the user details in the users table
         // Fetch building
-        $owner_association_id = DB::table('building_owner_association')->where('building_id', $request->building_id)->where('active', true)->first()->owner_association_id;
+        $owner_association_id = DB::table('building_owner_association')->where('building_id', $request->building_id)->where('active', true)->first()?->owner_association_id;
         $building = Building::where('id', $request->building_id)->first();
         $user = User::create([
             'email' => $request->email,
@@ -294,7 +294,7 @@ class RegistrationController extends Controller
 
         // If the check passes, store the user details in the users table
         $building = Building::where('id', $request->building_id)->first();
-        $owner_association_id = DB::table('building_owner_association')->where('building_id', $request->building_id)->where('active', true)->first()->owner_association_id;
+        $owner_association_id = DB::table('building_owner_association')->where('building_id', $request->building_id)->where('active', true)->first()?->owner_association_id;
 
         $user = User::create([
             'email' => $request->email, // Assuming email is still provided for communication
@@ -623,7 +623,7 @@ class RegistrationController extends Controller
         // Determine the type (tenant or owner)
         $type = $request->input('type', 'Owner');
 
-        $owner_association_id = DB::table('building_owner_association')->where('building_id', $request->building_id)->where('active', true)->first()->owner_association_id;
+        $owner_association_id = DB::table('building_owner_association')->where('building_id', $request->building_id)->where('active', true)->first()?->owner_association_id;
 
         $userApproval = UserApproval::where('user_id', $userData->id)->first();
         $imagePath = optimizeDocumentAndUpload($request->document, 'dev');
