@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Master\Role;
 use App\Models\User\User;
 use App\Models\WorkPermit;
 use Illuminate\Http\Request;
@@ -59,7 +60,7 @@ class PermitWorkController extends Controller
     public function store(WorkPermitRequest $request)
     {
         $flat_id = $request->input('flat_id');
-        $owner_association_id = DB::table('building_owner_association')->where(['building_id' => $request->building_id , 'active' => true])->first()?->owner_association_id;
+        $owner_association_id = DB::table('property_manager_flats')->where(['flat_id' => $flat_id , 'active' => true])->first()->owner_association_id;
 
         $data = $request->all();
         $data['bookable_id'] = $request->facility_id;
@@ -71,7 +72,8 @@ class PermitWorkController extends Controller
         $workPermit = FacilityBooking::create($data);
 
         // Find user
-        $user = User::where('owner_association_id', $owner_association_id)->first();
+         $roles               = Role::whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor', 'Staff', 'Facility Manager'])->pluck('id');
+        $user                = User::where('owner_association_id', $owner_association_id)->whereNotIn('role_id', $roles)->whereNot('id', auth()->user()?->id)->get();
 
         // Create and send notification
         if($user){

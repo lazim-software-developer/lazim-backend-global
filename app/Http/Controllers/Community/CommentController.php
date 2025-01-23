@@ -38,29 +38,33 @@ class CommentController extends Controller
         $comment->commentable()->associate($post);
         $comment->user_id = auth()->user()->id;
         $comment->save();
-        $notifyTo = User::where('id',$post->user_id)->get();
         $buildingId = DB::table('building_post')->where('post_id', $post->id)->first();
-        $oam_id = DB::table('building_owner_association')->where('building_id', $buildingId?->building_id)->where('active', true)->first()?->owner_association_id;
+        $oam_ids = DB::table('building_owner_association')->where('building_id', $buildingId?->building_id)->where('active', true)->pluck('owner_association_id');
 
+        foreach($oam_ids as $oam_id){
+            $notifyTo = User::where(['id'=>$post->user_id,'owner_association_id'=> $oam_ids])->get();
 
-        Notification::make()
-            ->success()
-            ->title("Comments")
-            ->icon('heroicon-o-document-text')
-            ->iconColor('warning')
-            ->body(auth()->user()->first_name . ' commented on the post!')
-            ->actions([
-                Action::make('view')
-                    ->button()
-                    ->url(function() use ($oam_id,$post){
-                        $slug = OwnerAssociation::where('id',$oam_id)->first()?->slug;
-                        if($slug){
-                            return PostResource::getUrl('edit', [$slug,$post->id]);
-                        }
-                        return url('/app/posts/' . $post->id.'/edit');
-                    }),
-            ])
-            ->sendToDatabase($notifyTo);
+            if(!$notifyTo->isEmpty()){
+                Notification::make()
+                    ->success()
+                    ->title("Comments")
+                    ->icon('heroicon-o-document-text')
+                    ->iconColor('warning')
+                    ->body(auth()->user()->first_name . ' commented on the post!')
+                    ->actions([
+                        Action::make('view')
+                            ->button()
+                            ->url(function() use ($oam_id,$post){
+                                $slug = OwnerAssociation::where('id',$oam_id)->first()?->slug;
+                                if($slug){
+                                    return PostResource::getUrl('edit', [$slug,$post->id]);
+                                }
+                                return url('/app/posts/' . $post->id.'/edit');
+                            }),
+                    ])
+                    ->sendToDatabase($notifyTo);
+            }
+        }
 
         return (new CustomResponseResource([
             'title' => 'Success',
