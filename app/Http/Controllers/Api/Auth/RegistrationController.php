@@ -516,6 +516,13 @@ class RegistrationController extends Controller
             ]))->response()->setStatusCode(400);
         }
 
+        // If OTP matches, you can set the user's email as verified in the users table or any other logic you want to implement
+        
+        if($request->type == 'email') {
+            User::where('email', $request->contact_value)->update(['email_verified' => true]);
+        } else {
+            User::where('phone', $request->contact_value)->update(['phone_verified' => true]);
+        }
         // Delete the OTP entry after successful verification
         DB::table('otp_verifications')->where('id', $otpEntry->id)->delete();
 
