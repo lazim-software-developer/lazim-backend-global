@@ -1,13 +1,10 @@
 <?php
-
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\ComplaintResource\Pages;
-use App\Filament\Resources\ComplaintResource\RelationManagers\CommentsRelationManager;
 use App\Models\Accounting\SubCategory;
 use App\Models\Building\Building;
 use App\Models\Building\Complaint;
-use App\Models\Building\Flat;
 use App\Models\Master\Role;
 use App\Models\Master\Service;
 use App\Models\User\User;
@@ -21,7 +18,6 @@ use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
@@ -142,7 +138,7 @@ class ComplaintResource extends Resource
                                     ->options(function (Get $get) {
                                         $serviceId = $get('service_id');
 
-                                        if (!$serviceId) {
+                                        if (! $serviceId) {
                                             return [];
                                         }
                                         $vendorIds = ServiceVendor::where('service_id', $get('service_id'))
@@ -178,7 +174,7 @@ class ComplaintResource extends Resource
                                         $serviceId = $get('service_id');
                                         $vendorId  = $get('vendor_id');
 
-                                        if (!$serviceId) {
+                                        if (! $serviceId) {
                                             return [];
                                         }
 
@@ -274,7 +270,7 @@ class ComplaintResource extends Resource
                             ->directory('dev')
                             ->image()
                             ->enableDownload()
-                            ->visible(function($record) {
+                            ->visible(function ($record) {
                                 if ($record) {
                                     return $record->media->isNotEmpty();
                                 }
@@ -288,7 +284,7 @@ class ComplaintResource extends Resource
                                 fn($file): string => (string) str()->uuid() . '.' . $file->getClientOriginalExtension()
                             )
                             ->afterStateUpdated(function ($state, $old, $set) {
-                                if ($old && !$state) {
+                                if ($old && ! $state) {
                                     $set('media', null);
                                 }
                             }),
@@ -303,10 +299,25 @@ class ComplaintResource extends Resource
             ->where('active', 1)
             ->pluck('building_id');
 
+        $authOaBuildings = Building::where('owner_association_id', auth()->user()->owner_association_id)
+            ->pluck('id');
+
+        $role = auth()->user()->role->name;
         return $table
-            ->modifyQueryUsing(fn(Builder $query) => $query
+            ->modifyQueryUsing(function (Builder $query) use ($buildingIds, $role, $authOaBuildings) {
+                if (in_array($role, ['OA', 'Property Manager'])) {
+                    return $query->whereIn('building_id', $buildingIds)
+                        ->where('complaint_type', 'preventive_maintenance')
+                        ->latest();
+                }
+                if ($role == 'Admin') {
+                    return $query->where('complaint_type', 'preventive_maintenance')
+                        ->latest();
+                }
+                return $query
                     ->where('complaint_type', 'preventive_maintenance')
-                    ->whereIn('building_id', $buildingIds)->latest())
+                    ->whereIn('building_id', $authOaBuildings);
+            })
             ->columns([
                 TextColumn::make('ticket_number')
                     ->label('Ticket Number')
@@ -368,7 +379,7 @@ class ComplaintResource extends Resource
                     ->options(function () {
                         if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
                             return Building::pluck('name', 'id');
-                        } elseif (auth()->user()->role->name == 'Property Manager') {
+                        } elseif (in_array(auth()->user()->role->name, ['Property Manager', 'OA'])) {
                             $buildingIds = DB::table('building_owner_association')
                                 ->where('owner_association_id', auth()->user()->owner_association_id)
                                 ->where('active', true)

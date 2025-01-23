@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\ComplaintResource\RelationManagers\CommentsRelationManager;
@@ -64,17 +63,16 @@ class SnagsResource extends Resource
                                         Select::make('building_id')
                                             ->label('Building')
                                             ->required()
-                                            ->afterStateUpdated(function(callable $set){
+                                            ->afterStateUpdated(function (callable $set) {
                                                 $set('user_id', null);
                                             })
                                             ->rules(['exists:buildings,id'])
                                             ->options(function () {
-                                                if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+                                                $role = auth()->user()->role->name;
+                                                if ($role == 'Admin') {
                                                     return Building::all()->pluck('name', 'id');
-                                                } elseif (Role::where('id', auth()->user()->role_id)
-                                                        ->first()
-                                                        ->name == 'Property Manager') {
-                                                        $buildings = DB::table('building_owner_association')
+                                                } elseif (in_array($role, ['Property Manager', 'OA'])) {
+                                                    $buildings = DB::table('building_owner_association')
                                                         ->where('owner_association_id', auth()->user()?->owner_association_id)
                                                         ->where('active', true)->pluck('building_id');
                                                     return Building::whereIn('id', $buildings)->pluck('name', 'id');
@@ -193,12 +191,12 @@ class SnagsResource extends Resource
                                             ->numeric(),
                                         DatePicker::make('due_date')
                                             ->minDate(now()->format('Y-m-d'))
-                                            // ->disabled(function (callable $get) {
-                                            //     if ($get('status') == 'closed') {
-                                            //         return true;
-                                            //     }
-                                            //     return false;
-                                            // })
+                                        // ->disabled(function (callable $get) {
+                                        //     if ($get('status') == 'closed') {
+                                        //         return true;
+                                        //     }
+                                        //     return false;
+                                        // })
                                             ->rules(['date'])
                                             ->placeholder('Due Date'),
                                         Select::make('category')->required()
@@ -251,7 +249,7 @@ class SnagsResource extends Resource
                         DateTimePicker::make('close_time')
                             ->visibleOn('edit')
                             ->reactive()
-                            ->disabled(),  // Make it disabled to prevent manual changes
+                            ->disabled(), // Make it disabled to prevent manual changes
 
                         Section::make('Status and Remarks')
                             ->columns(2)
