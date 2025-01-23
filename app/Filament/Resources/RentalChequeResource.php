@@ -128,11 +128,7 @@ class RentalChequeResource extends Resource
                         ->pluck('flat_id')
                         ->toArray();
                     $query
-                        ->whereIn('flat_id', $pmFlats)
-                        ->whereHas('building.ownerAssociations', function ($q) use ($ownerAssociationId) {
-                            $q->where('owner_association_id', $ownerAssociationId)
-                                ->where('building_owner_association.active', true);
-                        });
+                        ->whereIn('flat_id', $pmFlats);
                 })->orderBy('created_at', 'desc');
             })
             ->columns([

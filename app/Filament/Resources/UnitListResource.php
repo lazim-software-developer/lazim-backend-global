@@ -35,12 +35,14 @@ class UnitListResource extends Resource
 
         return $table
             ->modifyQueryUsing(function (Builder $query) use ($today) {
-                $buildingIds = DB::table('building_owner_association')
+
+                $pmFlats = DB::table('property_manager_flats')
                     ->where('owner_association_id', auth()->user()->owner_association_id)
                     ->where('active', true)
-                    ->pluck('building_id');
+                    ->pluck('flat_id')
+                    ->toArray();
 
-                $query->whereIn('building_id', $buildingIds);
+                $query->whereIn('flat_id', $pmFlats);
 
                 $type = request()->get('type');
 

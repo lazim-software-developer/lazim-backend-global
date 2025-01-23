@@ -37,7 +37,7 @@ class ListFlatTenants extends ListRecords
             ->pluck('flat_id')
             ->toArray();
 
-        if (auth()->user()?->role?->name === 'Property Manager') {
+        if (auth()->user()?->role?->name == 'Property Manager') {
             return parent::getTableQuery()
                 ->where('active', true)
                 ->whereIn('flat_id', $pmFlats)
