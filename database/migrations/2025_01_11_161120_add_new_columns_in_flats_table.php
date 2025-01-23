@@ -17,7 +17,7 @@ return new class extends Migration
                 $table->unsignedBigInteger('updated_by')->default(2);
                 $table->foreign('created_by')->references('id')->on('users');
                 $table->foreign('updated_by')->references('id')->on('users');
-                $table->string('resource')->default('Default');
+                $table->string('resource')->default('Mollak');
                 $table->tinyInteger('status')->default(0)->comment('0: Inactive, 1: Active');
                 $table->softDeletes()->nullable();
             });
