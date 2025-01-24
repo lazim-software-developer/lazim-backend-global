@@ -77,33 +77,33 @@ class IncidentResource extends Resource
                             })
                             ->searchable()
                             ->live(),
-                        Repeater::make('comments')
-                            ->relationship('comments')
-                            ->helperText(function ($state) {
-                                return $state == [] ? 'No Comments' : '';
-                            })
-                            ->schema([
-                                Grid::make([
-                                    'sm' => 1,
-                                    'md' => 1,
-                                    'lg' => 2,
-                                ])->schema([
-                                    Textarea::make('body')->label('comment')->required()->maxLength(50)
-                                        ->readOnly(function ($state) {
-                                            if ($state != null) {
-                                                return true;
-                                            }
-                                            return false;
-                                        }),
-                                    Hidden::make('user_id')->default(auth()->user()?->id),
-                                    DateTimePicker::make('created_at')->label('time')->format('MM/dd/yyyy hh:mm:ss tt')->default(now())->disabled(),
-                                ]),
-                            ])->deletable(false)
-                            ->columnSpan([
-                                'sm' => 1,
-                                'md' => 1,
-                                'lg' => 2,
-                            ]),
+                        // Repeater::make('comments')
+                        //     ->relationship('comments')
+                        //     ->helperText(function ($state) {
+                        //         return $state == [] ? 'No Comments' : '';
+                        //     })
+                        //     ->schema([
+                        //         Grid::make([
+                        //             'sm' => 1,
+                        //             'md' => 1,
+                        //             'lg' => 2,
+                        //         ])->schema([
+                        //             Textarea::make('body')->label('comment')->required()->maxLength(50)
+                        //                 ->readOnly(function ($state) {
+                        //                     if ($state != null) {
+                        //                         return true;
+                        //                     }
+                        //                     return false;
+                        //                 }),
+                        //             Hidden::make('user_id')->default(auth()->user()?->id),
+                        //             DateTimePicker::make('created_at')->label('time')->format('MM/dd/yyyy hh:mm:ss tt')->default(now())->disabled(),
+                        //         ]),
+                        //     ])->deletable(false)
+                        //     ->columnSpan([
+                        //         'sm' => 1,
+                        //         'md' => 1,
+                        //         'lg' => 2,
+                        //     ]),
                         Repeater::make('media')
                             ->relationship()
                             ->disabled()
