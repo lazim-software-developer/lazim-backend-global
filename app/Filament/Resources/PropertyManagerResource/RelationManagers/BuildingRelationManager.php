@@ -109,7 +109,7 @@ class BuildingRelationManager extends RelationManager
                                                 ->options([
                                                     'commercial'  => 'Commercial',
                                                     'residential' => 'Residential',
-                                                    'residential/commercial' => 'Residential/Commercial',
+                                                    'residential/commercial' => 'Residential+Commercial',
                                                 ]),
 
                                             TextInput::make('address_line1')

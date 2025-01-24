@@ -131,7 +131,6 @@ class FlatResource extends Resource
                             ->placeholder('NA')
                             ->label('Parking Count')
                             ->live(onBlur: true)
-                            ->debounce(2000)
                             ->afterStateUpdated(function ($state, $get, Set $set) {
                                 if (! $state) {
                                     return;
@@ -146,7 +145,6 @@ class FlatResource extends Resource
                                         ->title('Parking not available')
                                         ->body("This building does not have any parking spaces allocated.")
                                         ->danger()
-                                        ->persistent()
                                         ->send();
 
                                     $set('parking_count', null);
@@ -169,7 +167,6 @@ class FlatResource extends Resource
                                         ->title('Invalid parking count')
                                         ->body("Total parking count of all flats ({$newTotal}) cannot exceed building's parking count ({$building->parking_count})")
                                         ->danger()
-                                        ->persistent()
                                         ->send();
 
                                     $set('parking_count', null);
@@ -297,7 +294,7 @@ class FlatResource extends Resource
     public static function getRelations(): array
     {
         if (auth()->user()?->role?->name === 'Property Manager') {
-            
+
             return [
                 // FlatResource\RelationManagers\FlatDomesticHelpRelationManager::class,
                 // FlatResource\RelationManagers\FlatTenantRelationManager::class,

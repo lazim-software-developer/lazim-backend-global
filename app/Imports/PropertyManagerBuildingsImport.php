@@ -109,9 +109,18 @@ class PropertyManagerBuildingsImport implements ToCollection, WithHeadingRow
             if (empty($row['name'])) {
                 $errors[] = 'Name is required';
             }
-            if (! in_array(strtolower($row['building_type']), ['commercial', 'residential', 'residential/commercial'])) {
-                $errors[] = 'Building Type must be either Commercial or Residential or Residential/Commercial';
+
+            // Modified building type validation and transformation
+            $buildingType = strtolower(str_replace([' ', '+'], '', $row['building_type'] ?? ''));
+            if (!in_array($buildingType, ['commercial', 'residential', 'residential+commercial', 'residentialcommercial'])) {
+                $errors[] = 'Building Type must be either Commercial or Residential or Residential+Commercial';
             }
+
+            // Transform the building type to use forward slash
+            $buildingType = $buildingType === 'residentialcommercial' || $buildingType === 'residential+commercial'
+                ? 'residential/commercial'
+                : $buildingType;
+
             if (empty($row['property_group_id'])) {
                 $errors[] = 'Property Group ID is required';
             }
@@ -166,7 +175,7 @@ class PropertyManagerBuildingsImport implements ToCollection, WithHeadingRow
 
             $building = Building::create([
                 'name'                  => $row['name'],
-                'building_type'         => strtolower($row['building_type']) ?: null,
+                'building_type'         => $buildingType,
                 'property_group_id'     => $row['property_group_id'],
                 'address_line1'         => $row['address_line1'],
                 'area'                  => $row['area'] ?: null,
