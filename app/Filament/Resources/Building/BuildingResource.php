@@ -85,6 +85,7 @@ class BuildingResource extends Resource
                         ->options([
                             'commercial'  => 'Commercial',
                             'residential' => 'Residential',
+                            'residential/commercial' => 'Residential/Commercial',
                         ])
                         ->hidden(fn() => !in_array(auth()->user()->role->name, ['Admin', 'Property Manager'])),
 
@@ -362,6 +363,7 @@ class BuildingResource extends Resource
                         return match ($state) {
                             'commercial'  => 'Commercial',
                             'residential' => 'Residential',
+                            'residential/commercial' => 'Residential/Commercial',
                             default       => '--',
                         };
                     }),

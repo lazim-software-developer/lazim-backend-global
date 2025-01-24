@@ -16,7 +16,7 @@ class AmenityBookingOverview extends ChartWidget
     }
 
     protected static ?string $heading = 'Amenity Booking Statistics';
-    protected static ?int $sort = 5;
+    protected static ?int $sort       = 5;
 
     protected function getData(): array
     {
@@ -25,10 +25,10 @@ class AmenityBookingOverview extends ChartWidget
             ->where('active', true)
             ->pluck('flat_id')
             ->toArray();
-        
+
         $selectedMonth = (int) ($this->filter ?? now()->month);
         $bookings      = FacilityBooking::where('bookable_type', 'App\Models\Master\Facility')
-            // ->whereIn('building_id', $buildings)
+        // ->whereIn('building_id', $buildings)
             ->whereIn('flat_id', $pmFlats)
             ->whereMonth('created_at', $selectedMonth)
             ->select(
@@ -51,7 +51,7 @@ class AmenityBookingOverview extends ChartWidget
 
     protected function getType(): string
     {
-        return 'doughnut';
+        return 'pie';
     }
 
     protected function getOptions(): array
@@ -60,7 +60,7 @@ class AmenityBookingOverview extends ChartWidget
             'plugins'             => [
                 'legend' => [
                     'display'  => true,
-                    'cutout'   => '60%',
+                    // 'cutout'   => '10%',
                     'position' => 'bottom',
                 ],
             ],

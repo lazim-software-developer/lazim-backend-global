@@ -18,7 +18,7 @@ class MoveInOutChart extends ChartWidget
         $this->filter = (string) now()->month;
     }
 
-    protected static ?string $heading = 'Move In and Move Out Requests';
+    protected static ?string $heading = 'Move In/ Move Out Requests';
     protected static ?int $sort       = 4;
 
     protected function getFilters(): ?array

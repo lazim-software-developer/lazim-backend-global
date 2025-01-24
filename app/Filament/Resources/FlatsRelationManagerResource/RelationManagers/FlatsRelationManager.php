@@ -376,38 +376,38 @@ class FlatsRelationManager extends RelationManager
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
-                Tables\Actions\DetachAction::make()
-                    ->label('Detach')
-                    ->icon('heroicon-o-x-mark')
-                    ->modalHeading(fn($record) => 'Detach ' . $record->name . '?')
-                    ->modalDescription('Are you sure you want to detach this Flat?
-                            This will remove the management authority.')
-                    ->modalSubmitActionLabel('Yes, detach')
-                    ->action(function ($record, array $data) {
+                // Tables\Actions\DetachAction::make()
+                //     ->label('Detach')
+                //     ->icon('heroicon-o-x-mark')
+                //     ->modalHeading(fn($record) => 'Detach ' . $record->name . '?')
+                //     ->modalDescription('Are you sure you want to detach this Flat?
+                //             This will remove the management authority.')
+                //     ->modalSubmitActionLabel('Yes, detach')
+                //     ->action(function ($record, array $data) {
 
-                        DB::table('property_manager_flats')
-                            ->where('flat_id', $record->id)
-                            ->where('active', 1)
-                            ->update(['active' => 0]);
+                //         DB::table('property_manager_flats')
+                //             ->where('flat_id', $record->id)
+                //             ->where('active', 1)
+                //             ->update(['active' => 0]);
 
-                        DB::table('flat_tenants')
-                            ->where('flat_id', $record->id)
-                            ->update(['active' => 0]);
+                //         DB::table('flat_tenants')
+                //             ->where('flat_id', $record->id)
+                //             ->update(['active' => 0]);
 
-                        // Make users with the same id as flat_tenant_id inactive
-                        DB::table('users')
-                            ->whereIn('id', function ($query) use ($record) {
-                                $query->select('tenant_id')
-                                    ->from('flat_tenants')
-                                    ->where('flat_id', $record->id);
-                            })
-                            ->update(['active' => 0]);
+                //         // Make users with the same id as flat_tenant_id inactive
+                //         DB::table('users')
+                //             ->whereIn('id', function ($query) use ($record) {
+                //                 $query->select('tenant_id')
+                //                     ->from('flat_tenants')
+                //                     ->where('flat_id', $record->id);
+                //             })
+                //             ->update(['active' => 0]);
 
-                        Notification::make()
-                            ->title('Flat detached successfully')
-                            ->success()
-                            ->send();
-                    }),
+                //         Notification::make()
+                //             ->title('Flat detached successfully')
+                //             ->success()
+                //             ->send();
+                //     }),
             ])
             ->emptyStateDescription('Create or Upload a Flat to get started.')
             ->bulkActions([
