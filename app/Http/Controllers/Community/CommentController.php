@@ -33,14 +33,18 @@ class CommentController extends Controller
     // Add a comment for a post in community
     public function store(StoreCommentRequest $request, Post $post)
     {
+        if ($request->has('building_id')) {
+            DB::table('building_owner_association')
+                ->where(['building_id' => $request->building_id, 'active' => true])->first()->owner_association_id;
+        }
+
         $comment = new Comment($request->all());
 
         $comment->commentable()->associate($post);
         $comment->user_id = auth()->user()->id;
         $comment->save();
         $notifyTo = User::where('id',$post->user_id)->get();
-        $buildingId = DB::table('building_post')->where('post_id', $post->id)->first();
-        $oam_id = DB::table('building_owner_association')->where('building_id', $buildingId?->building_id)->where('active', true)->first()?->owner_association_id;
+        $oam_id = $notifyTo->first()->owner_association_id;
 
 
         Notification::make()

@@ -393,6 +393,10 @@ class RegistrationController extends Controller
     }
 
     public function reuploadDocument(Request $request,UserApproval $resident){
+        if($request->has('building_id')){
+            DB::table('building_owner_association')
+                ->where(['building_id' => $request->building_id, 'active' => true])->first()->owner_association_id;
+        }
         if($resident->status == null){
             return (new CustomResponseResource([
                 'title' => 'Error',
@@ -569,6 +573,11 @@ class RegistrationController extends Controller
     }
      public function addFlat(AddFlatForResidentsRequest $request)
     {
+        if ($request->building_id) {
+            DB::table('building_owner_association')
+                ->where(['building_id' => $request->building_id, 'active' => true])->first()->owner_association_id;
+        }
+
         $userData = User::find(auth()->id());
 
         // Fetch the flat using the provided flat_id
