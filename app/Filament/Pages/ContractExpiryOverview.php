@@ -41,13 +41,14 @@ class ContractExpiryOverview extends Page implements HasTable
     public function getTabGroups(): array
     {
         $today       = Carbon::now();
-        $buildingIds = DB::table('building_owner_association')
+        $pmFlats = DB::table('property_manager_flats')
             ->where('owner_association_id', auth()->user()->owner_association_id)
             ->where('active', true)
-            ->pluck('building_id');
+            ->pluck('flat_id')
+            ->toArray();
 
         $baseQuery = FlatTenant::query()
-            ->whereIn('building_id', $buildingIds)
+            ->whereIn('flat_id', $pmFlats)
             ->where('owner_association_id', auth()->user()->owner_association_id)
             ->where('active', true);
 

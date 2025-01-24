@@ -129,7 +129,15 @@ class OwnerAssociationInvoice extends Page implements HasForms
                     })
                     ->searchable()
                     ->options(function(callable $get){
-                        return Flat::where('building_id', $get('building_id'))->pluck('property_number', 'id');
+                        $pmFlats = DB::table('property_manager_flats')
+                            ->where('owner_association_id', auth()->user()?->owner_association_id)
+                            ->where('active', true)
+                            ->pluck('flat_id')
+                            ->toArray();
+
+                        return Flat::where('building_id', $get('building_id'))
+                            ->whereIn('id', $pmFlats)
+                            ->pluck('property_number', 'id');
                     }),
 
                 Select::make('resident')

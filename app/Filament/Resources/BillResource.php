@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\BillResource\Pages;
@@ -66,20 +65,17 @@ class BillResource extends Resource
                     ->label('Building')
                     ->afterStateUpdated(fn(Set $set) => $set('flat_id', null))
                     ->options(function () {
-                        if (auth()->user()->role->name == 'Admin') {
-                            return Building::pluck('name', 'id');
-                        } elseif (auth()->user()->role->name == 'Property Manager') {
-                            $buildingIds = DB::table('building_owner_association')
-                                ->where('owner_association_id', auth()->user()->owner_association_id)
-                                ->where('active', true)
-                                ->pluck('building_id');
+                        $role        = auth()->user()->role->name;
+                        $buildingIds = DB::table('building_owner_association')
+                            ->where('owner_association_id', auth()->user()->owner_association_id)
+                            ->where('active', true)
+                            ->pluck('building_id');
 
+                        if (in_array($role, ['Property Manager', 'OA'])) {
                             return Building::whereIn('id', $buildingIds)
                                 ->pluck('name', 'id');
                         } else {
-                            $oaId = auth()->user()?->owner_association_id;
-                            return Building::where('owner_association_id', $oaId)
-                                ->pluck('name', 'id');
+                            return Building::pluck('name', 'id');
                         }
                     })
                     ->placeholder('Select the Building')
@@ -94,6 +90,18 @@ class BillResource extends Resource
                     ->noSearchResultsMessage('No Flats found for this building.')
                     ->placeholder('Select the Flat')
                     ->options(function (callable $get) {
+                        $role    = auth()->user()->role->name;
+                        $pmFlats = DB::table('property_manager_flats')
+                            ->where('owner_association_id', auth()->user()?->owner_association_id)
+                            ->where('active', true)
+                            ->pluck('flat_id')
+                            ->toArray();
+
+                        if ($role == 'Property Manager') {
+                            return Flat::where('building_id', $get('building_id'))
+                                ->whereIn('id', $pmFlats)
+                                ->pluck('property_number', 'id');
+                        }
                         return Flat::where('building_id', $get('building_id'))
                             ->pluck('property_number', 'id');
                     })
@@ -152,15 +160,28 @@ class BillResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->emptyStateHeading('No Bills')
             ->modifyQueryUsing(function ($query) {
                 $buildingIds = DB::table('building_owner_association')
                     ->where('owner_association_id', auth()->user()->owner_association_id)
                     ->where('active', true)
                     ->pluck('building_id');
 
+                $pmFlats = DB::table('property_manager_flats')
+                    ->where('owner_association_id', auth()->user()?->owner_association_id)
+                    ->where('active', true)
+                    ->pluck('flat_id')
+                    ->toArray();
+
                 $flatIds = Flat::whereIn('building_id', $buildingIds)->pluck('id');
 
-                return $query->whereIn('flat_id', $flatIds);
+                if (auth()->user()->role->name == 'Property Manager') {
+                    return $query->whereIn('flat_id', $pmFlats)->orderBy('created_at', 'desc');
+                } elseif (auth()->user()->role->name == 'OA') {
+                    return $query->whereIn('flat_id', $flatIds)->orderBy('created_at', 'desc');
+                }
+
+                return $query->whereIn('flat_id', $flatIds)->orderBy('created_at', 'desc');
             })
             ->columns([
                 TextColumn::make('flat.building.name')
@@ -228,10 +249,7 @@ class BillResource extends Resource
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                 ]),
-            ])
-            ->modifyQueryUsing(function ($query) {
-                $query->orderBy('created_at', 'desc');
-            });
+            ]);
     }
 
     public static function getRelations(): array

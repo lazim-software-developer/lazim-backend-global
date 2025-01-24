@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\MoveInFormsDocumentResource\Pages;
@@ -245,8 +244,18 @@ class MoveInFormsDocumentResource extends Resource
                     ->where('owner_association_id', auth()->user()?->owner_association_id)
                     ->where('active', true)
                     ->pluck('building_id');
+                $role    = auth()->user()?->role->name;
+                $pmFlats = DB::table('property_manager_flats')
+                    ->where('owner_association_id', auth()->user()?->owner_association_id)
+                    ->where('active', true)
+                    ->pluck('flat_id')
+                    ->toArray();
 
-                if (auth()->user()?->role->name == 'Property Manager') {
+                if ($role == 'Property Manager') {
+                    return $query
+                        ->where('type', 'move-in')->withoutGlobalScopes()
+                        ->whereIn('flat_id', $pmFlats);
+                } elseif ($role == 'OA') {
                     return $query
                         ->where('type', 'move-in')->withoutGlobalScopes()
                         ->whereIn('building_id', $pmBuildings);

@@ -33,6 +33,11 @@ class CommentController extends Controller
     // Add a comment for a post in community
     public function store(StoreCommentRequest $request, Post $post)
     {
+        if ($request->has('building_id')) {
+            DB::table('building_owner_association')
+                ->where(['building_id' => $request->building_id, 'active' => true])->first()->owner_association_id;
+        }
+
         $comment = new Comment($request->all());
 
         $comment->commentable()->associate($post);

@@ -38,6 +38,11 @@ class RentalDetailsController extends Controller
     }
     public function requestPayment(Request $request, RentalCheque $rentalCheque)
     {
+        if ($request->has('building_id')) {
+            DB::table('building_owner_association')
+                ->where(['building_id' => $request->building_id, 'active' => true])->first()->owner_association_id;
+        }
+
         $request->validate([
             'building_id' => 'required|exists:buildings,id',
             'flat_id'     => 'required|exists:flats,id',

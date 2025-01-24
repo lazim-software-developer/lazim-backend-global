@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Filament\Resources\Building;
 
 use App\Filament\Resources\Building\FlatResource\Pages;
@@ -42,6 +41,17 @@ class FlatResource extends Resource
                         TextInput::make('property_number')
                             ->label('Unit Number')
                             ->required()
+                            ->unique(
+                                Flat::class,
+                                'property_number',
+                                ignoreRecord: true,
+                                modifyRuleUsing: function (\Illuminate\Validation\Rules\Unique $rule, Get $get) {
+                                    return $rule->where('building_id', $get('building_id'));
+                                }
+                            )
+                            ->validationMessages([
+                                'unique' => 'Unit Number already exists in the selected building.',
+                            ])
                             ->alphaDash()
                             ->placeholder('Unit Number'),
                         Select::make('owner_association_id')
@@ -123,15 +133,15 @@ class FlatResource extends Resource
                             ->live(onBlur: true)
                             ->debounce(2000)
                             ->afterStateUpdated(function ($state, $get, Set $set) {
-                                if (!$state) {
+                                if (! $state) {
                                     return;
                                 }
 
                                 $buildingId = $get('building_id');
-                                $building = Building::find($buildingId);
+                                $building   = Building::find($buildingId);
 
                                 // Check if building exists and has parking count defined
-                                if (!$building || !$building->parking_count) {
+                                if (! $building || ! $building->parking_count) {
                                     Notification::make()
                                         ->title('Parking not available')
                                         ->body("This building does not have any parking spaces allocated.")
@@ -145,14 +155,14 @@ class FlatResource extends Resource
 
                                 // Continue with existing validation for parking count limit
                                 $flatsParkingQuery = Flat::where('building_id', $buildingId)
-                                    ->where(function($query) use ($get) {
+                                    ->where(function ($query) use ($get) {
                                         if ($get('id')) {
                                             $query->where('id', '!=', $get('id'));
                                         }
                                     });
 
                                 $totalFlatsParking = $flatsParkingQuery->sum('parking_count');
-                                $newTotal = $totalFlatsParking + (int)$state;
+                                $newTotal          = $totalFlatsParking + (int) $state;
 
                                 if ($newTotal > $building->parking_count) {
                                     Notification::make()
@@ -235,7 +245,7 @@ class FlatResource extends Resource
                 TextColumn::make('virtual_account_number')
                     ->default('NA')
                     ->searchable()
-                    ->visible(!in_array(auth()->user()->role->name, ['Property Manager', 'Admin']))
+                    ->visible(! in_array(auth()->user()->role->name, ['Property Manager', 'Admin']))
                     ->limit(50),
                 TextColumn::make('parking_count')
                     ->default('NA')

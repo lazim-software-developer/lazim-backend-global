@@ -84,6 +84,11 @@ class ComplaintController extends Controller
 
     public function createIncident(IncidentRequest $request, Building $building)
     {
+        if ($building->id) {
+            DB::table('building_owner_association')
+                ->where(['building_id' => $building->id, 'active' => true])->first()->owner_association_id;
+        }
+
         if (auth()->user()->role->name == 'Security') {
             // Check if the gatekeeper has active member of the building
             $complaintableClass = User::class;

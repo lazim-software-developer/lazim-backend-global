@@ -196,6 +196,11 @@ class MollakController extends Controller
 
     public function verifyVisitor(Request $request, FlatVisitor $visitor)
     {
+        if ($visitor->building_id) {
+            DB::table('building_owner_association')
+                ->where(['building_id' => $visitor->building_id, 'active' => true])->first()->owner_association_id;
+        }
+
         $otp = $request->otp;
 
         if(env('APP_ENV') == 'production'){

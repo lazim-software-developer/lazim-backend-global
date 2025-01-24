@@ -60,7 +60,7 @@ class PermitWorkController extends Controller
     public function store(WorkPermitRequest $request)
     {
         $flat_id = $request->input('flat_id');
-        $owner_association_id = DB::table('property_manager_flats')->where(['flat_id' => $flat_id , 'active' => true])->first()->owner_association_id;
+        $owner_association_id = DB::table('building_owner_association')->where(['building_id' => $request->building_id , 'active' => true])->first()->owner_association_id;
 
         $data = $request->all();
         $data['bookable_id'] = $request->facility_id;
@@ -70,10 +70,11 @@ class PermitWorkController extends Controller
         $data['owner_association_id'] = $owner_association_id;
 
         $workPermit = FacilityBooking::create($data);
-
+        $owner_association_ids = DB::table('building_owner_association')
+            ->where(['building_id' => $request->building_id , 'active' => true])->pluck('owner_association_id');
         // Find user
-         $roles               = Role::whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor', 'Staff', 'Facility Manager'])->pluck('id');
-        $user                = User::where('owner_association_id', $owner_association_id)->whereNotIn('role_id', $roles)->whereNot('id', auth()->user()?->id)->get();
+        $user = User::whereIn('owner_association_id', $owner_association_ids)
+            ->where('role','Property Manager')->first();
 
         // Create and send notification
         if($user){
@@ -86,8 +87,8 @@ class PermitWorkController extends Controller
                 ->actions([
                     Action::make('view')
                         ->button()
-                        ->url(function () use ($owner_association_id, $workPermit) {
-                            $slug = OwnerAssociation::where('id', $owner_association_id)->first()?->slug;
+                        ->url(function () use ($user, $workPermit) {
+                            $slug = OwnerAssociation::where('id', $user->owner_association_id)->first()?->slug;
                             if ($slug) {
                                 return FacilityBookingResource::getUrl('edit', [$slug, $workPermit?->id]);
                             }

@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Filament\Resources\UserApprovalResource\Pages;
 
 use App\Filament\Resources\UserApprovalResource;
@@ -27,9 +26,16 @@ class ListUserApprovals extends ListRecords
             ->pluck('building_id');
 
         $flats = DB::table('flats')->whereIn('building_id', $pmbuildingIds)->pluck('id')->toArray();
+
+        $pmFlats = DB::table('property_manager_flats')
+            ->where('owner_association_id', auth()->user()?->owner_association_id)
+            ->where('active', true)
+            ->pluck('flat_id')
+            ->toArray();
+
         if (auth()->user()->role->name == 'Property Manager') {
             return parent::getTableQuery()
-                ->whereIn('flat_id', $flats)
+                ->whereIn('flat_id', $pmFlats)
                 ->latest();
         }
         $tenant = Filament::getTenant();

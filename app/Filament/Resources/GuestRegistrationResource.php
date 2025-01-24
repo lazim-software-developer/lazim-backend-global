@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\GuestRegistrationResource\Pages;
@@ -219,9 +218,24 @@ class GuestRegistrationResource extends Resource
                     ->searchable()
                     ->default('NA'),
                 TextColumn::make('status')
+                    ->badge()
+                    ->color(fn(string $state): string => match ($state) {
+                        'approved'                        => 'success',
+                        'rejected'                        => 'danger',
+                        'NA'                              => 'gray',
+                        default                           => 'primary',
+                    })
+                    ->formatStateUsing(function (string $state) {
+                        return match ($state) {
+                            'approved' => 'Approved',
+                            'rejected' => 'Rejected',
+                            default    => 'NA',
+                        };
+                    })
                     ->searchable()
                     ->default('NA'),
             ])
+
             ->defaultSort('created_at', 'desc')
             ->filters([
                 Filter::make('building')

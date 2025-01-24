@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Filament\Resources\VisitorFormResource\Pages;
 
 use App\Filament\Resources\VisitorFormResource;
@@ -20,13 +19,26 @@ class ListVisitorForms extends ListRecords
     }
     protected function getTableQuery(): Builder
     {
+        $role = auth()->user()->role->name;
+
         $pmBuildings = DB::table('building_owner_association')
             ->where('owner_association_id', auth()->user()?->owner_association_id)
             ->where('active', true)
             ->pluck('building_id');
 
-        return auth()->user()->role->name == 'Admin' ? parent::getTableQuery():
-        parent::getTableQuery()->where('owner_association_id', auth()->user()?->owner_association_id)
-        ->whereIn('building_id', $pmBuildings);
+        $pmFlats = DB::table('property_manager_flats')
+            ->where('owner_association_id', auth()->user()?->owner_association_id)
+            ->where('active', true)
+            ->pluck('flat_id')
+            ->toArray();
+
+        if ($role == 'Property Manager') {
+            return parent::getTableQuery()->whereIn('flat_id', $pmFlats);
+        } elseif ($role == 'OA') {
+            return parent::getTableQuery()->where->whereIn('building_id', $pmBuildings);
+        }
+
+        return parent::getTableQuery();
+
     }
 }
