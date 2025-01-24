@@ -45,6 +45,7 @@ class OwnerAssociationRepository
         }
         if(!empty($data['logo'])){
             $data['profile_photo']= $data['logo'];
+            $data['user_profile_photo']= $data['logo'];
         }
         if(!empty($data['chamber_document'])){
             $data['dubai_chamber_document']= $data['chamber_document'];

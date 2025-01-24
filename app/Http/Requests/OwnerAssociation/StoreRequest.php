@@ -14,6 +14,7 @@ class StoreRequest extends FormRequest
             'email' => 'required|email|unique:owner_associations',
             'trn_number' => 'required|string|unique:owner_associations',
             'address' => 'required|string',
+            'active' => 'required',
             'bank_account_number' => 'required|string',
             'trn_certificate' => 'nullable|file|mimes:pdf,jpg,jpeg,png',
             'trade_license' => 'nullable|file|mimes:pdf,jpg,jpeg,png',
