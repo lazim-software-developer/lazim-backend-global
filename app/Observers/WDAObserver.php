@@ -19,37 +19,35 @@ class WDAObserver
      */
     public function created(WDA $WDA): void
     {
-        $vendor = DB::table('building_vendor')->where('building_id', $WDA->building_id)
-            ->where('vendor_id', $WDA->vendor_id)->first();
-        if ($vendor) {
             $requiredPermissions = ['view_any_w::d::a'];
-            $building = Building::where('id', $vendor->building_id)->first();
-            $oam_id = DB::table('building_owner_association')->where('building_id', $vendor?->building_id)->where('active', true)->first();
-            $roles = Role::where('owner_association_id',$building->owner_association_id)->whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor','Staff'])->pluck('id');
-            $notifyTo = User::where('owner_association_id', $building->owner_association_id)->whereNotIn('role_id', $roles)->whereNot('id', auth()->user()?->id)->get()
-            ->filter(function ($notifyTo) use ($requiredPermissions) {
-                return $notifyTo->can($requiredPermissions);
-            });
-            Notification::make()
-                ->success()
-                ->title("New WDA Form")
-                ->icon('heroicon-o-document-text')
-                ->iconColor('warning')
-                ->body('New WDA form submitted by  ' . auth()->user()->first_name)
-                ->actions([
-                    Action::make('view')
-                        ->button()
-                        ->url(function() use ($oam_id,$WDA){
-                            $slug = OwnerAssociation::where('id',$oam_id->owner_association_id)->first()?->slug;
-                            if($slug){
-                                return WDAResource::getUrl('edit', [$slug,$WDA?->id]);
-                            }
-                            return url('/app/w-d-a-s/' . $WDA?->id.'/edit');
-                        }),
-                ])
-                ->sendToDatabase($notifyTo);
-        }
-
+            $oam_ids = DB::table('building_owner_association')->where('building_id', $WDA?->building_id)
+                ->where('active', true)->pluck('owner_association_id');
+            $roles = Role::whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor','Staff'])
+                ->pluck('id');
+            foreach($oam_ids as $oam_id){
+                $notifyTo = User::where('owner_association_id', $oam_id)->whereNotIn('role_id', $roles)->whereNot('id', auth()->user()?->id)->get()
+                ->filter(function ($notifyTo) use ($requiredPermissions) {
+                    return $notifyTo->can($requiredPermissions);
+                });
+                Notification::make()
+                    ->success()
+                    ->title("New WDA Form")
+                    ->icon('heroicon-o-document-text')
+                    ->iconColor('warning')
+                    ->body('New WDA form submitted by  ' . auth()->user()->first_name)
+                    ->actions([
+                        Action::make('view')
+                            ->button()
+                            ->url(function() use ($oam_id,$WDA){
+                                $slug = OwnerAssociation::where('id',$oam_id)->first()?->slug;
+                                if($slug){
+                                    return WDAResource::getUrl('edit', [$slug,$WDA?->id]);
+                                }
+                                return url('/app/w-d-a-s/' . $WDA?->id.'/edit');
+                            }),
+                    ])
+                    ->sendToDatabase($notifyTo);
+            }
     }
 
     /**
