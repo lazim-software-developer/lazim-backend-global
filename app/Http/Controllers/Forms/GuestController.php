@@ -198,7 +198,19 @@ class GuestController extends Controller
         $visitor = FlatVisitor::where('verification_code', $request->code)->first();
         $visitor->start_time = new Carbon($visitor->start_time);
         abort_if(!$visitor, 403, 'Invalid verification code');
-        abort_if($visitor->status != 'approved', 403, 'Not yet verified by Admin.');
+
+        // Check if building is managed by Property Manager
+        $isPMManaged = DB::table('building_owner_association as boa')
+            ->join('owner_associations as oa', 'oa.id', '=', 'boa.owner_association_id')
+            ->where('boa.building_id', $visitor->building_id)
+            ->where('boa.active', true)
+            ->where('oa.role', 'Property Manager')
+            ->exists();
+
+        // Only check approval status if not PM managed
+        if (!$isPMManaged) {
+            abort_if($visitor->status != 'approved', 403, 'Not yet verified by Admin.');
+        }
 
         if (!$visitor->verified) {
             return [
@@ -231,6 +243,11 @@ class GuestController extends Controller
     }
     public function visitorApproval(Request $request, FlatVisitor $visitor)
     {
+        if ($visitor->building_id) {
+            DB::table('building_owner_association')
+                ->where(['building_id' => $visitor->building_id, 'active' => true])->first()->owner_association_id;
+        }
+
         $visitor->update([
             'verified' => true,
         ]);
@@ -245,11 +262,21 @@ class GuestController extends Controller
     // List all future visits for a building
     public function futureVisits(Request $request, Building $building)
     {
+        // Check if building is managed by Property Manager
+        $isPMManaged = DB::table('building_owner_association as boa')
+            ->join('owner_associations as oa', 'oa.id', '=', 'boa.owner_association_id')
+            ->where('boa.building_id', $building->id)
+            ->where('boa.active', true)
+            ->where('oa.role', 'Property Manager')
+            ->exists();
+
         // List only approved requests from flat_visitors table
         $futureVisits = FlatVisitor::where('building_id', $building->id)
             // ->whereRaw("CONCAT(DATE(start_time), ' ', time_of_viewing) > ?", [now()])
             ->where('type', 'visitor')
-            ->where('status','approved')
+            ->when(!$isPMManaged, function ($query) {
+                return $query->where('status', 'approved');
+            })
             ->when($request->has('verified'), function ($query) use ($request) {
                 return $query->where('verified', $request->verified);
             })

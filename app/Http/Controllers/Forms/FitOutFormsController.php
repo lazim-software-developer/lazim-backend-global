@@ -95,6 +95,11 @@ class FitOutFormsController extends Controller
 
     public function contractorRequest(ContractorFormRequest $request, FitOutForm $fitout)
     {
+        if ($request->has('building_id')||$fitout->building_id) {
+            DB::table('building_owner_association')
+                ->where(['building_id' => $request->building_id ?? $fitout->building_id, 'active' => true])->first()->owner_association_id;
+        }
+
 
         if ($fitout->contractorRequest) {
             return (new CustomResponseResource([
