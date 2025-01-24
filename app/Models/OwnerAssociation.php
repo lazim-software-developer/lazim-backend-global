@@ -111,10 +111,10 @@ class OwnerAssociation extends Model
         return $this->belongsToMany(Vendor::class,'owner_association_vendor')->withPivot(['status']);
     }
 
-    public function getProfilePhotoAttribute($value)
-    {
-        return !empty($value) ? Storage::disk('s3')->url($value) : null;
-    }
+    // public function getProfilePhotoAttribute($value)
+    // {
+    //     return !empty($value) ? Storage::disk('s3')->url($value) : null;
+    // }
     public function getTradeLicenseAttribute($value)
     {
         return !empty($value) ? Storage::disk('s3')->url($value) : null;
