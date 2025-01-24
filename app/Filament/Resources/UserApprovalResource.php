@@ -29,6 +29,7 @@ class UserApprovalResource extends Resource
     protected static ?string $modelLabel = 'Resident Approval';
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static bool $isScopedToTenant = false;
 
     public static function form(Form $form): Form
     {
