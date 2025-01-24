@@ -226,7 +226,29 @@ class MoveOutFormsDocumentResource extends Resource
     {
         return $table
             ->poll('60s')
-            ->modifyQueryUsing(fn(Builder $query) => $query->where('type', 'move-out')->withoutGlobalScopes())
+            ->modifyQueryUsing(function (Builder $query) {
+                $pmBuildings = DB::table('building_owner_association')
+                    ->where('owner_association_id', auth()->user()?->owner_association_id)
+                    ->where('active', true)
+                    ->pluck('building_id');
+                $role    = auth()->user()?->role->name;
+                $pmFlats = DB::table('property_manager_flats')
+                    ->where('owner_association_id', auth()->user()?->owner_association_id)
+                    ->where('active', true)
+                    ->pluck('flat_id')
+                    ->toArray();
+
+                if ($role == 'Property Manager') {
+                    return $query
+                        ->where('type', 'move-out')->withoutGlobalScopes()
+                        ->whereIn('flat_id', $pmFlats);
+                } elseif ($role == 'OA') {
+                    return $query
+                        ->where('type', 'move-out')->withoutGlobalScopes()
+                        ->whereIn('building_id', $pmBuildings);
+                }
+                return $query->where('type', 'move-out')->withoutGlobalScopes();
+            })
             ->columns([
 
                 TextColumn::make('ticket_number')

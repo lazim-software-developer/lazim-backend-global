@@ -21,10 +21,6 @@ class ListServiceBookings extends ListRecords
             ->where('active', true)
             ->pluck('building_id');
 
-        $buildings = Building::all()
-            ->where('owner_association_id', auth()->user()?->owner_association_id)
-            ->where('active', true)->pluck('id')->toArray();
-
         if (auth()->user()->role->name == 'Property Manager') {
             return parent::getTableQuery()
                 ->where('bookable_type', $bookableType)

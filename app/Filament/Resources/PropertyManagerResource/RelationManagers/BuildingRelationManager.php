@@ -109,6 +109,7 @@ class BuildingRelationManager extends RelationManager
                                                 ->options([
                                                     'commercial'  => 'Commercial',
                                                     'residential' => 'Residential',
+                                                    'residential/commercial' => 'Residential/Commercial',
                                                 ]),
 
                                             TextInput::make('address_line1')
@@ -338,7 +339,7 @@ class BuildingRelationManager extends RelationManager
                             ->modifyQueryUsing(fn(Builder $query) => $query->where('id', 0))
                             ->withColumns([
                                 Column::make('name*'),
-                                Column::make('building_type*'),
+                                Column::make('building_type'),
                                 Column::make('property_group_id*'),
                                 Column::make('address_line1*'),
                                 Column::make('area'),

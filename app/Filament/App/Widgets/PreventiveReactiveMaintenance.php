@@ -1,9 +1,9 @@
 <?php
-
 namespace App\Filament\App\Widgets;
 
 use App\Models\Building\Complaint;
 use App\Models\Building\Flat;
+use DB;
 use Filament\Forms\Components\Select;
 use Filament\Tables;
 use Filament\Tables\Filters\Filter;
@@ -24,13 +24,12 @@ class PreventiveReactiveMaintenance extends BaseWidget
             ->emptyStateHeading('No Reactive Maintenance records')
             ->query(
                 Complaint::query()->whereIn('complaint_type', ['help_desk', 'tenant_complaint', 'snag'])
-                    ->whereIn('flat_id', Flat::where('owner_association_id', auth()->user()->owner_association_id)
-                            ->whereIn('building_id', function ($query) {
-                                return $query->select('building_id')
-                                    ->from('building_owner_association')
-                                    ->where('owner_association_id', auth()->user()->owner_association_id)
-                                    ->where('active', true);
-                            })
+                    ->whereIn('flat_id', Flat::whereIn('id', function ($query) {
+                        return $query->select('flat_id')
+                            ->from('property_manager_flats')
+                            ->where('owner_association_id', auth()->user()->owner_association_id)
+                            ->where('active', true);
+                    })
                             ->pluck('id'))
             )
             ->columns([
@@ -72,13 +71,12 @@ class PreventiveReactiveMaintenance extends BaseWidget
                             ->label('Flat')
                             ->native(false)
                             ->options(function () {
-                                $flats = Flat::where('owner_association_id', auth()->user()->owner_association_id)
-                                    ->whereIn('building_id', function ($query) {
-                                        return $query->select('building_id')
-                                            ->from('building_owner_association')
-                                            ->where('owner_association_id', auth()->user()->owner_association_id)
-                                            ->where('active', true);
-                                    })
+                                $pmFlats = DB::table('property_manager_flats')
+                                    ->where('owner_association_id', auth()->user()->owner_association_id)
+                                    ->where('active', true)
+                                    ->pluck('flat_id')
+                                    ->toArray();
+                                $flats = Flat::whereIn('id', $pmFlats)
                                     ->pluck('property_number', 'id');
                                 return $flats->isNotEmpty() ? $flats : ['' => 'No flats found'];
                             })

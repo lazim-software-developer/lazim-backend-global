@@ -63,6 +63,12 @@ class OwnerAssociation extends Model
         ->withPivot(['from', 'to', 'active']);
     }
 
+    public function propertyManagerFlats()
+    {
+        return $this->belongsToMany(Flat::class, 'property_manager_flats')
+            ->withPivot(['active']);
+    }
+
     public function facilityBookings(){
         return $this->hasMany(FacilityBooking::class);
     }

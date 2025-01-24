@@ -19,6 +19,7 @@ use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class FacilityBookingResource extends Resource
 {
@@ -94,6 +95,9 @@ class FacilityBookingResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(function(Builder $query){
+                return $query->orderBy('created_at', 'desc');
+            })
             ->emptyStateHeading('No Work Permit Requests')
             ->columns([
                 Tables\Columns\TextColumn::make('building.name')

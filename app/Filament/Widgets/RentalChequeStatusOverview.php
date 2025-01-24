@@ -3,6 +3,7 @@
 namespace App\Filament\Widgets;
 
 use App\Models\RentalCheque;
+use DB;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 
@@ -14,14 +15,16 @@ class RentalChequeStatusOverview extends BaseWidget
 
     protected function getStats(): array
     {
+        $pmFlats = DB::table('property_manager_flats')
+            ->where('owner_association_id', auth()->user()->owner_association_id)
+            ->where('active', true)
+            ->pluck('flat_id')
+            ->toArray();
 
         $query = RentalCheque::query()
-            ->whereHas('rentalDetail.flat.building', function ($query) {
-                $query->whereHas('ownerAssociations', function($q) {
-                    $q->where('owner_association_id', auth()->user()->owner_association_id)
-                      ->where('building_owner_association.active', true);
+            ->whereHas('rentalDetail.flat', function ($query) use($pmFlats) {
+                $query->whereIn('id', $pmFlats);
                 });
-            });
 
         $overdueCount = (clone $query)->where('status', 'Overdue')->count();
 

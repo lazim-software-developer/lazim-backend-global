@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\AnnouncementResource\Pages;
@@ -117,7 +116,8 @@ class AnnouncementResource extends Resource
                                 ->where('active', true)->pluck('building_id');
                             return Building::whereIn('id', $buildings)->pluck('name', 'id');
                         }
-                        return Building::where('owner_association_id', auth()->user()?->owner_association_id)->pluck('name', 'id');
+                        return Building::where('owner_association_id', auth()->user()?->owner_association_id)
+                            ->pluck('name', 'id');
                     })
                     ->searchable()
                     ->multiple()
@@ -174,9 +174,10 @@ class AnnouncementResource extends Resource
                     ->label('User'),
                 SelectFilter::make('building_id')
                     ->options(function () {
+                        $role = auth()->user()?->role->name;
                         if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
                             return Building::pluck('name', 'id');
-                        } elseif (auth()->user()->role->name == 'Property Manager') {
+                        } elseif (in_array($role, ['Property Manager', 'OA'])) {
                             $buildingIds = DB::table('building_owner_association')
                                 ->where('owner_association_id', auth()->user()->owner_association_id)
                                 ->where('active', true)
@@ -184,7 +185,6 @@ class AnnouncementResource extends Resource
 
                             return Building::whereIn('id', $buildingIds)
                                 ->pluck('name', 'id');
-
                         }
                         $oaId = auth()->user()?->owner_association_id;
                         return Building::where('owner_association_id', $oaId)

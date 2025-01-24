@@ -16,17 +16,20 @@ class AmenityBookingOverview extends ChartWidget
     }
 
     protected static ?string $heading = 'Amenity Booking Statistics';
-    protected static ?int $sort = 5;
+    protected static ?int $sort       = 5;
 
     protected function getData(): array
     {
-        $buildings = DB::table('building_owner_association')
+        $pmFlats = DB::table('property_manager_flats')
             ->where('owner_association_id', auth()->user()->owner_association_id)
             ->where('active', true)
-            ->pluck('building_id');
+            ->pluck('flat_id')
+            ->toArray();
+
         $selectedMonth = (int) ($this->filter ?? now()->month);
         $bookings      = FacilityBooking::where('bookable_type', 'App\Models\Master\Facility')
-            ->whereIn('building_id', $buildings)
+        // ->whereIn('building_id', $buildings)
+            ->whereIn('flat_id', $pmFlats)
             ->whereMonth('created_at', $selectedMonth)
             ->select(
                 DB::raw('SUM(CASE WHEN approved = true THEN 1 ELSE 0 END) as approved_count'),
@@ -48,7 +51,7 @@ class AmenityBookingOverview extends ChartWidget
 
     protected function getType(): string
     {
-        return 'doughnut';
+        return 'pie';
     }
 
     protected function getOptions(): array
@@ -57,7 +60,7 @@ class AmenityBookingOverview extends ChartWidget
             'plugins'             => [
                 'legend' => [
                     'display'  => true,
-                    'cutout'   => '60%',
+                    // 'cutout'   => '10%',
                     'position' => 'bottom',
                 ],
             ],

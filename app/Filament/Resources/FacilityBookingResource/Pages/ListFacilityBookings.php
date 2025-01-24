@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Filament\Resources\FacilityBookingResource\Pages;
 
 use App\Filament\Resources\FacilityBookingResource;
@@ -25,19 +24,24 @@ class ListFacilityBookings extends ListRecords
             ->where('owner_association_id', auth()->user()->owner_association_id)
             ->where('active', true)
             ->pluck('building_id')->toArray();
+
+        $pmFlats = DB::table('property_manager_flats')
+            ->where('owner_association_id', auth()->user()?->owner_association_id)
+            ->where('active', true)
+            ->pluck('flat_id')
+            ->toArray();
+
         if (Role::where('id', auth()->user()->role_id)->first()->name == 'Property Manager') {
             return parent::getTableQuery()
-                ->where('bookable_type', 'App\Models\WorkPermit')->whereIn('building_id', $buildings);
+                ->where('bookable_type', 'App\Models\WorkPermit')->whereIn('flat_id', $pmFlats);
         }
-        if (Role::where('id', auth()->user()->role_id)->first()->name != 'Admin') {
+        if (Role::where('id', auth()->user()->role_id)->first()->name == 'OA') {
             return parent::getTableQuery()
                 ->where('bookable_type', 'App\Models\WorkPermit')
                 ->whereIn('building_id', $buildings);
         }
 
         return parent::getTableQuery()
-            ->where('bookable_type', 'App\Models\WorkPermit')
-            ->latest()
-            ->first();
+            ->where('bookable_type', 'App\Models\WorkPermit');
     }
 }

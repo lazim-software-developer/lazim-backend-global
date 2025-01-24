@@ -18,7 +18,7 @@ class MoveInOutChart extends ChartWidget
         $this->filter = (string) now()->month;
     }
 
-    protected static ?string $heading = 'Move In and Move Out Requests';
+    protected static ?string $heading = 'Move In/ Move Out Requests';
     protected static ?int $sort       = 4;
 
     protected function getFilters(): ?array
@@ -45,29 +45,24 @@ class MoveInOutChart extends ChartWidget
         $currentYear   = now()->year;
         $startDate     = Carbon::create($currentYear, $selectedMonth, 1)->startOfMonth();
         $endDate       = $startDate->copy()->endOfMonth();
-        $pmBuildings   = DB::table('building_owner_association')
+
+        $pmFlats = DB::table('property_manager_flats')
             ->where('owner_association_id', auth()->user()?->owner_association_id)
             ->where('active', true)
-            ->pluck('building_id');
+            ->pluck('flat_id');
 
         // Count total move-ins
         $moveInCount = MoveInOut::where('owner_association_id', auth()->user()->owner_association_id)
             ->where('type', 'move-in')
             ->whereBetween('created_at', [$startDate, $endDate])
-            ->whereIn('building_id', $pmBuildings)
-            ->when($this->filters['building'] ?? null, function ($query) {
-                return $query->where('building_id', $this->filters['building']);
-            })
+            ->whereIn('flat_id', $pmFlats)
             ->count();
 
         // Count total move-outs
         $moveOutCount = MoveInOut::where('owner_association_id', auth()->user()->owner_association_id)
             ->where('type', 'move-out')
             ->whereBetween('created_at', [$startDate, $endDate])
-            ->whereIn('building_id', $pmBuildings)
-            ->when($this->filters['building'] ?? null, function ($query) {
-                return $query->where('building_id', $this->filters['building']);
-            })
+            ->whereIn('flat_id', $pmFlats)
             ->count();
 
         return [
