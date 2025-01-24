@@ -7,6 +7,7 @@ use DB;
 use Filament\Facades\Filament;
 use Filament\Resources\Pages\ListRecords;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Log;
 
 class ListUserApprovals extends ListRecords
 {
@@ -39,6 +40,7 @@ class ListUserApprovals extends ListRecords
                 ->latest();
         }
         $tenant = Filament::getTenant();
+        Log::info($tenant);
         if ($tenant) {
             return parent::getTableQuery()->whereIn('flat_id', $flats)->latest();
         }
