@@ -43,8 +43,9 @@ class CommentController extends Controller
         $comment->commentable()->associate($post);
         $comment->user_id = auth()->user()->id;
         $comment->save();
-        $buildingId = DB::table('building_post')->where('post_id', $post->id)->first();
-        $oam_ids = DB::table('building_owner_association')->where('building_id', $buildingId?->building_id)->where('active', true)->pluck('owner_association_id');
+        $buildingId = DB::table('building_post')->where('post_id', $post->id)->pluck('building_id');
+        $oam_ids = DB::table('building_owner_association')->whereIn('building_id', $buildingId)
+            ->where('active', true)->distinct()->pluck('owner_association_id');
 
         foreach($oam_ids as $oam_id){
             $notifyTo = User::where(['id'=>$post->user_id,'owner_association_id'=> $oam_ids])->get();
