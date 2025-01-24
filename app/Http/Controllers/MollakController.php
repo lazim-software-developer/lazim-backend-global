@@ -141,6 +141,11 @@ class MollakController extends Controller
 
     public function sendSMS(Request $request)
     {
+        if ($request->has('building_id')) {
+            DB::table('building_owner_association')
+                ->where(['building_id' => $request->building_id, 'active' => true])->first()->owner_association_id;
+        }
+
         if(env('APP_ENV') == 'production'){
         $response = Http::withOptions(['verify' => false])->withHeaders([
             'content-type' => 'application/json',
@@ -196,9 +201,9 @@ class MollakController extends Controller
 
     public function verifyVisitor(Request $request, FlatVisitor $visitor)
     {
-        if ($visitor->building_id) {
+        if ($request->has('building_id')||$visitor->building_id) {
             DB::table('building_owner_association')
-                ->where(['building_id' => $visitor->building_id, 'active' => true])->first()->owner_association_id;
+                ->where(['building_id' => $request->building_id ?? $visitor->building_id, 'active' => true])->first()->owner_association_id;
         }
 
         $otp = $request->otp;

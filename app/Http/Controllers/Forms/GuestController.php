@@ -255,9 +255,9 @@ class GuestController extends Controller
     }
     public function visitorApproval(Request $request, FlatVisitor $visitor)
     {
-        if ($visitor->building_id) {
+        if ($request->has('building_id')||$visitor->building_id) {
             DB::table('building_owner_association')
-                ->where(['building_id' => $visitor->building_id, 'active' => true])->first()->owner_association_id;
+                ->where(['building_id' => $request->building_id ?? $visitor->building_id, 'active' => true])->first()->owner_association_id;
         }
 
         $visitor->update([
@@ -307,6 +307,10 @@ class GuestController extends Controller
     // Notify tenant on visitor's visit
     public function notifyTenant(Request $request)
     {
+        if ($request->building_id) {
+            DB::table('building_owner_association')
+                ->where(['building_id' => $request->building_id, 'active' => true])->first()->owner_association_id;
+        }
         $flat     = $request->input('flat_id');
         $building = $request->input('building_id');
 
