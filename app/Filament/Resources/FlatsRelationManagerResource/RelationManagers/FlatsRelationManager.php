@@ -235,15 +235,16 @@ class FlatsRelationManager extends RelationManager
                                     ->pluck('name', 'id');
                             })
                             ->afterStateUpdated(function (callable $set) {
-                                $set('flat_id', null);
+                                $set('flat_ids', null);
                             })
                             ->searchable()
                             ->required()
                             ->reactive()
                             ->optionsLimit(500)
                             ->live(),
-                        Select::make('flat_id')
-                            ->label('Flat')
+                        Select::make('flat_ids')
+                            ->multiple()
+                            ->label('Flats')
                             ->options(function (RelationManager $livewire, callable $get) {
 
                                 $pmId = $livewire->ownerRecord->id;
@@ -270,33 +271,31 @@ class FlatsRelationManager extends RelationManager
 
                     ])
                     ->action(function (array $data, RelationManager $livewire): void {
-                        $flatId         = $data['flat_id'];
-                        $existingRecord = DB::table('property_manager_flats')
-                            ->where('owner_association_id', $livewire->ownerRecord->id)
-                            ->where('flat_id', $flatId)
-                            ->where('active', false)
-                            ->first();
-
-                        if ($existingRecord) {
-                            DB::table('property_manager_flats')
+                        foreach ($data['flat_ids'] as $flatId) {
+                            $existingRecord = DB::table('property_manager_flats')
                                 ->where('owner_association_id', $livewire->ownerRecord->id)
                                 ->where('flat_id', $flatId)
-                                ->update(['active' => true]);
+                                ->where('active', false)
+                                ->first();
 
-                            Notification::make()
-                                ->title('Flat attached successfully')
-                                ->success()
-                                ->send();
-                            return;
+                            if ($existingRecord) {
+                                DB::table('property_manager_flats')
+                                    ->where('owner_association_id', $livewire->ownerRecord->id)
+                                    ->where('flat_id', $flatId)
+                                    ->update(['active' => true]);
+                            } else {
+                                DB::table('property_manager_flats')->insert([
+                                    'owner_association_id' => $livewire->ownerRecord->id,
+                                    'flat_id'              => $flatId,
+                                    'active'               => true,
+                                ]);
+                            }
                         }
-                        DB::table('property_manager_flats')->insert([
-                            'owner_association_id' => $livewire->ownerRecord->id,
-                            'flat_id'              => $flatId,
-                            'active'               => true,
-                        ]);
 
                         Notification::make()
-                            ->title('Flat attached successfully')
+                            ->title((count($data['flat_ids']) > 1) ?
+                                count($data['flat_ids']) . ' Flats attached successfully' :
+                                count($data['flat_ids']) . ' Flat attached successfully')
                             ->success()
                             ->send();
                     }),

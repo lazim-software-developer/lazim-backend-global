@@ -85,7 +85,7 @@ class BuildingResource extends Resource
                         ->options([
                             'commercial'  => 'Commercial',
                             'residential' => 'Residential',
-                            'residential/commercial' => 'Residential/Commercial',
+                            'residential/commercial' => 'Residential+Commercial',
                         ])
                         ->hidden(fn() => !in_array(auth()->user()->role->name, ['Admin', 'Property Manager'])),
 
@@ -156,7 +156,6 @@ class BuildingResource extends Resource
                     TextInput::make('parking_count')
                         ->rule('regex:/^[0-9\-.,\/_ ]+$/')
                         ->live(onBlur: true) // Only trigger on blur (when user leaves the field)
-                        ->debounce(5000) // Wait 2 seconds after last keystroke before validating
                         ->afterStateUpdated(function($state, $record, Set $set) {
                             if (!$state || !$record) {
                                 return;
@@ -171,7 +170,8 @@ class BuildingResource extends Resource
                             if ((int)$state < $totalFlatParking) {
                                 Notification::make()
                                     ->title('Invalid parking count')
-                                    ->body("Total parking count cannot be less than sum of flat parking counts ($totalFlatParking)")
+                                    ->body("Total parking count cannot be less than sum of flat parking counts
+                                    ($totalFlatParking)")
                                     ->danger()
                                     ->send();
 
@@ -363,7 +363,7 @@ class BuildingResource extends Resource
                         return match ($state) {
                             'commercial'  => 'Commercial',
                             'residential' => 'Residential',
-                            'residential/commercial' => 'Residential/Commercial',
+                            'residential/commercial' => 'Residential+Commercial',
                             default       => '--',
                         };
                     }),

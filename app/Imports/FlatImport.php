@@ -1,6 +1,7 @@
 <?php
 namespace App\Imports;
 
+use App\Models\Building\Building;
 use App\Models\Building\Flat;
 use DB;
 use Filament\Notifications\Notification;
@@ -32,7 +33,7 @@ class FlatImport implements ToCollection, WithHeadingRow
             'makani_number',
             'dewa_number',
             'duetisalat_number',
-            'btuac_number'
+            'btuac_number',
         ];
 
         if ($rows->first() == null) {
@@ -110,15 +111,15 @@ class FlatImport implements ToCollection, WithHeadingRow
 
             // Updated numeric field validations
             $numericFields = [
-                'suit_area'          => 'Suit area',
-                'actual_area'        => 'Actual area',
-                'balcony_area'       => 'Balcony area',
-                'parking_count'      => 'Parking count',
-                'plot_number'        => 'Plot number',
-                'makani_number'      => 'Makani number',
-                'dewa_number'        => 'Dewa number',
+                'suit_area'         => 'Suit area',
+                'actual_area'       => 'Actual area',
+                'balcony_area'      => 'Balcony area',
+                'parking_count'     => 'Parking count',
+                'plot_number'       => 'Plot number',
+                'makani_number'     => 'Makani number',
+                'dewa_number'       => 'Dewa number',
                 'duetisalat_number' => 'BTU/Etisalat number',
-                'btuac_number'       => 'BTU/AC number',
+                'btuac_number'      => 'BTU/AC number',
             ];
 
             foreach ($numericFields as $field => $label) {
@@ -127,6 +128,33 @@ class FlatImport implements ToCollection, WithHeadingRow
                     if (preg_match('/[a-zA-Z]/', $row[$field])) {
                         $errors[] = "$label cannot contain alphabetic characters";
                     }
+                }
+            }
+
+            // Add parking count validation
+            $parkingCount = $row['parking_count'] ?: null;
+            if ($parkingCount !== null) {
+                // Get building's parking count
+                $building = Building::find($this->buildingId);
+
+                if (! $building || ! $building->parking_count) {
+                    $notImported[] = $unitNumber . ' (Building does not have any parking spaces allocated.)';
+                    continue;
+                }
+
+                // Calculate total parking count of existing flats excluding current flat
+                $existingParkingCount = Flat::where('building_id', $this->buildingId)
+                    ->where('property_number', '!=', $unitNumber)
+                    ->sum('parking_count');
+
+                // Add new flat's parking count
+                $totalParkingCount = $existingParkingCount + (int) $parkingCount;
+
+                // Check if total exceeds building's parking count
+                if ($totalParkingCount > $building->parking_count) {
+                    $availableSpaces = $building->parking_count - $existingParkingCount;
+                    $notImported[]   = $unitNumber . " (Cannot assign {$parkingCount} parking spaces. Only {$availableSpaces} parking spaces are available out of total {$building->parking_count} spaces)";
+                    continue;
                 }
             }
 
@@ -148,7 +176,7 @@ class FlatImport implements ToCollection, WithHeadingRow
                     'actual_area'          => $row['actual_area'] ?: null,
                     'balcony_area'         => $row['balcony_area'] ?: null,
                     'plot_number'          => $row['plot_number'] ?: null,
-                    'parking_count'        => $row['parking_count'] ?: null,
+                    'parking_count'        => $parkingCount,
                     'makhani_number'       => $row['makani_number'] ?: null,
                     'dewa_number'          => $row['dewa_number'] ?: null,
                     'etisalat/du_number'   => $row['duetisalat_number'] ?: null,
