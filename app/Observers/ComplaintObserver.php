@@ -43,7 +43,7 @@ class ComplaintObserver
             $flatexists = $complaint?->flat_id ? DB::table('property_manager_flats')
                 ->where(['flat_id' => $complaint?->flat_id, 'active' => true,'owner_association_id' => $oa->id])
                 ->exists() : true;
-            if($oa->role == 'OA' || ($oa->role == 'Property Manager' && $flatexists)){
+            if($oa->role == 'OA' && !$flatexists || ($oa->role == 'Property Manager' && $flatexists)){
 
                 if ($complaint->complaint_type == 'tenant_complaint') {
                     $requiredPermissions = ['view_any_complaintscomplaint'];
@@ -284,7 +284,7 @@ class ComplaintObserver
             $flatexists = $complaint?->flat_id ? DB::table('property_manager_flats')
                 ->where(['flat_id' => $complaint?->flat_id, 'active' => true,'owner_association_id' => $oa->id])
                 ->exists() : true;
-            if($oa->role == 'OA' || ($oa->role == 'Property Manager' && $flatexists)){
+            if($oa->role == 'OA' && !$flatexists || ($oa->role == 'Property Manager' && $flatexists)){
                 if ($complaint->status == 'closed') {
                     if ($complaint->complaint_type == 'help_desk') {
                         $requiredPermissions = ['view_any_helpdeskcomplaint'];

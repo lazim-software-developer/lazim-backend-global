@@ -34,7 +34,7 @@ class FacilityServiceBookingObserver
             $notifyTo = User::where('owner_association_id',$oa->id)->whereNotIn('role_id', $roles)
                 ->whereNot('id', auth()->user()?->id)->get();
             if($facilityBooking->bookable_type == 'App\Models\Master\Facility'){
-                if($oa->role == 'OA' || ($oa->role == 'Property Manager' && $flatexists)){
+                if($oa->role == 'OA' && !$flatexists || ($oa->role == 'Property Manager' && $flatexists)){
                     $requiredPermissions = ['view_any_building::facility::booking'];
                     $notifyTo->filter(function ($notifyTo) use ($requiredPermissions) {
                         return $notifyTo->can($requiredPermissions);
@@ -61,7 +61,7 @@ class FacilityServiceBookingObserver
                 }
             }
             if($facilityBooking->bookable_type == 'App\Models\Master\Service'){
-                if($oa->role == 'OA' || ($oa->role == 'Property Manager' && $flatexists)){
+                if($oa->role == 'OA' && !$flatexists || ($oa->role == 'Property Manager' && $flatexists)){
                     $requiredPermissions = ['view_any_building::service::booking'];
                     $notifyTo->filter(function ($notifyTo) use ($requiredPermissions) {
                         return $notifyTo->can($requiredPermissions);

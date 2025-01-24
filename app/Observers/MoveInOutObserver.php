@@ -35,7 +35,7 @@ class MoveInOutObserver
                 ->exists();
             $notifyTo = User::where('owner_association_id', $oa->id)->whereNotIn('role_id', $roles)
                 ->whereNot('id', auth()->user()?->id)->get();
-            if($oa->role == 'OA' || ($oa->role == 'Property Manager' && $flatexists)){
+            if($oa->role == 'OA' && !$flatexists || ($oa->role == 'Property Manager' && $flatexists)){
                 if($moveInOut->type == 'move-in'){
                     $requiredPermissions = ['view_any_move::in::forms::document'];
                     $notifyTo->filter(function ($notifyTo) use ($requiredPermissions) {
@@ -62,7 +62,7 @@ class MoveInOutObserver
                 }
             }
             else{
-                if($oa->role == 'OA' || ($oa->role == 'Property Manager' && $flatexists)){
+                if($oa->role == 'OA' && !$flatexists || ($oa->role == 'Property Manager' && $flatexists)){
                     $requiredPermissions = ['view_any_move::out::forms::document'];
                     $notifyTo->filter(function ($notifyTo) use ($requiredPermissions) {
                         return $notifyTo->can($requiredPermissions);

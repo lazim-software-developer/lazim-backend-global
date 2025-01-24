@@ -27,7 +27,7 @@ class AccessCardObserver
             $flatexists = DB::table('property_manager_flats')
             ->where(['flat_id' => $accessCard->flat_id, 'active' => true, 'owner_association_id' => $oa->id])
             ->exists();
-            if($oa->role == 'OA' || ($oa->role == 'Property Manager' && $flatexists)){
+            if($oa->role == 'OA' && !$flatexists || ($oa->role == 'Property Manager' && $flatexists)){
                 $notifyTo = User::where('owner_association_id', $oa->id)->whereNotIn('role_id', $roles)
                     ->whereNot('id', auth()->user()?->id)->get()
                 ->filter(function ($notifyTo) use ($requiredPermissions) {

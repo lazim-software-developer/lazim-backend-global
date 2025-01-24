@@ -133,7 +133,7 @@ class GuestController extends Controller
             $flatexists = DB::table('property_manager_flats')
                 ->where(['flat_id' => $request->flat_id, 'active' => true, 'owner_association_id' => $oa_id])
                 ->exists();
-            if(($oa->role == 'Property Manager' && $flatexists) || $oa->role == 'OA'){
+            if(($oa->role == 'Property Manager' && $flatexists) || $oa->role == 'OA' && !$flatexists){
                 $user = User::where('owner_association_id', $oa->id)->whereNotIn('role_id', $roles)
                     ->whereNot('id', auth()->user()?->id)->get()
                     ->filter(function ($notifyTo) use ($requiredPermissions) {
