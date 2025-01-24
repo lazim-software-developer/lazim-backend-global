@@ -10,6 +10,7 @@ use App\Models\OwnerAssociation;
 use App\Models\User\User;
 use Filament\Notifications\Actions\Action;
 use Filament\Notifications\Notification;
+use Illuminate\Support\Facades\DB;
 
 
 class SaleNOCObserver
@@ -20,29 +21,40 @@ class SaleNOCObserver
     public function created(SaleNOC $saleNOC): void
     {
         $requiredPermissions = ['view_any_noc::form'];
-        $roles = Role::where('owner_association_id',$saleNOC->owner_association_id)->whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor','Staff'])->pluck('id');
-        $notifyTo = User::where('owner_association_id', $saleNOC->owner_association_id)->whereNotIn('role_id', $roles)->whereNot('id', auth()->user()?->id)->get()
-        ->filter(function ($notifyTo) use ($requiredPermissions) {
-            return $notifyTo->can($requiredPermissions);
-        });
-        Notification::make()
-        ->success()
-        ->title("New Sale Noc Submission")
-        ->icon('heroicon-o-document-text')
-        ->iconColor('warning')
-        ->body('New form submission by '.auth()->user()->first_name)
-        ->actions([
-            Action::make('view')
-                ->button()
-                ->url(function() use ($saleNOC){
-                    $slug = OwnerAssociation::where('id',$saleNOC->owner_association_id)->first()?->slug;
-                    if($slug){
-                        return NocFormResource::getUrl('edit', [$slug,$saleNOC?->id]);
-                    }
-                    return url('/app/noc-forms/' . $saleNOC?->id.'/edit');
-                }),
-        ])
-        ->sendToDatabase($notifyTo);
+        $roles = Role::whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor','Staff','Facility Manager'])->pluck('id');
+        $oam_ids = DB::table('building_owner_association')
+            ->where(['building_id' => $saleNOC->building_id, 'active' => true])
+            ->pluck('owner_association_id');
+        foreach($oam_ids as $oam_id){
+            $oa = OwnerAssociation::find($oam_id);
+            $flatexists = DB::table('property_manager_flats')
+                ->where(['flat_id' => $saleNOC->flat_id, 'active' => true, 'owner_association_id' => $oam_id])
+                ->exists();
+            if($oa->role == 'OA' || ($oa->role == 'Property Manager' && $flatexists)){
+                $notifyTo = User::where('owner_association_id', $oa->id)->whereNotIn('role_id', $roles)->whereNot('id', auth()->user()?->id)->get()
+                ->filter(function ($notifyTo) use ($requiredPermissions) {
+                    return $notifyTo->can($requiredPermissions);
+                });
+                Notification::make()
+                ->success()
+                ->title("New Sale Noc Submission")
+                ->icon('heroicon-o-document-text')
+                ->iconColor('warning')
+                ->body('New form submission by '.auth()->user()->first_name)
+                ->actions([
+                    Action::make('view')
+                        ->button()
+                        ->url(function() use ($saleNOC,$oa){
+                            $slug = $oa?->slug;
+                            if($slug){
+                                return NocFormResource::getUrl('edit', [$slug,$saleNOC?->id]);
+                            }
+                            return url('/app/noc-forms/' . $saleNOC?->id.'/edit');
+                        }),
+                ])
+                ->sendToDatabase($notifyTo);
+            }
+        }
     }
 
     /**
