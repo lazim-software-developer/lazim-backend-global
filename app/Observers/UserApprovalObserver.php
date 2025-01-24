@@ -22,12 +22,13 @@ class UserApprovalObserver
         $ownerAssociationIds = DB::table('building_owner_association')
             ->where(['building_id'=> $userApproval->flat?->building?->id, 'active' => true])
             ->pluck('owner_association_id');
+        $pm = OwnerAssociation::whereIn('id', $ownerAssociationIds)->where('role', 'Property Manager')->first();
         $roles = Role::whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor','Staff','Facility Manager'])
             ->pluck('id');
         foreach ($ownerAssociationIds as $ownerAssociation) {
             $oa = OwnerAssociation::find($ownerAssociation);
             $flatexists = DB::table('property_manager_flats')
-                ->where(['flat_id' => $userApproval->flat_id, 'active' => true, 'owner_association_id' => $oa->id])
+                ->where(['flat_id' => $userApproval->flat_id, 'active' => true, 'owner_association_id' => $oa->role == 'OA' ? $pm?->id : $oa->id])
                 ->exists();
             if($oa->role == 'OA' && !$flatexists || ($oa->role == 'Property Manager' && $flatexists)){
                 $notifyTo = User::where('owner_association_id', $oa->id)->whereNotIn('role_id', $roles)

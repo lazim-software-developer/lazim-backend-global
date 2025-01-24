@@ -125,13 +125,14 @@ class GuestController extends Controller
         $visitor             = FlatVisitor::create($request->all());
         $oa_ids = DB::table('building_owner_association')->where('building_id', $request->building_id)
             ->where('active', true)->pluck('owner_association_id');
+        $pm = OwnerAssociation::whereIn('id', $oa_ids)->where('role', 'Property Manager')->first();
         $requiredPermissions = ['view_any_visitor::form'];
         $roles               = Role::whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor', 'Staff', 'Facility Manager'])->pluck('id');
 
         foreach($oa_ids as $oa_id){
             $oa = OwnerAssociation::find($oa_id);
             $flatexists = DB::table('property_manager_flats')
-                ->where(['flat_id' => $request->flat_id, 'active' => true, 'owner_association_id' => $oa_id])
+                ->where(['flat_id' => $request->flat_id, 'active' => true, 'owner_association_id' => $oa->role == 'OA' ? $pm?->id : $oa->id])
                 ->exists();
             if(($oa->role == 'Property Manager' && $flatexists) || $oa->role == 'OA' && !$flatexists){
                 $user = User::where('owner_association_id', $oa->id)->whereNotIn('role_id', $roles)

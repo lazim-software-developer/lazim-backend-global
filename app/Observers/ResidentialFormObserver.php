@@ -25,10 +25,11 @@ class ResidentialFormObserver
         $oam_ids = DB::table('building_owner_association')
             ->where(['building_id' => $residentialForm->building_id, 'active'=> true])
             ->pluck('owner_association_id');
+        $pm = OwnerAssociation::whereIn('id', $oam_ids)->where('role', 'Property Manager')->first();
         foreach($oam_ids as $oam_id){
             $oa = OwnerAssociation::find($oam_id);
             $flatexists = DB::table('property_manager_flats')
-                ->where(['flat_id' => $residentialForm->flat_id, 'active' => true, 'owner_association_id' => $oa->id])
+                ->where(['flat_id' => $residentialForm->flat_id, 'active' => true, 'owner_association_id' => $oa->role == 'OA' ? $pm?->id : $oa->id])
                 ->exists();
             if($oa->role == 'OA' && !$flatexists || ($oa->role == 'Property Manager' && $flatexists)){
                 $notifyTo = User::where('owner_association_id', $oa->id)->whereNotIn('role_id', $roles)->whereNot('id', auth()->user()?->id)->get()

@@ -22,10 +22,11 @@ class AccessCardObserver
         $requiredPermissions = ['view_any_access::card::forms::document'];
         $roles = Role::whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor','Staff','Facility Manager'])->pluck('id');
         $oa_ids = DB::table('building_owner_association')->where(['building_id'=> $accessCard->building_id, 'active'=> true])->pluck('owner_association_id');
+        $pm = OwnerAssociation::whereIn('id', $oa_ids)->where('role', 'Property Manager')->first();
         foreach($oa_ids as $oa_id){
             $oa = OwnerAssociation::find($oa_id);
             $flatexists = DB::table('property_manager_flats')
-            ->where(['flat_id' => $accessCard->flat_id, 'active' => true, 'owner_association_id' => $oa->id])
+            ->where(['flat_id' => $accessCard->flat_id, 'active' => true, 'owner_association_id' => $oa->role == 'OA' ? $pm?->id : $oa->id])
             ->exists();
             if($oa->role == 'OA' && !$flatexists || ($oa->role == 'Property Manager' && $flatexists)){
                 $notifyTo = User::where('owner_association_id', $oa->id)->whereNotIn('role_id', $roles)
