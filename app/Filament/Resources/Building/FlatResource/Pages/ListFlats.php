@@ -6,6 +6,7 @@ use App\Imports\FlatImport;
 use App\Models\Building\Building;
 use App\Models\Master\Role;
 use App\Models\OwnerAssociation;
+use App\Models\User\User;
 use Filament\Actions;
 use Filament\Actions\Action;
 use Filament\Forms\Components\FileUpload;
@@ -113,11 +114,19 @@ class ListFlats extends ListRecords
             ->where('active', true)
             ->pluck('building_id');
 
+        $othersRole = OwnerAssociation::where('id', auth()->user()->owner_association_id)
+            ->pluck('role')->toArray()['0'];
+
         if (Role::where('id', auth()->user()->role_id)->first()->name == 'Property Manager') {
             return parent::getTableQuery()->whereIn('id', $pmFlats);
         } elseif (Role::where('id', auth()->user()->role_id)->first()->name == 'OA') {
             return parent::getTableQuery()->whereIn('building_id', $pmBuildings);
+        } elseif (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+            return parent::getTableQuery();
+        } elseif ($othersRole == 'Property Manager') {
+            return parent::getTableQuery()->whereIn('id', $pmFlats);
+        } else {
+            return parent::getTableQuery()->whereIn('building_id', $pmBuildings);
         }
-        return parent::getTableQuery();
     }
 }
