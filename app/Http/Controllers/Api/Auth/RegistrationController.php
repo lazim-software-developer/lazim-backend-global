@@ -573,9 +573,9 @@ class RegistrationController extends Controller
     }
      public function addFlat(AddFlatForResidentsRequest $request)
     {
-        if ($request->building_id) {
+        if ($request->has('global_building_id')) {
             DB::table('building_owner_association')
-                ->where(['building_id' => $request->building_id, 'active' => true])->first()->owner_association_id;
+                ->where(['building_id' => $request->global_building_id, 'active' => true])->first()->owner_association_id;
         }
 
         $userData = User::find(auth()->id());

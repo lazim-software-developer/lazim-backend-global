@@ -486,14 +486,20 @@ class BuildingResource extends Resource
                                     'active' => 1,
                                 ]);
 
-                            // Make related flat tenants active
-                            DB::table('flat_tenants')
+                            $pmFlats = DB::table('property_manager_flats')
+                                ->where('owner_association_id', auth()->user()?->owner_association_id)
                                 ->whereIn('flat_id', function ($query) use ($record) {
                                     $query->select('id')
                                         ->from('flats')
                                         ->where('building_id', $record->id);
                                 })
+                                ->where('active', 0);
+
+                            // Make related flat tenants active
+                            DB::table('flat_tenants')
+                                ->whereIn('flat_id', $pmFlats->pluck('flat_id'))
                                 ->update(['active' => 1]);
+                            $pmFlats->update(['active' => 1]);
 
                             // Make related security guards active
                             BuildingPoc::where('building_id', $record->id)
@@ -524,13 +530,18 @@ class BuildingResource extends Resource
                             ->where('building_id', $record->id)
                             ->update(['to' => Carbon::now()->format('Y-m-d')]);
 
-                        // Make related flat tenants inactive
-                        $flatResidents = DB::table('flat_tenants')
+                        $pmFlats = DB::table('property_manager_flats')
+                            ->where('owner_association_id', auth()->user()?->owner_association_id)
                             ->whereIn('flat_id', function ($query) use ($record) {
                                 $query->select('id')
                                     ->from('flats')
                                     ->where('building_id', $record->id);
-                            });
+                            })
+                            ->where('active', 1);
+
+                        // Make related flat tenants inactive
+                        $flatResidents = DB::table('flat_tenants')
+                            ->whereIn('flat_id', $pmFlats->pluck('flat_id'));
                         if($flatResidents->exists()) {
                             $tenantIds = $flatResidents->pluck('tenant_id');
                             foreach ($tenantIds as $tenantId) {
@@ -549,6 +560,7 @@ class BuildingResource extends Resource
                             }
                         }
                         $flatResidents->update(['active' => 0]);
+                        $pmFlats->update(['active' => 0]);
                         // Make related vendor building inactive
                         $vendorAssociated = DB::table('building_vendor')
                             ->where('building_id', $record->id);

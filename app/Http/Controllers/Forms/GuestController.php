@@ -122,31 +122,43 @@ class GuestController extends Controller
             'type'                 => $request->type ?:'visitor',
         ]);
 
-        $requiredPermissions = ['view_any_visitor::form'];
         $visitor             = FlatVisitor::create($request->all());
-        $roles               = Role::where('owner_association_id', $oa_id)->whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor', 'Staff', 'Facility Manager'])->pluck('id');
-        $user                = User::where('owner_association_id', $oa_id)->whereNotIn('role_id', $roles)->whereNot('id', auth()->user()?->id)->get() //->where('role_id', Role::where('name','OA')->value('id'))->get();
-            ->filter(function ($notifyTo) use ($requiredPermissions) {
-                return $notifyTo->can($requiredPermissions);
-            });
-        Notification::make()
-            ->success()
-            ->title('Visitor Request')
-            ->body("Visitor request received for $request->start_date")
-            ->actions([
-                Action::make('View')
-                    ->button()
-                    ->url(function() use ($oa_id,$visitor){
-                        $slug = OwnerAssociation::where('id',$oa_id)->first()?->slug;
-                        if($slug){
-                            return VisitorFormResource::getUrl('edit', [$slug,$visitor?->id]);
-                        }
-                        return url('/app/visitor-forms/' . $visitor?->id.'/edit');
-                    }),
-            ])
-            ->icon('heroicon-o-document-text')
-            ->iconColor('warning')
-            ->sendToDatabase($user);
+        $oa_ids = DB::table('building_owner_association')->where('building_id', $request->building_id)
+            ->where('active', true)->pluck('owner_association_id');
+        $requiredPermissions = ['view_any_visitor::form'];
+        $roles               = Role::whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor', 'Staff', 'Facility Manager'])->pluck('id');
+
+        foreach($oa_ids as $oa_id){
+            $oa = OwnerAssociation::find($oa_id);
+            $flatexists = DB::table('property_manager_flats')
+                ->where(['flat_id' => $request->flat_id, 'active' => true, 'owner_association_id' => $oa_id])
+                ->exists();
+            if(($oa->role == 'Property Manager' && $flatexists) || $oa->role == 'OA'){
+                $user = User::where('owner_association_id', $oa->id)->whereNotIn('role_id', $roles)
+                    ->whereNot('id', auth()->user()?->id)->get()
+                    ->filter(function ($notifyTo) use ($requiredPermissions) {
+                        return $notifyTo->can($requiredPermissions);
+                    });
+                Notification::make()
+                    ->success()
+                    ->title('Visitor Request')
+                    ->body("Visitor request received for $request->start_date")
+                    ->actions([
+                        Action::make('View')
+                            ->button()
+                            ->url(function() use ($oa,$visitor){
+                                $slug = $oa?->slug;
+                                if($slug){
+                                    return VisitorFormResource::getUrl('edit', [$slug,$visitor?->id]);
+                                }
+                                return url('/app/visitor-forms/' . $visitor?->id.'/edit');
+                            }),
+                    ])
+                    ->icon('heroicon-o-document-text')
+                    ->iconColor('warning')
+                    ->sendToDatabase($user);
+            }
+        }
 
         // Handle multiple images
         if ($request->hasFile('files')) {
