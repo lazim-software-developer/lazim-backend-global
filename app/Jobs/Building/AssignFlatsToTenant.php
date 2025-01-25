@@ -67,11 +67,17 @@ class AssignFlatsToTenant implements ShouldQueue
             //     'building_id' => $flatDetails->building_id,
             //     'property_number' =>$flatDetails->property_number
             // ]);
-            $created_by = $connection->table('users')->where(['type' => 'building', 'building_id' => $flat->building_id])->first()->id;
-            $building = Building::find($flat->building_id);
-            $name = $user->first_name . ' - ' . $flat->property_number;
-            $primary = $connection->table('customers')->where('flat_id', $flat->id)->where('type', 'Owner')->where('primary',true)->exists();
-            $connection->table('customers')->insert([
+            $created_by = $connection->table('users')->where(['type' => 'building', 'building_id' => $flatDetails->building_id])->first()->id;
+            $building = Building::find($flatDetails->building_id);
+            $name = $user->first_name . ' - ' . $flatDetails->property_number;
+            $primary = $connection->table('customers')->where('flat_id', $flatDetails->id)->where('type', 'Owner')->where('primary',true)->exists();
+            $connection->table('customers')->updateOrInsert(
+                [
+                    'created_by' => $created_by,
+                    'building_id' => $flatDetails->building_id,
+                    'email' => $this->email,
+                    'contact' => $this->mobile,
+                ],[
                 'customer_id' => $this->customerId+1,
                 'name' => $name,
                 'email' => $this->email,
@@ -91,8 +97,8 @@ class AssignFlatsToTenant implements ShouldQueue
                 'shipping_phone' => $this->mobile,
                 'shipping_address' => $building->address_line1 . ', ' . $building->area,
                 'created_by_lazim' => true,
-                'flat_id' => $flat->id,
-                'building_id' => $flat->building_id,
+                'flat_id' => $flatDetails->id,
+                'building_id' => $flatDetails->building_id,
                 'primary' => !$primary,
             ]);
         }
