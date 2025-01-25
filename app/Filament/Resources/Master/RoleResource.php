@@ -25,7 +25,8 @@ class RoleResource extends Resource
                 Grid::make([
                     'sm' => 1,
                     'md' => 1,
-                    'lg' => 2])
+                    'lg' => 2
+                ])
                     ->schema([
                         TextInput::make('name')
                             ->rules(['max:50', 'regex:/^[a-zA-Z\s]*$/'])
@@ -55,6 +56,7 @@ class RoleResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

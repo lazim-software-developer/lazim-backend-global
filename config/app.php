@@ -71,7 +71,7 @@ return [
     |
     */
 
-    'timezone' => env('TIME_ZONE','Asia/Dubai'),
+    'timezone' => env('TIME_ZONE', 'Asia/Dubai'),
 
     /*
     |--------------------------------------------------------------------------
@@ -176,6 +176,7 @@ return [
         App\Providers\JetstreamServiceProvider::class,
         Intervention\Image\ImageServiceProvider::class,
         SimpleSoftwareIO\QrCode\QrCodeServiceProvider::class,
+        App\Providers\FilamentServiceProvider::class,
         // ExpoPushNotificationsServiceProvider::class,
     ])->toArray(),
 

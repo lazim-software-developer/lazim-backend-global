@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Components\NavigationItemExtended;
 use Filament\Pages;
 use Filament\Panel;
 use Filament\Widgets;
@@ -18,6 +19,7 @@ use Illuminate\Support\Facades\DB;
 use App\Filament\Resources\WDAResource;
 use Filament\Navigation\NavigationItem;
 use App\Filament\Pages\Auth\EditProfile;
+use App\Filament\Pages\Auth\Login;
 use App\Filament\Resources\DemoResource;
 use Filament\Navigation\NavigationGroup;
 use Filament\Http\Middleware\Authenticate;
@@ -50,6 +52,7 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use App\Filament\Resources\OwnerAssociationInvoiceResource;
 // use Filament\Pages\Dashboard;
 use App\Filament\Resources\OwnerAssociationReceiptResource;
+use App\Helpers\UrlHelper;
 use Leandrocfe\FilamentApexCharts\FilamentApexChartsPlugin;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 
@@ -61,12 +64,12 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('admin')
-            ->tenant(OwnerAssociation::class,ownershipRelationship: 'ownerAssociation', slugAttribute: 'slug')
-            ->tenantDomain('{tenant:slug}.'.env('APP_URL'))
-            ->login()
-             ->resources([
-                 config('filament-logger.activity_resource')
-                ])
+            ->tenant(OwnerAssociation::class, ownershipRelationship: 'ownerAssociation', slugAttribute: 'slug')
+            ->tenantDomain('{tenant:slug}.' . env('APP_URL'))
+            ->login(Login::class)
+            ->resources([
+                config('filament-logger.activity_resource')
+            ])
             ->profile(EditProfile::class)
             ->colors([
 
@@ -95,156 +98,163 @@ class AdminPanelProvider extends PanelProvider
             ->sidebarCollapsibleOnDesktop()
             ->navigation(function (NavigationBuilder $builder): NavigationBuilder {
                 // if (DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] != 'Admin') {
-                    $builder->groups([
-                        NavigationGroup::make('Dashboard')
-                            ->items([
-                                NavigationItem::make('Dashboard')
-                                    ->icon('heroicon-o-home')
-                                    ->activeIcon('heroicon-s-home')
-                                    ->url('/admin'),
-                            ])
-                            ->collapsed(true),
-                    ]);
-                // }
-                    $user = User::find(auth()->user()->id) ;
-              if(
-                $user->can('view_any_mollak::tenant')||
-                $user->can('view_any_user::approval') ||
-                $user->can('view_any_owner::association')||
-                $user->can('view_any_tenant::document')||
-                $user->can('view_any_master::facility')||
-                $user->can('view_any_master::service')||
-                $user->can('view_any_master::vendor::service')||
-                $user->can('view_any_user::user') ||
-                $user->can('view_any_building::documents')||
-                $user->can('page_Documents')||
-                auth()->user()->role_id == 10
-              ){
                 $builder->groups([
-                    NavigationGroup::make('Master')
+                    NavigationGroup::make('Dashboard')
                         ->items([
-                            NavigationItem::make('Tenants')
-                                ->url('/admin/mollak-tenants')
-                                ->hidden(!$user->can('view_any_mollak::tenant'))
-                                ->icon('heroicon-o-users')
-                                ->activeIcon('heroicon-o-users')
-                                ->sort(1),
-                            NavigationItem::make('Resident Approval')
-                                ->url(UserApprovalResource::getUrl('index'))
-                                ->hidden(!$user->can('view_any_user::approval'))
-                                ->icon('heroicon-o-users')
-                                ->activeIcon('heroicon-o-users')
-                                ->sort(2),
-                            // NavigationItem::make('MD')
-                            //     ->url('/admin/m-d-s')
-                            //     ->hidden(!in_array(Role::where('id', auth()->user()->role_id)->first()->name, ['OA','MD']))
-                            //     ->icon('heroicon-o-users')
-                            //     ->activeIcon('heroicon-o-users')
-                            //     ->sort(3),
-                            // NavigationItem::make('Accounts Manager')
-                            //     ->url('/admin/accounts-managers')
-                            //     ->hidden(!in_array(Role::where('id', auth()->user()->role_id)->first()->name, ['OA','MD']))
-                            //     ->icon('heroicon-o-users')
-                            //     ->activeIcon('heroicon-o-users')
-                            //     ->sort(4),
-                            // NavigationItem::make('Building Engineer')
-                            //     ->url(BuildingEngineerResource::getUrl('index'))
-                            //     ->hidden(!in_array(Role::where('id', auth()->user()->role_id)->first()->name, ['OA','MD']))
-                            //     ->icon('heroicon-o-users')
-                            //     ->activeIcon('heroicon-o-users')
-                            //     ->sort(5),
-                            // NavigationItem::make('Complaint Officer')
-                            //     ->url(ComplaintOfficerResource::getUrl('index'))
-                            //     ->hidden(!in_array(Role::where('id', auth()->user()->role_id)->first()->name, ['OA','MD']))
-                            //     ->icon('heroicon-o-users')
-                            //     ->activeIcon('heroicon-o-users')
-                            //     ->sort(6),
-                            // NavigationItem::make('Legal Officer')
-                            //     ->url(LegalOfficerResource::getUrl('index'))
-                            //     ->hidden(!in_array(Role::where('id', auth()->user()->role_id)->first()->name, ['OA','MD']))
-                            //     ->icon('heroicon-o-users')
-                            //     ->activeIcon('heroicon-o-users')
-                            //     ->sort(7),
-                            // NavigationItem::make('Medias')
-                            //     ->url('/admin/media')
-                            //     // ->hidden(DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] == 'Admin' ? false : true)
-                            //     ->icon('heroicon-m-photo')
-                            //     ->activeIcon('heroicon-m-photo')
-                            //     ->sort(2),
-                            NavigationItem::make('Owner association')
-                                ->url('/admin/owner-associations')
-                                ->hidden(!$user->can('view_any_owner::association'))
-                                ->icon('heroicon-s-user-group')
-                                ->activeIcon('heroicon-s-user-group')
-                                ->sort(8),
-                            // NavigationItem::make('Cities')
-                            //     // ->hidden(DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] == 'Admin' ? false : true)
-                            //     ->url('/admin/master/cities')
-                            //     ->icon('heroicon-m-globe-americas')
-                            //     ->activeIcon('heroicon-m-globe-americas')
-                            //     ->sort(4),
-                            NavigationItem::make('Resident documents')
-                                ->url('/admin/tenant-documents')
-                                ->hidden(!$user->can('view_any_tenant::document'))
-                                ->icon('heroicon-o-user-circle')
-                                ->activeIcon('heroicon-o-user-circle')
-                                ->sort(9),
-                            NavigationItem::make('Facilities')
-                                ->label('Amenities')
-                                ->hidden(!$user->can('view_any_master::facility'))
-                                ->url('/admin/master/facilities')
-                                ->icon('heroicon-o-cube-transparent')
-                                ->activeIcon('heroicon-o-cube-transparent')
-                                ->sort(10),
-                            NavigationItem::make('Roles')
-                                ->hidden(function () {
-                                    $userRoleId = auth()->user()->role_id;
-                                    $adminRoleIds = Role::whereIn('name', ['OA', 'MD'])->pluck('id')->toArray();
-
-                                    return !in_array($userRoleId, $adminRoleIds);
-                                })
-                                ->url('/admin/shield/roles')
-                                ->icon('heroicon-s-user-group')
-                                ->activeIcon('heroicon-s-user-group')
-                                ->sort(11),
-                            NavigationItem::make('In-house services')
-                                ->label('Personal services')
-                                ->hidden(!$user->can('view_any_master::service'))
-                                ->url('/admin/master/services')
-                                ->icon('heroicon-m-wrench')
-                                ->activeIcon('heroicon-m-wrench')
-                                ->sort(12),
-                            NavigationItem::make('Vendor services')
-                                ->hidden(!$user->can('view_any_master::vendor::service'))
-                                ->url('/admin/master/vendor-services')
-                                ->icon('heroicon-m-wrench-screwdriver')
-                                ->activeIcon('heroicon-m-wrench-screwdriver')
-                                ->sort(13),
-                            NavigationItem::make('Users')
-                                ->hidden(!$user->can('view_any_user::user'))
-                                ->url(UserResource::getUrl('index'))
-                                ->icon('heroicon-s-user-group')
-                                ->activeIcon('heroicon-s-user-group')
-                                ->sort(14),
-                            NavigationItem::make('Documents')
-                                ->hidden(!$user->can('page_Documents'))
-                                ->url('/admin/documents')
-                                ->icon('heroicon-s-document-text')
-                                ->activeIcon('heroicon-s-document-text')
-                                ->sort(15),
+                            NavigationItem::make('Dashboard')
+                                ->icon('heroicon-o-home')
+                                ->activeIcon('heroicon-s-home')
+                                ->url('/admin'),
                         ])
                         ->collapsed(true),
                 ]);
-            }
+                // }
+                $user = User::find(auth()->user()->id);
+                if (
+                    $user->can('view_any_mollak::tenant') ||
+                    $user->can('view_any_user::approval') ||
+                    $user->can('view_any_owner::association') ||
+                    $user->can('view_any_tenant::document') ||
+                    $user->can('view_any_master::facility') ||
+                    $user->can('view_any_master::service') ||
+                    $user->can('view_any_master::vendor::service') ||
+                    $user->can('view_any_user::user') ||
+                    $user->can('view_any_building::documents') ||
+                    $user->can('page_Documents') ||
+                    auth()->user()->role_id == 10
+                ) {
+                    $builder->groups([
+                        NavigationGroup::make('Master')
+                            ->items([
+                                NavigationItem::make('Tenants')
+                                    ->url('/admin/mollak-tenants')
+                                    // ->makeCustomUrl('/mollak-tenants')
+                                    ->hidden(!$user->can('view_any_mollak::tenant'))
+                                    ->icon('heroicon-o-users')
+                                    ->activeIcon('heroicon-o-users')
+                                    ->sort(1),
+                                NavigationItem::make('Resident Approval')
+                                    ->url(UserApprovalResource::getUrl('index'))
+                                    // ->makeCustomUrl("/user-approvals")
+                                    ->hidden(!$user->can('view_any_user::approval'))
+                                    ->icon('heroicon-o-users')
+                                    ->activeIcon('heroicon-o-users')
+                                    ->sort(2),
+                                // NavigationItem::make('MD')
+                                //     ->url('/admin/m-d-s')
+                                //     ->hidden(!in_array(Role::where('id', auth()->user()->role_id)->first()->name, ['OA','MD']))
+                                //     ->icon('heroicon-o-users')
+                                //     ->activeIcon('heroicon-o-users')
+                                //     ->sort(3),
+                                // NavigationItem::make('Accounts Manager')
+                                //     ->url('/admin/accounts-managers')
+                                //     ->hidden(!in_array(Role::where('id', auth()->user()->role_id)->first()->name, ['OA','MD']))
+                                //     ->icon('heroicon-o-users')
+                                //     ->activeIcon('heroicon-o-users')
+                                //     ->sort(4),
+                                // NavigationItem::make('Building Engineer')
+                                //     ->url(BuildingEngineerResource::getUrl('index'))
+                                //     ->hidden(!in_array(Role::where('id', auth()->user()->role_id)->first()->name, ['OA','MD']))
+                                //     ->icon('heroicon-o-users')
+                                //     ->activeIcon('heroicon-o-users')
+                                //     ->sort(5),
+                                // NavigationItem::make('Complaint Officer')
+                                //     ->url(ComplaintOfficerResource::getUrl('index'))
+                                //     ->hidden(!in_array(Role::where('id', auth()->user()->role_id)->first()->name, ['OA','MD']))
+                                //     ->icon('heroicon-o-users')
+                                //     ->activeIcon('heroicon-o-users')
+                                //     ->sort(6),
+                                // NavigationItem::make('Legal Officer')
+                                //     ->url(LegalOfficerResource::getUrl('index'))
+                                //     ->hidden(!in_array(Role::where('id', auth()->user()->role_id)->first()->name, ['OA','MD']))
+                                //     ->icon('heroicon-o-users')
+                                //     ->activeIcon('heroicon-o-users')
+                                //     ->sort(7),
+                                // NavigationItem::make('Medias')
+                                //     ->url('/admin/media')
+                                //     // ->hidden(DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] == 'Admin' ? false : true)
+                                //     ->icon('heroicon-m-photo')
+                                //     ->activeIcon('heroicon-m-photo')
+                                //     ->sort(2),
+                                NavigationItem::make('Owner association')
+                                    ->url('/admin/owner-associations')
+                                    // ->makeCustomUrl('/owner-associations')
+                                    ->hidden(!$user->can('view_any_owner::association'))
+                                    ->icon('heroicon-s-user-group')
+                                    ->activeIcon('heroicon-s-user-group')
+                                    ->sort(8),
+                                // NavigationItem::make('Cities')
+                                //     // ->hidden(DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] == 'Admin' ? false : true)
+                                //     ->url('/admin/master/cities')
+                                //     ->icon('heroicon-m-globe-americas')
+                                //     ->activeIcon('heroicon-m-globe-americas')
+                                //     ->sort(4),
+                                NavigationItem::make('Resident documents')
+                                    ->url('/admin/tenant-documents')
+                                    // ->makeCustomUrl('/tenant-documents')
+                                    ->hidden(!$user->can('view_any_tenant::document'))
+                                    ->icon('heroicon-o-user-circle')
+                                    ->activeIcon('heroicon-o-user-circle')
+                                    ->sort(9),
+                                NavigationItem::make('Facilities')
+                                    ->label('Amenities')
+                                    ->hidden(!$user->can('view_any_master::facility'))
+                                    // ->makeCustomUrl('/master/facilities')
+                                    ->url('/admin/master/facilities')
+                                    ->icon('heroicon-o-cube-transparent')
+                                    ->activeIcon('heroicon-o-cube-transparent')
+                                    ->sort(10),
+                                NavigationItem::make('Roles')
+                                    ->hidden(function () {
+                                        $userRoleId = auth()->user()->role_id;
+                                        $adminRoleIds = Role::whereIn('name', ['OA', 'MD'])->pluck('id')->toArray();
+
+                                        return !in_array($userRoleId, $adminRoleIds);
+                                    })
+                                    ->url('/admin/shield/roles')
+                                    ->icon('heroicon-s-user-group')
+                                    ->activeIcon('heroicon-s-user-group')
+                                    ->sort(11),
+                                NavigationItem::make('In-house services')
+                                    ->label('Personal services')
+                                    ->hidden(!$user->can('view_any_master::service'))
+                                    ->url('/admin/master/services')
+                                    ->icon('heroicon-m-wrench')
+                                    ->activeIcon('heroicon-m-wrench')
+                                    ->sort(12),
+                                NavigationItem::make('Vendor services')
+                                    ->hidden(!$user->can('view_any_master::vendor::service'))
+                                    ->url('/admin/master/vendor-services')
+                                    // ->makeCustomUrl('/vendor-services')
+                                    ->icon('heroicon-m-wrench-screwdriver')
+                                    ->activeIcon('heroicon-m-wrench-screwdriver')
+                                    ->sort(13),
+                                NavigationItem::make('Users')
+                                    ->hidden(!$user->can('view_any_user::user'))
+                                    ->url(UserResource::getUrl('index'))
+                                    ->icon('heroicon-s-user-group')
+                                    ->activeIcon('heroicon-s-user-group')
+                                    ->sort(14),
+                                NavigationItem::make('Documents')
+                                    ->hidden(!$user->can('page_Documents'))
+                                    ->url('/admin/documents')
+                                    ->icon('heroicon-s-document-text')
+                                    ->activeIcon('heroicon-s-document-text')
+                                    ->sort(15),
+                            ])
+                            ->collapsed(true),
+                    ]);
+                }
 
 
-                if($user->can('view_any_building::building') ||
-                $user->can('view_any_building::flat') ||
-                $user->can('view_any_building::facility::booking') ||
-                $user->can('view_any_building::service::booking')  ||
-                $user->can('view_any_patrolling')||
-                $user->can('view_any_oacomplaint::reports')
-                 ){
+                if (
+                    $user->can('view_any_building::building') ||
+                    $user->can('view_any_building::flat') ||
+                    $user->can('view_any_building::facility::booking') ||
+                    $user->can('view_any_building::service::booking')  ||
+                    $user->can('view_any_patrolling') ||
+                    $user->can('view_any_oacomplaint::reports')
+                ) {
                     $builder->groups([
                         NavigationGroup::make('Property management')
                             ->items([
@@ -288,8 +298,8 @@ class AdminPanelProvider extends PanelProvider
                             ])->collapsed(),
                     ]);
                 }
-                    // || Role::where('id', auth()->user()->role_id)->first()->name != 'Admin'
-                if ( $user->can('view_any_user::owner')|| $user->can('view_any_user::tenant')||$user->can('view_any_vehicle') ) {
+                // || Role::where('id', auth()->user()->role_id)->first()->name != 'Admin'
+                if ($user->can('view_any_user::owner') || $user->can('view_any_user::tenant') || $user->can('view_any_vehicle')) {
                     $builder->groups([
                         NavigationGroup::make('User management')
                             ->items([
@@ -316,15 +326,16 @@ class AdminPanelProvider extends PanelProvider
                     ]);
                 }
 
-                if ($user->can('view_any_vendor::vendor')||
-                $user->can('view_any_contract')||
-                $user->can('view_any_w::d::a')||
-                $user->can('view_any_invoice')||
-                $user->can('view_any_tender')||
-                $user->can('view_any_proposal')||
-                $user->can('view_any_technician::assets')||
-                $user->can('view_any_asset')||
-                $user->can('view_any_asset::maintenance')
+                if (
+                    $user->can('view_any_vendor::vendor') ||
+                    $user->can('view_any_contract') ||
+                    $user->can('view_any_w::d::a') ||
+                    $user->can('view_any_invoice') ||
+                    $user->can('view_any_tender') ||
+                    $user->can('view_any_proposal') ||
+                    $user->can('view_any_technician::assets') ||
+                    $user->can('view_any_asset') ||
+                    $user->can('view_any_asset::maintenance')
                 ) {
                     $builder->groups([
                         NavigationGroup::make('Vendor management')
@@ -389,17 +400,17 @@ class AdminPanelProvider extends PanelProvider
                 }
 
                 if (
-                    $user->can('view_any_budget')||
-                    $user->can('page_BudgetVsActual')||
-                    $user->can('view_any_delinquent::owner')||
-                    $user->can('view_any_aging::report')||
-                    $user->can('view_any_bank::statement')||
-                    $user->can('page_GeneralFundStatement')||
-                    $user->can('page_ReserveFundStatement')||
-                    $user->can('view_any_owner::association::invoice')||
-                    $user->can('view_any_owner::association::receipt')||
-                    $user->can('page_TrialBalance')||
-                    $user->can('page_GeneralFundStatementMollak')||
+                    $user->can('view_any_budget') ||
+                    $user->can('page_BudgetVsActual') ||
+                    $user->can('view_any_delinquent::owner') ||
+                    $user->can('view_any_aging::report') ||
+                    $user->can('view_any_bank::statement') ||
+                    $user->can('page_GeneralFundStatement') ||
+                    $user->can('page_ReserveFundStatement') ||
+                    $user->can('view_any_owner::association::invoice') ||
+                    $user->can('view_any_owner::association::receipt') ||
+                    $user->can('page_TrialBalance') ||
+                    $user->can('page_GeneralFundStatementMollak') ||
                     $user->can('page_ReserveFundStatementMollak')
                 ) {
                     $builder->groups([
@@ -478,11 +489,11 @@ class AdminPanelProvider extends PanelProvider
                                     ->activeIcon('heroicon-m-clipboard-document-list')
                                     ->sort(12),
 
-                                ])
-                                ->collapsed(true),
+                            ])
+                            ->collapsed(true),
                     ]);
                 }
-                if ($user->can('view_any_ledgers')||$user->can('view_any_vendor::ledgers')||$user->can('view_any_cooling::account')) {
+                if ($user->can('view_any_ledgers') || $user->can('view_any_vendor::ledgers') || $user->can('view_any_cooling::account')) {
                     $builder->groups([
                         NavigationGroup::make('Reports')
                             ->items([
@@ -509,15 +520,16 @@ class AdminPanelProvider extends PanelProvider
                     ]);
                 }
 
-                if ($user->can('view_any_guest::registration')||
-                $user->can('view_any_move::in::forms::document')||
-                $user->can('view_any_move::out::forms::document')||
-                $user->can('view_any_fit::out::forms::document')||
-                $user->can('view_any_access::card::forms::document')||
-                $user->can('view_any_residential::form')||
-                $user->can('view_any_noc::form')||
-                $user->can('view_any_visitor::form') ||
-                $user->can('view_any_family::member')
+                if (
+                    $user->can('view_any_guest::registration') ||
+                    $user->can('view_any_move::in::forms::document') ||
+                    $user->can('view_any_move::out::forms::document') ||
+                    $user->can('view_any_fit::out::forms::document') ||
+                    $user->can('view_any_access::card::forms::document') ||
+                    $user->can('view_any_residential::form') ||
+                    $user->can('view_any_noc::form') ||
+                    $user->can('view_any_visitor::form') ||
+                    $user->can('view_any_family::member')
                 ) {
                     $builder->groups([
                         //DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] == 'Admin' ? true : false view_any_building::building
@@ -582,35 +594,34 @@ class AdminPanelProvider extends PanelProvider
                     ]);
                 }
 
-               if($user->can('view_any_announcement')||$user->can('view_any_post')||$user->can('view_any_poll')){
-                $builder->groups([
-                    NavigationGroup::make('Community')
-                        ->items([
-                            NavigationItem::make('Notice boards')
-                                ->url('/admin/announcements')
-                                ->icon('heroicon-o-megaphone')
-                                ->activeIcon('heroicon-o-megaphone')
-                                ->visible($user->can('view_any_announcement'))
-                                ->sort(1),
-                            NavigationItem::make('Posts')
-                                ->url('/admin/posts')
-                                ->icon('heroicon-m-photo')
-                                ->activeIcon('heroicon-m-photo')
-                                ->visible($user->can('view_any_post'))
-                                ->sort(2),
-                            NavigationItem::make('Polls')
-                                ->url('/admin/polls')
-                                ->icon('heroicon-s-hand-thumb-up')
-                                ->visible($user->can('view_any_poll'))
-                                ->activeIcon('heroicon-s-hand-thumb-up')
-                                ->sort(3),
-                        ])
-                        ->collapsed(true),
-                ]);
+                if ($user->can('view_any_announcement') || $user->can('view_any_post') || $user->can('view_any_poll')) {
+                    $builder->groups([
+                        NavigationGroup::make('Community')
+                            ->items([
+                                NavigationItem::make('Notice boards')
+                                    ->url('/admin/announcements')
+                                    ->icon('heroicon-o-megaphone')
+                                    ->activeIcon('heroicon-o-megaphone')
+                                    ->visible($user->can('view_any_announcement'))
+                                    ->sort(1),
+                                NavigationItem::make('Posts')
+                                    ->url('/admin/posts')
+                                    ->icon('heroicon-m-photo')
+                                    ->activeIcon('heroicon-m-photo')
+                                    ->visible($user->can('view_any_post'))
+                                    ->sort(2),
+                                NavigationItem::make('Polls')
+                                    ->url('/admin/polls')
+                                    ->icon('heroicon-s-hand-thumb-up')
+                                    ->visible($user->can('view_any_poll'))
+                                    ->activeIcon('heroicon-s-hand-thumb-up')
+                                    ->sort(3),
+                            ])
+                            ->collapsed(true),
+                    ]);
+                }
 
-               }
-
-                if($user->can('view_any_building::flat::tenant')){
+                if ($user->can('view_any_building::flat::tenant')) {
                     $builder->groups([
                         NavigationGroup::make('Unit management')
                             ->items([
@@ -666,7 +677,7 @@ class AdminPanelProvider extends PanelProvider
                 // }
 
 
-                if ( $user->can('view_any_complaintscomplaint') || $user->can('view_any_complaintsenquiry') || $user->can('view_any_complaintssuggession')) {
+                if ($user->can('view_any_complaintscomplaint') || $user->can('view_any_complaintsenquiry') || $user->can('view_any_complaintssuggession')) {
                     $builder->groups([
                         NavigationGroup::make('Happiness center')
                             ->items([
@@ -706,7 +717,7 @@ class AdminPanelProvider extends PanelProvider
                             ->collapsed(true),
                     ]);
                 }
-                if ($user->can('view_any_snags') || $user->can('view_any_incident')){
+                if ($user->can('view_any_snags') || $user->can('view_any_incident')) {
                     $builder->groups([
                         NavigationGroup::make('Security')
                             ->items([
@@ -716,7 +727,7 @@ class AdminPanelProvider extends PanelProvider
                                     ->icon('heroicon-s-swatch')
                                     ->activeIcon('heroicon-s-swatch')
                                     ->sort(1),
-                                    NavigationItem::make('Incidents')
+                                NavigationItem::make('Incidents')
                                     ->url(IncidentResource::getUrl('index'))
                                     ->hidden(!$user->can('view_any_incident'))
                                     ->icon('heroicon-c-map-pin')
@@ -737,7 +748,7 @@ class AdminPanelProvider extends PanelProvider
                 //             ->collapsed(true),
                 //     ]);
                 // }
-                if ($user->can('view_any_activity')){
+                if ($user->can('view_any_activity')) {
                     $builder->groups([
                         NavigationGroup::make('Activity')
                             ->items([
@@ -752,7 +763,7 @@ class AdminPanelProvider extends PanelProvider
             })
             ->renderHook(
                 'panels::footer',
-                fn (): View => view('filament.hooks.footer'),
+                fn(): View => view('filament.hooks.footer'),
             )
             ->middleware([
                 EncryptCookies::class,
@@ -767,6 +778,7 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
+
             ])
             ->plugins([
                 FilamentShieldPlugin::make(),
