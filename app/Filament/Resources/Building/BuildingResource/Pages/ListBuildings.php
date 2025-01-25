@@ -15,16 +15,15 @@ class ListBuildings extends ListRecords
     protected static string $resource = BuildingResource::class;
     protected function getTableQuery(): Builder
     {
-        if(Role::where('id',auth()->user()->role_id)->first()->name != 'Admin')
-        {
-            return parent::getTableQuery()->where('owner_association_id',auth()->user()?->owner_association_id);
+        if (Role::where('id', auth()->user()->role_id)->first()->name != 'Admin') {
+            return parent::getTableQuery()->where('owner_association_id', auth()->user()?->owner_association_id);
         }
         return parent::getTableQuery();
     }
     protected function getHeaderActions(): array
     {
         return [
-            // Actions\CreateAction::make(),
+            Actions\CreateAction::make(),
         ];
     }
 }

@@ -85,7 +85,7 @@ class AuthController extends Controller
                         ]);
 
                         $user->profile_photo = $user->profile_photo ? Storage::disk('s3')->url($user->profile_photo) : null;
-                        return response(['token' => $token,'refresh_token' => $refreshToken,'user' => $user], 200);
+                        return response(['token' => $token, 'refresh_token' => $refreshToken, 'user' => $user], 200);
                     }
                 } else {
                     return response()->json([

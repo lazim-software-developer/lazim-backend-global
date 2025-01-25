@@ -1,7 +1,11 @@
 <?php
+
 namespace App\Filament\Pages;
 
 use App\Models\Building\Building;
+use App\Services\AuthenticationService;
+use App\Services\GenericHttpService;
+use App\Services\SessionCryptoService;
 use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Section;
@@ -16,7 +20,7 @@ use Filament\Pages\Dashboard\Concerns\HasFiltersForm;
 class Dashboard extends BaseDashboard
 {
     use HasFiltersForm;
- 
+
     public function filtersForm(Form $form): Form
     {
         return $form
@@ -37,7 +41,7 @@ class Dashboard extends BaseDashboard
                         DatePicker::make('endDate')
                             ->label('End Date')
                             ->reactive()
-                            ->minDate(fn (callable $get) => $get('startDate'))
+                            ->minDate(fn(callable $get) => $get('startDate'))
                             ->maxDate(now())
                     ])
                     ->columns(3), // Adjust the layout to accommodate three columns
@@ -53,7 +57,7 @@ class Dashboard extends BaseDashboard
             Action::make('resetFilters')
                 ->label('Reset Filters')
                 ->color('danger')
-                ->action(fn () => $this->resetFilters()),
+                ->action(fn() => $this->resetFilters()),
         ];
     }
 
@@ -61,8 +65,8 @@ class Dashboard extends BaseDashboard
     {
         // $this->filters = [];
         $this->filters['building'] = null;
-        $this->filters['startDate'] = null; 
-        $this->filters['endDate'] = null; 
+        $this->filters['startDate'] = null;
+        $this->filters['endDate'] = null;
 
         session()->forget('filters');
         // $this->redirect('/admin'); 
@@ -72,6 +76,10 @@ class Dashboard extends BaseDashboard
 
     public function mount()
     {
+        // $token = SessionCryptoService::get("API_TOKEN_KEY");
+        // dd($token);
+        // $resposne = GenericHttpService::get("/owner-associations"); // api loggedin
+        // dd($resposne);
         $this->resetFilters();
     }
 }
