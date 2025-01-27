@@ -76,6 +76,8 @@ class EditComplaintscomplaint extends EditRecord
                             'open_time' => $this->record?->open_time,
                             'close_time' => $this->record?->close_time,
                             'due_date' => $this->record?->due_date,
+                            'building_id' => $this->record->building_id,
+                            'flat_id' => $this->record->flat_id
 
                         ],
                     ];
@@ -102,6 +104,8 @@ class EditComplaintscomplaint extends EditRecord
                                 'open_time' => $this->record?->open_time,
                                 'close_time' => $this->record?->close_time,
                                 'due_date' => $this->record?->due_date,
+                                'building_id' => $this->record->building_id,
+                                'flat_id' => $this->record->flat_id
                             ],
                             'format' => 'filament',
                             'url' => $this->record->complaint_type === 'preventive_maintenance' ? 'PreventiveMaintenance' : 'InAppNotficationScreen',
@@ -152,7 +156,8 @@ class EditComplaintscomplaint extends EditRecord
                                 'iconColor' => 'warning',
                                 'title' => ($this->record->complaint_type === 'preventive_maintenance' ? 'PreventiveMaintenance' : 'complaint').' status',
                                 'view' => 'notifications::notification',
-                                'viewData' => [],
+                                'viewData' => ['building_id' => $this->record->building_id,
+                                            'flat_id' => $this->record->flat_id],
                                 'format' => 'filament',
                                 'url' => 'InAppNotficationScreen',
                             ]),
@@ -190,7 +195,8 @@ class EditComplaintscomplaint extends EditRecord
                     'iconColor' => 'warning',
                     'title' => 'Complaint status',
                     'view' => 'notifications::notification',
-                    'viewData' => [],
+                    'viewData' => ['building_id' => $this->record->building_id,
+                                    'flat_id' => $this->record->flat_id],
                     'format' => 'filament',
                     'url' => 'InAppNotficationScreen',
                 ]),

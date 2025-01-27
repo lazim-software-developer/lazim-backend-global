@@ -41,7 +41,9 @@ class EditMoveInFormsDocument extends EditRecord
                         'sound' => 'default',
                         'title' => 'Move-in form status',
                         'body' => 'Your move-in form has been approved.',
-                        'data' => ['notificationType' => 'MyRequest'],
+                        'data' => ['notificationType' => 'MyRequest',
+                            'building_id' => $this->record->building_id,
+                            'flat_id' => $this->record->flat_id],
                     ];
                     $this->expoNotification($message);
                 }
@@ -59,7 +61,8 @@ class EditMoveInFormsDocument extends EditRecord
                             'iconColor' => 'warning',
                             'title' => 'Move-in form status',
                             'view' => 'notifications::notification',
-                            'viewData' => [],
+                            'viewData' => ['building_id' => $this->record->building_id,
+                                            'flat_id' => $this->record->flat_id],
                             'format' => 'filament',
                             'url' => 'MyRequest',
                         ]),
@@ -115,7 +118,9 @@ class EditMoveInFormsDocument extends EditRecord
                         'sound' => 'default',
                         'title' => 'Move-in form status',
                         'body' => 'Your move-in form has been rejected.',
-                        'data' => ['notificationType' => 'MyRequest'],
+                        'data' => ['notificationType' => 'MyRequest',
+                            'building_id' => $this->record->building_id,
+                            'flat_id' => $this->record->flat_id],
                     ];
                     $this->expoNotification($message);
                 }
@@ -133,7 +138,8 @@ class EditMoveInFormsDocument extends EditRecord
                             'iconColor' => 'danger',
                             'title' => 'Move-in form status',
                             'view' => 'notifications::notification',
-                            'viewData' => [],
+                            'viewData' => ['building_id' => $this->record->building_id,
+                                            'flat_id' => $this->record->flat_id],
                             'format' => 'filament',
                             'url' => 'MyRequest',
                         ]),

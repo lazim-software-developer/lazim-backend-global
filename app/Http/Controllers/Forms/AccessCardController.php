@@ -442,7 +442,9 @@ class AccessCardController extends Controller
                         'sound' => 'default',
                         'title' => 'Access card form status',
                         'body'  => 'Your access card form has been approved.',
-                        'data'  => ['notificationType' => 'MyRequest'],
+                        'data'  => ['notificationType' => 'MyRequest',
+                            'building_id' => $accessCard->building_id,
+                            'flat_id' => $accessCard->flat_id],
                     ];
 
                     $this->expoNotification($message);

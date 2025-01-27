@@ -60,7 +60,9 @@ class EditResidentialForm extends EditRecord
                         'sound' => 'default',
                         'title' => 'Residential form status',
                         'body' => 'Your residential form has been approved.',
-                        'data' => ['notificationType' => 'MyRequest'],
+                        'data' => ['notificationType' => 'MyRequest',
+                            'building_id' => $this->record->building_id,
+                            'flat_id' => $this->record->flat_id],
                     ];
                     $this->expoNotification($message);
                 }
@@ -78,7 +80,8 @@ class EditResidentialForm extends EditRecord
                             'iconColor' => 'warning',
                             'title' => 'Residential form status',
                             'view' => 'notifications::notification',
-                            'viewData' => [],
+                            'viewData' => ['building_id' => $this->record->building_id,
+                                            'flat_id' => $this->record->flat_id],
                             'format' => 'filament',
                             'url' => 'MyRequest',
                         ]),
@@ -96,7 +99,9 @@ class EditResidentialForm extends EditRecord
                         'sound' => 'default',
                         'title' => 'Residential form status',
                         'body' => 'Your residential form has been rejected.',
-                        'data' => ['notificationType' => 'MyRequest'],
+                        'data' => ['notificationType' => 'MyRequest',
+                                    'building_id' => $this->record->building_id,
+                                    'flat_id' => $this->record->flat_id],
                     ];
                     $this->expoNotification($message);
                 }
@@ -114,7 +119,8 @@ class EditResidentialForm extends EditRecord
                             'iconColor' => 'danger',
                             'title' => 'Residential form status',
                             'view' => 'notifications::notification',
-                            'viewData' => [],
+                            'viewData' => ['building_id' => $this->record->building_id,
+                                            'flat_id' => $this->record->flat_id],
                             'format' => 'filament',
                             'url' => 'MyRequest',
                         ]),
