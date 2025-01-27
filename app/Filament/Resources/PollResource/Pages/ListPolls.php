@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\PollResource\Pages;
 
+use App\Models\OwnerAssociation;
 use Filament\Actions;
 use App\Models\Master\Role;
 use App\Models\Building\Building;
@@ -23,7 +24,9 @@ class ListPolls extends ListRecords
     }
     protected function getTableQuery(): Builder
     {
-        if(auth()->user()->role->name == 'Property Manager')
+        if(auth()->user()->role->name == 'Property Manager'
+        || OwnerAssociation::where('id', auth()->user()?->owner_association_id)
+                ->pluck('role')[0] == 'Property Manager')
         {
             return parent::getTableQuery()->where('owner_association_id',auth()->user()?->owner_association_id);
         }

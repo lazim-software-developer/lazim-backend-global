@@ -1,9 +1,9 @@
 <?php
-
 namespace App\Filament\Resources\AssetMaintenanceResource\Pages;
 
 use App\Filament\Resources\AssetMaintenanceResource;
 use App\Models\Master\Role;
+use App\Models\OwnerAssociation;
 use DB;
 use Filament\Facades\Filament;
 use Filament\Resources\Pages\ListRecords;
@@ -33,7 +33,9 @@ class ListAssetMaintenances extends ListRecords
             return parent::getTableQuery();
         }
 
-        if ($userRole === 'Property Manager') {
+        if ($userRole === 'Property Manager'
+            || OwnerAssociation::where('id', auth()->user()?->owner_association_id)
+            ->pluck('role')[0] == 'Property Manager') {
             return parent::getTableQuery()->whereIn('building_id', $buildingIds);
         }
 

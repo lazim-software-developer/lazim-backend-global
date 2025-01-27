@@ -5,6 +5,7 @@ use App\Filament\Resources\AnnouncementResource\Pages;
 use App\Models\Building\Building;
 use App\Models\Community\Post;
 use App\Models\Master\Role;
+use App\Models\OwnerAssociation;
 use App\Models\User\User;
 use Closure;
 use Filament\Forms\Components\DateTimePicker;
@@ -110,7 +111,9 @@ class AnnouncementResource extends Resource
                         if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
                             return Building::all()->pluck('name', 'id');
                         }
-                        if (Role::where('id', auth()->user()->role_id)->first()->name == 'Property Manager') {
+                        if (Role::where('id', auth()->user()->role_id)->first()->name == 'Property Manager'
+                        || OwnerAssociation::where('id', auth()->user()?->owner_association_id)
+                            ->pluck('role')[0] == 'Property Manager') {
                             $buildings = DB::table('building_owner_association')
                                 ->where('owner_association_id', auth()->user()?->owner_association_id)
                                 ->where('active', true)->pluck('building_id');

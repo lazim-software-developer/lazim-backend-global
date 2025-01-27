@@ -262,7 +262,9 @@ class FlatResource extends Resource
                     ->options(function () {
                         if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
                             return Building::all()->pluck('name', 'id');
-                        } elseif (Role::where('id', auth()->user()->role_id)->first()->name == 'Property Manager') {
+                        } elseif (Role::where('id', auth()->user()->role_id)->first()->name == 'Property Manager'
+                        || OwnerAssociation::where('id', auth()->user()?->owner_association_id)
+                                ->pluck('role')[0] == 'Property Manager') {
                             $buildings = DB::table('building_owner_association')
                                 ->where('owner_association_id', auth()->user()->owner_association_id)
                                 ->where('active', true)

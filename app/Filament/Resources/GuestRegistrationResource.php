@@ -5,6 +5,7 @@ use App\Filament\Resources\GuestRegistrationResource\Pages;
 use App\Models\Building\Building;
 use App\Models\Forms\Guest;
 use App\Models\Master\Role;
+use App\Models\OwnerAssociation;
 use App\Models\Visitor\FlatVisitor;
 use DB;
 use Filament\Forms\Components\CheckboxList;
@@ -243,7 +244,9 @@ class GuestRegistrationResource extends Resource
                         Select::make('Building')
                             ->searchable()
                             ->options(function () {
-                                if (auth()->user()->role->name == 'Property Manager') {
+                                if (auth()->user()->role->name == 'Property Manager'
+                                || OwnerAssociation::where('id', auth()->user()?->owner_association_id)
+                                ->pluck('role')[0] == 'Property Manager') {
                                     $buildingIds = DB::table('building_owner_association')
                                         ->where('owner_association_id', auth()->user()->owner_association_id)
                                         ->where('active', true)

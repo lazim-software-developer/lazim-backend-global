@@ -6,6 +6,7 @@ use App\Models\Building\Building;
 use App\Models\Building\FacilityBooking;
 use App\Models\Building\FlatTenant;
 use App\Models\Master\Role;
+use App\Models\OwnerAssociation;
 use App\Models\User\User;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Grid;
@@ -84,7 +85,9 @@ class ServiceBookingResource extends Resource
                                     ->pluck('flat_id')
                                     ->toArray();
 
-                                if (auth()->user()->role->name == 'Property Manager') {
+                                if (auth()->user()->role->name == 'Property Manager'
+                                || OwnerAssociation::where('id', auth()->user()?->owner_association_id)
+                                ->pluck('role')[0] == 'Property Manager') {
                                     return DB::table('flats')
                                         ->whereIn('id', $pmFlats)
                                         ->where('building_id', $get('building_id'))

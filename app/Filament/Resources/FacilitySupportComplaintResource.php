@@ -9,6 +9,7 @@ use App\Models\Building\Complaint;
 use App\Models\Building\Flat;
 use App\Models\Master\Role;
 use App\Models\Master\Service;
+use App\Models\OwnerAssociation;
 use App\Models\User\User;
 use App\Models\Vendor\ServiceVendor;
 use App\Models\Vendor\Vendor;
@@ -404,7 +405,9 @@ class FacilitySupportComplaintResource extends Resource
             ->modifyQueryUsing(function (Builder $query) use ($buildingIds, $pmFlats, $authOaBuildings) {
                 $baseQuery = $query->whereIn('complaint_type', ['help_desk', 'tenant_complaint']);
 
-                if (auth()->user()->role->name == 'Property Manager') {
+                if (auth()->user()->role->name == 'Property Manager'
+                || OwnerAssociation::where('id', auth()->user()?->owner_association_id)
+                 ->pluck('role')[0] == 'Property Manager') {
                     return $baseQuery->whereIn('building_id', $buildingIds)
                         ->where(function ($query) use ($pmFlats) {
                             $query->whereNull('flat_id')

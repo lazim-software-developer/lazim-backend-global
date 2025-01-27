@@ -6,6 +6,7 @@ use App\Filament\Resources\FacilityBookingResource\Pages;
 use App\Models\Building\Building;
 use App\Models\Building\FacilityBooking;
 use App\Models\Master\Role;
+use App\Models\OwnerAssociation;
 use DB;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Hidden;
@@ -37,7 +38,9 @@ class FacilityBookingResource extends Resource
                     ->rules(['exists:buildings,id'])
                     ->relationship('building', 'name')
                     ->options(function () {
-                        if (Role::where('id', auth()->user()->role_id)->first()->name == 'Property Manager') {
+                        if (Role::where('id', auth()->user()->role_id)->first()->name == 'Property Manager'
+                        || OwnerAssociation::where('id', auth()->user()?->owner_association_id)
+                                ->pluck('role')[0] == 'Property Manager') {
 
                             return Building::where('owner_association_id', auth()->user()?->owner_association_id)
                                 ->pluck('name', 'id');
