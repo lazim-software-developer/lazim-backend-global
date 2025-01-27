@@ -72,9 +72,11 @@ class PermitWorkController extends Controller
         $workPermit = FacilityBooking::create($data);
         $owner_association_ids = DB::table('building_owner_association')
             ->where(['building_id' => $request->building_id , 'active' => true])->pluck('owner_association_id');
-        // Find user
+
+        $propertyManagerRole = Role::where('name', 'Property Manager')->first();
         $user = User::whereIn('owner_association_id', $owner_association_ids)
-            ->where('role','Property Manager')->first();
+            ->where('role_id', $propertyManagerRole?->id)
+            ->first();
 
         // Create and send notification
         if($user){
