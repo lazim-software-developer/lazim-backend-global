@@ -39,6 +39,7 @@ use App\Filament\Resources\Building\BuildingResource\RelationManagers\OfferPromo
 use App\Filament\Resources\Building\BuildingResource\RelationManagers\OwnercommitteesRelationManager;
 use App\Filament\Resources\Building\BuildingResource\RelationManagers\RuleregulationsRelationManager;
 use App\Filament\Resources\Building\BuildingResource\RelationManagers\EmergencyNumbersRelationManager;
+use App\Models\Master\City;
 
 class BuildingResource extends Resource
 {
@@ -47,7 +48,7 @@ class BuildingResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
     protected static ?string $navigationGroup = 'Property Management';
     protected static bool $shouldRegisterNavigation = true;
-    protected static ?string $modelLabel      = 'Buildings';
+    protected static ?string $modelLabel = 'Buildings';
     public static function form(Form $form): Form
     {
         return $form
@@ -59,13 +60,13 @@ class BuildingResource extends Resource
                 ])->schema([
                     TextInput::make('name')
                         ->rules(['max:50', 'string'])
-                        // ->required()
+                        ->required()
                         // ->disabled()
                         ->placeholder('Name'),
 
                     TextInput::make('property_group_id')
                         ->rules(['max:50', 'string'])
-                        // ->required()
+                        ->required()
                         // ->disabled()
                         ->placeholder('Property Group ID')
                         ->label('Property Group ID')
@@ -86,6 +87,7 @@ class BuildingResource extends Resource
                         ->nullable()
                         ->label('Address line 2')
                         ->placeholder('Address Line 2'),
+
                     Hidden::make('owner_association_id')
                         ->default(auth()->user()?->owner_association_id),
 
@@ -102,6 +104,7 @@ class BuildingResource extends Resource
                     //     ->placeholder('NA'),
 
                     TextInput::make('floors')
+                        ->required()
                         ->numeric()
                         ->minValue(1)
                         ->maxValue(999)
@@ -111,15 +114,41 @@ class BuildingResource extends Resource
                             }
                             return true;
                         })
+
                         ->placeholder('Floors')
                         ->label('Floor'),
 
+                    Select::make('city_id')
+                        ->native(false)
+                        ->options(function (callable $get) {
+
+                            return City::pluck('name', 'id');
+                        })
+                        ->searchable(),
+
                     Toggle::make('allow_postupload')
+                        ->columnStart([
+                            'sm' => 1,
+                            'md' => 1,
+                            'lg' => 1,
+                        ])
                         ->rules(['boolean'])
                         ->label('Allow post-upload'),
+
                     Toggle::make('show_inhouse_services')
+                        ->columnStart([
+                            'sm' => 1,
+                            'md' => 1,
+                            'lg' => 1,
+                        ])
                         ->rules(['boolean'])
                         ->label('Show personal services'),
+
+                    Toggle::make('status')
+                        ->rules(['boolean'])
+                        ->default(true) // Sets the default value to true (active)
+                        ->label('Is Active?'),
+
                     MarkdownEditor::make('description')
                         ->toolbarButtons([
                             'bold',
@@ -134,13 +163,17 @@ class BuildingResource extends Resource
                         ->columnSpanFull(),
                     FileUpload::make('cover_photo')
                         ->disk('s3')
-                        ->rules(['file', 'mimes:jpeg,jpg,png', function () {
-                            return function (string $attribute, $value, Closure $fail) {
-                                if ($value->getSize() / 1024 > 2048) {
-                                    $fail('The cover Photo field must not be greater than 2MB.');
-                                }
-                            };
-                        },])
+                        ->rules([
+                            'file',
+                            'mimes:jpeg,jpg,png',
+                            function () {
+                                return function (string $attribute, $value, Closure $fail) {
+                                    if ($value->getSize() / 1024 > 2048) {
+                                        $fail('The cover Photo field must not be greater than 2MB.');
+                                    }
+                                };
+                            },
+                        ])
                         ->directory('dev')
                         ->image()
                         ->maxSize(2048)
