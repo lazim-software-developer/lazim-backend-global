@@ -5,6 +5,7 @@ namespace App\Filament\Resources\BillResource\Pages;
 use App\Filament\Resources\BillResource;
 use App\Imports\BillImport;
 use App\Models\Building\Building;
+use App\Models\OwnerAssociation;
 use Auth;
 use Carbon\Carbon;
 use DB;
@@ -46,7 +47,9 @@ class ListBills extends ListRecords
                                 ->options(function () {
                                     if (auth()->user()->role->name == 'Admin') {
                                         return Building::pluck('name', 'id');
-                                    } elseif (auth()->user()->role->name == 'Property Manager') {
+                                    } elseif (auth()->user()->role->name == 'Property Manager'
+                                    || OwnerAssociation::where('id', auth()->user()?->owner_association_id)
+                                        ->pluck('role')[0] == 'Property Manager') {
                                         $buildingIds = DB::table('building_owner_association')
                                             ->where('owner_association_id', auth()->user()->owner_association_id)
                                             ->where('active', true)

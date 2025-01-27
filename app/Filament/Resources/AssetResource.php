@@ -8,6 +8,7 @@ use App\Models\Asset;
 use App\Models\Building\Building;
 use App\Models\Master\Role;
 use App\Models\Master\Service;
+use App\Models\OwnerAssociation;
 use App\Models\Vendor\Vendor;
 use DB;
 use Filament\Facades\Filament;
@@ -34,7 +35,7 @@ class AssetResource extends Resource
 
     protected static ?string $navigationIcon  = 'heroicon-o-rectangle-stack';
     protected static ?string $navigationGroup = 'Vendor Management';
-    protected static ?string $modelLabel      = 'Assets';
+    protected static ?string $modelLabel      = 'Asset';
 
     public static function form(Form $form): Form
     {
@@ -52,7 +53,9 @@ class AssetResource extends Resource
                             ->options(function () {
                                 if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
                                     return Building::pluck('name', 'id');
-                                } elseif (auth()->user()->role->name == 'Property Manager') {
+                                } elseif (auth()->user()->role->name == 'Property Manager' ||
+                                OwnerAssociation::where('id', auth()->user()->owner_association_id)
+                                    ->pluck('role')[0] == 'Property Manager') {
                                     $buildingIds = DB::table('building_owner_association')
                                         ->where('owner_association_id', auth()->user()->owner_association_id)
                                         ->where('active', true)
@@ -163,7 +166,9 @@ class AssetResource extends Resource
                     ->options(function () {
                         if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
                             return Building::pluck('name', 'id');
-                        } elseif (auth()->user()->role->name == 'Property Manager') {
+                        } elseif (auth()->user()->role->name == 'Property Manager'
+                        || OwnerAssociation::where('id', auth()->user()?->owner_association_id)
+                        ->pluck('role')[0] == 'Property Manager') {
                             $buildingIds = DB::table('building_owner_association')
                                 ->where('owner_association_id', auth()->user()->owner_association_id)
                                 ->where('active', true)

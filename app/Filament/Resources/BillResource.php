@@ -5,6 +5,7 @@ use App\Filament\Resources\BillResource\Pages;
 use App\Models\Bill;
 use App\Models\Building\Building;
 use App\Models\Building\Flat;
+use App\Models\OwnerAssociation;
 use App\Models\User\User;
 use Carbon\Carbon;
 use DB;
@@ -175,7 +176,9 @@ class BillResource extends Resource
 
                 $flatIds = Flat::whereIn('building_id', $buildingIds)->pluck('id');
 
-                if (auth()->user()->role->name == 'Property Manager') {
+                if (auth()->user()->role->name == 'Property Manager'
+                || OwnerAssociation::where('id', auth()->user()?->owner_association_id)
+                ->pluck('role')[0] == 'Property Manager') {
                     return $query->whereIn('flat_id', $pmFlats)->orderBy('created_at', 'desc');
                 } elseif (auth()->user()->role->name == 'OA') {
                     return $query->whereIn('flat_id', $flatIds)->orderBy('created_at', 'desc');
