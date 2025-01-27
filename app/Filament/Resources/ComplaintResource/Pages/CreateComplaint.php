@@ -93,6 +93,8 @@ class CreateComplaint extends CreateRecord
                                 'open_time' => $complaint?->open_time,
                                 'close_time' => $complaint?->close_time,
                                 'due_date' => $complaint?->due_date,
+                                'building_id' => $this->record->building_id,
+                                'flat_id' => $this->record->flat_id
                             ],
                         ];
 
@@ -131,6 +133,8 @@ class CreateComplaint extends CreateRecord
                                 'open_time' => $complaint?->open_time,
                                 'close_time' => $complaint?->close_time,
                                 'due_date' => $complaint?->due_date,
+                                'building_id' => $this->record->building_id,
+                                'flat_id' => $this->record->flat_id
                         ],
                         'format'    => 'filament',
                         'url'       => 'PreventiveMaintenance',

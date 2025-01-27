@@ -60,6 +60,8 @@ class EditHelpdeskcomplaint extends EditRecord
                         'open_time' => $this->record?->open_time,
                         'close_time' => $this->record?->close_time,
                         'due_date' => $this->record?->due_date,
+                        'building_id' => $this->record->building_id,
+                        'flat_id' => $this->record->flat_id
                     ],
                     ];
                     $this->expoNotification($message);
@@ -83,6 +85,8 @@ class EditHelpdeskcomplaint extends EditRecord
                                 'open_time' => $this->record?->open_time,
                                 'close_time' => $this->record?->close_time,
                                 'due_date' => $this->record?->due_date,
+                                'building_id' => $this->record->building_id,
+                                'flat_id' => $this->record->flat_id
                             ],
                             'format' => 'filament',
                             'url' => $this->record->complaint_type === 'preventive_maintenance' ? 'PreventiveMaintenance':'HelpDeskTabResolved',
@@ -116,7 +120,9 @@ class EditHelpdeskcomplaint extends EditRecord
                         'sound' => 'default',
                         'title' => 'Facility support issue status',
                         'body' => 'A issue has been moved to In-progress',
-                        'data' => ['notificationType' => $this->record->complaint_type == 'help_desk'? 'HelpDeskTabPending':'InAppNotficationScreen'],
+                        'data' => ['notificationType' => $this->record->complaint_type == 'help_desk'? 'HelpDeskTabPending':'InAppNotficationScreen',
+                        'building_id' => $this->record->building_id,
+                        'flat_id' => $this->record->flat_id],
                     ];
                     $this->expoNotification($message);
                 }
@@ -134,7 +140,8 @@ class EditHelpdeskcomplaint extends EditRecord
                             'iconColor' => 'warning',
                             'title' => 'Facility support issue status',
                             'view' => 'notifications::notification',
-                            'viewData' => [],
+                            'viewData' => ['building_id' => $this->record->building_id,
+                                            'flat_id' => $this->record->flat_id],
                             'format' => 'filament',
                             'url' => 'HelpDeskTabPending',
                         ]),

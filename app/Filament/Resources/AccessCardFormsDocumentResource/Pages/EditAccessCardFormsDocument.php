@@ -92,7 +92,7 @@ class EditAccessCardFormsDocument extends EditRecord
                             'view' => 'notifications::notification',
                             'viewData' => [
                                 'building_id' => $this->record->building_id,
-                                'flat_id' => $this->record->flat_id,
+                                'flat_id' => $this->record->flat_id
                             ],
                             'format' => 'filament',
                             'url' => 'MyRequest',
@@ -135,7 +135,7 @@ class EditAccessCardFormsDocument extends EditRecord
                         'data' => [
                             'notificationType' => 'MyRequest',
                             'building_id' => $this->record->building_id,
-                            'flat_id' => $this->record->flat_id,
+                            'flat_id' => $this->record->flat_id
                         ],
                     ];
                     $this->expoNotification($message);
@@ -156,7 +156,7 @@ class EditAccessCardFormsDocument extends EditRecord
                             'view' => 'notifications::notification',
                             'viewData' => [
                                 'building_id' => $this->record->building_id,
-                                'flat_id' => $this->record->flat_id,
+                                'flat_id' => $this->record->flat_id
                             ],
                             'format' => 'filament',
                             'url' => 'MyRequest',

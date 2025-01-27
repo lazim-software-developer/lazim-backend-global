@@ -36,7 +36,9 @@ class EditMoveOutFormsDocument extends EditRecord
                         'sound' => 'default',
                         'title' => 'Move-out form status',
                         'body' => 'Your move-out form has been approved.',
-                        'data' => ['notificationType' => 'MyRequest'],
+                        'data' => ['notificationType' => 'MyRequest',
+                            'building_id' => $this->record->building_id,
+                            'flat_id' => $this->record->flat_id],
                     ];
                     $this->expoNotification($message);
                 }
@@ -54,7 +56,8 @@ class EditMoveOutFormsDocument extends EditRecord
                             'iconColor' => 'warning',
                             'title' => 'Move-out form status',
                             'view' => 'notifications::notification',
-                            'viewData' => [],
+                            'viewData' => ['building_id' => $this->record->building_id,
+                                            'flat_id' => $this->record->flat_id],
                             'format' => 'filament',
                             'url' => 'MyRequest',
                         ]),
@@ -110,7 +113,9 @@ class EditMoveOutFormsDocument extends EditRecord
                         'sound' => 'default',
                         'title' => 'Move-out form status',
                         'body' => 'Your move-out form has been rejected.',
-                        'data' => ['notificationType' => 'MyRequest'],
+                        'data' => ['notificationType' => 'MyRequest',
+                            'building_id' => $this->record->building_id,
+                            'flat_id' => $this->record->flat_id],
                     ];
                     $this->expoNotification($message);
                 }
@@ -128,7 +133,8 @@ class EditMoveOutFormsDocument extends EditRecord
                             'iconColor' => 'danger',
                             'title' => 'Move-out form status',
                             'view' => 'notifications::notification',
-                            'viewData' => [],
+                            'viewData' => [ 'building_id' => $this->record->building_id,
+                                            'flat_id' => $this->record->flat_id],
                             'format' => 'filament',
                             'url' => 'MyRequest',
                         ]),

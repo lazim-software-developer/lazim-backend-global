@@ -215,7 +215,9 @@ class ServiceBookingsRelationManager extends RelationManager
                                                 'sound' => 'default',
                                                 'title' => $serviceName->name . ' Booking Status.',
                                                 'body'  => 'Your personal service booking request for ' . $serviceName->name . ' is approved',
-                                                'data'  => ['notificationType' => 'MyBookingsService'],
+                                                'data'  => ['notificationType' => 'MyBookingsService',
+                                                    'building_id' => $user->building_id,
+                                                    'flat_id'     => $user->flat_id],
                                             ];
                                             $this->expoNotification($message);
                                         }
@@ -233,7 +235,8 @@ class ServiceBookingsRelationManager extends RelationManager
                                             'iconColor' => 'warning',
                                             'title'     => 'Personal Service Booking Status.',
                                             'view'      => 'notifications::notification',
-                                            'viewData'  => [],
+                                            'viewData'  => ['building_id' => $this->record->building_id,
+                                                            'flat_id' => $this->record->flat_id],
                                             'format'    => 'filament',
                                             'url'       => 'MyBookingsService',
                                         ]),
@@ -252,7 +255,9 @@ class ServiceBookingsRelationManager extends RelationManager
                                                 'sound' => 'default',
                                                 'title' => $serviceName->name . ' Booking Status.',
                                                 'body'  => 'Your personal service booking request for ' . $serviceName->name . ' is rejected',
-                                                'data'  => ['notificationType' => 'MyBookingsService'],
+                                                'data'  => ['notificationType' => 'MyBookingsService',
+                                                    'building_id' => $user->building_id,
+                                                    'flat_id'     => $user->flat_id],
                                             ];
                                             $this->expoNotification($message);
                                         }
@@ -270,7 +275,8 @@ class ServiceBookingsRelationManager extends RelationManager
                                             'iconColor' => 'danger',
                                             'title'     => $serviceName->name . ' Booking Status.',
                                             'view'      => 'notifications::notification',
-                                            'viewData'  => [],
+                                            'viewData'  => ['building_id' => $this->record->building_id,
+                                                            'flat_id' => $this->record->flat_id],
                                             'format'    => 'filament',
                                             'url'       => 'MyBookingsService',
                                         ]),
