@@ -56,6 +56,7 @@ class AnnouncementNotifications extends Command
                             'data' => [
                                 'notificationType' => $post->is_announcement ? 'ComunityPostTabNotice' : 'ComunityPostTabPost',
                                 'building_id' => $post->building->pluck('id'),
+                                'flat_id' => $post->building->flats->pluck('id'),
                             ],
                         ];
                         $this->expoNotification($message);
@@ -74,6 +75,7 @@ class AnnouncementNotifications extends Command
                                 'view' => 'notifications::notification',
                                 'viewData' => [
                                     'building_id' => $post->building->pluck('id'),
+                                    'flat_id' => $post->building->flats->pluck('id'),
                                 ],
                                 'format' => 'filament',
                                 'url' => $post->is_announcement ? 'ComunityPostTabNotice' : 'ComunityPostTabPost',

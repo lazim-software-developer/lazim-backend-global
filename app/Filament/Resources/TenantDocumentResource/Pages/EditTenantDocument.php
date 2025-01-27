@@ -51,7 +51,9 @@ class EditTenantDocument extends EditRecord
                         'sound' => 'default',
                         'title' => $this->record->name . ' Submission Status',
                         'body' => 'The document ' . $this->record->name . ' submitted by you has been ' . $this->record->status . ' by '.auth()->user()->role?->name.' : '.auth()->user()->first_name,
-                        'data' => ['notificationType' => 'MyDocuments'],
+                        'data' => ['notificationType' => 'MyDocuments',
+                            'building_id' => $this->record->building_id,
+                            'flat_id' => $this->record->flat_id],
                     ];
                     $this->expoNotification($message);
                 }
@@ -69,7 +71,8 @@ class EditTenantDocument extends EditRecord
                             'iconColor' => 'warning',
                             'title' => $this->record->name . ' Submission Status',
                             'view' => 'notifications::notification',
-                            'viewData' => [],
+                            'viewData' => ['building_id' => $this->record->flatVisitor->building_id,
+                                        'flat_id' => $this->record->flatVisitor->flat_id],
                             'format' => 'filament',
                             'url' => 'MyDocuments',
                         ]),
@@ -87,7 +90,9 @@ class EditTenantDocument extends EditRecord
                         'sound' => 'default',
                         'title' => $this->record->name . ' Submission Status',
                         'body' => 'The document ' . $this->record->name . ' submitted by you has been ' . $this->record->status . ' by '.auth()->user()->role?->name.' : '.auth()->user()->first_name,
-                        'data' => ['notificationType' => 'MyDocuments'],
+                        'data' => ['notificationType' => 'MyDocuments',
+                                    'building_id' => $this->record->flatVisitor->building_id,
+                                    'flat_id' => $this->record->flatVisitor->flat_id],
                     ];
                     $this->expoNotification($message);
                 }
@@ -105,7 +110,8 @@ class EditTenantDocument extends EditRecord
                             'iconColor' => 'danger',
                             'title' => $this->record->name . ' Submission Status',
                             'view' => 'notifications::notification',
-                            'viewData' => [],
+                            'viewData' => ['building_id' => $this->record->flatVisitor->building_id,
+                                        'flat_id' => $this->record->flatVisitor->flat_id],
                             'format' => 'filament',
                             'url' => 'MyDocuments',
                         ]),
