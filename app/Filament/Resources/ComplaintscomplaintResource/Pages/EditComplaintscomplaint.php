@@ -78,7 +78,6 @@ class EditComplaintscomplaint extends EditRecord
                             'due_date' => $this->record?->due_date,
                             'building_id' => $this->record->building_id,
                             'flat_id' => $this->record->flat_id
-
                         ],
                     ];
                     $this->expoNotification($message);
@@ -176,7 +175,9 @@ class EditComplaintscomplaint extends EditRecord
                         'sound' => 'default',
                         'title' => 'Complaint status',
                         'body' => 'Your complaint is moved to In-Progress',
-                        'data' => ['notificationType' => 'InAppNotficationScreen'],
+                        'data' => ['notificationType' => 'InAppNotficationScreen',
+                                'building_id' => $this->record->building_id,
+                                'flat_id' => $this->record->flat_id],
                     ];
                     $this->expoNotification($message);
                 }

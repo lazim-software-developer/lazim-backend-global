@@ -40,17 +40,20 @@ class PollNotifications extends Command
         $buildings=$scheduledAt->pluck('building_id');
             $tenant = FlatTenant::where('active',1)
                     ->whereIn('building_id',$buildings)->distinct()->pluck('tenant_id');
-                
+
             foreach ($tenant as $user) {
                 $expoPushToken = ExpoPushNotification::where('user_id', $user)->first()?->token;
-                if ($expoPushToken) {                       
+                if ($expoPushToken) {
                         $message = [
                             'to' => $expoPushToken,
                             'sound' => 'default',
                             'url' => 'ComunityPostTab',
                             'title' => 'New Poll!',
                             'body' => 'New Poll launched',
-                            'data' => ['notificationType' =>  'ComunityPostTabPoll' ],
+                            'data' => ['notificationType' =>  'ComunityPostTabPoll',
+                                        'building_id' => $scheduledAt->pluck('building_id'),
+                                        'flat_id' => $scheduledAt->building->flats->pluck('id'),
+                            ],
                         ];
                         $this->expoNotification($message);
                         DB::table('notifications')->insert([
