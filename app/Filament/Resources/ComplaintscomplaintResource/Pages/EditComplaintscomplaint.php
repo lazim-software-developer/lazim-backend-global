@@ -137,7 +137,9 @@ class EditComplaintscomplaint extends EditRecord
                             'sound' => 'default',
                             'title' => ($this->record->complaint_type === 'preventive_maintenance' ? 'PreventiveMaintenance' : 'complaint').' status',
                             'body' => 'A '.($this->record->complaint_type === 'preventive_maintenance' ? 'PreventiveMaintenance' : 'complaint').' has been resolved by '.$role->name.' : '.auth()->user()->first_name,
-                            'data' => ['notificationType' => 'ResolvedRequests'],
+                            'data' => ['notificationType' => 'ResolvedRequests',
+                                        'building_id' => $this->record->building_id,
+                                        'flat_id' => $this->record->flat_id],
                         ];
                         $this->expoNotification($message);
                     }
@@ -159,6 +161,8 @@ class EditComplaintscomplaint extends EditRecord
                                             'flat_id' => $this->record->flat_id],
                                 'format' => 'filament',
                                 'url' => 'InAppNotficationScreen',
+                                'building_id' => $this->record->flatVisitor->building_id,
+                                'flat_id' => $this->record->flatVisitor->flat_id
                             ]),
                             'created_at' => now()->format('Y-m-d H:i:s'),
                             'updated_at' => now()->format('Y-m-d H:i:s'),
