@@ -64,34 +64,43 @@ class OwnerAssociationResource extends Resource
                                         ->exists();
                                 })
                                 ->placeholder('User'),
-                            // TextInput::make('slug')
-                            //     ->label('Slug')
-                            //     ->required()
-                            //     ->rules([
-                            //         'required',
-                            //         'string',
-                            //         'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/',
-                            //         'min:4',
-                            //         'max:30'
-                            //     ])
-                            //     ->validationMessages([
-                            //         'regex' => 'Slug format is Invalid. It can only accept Lowercase letters, Numbers and hyphen'
-                            //     ])
-                            //     ->unique('owner_associations', 'slug', ignoreRecord: true)
-                            //     ->disabled(function () {
-                            //         if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
-                            //             return false;
-                            //         } else {
-                            //             return true;
-                            //         }
-                            //     }),
+                            TextInput::make('slug')
+                                ->label('Slug')
+                                ->required()
+                                ->rules([
+                                    'required',
+                                    'string',
+                                    'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/',
+                                    'min:4',
+                                    'max:30'
+                                ])
+                                ->validationMessages([
+                                    'regex' => 'Slug format is Invalid. It can only accept Lowercase letters, Numbers and hyphen'
+                                ])
+                                ->unique('owner_associations', 'slug', ignoreRecord: true)
+                                ->disabled(function (callable $get) {
+                                    // Get the current operation (create or edit)
+                                    $isCreate = !$get('id'); // if id exists, it's edit operation
+                                
+                                    // If it's create operation, return false (not disabled)
+                                    if ($isCreate) {
+                                        return false;
+                                    }
+                                
+                                    // For edit operation, apply your existing logic
+                                    return Role::where('id', auth()->user()->role_id)
+                                        ->first()->name != 'Admin' && 
+                                        DB::table('owner_associations')
+                                        ->where('slug', $get('slug'))
+                                        ->exists();
+                                }),
                             // TextInput::make('mollak_id')->label('OA Number')
                             //     ->required()
                             //     ->disabled()
                             //     ->placeholder('OA Number'),
                             TextInput::make('trn_number')->label('TRN Number')
                                 ->required()
-                                ->unique()
+                                ->unique(table: 'owner_associations', ignoreRecord: true)
                                 // ->disabled()
                                 ->placeholder('TRN Number'),
                             TextInput::make('phone')
@@ -109,6 +118,7 @@ class OwnerAssociationResource extends Resource
 
                                                 // Users table me phone number ki uniqueness check karna
                                                 if (DB::table('users')->where('phone', $value)->exists()) {
+                                                    dd('ffdf1');
                                                     $fail('The phone is already taken by a user.');
                                                 }
 
@@ -139,7 +149,7 @@ class OwnerAssociationResource extends Resource
                                     }
                                 ])
                                 ->required()
-                                ->live()
+                                // ->live()
                                 ->disabled(function (callable $get) {
                                     return Role::where('id', auth()->user()->role_id)
                                         ->first()->name != 'Admin' && DB::table('owner_associations')
@@ -208,7 +218,7 @@ class OwnerAssociationResource extends Resource
                                     }
                                 ])
                                 ->required()
-                                ->live()
+                                // ->live()
                                 ->disabled(function (callable $get) {
                                     return Role::where('id', auth()->user()->role_id)
                                         ->first()->name != 'Admin' && DB::table('owner_associations')
@@ -231,13 +241,12 @@ class OwnerAssociationResource extends Resource
                                 ->placeholder('Account Number'),
                             Toggle::make('verified')
                                 ->rules(['boolean'])
-                                ->hidden(function ($record) {
-                                    return $record && $record->verified;
-                                }),
+                                ->default(true)
+                                ->hidden()
+                                ->dehydrated(true),
                             Toggle::make('active')
-                                ->label('Active')
-                                ->rules(['boolean'])
-                                ->hidden(Role::where('id', auth()->user()->role_id)->first()->name != 'Admin'),
+                                ->label('Status')
+                                ->rules(['boolean']),
                         ]),
                     ]),
 
@@ -246,10 +255,14 @@ class OwnerAssociationResource extends Resource
                     ->schema([
                         FileUpload::make('trn_certificate')
                             ->disk('s3')
-                            ->directory('dev')
+                            ->directory('owner_associations/trn_certificate')
+                            ->previewable(true)
+                            ->image()
                             ->rules('file|mimes:jpeg,jpg,png,pdf|max:2048')
                             ->maxSize(2048)
                             ->label('TRN Certificate')
+                            ->required()
+                            ->rules('file|mimes:jpeg,jpg,png|max:2048')
                             ->disabled(function (callable $get) {
                                 if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
                                     return DB::table('owner_associations')
@@ -260,10 +273,13 @@ class OwnerAssociationResource extends Resource
                             }),
                         FileUpload::make('trade_license')
                             ->disk('s3')
-                            ->directory('dev')
+                            ->directory('owner_associations/trade_license')
+                            ->previewable(true)
+                            ->image()
                             ->rules('file|mimes:jpeg,jpg,png,pdf|max:2048')
                             ->maxSize(2048)
                             ->label('Trade License')
+                            ->required()
                             ->disabled(function (callable $get) {
                                 if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
                                     return DB::table('owner_associations')
@@ -274,10 +290,13 @@ class OwnerAssociationResource extends Resource
                             }),
                         FileUpload::make('dubai_chamber_document')
                             ->disk('s3')
-                            ->directory('dev')
+                            ->directory('owner_associations/chamber_document')
+                            ->previewable(true)
+                            ->image()
                             ->rules('file|mimes:jpeg,jpg,png,pdf|max:2048')
                             ->maxSize(2048)
                             ->label('Dubai Chamber Document')
+                            ->required()
                             ->disabled(function (callable $get) {
                                 if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
                                     return DB::table('owner_associations')
@@ -288,10 +307,13 @@ class OwnerAssociationResource extends Resource
                             }),
                         FileUpload::make('memorandum_of_association')
                             ->disk('s3')
-                            ->directory('dev')
-                            ->rules('file|mimes:jpeg,jpg,png,pdf|max:2048')
+                            ->directory('owner_associations/memorandum_of_association')
+                            ->previewable(true)
+                            ->image()
                             ->maxSize(2048)
+                            ->rules('file|mimes:jpeg,jpg,png,pdf|max:2048')
                             ->label('Memorandum of Association')
+                            ->required()
                             ->disabled(function (callable $get) {
                                 if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
                                     return DB::table('owner_associations')
@@ -308,6 +330,7 @@ class OwnerAssociationResource extends Resource
                             ->maxSize(2048)
                             ->rules('file|mimes:jpeg,jpg,png|max:2048')
                             ->label('Logo')
+                            ->required()
                             ->disabled(function (callable $get) {
                                 if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
                                     return DB::table('owner_associations')
@@ -436,4 +459,5 @@ class OwnerAssociationResource extends Resource
             // 'custom-page' => \App\Filament\Pages\CustomPage::route('/custom-page'),
         ];
     }
+    
 }
