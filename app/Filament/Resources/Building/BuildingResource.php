@@ -119,6 +119,7 @@ class BuildingResource extends Resource
                         ->label('Floor'),
 
                     Select::make('city_id')
+                        ->label('City') // Add or change the label
                         ->native(false)
                         ->options(function (callable $get) {
 
