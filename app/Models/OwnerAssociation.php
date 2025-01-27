@@ -61,46 +61,46 @@ class OwnerAssociation extends Model
     //         ->saveSlugsTo('slug');
     // }
 
-    public function getRows()
-    {
-        //API
-        $url = '/owner-associations';
-        $owner_associations = GenericHttpService::get($url);
-        // dd($owner_associations);
-        //filtering some attributes
-        if (isset($owner_associations['owner_associations'])) {
-            $owner_associations = Arr::map($owner_associations['owner_associations'], function ($item) {
-                return Arr::only(
-                    $item,
-                    [
-                        'name',
-                        'phone',
-                        'email',
-                        'trn_number',
-                        'address',
-                        'mollak_id',
-                        'verified',
-                        'verified_by',
-                        'active',
-                        'profile_photo',
-                        'bank_account_number',
-                        'trn_certificate',
-                        'trade_license',
-                        'dubai_chamber_document',
-                        'memorandum_of_association',
-                        'slug',
-                        'created_by',
-                        'updated_by',
-                        'resource'
-                    ]
-                );
-            });
+    // public function getRows()
+    // {
+    //     //API
+    //     $url = '/owner-associations';
+    //     $owner_associations = GenericHttpService::get($url);
+    //     // dd($owner_associations);
+    //     //filtering some attributes
+    //     if (isset($owner_associations['owner_associations'])) {
+    //         $owner_associations = Arr::map($owner_associations['owner_associations'], function ($item) {
+    //             return Arr::only(
+    //                 $item,
+    //                 [
+    //                     'name',
+    //                     'phone',
+    //                     'email',
+    //                     'trn_number',
+    //                     'address',
+    //                     'mollak_id',
+    //                     'verified',
+    //                     'verified_by',
+    //                     'active',
+    //                     'profile_photo',
+    //                     'bank_account_number',
+    //                     'trn_certificate',
+    //                     'trade_license',
+    //                     'dubai_chamber_document',
+    //                     'memorandum_of_association',
+    //                     'slug',
+    //                     'created_by',
+    //                     'updated_by',
+    //                     'resource'
+    //                 ]
+    //             );
+    //         });
 
-            return $owner_associations;
-        } else {
-            $owner_associations = [];
-        }
-    }
+    //         return $owner_associations;
+    //     } else {
+    //         $owner_associations = [];
+    //     }
+    // }
 
     public function users()
     {
@@ -174,26 +174,5 @@ class OwnerAssociation extends Model
     public function vendors()
     {
         return $this->belongsToMany(Vendor::class, 'owner_association_vendor')->withPivot(['status']);
-    }
-
-    // public function getProfilePhotoAttribute($value)
-    // {
-    //     return !empty($value) ? Storage::disk('s3')->url($value) : null;
-    // }
-    public function getTradeLicenseAttribute($value)
-    {
-        return !empty($value) ? Storage::disk('s3')->url($value) : null;
-    }
-    public function getDubaiChamberDocumentAttribute($value)
-    {
-        return !empty($value) ? Storage::disk('s3')->url($value) : null;
-    }
-    public function getTrnCertificateAttribute($value)
-    {
-        return !empty($value) ? Storage::disk('s3')->url($value) : null;
-    }
-    public function getMemorandumOfAssociationAttribute($value)
-    {
-        return !empty($value) ? Storage::disk('s3')->url($value) : null;
     }
 }
