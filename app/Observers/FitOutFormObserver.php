@@ -36,6 +36,10 @@ class FitOutFormObserver
                 ->filter(function ($notifyTo) use ($requiredPermissions) {
                     return $notifyTo->can($requiredPermissions);
                 });
+
+                // Get the owner association for URL generation
+                $ownerAssociation = OwnerAssociation::find($oa_id);
+
                 Notification::make()
                 ->success()
                 ->title("New Fitout Form Submission")
@@ -45,12 +49,11 @@ class FitOutFormObserver
                 ->actions([
                     Action::make('view')
                         ->button()
-                        ->url(function() use ($fitOutForm,$oa_id){
-                            $slug = $oa_id?->slug;
-                            if($slug){
-                                return FitOutFormsDocumentResource::getUrl('edit', [$slug,$fitOutForm?->id]);
+                        ->url(function() use ($fitOutForm, $ownerAssociation){
+                            if($ownerAssociation && $ownerAssociation->slug){
+                                return FitOutFormsDocumentResource::getUrl('edit', [$ownerAssociation->slug, $fitOutForm->id]);
                             }
-                            return url('/app/fit-out-forms-documents/' . $fitOutForm?->id.'/edit');
+                            return url('/app/fit-out-forms-documents/' . $fitOutForm->id.'/edit');
                         }),
                 ])
                 ->sendToDatabase($notifyTo);
