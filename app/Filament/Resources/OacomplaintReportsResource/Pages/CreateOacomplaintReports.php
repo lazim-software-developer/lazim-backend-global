@@ -54,8 +54,8 @@ class CreateOacomplaintReports extends CreateRecord
                 'title' => 'Task Assigned',
                 'body'  => 'Task has been assigned',
                 'data'  => ['notificationType' => $code,
-                        'building_id' => $this->record->flatVisitor->building_id,
-                        'flat_id' => $this->record->flatVisitor->flat_id],
+                        'building_id' => $this->record->building_id,
+                        'flat_id' => $this->record->flat_id],
             ];
             $this->expoNotification($message);
         }
@@ -72,8 +72,8 @@ class CreateOacomplaintReports extends CreateRecord
                 'iconColor' => 'warning',
                 'title'     => 'Task Assigned',
                 'view'      => 'notifications::notification',
-                'viewData'  => ['building_id' => $this->record->flatVisitor->building_id,
-                                    'flat_id' => $this->record->flatVisitor->flat_id],
+                'viewData'  => ['building_id' => $this->record->building_id,
+                                    'flat_id' => $this->record->flat_id],
                 'format'    => 'filament',
                 'url'       => $code,
             ]),
